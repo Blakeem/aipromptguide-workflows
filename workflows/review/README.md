@@ -59,7 +59,7 @@ into your project as `aipg/`, gitignore it, and copy the slash commands (see the
 [root README](../../README.md)) — then trigger it two ways:
 
 - **Slash command:** `/aipg-review` — then *"review this repo for production readiness; build is
-  `npm run build`, tests are `npm test`; start with the review phase."*
+  `<your build command>`, tests are `<your test command>`; start with the review phase."*
 - **Plain pointer:** tell Claude to *use the review-cycle **workflow** in `aipg/workflows/review/`* to
   review a target, with your build and test commands.
 

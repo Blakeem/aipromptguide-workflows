@@ -1,92 +1,70 @@
 # upgrade-cycle — operator guide (for Claude)
 
-This repo is a **single self-contained Claude Code Workflow** (`upgrade-cycle.mjs`) that drives **ONE
-breadth-spanning goal** — a migration, version upgrade, framework port, or subsystem refactor — to a
-production-ready, gate-green state across one target git repo. The goal is broken into **ordered
-SECTIONS** (each a bounded, reviewable change), and the engine runs each section through a
-`develop → blind quality review → plan-aware acceptance` loop, **staging each section on accept** so the
-accepted baseline advances section by section.
+`upgrade-cycle.mjs` drives **ONE breadth-spanning goal** — a migration, version upgrade, framework port,
+or subsystem refactor — to a gate-green state in one target git repo, by decomposing it into ordered
+**sections** (each a bounded, reviewable change) and running each through `develop → blind quality →
+plan-aware acceptance`, **staging each section on accept** so the baseline advances section by section.
+Multi-section sibling of `feature-cycle`: same roles + contracts, plus the section loop and per-section
+staging. Built to `../../principles/WORKFLOW-PRINCIPLES.md` (the `#N` markers below); follow those before
+changing the engine.
 
-> **Design law:** this engine is built to a strict set of workflow principles (lean, file-bus, no
-> busy-work agents — `../../principles/WORKFLOW-PRINCIPLES.md`); the `#N` markers below refer to them. It is the
-> **multi-section sibling of `feature-cycle`** (which builds ONE bounded feature). The only structural
-> difference is the section loop + per-section staging; every role and contract is shared. Follow the
-> principles before changing the engine.
+## 1. Scope (check FIRST)
 
-## Scope — is this the right tool? (check FIRST)
+Right size: one coherent goal spanning **many call sites / files**, big enough to need decomposition into
+sections that are each roughly feature-sized. Too small (one feature → `feature-cycle`; one-liner/rename
+→ just edit). Not one goal (several unrelated features) → `feature-cycle` once each. Wrong size → say so
+and steer the user.
 
-- ✅ **Right size:** one coherent goal that spans **many call sites / files** — migrate a data model,
-  upgrade a language/runtime version, port a framework, refactor a subsystem. Big enough that it must be
-  **decomposed into sections**, each of which is itself roughly a feature-sized change.
-- ❌ **Too small:** a single bounded feature (one MCP tool, one endpoint, one form) → use the sibling
-  **`feature-cycle`**. A one-liner / rename / config flip → just make the edit directly.
-- ❌ **Not one goal:** several unrelated features → run `feature-cycle` once per feature instead.
+## 2. The flow
 
-If a request is really a single feature or a trivial edit, say so and steer the user to `feature-cycle`
-or a direct edit rather than forcing it through here.
+Pick a `runId` now; reuse it. Loads by path: `scriptPath` = the absolute path to `upgrade-cycle.mjs`,
+plus the phase args. Drive in order:
 
-## The canonical flow (memorize this — it is the whole job)
+1. **`EnterPlanMode`** (read-only). Explore the repo (plan mode runs Explore/Plan subagents for you) and
+   **grep the WHOLE change surface** (every occurrence of the pattern/API/symbol — this is what makes the
+   decomposition complete), `AskUserQuestion` for ambiguities, and write the plan as `## Section:` blocks
+   (§5) into the plan-mode file. **Order sections by dependency** (a producer before its consumers) —
+   array order IS execution order.
+2. **`ExitPlanMode`** — user approves (the human gate; also leaves read-only mode).
+3. **`phase:"refine"`** (MANDATORY, same `runId`) with `planPath` = the **full absolute path** (not `~`).
+   The opus Plan Critic re-greps the surface, verifies every section against the code, and **returns**
+   `gaps`/`questions`/`too_big` in the result.
+4. **Fold the feedback in:** fix gaps in the plan (add/split/reorder `## Section:` blocks); relay each
+   question via `AskUserQuestion`; `too_big:true` → split the named section. **Then update your
+   `sections` list to match the final plan.**
+5. **Prep, then run** (§4): clean the tree, then **`phase:"run"`** (same `runId`, `planPath`, plus
+   `sections`) — the per-section `develop → quality → acceptance` loop.
+6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-*.md`, surface
+   `NEEDS-USER.md` + `SWEEP.md`, tell the user what to review. **Never commit.**
 
-The engine is NOT in any name registry, so every `Workflow` call loads it **by path**: pass
-`scriptPath` = the absolute path to `upgrade-cycle.mjs`, alongside the phase args. Pick a `runId` now and
-reuse it for every phase. Then drive, in order:
+## 3. The `sections` list (the one new arg vs feature-cycle)
 
-1. **`EnterPlanMode`.** Plan mode is READ-ONLY and gives you a plan-file path in its system message
-   (`~/.claude/plans/<random-words>.md`). Explore the target repo (plan mode runs Explore/Plan subagents
-   for you), **grep the WHOLE change surface** (every occurrence of the pattern/API/symbol the goal
-   touches — this is what makes the decomposition complete), `AskUserQuestion` for anything ambiguous,
-   and **write the plan as a series of `## Section:` blocks** (shape below) INTO that plan-mode file.
-   Order the sections by **dependency** (a producer before its consumers) — array order IS the
-   execution order; there is no separate dependency graph.
-2. **`ExitPlanMode`** — present the plan; the user approves. The human approval gate; also leaves
-   read-only mode so writes/tools are allowed again.
-3. **Run `Workflow` `phase:"refine"`** (MANDATORY — same `runId`) with `planPath` = the **full absolute
-   path** the plan-mode system message gave you (NOT a `~` shorthand — the engine doesn't expand `~`).
-   The opus Plan Critic re-greps the real surface, verifies **every section** against the code, and
-   **returns** `gaps` / `questions` / `too_big` **in the tool result** (writes no file). Refine runs
-   HERE, after approval.
-4. **Fold the feedback in:** fix every gap directly in the plan file (add/split/reorder `## Section:`
-   blocks as needed); relay each question to the user with `AskUserQuestion` and fold the answers in. If
-   `too_big:true`, split the named section. **Then update your `sections` list to match the final plan.**
-5. **Prep, then run.** Ensure the target repo's **unstaged working tree is clean** (see *Pre-run setup*),
-   then run `Workflow` `phase:"run"` (same `runId`, same `planPath`, plus `sections`) — the per-section
-   `develop → quality → acceptance` loop.
-6. **Verify ground truth YOURSELF** (see below), read the numbered review files + `DISMISSED-*.md`,
-   surface `NEEDS-USER.md` and `SWEEP.md`, tell the user what to review. **Never commit.**
+`phase:"run"` requires **`sections`**: an **ordered** array `[{ id, title, gate }]` you extract from the
+approved plan:
+- **`id`** — a stable kebab slug matching a `## Section: <id>` header. The ONLY routing key; the body is
+  read verbatim from the file (#1/#2 — never transcribed).
+- **`title`** — logs/labels only.
+- **`gate`** — `green` | `red-baseline` | `build-only` (§6). The harness can't read the plan, so this
+  knob travels as control.
 
-## The `sections` control list (the one new arg vs feature-cycle)
+Everything else (`test_selector`, …) stays in the plan body. Order = dependency order.
 
-`phase:"run"` requires **`sections`**: an **ordered** array of thin control objects you extract from the
-approved plan — `[{ id, title, gate }]`:
-- **`id`** — a stable kebab slug matching a `## Section: <id>` header in the plan file. This is the ONLY
-  thing that routes an agent to its section; the section BODY is read verbatim from the file (#1/#2 — the
-  id is control, the body is content, never transcribed).
-- **`title`** — for logs/labels only.
-- **`gate`** — `green` | `red-baseline` | `build-only` (semantics below). Drives the harness's gate
-  branch; the harness can't read the plan, so this knob must travel as control.
+## 4. Pre-run setup (your job — no setup agent, #4)
 
-`test_selector` and everything else stay in the plan body (read verbatim). Order = dependency order.
+Before `phase:"run"`:
+- **Clean the unstaged tree** (`git -C <repo> diff` empty before kicking off, or before a resume of the
+  first not-yet-started section). Staged work from a prior accepted section is the correct baseline.
+- **`root` — REQUIRED** (both phases): the tool's own directory so `runs/` lands beside the tool, not in
+  the target repo. Omit it → the engine errors.
+- **Each section's `gate`** from its plan `gate:` line (mechanical/testless → `build-only`).
+- **Fresh vs. resume.** `DISMISSED-*.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
+  genuinely new run; **preserve** it on resume.
 
-## Pre-run setup (YOUR job — the engine has no setup agent)
+## 5. Plan-file shape (you write it; agents read it VERBATIM, #2)
 
-Principle #4: all setup happens out here, before run, never via an in-engine "busy-work" agent.
-
-- **Clean the unstaged working tree.** Section 1's blind reviewer reviews *the unstaged diff*, so at the
-  start the tree must hold nothing but (eventually) that section's work. Already-staged work from a prior
-  accepted section is the correct baseline; just make sure `git -C <repo> diff` (unstaged) is empty
-  before kicking off (or before a resume of the first not-yet-started section).
-- **Pass `root` — REQUIRED** (both phases). The absolute base run-state hangs off; normally the workflow
-  tool's own directory (so `runs/` lands beside the tool, not in the target repo). Omit it and the engine
-  errors (it no longer auto-detects cwd — #4).
-- **Set each section's `gate`** from its plan `gate:` line. Mechanical/testless sections → `build-only`.
-- **Fresh vs. resumed `runs/<runId>/`.** `DISMISSED-*.md`, `NEEDS-USER.md` are cumulative. For a
-  **genuinely new** run, clear `runs/<runId>/`. On a **resume**, **preserve** it.
-
-## The plan-file shape (you write this; agents read it VERBATIM)
-
-Plain markdown. The engine does **NOT** parse section bodies — the developer and acceptance verifier
-**read the file itself, verbatim** (#2), locating their section by its `## Section: <id>` header. The
-blind quality reviewer is **never given this file** (#3). One block per section, in dependency order:
+Plain markdown. The engine does **NOT** parse section bodies — agents locate their section by its
+`## Section: <id>` header. The blind quality reviewer never sees it (#3). One block per section,
+dependency order:
 
 ```markdown
 ## Section: <section-id> — <title>
@@ -114,155 +92,115 @@ details: exactly how to run/scope it for THIS section.
 
 **Right-size sections.** Each pays a full develop→quality→acceptance loop (~hundreds of k tokens). Target
 ~1–6 files / one ~150k-token develop pass. Fold trivial changes into a neighbor; split anything too big
-(`refine` flags `too_big`). You MAY combine a feature's failing-test authoring and its conversion into
-ONE `green` section when small enough — reserve a separate `red-baseline` section for large/risky
-features whose failing spec is worth reviewing before conversion.
+(refine flags `too_big`). You MAY combine a small feature's failing-test authoring + conversion into ONE
+`green` section; reserve a separate `red-baseline` section for large/risky features whose failing spec is
+worth reviewing before conversion.
 
-## The roles (all in the engine)
+## 6. Roles, loop & gate semantics
 
-The JS **conductor** sequences these `agent()` calls; it passes only control signals (a section id, a
-round number, a verdict), never re-interprets content (#1). Each agent is fresh, returns one decision,
-is destroyed.
+Roles mirror feature-cycle (the conductor passes only control signals, #1; agents fresh + throwaway):
+- **Plan Critic** (refine · opus) — re-greps the surface, verifies every section's files + integration
+  points + ordering; returns gaps/questions/too_big.
+- **Developer** (run · opus) — reads its `## Section:` block + the latest flagging review verbatim;
+  implements ONLY that section, **converts every call site it owns**, runs the section gate, leaves work
+  **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`, user-only → `NEEDS-USER.md` (halts on a
+  hard blocker).
+- **Quality Reviewer** (run · sonnet) — **blind**; reviews ONLY the unstaged diff for introduced
+  production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
+- **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria, reachability, the section
+  gate, regression vs the staged baseline. Writes `acceptance-review-<id>-rN.md`. Only agent that stages,
+  on pass — the baseline advances.
+- **Sweep** (after the final section · sonnet) — whole-goal check: re-greps the surface, runs the FULL
+  gates, spot-checks the staged diff, writes `SWEEP.md`.
 
-- **Plan Critic** (`refine` only · opus) — adversarial, read-only. Re-greps the WHOLE surface, verifies
-  every section's file list + integration points + ordering, returns gaps/questions/too_big. Writes
-  nothing.
-- **Developer** (run loop · opus) — reads its `## Section:` block verbatim + the latest review that
-  flagged issues; implements ONLY that section, **converts every call site it owns**, runs the section
-  gate, leaves work **UNSTAGED**. Owns the **decision matrix**: fixes what's real, logs declines tersely
-  to the section's `DISMISSED-<id>.md`, escalates a user-only call to `NEEDS-USER.md` (halting only on a
-  hard blocker). Writes no "what I did" report.
-- **Quality Reviewer** (run loop · sonnet) — a **blind pure-code critic**: given NO plan/goal, reviews
-  ONLY the unstaged diff for introduced production-blocking defects. Reads the section's settled-decisions
-  files so it doesn't re-spin, but **never** prior review files. Writes `quality-review-<id>-rN.md`. Must
-  be clean to proceed.
-- **Acceptance Verifier** (run loop · opus) — the **plan-aware** section gate. Reads the section; checks
-  its acceptance criteria, reachability, the section gate, and **regression** vs the staged baseline.
-  Writes `acceptance-review-<id>-rN.md`. On pass, it is the **only** agent that stages (`git add`) — the
-  baseline advances.
-- **Sweep** (after the final section · sonnet) — independent whole-goal completeness check: re-greps the
-  surface, runs the FULL gates, spot-checks the staged diff, writes `SWEEP.md`.
+**Loop**, per section in order: `develop → quality (blind, must be clean) → acceptance (plan-aware;
+stages on pass)`, up to `maxRounds` (default 4). Any code change re-enters at quality. **A section that
+does NOT accept HALTS the whole run** — the next section's blind diff must be clean, so you cannot start
+it while this section's work is unstaged. Resume re-runs that section on its persisted unstaged work.
 
-There is **no** Loader, Scribe, Decompose, Triage, or baseline-prep agent — decomposition + approval
-happened in plan mode; git staging + the review-file trail are the progress; the developer owns the
-matrix.
-
-## How the loop runs
-
-For each section in order, `develop → quality (blind, must be clean) → acceptance (plan-aware; stages on
-pass)`, up to `maxRounds` (default 4):
-
-1. **Develop.** Round 1 starts on the clean baseline; later rounds build on the section's own unstaged
-   work, addressing the one review file it's handed. Runs the gate before handing off.
-2. **Quality review.** Blind. Production-blocking defects send the developer back to
-   `quality-review-<id>-N.md`. **Any code change re-enters here.** (Skipped only when the developer
-   produced no files — acceptance still judges the section.)
-3. **Acceptance review.** Only after quality is clean. Checks criteria + reachability + regression + the
-   section gate. On pass it **stages** the section and the loop moves to the next section.
-
-**A section that does NOT accept HALTS the whole run.** This is the key multi-section contract: because
-the next section's blind diff must be clean, you cannot start it while the current section's work is
-unstaged. A round-budget exhaustion, a hard blocker, or a "passed-but-verifier-didn't-stage" all halt;
-resume re-runs that section on its persisted unstaged work.
-
-**Gate semantics** (per section — the suite may be intentionally RED mid-migration, so "done" is judged
-on the section's OWN selector, never whole-suite-green):
+**Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
+the section's OWN selector, never whole-suite-green):
 - `green` — build passes AND this section's selector tests RAN and PASSED (`tests_run_count==0` = a false
   green, fails the gate).
-- `red-baseline` — build passes AND the authored tests FAIL for the expected reason (TDD red step; the
-  failing test IS the spec a later conversion satisfies — a valid, stageable "done").
-- `build-only` — build passes; no test pass/fail requirement (mechanical/testless sections).
-Build (lint/compile) must ALWAYS pass. Whole-suite regression is the acceptance verifier's job (it
-compares against the staged baseline), not the scoped gate.
+- `red-baseline` — build passes AND the authored tests FAIL for the expected reason (TDD red step; a
+  valid, stageable "done").
+- `build-only` — build passes; no test pass/fail requirement (mechanical/testless).
+Build (lint/compile) must ALWAYS pass. Whole-suite regression is the acceptance verifier's job (vs the
+staged baseline), not the scoped gate. `args.gates.build`/`test` are literal shell commands — the
+per-stack adapter, the only thing that changes between stacks.
 
-**Anti-spin contract (#5).** The developer records each declined finding as one terse line in the
-section's `DISMISSED-<id>.md`; reviewers **skip settled items for the stated reason**. The blind quality
-reviewer may raise a wrong dismissal once as `CONTESTS DISMISSAL:`; the developer must then **fix or
-escalate it — never silently re-dismiss**. The acceptance verifier is a second backstop via its plan-aware
-OVERRIDE: a dismissed item that actually breaks a criterion or regresses fails acceptance regardless of
-the ledger.
+**Anti-spin (#5).** Declines → one terse line in the section's `DISMISSED-<id>.md`; reviewers skip
+settled items for the stated reason. A wrong dismissal → `CONTESTS DISMISSAL:` once; the developer must
+fix or escalate, never silently re-dismiss. Keep the two-stage review separate; never hand the plan to
+the quality reviewer.
 
-## The contracts that make it safe — keep them intact
+## 7. Verify ground truth yourself
 
-- **Staging = the section boundary; staging happens per accepted section** (a deliberate deviation from
-  feature-cycle's single end-stage, #9 — forced because the baseline must advance for each section's diff
-  to be clean). Staged index/HEAD = accepted baseline; the unstaged tree = the current section's work
-  (the reviewers' scope). Only the acceptance verifier stages, only on pass. **Nothing is ever committed
-  — the user commits.**
-- **Gates are the per-stack adapter.** `args.gates.build` / `args.gates.test` are literal shell commands
-  — the only thing that changes between a PHP app and a TS app. `build` must ALWAYS pass.
-- **Two-stage review = blind then plan-aware.** Quality is a blind production-blocking-only code critic;
-  acceptance is the plan-aware criteria + reachability + regression gate. The blindness is deliberate
-  de-biasing (#5) — keep them separate, and never hand the plan to the quality reviewer.
+The engine reports `status`/`sectionsDone`/`ledger`/`sweep`. Confirm:
+- Run the gates for real; each accepted section's selector is green (and the full suite, if the goal
+  expects green at the end).
+- `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
+- Grep each section's integration points — reachable, conversions complete (no call site on the old
+  path).
+- Read the latest `acceptance-review-<id>-N.md` per section; **audit every `DISMISSED-<id>.md`**.
+- Read `SWEEP.md` (evidence, not a substitute for your own check); surface `NEEDS-USER.md`.
 
-## Resume after a stop (no progress file by design — #6/#10)
+## 8. Resume (no progress file by design, #6/#10)
 
-Durable progress = **git staging** (each accepted section is staged) + the **numbered review-file trail**
-+ the **ordered plan**. There is no `progress.json` or ledger file. To resume:
-1. Read the trail in `runs/<runId>/` and `git -C <repo> diff --cached --stat` to see which sections are
-   already staged/accepted and which is in-flight (its work sits **unstaged**).
-2. If the halt was a hard blocker, read `NEEDS-USER.md` / the section's latest review file and resolve it
-   with the user.
-3. Re-invoke `phase:"run"` with the same args **plus `startAt:"<first not-yet-accepted section id>"`**
-   (or `runOnly:[ids]` for an explicit subset). The engine starts there; the in-progress unstaged work
-   persists and the next developer builds on it. (A partial slice via `startAt`/`runOnly` skips the final
-   sweep — run the full list once at the end to get it.)
+Durable progress = git staging + the numbered review-file trail + the ordered plan.
+1. Read the trail + `git -C <repo> diff --cached --stat` to see which sections are staged/accepted and
+   which is in-flight (its work sits **unstaged**).
+2. Hard blocker → read `NEEDS-USER.md` / the section's latest review, resolve with the user.
+3. Re-invoke `phase:"run"` with the same args **plus `startAt:"<first not-yet-accepted section id>"`** (or
+   `runOnly:[ids]` for an explicit subset). In-progress unstaged work persists; the next developer builds
+   on it. A partial slice via `startAt`/`runOnly` skips the final sweep — run the full list once at the
+   end to get it.
 
-Use `runOnly:[firstFewIds]` to run a cheap first slice (the harness + first section) before committing to
-the whole goal.
+Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the whole goal.
 
-## Verify ground truth YOURSELF — do not trust the ledger blindly
+## 9. Gotchas
 
-When run returns, the engine reports `status` / `sectionsDone` / `ledger` / `sweep`. Confirm it:
-- Run the gates in the real environment. Confirm each accepted section's selector is actually green (and,
-  if the goal expects a green suite at the end, that the full suite is green).
-- `git -C <repo> diff --cached` — inspect everything staged; `git status --porcelain` + read new files
-  (`git diff` omits brand-new files).
-- Confirm each section is **reachable** — grep its integration points yourself; confirm conversions are
-  complete (no call site left on the old path).
-- Read the latest `acceptance-review-<id>-N.md` per section and **audit every `DISMISSED-<id>.md`**.
-- Read `SWEEP.md` (the whole-goal completeness check) — evidence, not a substitute for your verification.
-- Surface anything in `NEEDS-USER.md`.
+- **Verify what the runner actually ran.** Some test runners silently ignore extra path args, so a
+  multi-file selector runs only the first file and gives a false green. The engine fails the gate on
+  `tests_run_count==0` for a green section — sanity-check it; scope one file per invocation or use the
+  runner's filter.
+- **`git diff` omits new files** — also `git status --porcelain` + read them.
+- **Custom `agentTypes` must exist** in the user's registry — defaults use the standard subagent.
+- **A "passed but not staged" section halts on purpose** (so the next section's diff isn't corrupted) —
+  stage its files yourself (`git add`), resume from the NEXT section.
+- **A halt is usually** a bad gate command, a missing dependency the plan assumed (a consumer before its
+  producer — reorder the plan), or a real design question. Fix the root cause, resume from that section.
+- **`too_big`** → split the named section, update `sections`, re-run refine.
+- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
+  dir, relocate the stray state, re-run.
 
-## Gotchas burned in from real runs
+## 10. State files (`runs/<runId>/`, gitignored)
 
-- **Verify what the test runner actually ran.** Some runners silently mislead (e.g. PHPUnit 4.x runs only
-  the FIRST path arg → a multi-file selector gives a false green). The engine fails the gate when
-  `tests_run_count==0` for a green section, but sanity-check the count yourself. Run one file per
-  invocation or use `--filter`.
-- **`git diff` omits brand-new files.** When verifying, also use `git status --porcelain` and read new
-  files. (The engine handles this for reviewers via `git add -N`; you must too.)
-- **Custom `agentTypes` must exist in the user's registry.** Defaults use the standard workflow subagent,
-  which always works. Only pass agentTypes the user actually has.
-- **Halts are recovery loops, not failures.** A halt is usually a bad gate command, a missing dependency
-  the plan assumed (a consumer section before its producer — reorder the plan), or a real design question.
-  Fix the root cause, then resume from that section.
-- **A section that "passed but wasn't staged" halts on purpose.** If the verifier reports `pass` but
-  didn't stage, the engine stops rather than corrupt the next section's diff. Stage the section's files
-  yourself (`git add`), then resume from the NEXT section.
-- **`refine` says `too_big`?** Split the named section in the plan, update `sections`, re-run refine.
-- **Stray `runs/` inside the target repo** = you passed a `root`/`stateDir` pointing into the target repo.
-  Pass `root` = the tool's own directory; relocate the stray state; re-run.
+The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
+are its only non-code output. No `tasks.json`/`progress/`/`LEDGER.md`/`CHANGELOG.md`/`PLAN-REVIEW.md`.
+- `quality-review-<id>-rN.md` — blind findings for section `<id>`, round N.
+- `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
+- `DISMISSED-<id>.md` — the section's declined findings, one terse line each; **you audit before
+  committing.**
+- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run.
+- `SWEEP.md` — the final whole-goal completeness sweep.
 
-## State files (under `runs/<runId>/`, gitignored)
+Report when done: status + which sections are done, the suite result (you ran it), each section wired in
+/ fully converted, what's staged, `NEEDS-USER.md`, the latest acceptance verdicts, anything in a
+`DISMISSED-<id>.md` worth a second look, the `SWEEP.md` result. **Never commit** — tell the user to
+review `git diff --cached` and commit.
 
-The numbered review files ARE the inter-agent messages and the progress trail; the developer's two file
-kinds are its only output besides code. There is **no** `tasks.json`, `progress/`, `LEDGER.md`,
-`CHANGELOG.md`, or `PLAN-REVIEW.md` (refine returns its findings in the tool result).
+## 11. Args reference
 
-- `quality-review-<id>-rN.md` — the blind critic's findings for section `<id>`, round N.
-- `acceptance-review-<id>-rN.md` — the plan-aware per-criterion table + reachability + regression + gate
-  result for section `<id>`, round N.
-- `DISMISSED-<id>.md` — the developer's terse ledger of declined findings for section `<id>` (one line
-  each, with a reason). **You audit these before committing.**
-- `NEEDS-USER.md` — full, self-contained notes for the user: blockers/questions/decisions (GLOBAL,
-  cumulative). A hard blocker here also halted the run.
-- `SWEEP.md` — the final whole-goal completeness sweep: full-suite result + any goal-coverage gaps.
-
-## When you're done
-
-Report: status + which sections are done, the suite result (run it yourself), that each section is
-actually wired in / fully converted, what's staged, anything in `NEEDS-USER.md`, the latest
-`acceptance-review-<id>-N.md` verdicts, anything in a `DISMISSED-<id>.md` worth a second look, and the
-`SWEEP.md` result. **Never commit** — tell the user what to review (`git diff --cached`) and let them
-commit.
+Full schema + defaults: the Config block atop `upgrade-cycle.mjs` (the canonical source). Pass `args`
+inline to `Workflow`.
+- **Required:** `runId` · `root` (§4) · `planPath` (absolute) **or** `plan` (inline markdown) ·
+  `sections` (§3, for `phase:"run"`) · `target.repo` (absolute path to the git repo) · `gates.build` +
+  `gates.test` (shell commands; non-zero exit = fail).
+- **Optional:** `phase` (`refine`|`run`, default `run`) · `conventions` (the developer's rubric —
+  language/version constraints, what stays additive, what NOT to touch; the blind reviewer is never shown
+  it) · `reference` (path to a completed example to mirror) · `gates.testSetup` (runner quirks, how to
+  scope one test, run-as-user/container prefix) · `target.lang`/`target.framework` (hints) · `maxRounds`
+  (4) · `models` (per-role tier: develop/quality/acceptance/refine/sweep) · `agentTypes` (custom subagent
+  per role — must exist in your registry) · `stateDir` (override `runs/<runId>`) · `runOnly`/`startAt`
+  (§8, scope a partial slice).

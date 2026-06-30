@@ -51,7 +51,8 @@ into your project as `aipg/`, gitignore it, and copy the slash commands (see the
 [root README](../../README.md)) — then trigger it two ways:
 
 - **Slash command:** `/aipg-upgrade` — then *"migrate the data model in this repo; build is
-  `npm run build`, tests are `npm test`; plan it first so I can review the breakdown."*
+  `<your build command>`, tests are `<your test command>`; plan it first so I can review the
+  breakdown."*
 - **Plain pointer:** tell Claude to *use the upgrade-cycle **workflow** in `aipg/workflows/upgrade/`*,
   describe the goal, and give your build and test commands.
 

@@ -15,10 +15,12 @@
 // Flags:
 //   --repo <path>       target git repo (default: cwd). All manifest paths are relative to it.
 //   --src <dirs>        comma-separated source dirs under the repo to scan (default: src)
-//   --ext <exts>        comma-separated file extensions to include (default: .ts,.tsx,.js,.mjs)
-//   --skip <regex>      filename regex to exclude (default: \.d\.ts$|\.min\.)
-//   --exclude <dirs>    comma-separated directory names to skip anywhere
-//                       (default: node_modules,dist,build,out,vendor,coverage,.git)
+//   --ext <exts>        comma-separated source extensions to include (default: a broad
+//                       multi-language set; pass --ext to scope it to just your stack)
+//   --skip <regex>      filename regex to exclude (default: generated/minified JS markers —
+//                       harmless on other stacks; override for your own generated-file pattern)
+//   --exclude <dirs>    comma-separated directory names to skip anywhere (default: common
+//                       dependency/build dirs across ecosystems)
 //   --cap-loc <n>       max LOC per multi-file unit before splitting (default: 800)
 //   --cap-files <n>     max files per multi-file unit before splitting (default: 6)
 //   --big-file <n>      a single file this big gets reviewed alone (default: 700)
@@ -39,9 +41,9 @@ const opt = parseArgs(process.argv.slice(2));
 
 const REPO      = resolve(opt.repo ?? '.');
 const SRC_DIRS  = (opt.src ?? 'src').split(',').map((s) => s.trim()).filter(Boolean);
-const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.mjs').split(',').map((s) => s.trim()).filter(Boolean);
+const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.go,.rs,.java,.kt,.rb,.php,.cs,.cpp,.cc,.c,.h,.hpp,.swift,.scala').split(',').map((s) => s.trim()).filter(Boolean);
 const SKIP_RE   = new RegExp(opt.skip ?? String.raw`\.d\.ts$|\.min\.`);
-const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git').split(',').map((s) => s.trim()));
+const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git,target,__pycache__,.venv,venv,.tox,.gradle').split(',').map((s) => s.trim()));
 const CAP_LOC   = Number(opt['cap-loc'] ?? 800);
 const CAP_FILES = Number(opt['cap-files'] ?? 6);
 const BIG_FILE  = Number(opt['big-file'] ?? 700);
