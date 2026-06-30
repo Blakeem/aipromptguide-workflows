@@ -1,0 +1,25 @@
+{
+  "phase": "plan",
+  "runId": "myapp-newid",
+  "goal": "Migrate the CakePHP app to support a NEW identifier alongside the legacy one. The database is ALREADY migrated (both columns exist, the new one nullable). Records may have legacy-only, new-only, or both. The app must read/write both, prefer the new identifier where present and fall back to the legacy one, and display both in the UI. Build unit/integration tests for the key/risky features FIRST (they will be RED because the DB is migrated but the code is not), then convert feature-by-feature until green. Do NOT rewrite existing legacy business logic — add the new path in parallel (regression risk). A sibling app already completed the identical migration; mirror its structure but adapt to this app's idioms.",
+  "target": { "repo": "/Users/you/work/webapps/myapp", "lang": "php", "framework": "cakephp3" },
+  "reference": "/Users/you/work/webapps/sibling-already-migrated",
+  "conventions": "CakePHP 3.x idioms (Table finders, Controller Components, Entity getters, Template/ views). PHP 5.5 compatible — no PHP 7+ syntax. Table classes KEEP the legacy finder AND add an identifier-agnostic finder (new-first, legacy-fallback). Additive only — never change/delete existing legacy-path behavior. Reuse existing helpers; no new dependencies. Match the reference app's migration style, but preserve THIS app's method shapes where they differ.",
+  "gates": {
+    "build": "docker exec -u www-data myapp-web bash -c 'cd /var/www/myapp && find src -name \"*.php\" -print0 | xargs -0 -n1 -P4 php -l >/dev/null'",
+    "test": "docker exec -u www-data myapp-web bash -c 'cd /var/www/myapp && vendor/bin/phpunit'",
+    "testSetup": "Tests run inside the docker container as the www-data user (a root-owned cache breaks the web server). Mirror the reference app's committed test harness (phpunit vendored under vendor/, tests/ tree, fixtures) rather than running composer in the container. Use a SEPARATE test database, never the live one. CRITICAL: PHPUnit 4.x's CLI runs ONLY THE FIRST path argument and ignores the rest — if a test_selector lists multiple files, run phpunit ONCE PER FILE (all must pass) or use --filter; never pass several paths in one invocation (false green). The whole suite stays intentionally RED until the migration completes — only a task's own selector must be green."
+  },
+  "seed": [
+    "Stand up the phpunit harness mirroring the reference app (vendor phpunit, tests/bootstrap.php, fixtures); prove it with a trivial passing sanity test (gate green).",
+    "For each risky feature (identity read, app-DB lookup, warehouse/joined lookups, user provisioning, UI display): combine its failing test + its conversion into ONE test-first task (write the failing test, then implement until green).",
+    "Capture the new identifier in the audit log (additive, build-only).",
+    "Wire controllers + view helper + templates to the dual-identifier flow and display both identifiers."
+  ],
+  "baselineNote": "The target's config/app.php is locally patched to point at the docker DB; an untracked CLAUDE.md may exist. Fold the tracked config patch into the staged baseline (we never commit it); ignore the untracked file.",
+  "fixSeverity": "high",
+  "reviewSeverity": "high",
+  "maxRounds": 3,
+  "maxResearch": 2,
+  "models": { "planner": "opus", "research": "sonnet", "develop": "opus", "review": "sonnet", "scribe": "sonnet" }
+}

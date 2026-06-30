@@ -1,0 +1,14 @@
+{
+  "phase": "build",
+  "runId": "add-search-docs-tool",
+  "root": "/Users/you/tools/feature-cycle",
+  "target": { "repo": "/Users/you/work/my-mcp-server", "lang": "ts", "framework": "mcp-sdk" },
+  "conventions": "TypeScript strict. Each tool lives in src/tools/<name>.ts exporting a Tool definition (zod input schema + handler) and is registered in src/tools/index.ts. Validate inputs with zod; return structured content. Match the existing error-handling pattern (throw McpError). No new deps without reason.",
+  "gates": {
+    "build": "npm run build && npm run lint",
+    "test": "npm test",
+    "testSetup": "Vitest. Scope one file with `npm test -- src/tools/searchDocs.test.ts`. MCP-level smoke check available via `npx @modelcontextprotocol/inspector --cli node dist/index.js` once built."
+  },
+  "gate": "green",
+  "plan": "## Feature\nAdd a `search_docs` MCP tool that full-text-searches the local docs index and returns the top N matching sections with file path + heading + snippet. Backend logic with a clear contract, so it is TDD/unit-tested.\n\n## Acceptance Criteria\n- Calling `search_docs` with `{ query: string, limit?: number }` returns up to `limit` (default 5) results, each `{ path, heading, snippet, score }`, ordered by descending score.\n- An empty/whitespace query returns an McpError (invalid params), not an empty success.\n- `limit` is clamped to 1..20.\n- The tool appears in the server's advertised tool list (registered).\n\n## Integration Points\n- Registered in src/tools/index.ts so it shows up in ListTools.\n- Exported from src/tools/searchDocs.ts.\n\n## Implementation Steps\n1. Add src/tools/searchDocs.ts: zod input schema, handler that queries the existing src/lib/docIndex.ts, maps hits to the result shape, clamps limit, throws McpError on empty query.\n2. Register it in src/tools/index.ts alongside the other tools.\n3. Author src/tools/searchDocs.test.ts covering: happy path ordering, default + clamped limit, empty-query error.\n\n## Files\n- src/tools/searchDocs.ts\n- src/tools/index.ts\n- src/tools/searchDocs.test.ts\n\n## Test Strategy\nkind: tdd\nunit: true\nmethod: unit\ndetails: Write the vitest spec first (it should fail), then implement until `npm test -- src/tools/searchDocs.test.ts` is green. Then run the full `npm test` to confirm no regression. Optionally smoke-check registration with the MCP inspector CLI.\n\n## Gate\ngreen"
+}
