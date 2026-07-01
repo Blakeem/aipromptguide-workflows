@@ -137,6 +137,22 @@ that content in one canonical place.)
 
 ---
 
+## Scope — which principles apply to which workflow kind
+
+Principles #1–4, #6, #8, #11, #12, #13 are **core** — every workflow honors them. The rest are
+**build-loop** rules and apply only where they fit:
+
+- **Build loops** (produce code — feature/review/upgrade) honor everything, including the staged
+  escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
+- **Generative & read-only workflows** (creative divergence, information gathering — e.g. brainstorm,
+  research) write **no code**, stage nothing, and **never commit**, so #7 and #9 don't apply. The user
+  is the judge; there is no AI review gate unless the workflow genuinely needs one.
+- **Convergence workflows** (the AI reaches a conclusion — e.g. decide) DO run a review loop in the
+  spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the requirements
+  it's judged against, because a reviewer blind to the decision can't evaluate it. Blindness (#3) guards
+  against *code-regression* anchoring; it is wrong for *evaluating an argument*. Such a loop converges
+  when reviewer and decider agree against a fixed requirements rubric, bounded by `maxRounds`.
+
 ## Mechanics that follow from these
 
 - **How files iterate.** The harness tracks the round number and hands each reviewer the exact output

@@ -5,9 +5,10 @@ dynamic workflows** — the prompts and orchestration that *guide the AI* throug
 plus the shared design principles they're all built to.
 
 Each workflow is a background **Workflow engine** (a `.mjs` script) paired with a `CLAUDE.md` operator
-guide. The guide is the prompt: it drives **plan mode** and the human approval gate *outside* the
-engine, then runs the engine to do the work — test-verified, wired in, and staged for you to commit
-(**nothing is ever committed for you**).
+guide. The guide is the prompt: it drives **plan mode** and the human approval gate *outside* the engine,
+then runs the engine to do the work. The **build** workflows leave the result test-verified, wired in,
+and staged for you to commit; the **generative** ones leave cited files for you to use — either way
+**nothing is ever committed for you**.
 
 ## The workflows
 
@@ -16,8 +17,13 @@ engine, then runs the engine to do the work — test-verified, wired in, and sta
 | **[feature](workflows/feature/)** | `/aipg-feature` | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve. |
 | **[review](workflows/review/)** | `/aipg-review` | Read-only **production-readiness review** of a repo or change → triaged issues → batched fixes. |
 | **[upgrade](workflows/upgrade/)** | `/aipg-upgrade` | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes. |
+| **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine — no AI verdict. |
+| **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
+| **[research](workflows/research/)** | `/aipg-research` | **Inform**: gather across sources (web/repo/api/docs) → verify each claim → a cited report, spec, or assessment. |
 
-All three share the design rules in **[principles/](principles/)** — the thirteen
+The first three are **build** workflows (code, reviewed and staged); the last three are
+**generative/read-only** (creative options, a decision, or cited research — no code, nothing staged or
+committed). All six share the design rules in **[principles/](principles/)** — the thirteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work agents) and an
 [auditor agent](principles/agents/workflow-principles-auditor.md) that reviews a workflow against them.
 

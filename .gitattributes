@@ -1,0 +1,20 @@
+# Force LF in the working tree for all text files, regardless of core.autocrlf.
+# The Workflow tool reads workflow *.mjs scripts RAW and rejects any control
+# character (a CR from CRLF counts) — so CRLF checkouts on Windows break every
+# engine at load time. Normalize everything to LF; this is a text-only repo.
+* text=auto eol=lf
+
+# Belt-and-braces: the engine scripts must never carry CR.
+*.mjs text eol=lf
+*.md  text eol=lf
+*.json text eol=lf
+
+# Common binaries — never touch their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
