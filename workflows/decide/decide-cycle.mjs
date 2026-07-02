@@ -29,6 +29,7 @@ if (!A.root) {
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL read-only context
 const CONTEXT     = A.context ?? '';                       // short extra framing (domain facts the agents won't know)
+const TESTBED     = A.testbed ?? '';                       // OPTIONAL: how agents may empirically test claims (e.g. a read-only sqlite db + how to query it)
 const MAX_ROUNDS  = A.maxRounds ?? 3;                       // decider ⇄ reviewer rounds before "needs-attention"
 
 // Per-role model tiers + OPTIONAL custom subagent types. Decider + reviewer are opus (high stakes);
@@ -111,7 +112,9 @@ const REVIEW_SCHEMA = {
 // Shared prompt fragment
 // =============================================================================
 const ENV = `THE DECISION + RUBRIC: ${REQ_REF}
-${REPO ? `CODEBASE (read-only context — pattern-fit / feasibility only; do NOT modify): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONTEXT ? `EXTRA CONTEXT: ${CONTEXT}\n` : ''}NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
+${REPO ? `CODEBASE (read-only context — pattern-fit / feasibility only; do NOT modify): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONTEXT ? `EXTRA CONTEXT: ${CONTEXT}\n` : ''}${TESTBED ? `TESTBED — ground claims EMPIRICALLY where you can: ${TESTBED}\nPrefer MEASURED evidence over reasoning: run the check, cite the exact command + result in your file
+(#14) — a measurement beats an argument, and it lets the reviewer re-run it. Treat the testbed strictly
+READ-ONLY unless it explicitly says otherwise; leave no artifacts behind.\n` : ''}NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
 matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
 option wins, the matrix must justify why the simpler one is inadequate.`;
 

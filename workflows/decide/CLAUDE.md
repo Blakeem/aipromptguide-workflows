@@ -44,6 +44,12 @@ No mid-run questions — settle the rubric with the user first:
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`).
 - **`target.repo` (optional):** pass it for a decision about existing code — analysts/decider read it
   **read-only** for pattern-fit and feasibility; the engine never modifies it.
+- **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
+  it, a script to benchmark against). All three roles are told to prefer measured evidence — run the
+  check, cite command + result (#14) — and the reviewer re-runs measurements to verify. Set it up
+  read-only by construction (e.g. `sqlite3 "file:path.db?mode=ro"`, or a copy), and **pre-allowlist the
+  commands** in the target project's settings — a background run can't answer permission prompts
+  unattended.
 - **Fresh vs. resume.** `NEEDS-USER.md` is cumulative. A re-run with the same `runId` overwrites the
   round files; clear `runs/<runId>/` for a genuinely fresh decision, preserve it on resume.
 
@@ -110,7 +116,8 @@ with the same args.
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
 - **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives — enforced) · `requirements`
   (inline) **or** `planPath` (absolute path to the rubric file).
-- **Optional:** `context` (extra framing / domain facts) · `target.repo` (absolute, read-only context) ·
+- **Optional:** `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
+  §3) · `target.repo` (absolute, read-only context) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (3) · `models` (per-role tier:
   analyst/decide/review) · `agentTypes` (custom subagent per role — must exist in your registry) ·
   `stateDir` (override `runs/<runId>`).
