@@ -4,7 +4,7 @@
 a web/slideshow design, a product idea, a business-plan angle — one per **lens**, so the user can pick
 one, ask for a hybrid, or cherry-pick across them. **Divergent and loose by design:** no scoring, no AI
 review, no convergence. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a *generative* workflow, so
-it honors only the **core** principles (#1–4, #6, #8, #11, #13); the build-loop rules (#5/#7/#9) do not
+it honors only the **core** principles (#1–4, #6, #8, #11–14); the build-loop rules (#5/#7/#9) do not
 apply (no code, no staging, no commit).
 
 ## 1. Scope (check FIRST)

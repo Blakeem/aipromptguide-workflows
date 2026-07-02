@@ -135,11 +135,21 @@ per sentence — *does the reader need this to act?* No → cut it. Yes → keep
 give each agent concise instructions and don't restate content a linked file already holds; #11 keeps
 that content in one canonical place.)
 
+### 14. Evidence-grounded judgment — cite or confess
+Every score, severity, verdict, and finding names the **evidence it rests on** — a `file:line`, a lens
+claim, a test output, a source URL — precisely enough that a checker can verify the citation **exists
+and supports the judgment**, instead of re-deriving it from trust. Where no evidence exists (a
+legitimate synthesis, an estimate), the judge **marks it as its own judgment, with its confidence** —
+it never fabricates support. This is what makes review loops converge on substance: an objection
+becomes "cell X cites lens Y, but Y says Z," not a duel of assertions. The same rule pointed at
+reviewers reads *no evidence, no gap*; pointed at researchers, *a claim without a source is a
+hypothesis — mark it as such*.
+
 ---
 
 ## Scope — which principles apply to which workflow kind
 
-Principles #1–4, #6, #8, #11, #12, #13 are **core** — every workflow honors them. The rest are
+Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them. The rest are
 **build-loop** rules and apply only where they fit:
 
 - **Build loops** (produce code — feature/review/upgrade) honor everything, including the staged
@@ -208,3 +218,6 @@ Use these as yes/no checks when reviewing any workflow against these principles:
 - [ ] Is every prompt, review, and ledger line **laconic by subtraction** — filler, already-known
       context, and irrelevant detail cut, with **nothing the reader needs to act on** compressed away?
       (#13)
+- [ ] Does every score, severity, verdict, and finding **cite checkable evidence** (file:line, source,
+      lens claim) — or explicitly mark itself the judge's **own judgment with a confidence** — with no
+      asserted numbers and no fabricated citations? (#14)

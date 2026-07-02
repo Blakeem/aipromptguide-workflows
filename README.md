@@ -23,9 +23,9 @@ and staged for you to commit; the **generative** ones leave cited files for you 
 
 The first three are **build** workflows (code, reviewed and staged); the last three are
 **generative/read-only** (creative options, a decision, or cited research — no code, nothing staged or
-committed). All six share the design rules in **[principles/](principles/)** — the thirteen
+committed). All six share the design rules in **[principles/](principles/)** — the fourteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work agents) and an
-[auditor agent](principles/agents/workflow-principles-auditor.md) that reviews a workflow against them.
+[auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow against them.
 
 ## Why it's built this way
 
@@ -69,7 +69,7 @@ You run /aipg-feature  →  Claude reads aipg/workflows/feature/CLAUDE.md  →  
 3. **(Optional) Install the auditor agent** if you author/modify workflows:
 
    ```bash
-   cp aipg/principles/agents/workflow-principles-auditor.md ~/.claude/agents/
+   cp aipg/.claude/agents/workflow-principles-auditor.md ~/.claude/agents/
    ```
 
 4. **Run one** — e.g. `/aipg-feature add a search_docs MCP tool. Plan it first.`

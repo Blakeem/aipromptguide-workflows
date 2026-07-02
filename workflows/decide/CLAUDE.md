@@ -5,7 +5,7 @@ lensed analyst per perspective (each finds + scores the best option through its 
 via a **decider** that builds a global weighted decision matrix pulling in the best of each, gated by a
 **non-blind adversarial reviewer** — looped until decider and reviewer agree against fixed requirements.
 Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the core (#1–4,
-#6, #8, #11, #13) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
+#6, #8, #11–14) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
 must see the decision and the rubric to judge them (#3 guards code-regression anchoring, not argument
 evaluation). It produces a conclusion, **not code**: nothing is staged or committed.
 
@@ -75,12 +75,13 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
   scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`.
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ the latest review);
   consolidates options, may build a hybrid, scores a **global weighted matrix** (non-negotiables forced
-  to 0), picks the winner with why-not-others, writes `decision-rN.md`. Owns escalation to
-  `NEEDS-USER.md` (halts on a hard blocker).
+  to 0, **every cell citing its lens evidence or marked "own judgment, low-confidence"**, #14), picks
+  the winner with why-not-others, writes `decision-rN.md`. Owns escalation to `NEEDS-USER.md` (halts on
+  a hard blocker).
 - **Reviewer** (review · opus) — **non-blind, adversarial**; reads the decision + requirements + lens
-  files and tries to break the conclusion (unmet requirement, unsupported score, overlooked option,
-  violated non-negotiable). Reads no prior review file (re-checks fresh). Writes
-  `decision-review-rN.md`. Agreement ends the loop.
+  files and tries to break the conclusion (unmet requirement, uncited/unsupported score — **it verifies
+  matrix citations against the lens files** (#14) — overlooked option, violated non-negotiable). Reads
+  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop.
 
 ## 6. Loop & contracts (keep intact)
 
@@ -107,8 +108,8 @@ with the same args.
 ## 8. Args reference
 
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
-- **Required:** `runId` · `root` (§3) · `lenses` (array of perspectives) · `requirements` (inline) **or**
-  `planPath` (absolute path to the rubric file).
+- **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives — enforced) · `requirements`
+  (inline) **or** `planPath` (absolute path to the rubric file).
 - **Optional:** `context` (extra framing / domain facts) · `target.repo` (absolute, read-only context) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (3) · `models` (per-role tier:
   analyst/decide/review) · `agentTypes` (custom subagent per role — must exist in your registry) ·
@@ -122,4 +123,6 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
 Report when done: status (agreed / needs-attention / blocked), the chosen conclusion, where the matrix
-is (`decisionFile`), and the lens files for the user to inspect. **Nothing is staged or committed.**
+is (`decisionFile`), and the lens files for the user to inspect. The return carries the paths
+(`decisionFile` / `reviewFile` / `needsUserFile`) and each lens's top pick (`lensPicks`) as structured
+fields. **Nothing is staged or committed.**

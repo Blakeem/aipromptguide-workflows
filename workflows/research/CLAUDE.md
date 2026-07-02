@@ -5,7 +5,7 @@ then a synthesized, cited deliverable. It fans out one **gatherer** per angle (w
 / docs) writing cited findings, **adversarially verifies** each load-bearing claim (tries to refute it),
 then **synthesizes** the verified findings into a `report`, a `spec`, or an `assessment`. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md` — a *read-only* workflow that honors the core (#1–4, #6, #8,
-#11, #13); the verify stage is the **independent-check-before-trust** pass in the spirit of #5. Nothing
+#11–14); the verify stage is the **independent-check-before-trust** pass in the spirit of #5. Nothing
 is written to the target repo, staged, or committed.
 
 It **absorbs three old prompts**: general research (`outputKind:"report"`), documenting an external API
