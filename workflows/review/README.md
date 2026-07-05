@@ -84,6 +84,18 @@ A workflow runs in the background and **cannot ask you questions mid-run**, so C
 decisions with you between the two phases, not during them. Tip: have it resolve just **one area** first
 (a `resolveOnly` scope) to sanity-check cost and quality before letting the rest go.
 
+### Bring your own findings (skip the review phase)
+
+The fix phase doesn't require the review phase — it only needs the issue files. When the findings come
+from somewhere other than a code review (a **live testing session**, a bug bash, user reports), tell
+Claude to feed them into the review workflow's resolve phase: it authors the per-unit issue files
+itself in the verifier's format (each finding anchored to `file:line` with a precise fix instruction,
+and anything you decline recorded as a SKIP so the triage is on file), then runs phase `resolve` as
+normal. Every safeguard still applies — each issue is re-confirmed against the current code before it
+is touched, every batch passes the blind critic and the issue-aware acceptance gate, and accepted work
+is staged for you to commit. If your findings include low-severity polish, have Claude pass
+`fixSeverity: "low"` so they aren't filtered out by the default floor.
+
 ---
 
 ## The agents

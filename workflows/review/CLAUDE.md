@@ -99,6 +99,18 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
    against the manifest). Resolve: re-grep `issues/*.md` and pass the still-open issues — fixed ones are
    now staged; verify-first re-marks stale ones cheaply.
 
+## External inventory (skip phase `review`)
+
+When findings come from somewhere other than the code review — live/manual testing, a bug bash, user
+reports — resolve works unchanged: it has NO dependency on phase `review` beyond the issue files +
+`args.issues`. You act as the verifier: hand-author `runs/<runId>/issues/<unit>.md` in the exact
+verifier format (frontmatter + `### [<id>]` blocks with the `- ` header lines and a precise `**Fix:**`),
+anchoring each behavior-level finding to `file:line` yourself, and record skipped findings with
+`- decision: SKIP` so the triage is on file. Then playbook steps 5–8 as normal. Mind the floors: pass
+`fixSeverity: "low"` if the inventory includes LOW polish items. Verify-first makes loose anchors safe —
+the fixer re-confirms each issue against current code. (First used: `runs/live-test-fixes`, an inventory
+from live MCP-tool testing.)
+
 ## Gotchas
 
 - **The review re-phrases the same concern across passes.** Dedup is by `file:category`, not title —

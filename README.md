@@ -15,7 +15,7 @@ and staged for you to commit; the **generative** ones leave cited files for you 
 | Workflow | Trigger | Use it for |
 |----------|---------|------------|
 | **[feature](workflows/feature/)** | `/aipg-feature` | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve. |
-| **[review](workflows/review/)** | `/aipg-review` | Read-only **production-readiness review** of a repo or change → triaged issues → batched fixes. |
+| **[review](workflows/review/)** | `/aipg-review` | Read-only **production-readiness review** of a repo or change → triaged issues → batched fixes. The fix phase also accepts an external inventory — findings from live/manual testing or bug reports. |
 | **[upgrade](workflows/upgrade/)** | `/aipg-upgrade` | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine — no AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
