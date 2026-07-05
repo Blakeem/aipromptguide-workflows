@@ -1,10 +1,8 @@
 export const meta = {
-  name: 'review-cycle',
-  description: 'Two-phase production-readiness review, lean/file-bus design. phase:"review" fans out over bounded units (reviewer → verifier) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. phase:"resolve" batches the approved issues and runs fix → BLIND pure-code review (catches anything the fix broke) → issue-aware acceptance (re-derives each defect\'s root cause, confirms it is fully closed + no regression, stages on pass), looped per batch. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-manifest.mjs and passes the units in args. phase:"review" is read-only and concurrent: each unit gets a reviewer + a verifier that writes runs/<runId>/issues/<unit>.md (a parseable, human-triage-ready file). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). Then the main agent greps the issue files into args.issues and runs phase:"resolve", which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
+  name: 'resolve-cycle',
+  description: 'Batched fix loop over a triaged issue inventory, lean/file-bus design. The main agent supplies the approved issues (from the sibling review.mjs, or hand-authored from live/manual testing); this engine batches them by area/LOC and runs fix → BLIND pure-code review (catches anything the fix broke) → issue-aware acceptance (re-derives each defect\'s root cause, confirms it is fully closed + no regression, stages on pass), looped per batch. A failed batch rolls back to the staged baseline; an optional sweep brackets the run. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  whenToUse: 'Fix a verified, triaged issue inventory in one target git repo. Findings come from the sibling review.mjs OR from live/manual testing, a bug bash, or user reports (you hand-author runs/<runId>/issues/<unit>.md in the verifier format). The main agent greps the ACTIONABLE issues into args.issues, ensures a clean/staged baseline, then runs this engine with the SAME runId + root as review.mjs: it batches by area/LOC and fixes each batch behind a two-stage review (BLIND quality, then issue-aware acceptance), staging accepted work. Nothing is ever committed.',
   phases: [
-    { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only).' },
-    { title: 'Verify', detail: 'Verifier confirms each finding against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
     { title: 'Fix', detail: 'Fixer reads its batch\'s issue file(s) verbatim, verify-first, fixes minimally, runs gates, leaves work UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no issue text), flags defects the fix introduced or broke. Must be clean to proceed.' },
     { title: 'Acceptance', detail: 'Issue-aware gate: re-derives each claimed fix\'s root cause from current code, confirms it is fully closed + no regression + gates green. Writes acceptance-review; on pass, STAGES the batch.' },
@@ -15,15 +13,15 @@ export const meta = {
 
 // =============================================================================
 // Config — everything project-specific arrives via args so the engine stays general.
-// The harness reads NO files: the main agent runs gen-manifest.mjs and passes args.units
-// (phase review), and after triage greps runs/<runId>/issues/*.md into args.issues (phase
-// resolve). Verifiers write the per-unit issue files; those files ARE the inventory and the
-// triage doc (no issues.json, no organizer — see WORKFLOW-PRINCIPLES.md #2/#4/#6). The main
-// agent also ensures a clean/staged baseline before resolve (#4) — there is no baseline agent.
+// The harness reads NO files: after triage the main agent greps runs/<runId>/issues/*.md into
+// args.issues and supplies it here (same runId + root as review.mjs). The per-unit issue files ARE the
+// inventory; the fixer + acceptance read them verbatim (no issues.json, no organizer — see
+// WORKFLOW-PRINCIPLES.md #2/#4/#6). The main agent also ensures a clean/staged baseline before this
+// engine runs (#4) — there is no loader/baseline/scribe agent.
 // =============================================================================
 const A = typeof args === 'string' ? JSON.parse(args) : args;
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, target, gates }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, target, gates, conventions, issues }; got typeof=' + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 — no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally this workflow tool's own directory.
@@ -31,32 +29,28 @@ if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
 
-const PHASE       = A.phase ?? 'review';                    // 'review' (find + write inventory, then STOP) | 'resolve' (fix in batches)
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework }
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
 const MAX_ROUNDS  = A.maxRounds ?? 2;                       // fix → quality → acceptance repair rounds per batch
-const REVIEW_PASSES = A.reviewPasses ?? 1;                  // independent review passes per unit (2 = more thorough)
 const BATCH_LOC   = A.batch?.locCap ?? 3000;               // max summed LOC of distinct files per batch (~150-250k tokens/agent)
 const BATCH_MAX   = A.batch?.maxIssues ?? 10;              // max issues per batch (soft — same-file issues never split)
 const MIN_BATCH_BUDGET = A.minBatchBudget ?? 150_000;      // with a token target set, stop cleanly between batches below this
 
-// Severity floors. The review reports >= reviewSeverity; resolve fixes >= fixSeverity. Because the
-// inventory is CLOSED at the end of phase review, fixing mediums HERE converges (no fresh review
-// surfaces a new batch each round).
+// Severity floors. resolve fixes >= fixSeverity; the blind critic floors NEW defects at criticSeverity.
+// The inventory is CLOSED (produced by review.mjs, or hand-authored), so fixing mediums HERE converges
+// (no fresh review surfaces a new batch each round).
 const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
-const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
-const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
 const FIX_SEV     = SEV_RANK[A.fixSeverity ?? 'medium'];
 const CRITIC_SEV_NAME = A.criticSeverity ?? 'high';        // floor for NEW defects the blind reviewer reports in a fix diff
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
-// that exists in YOUR registry. Verify + acceptance are opus (high stakes); reviewer + blind quality
-// critic are the fast tier.
+// that exists in YOUR registry. Fix + acceptance are opus (high stakes); the blind quality critic is
+// the fast tier.
 const AT = { ...(A.agentTypes ?? {}) };
-const M  = { review: 'sonnet', verify: 'opus', fix: 'opus', quality: 'sonnet', acceptance: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
+const M  = { fix: 'opus', quality: 'sonnet', acceptance: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // ROOT is the ABSOLUTE base run-state hangs off (supplied by the main agent), so every agent +
@@ -76,6 +70,11 @@ if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 
+// CONTRACT with review.mjs — change both together. The issue-file path scheme
+// runs/<runId>/issues/<fileSafe(unit)>.md is the interface between the two engines AND the user's triage
+// surface; review.mjs writes the IDENTICAL path from runId + root (+ stateDir if overridden). Use the
+// SAME values for all three across both engines — a mismatch silently points the fixer at missing
+// issue files.
 const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
 const qualityFile    = (batchId, r) => `${STATE_DIR}/quality-review-${slug(batchId)}-r${r}.md`;
 const acceptanceFile = (batchId, r) => `${STATE_DIR}/acceptance-review-${slug(batchId)}-r${r}.md`;
@@ -92,66 +91,6 @@ const gateOk = (fix) => !!fix
 // =============================================================================
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose/content lives in files.
 // =============================================================================
-const REVIEW_SCHEMA = {
-  type: 'object',
-  required: ['findings'],
-  properties: {
-    findings: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['file', 'category', 'severity', 'title', 'detail'],
-        properties: {
-          file: { type: 'string', description: 'repo-relative path' },
-          line: { type: 'string', description: 'line number or range, or "" if N/A' },
-          category: { type: 'string', enum: ['correctness', 'security', 'error-handling', 'resource-leak', 'data-integrity', 'types', 'api-contract', 'concurrency', 'testing', 'performance', 'maintainability', 'convention'] },
-          severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'] },
-          title: { type: 'string', description: 'short, specific, stable' },
-          detail: { type: 'string' },
-          suggested_fix: { type: 'string' },
-        },
-      },
-    },
-  },
-};
-
-const VERIFY_SCHEMA = {
-  type: 'object',
-  required: ['verdicts', 'wrote_file'],
-  properties: {
-    wrote_file: { type: 'boolean', description: 'true if you wrote the unit issue file (always required, even when clean)' },
-    verdicts: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['finding_id', 'is_real', 'severity', 'decision', 'matrix'],
-        properties: {
-          finding_id: { type: 'string' },
-          is_real: { type: 'boolean' },
-          severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'], description: 'YOUR confirmed severity (reviewers over-rate; correct it)' },
-          decision: { type: 'string', enum: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'REJECT'] },
-          matrix: {
-            type: 'object',
-            required: ['clarity', 'effort', 'blast_radius', 'scope', 'architectural'],
-            properties: {
-              clarity: { type: 'string', enum: ['clear', 'ambiguous'] },
-              effort: { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
-              blast_radius: { type: 'string', enum: ['local', 'cross-cutting'] },
-              scope: { type: 'string', enum: ['in-scope', 'scope-creep'] },
-              architectural: { type: 'boolean' },
-            },
-          },
-          rationale: { type: 'string' },
-          fix_instruction: { type: 'string', description: 'precise minimal instruction for the fixer (ACTIONABLE only)' },
-          options: { type: 'string', description: 'NEEDS_USER only: the distinct choices + tradeoffs' },
-          recommendation: { type: 'string', description: 'NEEDS_USER only: your suggested direction' },
-          theme: { type: 'string', description: 'short grouping keyword (e.g. "pagination") for batching related issues' },
-        },
-      },
-    },
-  },
-};
-
 const FIX_SCHEMA = {
   type: 'object',
   required: ['results', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user'],
@@ -287,91 +226,10 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     If you can proceed with a defensible default, record it there too but leave needs_user=false.`;
 
 // =============================================================================
-// Review-phase prompts
-// =============================================================================
-const reviewPrompt = (unit, handled) => `
-You are the REVIEWER examining ONE bounded unit of a codebase for PRODUCTION READINESS. This is a
-FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file.
-${ENV}
-UNIT: ${unit.id}
-FILES TO REVIEW (read them fully; review ONLY these files):
-${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
-
-Assess against these criteria and report concrete, located issues:
-  correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
-  data-integrity, types, api-contract, concurrency (races, shared state), testing (missing coverage
-  of risky paths), performance, maintainability, convention adherence.
-
-RULES:
-- SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ production DEFECTS. Do NOT report below-floor,
-  stylistic, or speculative "could be more defensive" suggestions — they are dropped downstream and
-  only waste the verify stage. If in doubt it's below the floor, omit it.
-- READ THE CURRENT FILE CONTENTS before reporting. Do NOT report anything already handled in the code
-  as it exists now${handled.length ? ', and do NOT re-report anything in the ALREADY FOUND list below (even rephrased)' : ''}.
-- Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
-- Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.
-- Each finding: specific file + line, the right category/severity, what's wrong and why it matters in
-  production, and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass (do NOT re-report):\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
-
-Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
-
-const verifyPrompt = (unit, items) => `
-You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
-each candidate finding below, inspect the ACTUAL code in the repo to confirm it is real, correct its
-severity, then route it with the decision matrix. Reject false positives and gold-plating ruthlessly —
-a noisy inventory wastes the user's triage time and the fixer's context.
-${ENV}
-UNIT: ${unit.id}
-${items.length ? `CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
-${items.map((i) => `  - ${i.id} :: ${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
-
-DECISION MATRIX — score each real finding on:
-  clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
-  blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
-  scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
-  architectural: true if it questions a design/structural decision
-
-ROUTING (apply in order; first match wins):
-  - is_real == false                       -> REJECT
-  - scope == scope-creep                   -> REJECT (note why; do not pursue)
-  - architectural == true                  -> NEEDS_USER (the user must decide design direction; fill options + recommendation)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch; the user plans it)
-  - otherwise                              -> ACTIONABLE (write a precise, minimal fix_instruction)
-Also set a short \`theme\` keyword per verdict so related issues can be batched together.` : `The reviewer found NO defects in this unit. Confirm nothing needs recording (verdicts = []).`}
-
-WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). Use EXACTLY this format
-so the user can triage it and the resolve phase can parse it:
------
----
-unit: ${unit.id}
-hash: ${unit.hash}
-reviewed: true
----
-# Review: ${unit.id}
-
-(for EACH kept verdict — ACTIONABLE, NEEDS_USER, or DEFER, in that order — one block:)
-### [<finding_id>] <title>
-- id: <finding_id>
-- file: <file>:<line>
-- loc: <the LOC of that file>
-- severity: <your confirmed severity>
-- category: <category>
-- effort: <matrix effort>
-- decision: <ACTIONABLE | NEEDS_USER | DEFER>
-- theme: <theme>
-
-**What:** <detail — what's wrong and why it matters in production>
-**Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
------
-If there are NO kept verdicts, write the frontmatter + heading + the single line "No issues found."
-Do NOT write issues.json, any shared doc, or modify source. Set wrote_file=true and return all verdicts via the schema.`;
-
-// =============================================================================
 // Resolve-phase prompts
+// CONTRACT with review.mjs — change both together. The fixer + acceptance below read each unit's issue
+// file VERBATIM and depend on its block format (frontmatter + `### [<id>]` blocks + `- ` header lines +
+// the `**Fix:**` line), authored by review.mjs's verifier. Keep the two engines in lockstep.
 // =============================================================================
 const fixPrompt = (batch, round, reviewPath, issuePaths) => `
 You are the FIXER. Resolve the verified issues in this batch — exactly as instructed, minimally and
@@ -500,114 +358,13 @@ PROCEDURE (read-only except step 3):
 Return via the schema.`;
 
 // =============================================================================
-// PHASE: review — fan out reviewer → verifier per unit (read-only, concurrent), then STOP.
-// The main agent supplies args.units (gen-manifest.mjs output it read) and, on resume, only the
-// units whose issues/<unit>.md is missing or whose embedded hash changed. The engine reviews
-// whatever units it is given — there is no loader/scribe/organizer (WORKFLOW-PRINCIPLES.md #4/#6).
-// =============================================================================
-if (PHASE === 'review') {
-  const units = A.units;
-  if (!Array.isArray(units) || !units.length) {
-    throw new Error('phase "review" requires a non-empty args.units array (run gen-manifest.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed.');
-  }
-  log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [passes=${REVIEW_PASSES}, floor=${REVIEW_SEV_NAME}]`);
-
-  // Read-only fan-out: each unit flows reviewer → verifier independently and concurrently.
-  const results = await pipeline(
-    units,
-    // -- Review (1..REVIEW_PASSES, deduped by file:category across passes) ----
-    async (unit) => {
-      const found = [];
-      const sigs = new Set();
-      const handled = [];
-      for (let p = 1; p <= REVIEW_PASSES; p++) {
-        const r = await agent(reviewPrompt(unit, handled), roleOpts('review', {
-          schema: REVIEW_SCHEMA, phase: 'Review',
-          label: `review:${unit.id}${REVIEW_PASSES > 1 ? ` p${p}` : ''}`,
-        }));
-        for (const f of (r?.findings || [])) {
-          if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
-          // Dedup across passes on file+category: re-reviews re-phrase the same concern, so
-          // title-based dedup leaks duplicates into the inventory.
-          const s = `${f.file}:${f.category}`;
-          if (sigs.has(s)) continue;
-          sigs.add(s);
-          handled.push(f.title);
-          found.push(f);
-        }
-      }
-      return { unit, findings: found };
-    },
-    // -- Verify + write the unit inventory file (always, even when clean) ------
-    async (r) => {
-      const { unit, findings } = r;
-      const items = findings.map((f, i) => ({ id: `${slug(unit.id)}-${i + 1}`, f }));
-      const verify = await agent(verifyPrompt(unit, items), roleOpts(items.length ? 'verify' : 'review', {
-        schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
-      }));
-      const byId = new Map(items.map((x) => [x.id, x]));
-      const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
-      const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
-      const kept = [];
-      for (const v of (verify?.verdicts || [])) {
-        const item = byId.get(v.finding_id);
-        if (!item) continue;
-        if (!v.is_real || v.decision === 'REJECT') { counts.rejected++; continue; }
-        if (v.decision === 'ACTIONABLE') counts.actionable++;
-        else if (v.decision === 'NEEDS_USER') counts.needs_user++;
-        else counts.deferred++;
-        kept.push({
-          id: item.id, unit: unit.id, file: item.f.file, line: item.f.line || '',
-          loc: locOf.get(item.f.file) ?? 0, severity: v.severity || item.f.severity,
-          category: item.f.category, decision: v.decision, effort: v.matrix?.effort || 'small',
-          title: item.f.title, theme: v.theme || '',
-        });
-      }
-      log(`  ✓ ${unit.id}: ${counts.found} found → ${counts.actionable} actionable, ${counts.needs_user} needs-you, ${counts.deferred} deferred, ${counts.rejected} rejected`);
-      return { unit: unit.id, file: issueFile(unit.id), counts, kept };
-    },
-  );
-
-  const processed = results.filter(Boolean);
-  const all = processed.flatMap((r) => r.kept);
-  const sum = (pred) => all.filter(pred).length;
-  const bySeverity = { critical: sum((i) => i.severity === 'critical'), high: sum((i) => i.severity === 'high'), medium: sum((i) => i.severity === 'medium'), low: sum((i) => i.severity === 'low') };
-
-  // Hottest areas (directory) by max severity then count — guidance for the triage conversation.
-  const area = (f) => (f.includes('/') ? f.split('/').slice(0, -1).join('/') : '(root)');
-  const areas = {};
-  for (const i of all) { const a = area(i.file); (areas[a] ??= { area: a, count: 0, maxSev: 0 }); areas[a].count++; areas[a].maxSev = Math.max(areas[a].maxSev, SEV_RANK[i.severity] ?? 1); }
-  const hottest = Object.values(areas).sort((x, y) => y.maxSev - x.maxSev || y.count - x.count).slice(0, 8).map((a) => ({ area: a.area, issues: a.count }));
-
-  return {
-    phase: 'review',
-    runId: RUN_ID,
-    unitsReviewed: processed.length,
-    issuesDir: ISSUES_DIR,
-    inventory: {
-      total: all.length,
-      actionable: sum((i) => i.decision === 'ACTIONABLE'),
-      needsUser: sum((i) => i.decision === 'NEEDS_USER'),
-      deferred: sum((i) => i.decision === 'DEFER'),
-      bySeverity,
-    },
-    hottest,
-    // Which files hold items that need a triage decision (open these to present options).
-    needsUserFiles: processed.filter((r) => r.counts.needs_user > 0).map((r) => r.file),
-    nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then grep the ACTIONABLE issues into args.issues and run phase:"resolve" (start scoped with resolveOnly).`,
-  };
-}
-
-// =============================================================================
-// PHASE: resolve — batch the approved issues, fix → BLIND review → issue-aware acceptance → stage.
+// Batch the approved issues, fix → BLIND review → issue-aware acceptance → stage.
 // The main agent supplies args.issues (the triaged inventory it grepped from issues/*.md) and has
 // already ensured a clean/staged baseline (#4) — there is no loader/baseline/scribe agent.
 // =============================================================================
-if (PHASE !== 'resolve') throw new Error(`Unknown phase "${PHASE}" — use "review" or "resolve".`);
-
 const issues = A.issues;
 if (!Array.isArray(issues) || !issues.length) {
-  throw new Error('phase "resolve" requires args.issues — the ACTIONABLE issues the main agent grepped from runs/<runId>/issues/*.md after triage. Each: { id, unit, file, line, loc, severity, category, decision, effort, theme }. None supplied.');
+  throw new Error('resolve-cycle requires args.issues — the ACTIONABLE issues the main agent grepped from runs/<runId>/issues/*.md after triage (use the SAME runId + root as review.mjs). Each: { id, unit, file, line, loc, severity, category, decision, effort, theme }. None supplied.');
 }
 
 const resolveOnly = Array.isArray(A.resolveOnly) && A.resolveOnly.length ? A.resolveOnly : null;
@@ -773,6 +530,8 @@ for (const batch of batches) {
 }
 
 // ---- Optional final sweep --------------------------------------------------------------------
+// (Kept although feature-cycle's roadmap omits its sweep: resolve batches ROLL BACK and continue, so the
+// end state mixes accepted + reverted batches — the sweep's full-gate run + accounting reconciles it.)
 let sweep = null;
 const processedAll = !halted && ledger.length === batches.length;
 if (A.finalSweep !== false && processedAll) {
@@ -804,6 +563,6 @@ return {
   },
   ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, gates: r.gates })),
   followups: halted
-    ? `Run halted — ${blockerReason} Resolve it with the user, then re-invoke phase:"resolve" with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged).`
+    ? `Run halted — ${blockerReason} Resolve it with the user, then re-invoke resolve-cycle.mjs with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged).`
     : `Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (gaps!)` : ''}. needs-attention batches were rolled back to baseline — retry them interactively with their acceptance-review file as context. Nothing is committed — you commit.`,
 };

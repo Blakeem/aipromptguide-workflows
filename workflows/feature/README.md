@@ -1,11 +1,12 @@
 # feature-cycle
 
-An autonomous Claude Code workflow that builds **ONE bounded feature** from a plan you approve:
-test-verified, wired in, and staged for you to commit.
+An autonomous Claude Code workflow that builds **ONE bounded feature** — or an ordered **roadmap** of
+several, one approved plan each — test-verified, wired in, and staged for you to commit.
 
 You ask for a feature. Claude writes a short plan, you approve it, an independent critic checks that
 plan against your real code, then a **develop → review → acceptance** loop builds it and stages the
-result. You commit.
+result. You commit. Building a roadmap? Plan and approve each feature up front, then one run builds them
+in order, **staging each accepted feature** before starting the next.
 
 ### What sets it apart
 
@@ -34,9 +35,10 @@ for a feature **big enough to deserve a written plan**:
   page, form, or a similarly-scoped enhancement or design-needing bugfix.
 - ❌ **Too small** (a one-line change, a rename, a config flip): skip the workflow and just make the
   edit. If it's too small to review a plan for, it's too small for this.
-- ❌ **Too big** (a migration, version upgrade, framework port, or broad refactor across many files):
-  use the sibling [`upgrade-cycle`](../upgrade/), or split
-  it and run this once per bounded feature.
+- ❌ **Too big for one feature:** split it into a **roadmap** of bounded plans and build them in one run
+  (the `plans` array), approving each. A single goal that is a *pattern across many call sites* (a
+  migration, version upgrade, framework port, or broad refactor) → the sibling
+  [`migrate-cycle`](../migrate/) instead.
 
 ---
 
@@ -78,7 +80,7 @@ Each is a fresh, throwaway context that does one job and returns one decision:
 - **Developer** (build loop): implements the plan, **wires the feature in** so it's reachable,
   writes/runs tests, runs your build + test gate to green, and leaves the work **unstaged**. Owns the
   call on every review finding: fixes what's real, logs what it declines (with a reason to
-  `DISMISSED.md`), escalates only a decision you must make.
+  `DISMISSED-<id>.md`), escalates only a decision you must make.
 - **Quality reviewer** (build loop): a **blind** code critic. Given no plan, spec, or goal, it reviews
   **only the unstaged diff** for production-blocking defects. Must be clean before acceptance runs.
 - **Acceptance verifier** (build loop): the **plan-aware** final gate. Checks every acceptance
@@ -103,10 +105,10 @@ git diff --cached            # everything staged
 
 The run leaves a transparent trail under `runs/<runId>/`:
 
-- `acceptance-review-<N>.md`: the final, plan-aware verdict (per-criterion table, reachability,
-  regression, gate result). Read the latest before committing.
-- `quality-review-<N>.md`: what the blind critic found each round.
-- `DISMISSED.md`: every finding the developer declined, one line each with a reason. **Audit this.**
+- `acceptance-review-<id>-rN.md`: the final, plan-aware verdict per feature (per-criterion table,
+  reachability, regression, gate result). Read the latest before committing.
+- `quality-review-<id>-rN.md`: what the blind critic found each round.
+- `DISMISSED-<id>.md`: every finding the developer declined, one line each with a reason. **Audit this.**
 - `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.
 
 Confirm the feature is reachable yourself (grep the integration point) and that the existing suite

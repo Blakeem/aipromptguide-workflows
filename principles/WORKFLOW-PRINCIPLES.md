@@ -152,7 +152,7 @@ hypothesis — mark it as such*.
 Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them. The rest are
 **build-loop** rules and apply only where they fit:
 
-- **Build loops** (produce code — feature/review/upgrade) honor everything, including the staged
+- **Build loops** (produce code — feature/migrate/debug) honor everything, including the staged
   escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
 - **Generative & read-only workflows** (creative divergence, information gathering — e.g. brainstorm,
   research) write **no code**, stage nothing, and **never commit**, so #7 and #9 don't apply. The user

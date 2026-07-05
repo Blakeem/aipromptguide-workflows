@@ -1,42 +1,54 @@
 # feature-cycle — operator guide (for Claude)
 
 `feature-cycle.mjs` builds **ONE bounded feature** — a new MCP tool, API endpoint, page, form, contained
-enhancement, or design-needing bugfix — from a plan **you author and the user approves**, to a
-test-green, *wired-in* state in one target git repo. Built to `../../principles/WORKFLOW-PRINCIPLES.md`
+enhancement, or design-needing bugfix — or an ordered **roadmap** of several such features, each from a
+plan **you author and the user approves**, to a test-green, *wired-in* state in one target git repo,
+**staging each accepted feature** before the next. Built to `../../principles/WORKFLOW-PRINCIPLES.md`
 (the `#N` markers below); follow those before changing the engine.
 
 ## 1. Scope (check FIRST)
 
-Right size: one bounded feature, ~10–100+ lines, that integrates into an existing codebase. Too small
-(one-liner, rename, config flip) → just make the edit. Too big (breadth-spanning migration across many
-files) → sibling **`upgrade-cycle`**; several features → run this once each. Wrong size → say so and
-steer the user to the direct edit or `upgrade-cycle`.
+Right size: one bounded feature, ~10–100+ lines, that integrates into an existing codebase — or an
+ordered **roadmap** of several such features in ONE run (the `plans` array; §11). Too small (one-liner,
+rename, config flip) → just make the edit. Too big for one bounded feature → **split it into multiple
+bounded plans** and run them as a roadmap (refine's `too_big` routes here when the pieces are
+feature-shaped); a single goal that is a **pattern spanning many call sites** (migration/upgrade/port/
+refactor) → sibling **`migrate-cycle`**. Wrong size → say so and steer the user.
 
 ## 2. The flow
 
 Pick a `runId` now; reuse it for every phase. Every `Workflow` call loads by path: `scriptPath` = the
-absolute path to `feature-cycle.mjs`, plus the phase args. Drive in order:
+absolute path to `feature-cycle.mjs`, plus the phase args. **Plan + refine each feature, then build once.**
+
+Per feature (repeat for each feature in a roadmap — plan mode re-enters freely, and each session mints
+its own `~/.claude/plans/<name>.md`):
 
 1. **`EnterPlanMode`** (read-only). Explore the target repo (it runs Explore→Plan subagents for you),
    `AskUserQuestion` for anything ambiguous — **acceptance criteria + testing approach are the
    must-asks** (a Workflow can't prompt mid-run, and building the wrong thing is the #1 risk, so resolve
-   it now). Write the plan in the standard shape (§4) **into the plan-mode file** it gives you
-   (`~/.claude/plans/<name>.md` — the only file you may edit in plan mode).
+   it now). Write the plan in the standard shape (§4) **into the plan-mode file** it gives you (the only
+   file you may edit in plan mode).
 2. **`ExitPlanMode`** — user approves (the human gate; also leaves read-only mode).
-3. **`phase:"refine"`** (MANDATORY, same `runId`) with `planPath` = the **full absolute path** to the
-   plan-mode file (not `~` — the engine doesn't expand it). The opus Plan Critic greps the real repo and
-   **returns** `gaps`/`questions`/`too_big` in the tool result (writes no file).
+3. **`phase:"refine"`** (MANDATORY, same `runId`) with `planPath` = that file's **full absolute path**
+   (not `~` — the engine doesn't expand it). The opus Plan Critic greps the real repo and **returns**
+   `gaps`/`questions`/`too_big` in the tool result (writes no file).
 4. **Fold the feedback in:** fix every gap directly in the plan file (writes allowed now); relay each
    question via `AskUserQuestion` and fold answers in; tell the user if the plan materially changed.
-   `too_big:true` → split or hand to `upgrade-cycle`.
-5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`, `planPath`, plus
-   `gate`) — the develop → blind-quality → acceptance loop.
-6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED.md`, surface
+   `too_big:true` → split into more feature-plans (add them to the roadmap), or hand to `migrate-cycle`
+   if it's a pattern across many call sites.
+
+Then ONCE, for the whole roadmap:
+
+5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
+   array — `[{ id, planPath, gate }]` in build order (§11). One feature? Pass a single top-level
+   `planPath` + `gate` instead (back-compat). The develop → blind-quality → acceptance loop runs each
+   plan in order, **staging each accepted feature** before the next starts.
+6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md`, surface
    `NEEDS-USER.md`, tell the user what to review. **Never commit.**
 
-`planPath` points at the plan-mode file for both refine and build — no copy. Only caveat: a build
-*resumed long after* the file might be pruned would fail to re-read it. Expecting a long-delayed resume?
-Copy the plan to `runs/<runId>/PLAN.md` and point `planPath` there.
+Each entry's `planPath` points at that feature's plan-mode file — no copy for a same-session build. Only
+caveat: a build *resumed long after* could hit a pruned plan-mode file — for a long roadmap, snapshot
+each plan (§3).
 
 **Testing approach** (decide with the user, bake into Test Strategy): backend / API / MCP tool / data →
 **unit tests** (often TDD: failing tests first). Frontend → usually **not** unit tests; pick
@@ -46,12 +58,16 @@ chrome-devtools-mcp, mcp-inspector, playwright, curl, or manual.
 
 Before `phase:"build"`:
 - **Clean the unstaged tree.** The blind reviewer reviews the unstaged diff as "this feature's work."
-  Staged work from a *prior* feature is a fine baseline, but `git -C <repo> diff` (unstaged) must be
-  empty — commit/stash/stage any stray unstaged work first.
-- **Fresh vs. resume.** `DISMISSED.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
-  genuinely new feature; **preserve** it on resume.
-- **`gate`** from the plan's `## Gate`: `green` (build + required verification) or `build-only` (feature
-  legitimately has no test/verification). Default `green`.
+  Staged work from a *prior accepted* feature is a fine baseline, but `git -C <repo> diff` (unstaged)
+  must be empty — commit/stash/stage any stray unstaged work first.
+- **Fresh vs. resume.** `DISMISSED-<id>.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
+  genuinely new run; **preserve** it on resume.
+- **Each plan's `gate`** from its `## Gate` line: `green` (build + required verification) or `build-only`
+  (the feature legitimately has no test/verification). Default `green`.
+- **Long roadmap (spanning days)?** Snapshot each approved plan to `plans/<runId>/<id>.md` (beside
+  `runs/`, gitignored) and point that entry's `planPath` there (a stated-purpose copy per #11) —
+  plan-mode files may be pruned before a late resume. NEVER snapshot into `runs/<runId>/`: reviewers
+  are handed paths into that dir, and the blind reviewer must have no path that reaches a plan (#3).
 - **`root` — REQUIRED** (both phases): the absolute base run-state hangs off, normally the tool's own
   directory so `runs/` lands beside the tool, not in the target repo. Omit it → the engine errors.
 
@@ -84,7 +100,8 @@ method: unit | curl | chrome-devtools-mcp | mcp-inspector | playwright | manual
 details: exactly how to run/scope it — commands, selectors, how to start a server, what to assert.
 
 ## Gate
-green   # build + the required verification pass  (or: build-only). You pass this as the `gate` arg.
+green   # build + the required verification pass  (or: build-only). Becomes this plan's `gate` — a
+        # top-level `gate` arg for one feature, or the entry's `gate` in a `plans` roadmap.
 ```
 
 ## 5. Roles (in the engine)
@@ -94,34 +111,41 @@ throwaway.
 
 - **Plan Critic** (refine · opus) — read-only; greps the repo, verifies the plan's file list +
   integration points; returns gaps/questions/too_big.
-- **Developer** (build · opus) — reads the plan + the latest flagging review verbatim; implements
+- **Developer** (build · opus) — reads its plan + the latest flagging review verbatim; implements
   minimally, **wires it in**, runs the gate green, leaves work **UNSTAGED**. Owns the **decision
-  matrix**: fixes what's real, logs declines to `DISMISSED.md`, escalates user-only calls to
+  matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
 - **Quality Reviewer** (build · sonnet) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
-  for introduced production-blocking defects. Reads `DISMISSED.md` + `NEEDS-USER.md`, never prior review
-  files. Writes `quality-review-N.md`. Must be clean to proceed.
+  for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
+  review files. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion, reachability,
-  full gates, regression vs the staged baseline. Writes `acceptance-review-N.md`. Only agent that stages
-  (`git add`), on pass.
+  full gates, regression vs the staged baseline. Writes `acceptance-review-<id>-rN.md`. Only agent that
+  stages (`git add`), on pass — the baseline advances plan by plan.
 
 ## 6. Loop & contracts (keep intact)
 
 `develop → quality (blind, must be clean) → acceptance (plan-aware; stages on pass)`, up to `maxRounds`
-(default 4). A flagging review hands the developer that one file's path next round; **any code change
-re-enters at quality.**
+(default 4), **per plan in roadmap order**. A flagging review hands the developer that one file's path
+next round; **any code change re-enters at quality.**
 
-- **Staging = the cycle boundary, exactly ONE staging.** Staged = accepted baseline; unstaged = this
-  feature's work (the reviewers' scope). Only acceptance stages, only on pass. Nothing is ever committed.
+- **Staging = the cycle boundary; each accepted feature stages once.** Staged = accepted baseline (prior
+  features); unstaged = the current feature's work (the reviewers' scope). Only acceptance stages, only
+  on pass — the baseline then advances to the next plan. Nothing is ever committed.
+- **A plan that does NOT accept HALTS the run** (the staging boundary: the next feature's blind diff must
+  be clean, so you cannot start it while this one's work is unstaged). Three halts: the developer writes a
+  hard blocker to `NEEDS-USER.md`; a plan not accepted within `maxRounds`; or acceptance **passed but did
+  not stage** (stage its files yourself, then resume from the NEXT plan id). Resume re-runs the halted
+  plan on its persisted unstaged work (§8).
 - **Gates are the per-stack adapter.** `args.gates.build`/`test` are literal shell commands; `build`
   (lint/compile) must ALWAYS pass. `green` = build + required verification pass *and* the existing suite
-  isn't reddened (breaking existing tests is a regression); `build-only` = build green only.
+  isn't reddened (breaking existing tests is a regression); `build-only` = build green only. Each plan
+  carries its own `gate`.
 - **Two-stage review = blind then plan-aware** — keep separate (deliberate de-biasing, #5); never hand
-  the plan to the quality reviewer.
-- **Anti-spin (#5).** The developer logs each decline as one terse line in `DISMISSED.md`; reviewers
+  the plan to the quality reviewer (per-plan files keep even a roadmap placement-blind for the others).
+- **Anti-spin (#5).** The developer logs each decline as one terse line in `DISMISSED-<id>.md`; reviewers
   skip settled items for the stated reason. A reviewer that thinks a dismissal is wrong raises
   `CONTESTS DISMISSAL:` once; the developer must fix or escalate, never silently re-dismiss. Rising
-  `dismissed_count` (in the run log) is your spin signal — audit `DISMISSED.md` at the end.
+  `dismissed_count` (in the run log) is your spin signal — audit `DISMISSED-<id>.md` at the end.
 - **Frontend/MCP verification.** The developer drives the configured method in-loop; acceptance
   re-confirms once. If the tool is unavailable in the run env, acceptance records it and returns
   `pass=false` — run that check yourself, with the user, before blessing the feature.
@@ -131,16 +155,26 @@ re-enters at quality.**
 The engine reports `status`/`staged`/`reachable`/`regression`. Confirm:
 - Run the gates for real; the existing suite is still green.
 - `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
-- Grep the integration point — the feature is actually reachable.
-- Read `acceptance-review-<last>.md` (per-criterion verdict); **audit `DISMISSED.md`** for bad calls.
+- Grep each feature's integration point — it is actually reachable.
+- Read the latest `acceptance-review-<id>-rN.md` per plan (per-criterion verdict); **audit each
+  `DISMISSED-<id>.md`** for bad calls.
 - Surface `NEEDS-USER.md`.
 
-## 8. Resume
+## 8. Resume (no progress file by design, #6/#10)
 
-A run halts only when the developer writes a hard blocker to `NEEDS-USER.md`. Resume: read it, resolve
-with the user, confirm the tree still holds this feature's in-progress unstaged work, **preserve
-`runs/<runId>/`**, re-invoke `phase:"build"` with the same args. To force a fresh run, clear
-`runs/<runId>/` and start from a clean tree.
+Durable progress = git staging + the numbered review-file trail + the ordered `plans`. A run halts on a
+hard blocker (`NEEDS-USER.md`), a plan not accepted within `maxRounds`, a passed-but-unstaged plan, or a
+budget stop between plans.
+1. Read the trail + `git -C <repo> diff --cached --stat` to see which features are staged/accepted and
+   which plan is in-flight (its work sits **unstaged**).
+2. Hard blocker → read `NEEDS-USER.md` / the plan's latest review, resolve with the user. Passed-but-
+   unstaged → stage that plan's files yourself first.
+3. **Preserve `runs/<runId>/`** and re-invoke `phase:"build"` with the same args **plus
+   `startAt:"<first not-yet-accepted plan id>"`** (or `runOnly:[ids]` for an explicit subset). In-progress
+   unstaged work persists; the next developer builds on it. To force a fresh run, clear `runs/<runId>/`
+   and start from a clean tree.
+
+Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committing to the whole thing.
 
 ## 9. Gotchas
 
@@ -151,33 +185,46 @@ with the user, confirm the tree still holds this feature's in-progress unstaged 
 - **Custom `agentTypes` must exist in the user's registry** — defaults use the standard subagent.
 - **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
   dir, relocate the stray state, re-run.
-- **`too_big`** (from refine, or you realize mid-plan) → split into one run per feature, or hand to
-  `upgrade-cycle`.
+- **A "passed but not staged" plan halts on purpose** (so the next feature's diff isn't corrupted) —
+  stage its files yourself (`git add`), resume from the NEXT plan id.
+- **`too_big`** (from refine, or you realize mid-plan) → split into multiple bounded feature-plans and
+  run them as a roadmap (`plans`); a pattern across many call sites goes to `migrate-cycle` instead.
 
 ## 10. State files (`runs/<runId>/`, gitignored)
 
-The numbered review files are the inter-agent messages + progress trail; the developer's two files are
-its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result), no `progress.json`.
-- `quality-review-N.md` — blind findings for round N.
-- `acceptance-review-N.md` — per-criterion table + reachability + regression + gate result.
-- `DISMISSED.md` — declined findings, one terse line each; **you audit before committing.**
-- `NEEDS-USER.md` — self-contained user notes; a hard blocker here halted the run.
+The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
+are its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result), no `progress.json`.
+- `quality-review-<id>-rN.md` — blind findings for plan `<id>`, round N.
+- `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
+- `DISMISSED-<id>.md` — the plan's declined findings, one terse line each; **you audit before committing.**
+- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run.
 
-Report when done: status, suite result (you ran it), that it's wired in/reachable, what's staged,
-`NEEDS-USER.md`, the last acceptance verdict, anything in `DISMISSED.md` worth a second look. **Never
-commit** — tell the user to review `git diff --cached` and commit.
+(Long-roadmap plan snapshots live at `plans/<runId>/<id>.md` BESIDE `runs/` — never inside
+`runs/<runId>/`, which reviewers read; #3, §3.)
+
+(A single-feature run uses id `feature` → `quality-review-feature-r1.md`, `DISMISSED-feature.md`, …)
+
+Report when done: status + which features are staged, the suite result (you ran it), each wired in/
+reachable, `NEEDS-USER.md`, the latest acceptance verdicts, anything in a `DISMISSED-<id>.md` worth a
+second look. **Never commit** — tell the user to review `git diff --cached` and commit.
 
 ## 11. Args reference
 
 Full schema + defaults: the Config block atop `feature-cycle.mjs` (the canonical source). Pass `args`
 inline to `Workflow`.
-- **Required:** `runId` · `root` (§3) · `planPath` (absolute) **or** `plan` (inline markdown) ·
-  `target.repo` (absolute path to the git repo) · `gates.build` + `gates.test` (shell commands; non-zero
-  exit = fail).
-- **Optional:** `phase` (`refine`|`build`, default `build`) · `gate` (§3) · `conventions` (the
+- **Required:** `runId` · `root` (§3) · a plan — **either** `plans` (the roadmap: an ordered array
+  `[{ id, planPath|plan, gate }]`, array order = build order; `id` is a stable kebab slug + the only
+  routing key, the body is read verbatim from `planPath`/`plan`, `gate` is `green`|`build-only`) **or** a
+  single top-level `planPath` (absolute) / `plan` (inline markdown) for one feature (back-compat;
+  synthesized as one plan `id:"feature"`) · `target.repo` (absolute path to the git repo) · `gates.build`
+  + `gates.test` (shell commands; non-zero exit = fail).
+- **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level `planPath`)
+  · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `conventions` (the
   developer's rubric — language/version constraints, what stays additive, what NOT to touch; the blind
   reviewer is never shown it) · `reference` (path to a completed example to mirror) · `gates.testSetup`
   (runner quirks, how to scope one test, run-as-user/container prefix, how to start a server) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (4) · `models` (per-role tier:
   plan/develop/quality/acceptance) · `agentTypes` (custom subagent per role — must exist in your
-  registry) · `stateDir` (override `runs/<runId>`).
+  registry) · `stateDir` (override `runs/<runId>`) · `runOnly`/`startAt` (§8, scope a partial slice of
+  the roadmap by plan id) · `minPlanBudget` (token floor to start another plan; default 150k — stops
+  cleanly between plans).

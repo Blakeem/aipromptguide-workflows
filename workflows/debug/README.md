@@ -1,17 +1,20 @@
-# review-cycle
+# debug
 
-An autonomous Claude Code workflow that runs a **production-readiness review of a whole codebase** as a
-planned campaign: first it builds a verified, effort-scored inventory of real issues, then, after you
-triage it, it fixes the approved issues in batches behind a two-stage review and stages the result.
-You commit.
+An autonomous Claude Code workflow that hardens a codebase as a planned campaign: first it builds a
+verified, effort-scored inventory of real production defects, then, after you triage it, it fixes the
+approved issues in batches behind a two-stage review and stages the result. You commit. The fix loop also
+accepts an **external inventory** — findings from live/manual testing, a bug bash, or a symptom you
+diagnosed yourself — so you can skip the review pass and go straight to fixing.
 
-The two phases are the point. You cannot prioritize issues or estimate the work until you have actually
-reviewed, so phase `review` is read-only: it sweeps the codebase in bounded units (concurrently, so it
-is fast), verifies every finding against the real code, scores each one, and writes one issue file per
-unit. Then it stops. You read those files, answer anything flagged for your decision, drop what you
-disagree with, and only then run phase `resolve`, which batches the approved issues by area, fixes
-them, has a blind critic and an issue-aware verifier tear each batch apart, and stages each accepted
-batch.
+The two stages are the point. You cannot prioritize issues or estimate the work until you have actually
+reviewed, so `review.mjs` is read-only: it sweeps the codebase in bounded units (concurrently, so it is
+fast), verifies every finding against the real code, scores each one, and writes one issue file per unit.
+Then it stops. You read those files, answer anything flagged for your decision, drop what you disagree
+with, and only then run `resolve-cycle.mjs`, which batches the approved issues by area, fixes them, has a
+blind critic and an issue-aware verifier tear each batch apart, and stages each accepted batch.
+
+Debug does **not** hunt a reported bug for you — there is no repro/bisect step. If you have a live symptom
+("X crashes"), diagnose it first, then feed the result in as an external inventory (below).
 
 ### What sets it apart
 
@@ -28,7 +31,7 @@ step; this one engineers those away and follows a strict set of principles:
   meant to fix (so it catches a fix that solved the report but broke something else), then an
   issue-aware gate re-derives each defect's root cause and confirms it is fully closed with no
   regression.
-- **The fix list is closed.** Phase `resolve` only ever works the inventory you approved. No fresh
+- **The fix list is closed.** The fix loop only ever works the inventory you approved. No fresh
   review mid-fix keeps finding "just one more thing", which is what makes fixing medium issues
   converge instead of spiraling.
 - **Staging is the boundary, never a commit.** Accepted batches are staged; a batch that cannot pass
@@ -43,12 +46,13 @@ This workflow reviews and hardens an existing codebase. It pays off when you wan
 pass over a body of code, not a single targeted change:
 
 - ✅ **Right size:** a production-readiness review of a codebase or a subsystem, where you want the
-  issues found, triaged, and the approved ones fixed safely in batches.
+  issues found, triaged, and the approved ones fixed safely in batches — or a verified inventory (from
+  manual testing) you want fixed the same way.
 - ❌ **One bounded feature** (a single new tool, endpoint, or form): use the sibling
   [`feature-cycle`](../feature/).
 - ❌ **One breadth-spanning goal** (a migration, version upgrade, or framework port): use the sibling
-  [`upgrade-cycle`](../upgrade/). Large, cross-cutting
-  items this tool routes to DEFER make good upgrade-cycle goals.
+  [`migrate-cycle`](../migrate/). Large, cross-cutting items this tool routes to DEFER make good
+  migrate-cycle goals.
 
 ---
 
@@ -58,19 +62,19 @@ This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. In
 into your project as `aipg/`, gitignore it, and copy the slash commands (see the
 [root README](../../README.md)) — then trigger it two ways:
 
-- **Slash command:** `/aipg-review` — then *"review this repo for production readiness; build is
-  `<your build command>`, tests are `<your test command>`; start with the review phase."*
-- **Plain pointer:** tell Claude to *use the review-cycle **workflow** in `aipg/workflows/review/`* to
-  review a target, with your build and test commands.
+- **Slash command:** `/aipg-debug` — then *"review this repo for production readiness; build is
+  `<your build command>`, tests are `<your test command>`; start with the review pass."*
+- **Plain pointer:** tell Claude to *use the debug **workflow** in `aipg/workflows/debug/`* to review a
+  target, with your build and test commands.
 
-Either way Claude reads `aipg/workflows/review/CLAUDE.md` and runs `review-cycle.mjs` (+ `gen-manifest.mjs`)
-**by path** — the engine is in no global registry, so the folder pointer is how it's discovered; nothing
-to build.
+Either way Claude reads `aipg/workflows/debug/CLAUDE.md` and runs `review.mjs` + `resolve-cycle.mjs`
+(and `gen-units.mjs`) **by path** — the engines are in no global registry, so the folder pointer is how
+they're discovered; nothing to build.
 
 From there Claude drives everything:
 
-1. **Splits the work.** It runs `gen-manifest.mjs` to divide your source tree into bounded review
-   units, and shows you the unit list.
+1. **Splits the work.** It runs `gen-units.mjs` to divide your source tree into bounded review units,
+   and shows you the unit list.
 2. **Reviews it.** The reviewer and verifier run over every unit concurrently and write one issue file
    per unit under `runs/<runId>/issues/`. Then it stops.
 3. **Walks you through triage.** Claude presents the inventory (totals, the hottest areas, every item
@@ -81,20 +85,20 @@ From there Claude drives everything:
    state.
 
 A workflow runs in the background and **cannot ask you questions mid-run**, so Claude settles scope and
-decisions with you between the two phases, not during them. Tip: have it resolve just **one area** first
+decisions with you between the two stages, not during them. Tip: have it resolve just **one area** first
 (a `resolveOnly` scope) to sanity-check cost and quality before letting the rest go.
 
-### Bring your own findings (skip the review phase)
+### Bring your own findings (skip the review pass)
 
-The fix phase doesn't require the review phase — it only needs the issue files. When the findings come
-from somewhere other than a code review (a **live testing session**, a bug bash, user reports), tell
-Claude to feed them into the review workflow's resolve phase: it authors the per-unit issue files
-itself in the verifier's format (each finding anchored to `file:line` with a precise fix instruction,
-and anything you decline recorded as a SKIP so the triage is on file), then runs phase `resolve` as
-normal. Every safeguard still applies — each issue is re-confirmed against the current code before it
-is touched, every batch passes the blind critic and the issue-aware acceptance gate, and accepted work
-is staged for you to commit. If your findings include low-severity polish, have Claude pass
-`fixSeverity: "low"` so they aren't filtered out by the default floor.
+The fix loop doesn't require the review pass — it only needs the issue files. When the findings come
+from somewhere other than a code review (a **live testing session**, a bug bash, user reports, or a
+symptom you diagnosed yourself), tell Claude to feed them into the debug workflow's fix loop: it authors
+the per-unit issue files itself in the verifier's format (each finding anchored to `file:line` with a
+precise fix instruction, and anything you decline recorded as a SKIP so the triage is on file), then
+runs `resolve-cycle.mjs` as normal. Every safeguard still applies — each issue is re-confirmed against
+the current code before it is touched, every batch passes the blind critic and the issue-aware
+acceptance gate, and accepted work is staged for you to commit. If your findings include low-severity
+polish, have Claude pass `fixSeverity: "low"` so they aren't filtered out by the default floor.
 
 ---
 
@@ -102,25 +106,25 @@ is staged for you to commit. If your findings include low-severity polish, have 
 
 Each is a fresh, throwaway context that does one job and returns one decision:
 
-- **Reviewer** (review phase): reads one unit's files and reports production defects at or above your
+- **Reviewer** (review pass): reads one unit's files and reports production defects at or above your
   severity floor. Returns findings, writes nothing.
-- **Verifier** (review phase): confirms each finding against the real code, corrects inflated
+- **Verifier** (review pass): confirms each finding against the real code, corrects inflated
   severity, routes it (actionable, needs-your-decision, defer, or reject), and writes the unit's issue
   file. That file is both the inventory and your triage document.
-- **Fixer** (resolve phase): reads its batch's issue file verbatim, re-confirms each issue still exists
+- **Fixer** (fix loop): reads its batch's issue file verbatim, re-confirms each issue still exists
   (stale ones are skipped, never re-fixed), applies minimal fixes, writes pinning tests where
   warranted, runs your gates, and leaves the work **unstaged**. Owns the call on every review finding,
   logging declines with a reason and escalating only a decision you must make.
-- **Blind quality reviewer** (resolve phase): a blind code critic. Given no idea what the diff was
+- **Blind quality reviewer** (fix loop): a blind code critic. Given no idea what the diff was
   meant to fix, it reviews **only the unstaged diff** for defects the fix introduced or broke. Must be
   clean before acceptance runs.
-- **Acceptance verifier** (resolve phase): the issue-aware gate. It re-derives each claimed fix's root
+- **Acceptance verifier** (fix loop): the issue-aware gate. It re-derives each claimed fix's root
   cause from the current code and passes only if the fix closes it completely with no regression and
   green gates. On pass it stages the batch, and it is the only agent that stages.
 - **Sweep** (after the last batch, optional): an independent end-state check. Runs the full gates,
   spot-checks the staged diff, and writes `SWEEP.md`.
 
-The resolve loop is **fix, then blind review, then acceptance**, repeated each round until acceptance
+The fix loop is **fix, then blind review, then acceptance**, repeated each round until acceptance
 passes. Any code change re-enters at the blind review. A batch that cannot pass within its round budget
 is rolled back to the staged baseline and its issues are marked needs-attention for you to retry.
 
@@ -138,11 +142,11 @@ git diff --cached            # everything staged
 
 The run leaves a transparent trail under `runs/<runId>/`:
 
-- `issues/<unit>.md`: the per-unit inventory and your triage document (the deliverable of phase
-  review). Read these to plan, and edit decisions in them.
-- `acceptance-review-<batch>-<N>.md`: the issue-aware verdict per batch (root-cause check, regression,
+- `issues/<unit>.md`: the per-unit inventory and your triage document (the deliverable of the review
+  pass). Read these to plan, and edit decisions in them.
+- `acceptance-review-<batch>-rN.md`: the issue-aware verdict per batch (root-cause check, regression,
   gate result). Read the latest before committing.
-- `quality-review-<batch>-<N>.md`: what the blind critic found each round.
+- `quality-review-<batch>-rN.md`: what the blind critic found each round.
 - `DISMISSED-<batch>.md`: every finding the fixer declined, one line each with a reason. Audit this.
 - `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.
 - `SWEEP.md`: the optional final accounting (full-suite result plus any gaps).

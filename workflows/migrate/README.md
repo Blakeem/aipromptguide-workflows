@@ -1,4 +1,4 @@
-# upgrade-cycle
+# migrate-cycle
 
 An autonomous Claude Code workflow that drives **ONE breadth-spanning goal** to a production-ready,
 tested, staged state across your repo: a migration, a version upgrade, a framework port, or a subsystem
@@ -50,14 +50,14 @@ This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. In
 into your project as `aipg/`, gitignore it, and copy the slash commands (see the
 [root README](../../README.md)) — then trigger it two ways:
 
-- **Slash command:** `/aipg-upgrade` — then *"migrate the data model in this repo; build is
+- **Slash command:** `/aipg-migrate` — then *"migrate the data model in this repo; build is
   `<your build command>`, tests are `<your test command>`; plan it first so I can review the
   breakdown."*
-- **Plain pointer:** tell Claude to *use the upgrade-cycle **workflow** in `aipg/workflows/upgrade/`*,
+- **Plain pointer:** tell Claude to *use the migrate-cycle **workflow** in `aipg/workflows/migrate/`*,
   describe the goal, and give your build and test commands.
 
-Either way Claude reads `aipg/workflows/upgrade/CLAUDE.md`, drives plan mode + your approval, then runs
-`upgrade-cycle.mjs` **by path** — the engine is in no global registry, so the folder pointer is how it's
+Either way Claude reads `aipg/workflows/migrate/CLAUDE.md`, drives plan mode + your approval, then runs
+`migrate-cycle.mjs` **by path** — the engine is in no global registry, so the folder pointer is how it's
 discovered; nothing to build.
 
 From there Claude drives everything:
@@ -112,9 +112,9 @@ git diff --cached            # everything staged
 
 The run leaves a transparent trail under `runs/<runId>/`:
 
-- `acceptance-review-<id>-<N>.md`: the plan-aware verdict per section (criteria, reachability, regression,
+- `acceptance-review-<id>-rN.md`: the plan-aware verdict per section (criteria, reachability, regression,
   gate result). Read the latest per section before committing.
-- `quality-review-<id>-<N>.md`: what the blind critic found each round.
+- `quality-review-<id>-rN.md`: what the blind critic found each round.
 - `DISMISSED-<id>.md`: every finding the developer declined for that section, one line each with a reason.
   **Audit these.**
 - `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.

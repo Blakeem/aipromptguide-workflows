@@ -1,25 +1,28 @@
 export const meta = {
   name: 'feature-cycle',
-  description: 'Plan-driven feature build, lean/file-bus design: implement ONE bounded feature from an approved plan → develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round until done, blocked, or flagged. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Build ONE bounded, mostly-additive, NON-TRIVIAL feature (~10–100+ LoC: a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix) integrated into an existing codebase. NOT for one-line/trivial changes (make those directly) and NOT for breadth-spanning migrations/refactors. The orchestrating agent authors the plan in PLAN MODE (EnterPlanMode → ~/.claude/plans/<name>.md), the user approves (ExitPlanMode), then runs MANDATORY phase:"refine" (planPath = that file\'s absolute path) — adversarial plan review vs the real repo — folds in the gaps, ensures a CLEAN unstaged working tree, then runs phase:"build" (reuse the same runId + planPath throughout).',
+  description: 'Plan-driven feature build, lean/file-bus design: implement ONE bounded feature — or an ordered ROADMAP of them (a `plans` array, each plan separately user-approved in plan mode) — from approved plan(s) → develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round until done, blocked, or flagged; the accepted baseline advances per accepted feature. Agents exchange messages as verbatim files; the harness only routes plan ids, paths + verdicts.',
+  whenToUse: 'Build ONE bounded, mostly-additive, NON-TRIVIAL feature (~10–100+ LoC: a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix) integrated into an existing codebase — or an ordered ROADMAP of several such features in ONE run (the `plans` array = build order, each plan separately authored + user-approved in plan mode; staging advances per accepted feature). NOT for one-line/trivial changes (make those directly) and NOT for breadth-spanning migrations/refactors across many call sites (use the sibling migrate-cycle). The orchestrating agent authors each plan in PLAN MODE (EnterPlanMode → ~/.claude/plans/<name>.md), the user approves (ExitPlanMode), and runs MANDATORY phase:"refine" per plan (planPath = that file\'s absolute path) — adversarial plan review vs the real repo — folding in the gaps; then, with a CLEAN unstaged working tree, runs ONE phase:"build" with the plans array (reuse the same runId throughout).',
   phases: [
     { title: 'Refine', detail: 'MANDATORY first pass (refine phase only): an independent critic greps the repo, verifies the plan against real code, returns gaps + blocking questions to the orchestrating agent. Writes nothing.' },
     { title: 'Develop', detail: 'Developer reads the approved plan (verbatim) + the latest review that flagged issues; implements minimally, runs the gate to green, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
-    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags production-blocking defects, writes quality-review-N.md. Must be clean to proceed.' },
-    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion met + feature reachable + full gates green + no regression. Writes acceptance-review-N.md; on pass, STAGES the feature (git add, never commit).' },
+    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags production-blocking defects, writes quality-review-<id>-rN.md. Must be clean to proceed.' },
+    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion met + feature reachable + full gates green + no regression. Writes acceptance-review-<id>-rN.md; on pass, STAGES that feature (git add, never commit) — the accepted baseline advances plan by plan.' },
   ],
 };
 
 // =============================================================================
 // Config — everything app/feature-specific arrives via args so the engine stays general.
-// The PLAN is produced OUTSIDE this engine, in PLAN MODE, and read VERBATIM from its file by the
-// developer + acceptance verifier (never parsed-and-rebuilt — see WORKFLOW-PRINCIPLES.md #2). The
-// blind quality reviewer is never given the plan path (#3). The main agent ensures a clean unstaged
-// working tree before phase:"build" (#4) — there is no baseline/loader/scribe agent.
+// Each PLAN is produced OUTSIDE this engine, in PLAN MODE, and read VERBATIM from its own file by the
+// developer + acceptance verifier (never parsed-and-rebuilt — see WORKFLOW-PRINCIPLES.md #2). The blind
+// quality reviewer is never given any plan path (#3). The ONLY thing that travels as control is the
+// ordered `plans` list of thin {id, planPath|plan, gate} knobs (routing, not content — #1/#8) plus the
+// round number — per-plan files keep even a roadmap placement-blind for the OTHER plans. The main agent
+// ensures a clean unstaged working tree before phase:"build" (#4) — there is no baseline/loader/scribe
+// agent; each plan's authoring + approval happen in plan mode.
 // =============================================================================
 const A = typeof args === 'string' ? JSON.parse(args) : args;
-if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object'))) {
-  throw new Error('args must include at least { runId, planPath | plan (markdown string), target, gates }; got typeof=' + (typeof args));
+if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object') || (Array.isArray(A.plans) && A.plans.length))) {
+  throw new Error('args must include at least { runId, planPath | plan (markdown string) | plans:[{id,planPath|plan,gate}], target, gates }; got typeof=' + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 — no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally the workflow tool's own directory.
@@ -33,7 +36,6 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const REFERENCE   = A.reference ?? '';                      // optional: a completed example to mirror
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
-const GATE        = A.gate ?? 'green';                      // 'green' (build + verification pass) | 'build-only'
 const MAX_ROUNDS  = A.maxRounds ?? 4;                       // develop→quality→acceptance rounds before "needs-attention"
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
@@ -50,24 +52,53 @@ const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType:
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo ?? '.');               // absolute path to the target git repo
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
 const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
 const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? String(A.plan) : '';
-// The plan reference handed to plan-aware agents (developer, acceptance, critic). NEVER handed to the
-// blind quality reviewer.
+// Blind-reviewer placement guard (#3): run-state must live OUTSIDE the target repo so the blind quality
+// reviewer cannot reach the review/ledger files through the repo tree. Warn loudly if root was set wrong.
+if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
+  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Set args.root to THIS tool's own directory (see CLAUDE.md).`);
+}
+// The plan reference handed to plan-aware agents (developer, acceptance) — per plan entry, since a
+// roadmap carries one plan file per feature. NEVER handed to the blind quality reviewer (#3).
+const planRef     = (p) => p.planPath
+  ? `the approved plan file at ${p.planPath} (read it verbatim)`
+  : `the approved plan below:\n-----\n${p.plan}\n-----`;
+// Top-level single plan — used by the refine critic (one plan per refine pass) + back-compat build.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it verbatim)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
 
-const qualityFile    = (r) => `${STATE_DIR}/quality-review-${r}.md`;
-const acceptanceFile = (r) => `${STATE_DIR}/acceptance-review-${r}.md`;
-const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;   // full detail; for the user (may halt the run)
-const DISMISSED      = `${STATE_DIR}/DISMISSED.md`;    // terse ledger; developer → reviewers (anti-spin)
+// =============================================================================
+// Plans — the ordered roadmap the main agent supplies (array order = build order). Each entry is a THIN
+// control object { id, planPath|plan, gate } (routing knobs, NOT content — the plan body lives in its own
+// file, read verbatim). Back-compat: no `plans` → one synthesized entry from the top-level planPath/plan.
+// runOnly / startAt scope a cheaper partial slice by id without editing the roadmap.
+// =============================================================================
+const VALID_GATES = new Set(['green', 'build-only']);
+const ALL_PLANS = (Array.isArray(A.plans) && A.plans.length
+  ? A.plans
+  : [{ id: 'feature', planPath: A.planPath, plan: A.plan, gate: A.gate ?? 'green' }])
+  .map((p) => (typeof p === 'string' ? { id: p } : p))
+  .filter((p) => p && p.id)
+  .map((p) => ({
+    id: String(p.id),
+    planPath: p.planPath ? abs(p.planPath) : '',
+    plan: (!p.planPath && p.plan && typeof p.plan !== 'object') ? String(p.plan) : '',
+    gate: VALID_GATES.has(p.gate) ? p.gate : 'green',
+  }));
+
+const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
+const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
+const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
+const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER PLAN
 // The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior
-// review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5).
-const SETTLED = `Before reviewing, READ these if they exist — they are the settled decisions, so you do
+// review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5). Scoped per plan.
+const SETTLED = (id) => `Before reviewing, READ these if they exist — they are the settled decisions, so you do
 NOT re-raise what is already closed:
-  • ${DISMISSED} — findings the developer declined, each with a one-line reason.
+  • ${dismissedFile(id)} — findings the developer declined for THIS feature, each with a one-line reason.
   • ${NEEDS_USER} — items already escalated to the user.
 Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
 diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
@@ -76,11 +107,11 @@ it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold
 
 // Gate check (additive feature; no intentionally-red phase). 'green' => build passes AND the required
 // verification passes AND the existing suite is not reddened. 'build-only' => build passes. When a
-// feature legitimately has NO verification, the orchestrator passes gate:'build-only'.
-function gateOk(dev) {
+// feature legitimately has NO verification, the orchestrator passes gate:'build-only'. Per-plan gate.
+function gateOk(gate, dev) {
   if (!dev) return false;
   if (GATES.build && dev.build_passed !== true) return false;   // build/lint must always pass
-  if (GATE === 'build-only') return true;
+  if (gate === 'build-only') return true;
   if (dev.full_suite_outcome === 'failed') return false;        // reddening the suite is a regression
   if (dev.test_outcome === 'not-run') return false;             // green requires verification to have run
   if (dev.tests_run_count === 0) return false;                  // selector matched nothing = FALSE green
@@ -101,7 +132,7 @@ const DEVELOP_SCHEMA = {
     verification_method:{ type: 'string', description: 'what was actually run to verify (e.g. "pytest -q", "curl localhost:3000/health"); note here if a configured MCP/tool was UNAVAILABLE in this environment' },
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files)' },
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
-    dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to DISMISSED.md this round (0 if none)' },
+    dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this feature\'s DISMISSED file this round (0 if none)' },
     gate_output:       { type: 'string', description: 'tail of failing gate/verification output, or "" if green' },
   },
 };
@@ -112,7 +143,7 @@ const QUALITY_SCHEMA = {
   properties: {
     clean:       { type: 'boolean', description: 'true if NO production-blocking defects were found in the unstaged diff' },
     issue_count: { type: 'integer', description: 'number of production-blocking defects written to the review file' },
-    contested_dismissals: { type: 'integer', description: 'how many DISMISSED.md entries you re-raised as "CONTESTS DISMISSAL:" this round because the stated reason is wrong for a genuine production-blocking defect (0 if none)' },
+    contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round because the stated reason is wrong for a genuine production-blocking defect (0 if none)' },
   },
 };
 
@@ -170,7 +201,7 @@ ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror): ${REFERENCE_P}\n` : 
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}`;
 
-const MATRIX = `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+const MATRIX = (id) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
   3. Stops the build/tests/verification ............... FIX (always).
@@ -184,7 +215,7 @@ const MATRIX = `DECISION MATRIX — for each ambiguity or review finding, route 
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6): append ONE terse line to ${DISMISSED} so reviewers won't re-raise it —
+  • DROP (1 or 6): append ONE terse line to ${dismissedFile(id)} so reviewers won't re-raise it —
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
@@ -193,19 +224,20 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
 // =============================================================================
 // Role prompts — succinct; each agent gets ONE document link for its task.
 // =============================================================================
-const developPrompt = (round, reviewPath) => `
-You are the DEVELOPER. Implement ${PLAN_REF}. Build it minimally and surgically; match conventions;
+const developPrompt = (p, round, reviewPath) => `
+You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 ${ENV}
 CONVENTIONS: ${CONVENTIONS}
 ${round === 1
-  ? `This is round 1: the working tree is clean. Implement the plan from scratch.`
+  ? `This is round 1: the unstaged working tree is clean (any earlier ACCEPTED features in this roadmap are
+STAGED = the accepted baseline). Implement this plan from scratch on top of that baseline.`
   : reviewPath
     ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
     : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
-${round === 1 ? '' : `If ${DISMISSED} exists, READ it first — it is YOUR running ledger of declined findings: do not
+${round === 1 ? '' : `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings: do not
 duplicate an entry. If the review you are addressing RE-RAISES one as \`CONTESTS DISMISSAL:\`, you MUST
 FIX or ESCALATE it (never silently re-add the same dismissal).`}
 
@@ -221,16 +253,16 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true.
-4. ${MATRIX}
+4. ${MATRIX(p.id)}
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
 
 // BLIND. No plan, no spec, no goal, no acceptance criteria — judges the code purely as code.
-const qualityPrompt = (round) => `
+const qualityPrompt = (p, round) => `
 You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
 plan or spec — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
 TARGET REPO: ${REPO}
 
-${SETTLED}
+${SETTLED(p.id)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff\`                    (unstaged tracked changes — review this)
@@ -242,19 +274,19 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-WRITE your findings to ${qualityFile(round)} (create ${STATE_DIR}/ if needed): one section per defect
+WRITE your findings to ${qualityFile(p.id, round)} (create ${STATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests)
 + issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 
-const acceptancePrompt = (round) => `
+const acceptancePrompt = (p, round) => `
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate. The blind code review already passed.
 Verify, against the repo itself, that the FEATURE is fully delivered and nothing regressed. Read
-${PLAN_REF}.
+${planRef(p)}.
 ${ENV}
 
-${SETTLED}
-OVERRIDE: ${DISMISSED} entries are the developer's judgment calls. You are plan-aware — if a dismissed
+${SETTLED(p.id)}
+OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are plan-aware — if a dismissed
 item ACTUALLY breaks an acceptance criterion, leaves the feature unreachable, or causes a regression,
 that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 
@@ -273,7 +305,7 @@ PROCEDURE:
      build: ${GATES.build ?? '(none)'}    test: ${GATES.test ?? '(none)'}
    Re-run the plan's configured verification method to confirm the feature behaves as specified. If a
    configured MCP/tool is unavailable here, say so in the file (do not fake it) and return pass=false.
-5. WRITE ${acceptanceFile(round)} (create ${STATE_DIR}/ if needed): the per-criterion table, the
+5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed): the per-criterion table, the
    reachability + regression result, the gate output, and each gap (title + file:line + fix) — or
    "All criteria met; reachable; no regression."
 6. DECIDE:
@@ -301,6 +333,8 @@ Do NOT modify any files. Return your findings via the schema (the orchestrating 
 // =============================================================================
 // PHASE: refine — adversarially review the plan; return gaps/questions to the orchestrator. STOP.
 // (Writes nothing — the orchestrator reads the return value and relays to the user. Principle #6.)
+// Refine runs on ONE plan at a time (the top-level planPath) — during the planning loop, before the
+// next plan exists — so it takes the single planPath, not the `plans` array.
 // =============================================================================
 if (PHASE === 'refine') {
   phase('Refine');
@@ -320,120 +354,203 @@ if (PHASE === 'refine') {
     questions,
     notes: critique?.notes || '',
     nextStep: questions.length
-      ? 'Relay the questions to the user (AskUserQuestion), fold the answers + gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath.'
+      ? 'Relay the questions to the user (AskUserQuestion), fold the answers + gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath (or, for a roadmap, add this plan to the plans array once every plan is refined).'
       : gaps.length
-        ? 'Fold the gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath.'
-        : 'Plan is sound — ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath.',
+        ? 'Fold the gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath (or, for a roadmap, add this plan to the plans array once every plan is refined).'
+        : 'Plan is sound — ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath (or, for a roadmap, add this plan to the plans array once every plan is refined).',
   };
 }
 
 // =============================================================================
-// PHASE: build — develop → BLIND quality review (must pass) → acceptance + regression (stages on pass)
-// PRECONDITION (orchestrator's job, #4): the target repo has a CLEAN unstaged working tree. The engine
-// spawns NO baseline/loader/scribe agent; the numbered review files are the only state + progress trail.
+// PHASE: build — implement each plan in the roadmap IN ORDER; per plan: develop → BLIND quality (must
+// pass) → acceptance + regression (stages on pass; the accepted baseline advances feature by feature).
+// A plan that does NOT accept HALTS the run (the staging boundary means the next plan's blind diff must
+// be clean — you cannot start the next feature while this one's work is unstaged).
+// PRECONDITION (orchestrator's job, #4): the target repo has a CLEAN unstaged working tree; any
+// already-accepted prior features are STAGED. The engine spawns NO baseline/loader/scribe agent — the
+// numbered review files + git staging are the only state + progress trail (#6/#10).
 // =============================================================================
-log(`build: implementing the approved plan → ${REPO} [gate=${GATE}, maxRounds=${MAX_ROUNDS}]`);
-
-let accepted = false;
-let halted = false;
-let haltReason = '';
-let round = 0;
-let reviewPath = '';            // the latest review file the developer must address (control: a path only)
-let lastAcceptance = null;
-let qualityRounds = 0;
-let contestedTotal = 0;         // dismissals a reviewer pushed back on — a spin/disagreement signal for the user
-
-while (round < MAX_ROUNDS) {
-  round++;
-
-  // ---- DEVELOP -------------------------------------------------------------
-  phase('Develop');
-  const dev = await agent(developPrompt(round, reviewPath), roleOpts('develop', {
-    schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop r${round}`,
-  }));
-
-  if (dev?.needs_user === true) {
-    halted = true;
-    haltReason = `Developer halted for a user-only decision in round ${round} (see ${NEEDS_USER}).`;
-    log(`  ✋ r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
-    break;
-  }
-  if (dev?.unstaged_confirmed !== true) {
-    log(`  ⚠ r${round}: developer did not confirm work was left UNSTAGED — staging contract may be violated`);
-  }
-  if (dev?.dismissed_count) {
-    log(`  r${round}: developer declined ${dev.dismissed_count} finding(s) → ${DISMISSED} (audit these at the end)`);
-  }
-  if (!gateOk(dev)) {
-    // Build/verification not green and no user escalation: give the developer another fresh round to
-    // fix it (it re-runs the gate and sees the failure live). No content is carried by the harness.
-    reviewPath = '';
-    if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: gate still not green at round budget`); break; }
-    log(`  ↻ r${round}: gate not green (build=${dev?.build_passed}, test=${dev?.test_outcome}, suite=${dev?.full_suite_outcome}) → another develop round`);
-    continue;
-  }
-
-  // ---- QUALITY REVIEW (blind, must pass before acceptance) -----------------
-  phase('Quality');
-  qualityRounds++;
-  const quality = await agent(qualityPrompt(round), roleOpts('quality', {
-    schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality r${round}`,
-  }));
-  if (quality?.contested_dismissals) {
-    contestedTotal += quality.contested_dismissals;
-    log(`  ⚠ r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss (audit ${DISMISSED})`);
-  }
-  if (quality?.clean !== true) {
-    reviewPath = qualityFile(round);
-    if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${quality?.issue_count ?? '?'} quality issue(s) open at round budget (see ${reviewPath})`); break; }
-    log(`  ↻ r${round}: quality review found ${quality?.issue_count ?? '?'} issue(s) → develop addresses ${reviewPath}`);
-    continue;
-  }
-  log(`  ✓ r${round}: quality review clean`);
-
-  // ---- ACCEPTANCE REVIEW (plan-aware; stages on pass) ----------------------
-  phase('Acceptance');
-  const acc = await agent(acceptancePrompt(round), roleOpts('acceptance', {
-    schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance r${round}`,
-  }));
-  lastAcceptance = acc;
-  if (acc?.pass === true) {
-    accepted = true;
-    log(`  ✓ r${round}: acceptance PASSED — feature ${acc?.staged ? 'STAGED' : 'NOT staged (⚠ verifier did not stage)'} (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})`);
-    break;
-  }
-  reviewPath = acceptanceFile(round);
-  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s) at round budget (see ${reviewPath})`); break; }
-  log(`  ↻ r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s)${acc?.regression ? ' [REGRESSION]' : ''} → develop addresses ${reviewPath}`);
+if (!ALL_PLANS.length) {
+  throw new Error('args needs a plan for phase:"build": pass planPath|plan (one feature) or plans:[{id, planPath|plan, gate}] (an ordered roadmap). Got none.');
 }
 
-// =============================================================================
-// Result
-// =============================================================================
-const status = halted
-  ? 'BLOCKED (needs user input)'
-  : accepted
-    ? (lastAcceptance?.staged ? 'done (staged)' : 'done (NOT staged — verifier did not stage; check manually)')
-    : 'needs-attention (round budget exhausted)';
+// Resume / partial-slice scoping (control plane, supplied by the orchestrator after it reconstructs
+// progress from git-staging + the review-file trail — there is no progress file by design, #6/#10).
+//   runOnly: [ids]  — build exactly these plans (in roadmap order).
+//   startAt: id     — build from this plan to the end (skip already-accepted earlier ones).
+const runOnly = Array.isArray(A.runOnly) && A.runOnly.length ? A.runOnly : null;
+let pending = ALL_PLANS;
+if (runOnly) {
+  pending = ALL_PLANS.filter((p) => runOnly.includes(p.id));
+} else if (A.startAt) {
+  const i = ALL_PLANS.findIndex((p) => p.id === A.startAt);
+  pending = i >= 0 ? ALL_PLANS.slice(i) : ALL_PLANS;
+}
+const isFullRun = !runOnly && !A.startAt;
+log(`build: ${pending.length}/${ALL_PLANS.length} plan(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : A.startAt ? ` (startAt: ${A.startAt})` : ''} [maxRounds=${MAX_ROUNDS}]`);
 
-log(`build: ${status} after ${round} round(s) [${qualityRounds} quality pass(es)]`);
+const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
+let halted = false;
+let haltReason = '';
+const doneIds = [];
+
+for (const p of pending) {
+  if (halted) break;
+  // Budget guard: when the user set a token target (e.g. "+500k"), stop CLEANLY between plans rather
+  // than letting an agent() call throw mid-plan. Accepted plans are STAGED; resume continues.
+  if (budget.total && budget.remaining() < (A.minPlanBudget ?? 150_000)) {
+    halted = true;   // so the reason + resume instruction surface in the return value
+    haltReason = `Stopped before plan ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Resume phase:"build" with startAt:"${p.id}".`;
+    log(`⏸ ${haltReason}`);
+    break;
+  }
+
+  log(`▶ plan ${p.id} [gate=${p.gate}]`);
+  const rec = { id: p.id, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false };
+  let reviewPath = '';           // the latest review file the developer must address (control: a path only)
+  let accepted = false;
+  let round = 0;
+
+  while (round < MAX_ROUNDS) {
+    round++;
+    rec.rounds = round;
+
+    // ---- DEVELOP -----------------------------------------------------------
+    phase('Develop');
+    const dev = await agent(developPrompt(p, round, reviewPath), roleOpts('develop', {
+      schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${p.id} r${round}`,
+    }));
+
+    if (dev?.needs_user === true) {
+      halted = true;
+      haltReason = `Developer halted for a user-only decision in plan ${p.id} round ${round} (see ${NEEDS_USER}).`;
+      rec.status = 'BLOCKED (needs user)';
+      log(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
+      break;
+    }
+    if (dev?.unstaged_confirmed !== true) {
+      log(`  ⚠ ${p.id} r${round}: developer did not confirm work was left UNSTAGED — staging contract may be violated`);
+    }
+    if (dev?.dismissed_count) {
+      log(`  ${p.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(p.id)} (audit these at the end)`);
+    }
+    if (!gateOk(p.gate, dev)) {
+      // Build/verification not green and no user escalation: give the developer another fresh round to
+      // fix it (it re-runs the gate and sees the failure live). No content is carried by the harness.
+      reviewPath = '';
+      if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: gate(${p.gate}) not green at round budget`); break; }
+      log(`  ↻ ${p.id} r${round}: gate(${p.gate}) not green (build=${dev?.build_passed}, test=${dev?.test_outcome}, suite=${dev?.full_suite_outcome}) → another develop round`);
+      continue;
+    }
+
+    // ---- QUALITY REVIEW (blind, must pass before acceptance) -----------------
+    phase('Quality');
+    rec.qualityRounds++;
+    const quality = await agent(qualityPrompt(p, round), roleOpts('quality', {
+      schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
+    }));
+    if (quality?.contested_dismissals) {
+      rec.contested += quality.contested_dismissals;
+      log(`  ⚠ ${p.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss (audit ${dismissedFile(p.id)})`);
+    }
+    if (quality?.clean !== true) {
+      reviewPath = qualityFile(p.id, round);
+      if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: ${quality?.issue_count ?? '?'} quality issue(s) open at round budget (see ${reviewPath})`); break; }
+      log(`  ↻ ${p.id} r${round}: quality review found ${quality?.issue_count ?? '?'} issue(s) → develop addresses ${reviewPath}`);
+      continue;
+    }
+    log(`  ✓ ${p.id} r${round}: quality review clean`);
+
+    // ---- ACCEPTANCE REVIEW (plan-aware; stages on pass; baseline advances) ---
+    phase('Acceptance');
+    const acc = await agent(acceptancePrompt(p, round), roleOpts('acceptance', {
+      schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
+    }));
+    if (acc?.regression === true) rec.regression = true;
+    if (acc?.pass === true) {
+      rec.reachable = acc?.reachable === true;
+      if (acc?.staged === true) {
+        accepted = true;
+        rec.staged = true;
+        log(`  ✓ ${p.id}: acceptance PASSED — STAGED (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})`);
+        break;
+      }
+      // Passed but NOT staged: the staging boundary is broken — the next plan's blind diff would include
+      // this feature's unstaged work. Do NOT advance; halt for manual staging, then resume.
+      halted = true;
+      rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
+      haltReason = `Plan ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then resume phase:"build" with startAt the NEXT plan id.`;
+      log(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
+      break;
+    }
+    reviewPath = acceptanceFile(p.id, round);
+    if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s) at round budget (see ${reviewPath})`); break; }
+    log(`  ↻ ${p.id} r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s)${acc?.regression ? ' [REGRESSION]' : ''} → develop addresses ${reviewPath}`);
+  }
+
+  if (accepted) {
+    // accepted is only ever true together with staged (the pass-but-unstaged case halts above), so this
+    // is unambiguously a staged "done".
+    rec.status = 'done (staged)';
+    doneIds.push(p.id);
+    ledger.push(rec);
+    continue;
+  }
+
+  // Not accepted (and not already a needs-user halt): HALT the run. The staging boundary means we cannot
+  // start the next plan while this one's work is unstaged. Resume re-runs THIS plan on its unstaged work.
+  if (!halted) {
+    halted = true;
+    rec.status = 'needs-attention (round budget exhausted)';
+    haltReason = `Plan ${p.id} did not reach acceptance within ${MAX_ROUNDS} rounds (see ${reviewPath || acceptanceFile(p.id, round)}). Its work is UNSTAGED; resolve with the user, then resume from this plan id.`;
+    log(`  ✋ ${p.id}: not accepted within ${MAX_ROUNDS} rounds → halting run (staging boundary)`);
+  }
+  ledger.push(rec);
+  break;
+}
+
+// No final sweep (deliberate asymmetry vs migrate-cycle): roadmap plans are INDEPENDENT features with no
+// shared surface to re-grep, and each plan's acceptance already ran the full gates + its own reachability
+// check — so there is nothing a whole-run sweep could add.
+
+// =============================================================================
+// Result (control plane → the orchestrating agent; durable progress lives in git + the review-file trail)
+// =============================================================================
+const allDone = isFullRun && !halted && doneIds.length === ALL_PLANS.length && ALL_PLANS.length > 0;
+const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
+// Single-plan back-compat fields (meaningful when plansTotal===1; for a roadmap, read per-plan detail
+// from `ledger`). `solo` is the one plan's record when the run built exactly one plan.
+const solo = ALL_PLANS.length === 1 ? ledger[0] : null;
+
+const status = halted
+  ? (haltReason.includes('needs user') || haltReason.includes('user-only') ? 'BLOCKED (needs user input)' : 'halted (plan needs attention / budget)')
+  : allDone
+    ? (ALL_PLANS.length === 1 ? 'done (staged)' : 'done (all plans staged)')
+    : 'partial slice complete';
+
+log(`build: ${status} — ${doneIds.length}/${ALL_PLANS.length} plan(s) done [${ledger.reduce((s, r) => s + r.qualityRounds, 0)} quality pass(es)]`);
 
 return {
   phase: 'build',
   runId: RUN_ID,
   status,
-  accepted,
   halted,
-  staged: accepted && lastAcceptance?.staged === true,
-  reachable: lastAcceptance?.reachable === true,
-  regression: lastAcceptance?.regression === true,
-  rounds: round,
+  haltReason: halted ? haltReason : '',
+  // Single-plan back-compat (meaningful when plansTotal===1; else read per-plan from `ledger`):
+  accepted: solo ? solo.status === 'done (staged)' : allDone,
+  staged: solo ? solo.staged === true : allDone,
+  reachable: solo ? solo.reachable === true : undefined,
+  regression: solo ? solo.regression === true : ledger.some((r) => r.regression),
+  rounds: solo ? solo.rounds : undefined,
   contestedDismissals: contestedTotal,
   stateDir: STATE_DIR,
-  reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-N.md, acceptance-review-N.md) show every iteration.`,
+  plansDone: doneIds,
+  plansTotal: ALL_PLANS.length,
+  ledger,
+  reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<id>-rN.md, acceptance-review-<id>-rN.md) show every iteration; git staging marks each accepted feature.`,
   followups: halted
-    ? `Run halted for a user decision — read ${NEEDS_USER}, resolve it with the user, ensure the tree is still this feature's in-progress work, then re-invoke phase:"build" with the same args.`
-    : accepted
-      ? `Review the staged diff in ${REPO} (git diff --cached), the numbered review files in ${STATE_DIR}/, and ${DISMISSED} (every finding the developer declined — audit these). Nothing is committed — you commit.`
-      : `Not accepted within ${MAX_ROUNDS} rounds. Read the latest acceptance-review / quality-review file + ${DISMISSED} in ${STATE_DIR}/, decide with the user, then re-invoke phase:"build".`,
+    ? `Run halted — read ${NEEDS_USER} (if a hard blocker) and the latest review file for the plan in question, resolve with the user, confirm the tree still holds that plan's in-progress UNSTAGED work, then resume: re-invoke phase:"build" with the same args + startAt:"<that plan id>" (or runOnly).`
+    : allDone
+      ? `All plans done. Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding). Run the full gates yourself. Nothing is committed — you commit.`
+      : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"build" with startAt the next plan id.`,
 };

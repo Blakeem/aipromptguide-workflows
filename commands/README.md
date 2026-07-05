@@ -8,8 +8,8 @@ All the real instruction lives in each workflow's `CLAUDE.md`, which you refresh
 | Command            | Workflow guide it loads                  | Use for |
 |--------------------|------------------------------------------|---------|
 | `/aipg-feature`    | `aipg/workflows/feature/CLAUDE.md`       | One bounded feature (new tool/endpoint/page/form). |
-| `/aipg-review`     | `aipg/workflows/review/CLAUDE.md`        | Read-only production-blocking review of a repo or change. |
-| `/aipg-upgrade`    | `aipg/workflows/upgrade/CLAUDE.md`       | Breadth-spanning migration/upgrade across many call sites. |
+| `/aipg-debug`      | `aipg/workflows/debug/CLAUDE.md`         | Find production defects and/or fix a verified issue inventory (triage → batched fixes). |
+| `/aipg-migrate`    | `aipg/workflows/migrate/CLAUDE.md`       | Breadth-spanning migration/upgrade across many call sites. |
 | `/aipg-brainstorm` | `aipg/workflows/brainstorm/CLAUDE.md`    | Diverge: one fully-committed variation per lens for a human to pick/combine. |
 | `/aipg-decide`     | `aipg/workflows/decide/CLAUDE.md`        | Converge: lensed analysis → weighted matrix → a justified conclusion. |
 | `/aipg-research`   | `aipg/workflows/research/CLAUDE.md`      | Inform: multi-source gather → verify → cited report/spec/assessment. |

@@ -101,7 +101,7 @@ the decider that one file's path next round; the decider revises rather than res
 - **Non-blind is deliberate (#3/#5).** The reviewer must see the decision and rubric; never make it
   blind. It still reads no prior review file, to re-check fresh.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
-  `feature-cycle`/`upgrade-cycle` next.
+  `feature-cycle`/`migrate-cycle` next.
 - **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts;
   the matrices and reasoning live in the files.
 

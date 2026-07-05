@@ -1,6 +1,6 @@
-# upgrade-cycle — operator guide (for Claude)
+# migrate-cycle — operator guide (for Claude)
 
-`upgrade-cycle.mjs` drives **ONE breadth-spanning goal** — a migration, version upgrade, framework port,
+`migrate-cycle.mjs` drives **ONE breadth-spanning goal** — a migration, version upgrade, framework port,
 or subsystem refactor — to a gate-green state in one target git repo, by decomposing it into ordered
 **sections** (each a bounded, reviewable change) and running each through `develop → blind quality →
 plan-aware acceptance`, **staging each section on accept** so the baseline advances section by section.
@@ -17,7 +17,7 @@ and steer the user.
 
 ## 2. The flow
 
-Pick a `runId` now; reuse it. Loads by path: `scriptPath` = the absolute path to `upgrade-cycle.mjs`,
+Pick a `runId` now; reuse it. Loads by path: `scriptPath` = the absolute path to `migrate-cycle.mjs`,
 plus the phase args. Drive in order:
 
 1. **`EnterPlanMode`** (read-only). Explore the repo (plan mode runs Explore/Plan subagents for you) and
@@ -142,7 +142,7 @@ The engine reports `status`/`sectionsDone`/`ledger`/`sweep`. Confirm:
 - `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
 - Grep each section's integration points — reachable, conversions complete (no call site on the old
   path).
-- Read the latest `acceptance-review-<id>-N.md` per section; **audit every `DISMISSED-<id>.md`**.
+- Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md`**.
 - Read `SWEEP.md` (evidence, not a substitute for your own check); surface `NEEDS-USER.md`.
 
 ## 8. Resume (no progress file by design, #6/#10)
@@ -192,7 +192,7 @@ review `git diff --cached` and commit.
 
 ## 11. Args reference
 
-Full schema + defaults: the Config block atop `upgrade-cycle.mjs` (the canonical source). Pass `args`
+Full schema + defaults: the Config block atop `migrate-cycle.mjs` (the canonical source). Pass `args`
 inline to `Workflow`.
 - **Required:** `runId` · `root` (§4) · `planPath` (absolute) **or** `plan` (inline markdown) ·
   `sections` (§3, for `phase:"run"`) · `target.repo` (absolute path to the git repo) · `gates.build` +

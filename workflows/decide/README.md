@@ -21,7 +21,7 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   it — so it's non-blind by design, and it attacks the conclusion against the requirements rather than
   rubber-stamping it.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
-  [`feature-cycle`](../feature/) or [`upgrade-cycle`](../upgrade/) next.
+  [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) next.
 
 For open-ended creative options a *human* picks (no AI verdict), use [`brainstorm-cycle`](../brainstorm/).
 

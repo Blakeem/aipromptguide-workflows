@@ -10,7 +10,7 @@
 // carries a content hash so the engine re-reviews only units whose files changed.
 //
 // Usage:
-//   node gen-manifest.mjs --repo /abs/path/to/repo --src src --out runs/myrun/manifest.json
+//   node gen-units.mjs --repo /abs/path/to/repo --src src --out runs/myrun/manifest.json
 //
 // Flags:
 //   --repo <path>       target git repo (default: cwd). All manifest paths are relative to it.

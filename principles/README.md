@@ -33,5 +33,5 @@ notes. Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 ## Built with these
 
-- [feature-cycle](../workflows/feature/) · [review-cycle](../workflows/review/) ·
-  [upgrade-cycle](../workflows/upgrade/)
+- [feature-cycle](../workflows/feature/) · [migrate-cycle](../workflows/migrate/) ·
+  [debug](../workflows/debug/) (review + resolve)
