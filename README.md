@@ -19,11 +19,11 @@ and staged for you to commit; the **generative** ones leave cited files for you 
 | **[migrate](workflows/migrate/)** | `/aipg-migrate` | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine — no AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
-| **[research](workflows/research/)** | `/aipg-research` | **Inform**: gather across sources (web/repo/api/docs) → verify each claim → a cited report, spec, or assessment. |
+| **[docs](workflows/docs/)** | `/aipg-docs` | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
 The first three are **build** workflows (code, reviewed and staged); the last three are
-**generative/read-only** (creative options, a decision, or cited research — no code, nothing staged or
-committed). All six share the design rules in **[principles/](principles/)** — the fourteen
+**generative/read-only** (creative options, a decision, or a curated doc set — no code, nothing staged
+or committed). All six share the design rules in **[principles/](principles/)** — the fourteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work agents) and an
 [auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow against them.
 

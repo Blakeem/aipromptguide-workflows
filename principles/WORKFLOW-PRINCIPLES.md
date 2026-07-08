@@ -154,8 +154,8 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
 
 - **Build loops** (produce code — feature/migrate/debug) honor everything, including the staged
   escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
-- **Generative & read-only workflows** (creative divergence, information gathering — e.g. brainstorm,
-  research) write **no code**, stage nothing, and **never commit**, so #7 and #9 don't apply. The user
+- **Generative & read-only workflows** (creative divergence, information provisioning — e.g. brainstorm,
+  docs) write **no code**, stage nothing, and **never commit**, so #7 and #9 don't apply. The user
   is the judge; there is no AI review gate unless the workflow genuinely needs one.
 - **Convergence workflows** (the AI reaches a conclusion — e.g. decide) DO run a review loop in the
   spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the requirements

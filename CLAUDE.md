@@ -11,14 +11,14 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | Drive **one plan across many call sites** — migration/upgrade/port/refactor, in ordered sections | `workflows/migrate/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |
 | **Decide** among approaches — lensed analysis → weighted matrix → a justified conclusion, adversarially reviewed | `workflows/decide/CLAUDE.md` |
-| **Research** a question across sources (web/repo/api/docs) → verify → a cited report/spec/assessment | `workflows/research/CLAUDE.md` |
+| Gather the **docs** a project needs — verbatim capture (web/repo/files) → curate + index into a working folder | `workflows/docs/CLAUDE.md` |
 | Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` + the `workflow-principles-auditor` agent |
 
 Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent — **build** one
 bounded change → feature (several features → feature's `plans` array); one goal spanning many files →
 migrate; find production defects → debug.
 **Diverge** (creative options, human judges) → brainstorm; **converge** (AI concludes among options) →
-decide; **inform** (gather + verify + synthesize) → research. The last three are generative/read-only:
+decide; **provision** (copy + curate the docs to build against) → docs. The last three are generative/read-only:
 no code, no staging, no commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
 
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
