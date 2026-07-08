@@ -31,11 +31,12 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
 ## Roles (5)
 
 **`review.mjs` (read-only, units run CONCURRENTLY via `pipeline`):**
-- **Reviewer** (sonnet) — finds production defects in ONE unit's files; returns findings, writes nothing.
-- **Verifier** (opus; sonnet when the unit is clean) — confirms each finding against the real code,
-  corrects inflated severity, routes via the decision matrix, **writes `issues/<unit>.md`** verbatim
-  (the inventory AND triage doc). Every unit gets a file (clean ones get a "No issues found" marker +
-  unit hash — this is what makes hash-based resume work).
+- **Reviewer** (sonnet) — finds production defects in ONE unit's files; returns findings. When it finds
+  NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues found." + unit
+  hash — what makes hash-based resume work); with findings it writes nothing and hands off to the verifier.
+- **Verifier** (opus) — spawned ONLY for units with findings; confirms each against the real code,
+  corrects inflated severity, routes via the decision matrix, and **writes `issues/<unit>.md`** verbatim
+  (the inventory AND triage doc). Clean units never reach it — the reviewer already wrote their marker.
 
 **`resolve-cycle.mjs` (batches run SEQUENTIALLY — staging serializes):**
 - **Fixer** (opus) — reads its batch's `issues/<unit>.md` verbatim, **verify-first** (vanished → STALE),
@@ -53,7 +54,8 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
 
 ## Contracts (keep intact)
 
-- **`review.mjs` is read-only.** Only the verifier writes, only its own unit's file (parallel-safe).
+- **`review.mjs` is read-only.** One writer per unit file — the reviewer writes it when the unit is
+  clean, the verifier when it has findings; never both, only ever its own unit's file (parallel-safe).
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
   verifiers would race); `NEEDS-USER.md` is only for resolve-phase fixer escalations (sequential).
 - **The inventory is CLOSED after `review.mjs`.** `resolve-cycle` never re-reviews — it only works the
@@ -81,8 +83,10 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
 
 ## Playbook
 
-1. **Units:** `node gen-units.mjs --repo <abs> --src src --out runs/<runId>/manifest.json`. Show the user
-   the printed unit list; tune `--cap-loc/--big-file` if units look lopsided.
+1. **Units:** `node gen-units.mjs --repo <abs> --src src --out runs/<runId>/manifest.json`. A bin-packing
+   pass merges adjacent units up to `--pack-loc` LOC (default 2000 ≈ ~215k tokens/agent — a right-sized
+   review turn); base caps are `--cap-loc 2000 --cap-files 24 --big-file 2000`. Show the user the printed
+   unit list; tune `--pack-loc` (0 disables packing) or `--cap-loc/--big-file` if units look lopsided.
 2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (THIS tool's
    directory — from the Workflow result's scriptPath — so run-state lands here, gitignored, not in the
    target repo), `target.repo` (absolute), `gates`, and `conventions` (the project's CLAUDE.md distilled

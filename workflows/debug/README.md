@@ -75,8 +75,9 @@ From there Claude drives everything:
 
 1. **Splits the work.** It runs `gen-units.mjs` to divide your source tree into bounded review units,
    and shows you the unit list.
-2. **Reviews it.** The reviewer and verifier run over every unit concurrently and write one issue file
-   per unit under `runs/<runId>/issues/`. Then it stops.
+2. **Reviews it.** Reviewers run over every unit concurrently; a verifier follows only where findings
+   exist (the reviewer marks clean units itself). One issue file per unit lands under
+   `runs/<runId>/issues/`. Then it stops.
 3. **Walks you through triage.** Claude presents the inventory (totals, the hottest areas, every item
    that needs your decision) and helps you decide scope. You approve or skip issues by editing the
    issue files.

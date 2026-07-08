@@ -1,10 +1,10 @@
 export const meta = {
   name: 'review',
-  description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer → verifier) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. You triage the files; the sibling resolve-cycle.mjs then batches the approved issues and fixes each behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer + a verifier that writes runs/<runId>/issues/<unit>.md (a parseable, human-triage-ready file). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). Then the main agent greps the issue files into args.issues and runs the sibling resolve-cycle.mjs (SAME runId), which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
+  description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; the sibling resolve-cycle.mjs then batches the approved issues and fixes each behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). Then the main agent greps the issue files into args.issues and runs the sibling resolve-cycle.mjs (SAME runId), which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
   phases: [
-    { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only).' },
-    { title: 'Verify', detail: 'Verifier confirms each finding against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
+    { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
+    { title: 'Verify', detail: 'Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
   ],
 };
 
@@ -74,8 +74,9 @@ const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
 // =============================================================================
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['findings'],
+  required: ['findings', 'wrote_clean_marker'],
   properties: {
+    wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-unit marker file (you had ZERO findings AND no ALREADY-FOUND list); false whenever you report any finding' },
     findings: {
       type: 'array',
       items: {
@@ -142,15 +143,16 @@ ${CONVENTIONS}
 GATES (the build/test commands that define "it works"; run them from the repo root):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
-BE TOKEN-ECONOMICAL (target ~150k tokens for your whole turn): read ONLY the files your task names.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): read ONLY the files your task names.
 Prefer targeted grep over broad reads. Don't restate large files back; act on them.`;
 
 // =============================================================================
 // Review-phase prompts
 // =============================================================================
-const reviewPrompt = (unit, handled) => `
+const reviewPrompt = (unit, handled, cleanEligible) => `
 You are the REVIEWER examining ONE bounded unit of a codebase for PRODUCTION READINESS. This is a
-FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file.
+FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file in
+the target repo (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).
 ${ENV}
 UNIT: ${unit.id}
 FILES TO REVIEW (read them fully; review ONLY these files):
@@ -171,7 +173,22 @@ RULES:
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters in
   production, and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass (do NOT re-report):\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
+${cleanEligible ? `
+CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO findings, WRITE the file ${issueFile(unit.id)} (create
+${ISSUES_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
+-----
+---
+unit: ${unit.id}
+hash: ${unit.hash}
+reviewed: true
+---
+# Review: ${unit.id}
 
+No issues found.
+-----
+If you report ANY finding, write NOTHING (a verifier writes this unit's file) and set wrote_clean_marker=false.
+Do NOT write issues.json, any shared doc, or a source file.
+` : ''}
 Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
 
 // CONTRACT with resolve-cycle.mjs — change both together. The issue-file BLOCK FORMAT the verifier writes
@@ -185,7 +202,7 @@ severity, then route it with the decision matrix. Reject false positives and gol
 a noisy inventory wastes the user's triage time and the fixer's context.
 ${ENV}
 UNIT: ${unit.id}
-${items.length ? `CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
+CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
 ${items.map((i) => `  - ${i.id} :: ${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
 
 DECISION MATRIX — score each real finding on:
@@ -202,7 +219,7 @@ ROUTING (apply in order; first match wins):
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch; the user plans it)
   - otherwise                              -> ACTIONABLE (write a precise, minimal fix_instruction)
-Also set a short \`theme\` keyword per verdict so related issues can be batched together.` : `The reviewer found NO defects in this unit. Confirm nothing needs recording (verdicts = []).`}
+Also set a short \`theme\` keyword per verdict so related issues can be batched together.
 
 WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). Use EXACTLY this format
 so the user can triage it and the resolve phase can parse it:
@@ -244,6 +261,7 @@ if (!Array.isArray(units) || !units.length) {
   throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed. Reuse this runId when you run the sibling resolve-cycle.mjs — both engines key runs/<runId> off it.');
 }
 log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [passes=${REVIEW_PASSES}, floor=${REVIEW_SEV_NAME}]`);
+log(`spawn ceiling: ≤ ${units.length * REVIEW_PASSES + units.length} agents (${units.length} unit(s) × ${REVIEW_PASSES} review pass(es) = ${units.length * REVIEW_PASSES} reviewers + ≤${units.length} verifiers — verify spawns only where findings exist)`);
 
 // Read-only fan-out: each unit flows reviewer → verifier independently and concurrently.
 const results = await pipeline(
@@ -253,11 +271,18 @@ const results = await pipeline(
     const found = [];
     const sigs = new Set();
     const handled = [];
+    let markerWritten = false;
     for (let p = 1; p <= REVIEW_PASSES; p++) {
-      const r = await agent(reviewPrompt(unit, handled), roleOpts('review', {
+      // Only the FINAL pass, with no prior finding, may write the clean marker: an earlier clean pass
+      // that wrote it could be left as the terminal on-disk state if a later pass throws or the run is
+      // cut before verify overwrites — resume would then trust that premature "clean" file and skip the
+      // unit, silently dropping a defect a later pass found.
+      const cleanEligible = handled.length === 0 && p === REVIEW_PASSES;
+      const r = await agent(reviewPrompt(unit, handled, cleanEligible), roleOpts('review', {
         schema: REVIEW_SCHEMA, phase: 'Review',
         label: `review:${unit.id}${REVIEW_PASSES > 1 ? ` p${p}` : ''}`,
       }));
+      if (cleanEligible && r?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
       for (const f of (r?.findings || [])) {
         if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
         // Dedup across passes on file+category: re-reviews re-phrase the same concern, so
@@ -269,13 +294,19 @@ const results = await pipeline(
         found.push(f);
       }
     }
-    return { unit, findings: found };
+    return { unit, findings: found, markerWritten };
   },
-  // -- Verify + write the unit inventory file (always, even when clean) ------
+  // -- Verify + write the unit inventory file — ONLY when the unit has findings -------------------
   async (r) => {
-    const { unit, findings } = r;
+    const { unit, findings, markerWritten } = r;
     const items = findings.map((f, i) => ({ id: `${slug(unit.id)}-${i + 1}`, f }));
-    const verify = await agent(verifyPrompt(unit, items), roleOpts(items.length ? 'verify' : 'review', {
+    // Clean unit: no findings ⇒ NO verify spawn. The reviewer already wrote issues/<unit>.md itself.
+    if (items.length === 0) {
+      if (markerWritten) log(`  ✓ ${unit.id}: clean (0 findings) — reviewer wrote the marker, verify skipped`);
+      else log(`  ⚠ ${unit.id}: clean but the reviewer did NOT write ${issueFile(unit.id)} — resume will re-review it`);
+      return { unit: unit.id, file: issueFile(unit.id), counts: { found: 0, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 }, kept: [] };
+    }
+    const verify = await agent(verifyPrompt(unit, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
     }));
     const byId = new Map(items.map((x) => [x.id, x]));
