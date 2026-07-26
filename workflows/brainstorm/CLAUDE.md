@@ -39,7 +39,9 @@ everything with the user first:
 
 - **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory) so
   `runs/` lands beside the tool, not in any target repo.
-- **`lenses` — REQUIRED:** the array you agreed in §2 (strings or `{ id, focus }`).
+- **`lenses` — REQUIRED:** the array you agreed in §2 (strings or `{ id, focus }`). Ids must stay
+  distinct **after slugging** — a collision throws rather than sending two generators into one
+  `variations/<lens>/` folder; give near-identical lenses explicit `{ id, focus }`.
 - **`brief` OR `planPath` — one REQUIRED.**
 - **Fresh vs. resume.** A re-run with the same `runId` overwrites each lens folder. Want to keep an old
   batch? Use a new `runId` (or `stateDir`).

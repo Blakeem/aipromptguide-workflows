@@ -1,0 +1,96 @@
+# enhance-cycle
+
+An autonomous Claude Code workflow that audits a system you **already have** for **enhancements** — the
+bigger changes worth writing up, not nits. It reports; you decide. Nothing is applied automatically.
+
+You name the scope and the angles to audit from. Claude runs one finder per angle across the *whole*
+scope, a verifier per angle throws out everything the system already does, then each surviving proposal
+lands scored by impact and effort in a file you triage. Adopted proposals go to
+[`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) to actually get built.
+
+### What sets it apart
+
+A **read-only audit** built on the shared [Workflow Principles](../../principles/):
+
+- **Enhancement, not improvement.** The floor is deliberately high. A typo *is* an improvement, but
+  nobody writes it up as an enhancement — and the [debug](../debug/) workflow catches it anyway. The test
+  every agent is held to: would a competent engineer file this as an enhancement ticket?
+- **Removal is a first-class outcome.** Deleting a role, a file, an argument, or a code path is one of
+  the best things the audit can return, and the finders are told to hunt for it deliberately — because
+  most audits only ever add.
+- **Breadth, not slices.** Each finder reads the whole scope through its lens, because the best
+  enhancements are cross-cutting ("every engine re-implements this", "these three roles could be two")
+  and are invisible to anyone reading one file at a time.
+- **A ruthless verifier.** Its first check is *does the system already do this?* — the single most common
+  failure of an audit pass. Then: is the claimed benefit real, is this just taste, and is this actually a
+  **defect** in disguise? A noisy proposal list wastes your time, and an audit that cries wolf gets
+  ignored.
+- **Nothing is auto-applied — on purpose.** There is no fix loop here and no plan to add one. An
+  enhancement list never converges (there is always another enhancement), and auto-applying one behind a
+  short review gate is exactly the scope creep the debug workflow exists to prevent. A human triages.
+- **Convergence is the signal.** Two lenses landing on the same change independently is the strongest
+  evidence in the run — the lens files stay separate so you can see it.
+
+---
+
+## Scope: is this the right tool?
+
+- ✅ **Right size:** an existing, working system worth auditing from several genuinely different angles —
+  make it faster, cheaper, simpler, smaller, more robust, less work to operate, or newly capable.
+- ❌ **Something is broken** (a bug, an edge case, a destructive behavior): use [`debug`](../debug/). The
+  verifier here rejects defects on sight and tells you to route them there.
+- ❌ **You want creative options a human picks:** use [`brainstorm-cycle`](../brainstorm/).
+- ❌ **You want the AI to conclude among competing approaches:** use [`decide-cycle`](../decide/).
+- ➡️ **Then build:** adopted proposals go to [`feature-cycle`](../feature/) (several become its roadmap)
+  or [`migrate-cycle`](../migrate/) for one goal spanning many call sites.
+
+---
+
+## How to use it
+
+Ships in the [AI Prompt Guide workflows](../../README.md) repo (clone as `aipg/`, copy the slash
+commands). Trigger it:
+
+- **Slash command:** `/aipg-enhance audit this MCP server for efficiency, simplification, and operator effort`
+- **Plain pointer:** tell Claude to *use the enhance-cycle **workflow** in `aipg/workflows/enhance/`* and
+  what to audit.
+
+Claude reads `aipg/workflows/enhance/CLAUDE.md`, settles the scope and lenses with you, then runs
+`enhance-cycle.mjs` **by path**.
+
+1. **Frames it.** Agrees the scope, the lenses, and — importantly — what "better" *means* for this
+   system, so the lenses optimize toward the same thing.
+2. **Finds.** One finder per lens, concurrently, each reading the whole scope. Every candidate is
+   grounded: what the code does today (with the line), what it would do instead, and the specific cost
+   that removes.
+3. **Verifies.** A verifier per lens checks each candidate against the real code, rejects what doesn't
+   survive, re-scores impact and effort, and routes the rest.
+4. **Stops.** Claude presents the proposals and triages them with you.
+
+A workflow runs in the background and **can't ask you questions mid-run**, so the audit stops at the
+proposal list and the decisions happen with you afterward.
+
+---
+
+## Reviewing the result
+
+Under `runs/<runId>/proposals/` — one file per lens, each holding the kept proposals (highest impact
+first) and a `Rejected` section explaining what was thrown out and why. Every proposal carries:
+
+- **Today** — what the system actually does now, at a specific line
+- **Instead** — the change, concrete enough to hand to a builder
+- **Removes** — the specific cost it removes
+- **Risk** — what it could break or make worse
+- **impact / effort / decision** — `ADOPT` (ready to build), `ROADMAP` (real, but needs planning), or
+  `NEEDS_USER` (a call only you can make, with options and a recommendation)
+
+Read the ADOPT items first, then decide scope. Anything the verifier marked as a **defect** belongs in
+the [debug](../debug/) workflow instead.
+
+---
+
+## Requirements
+
+- **Claude Code** with the background **Workflow** capability.
+- A target repo or directory to audit — read **only**. Nothing is written to it, staged, or committed.
+- No build or test commands needed; this pass never runs your code.

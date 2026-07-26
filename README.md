@@ -17,13 +17,16 @@ and staged for you to commit; the **generative** ones leave cited files for you 
 | **[feature](workflows/feature/)** | `/aipg-feature` | Build **one bounded feature** (new MCP tool, endpoint, page, form) — or an ordered **roadmap** of them, one approved plan each — from a plan you approve. |
 | **[debug](workflows/debug/)** | `/aipg-debug` | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory — findings from live/manual testing or bug reports. |
 | **[migrate](workflows/migrate/)** | `/aipg-migrate` | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
+| **[enhance](workflows/enhance/)** | `/aipg-enhance` | **Audit**: what a working system could do *better* — one lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine — no AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
 | **[docs](workflows/docs/)** | `/aipg-docs` | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-The first three are **build** workflows (code, reviewed and staged); the last three are
-**generative/read-only** (creative options, a decision, or a curated doc set — no code, nothing staged
-or committed). All six share the design rules in **[principles/](principles/)** — the fourteen
+The first three are **build** workflows (code, reviewed and staged); the last four are
+**generative/read-only** (proposals, creative options, a decision, or a curated doc set — no code,
+nothing staged or committed). `debug` and `enhance` are the pair to keep straight: something the system
+gets **wrong** is a defect (debug fixes it), something it could do **better** is an enhancement (enhance
+proposes it, you decide). All seven share the design rules in **[principles/](principles/)** — the fourteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work agents) and an
 [auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow against them.
 
@@ -81,6 +84,42 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ```
 
 You only re-copy a command if a brand-new workflow is added — rare by design.
+
+## Changelog
+
+What's changed, newest first — only what you'd notice while running them.
+
+### 2026-07-26
+
+- **Work is never discarded.** A feature, section, or fix batch that can't pass is now **parked**: saved
+  to `runs/<runId>/parked-<id>.patch`, cleared from the tree, with the `git apply` restore command
+  written into `NEEDS-USER.md`. It used to be rolled back and lost.
+- **A parked feature no longer stops the roadmap** — `feature-cycle` parks it and builds the next plan.
+  `migrate-cycle` still stops, because its sections depend on each other.
+- **New workflow: [enhance](workflows/enhance/)** (`/aipg-enhance`) — audits a working system for
+  enhancements worth writing up, and stops for you to triage. Defects still belong in `debug`.
+- **The build engines check your working tree first.** A dirty tree halts before any agent does work,
+  naming the two commands that fix it — instead of reviewing your uncommitted changes as its own.
+- **debug's review pass takes a lens *array*** — sweep the same code from several angles in one pass,
+  merged into one issue file per unit. Replaces `reviewPasses`, which re-ran an identical prompt.
+- **debug's review pass returns the issue index**, so there's no hand-grepping the issue files to build
+  the fix loop's input. `gen-units.mjs --issues-dir` also tags units new/changed/unchanged for cheap
+  review resumes.
+- **decide gains `selection: "ranked"`** — a ranked shortlist instead of one winner, when the answer is
+  legitimately a portfolio.
+- **docs spot-checks captured files against their source** and wants `outDir` pointed at a folder
+  dedicated to that one doc set.
+- resolve's final sweep is gone (it restated numbers the run already had); migrate keeps its sweep, which
+  re-greps the change surface. Plus assorted edge-case fixes across every engine.
+
+### Earlier
+
+- **2026-07-08** — debug's review pass got cheaper: units are bin-packed to ~2000 LOC (`--pack-loc`) and
+  a verifier is spawned only where findings exist.
+- **2026-07-07** — the research workflow became **docs**: verbatim capture, curated and indexed.
+- **2026-07-04** — renamed `upgrade` → **migrate** and `review` → **debug**; `feature` gained the `plans`
+  roadmap (several approved features in one run).
+- **2026-07-01** — `decide` gained a `testbed` so claims get measured instead of asserted.
 
 ## Requirements
 

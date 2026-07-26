@@ -5,11 +5,11 @@ documentation **verbatim** from the web, a repo, or local files, then curating i
 **indexed** folder a coding LLM can work from.
 
 You frame the brief (what the docs are *for*, which versions), the sources to pull, and where the set
-should live (usually `docs/<system>/` in your project). Claude runs one gatherer per source (each
-copying the relevant pages verbatim, with source + version headers), a fast scrub pass that strips
-capture junk, then a curator that organizes and splits the set, deletes what the brief doesn't need,
-writes `INDEX.md`, and checks the sources against each other — filling coverage gaps with a bounded
-follow-up gather.
+should live — a fresh folder dedicated to this one doc set, usually `docs/<system>/` in your project.
+Claude runs one gatherer per source (each copying the relevant pages verbatim, with source + version
+headers), a fast scrub pass that strips capture junk, then a curator that organizes and splits the set,
+deletes what the brief doesn't need, writes `INDEX.md`, and checks the sources against each other —
+filling coverage gaps with a bounded follow-up gather.
 
 ### What sets it apart
 
@@ -22,6 +22,9 @@ A **gather → curate** loop built on the shared [Workflow Principles](../../pri
   none. The curator — the one agent that reads the whole set — does the checks that still matter:
   **cross-source inconsistencies** (version mismatches, contradictions) and **coverage gaps** vs. the
   brief.
+- **The verbatim promise is tested, not asserted.** Once the index is written, the curator re-opens the
+  source a handful of captured files cite and compares a passage word for word. A rewritten passage
+  fails and gets recaptured; an unreachable source is reported as *unchecked* rather than passed.
 - **Indexed for LLM use.** `INDEX.md` gives one line per file — what it covers, when to read it — plus
   Coverage notes, so the agent building your feature finds the right doc without reading everything.
 - **Gap-fill loop.** Gaps the curator finds spawn targeted gathers (bounded by `maxRounds`); anything
@@ -72,8 +75,14 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
 
 Under `runs/<runId>/docs/` (or your `outDir`): the curated set — `<source>/*.md` verbatim docs plus
 `INDEX.md`. Start at the index: one line per file, then **Coverage notes** with any cross-source
-inconsistencies and unresolved gaps. Copy the folder into your repo if you want to keep it, or pass
-`outDir` up front.
+inconsistencies, unresolved gaps, and how many files were spot-checked against their source. Copy the
+folder into your repo if you want to keep it, or pass `outDir` up front.
+
+**Give it its own folder.** The output directory belongs to the run: the curator deletes freely inside
+it, which is what lets it dedup, split, and re-curate the whole set. Point it at a fresh directory per
+doc set (`docs/stripe/`, not `docs/`). Anything in there the run neither captured nor wrote is left
+untouched and reported back — a sign the folder was shared, and to move that content out before the
+next run.
 
 ---
 

@@ -52,8 +52,12 @@ Everything else (`test_selector`, …) stays in the plan body. Order = dependenc
 ## 4. Pre-run setup (your job — no setup agent, #4)
 
 Before `phase:"run"`:
-- **Clean the unstaged tree** (`git -C <repo> diff` empty before kicking off, or before a resume of the
-  first not-yet-started section). Staged work from a prior accepted section is the correct baseline.
+- **Clean the unstaged tree — now engine-enforced** (`git -C <repo> diff` empty before kicking off, and
+  before any resume). Staged work from a prior accepted section is the correct baseline. On round 1 the
+  developer's FIRST act (before reading the plan) is `git diff --name-only` + `git status --porcelain`;
+  any non-zero count halts the run **before a reviewer is spawned** — nothing built, nothing changed.
+  Still settle a dirty tree with the user BEFORE you start (`git add -A` to keep it as baseline,
+  `git stash -u` to set it aside): finding out at run time costs a spawn.
 - **`root` — REQUIRED** (both phases): the tool's own directory so `runs/` lands beside the tool, not in
   the target repo. Omit it → the engine errors.
 - **Each section's `gate`** from its plan `gate:` line (mechanical/testless → `build-only`).
@@ -107,16 +111,33 @@ Roles mirror feature-cycle (the conductor passes only control signals, #1; agent
   hard blocker).
 - **Quality Reviewer** (run · sonnet) — **blind**; reviews ONLY the unstaged diff for introduced
   production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
-- **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria, reachability, the section
-  gate, regression vs the staged baseline. Writes `acceptance-review-<id>-rN.md`. Only agent that stages,
-  on pass — the baseline advances.
+- **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria (enumerated and evidenced
+  with locators), reachability, the section gate, regression vs the staged baseline. Writes
+  `acceptance-review-<id>-rN.md`. Only agent that stages, on pass — the baseline advances.
+- **Park** (run · develop tier) — runs only when a section can't accept: saves its work to
+  `parked-<id>.patch`, copies untracked strays to `parked-<id>-newfiles/`, clears the tree, re-runs the
+  build gate, writes the restore instructions to `NEEDS-USER.md`. Never touches the staged baseline.
 - **Sweep** (after the final section · sonnet) — whole-goal check: re-greps the surface, runs the FULL
-  gates, spot-checks the staged diff, writes `SWEEP.md`.
+  gates, spot-checks the staged diff, writes `SWEEP.md`. Kept here (unlike the sibling `resolve-cycle`,
+  whose sweep was deleted): this one **re-derives the whole change surface from the goal** by grep and
+  finds coverage gaps no per-section agent could see, where resolve's only restated numbers the harness
+  already had. Disable with `finalSweep:false`; it runs only on a full, unhalted run.
 
 **Loop**, per section in order: `develop → quality (blind, must be clean) → acceptance (plan-aware;
-stages on pass)`, up to `maxRounds` (default 4). Any code change re-enters at quality. **A section that
-does NOT accept HALTS the whole run** — the next section's blind diff must be clean, so you cannot start
-it while this section's work is unstaged. Resume re-runs that section on its persisted unstaged work.
+stages on pass)`, up to `maxRounds` (default 4). Any code change re-enters at quality.
+
+**A section that does NOT accept is PARKED, and the run STOPS there.** Park saves that section's work to
+`runs/<runId>/parked-<id>.patch` (`git diff --binary`, so binary files re-apply), copies any untracked
+strays the patch can't carry into `parked-<id>-newfiles/`, clears the tree, re-runs the build gate, and
+appends the diagnosis + the verbatim restore command (`git -C <repo> apply --3way <patch>`) to
+`NEEDS-USER.md`. Nothing is discarded, and save always precedes clear — no patch, no clear. The run
+still stops (unlike `feature-cycle`, which parks and continues): sections are an ordered decomposition
+of ONE goal, so section N+1 routinely depends on N having landed. Parking buys a clean, buildable tree
+and a saved patch — not a continued run. Two exits deliberately do NOT park: a **dirty baseline** on
+round 1 (that work is the user's; parking it would take their changes hostage) and acceptance **passed
+but not staged** (one `git add` both preserves the work and cleans the tree, so parking would be
+strictly worse). Every exit therefore leaves a clean tree except passed-but-unstaged — and a park that
+reports it could NOT clear, which the halt reason calls out for you to clean up before resuming.
 
 **Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
 the section's OWN selector, never whole-suite-green):
@@ -140,21 +161,32 @@ The engine reports `status`/`sectionsDone`/`ledger`/`sweep`. Confirm:
 - Run the gates for real; each accepted section's selector is green (and the full suite, if the goal
   expects green at the end).
 - `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
+  Except after a passed-but-unstaged halt, `status --porcelain` should show nothing unstaged.
 - Grep each section's integration points — reachable, conversions complete (no call site on the old
   path).
 - Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md`**.
+- Any section the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
+  criteria carry no locators) passed on assertion rather than evidence — read that file closely.
 - Read `SWEEP.md` (evidence, not a substitute for your own check); surface `NEEDS-USER.md`.
 
 ## 8. Resume (no progress file by design, #6/#10)
 
-Durable progress = git staging + the numbered review-file trail + the ordered plan.
+Durable progress = git staging + the numbered review-file trail + the ordered plan. Every exit leaves a
+clean tree except passed-but-unstaged (and a park that reports it could NOT clear — the halt reason says
+so), so a resume normally starts from the staged baseline.
 1. Read the trail + `git -C <repo> diff --cached --stat` to see which sections are staged/accepted and
-   which is in-flight (its work sits **unstaged**).
-2. Hard blocker → read `NEEDS-USER.md` / the section's latest review, resolve with the user.
+   which one stopped the run (its work is in **its patch**, not the tree; `NEEDS-USER.md` names it).
+2. Hard blocker → read `NEEDS-USER.md` / the section's latest review, resolve with the user. Passed-but-
+   unstaged → stage that section's files yourself first.
 3. Re-invoke `phase:"run"` with the same args **plus `startAt:"<first not-yet-accepted section id>"`** (or
-   `runOnly:[ids]` for an explicit subset). In-progress unstaged work persists; the next developer builds
-   on it. A partial slice via `startAt`/`runOnly` skips the final sweep — run the full list once at the
-   end to get it.
+   `runOnly:[ids]` for an explicit subset). An id matching no section now **throws** — copy it from the
+   `sections` list. A partial slice via `startAt`/`runOnly` skips the final sweep — run the full list
+   once at the end to get it.
+4. **The parked section's work is in `parked-<id>.patch`.** Sharpen that section of the plan and let the
+   developer redo it from the clean baseline, or restore the patch first if the partial work is worth
+   continuing from — with the cost that the round-1 check then sees a dirty tree, so you must
+   `git add -A` it in (it enters as UN-reviewed baseline). `parked-<id>-newfiles/`, when present, is a
+   separate manual copy-back.
 
 Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the whole goal.
 
@@ -162,12 +194,17 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 
 - **Verify what the runner actually ran.** Some test runners silently ignore extra path args, so a
   multi-file selector runs only the first file and gives a false green. The engine fails the gate on
-  `tests_run_count==0` for a green section — sanity-check it; scope one file per invocation or use the
-  runner's filter.
+  `tests_run_count==0` for a green section (a required field, so it can't be omitted to dodge the
+  check) — sanity-check it; scope one file per invocation or use the runner's filter.
 - **`git diff` omits new files** — also `git status --porcelain` + read them.
 - **Custom `agentTypes` must exist** in the user's registry — defaults use the standard subagent.
 - **A "passed but not staged" section halts on purpose** (so the next section's diff isn't corrupted) —
-  stage its files yourself (`git add`), resume from the NEXT section.
+  stage its files yourself (`git add`), resume from the NEXT section. It is deliberately NOT parked: the
+  work is good, and one `git add` both preserves it and cleans the tree.
+- **A parked section's work is NOT in the tree** — it's in `runs/<runId>/parked-<id>.patch` (plus
+  `parked-<id>-newfiles/` when it created untracked strays, which need a manual copy-back as a second
+  step). `NEEDS-USER.md` carries the diagnosis and the exact `git apply --3way` command. A park is a
+  status record, not a dismissal: nothing was discarded, and the sections after it were not attempted.
 - **A halt is usually** a bad gate command, a missing dependency the plan assumed (a consumer before its
   producer — reorder the plan), or a real design question. Fix the root cause, resume from that section.
 - **`too_big`** → split the named section, update `sections`, re-run refine.
@@ -182,13 +219,18 @@ are its only non-code output. No `tasks.json`/`progress/`/`LEDGER.md`/`CHANGELOG
 - `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
 - `DISMISSED-<id>.md` — the section's declined findings, one terse line each; **you audit before
   committing.**
-- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run.
+- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run, and a parked
+  section has a `## Parked section: <id>` entry with its diagnosis + restore command.
+- `parked-<id>.patch` — the parked section's saved work (`git diff --binary`); restore with
+  `git -C <repo> apply --3way <patch>`.
+- `parked-<id>-newfiles/` — only when the section left untracked strays the patch can't carry; copy them
+  back into the repo (relative paths preserved) as a second step after the `git apply`.
 - `SWEEP.md` — the final whole-goal completeness sweep.
 
-Report when done: status + which sections are done, the suite result (you ran it), each section wired in
-/ fully converted, what's staged, `NEEDS-USER.md`, the latest acceptance verdicts, anything in a
-`DISMISSED-<id>.md` worth a second look, the `SWEEP.md` result. **Never commit** — tell the user to
-review `git diff --cached` and commit.
+Report when done: status + which sections are done and which parked (and where its patch is), the suite
+result (you ran it), each section wired in / fully converted, what's staged, `NEEDS-USER.md`, the latest
+acceptance verdicts, anything in a `DISMISSED-<id>.md` worth a second look, the `SWEEP.md` result.
+**Never commit** — tell the user to review `git diff --cached` and commit.
 
 ## 11. Args reference
 
@@ -203,4 +245,6 @@ inline to `Workflow`.
   scope one test, run-as-user/container prefix) · `target.lang`/`target.framework` (hints) · `maxRounds`
   (4) · `models` (per-role tier: develop/quality/acceptance/refine/sweep) · `agentTypes` (custom subagent
   per role — must exist in your registry) · `stateDir` (override `runs/<runId>`) · `runOnly`/`startAt`
-  (§8, scope a partial slice).
+  (§8, scope a partial slice; an unknown id throws) · `finalSweep` (default true; `false` skips the
+  whole-goal sweep) · `minSectionBudget` (token floor to start another section; default 150k — stops
+  cleanly between sections).

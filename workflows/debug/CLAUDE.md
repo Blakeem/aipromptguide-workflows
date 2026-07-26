@@ -15,9 +15,16 @@ first (Bug Hunt & Repro), then feed the result in as an external inventory (see 
 production defects across a codebase and/or FIXES a verified issue inventory — it does not hunt a reported
 bug for you.
 
+**DEFECTS ONLY — this is load-bearing, not a preference.** Something the system gets WRONG today. An
+improvement, an efficiency idea, a new capability → the sibling **`enhance`** workflow. The prohibition is
+unconditional (a lens narrows which defects matter; it never licenses proposing a better design) for two
+reasons: this inventory feeds `resolve-cycle`'s autonomous fixer, so an improvement list would be
+auto-applied behind a two-round gate — the exact scope creep this workflow exists to prevent — and an
+improvement list never converges, which the CLOSED-inventory contract depends on.
+
 **You are the setup + triage layer (#4).** The engines read NO files and spawn no loader/scribe/baseline
-agent — you run `gen-units.mjs`, pass the units in `args`, present and triage the inventory, grep the
-approved issues into `args.issues`, ensure a clean baseline, and verify ground truth at the end.
+agent — you run `gen-units.mjs`, pass the units in `args`, present and triage the inventory, hand the
+approved issues to `resolve-cycle`, and verify ground truth at the end.
 
 ## Adapting the engines (not running them)
 
@@ -30,27 +37,36 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
 
 ## Roles (5)
 
-**`review.mjs` (read-only, units run CONCURRENTLY via `pipeline`):**
-- **Reviewer** (sonnet) — finds production defects in ONE unit's files; returns findings. When it finds
-  NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues found." + unit
-  hash — what makes hash-based resume work); with findings it writes nothing and hands off to the verifier.
-- **Verifier** (opus) — spawned ONLY for units with findings; confirms each against the real code,
-  corrects inflated severity, routes via the decision matrix, and **writes `issues/<unit>.md`** verbatim
-  (the inventory AND triage doc). Clean units never reach it — the reviewer already wrote their marker.
+**`review.mjs` (read-only; units run CONCURRENTLY via `pipeline`):**
+- **Reviewer** (sonnet) — finds production defects in ONE unit's files through ONE lens; returns findings.
+  When it finds NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues
+  found." + unit hash — what makes hash-based resume work); with findings it writes nothing and hands off
+  to the verifier. With a lens ARRAY the unit gets one reviewer per lens, and only the LAST may write the
+  marker (the unit is clean only if every lens found nothing).
+- **Verifier** (opus) — spawned ONLY for units with findings; **ONE per unit regardless of lens count**.
+  Confirms each against the real code, corrects inflated severity, folds cross-lens duplicates, routes via
+  the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
+  units never reach it — the reviewer already wrote their marker.
 
 **`resolve-cycle.mjs` (batches run SEQUENTIALLY — staging serializes):**
 - **Fixer** (opus) — reads its batch's `issues/<unit>.md` verbatim, **verify-first** (vanished → STALE),
   fixes minimally, runs gates, leaves work UNSTAGED, owns the matrix, declines → `DISMISSED-<batch>.md`,
-  escalates → `NEEDS-USER.md`. Only the fixer halts the run.
+  escalates → `NEEDS-USER.md`. Only the fixer halts the run. On round 1 it also reports two preconditions
+  before touching anything (see Contracts).
 - **Blind quality reviewer** (sonnet) — reads ONLY the unstaged diff, no issue text — catches anything
   the fix introduced or broke. Must be clean before acceptance.
 - **Acceptance verifier** (opus) — reads the batch's issue file(s), **re-derives each fix's root cause**
   from current code, passes only if the fix closes it *completely* with no regression and green gates.
   Stages the batch on pass — the only agent that stages.
-- **Rollback** (fixer role, failure-only) — a batch that can't pass within `maxRounds` is restored to the
-  staged baseline so the next batch starts clean; its issues become needs-attention.
-- **Sweep** (sonnet, optional, after the last batch) — full gates, staged-diff spot-check, accounting →
-  `SWEEP.md`.
+- **Park** (fixer role, failure-only) — a batch that can't pass within `maxRounds` has its work **saved to
+  `parked-<batch>.patch` and then cleared** from the tree, so the next batch starts clean *and* nothing is
+  thrown away. Its issues become needs-attention; `NEEDS-USER.md` gets the diagnosis + restore command.
+
+There is **no sweep**. Acceptance already runs the full gates on every accepted batch, park re-runs them
+after clearing, and the accounting is the harness's own ledger — a `SWEEP.md` would restate numbers the
+run already has, which is also what #6 forbids. (`migrate-cycle` keeps its sweep: that one re-greps the
+change surface from the goal and finds coverage gaps no per-section agent could see.) The single check a
+sweep did cover that the harness cannot — *did acceptance leave anything unstaged?* — is in `followups`.
 
 ## Contracts (keep intact)
 
@@ -76,10 +92,48 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
 - **Staging = the batch boundary.** Staged + HEAD = accepted baseline; unstaged = the current batch (the
   reviewers' scope). The fixer never stages (except `git add -N` for new files); acceptance stages on
   pass. Nothing is ever committed.
-- **Failed batches roll back** to baseline; their issues are marked needs-attention with the
+- **Failed batches are PARKED, never discarded.** `git diff --binary > parked-<batch>.patch` (binary is
+  required — a plain diff records "Binary files differ" and won't re-apply), untracked strays the patch
+  can't carry are copied to `parked-<batch>-newfiles/`, THEN the tree is cleared and the gates re-run.
+  Save always precedes clear; if the patch can't be written the tree is left exactly as it is and the run
+  halts. `NEEDS-USER.md` gets the diagnosis, the patch path, and the verbatim
+  `git apply --3way` restore command. The issues become needs-attention with that batch's
   acceptance-review file as retry context.
+- **Every exit leaves a clean tree — that's what makes the precondition below unconditional.** Accepted
+  work is staged, unfinished work is parked. A resume therefore starts from the same clean baseline a
+  fresh run does.
+- **Two round-1 preconditions, checked before the fixer touches anything.** `baseline_dirty_files` — the
+  unstaged tree must be empty, because the unstaged diff IS the reviewers' scope and pre-existing changes
+  would be attributed to the batch and fail it for someone else's edits. `issue_entries_found` — the fixer
+  must locate at least one `### [<id>]` block for its batch; zero means `runId`/`root`/`stateDir` don't
+  match what wrote the inventory, and without the guard every issue would be reported STALE and the run
+  would end claiming false success. Either halts immediately, changing nothing.
+- **A lens narrows WHICH defects, never widens into improvements.** `args.lens` (or per-unit `unit.lens`)
+  aims the same machinery at a class of defect. "Report DEFECTS, not redesigns" and the verifier's
+  `scope-creep → REJECT` are UNCONDITIONAL — see the scope caveat at the top. Improvements are `enhance`.
 - **Severity floors.** `reviewSeverity` (default medium) keeps nitpicks out of the inventory;
   `criticSeverity` (default high) floors the blind reviewer. Don't lower these — that's the noise spiral.
+
+## Lenses (optional — `review.mjs`)
+
+Unset, the reviewer hunts production defects generally; every existing call is unaffected. Set `lens` to
+aim it at a narrower class — a destructiveness audit, a data-loss sweep, a compliance pass, a
+document/drawing review. Fields (all optional, each falls back to the defect-hunting default):
+`{ id, mandate, criteria, categories, findingNoun, matters }` — `mandate` replaces the reviewer's one-line
+charter, `categories` the finding enum, the rest the floor wording.
+
+- **`args.lens`** sets the default for every unit; **`unit.lens`** REPLACES it for that unit (it does not
+  merge — element-wise merging of arrays is unpredictable; per-field defaults still apply).
+- **An ARRAY of lenses** reviews each unit once per lens and merges the results into that unit's SINGLE
+  issue file behind ONE verifier. Use it to sweep the same code from genuinely different angles in one
+  pass. Dedup is per-lens (`lens:file:category`), so two lenses may both report the same file+category —
+  that's the point, and the verifier folds true duplicates.
+- **Fan out by lens instead of file-slice** for a small codebase: pass the same files as N units with
+  distinct ids and a different `unit.lens` each → one issue file per lens, reviewed concurrently.
+- Agent ceiling per unit: one reviewer per lens + at most one verifier. It's logged at run start.
+
+(`reviewPasses` is **gone**. It re-ran an identical prompt, so pass 2 re-hunted pass 1's ground at full
+cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 
 ## Playbook
 
@@ -101,22 +155,27 @@ approved issues into `args.issues`, ensure a clean baseline, and verify ground t
      line to encode that option precisely
    - a DEFER the user still wants → ACTIONABLE only if genuinely batchable; large cross-cutting work
      belongs in the migrate workflow as a goal.
-5. **Grep the approved issues into `args.issues`.** Read the issue files, build the array of ACTIONABLE
-   issues — each `{ id, unit, file, line, loc, severity, category, decision, effort, theme }` from the
-   `- ` header lines. (The harness can't read files — this is the resolve analog of reading the plan to
-   build the section list.)
-6. **Clean baseline (#4).** Fold any pre-existing local changes into the staged baseline (`git add`) so
-   each batch's unstaged diff is purely that batch's work. Gates must be GREEN before starting — resolve
+5. **Build `args.issues` from `review.mjs`'s returned `issues` array** — it is already in resolve's exact
+   shape (`{ id, unit, file, line, loc, severity, category, decision, effort, theme }`). Apply your
+   triage on top: drop what the user set to SKIP, flip approved NEEDS_USER items to ACTIONABLE (re-reading
+   their rewritten `**Fix:**` lines). **Do not hand-rebuild it by grepping** — that's error-prone busywork
+   (a hand rebuild is how a `file.py:224-276` range once became the number `224276`). Only an *external*
+   inventory (no `review.mjs` run) needs the array built by hand.
+6. **Clean baseline (#4).** Fold any pre-existing local changes into the staged baseline (`git add -A`) or
+   stash them, so each batch's unstaged diff is purely that batch's work — the engine now halts on round 1
+   if the tree is dirty. Ask the user which they want *before* starting. Gates must be GREEN — resolve
    thrashes otherwise.
 7. **Run `resolve-cycle.mjs`** (its absolute path; **same `runId` + `root`** as `review.mjs`). First run scoped —
    `"resolveOnly": ["src/oneArea/"]` (issue ids or path prefixes) — to sanity-check cost and quality,
    then the rest.
-8. **Verify ground truth yourself:** run the full gates for real, `git diff --cached --stat`, spot-read
-   the riskiest fixes, read `SWEEP.md`.
-9. **Resume.** `review.mjs`: re-run `gen-units.mjs`, then pass only the units whose `issues/<unit>.md` is
-   missing or whose embedded `hash:` differs from the fresh manifest (Glob the dir, read the hash lines,
-   diff against the manifest). `resolve-cycle`: re-grep `issues/*.md` and pass the still-open issues —
-   fixed ones are now staged; verify-first re-marks stale ones cheaply.
+8. **Verify ground truth yourself:** run the full gates for real, `git diff --cached --stat`, and
+   `git status --porcelain` to confirm nothing was left unstaged (an acceptance verifier that missed a
+   newly-created file is the one gap the engine can't see). Spot-read the riskiest fixes.
+9. **Resume.** `review.mjs`: re-run `gen-units.mjs` with `--issues-dir runs/<runId>/issues` — it joins each
+   unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`, and emits
+   `manifest.staleUnits`. Pass that array as `args.units`. `resolve-cycle`: re-grep `issues/*.md` for the
+   still-open issues — fixed ones are now staged, verify-first re-marks stale ones cheaply, and a parked
+   batch's work is in its patch (the tree is clean).
 
 ## External inventory (skip `review.mjs`)
 
@@ -126,22 +185,33 @@ dependency on `review.mjs` beyond the issue files + `args.issues`. You act as th
 `runs/<runId>/issues/<unit>.md` in the exact verifier format (frontmatter + `### [<id>]` blocks with the
 `- ` header lines and a precise `**Fix:**`), anchoring each behavior-level finding to `file:line`
 yourself, and record skipped findings with `- decision: SKIP` so the triage is on file. Then playbook
-steps 5–8 as normal. Mind the floors: pass `fixSeverity: "low"` if the inventory includes LOW polish
-items. Verify-first makes loose anchors safe — the fixer re-confirms each issue against current code.
+steps 6–8 (build `args.issues` by hand here — there's no `review.mjs` return to start from).
+
+**The `### [<id>]` heading is a contract, not a style choice.** The round-1 `issue_entries_found`
+precondition counts those blocks; a file that uses some other heading reads as an empty inventory and
+halts the run. The threshold is "at least one", never an exact match, so a hand-authored file with extra
+or differently-numbered entries stays safe.
+
+Mind the floors: pass `fixSeverity: "low"` if the inventory includes LOW polish items. Verify-first makes
+loose anchors safe — the fixer re-confirms each issue against current code.
 (First used: `runs/live-test-fixes`, an inventory from live MCP-tool testing.)
 
 ## Gotchas
 
-- **The review re-phrases the same concern across passes.** Dedup is by `file:category`, not title —
-  keep it that way or duplicates flood the inventory when `reviewPasses` > 1.
+- **The review re-phrases the same concern.** Dedup is by `lens:file:category`, not title — keep it that
+  way, or one lens's findings would silently suppress another's on the same file.
 - **Reviewer severity is inflated** — that's why the verifier re-scores it; don't skip verify to save
   tokens (an unverified inventory wastes far more user-triage time than verify costs).
 - **`git diff` omits new files** — when verifying by hand, check `git status --porcelain` too.
 - **The blind reviewer is blind by instruction, not placement** (issue files share the run-state dir), so
   the prompt forbids reading any inventory/issue file. If you ever move issue files, keep them off any
   path the blind reviewer is handed.
-- **A needs-attention batch left the tree CLEAN** (it was rolled back). Read its
-  `acceptance-review-<batch>-rN.md` for what failed; offer to retry those issues with that context.
+- **A parked batch left the tree CLEAN, and its work is NOT gone.** It's in
+  `parked-<batch>.patch` (plus `parked-<batch>-newfiles/` when the batch created untracked files the
+  patch couldn't carry — those need a second copy-back step after `git apply --3way`). Read the batch's
+  `acceptance-review-<batch>-rN.md` for what failed, then offer the user the three real options: restore
+  the patch and finish by hand, re-run resolve scoped to those ids after sharpening their `**Fix:**`
+  lines, or drop the patch.
 - **The issue files are the source of truth for WHAT to fix** — the engines never mutate them after
   `review.mjs`. The returned ledger is WHAT HAPPENED (in-memory, not a file) — don't write status back
   into the issue files.
@@ -153,12 +223,14 @@ items. Verify-first makes loose anchors safe — the fixer re-confirms each issu
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable) · `quality-review-<batch>-rN.md` (blind) ·
 `acceptance-review-<batch>-rN.md` (issue-aware) · `DISMISSED-<batch>.md` (fixer's declines) ·
-`NEEDS-USER.md` (fixer escalations) · `SWEEP.md` (optional). No `issues.json`, no progress JSON, no
+`NEEDS-USER.md` (fixer escalations + every parked batch's diagnosis and restore command) ·
+`parked-<batch>.patch` (a failed batch's saved work) · `parked-<batch>-newfiles/` (only when the batch
+created untracked files the patch couldn't carry). No `issues.json`, no `SWEEP.md`, no progress JSON, no
 `LEDGER.md`/`CHANGELOG.md`.
 
 Report when done: issues fixed / stale / needs-attention, the full-suite result (you ran it), what's
-staged (`git diff --cached --stat`), any NEEDS-USER items. **Never commit** — tell the user to review and
-commit.
+staged (`git diff --cached --stat`), any NEEDS-USER items, and **every parked batch with its patch path
+and what the user's options are**. **Never commit** — tell the user to review and commit.
 
 ## Args reference
 
@@ -174,13 +246,17 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 **`review.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `conventions` · `units` (from `gen-units.mjs`).
   `gates` is informational context for the reviewer here.
-- **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `reviewPasses` (independent
-  passes per unit, 1).
+- **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `lens` (one lens or an ARRAY —
+  see Lenses; per-unit override via `unit.lens`).
+- **Returns** `issues` (the machine-built index in resolve's exact shape — start step 5 from this),
+  `inventory` counts, `hottest` areas, and `needsUserFiles`.
 
 **`resolve-cycle.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `gates.build` + `gates.test` (shell commands; `test`
-  must be GREEN before resolve) · `conventions` · `issues` (grepped from the triaged files).
+  must be GREEN before resolve) · `conventions` · `issues` (review's returned array + your triage).
 - **Optional tuning:** `fixSeverity` (resolve-fix floor, medium) · `criticSeverity` (floor for NEW
   defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) ·
   `minBatchBudget` (stop cleanly between batches under a token target, 150000) · `resolveOnly` (ids/path
-  prefixes for a scoped first run) · `finalSweep` (true) · `maxRounds` (2).
+  prefixes for a scoped first run) · `maxRounds` (2).
+- **Returns** `summary` counts, `parked` (each parked batch with its patch + strays paths and issue ids),
+  the per-batch `ledger`, and `followups`.

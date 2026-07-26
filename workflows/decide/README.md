@@ -20,6 +20,10 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
 - **Adversarial, non-blind review.** Unlike a code review, the reviewer *must* see the decision to judge
   it — so it's non-blind by design, and it attacks the conclusion against the requirements rather than
   rubber-stamping it.
+- **One winner, or a ranked shortlist.** The default is a single justified conclusion. When the honest
+  answer is a *portfolio* — "give me the best N, I'll pick or combine" — the `ranked` mode returns an
+  ordered shortlist instead: what each option buys, what it costs, and which of them safely combine
+  (and which are mutually exclusive), held to the same matrix and the same adversarial review.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
   [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) next.
 

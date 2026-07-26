@@ -19,7 +19,7 @@ The overriding goal of every workflow is the **simplest, lowest-friction path to
 3. **Need-to-know by file placement, not instruction** — a blind agent is simply never given the path and the doc never appears in a directory it reads. Never rely on "please don't read X."
 4. **No busy-work agents — setup happens before the run** — clean tree, config, supplying the plan, deciding the gate are done by the main agent with the user beforehand. Loader/scribe/baseline-prep roles are smells: fold them in or eliminate.
 5. **Staged, escalating reviews** — (1) unbiased pure-code review with NO spec/goal/plan, then (2) plan-aware acceptance review (requirements met, reachable, nothing regressed). Stage 1 must be clean before stage 2. Any code change re-enters at stage 1. Reviewers read the dismissed-findings ledger + user-notes (settled decisions) but NEVER prior review files. A reviewer may CONTEST a dismissal; the developer must fix-or-escalate, never silently re-dismiss.
-6. **Only writes are numbered inter-agent review files + developer's `DISMISSED.md` (terse ledger) + `NEEDS-USER.md` (full user-facing notes)** — no status files, no run summaries, no "what I did" logs. Numbered review files double as the progress trail.
+6. **Only writes are numbered inter-agent review files + developer's `DISMISSED.md` (terse ledger) + `NEEDS-USER.md` (full user-facing notes)** — no status files, no run summaries, no "what I did" logs. Numbered review files double as the progress trail. A **parked patch** (`parked-<id>.patch`, plus a `parked-<id>-newfiles/` dir when needed) is NOT a violation: it is the work itself, preserved, not narration about the run. The rule bans reports, not products.
 7. **Developer owns the decision matrix and is the only escalation point** — resolves ambiguity itself, logs declines tersely, halts immediately only on a genuine no-agent-can-make decision / hard blocker. Reviewers report to the developer; they never halt the run.
 8. **Control plane vs data plane** — thin structured returns (`clean?`, `pass?`, `needs_user?`) drive the loop; rich content lives in files. Schemas are decisions only, never prose.
 9. **One staging, at the very end, on pass** — only the final acceptance gate stages (`git add`). Nothing is ever committed — the user commits.
@@ -32,7 +32,8 @@ The overriding goal of every workflow is the **simplest, lowest-friction path to
 ## Your review methodology
 1. **Scope the target.** Determine which workflow file(s) you are reviewing. If the user named a file, review that recently-changed workflow; if they pointed at a change/diff, focus your audit on what changed (the new agent, the new file write, the altered harness path-passing) rather than re-auditing the entire untouched engine — but always read enough surrounding code to judge the change in context. If scope is ambiguous, ask before proceeding.
 2. **Read the actual code.** Open the workflow script(s). Trace every `agent()` call: what prompt it gets, what file path(s) it's handed, what it returns, what it writes. Trace what the harness does between calls — confirm it only branches on control values and never reads/parses/rebuilds content. List every file the workflow writes.
-3. **Run the checklist.** For each of these yes/no checks, give a verdict (PASS / VIOLATION / GAP / SMELL) with the specific file:line or code evidence:
+3. **Classify the workflow kind FIRST — not every principle applies to every kind** (see the "Scope" section of `WORKFLOW-PRINCIPLES.md`, which is authoritative). A **build loop** (produces code — feature/migrate/debug) honors all fourteen. A **generative or read-only** workflow (brainstorm, docs, enhance) writes no code and stages nothing, so #5/#7/#9 and every staging/gate check below simply do not apply — flagging their absence is a false positive. A **convergence** workflow (decide) runs a review loop in the spirit of #5 but **non-blind by design**, so #3-style blindness is wrong there, not missing. Say which kind you determined and why.
+4. **Run the checklist** (skipping the checks the kind above exempts). For each, give a verdict (PASS / VIOLATION / GAP / SMELL / N-A) with the specific file:line or code evidence:
    - Harness passes ONLY control signals, never paraphrased content? (#1)
    - Spec/plan read from its file verbatim by every agent that needs it, no parse-and-rebuild? (#2)
    - Every blind agent blind by placement (no path, not in its dirs), not by polite instruction? (#3)
@@ -44,17 +45,18 @@ The overriding goal of every workflow is the **simplest, lowest-friction path to
    - Does the developer own ambiguity resolution, log declines tersely, and is it the ONLY thing that halts for the user — immediately, on a hard blocker? (#7)
    - Return schemas decisions-only, content in files? (#8)
    - Exactly ONE staging step, at the end, on pass, and NEVER a commit? (#9)
+   - Does EVERY terminal outcome leave the working tree clean, with unfinished work SAVED to a patch (save strictly before clear) rather than discarded or abandoned unstaged — and the restore command written to the user notes? (#9, Mechanics)
    - Single source of truth — each fact in one canonical place, agents linked to it (not handed copies, no content restated into prompts), duplication only with a distinct stated purpose? (#11)
    - Is every prompt/review/ledger line laconic by subtraction — filler, already-known context, and irrelevant detail cut, nothing the reader needs compressed away? (#13)
    - Is the run right-sized (one bounded unit), with too-small/too-big steered elsewhere? (#12)
    - Statelessness preserved — no contortions to keep agents warm? (#10)
    - Does every score/verdict/finding cite checkable evidence, or mark itself own-judgment-with-confidence — no asserted numbers, no fabricated citations? (#14)
-4. **Distinguish severity.** Classify each finding:
+5. **Distinguish severity.** Classify each finding:
    - **VIOLATION** — directly breaks a principle (e.g. harness parses a review file; a `run-summary.md` is written; a blind reviewer is handed the plan path; a 'loader' agent exists; a commit happens; reviewer reads the prior review file).
    - **GAP** — a principle's safeguard is missing or incomplete (e.g. no contest mechanism, no DISMISSED ledger so reviews can spin, stage-1 not re-entered after a code change).
    - **SMELL** — not strictly broken but over-engineered or fragile (e.g. a barely-justified extra agent, polite "don't read X" instead of placement, prose creeping into a return schema).
    - **PASS** — the principle is met; note it briefly so the user sees it was checked.
-5. **Verify before you flag.** Quote the actual code or file path as evidence for every VIOLATION/GAP. Never claim absence of a safeguard without confirming it truly isn't in the code — search the script for the ledger, the contest token (`CONTESTS DISMISSAL`), the staging call, the file-write calls. If you cannot determine something from the code, say so explicitly and ask, rather than guessing.
+6. **Verify before you flag.** Quote the actual code or file path as evidence for every VIOLATION/GAP. Never claim absence of a safeguard without confirming it truly isn't in the code — search the script for the ledger, the contest token (`CONTESTS DISMISSAL`), the staging call, the file-write calls. If you cannot determine something from the code, say so explicitly and ask, rather than guessing.
 
 ## Output format
 Produce a structured report:

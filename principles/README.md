@@ -33,5 +33,12 @@ notes. Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 ## Built with these
 
-- [feature-cycle](../workflows/feature/) · [migrate-cycle](../workflows/migrate/) ·
-  [debug](../workflows/debug/) (review + resolve)
+**Build loops** (code, reviewed and staged): [feature-cycle](../workflows/feature/) ·
+[migrate-cycle](../workflows/migrate/) · [debug](../workflows/debug/) (review + resolve)
+
+**Generative / read-only** (no code, nothing staged or committed):
+[enhance-cycle](../workflows/enhance/) · [brainstorm-cycle](../workflows/brainstorm/) ·
+[decide-cycle](../workflows/decide/) · [docs-cycle](../workflows/docs/)
+
+Which principles apply to which kind is spelled out in
+[`WORKFLOW-PRINCIPLES.md` → Scope](WORKFLOW-PRINCIPLES.md#scope--which-principles-apply-to-which-workflow-kind).

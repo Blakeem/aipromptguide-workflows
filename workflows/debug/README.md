@@ -33,10 +33,14 @@ step; this one engineers those away and follows a strict set of principles:
   regression.
 - **The fix list is closed.** The fix loop only ever works the inventory you approved. No fresh
   review mid-fix keeps finding "just one more thing", which is what makes fixing medium issues
-  converge instead of spiraling.
-- **Staging is the boundary, never a commit.** Accepted batches are staged; a batch that cannot pass
-  is rolled back so the next batch starts clean. Only the acceptance gate stages, only on pass. You
-  always do the commit.
+  converge instead of spiraling. For the same reason it hunts **defects only** — an improvement list
+  never converges, and improvements would be auto-applied here. Those belong in
+  [`enhance`](../enhance/).
+- **Staging is the boundary, never a commit.** Accepted batches are staged. Only the acceptance gate
+  stages, only on pass. You always do the commit.
+- **A batch that can't pass is parked, not discarded.** Its work is saved to a patch file and cleared
+  from the tree — so the next batch starts clean *and* nothing you might have wanted is thrown away.
+  The restore command is written out for you.
 
 ---
 
@@ -53,6 +57,9 @@ pass over a body of code, not a single targeted change:
 - ❌ **One breadth-spanning goal** (a migration, version upgrade, or framework port): use the sibling
   [`migrate-cycle`](../migrate/). Large, cross-cutting items this tool routes to DEFER make good
   migrate-cycle goals.
+- ❌ **Nothing is broken — you want it *better*** (faster, simpler, cheaper, smaller): use
+  [`enhance`](../enhance/). This workflow reports only what the code gets **wrong**, deliberately: its
+  inventory drives an autonomous fixer, so an improvement list here would be auto-applied.
 
 ---
 
@@ -77,13 +84,15 @@ From there Claude drives everything:
    and shows you the unit list.
 2. **Reviews it.** Reviewers run over every unit concurrently; a verifier follows only where findings
    exist (the reviewer marks clean units itself). One issue file per unit lands under
-   `runs/<runId>/issues/`. Then it stops.
+   `runs/<runId>/issues/`. Then it stops. Optionally you can give the pass one or more **lenses** — a
+   destructiveness audit, a data-loss sweep, a compliance check — to sweep the same code from several
+   angles at once. A lens narrows *which* defects matter; it never turns the pass into a wish list.
 3. **Walks you through triage.** Claude presents the inventory (totals, the hottest areas, every item
    that needs your decision) and helps you decide scope. You approve or skip issues by editing the
    issue files.
 4. **Resolves it.** The fix, blind review, and issue-aware acceptance loop runs each batch unattended,
-   staging it on acceptance and rolling back any batch it cannot pass. An optional sweep checks the end
-   state.
+   staging it on acceptance. A batch it cannot pass is parked — its work saved to a patch file and
+   cleared from the tree — and the run moves on.
 
 A workflow runs in the background and **cannot ask you questions mid-run**, so Claude settles scope and
 decisions with you between the two stages, not during them. Tip: have it resolve just **one area** first
@@ -122,12 +131,15 @@ Each is a fresh, throwaway context that does one job and returns one decision:
 - **Acceptance verifier** (fix loop): the issue-aware gate. It re-derives each claimed fix's root
   cause from the current code and passes only if the fix closes it completely with no regression and
   green gates. On pass it stages the batch, and it is the only agent that stages.
-- **Sweep** (after the last batch, optional): an independent end-state check. Runs the full gates,
-  spot-checks the staged diff, and writes `SWEEP.md`.
 
 The fix loop is **fix, then blind review, then acceptance**, repeated each round until acceptance
-passes. Any code change re-enters at the blind review. A batch that cannot pass within its round budget
-is rolled back to the staged baseline and its issues are marked needs-attention for you to retry.
+passes. Any code change re-enters at the blind review.
+
+A batch that cannot pass within its round budget is **parked**: its work is saved to
+`parked-<batch>.patch`, the tree is cleared so the next batch starts from a clean baseline, and the
+restore command is written into `NEEDS-USER.md` along with what went wrong. Nothing is thrown away — you
+decide afterward whether to restore the patch and finish it by hand, re-run those issues with a sharper
+fix instruction, or drop it.
 
 ---
 
@@ -149,19 +161,24 @@ The run leaves a transparent trail under `runs/<runId>/`:
   gate result). Read the latest before committing.
 - `quality-review-<batch>-rN.md`: what the blind critic found each round.
 - `DISMISSED-<batch>.md`: every finding the fixer declined, one line each with a reason. Audit this.
-- `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.
-- `SWEEP.md`: the optional final accounting (full-suite result plus any gaps).
+- `NEEDS-USER.md`: anything flagged for you, plus every parked batch — what failed, where its patch is,
+  and the exact command to restore it. If a run stopped, the reason is here.
+- `parked-<batch>.patch`: the saved work of a batch that couldn't pass (with a `parked-<batch>-newfiles/`
+  folder alongside it if that batch created files a patch can't carry).
 
 Run the gates yourself, spot-check the riskiest fixes, then commit. Issues marked needs-attention were
-attempted and rolled back; retry them interactively with the batch's acceptance-review file as context.
+attempted and parked — read the batch's acceptance-review file for why, then restore the patch and finish
+by hand, or retry those issues with a sharper fix instruction.
 
 ---
 
 ## Requirements
 
 - **Claude Code** with the Workflow capability.
-- The target is a **git repository** (staging is how regressions are caught). The working tree should
-  be clean-ish before resolve; pre-existing changes are folded into the staged baseline.
+- The target is a **git repository** (staging is how regressions are caught). The working tree must have
+  **no unstaged changes** when the fix loop starts — it checks, and stops before doing any work if you
+  have uncommitted edits, since it would otherwise review them as its own. Commit, stage, or stash first;
+  Claude will ask you which.
 - Commands to **build and test** your project locally. You provide them; the workflow runs them and
   reads pass/fail. Resolve only accepts a batch on green gates, so the suite should be green before you
   start.

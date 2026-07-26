@@ -25,6 +25,9 @@ step; this one engineers those away and follows a strict set of principles:
 - **Staging advances section by section, never a commit.** Each accepted section is staged, which is how
   the next section's diff stays clean and regressions show up. Only the acceptance gate stages, only on
   pass. You always do the commit.
+- **Nothing is thrown away, and the tree is left clean.** A section that still can't pass isn't
+  abandoned half-done in your working tree: its work is saved to a patch file, cleared out, and the run
+  tells you where the patch is and the exact command to restore it.
 - **No progress file.** Git staging plus the numbered review files are the durable record, so a stopped
   run resumes from the repo itself.
 
@@ -91,12 +94,17 @@ Each is a fresh, throwaway context that does one job and returns one decision:
 - **Acceptance verifier** (run loop): the **plan-aware** section gate. Checks every acceptance criterion,
   that the section is reachable, that its gate is met, and that nothing regressed against the staged
   baseline. On pass it stages the section, and it is the only agent that stages.
+- **Park** (only when a section can't pass): saves that section's work to a patch file under
+  `runs/<runId>/`, clears it out of your tree, confirms the build is green again, and records the restore
+  command for you. It never touches work that was already accepted and staged.
 - **Sweep** (after the last section): an independent whole-goal check. Re-greps the surface, runs the full
   gates, spot-checks the staged diff, and writes `SWEEP.md`.
 
 The loop is **develop → quality → acceptance**, repeated each round until acceptance passes. Any code
-change re-enters at the blind review. A section that does not accept halts the run, because the next
-section's diff must be clean; you resolve it and resume from that section.
+change re-enters at the blind review. A section that does not accept is **parked** and the run stops
+there — its work is saved to a patch and cleared from your tree, so the repo is left clean and buildable
+rather than half-changed. The run stops because the sections are ordered: the ones after it were waiting
+on this one to land. You resolve it and resume from that section; nothing is lost.
 
 ---
 
@@ -117,7 +125,11 @@ The run leaves a transparent trail under `runs/<runId>/`:
 - `quality-review-<id>-rN.md`: what the blind critic found each round.
 - `DISMISSED-<id>.md`: every finding the developer declined for that section, one line each with a reason.
   **Audit these.**
-- `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.
+- `NEEDS-USER.md`: anything flagged for you — why a run stopped, and, for a parked section, its
+  diagnosis and its restore command.
+- `parked-<id>.patch`: a parked section's saved work, restored with the `git apply --3way` command
+  `NEEDS-USER.md` spells out (it carries the full path). If the section also created files git wasn't
+  tracking, they're in `parked-<id>-newfiles/` and you copy those back separately.
 - `SWEEP.md`: the final whole-goal coverage check (full-suite result plus any gaps).
 
 Confirm each section is reachable yourself (grep its integration points), run the gates, then commit.
@@ -128,6 +140,9 @@ Confirm each section is reachable yourself (grep its integration points), run th
 
 - **Claude Code** with the Workflow capability.
 - The target is a **git repository** (staging is how regressions are caught).
+- A **clean working tree** at the start. The run reviews everything unstaged as its own work, so it checks
+  first and stops immediately if you have uncommitted changes lying around — stage or stash them before
+  kicking off.
 - Commands to **build and test** your project locally. You provide them; the workflow runs them and reads
   pass/fail.
 - Optionally a **reference**: a sibling repo or module where a similar change was already done. The agents

@@ -154,9 +154,15 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
 
 - **Build loops** (produce code — feature/migrate/debug) honor everything, including the staged
   escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
-- **Generative & read-only workflows** (creative divergence, information provisioning — e.g. brainstorm,
-  docs) write **no code**, stage nothing, and **never commit**, so #7 and #9 don't apply. The user
-  is the judge; there is no AI review gate unless the workflow genuinely needs one.
+- **Generative & read-only workflows** (creative divergence, information provisioning, read-only
+  auditing — e.g. brainstorm, docs, enhance) write **no code**, stage nothing, and **never commit**, so
+  #7 and #9 don't apply. The user is the judge; there is no AI review gate unless the workflow genuinely
+  needs one. An audit that produces an *inventory* still gates it (enhance verifies every proposal
+  against the real code) — the gate is there to keep the list honest, not to approve a change.
+- **An open-ended inventory must never drive an autonomous fixer.** A *closed* inventory (debug's, fixed
+  at triage) is what makes its fix loop converge. A proposal list has no such property — there is always
+  another enhancement — so a workflow that generates one stops at the inventory and hands it to a human.
+  This is why enhance has no resolve sibling and writes to `proposals/`, never `issues/`.
 - **Convergence workflows** (the AI reaches a conclusion — e.g. decide) DO run a review loop in the
   spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the requirements
   it's judged against, because a reviewer blind to the decision can't evaluate it. Blindness (#3) guards
@@ -170,13 +176,25 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
   returns a thin verdict. The developer is handed the path of the **most recent review that flagged
   issues** and reads it directly. Round N+1's developer is a fresh agent that rediscovers state from
   the working tree + that one review file.
-- **First round.** The working tree is assumed **clean of unstaged changes** at the start (the main
-  agent ensures this beforehand — #4). So on round 1 there is no review file and nothing to
-  reconcile; the developer just implements the plan. No baseline agent, no progress file.
-- **Resume.** There is no progress file by design (#6). A halted run is resumed by re-invoking it;
-  the developer's in-progress work persists **unstaged** in the tree and the next developer builds on
-  it. Because staging only happens on final acceptance (#9), in-progress work is never accidentally
-  folded into the baseline.
+- **First round.** The working tree must be **clean of unstaged changes** at the start — the main agent
+  ensures this beforehand (#4), and the round-1 developer **confirms it as its first act** and halts
+  before any reviewer is spawned if it isn't. (Prep is still the main agent's job; the check exists
+  because the unstaged tree IS the reviewers' scope, so a dirty start silently attributes someone else's
+  work to the run. Verifying a precondition is not the same as an agent that *establishes* it — no
+  baseline agent, no progress file.) So on round 1 there is no review file and nothing to reconcile;
+  the developer just implements the plan.
+- **Park, don't discard.** Work that cannot pass within its round budget is **saved to a patch file and
+  then cleared from the tree** — never deleted, never left lying unstaged. Clearing is required (the next
+  unit's blind diff must be clean, and the tree must be buildable); destroying the work never was. The
+  restore command goes in the user notes. A parked patch is not a status file or a "what I did" log —
+  it is **the work itself**, so it doesn't violate #6; the rule bans *narration about* the run, not
+  preserving its product.
+- **Resume.** There is no progress file by design (#6). Durable progress is git staging plus the numbered
+  review trail. Because every terminal exit leaves the tree clean — accepted work staged, unfinished work
+  parked — a resumed run starts from the same clean baseline a fresh one does, which is what lets the
+  round-1 precondition above apply unconditionally, including on resume. A parked unit's work lives in
+  its patch; the user decides whether to restore it before re-running that unit. (This invariant is
+  load-bearing: an engine that halts leaving work in the tree would false-halt its own resume.)
 - **Preventing review spin.** The `DISMISSED.md` ledger is what stops a blind reviewer from
   re-flagging settled findings forever. Reviewers skip ledger items *for the stated reason*, may
   contest a clearly-wrong one once, and the developer must fix-or-escalate a contested item — bounding
@@ -212,6 +230,9 @@ Use these as yes/no checks when reviewing any workflow against these principles:
       thing that halts for the user — immediately, on a hard blocker? (#7)
 - [ ] Are return schemas **decisions only**, with content in files? (#8)
 - [ ] Is there **exactly one** staging step, at the end, on pass, and **never** a commit? (#9)
+- [ ] Does **every** terminal outcome leave the working tree clean, with unfinished work **saved to a
+      patch** rather than discarded or abandoned unstaged — and is the restore command in the user
+      notes? (#9, Mechanics)
 - [ ] Is each fact kept in **one canonical place**, agents **linked to it** (never handed copies or
       content restated into prompts), with duplication only where a copy serves a **clearly different,
       stated purpose**? (#11)

@@ -23,6 +23,10 @@ step; this one engineers those away and follows a strict set of principles:
   rubber-stamp "matches the plan"), then a plan-aware gate confirms completeness and no regression.
 - **One staging, never a commit.** Git staging is the boundary; only the final gate stages, only on
   pass. You always do the commit.
+- **Nothing is thrown away, and the tree is left clean.** A feature that still can't pass isn't
+  abandoned half-done in your working tree: its work is saved to a patch file, cleared out, and the run
+  tells you where the patch is and the exact command to restore it. The rest of the roadmap continues on
+  a clean slate.
 
 ---
 
@@ -63,8 +67,8 @@ From there Claude drives everything:
    criteria, how to test it), writes the plan, and presents it for your approval.
 2. **Reviews the plan.** An independent critic greps your real repo, confirms the plan's files and
    wiring points, and returns any gaps. Claude folds them in, asking you about anything blocking.
-3. **Builds it.** The develop → review → acceptance loop runs unattended until the feature is done,
-   blocked, or needs your call, then stages the result.
+3. **Builds it.** The develop → review → acceptance loop runs unattended until each feature is done,
+   parked, or needs a call only you can make, and stages what passed.
 
 A workflow runs in the background and **can't ask you questions mid-run**, so Claude settles anything
 needing a human answer while planning, before the build.
@@ -86,10 +90,14 @@ Each is a fresh, throwaway context that does one job and returns one decision:
 - **Acceptance verifier** (build loop): the **plan-aware** final gate. Checks every acceptance
   criterion, that the feature is reachable, that the gates are green, and that nothing regressed. On
   pass it stages the feature, and it's the only agent that stages.
+- **Park** (only when a feature can't pass): saves that feature's work to a patch file under
+  `runs/<runId>/`, clears it out of your tree, confirms the build is green again, and records the
+  restore command for you. It never touches work that was already accepted and staged.
 
 The loop is **develop → quality → acceptance**, repeated each round until acceptance passes. Any code
 change re-enters at the blind review. A reviewer can contest a wrongly-declined finding, so the loop
-converges without burying a real defect.
+converges without burying a real defect. If a feature still can't pass, it's parked — saved to a patch,
+cleared from the tree — and the next feature in the roadmap starts clean.
 
 ---
 
@@ -109,10 +117,15 @@ The run leaves a transparent trail under `runs/<runId>/`:
   reachability, regression, gate result). Read the latest before committing.
 - `quality-review-<id>-rN.md`: what the blind critic found each round.
 - `DISMISSED-<id>.md`: every finding the developer declined, one line each with a reason. **Audit this.**
-- `NEEDS-USER.md`: anything flagged for you. If a run stopped, the reason is here.
+- `NEEDS-USER.md`: anything flagged for you — why a run stopped, and an entry per parked feature with
+  its diagnosis and its restore command.
+- `parked-<id>.patch`: a parked feature's saved work, restored with the `git apply --3way` command
+  `NEEDS-USER.md` spells out (it carries the full path). If the feature also created files git wasn't
+  tracking, they're in `parked-<id>-newfiles/` and you copy those back separately.
 
 Confirm the feature is reachable yourself (grep the integration point) and that the existing suite
-still passes, then commit.
+still passes, then commit. Anything parked is yours to decide on: restore the patch and finish it by
+hand, re-run that one plan after sharpening it, or drop the patch.
 
 ---
 
@@ -120,6 +133,9 @@ still passes, then commit.
 
 - **Claude Code** with the Workflow capability.
 - The target is a **git repository** (staging is how regressions are caught).
+- A **clean working tree** at the start. The run reviews everything unstaged as its own work, so it
+  checks first and stops immediately if you have uncommitted changes lying around — stage or stash them
+  before kicking off.
 - Commands to **build and test** your project locally. You provide them; the workflow runs them and
   reads pass/fail.
 - For frontend features: optionally a browser driver (Chrome DevTools MCP, Playwright) or MCP

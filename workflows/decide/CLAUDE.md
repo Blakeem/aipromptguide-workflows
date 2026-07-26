@@ -17,6 +17,13 @@ small (one obvious answer, or a reversible coin-flip) → just decide and move o
 options for a *human* to pick with no AI verdict → **`brainstorm-cycle`**. Want to *build* the chosen
 approach → **`feature-cycle`**.
 
+**One winner, or a ranked shortlist?** `selection` (§8) picks the deliverable. Default `single`: one
+justified conclusion. Set `"ranked"` when the answer is legitimately a *portfolio* rather than a choice —
+"give me the best N, I'll pick or combine", e.g. ranking a large candidate pool surfaced by many agents
+over a big corpus. Same weighted matrix, same citation discipline, same adversarial loop; only the shape
+of the conclusion changes. An ordinary architecture/pattern decision stays on `single` — a hybrid that
+fuses the best of several lenses is already in scope there, and is not what `ranked` is for.
+
 ## 2. The flow
 
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `decide-cycle.mjs` + args.
@@ -35,13 +42,16 @@ No mid-run questions — settle the rubric with the user first:
    (analysts) then converges (decider ⇄ reviewer) and returns the chosen conclusion + the file trail.
 5. **Present** the conclusion: relay the latest `decision-rN.md` (matrix + rationale + why-not-others)
    and let the user read each `lenses/<lens>.md` to see the source perspectives. To build it, hand the
-   chosen approach to `feature-cycle`.
+   chosen approach to `feature-cycle`. In `ranked` mode there is deliberately **no winner**: relay the
+   shortlist (what each option buys/costs + the combine-vs-exclusive section) and let the user pick or
+   combine — several picks become `feature-cycle`'s `plans[]` roadmap.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
 - **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory).
 - **`requirements` (inline) OR `planPath` — one REQUIRED.** The rubric (§4).
-- **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`).
+- **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
+  slugging throw, since two analysts would write the same `lenses/<lens>.md`.
 - **`target.repo` (optional):** pass it for a decision about existing code — analysts/decider read it
   **read-only** for pattern-fit and feasibility; the engine never modifies it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
@@ -83,11 +93,16 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
   consolidates options, may build a hybrid, scores a **global weighted matrix** (non-negotiables forced
   to 0, **every cell citing its lens evidence or marked "own judgment, low-confidence"**, #14), picks
   the winner with why-not-others, writes `decision-rN.md`. Owns escalation to `NEEDS-USER.md` (halts on
-  a hard blocker).
+  a hard blocker). In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
+  with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section —
+  an option violating a non-negotiable is off the list entirely, and it is told not to pad.
 - **Reviewer** (review · opus) — **non-blind, adversarial**; reads the decision + requirements + lens
   files and tries to break the conclusion (unmet requirement, uncited/unsupported score — **it verifies
   matrix citations against the lens files** (#14) — overlooked option, violated non-negotiable). Reads
-  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop.
+  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop. In
+  `ranked` mode it also attacks the **order** (does anything dominate the option ranked above it?),
+  **padding**, and the **combine/exclude claims** — two options sold as combinable that actually
+  conflict is the most damaging error the list can carry.
 
 ## 6. Loop & contracts (keep intact)
 
@@ -100,10 +115,16 @@ the decider that one file's path next round; the decider revises rather than res
   under-specified — refine it, don't just raise `maxRounds`.
 - **Non-blind is deliberate (#3/#5).** The reviewer must see the decision and rubric; never make it
   blind. It still reads no prior review file, to re-check fresh.
+- **`selection` shapes the deliverable, not the rigor.** `single` (default) → one winner + why-not-each
+  runner-up. `ranked` → an ordered shortlist (≤ `shortlist`, default 5, floor 2) where every listed
+  option must satisfy every non-negotiable — a violator is excluded, never ranked last — and each
+  carries explicit `combines_with` / `excludes` notes, because a shortlist the user can't safely mix is
+  a trap. Both modes run the same matrix, citation rule, and review loop.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
   `feature-cycle`/`migrate-cycle` next.
-- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts;
-  the matrices and reasoning live in the files.
+- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts —
+  plus, in `ranked` mode, the shortlist **index** (rank + title + `combines_with`/`excludes`); the
+  matrices, buys/costs, and reasoning live in the files.
 
 ## 7. Resume
 
@@ -114,9 +135,12 @@ with the same args.
 ## 8. Args reference
 
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
-- **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives — enforced) · `requirements`
+- **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives, distinct ids — both
+  enforced) · `requirements`
   (inline) **or** `planPath` (absolute path to the rubric file).
-- **Optional:** `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
+- **Optional:** `selection` (`"single"` default | `"ranked"` — §1/§6; anything else throws) ·
+  `shortlist` (ranked only: how many options to carry, default 5, raised to 2 if you pass less) ·
+  `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
   §3) · `target.repo` (absolute, read-only context) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (3) · `models` (per-role tier:
   analyst/decide/review) · `agentTypes` (custom subagent per role — must exist in your registry) ·
@@ -125,11 +149,13 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 ## 9. State files (`runs/<runId>/`, gitignored)
 
 - `lenses/<lens>.md` — each analyst's options + lens scores + recommendation.
-- `decision-rN.md` — the decider's matrix + conclusion + why-not-others for round N.
+- `decision-rN.md` — the decider's matrix + conclusion + why-not-others for round N (in `ranked` mode:
+  the matrix + the ranked options with buys/costs + the combine-vs-exclusive section).
 - `decision-review-rN.md` — the adversarial reviewer's gaps (or agreement) for round N.
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
 Report when done: status (agreed / needs-attention / blocked), the chosen conclusion, where the matrix
 is (`decisionFile`), and the lens files for the user to inspect. The return carries the paths
-(`decisionFile` / `reviewFile` / `needsUserFile`) and each lens's top pick (`lensPicks`) as structured
-fields. **Nothing is staged or committed.**
+(`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), and `selection`
+as structured fields; in `ranked` mode it adds the ordered `shortlist` index and `chosen` is the rank-1
+option. **Nothing is staged or committed.**

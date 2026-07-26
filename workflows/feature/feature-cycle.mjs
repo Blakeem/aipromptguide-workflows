@@ -452,8 +452,10 @@ if (PHASE === 'refine') {
 // =============================================================================
 // PHASE: build — implement each plan in the roadmap IN ORDER; per plan: develop → BLIND quality (must
 // pass) → acceptance + regression (stages on pass; the accepted baseline advances feature by feature).
-// A plan that does NOT accept HALTS the run (the staging boundary means the next plan's blind diff must
-// be clean — you cannot start the next feature while this one's work is unstaged).
+// A plan that does NOT accept is PARKED — its work saved to a patch and CLEARED from the tree — and the
+// roadmap CONTINUES. Clearing is what restores the staging boundary the next plan's blind diff needs;
+// destroying the work never was required. (migrate-cycle parks too but then STOPS: its sections are an
+// ordered decomposition of one goal, so N+1 depends on N. Independent features have no such coupling.)
 // PRECONDITION (orchestrator's job, #4): the target repo has a CLEAN unstaged working tree; any
 // already-accepted prior features are STAGED. The engine spawns NO baseline/loader/scribe agent — the
 // numbered review files + git staging are the only state + progress trail (#6/#10).

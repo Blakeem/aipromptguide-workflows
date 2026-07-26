@@ -42,7 +42,8 @@ Then ONCE, for the whole roadmap:
 5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
    array — `[{ id, planPath, gate }]` in build order (§11). One feature? Pass a single top-level
    `planPath` + `gate` instead (back-compat). The develop → blind-quality → acceptance loop runs each
-   plan in order, **staging each accepted feature** before the next starts.
+   plan in order, **staging each accepted feature** before the next starts; a plan that can't pass is
+   **parked** (its work saved to a patch, the tree cleared) and the roadmap carries on (§6).
 6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md`, surface
    `NEEDS-USER.md`, tell the user what to review. **Never commit.**
 
@@ -57,9 +58,13 @@ chrome-devtools-mcp, mcp-inspector, playwright, curl, or manual.
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
 Before `phase:"build"`:
-- **Clean the unstaged tree.** The blind reviewer reviews the unstaged diff as "this feature's work."
-  Staged work from a *prior accepted* feature is a fine baseline, but `git -C <repo> diff` (unstaged)
-  must be empty — commit/stash/stage any stray unstaged work first.
+- **Clean the unstaged tree — now engine-enforced.** The blind reviewer reviews the unstaged diff as
+  "this feature's work." Staged work from a *prior accepted* feature is a fine baseline, but the
+  unstaged tree must be empty: on round 1 the developer's FIRST act (before reading the plan) is
+  `git diff --name-only` + `git status --porcelain`, and any non-zero count halts the run **before a
+  reviewer is spawned** — nothing built, nothing changed. Still settle a dirty tree with the user
+  BEFORE you start (`git add -A` to keep it as baseline, `git stash -u` to set it aside): finding out
+  at run time costs a spawn.
 - **Fresh vs. resume.** `DISMISSED-<id>.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
   genuinely new run; **preserve** it on resume.
 - **Each plan's `gate`** from its `## Gate` line: `green` (build + required verification) or `build-only`
@@ -118,9 +123,13 @@ throwaway.
 - **Quality Reviewer** (build · sonnet) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
   for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
   review files. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
-- **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion, reachability,
-  full gates, regression vs the staged baseline. Writes `acceptance-review-<id>-rN.md`. Only agent that
-  stages (`git add`), on pass — the baseline advances plan by plan.
+- **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion (enumerated and
+  evidenced with locators), reachability, full gates, regression vs the staged baseline. Writes
+  `acceptance-review-<id>-rN.md`. Only agent that stages (`git add`), on pass — the baseline advances
+  plan by plan.
+- **Park** (build · develop tier) — runs only when a plan can't accept: saves its work to
+  `parked-<id>.patch`, copies untracked strays to `parked-<id>-newfiles/`, clears the tree, re-runs the
+  build gate, and writes the restore instructions to `NEEDS-USER.md`. Never touches the staged baseline.
 
 ## 6. Loop & contracts (keep intact)
 
@@ -131,11 +140,22 @@ next round; **any code change re-enters at quality.**
 - **Staging = the cycle boundary; each accepted feature stages once.** Staged = accepted baseline (prior
   features); unstaged = the current feature's work (the reviewers' scope). Only acceptance stages, only
   on pass — the baseline then advances to the next plan. Nothing is ever committed.
-- **A plan that does NOT accept HALTS the run** (the staging boundary: the next feature's blind diff must
-  be clean, so you cannot start it while this one's work is unstaged). Three halts: the developer writes a
-  hard blocker to `NEEDS-USER.md`; a plan not accepted within `maxRounds`; or acceptance **passed but did
-  not stage** (stage its files yourself, then resume from the NEXT plan id). Resume re-runs the halted
-  plan on its persisted unstaged work (§8).
+- **A plan that does not accept within `maxRounds` is PARKED — and the roadmap CONTINUES.** Park saves
+  that plan's work to `runs/<runId>/parked-<id>.patch` (`git diff --binary`, so binary files re-apply),
+  copies any untracked strays the patch can't carry into `parked-<id>-newfiles/`, clears the tree,
+  re-runs the build gate, and appends the diagnosis + the verbatim restore command
+  (`git -C <repo> apply --3way <patch>`) to `NEEDS-USER.md`. Nothing is discarded, and save always
+  precedes clear — no patch, no clear. Clearing is the *point*: it restores the clean staging boundary
+  the next plan's blind diff needs. Final status `roadmap complete with N plan(s) parked`, plus a
+  `parked:[{ id, patch, strays, status }]` array in the result.
+- **What still stops the run.** A hard blocker escalated to `NEEDS-USER.md` (parked first, then stopped —
+  only the user can unblock it); a park that couldn't clear the tree or left the build red
+  (`BLOCKED (a parked plan left the tree unsafe — inspect before resuming)`); acceptance **passed but did
+  not stage** (NOT parked — one `git add` both preserves the work and cleans the tree, so parking would
+  be strictly worse; stage its files, resume from the NEXT plan id); a **dirty baseline** on round 1 (NOT
+  parked — that work is the user's, and parking it would take their changes hostage; §3). Every exit
+  leaves a clean tree except passed-but-unstaged (one `git add` from clean); a park that can't manage it
+  halts with the status above instead of carrying on.
 - **Gates are the per-stack adapter.** `args.gates.build`/`test` are literal shell commands; `build`
   (lint/compile) must ALWAYS pass. `green` = build + required verification pass *and* the existing suite
   isn't reddened (breaking existing tests is a regression); `build-only` = build green only. Each plan
@@ -152,27 +172,40 @@ next round; **any code change re-enters at quality.**
 
 ## 7. Verify ground truth yourself
 
-The engine reports `status`/`staged`/`reachable`/`regression`. Confirm:
+The engine reports `status`/`staged`/`reachable`/`regression`, plus `parked` and the per-plan `ledger`.
+Confirm:
 - Run the gates for real; the existing suite is still green.
 - `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
+  Except after a passed-but-unstaged halt, `status --porcelain` should show nothing unstaged.
 - Grep each feature's integration point — it is actually reachable.
 - Read the latest `acceptance-review-<id>-rN.md` per plan (per-criterion verdict); **audit each
   `DISMISSED-<id>.md`** for bad calls.
+- Any plan the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
+  criteria carry no locators) passed on assertion rather than evidence — read that file closely.
+- Every `parked` entry: its patch exists and is non-empty, and `NEEDS-USER.md` says why it parked.
 - Surface `NEEDS-USER.md`.
 
 ## 8. Resume (no progress file by design, #6/#10)
 
-Durable progress = git staging + the numbered review-file trail + the ordered `plans`. A run halts on a
-hard blocker (`NEEDS-USER.md`), a plan not accepted within `maxRounds`, a passed-but-unstaged plan, or a
-budget stop between plans.
-1. Read the trail + `git -C <repo> diff --cached --stat` to see which features are staged/accepted and
-   which plan is in-flight (its work sits **unstaged**).
+Durable progress = git staging + the numbered review-file trail + the ordered `plans`. Running out of
+rounds is no longer a stop — that plan parks and the roadmap continues. The run ends early only on
+`BLOCKED (needs user input)`, `BLOCKED (working tree was not clean — nothing was built)`,
+`BLOCKED (a plan passed but was not staged — stage it, then resume)`, `BLOCKED (a parked plan left the
+tree unsafe — inspect before resuming)`, or `stopped on token budget (resume where it left off)`.
+1. Read the trail + `git -C <repo> diff --cached --stat` to see which features are staged/accepted, and
+   the result's `parked` array (or `NEEDS-USER.md`) for which parked — their work is in a patch, not
+   the tree.
 2. Hard blocker → read `NEEDS-USER.md` / the plan's latest review, resolve with the user. Passed-but-
-   unstaged → stage that plan's files yourself first.
+   unstaged → stage that plan's files yourself first (the one exit that leaves work in the tree).
 3. **Preserve `runs/<runId>/`** and re-invoke `phase:"build"` with the same args **plus
-   `startAt:"<first not-yet-accepted plan id>"`** (or `runOnly:[ids]` for an explicit subset). In-progress
-   unstaged work persists; the next developer builds on it. To force a fresh run, clear `runs/<runId>/`
-   and start from a clean tree.
+   `startAt:"<first not-yet-accepted plan id>"`** (or `runOnly:[ids]` for an explicit subset). An id
+   matching no plan now **throws** — copy it from the roadmap. To force a fresh run, clear
+   `runs/<runId>/` and start from a clean tree.
+4. **A parked plan's work is in its patch, not the tree.** Sharpen its plan file, then re-run just that
+   plan (`runOnly:["<id>"]`) — the developer rebuilds it from the clean staged baseline. Restore
+   `parked-<id>.patch` first ONLY if the partial work is worth continuing from, and note the cost: the
+   round-1 check then sees a dirty tree, so you must `git add -A` it in (it enters as UN-reviewed
+   baseline). Otherwise restore the patch and finish that feature by hand, or drop it.
 
 Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committing to the whole thing.
 
@@ -180,13 +213,19 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
 
 - **Verify what the runner actually ran.** Some test runners silently ignore extra path args, so a
   multi-file selector runs only the first file and falsely passes. The engine fails the gate on
-  `tests_run_count==0` for a unit selector — sanity-check the count, and scope one file per invocation or
-  use the runner's filter. Manual/MCP → `tests_run_count` is `-1`; confirm the behavior was observed.
+  `tests_run_count==0` for a unit selector (a required field, so it can't be omitted to dodge the check)
+  — sanity-check the count, and scope one file per invocation or use the runner's filter. Manual/MCP →
+  `tests_run_count` is `-1`; confirm the behavior was observed.
 - **Custom `agentTypes` must exist in the user's registry** — defaults use the standard subagent.
 - **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
   dir, relocate the stray state, re-run.
 - **A "passed but not staged" plan halts on purpose** (so the next feature's diff isn't corrupted) —
-  stage its files yourself (`git add`), resume from the NEXT plan id.
+  stage its files yourself (`git add`), resume from the NEXT plan id. It is deliberately NOT parked:
+  the work is good, and one `git add` both preserves it and cleans the tree.
+- **A parked plan's work is NOT in the tree** — it's in `runs/<runId>/parked-<id>.patch` (plus
+  `parked-<id>-newfiles/` when it created untracked strays, which need a manual copy-back as a second
+  step). `NEEDS-USER.md` carries the diagnosis and the exact `git apply --3way` command. A park is a
+  status record, not a dismissal: nothing was discarded.
 - **`too_big`** (from refine, or you realize mid-plan) → split into multiple bounded feature-plans and
   run them as a roadmap (`plans`); a pattern across many call sites goes to `migrate-cycle` instead.
 
@@ -197,16 +236,22 @@ are its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result)
 - `quality-review-<id>-rN.md` — blind findings for plan `<id>`, round N.
 - `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
 - `DISMISSED-<id>.md` — the plan's declined findings, one terse line each; **you audit before committing.**
-- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run.
+- `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run, and every parked
+  plan has a `## Parked plan: <id>` entry with its diagnosis + restore command.
+- `parked-<id>.patch` — a parked plan's saved work (`git diff --binary`); restore with
+  `git -C <repo> apply --3way <patch>`.
+- `parked-<id>-newfiles/` — only when the plan left untracked strays the patch can't carry; copy them
+  back into the repo (relative paths preserved) as a second step after the `git apply`.
 
 (Long-roadmap plan snapshots live at `plans/<runId>/<id>.md` BESIDE `runs/` — never inside
 `runs/<runId>/`, which reviewers read; #3, §3.)
 
 (A single-feature run uses id `feature` → `quality-review-feature-r1.md`, `DISMISSED-feature.md`, …)
 
-Report when done: status + which features are staged, the suite result (you ran it), each wired in/
-reachable, `NEEDS-USER.md`, the latest acceptance verdicts, anything in a `DISMISSED-<id>.md` worth a
-second look. **Never commit** — tell the user to review `git diff --cached` and commit.
+Report when done: status + which features are staged, which **parked** (and where each patch is), the
+suite result (you ran it), each wired in/reachable, `NEEDS-USER.md`, the latest acceptance verdicts,
+anything in a `DISMISSED-<id>.md` worth a second look. **Never commit** — tell the user to review
+`git diff --cached` and commit.
 
 ## 11. Args reference
 
