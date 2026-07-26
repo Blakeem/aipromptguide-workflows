@@ -37,10 +37,12 @@ them apart is what keeps the issue files out of reach of the blind reviewer, and
 checkout drive many projects. The engines that write code **throw** rather than default `target.repo` —
 see the root README, "One checkout, many projects".
 
-**Changing anything here?** `node tests/run.mjs` is the gate — it runs every engine against scripted
-agents with no model calls. Run it before and after, and add a case for what you changed
-([`tests/README.md`](tests/README.md)). Point a workflow's `gates.build`/`gates.test` at it when working
-on this repo.
+**Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas
+(this file and each workflow's `CLAUDE.md` are for *running* the workflows; that one is for *editing*
+them). Above all: a defect found in one engine is usually in its siblings too — grep before you call it
+fixed. `node tests/run.mjs` is the gate; run it before and after, add a case for what you changed
+([`tests/README.md`](tests/README.md)), and point a workflow's `gates.build`/`gates.test` at it when
+working on this repo.
 
 ## House style
 
