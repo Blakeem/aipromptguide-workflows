@@ -284,7 +284,7 @@ PROCEDURE:
    - that this section is **NOT done and NOT abandoned — a status record, not a dismissal** — and that
      the sections after it were NOT attempted, because they depend on this one
    - one line on why it was parked (${escalated ? 'the blocker the developer escalated' : 'what acceptance was still failing'})
-   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : 'the latest review file for this section in ' + STATE_DIR}
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this section produced NO review file — its gate never went green, so neither reviewer ever ran; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - the saved work: \`${parkedPatch(section.id)}\`
    - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(section.id)}\`
    - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(section.id)}/\`, listing

@@ -31,6 +31,17 @@ inventory does.
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
 workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.
 
+**Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
+its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping
+them apart is what keeps the issue files out of reach of the blind reviewer, and is what lets one
+checkout drive many projects. The engines that write code **throw** rather than default `target.repo` —
+see the root README, "One checkout, many projects".
+
+**Changing anything here?** `node tests/run.mjs` is the gate — it runs every engine against scripted
+agents with no model calls. Run it before and after, and add a case for what you changed
+([`tests/README.md`](tests/README.md)). Point a workflow's `gates.build`/`gates.test` at it when working
+on this repo.
+
 ## House style
 
 Write everything here — prompts, guides, reviews, commits, replies to me — **laconic by subtraction**

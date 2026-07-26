@@ -77,6 +77,40 @@ You run /aipg-feature  →  Claude reads aipg/workflows/feature/CLAUDE.md  →  
 
 4. **Run one** — e.g. `/aipg-feature add a search_docs MCP tool. Plan it first.`
 
+## One checkout, many projects
+
+Every engine takes two separate paths, and they are deliberately **not** the same directory:
+
+```
+E:/myproject/          ← target.repo   the project itself — the folder holding .git
+├── .git/
+├── src/
+└── aipg/              ← root          run-state lands at aipg/runs/<runId>/
+    └── workflows/
+```
+
+- **`target.repo`** is the repo being worked on. Agents run `git -C <target.repo> …` against it, and it
+  is the only place code is ever changed or staged.
+- **`root`** is the base the run-state hangs off — `<root>/runs/<runId>/` holds the review files, the
+  ledgers, and any parked patch. Normally the checkout's own folder, so nothing lands in your project.
+
+Keeping them apart is what makes the blind review work: the issue files live outside the repo under
+review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
+Three engines warn if you point run-state inside the target repo.
+
+It also means **one checkout can drive any number of projects** — point `target.repo` at each in turn
+and give each its own `runId`. The run-state stacks up beside the tool, so you can queue work across
+several repos and still read every trail in one place:
+
+```
+aipg/runs/api-v2-migration/     ← target.repo E:/work/api
+aipg/runs/dashboard-search/     ← target.repo E:/work/dashboard
+```
+
+You never type these yourself — tell Claude which project you mean and it fills them in as pre-run
+setup. There is no default for `target.repo` on the engines that write code: guessing wrong would point
+a build, or a park's `git checkout`, at the wrong repo, so they fail loudly instead.
+
 ## Updating
 
 ```bash
@@ -109,6 +143,11 @@ What's changed, newest first — only what you'd notice while running them.
   legitimately a portfolio.
 - **docs spot-checks captured files against their source** and wants `outDir` pointed at a folder
   dedicated to that one doc set.
+- **`target.repo` is now required** on every engine that writes code, instead of quietly defaulting to
+  the checkout's own folder. Pointing one checkout at several projects has always worked — it's now
+  documented (see *One checkout, many projects*) and can't silently target the wrong one.
+- **A test suite** (`node tests/run.mjs`) that runs each engine against scripted agents — no model calls,
+  runs in a second. It's also the build/test gate to point a workflow at when working on this repo.
 - resolve's final sweep is gone (it restated numbers the run already had); migrate keeps its sweep, which
   re-greps the change surface. Plus assorted edge-case fixes across every engine.
 

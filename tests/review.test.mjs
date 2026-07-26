@@ -1,0 +1,126 @@
+// debug/review.mjs — the read-only fan-out that builds the inventory.
+// Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
+// returned issues[] index, which is the contract resolve-cycle's args.issues is built from.
+import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+
+const ENGINE = 'workflows/debug/review.mjs';
+
+const UNIT = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c' };
+const run = (args, respond) => runEngine(ENGINE, { args: { ...baseArgs, units: [UNIT], ...args }, respond });
+
+const DESTRUCT = { id: 'destructive', mandate: 'auditing for DESTRUCTIVE behavior', categories: ['data-loss', 'irreversible-op'], findingNoun: 'destructive DEFECTS', matters: ' unattended' };
+const FLOW     = { id: 'control-flow', mandate: 'auditing CONTROL-FLOW', categories: ['control-flow', 'null-handling'] };
+
+const MATRIX  = { clarity: 'clear', effort: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false };
+const keep    = (id, extra = {}) => ({ finding_id: id, is_real: true, severity: 'high', decision: 'ACTIONABLE', matrix: MATRIX, theme: 'x', ...extra });
+const finding = (extra) => ({ file: 'a.js', line: '1', severity: 'high', title: 'T', detail: 'd', ...extra });
+const NO_FINDINGS = { wrote_clean_marker: false, findings: [] };
+const catsOf  = (call) => call.opts.schema?.properties?.findings?.items?.properties?.category?.enum;
+
+section('a lens array spawns one reviewer per lens and exactly ONE verifier');
+{
+  const { out, calls, logs, byLabel, prompt } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review:u1/destructive':  { wrote_clean_marker: false, findings: [finding({ category: 'data-loss', title: 'T1' })] },
+    'review:u1/control-flow': { wrote_clean_marker: false, findings: [finding({ category: 'control-flow', title: 'T2' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2', { severity: 'medium', theme: 'y' })] },
+  });
+  const revs = byLabel('review');
+  eq(revs.length, 2, 'two reviewers');
+  eq(byLabel('verify').length, 1, 'exactly ONE verifier for the unit, however many lenses ran');
+  eq(out.unitsReviewed, 1, 'one unit, so one issue file');
+  eq(out.inventory.total, 2, 'both lenses\' findings kept');
+  ok(JSON.stringify(catsOf(revs[0])) === JSON.stringify(DESTRUCT.categories), 'reviewer 1 got its own category enum');
+  ok(JSON.stringify(catsOf(revs[1])) === JSON.stringify(FLOW.categories), 'reviewer 2 got its own category enum');
+  ok(revs[0].prompt.includes(DESTRUCT.mandate) && revs[1].prompt.includes(FLOW.mandate), 'each reviewer got its own mandate');
+  ok(revs[0].prompt.includes('destructive DEFECTS'), 'the lens findingNoun reached the severity floor');
+  ok(revs[1].prompt.includes('production DEFECTS'), 'an un-set lens field falls back to the base default');
+  const v = prompt('verify');
+  ok(v.includes('REVIEWERS\' BRIEFS') && v.includes('[destructive]') && v.includes('[control-flow]'), 'the verifier sees BOTH briefs, labelled');
+  ok(v.includes('[destructive] :: a.js') && v.includes('[control-flow] :: a.js'), 'each candidate is tagged with the lens that raised it');
+  ok(v.includes('FOLD DUPLICATES FIRST'), 'the verifier is told to fold cross-lens duplicates');
+  ok(/spawn ceiling: ≤ 3 agents \(2 reviewer/.test(logs.join('\n')), `the logged spawn ceiling counts lenses: ${logs[1]}`);
+  eq(calls.length, 3, 'two reviewers + one verifier is the whole run — no organizer, no scribe');
+}
+
+section('dedup is per lens, so two lenses may both report the same file+category');
+// Within one lens, file:category is the right key — a re-phrased concern would slip past a title-based
+// one. Across lenses it must NOT collapse: two briefs can find two different real defects in the same
+// file and category, and folding true overlap is the verifier's job, not the harness's.
+{
+  const dupes = { wrote_clean_marker: false, findings: [finding({ category: 'data-loss', title: 'A' }), finding({ category: 'data-loss', title: 'B' })] };
+  const { out } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review': dupes,
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2')] },
+  });
+  eq(out.inventory.total, 2, 'one kept per lens; the intra-lens duplicate dropped');
+}
+
+section('a single lens object offers the clean marker and skips verify entirely');
+{
+  const { out, calls } = await run({ lens: DESTRUCT }, { 'review': { wrote_clean_marker: true, findings: [] } });
+  eq(calls.length, 1, 'one reviewer, no verifier for a clean unit');
+  eq(calls[0].label, 'review:u1', 'no lens suffix on the label when there is only one lens');
+  ok(calls[0].prompt.includes('CLEAN-UNIT MARKER'), 'the only lens may write the marker');
+  eq(out.inventory.total, 0, 'clean');
+}
+
+section('only the LAST lens may write the clean marker');
+// An earlier lens writing it could leave a premature "clean" file as the terminal on-disk state if a
+// later lens throws — and resume trusts that file, silently dropping whatever the later lens found.
+{
+  const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, { 'review': NO_FINDINGS });
+  ok(!calls[0].prompt.includes('CLEAN-UNIT MARKER'), 'lens 1 may NOT write the marker');
+  ok(calls[1].prompt.includes('CLEAN-UNIT MARKER'), 'lens 2 (the last) may');
+}
+
+section('an empty lens array reads as unset, never as zero reviewers');
+// `[]` is truthy, so without normalization it would replace a real lens set with nothing: the unit gets
+// no reviewer, contributes 0 to every count, and still looks processed. Silent zero coverage.
+{
+  const cases = [
+    ['unit.lens=[] falls back to args.lens', { units: [{ ...UNIT, lens: [] }], lens: DESTRUCT }, DESTRUCT.mandate],
+    ['unit.lens=[] with no args.lens falls back to the default', { units: [{ ...UNIT, lens: [] }] }, 'examining ONE bounded unit'],
+    ['args.lens=[] falls back to the default', { lens: [] }, 'examining ONE bounded unit'],
+  ];
+  for (const [name, args, mandate] of cases) {
+    const { calls, logs } = await run(args, { 'review': NO_FINDINGS });
+    eq(calls.length, 1, `${name}: one reviewer ran`);
+    ok(calls[0].prompt.includes(mandate), `${name}: with the expected mandate`);
+    ok(/1 reviewer\(s\)/.test(logs[0]), `${name}: the reviewer count logged matches`);
+  }
+}
+
+section('the returned issues[] is resolve-cycle\'s args.issues shape');
+// Discarding this index forced the operator to hand-grep it back out of the issue files — which is how
+// a `file:224-276` range once became the number 224276.
+{
+  const { out } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ line: '10-20', category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1', { severity: 'medium', matrix: { ...MATRIX, effort: 'trivial' }, theme: 'th' })] },
+  });
+  const need = ['id', 'unit', 'file', 'line', 'loc', 'severity', 'category', 'decision', 'effort', 'title', 'theme'];
+  const got = out.issues?.[0] || {};
+  const missing = need.filter((k) => !(k in got));
+  eq(out.issues?.length, 1, 'one issue in the index');
+  ok(missing.length === 0, `carries every field resolve-cycle requires${missing.length ? ` — missing ${missing.join(', ')}` : ''}`);
+  eq(got.line, '10-20', 'the line RANGE stayed a string');
+  eq(got.severity, 'medium', 'severity is the VERIFIER\'s, not the reviewer\'s');
+  eq(got.effort, 'trivial', 'effort comes from the verifier\'s matrix');
+  eq(got.loc, 10, 'loc is joined from the unit\'s file list');
+  eq(out.inventory.actionable, 1, 'counted actionable');
+}
+
+section('required args throw rather than silently defaulting');
+{
+  const cases = [
+    ['runId', { ...baseArgs, units: [UNIT], runId: undefined }],
+    ['root', { ...baseArgs, units: [UNIT], root: undefined }],
+    ['target.repo', { ...baseArgs, units: [UNIT], target: {} }],
+    ['units', { ...baseArgs }],
+  ];
+  for (const [name, args] of cases) {
+    const msg = await throwsWith(ENGINE, { args });
+    ok(msg !== '', `missing ${name} throws: ${msg.slice(0, 50)}`);
+  }
+}

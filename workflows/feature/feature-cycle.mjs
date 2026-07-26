@@ -271,7 +271,7 @@ PROCEDURE:
    - that this plan is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining
      roadmap continued without it
    - one line on why it was parked (${escalated ? 'the blocker the developer escalated' : 'what acceptance was still failing'})
-   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : 'the latest review file for this plan in ' + STATE_DIR}
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this plan produced NO review file — its gate never went green, so neither reviewer ever ran; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - the saved work: \`${parkedPatch(p.id)}\`
    - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`
    - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
@@ -676,7 +676,11 @@ for (const p of pending) {
   // work in the tree belongs to the operator — parking it would be taking their changes hostage.
   if (!(halted && !escalated)) {
     phase('Park');
-    const pk = await agent(parkPrompt(p, reviewPath || acceptanceFile(p.id, round), escalated), roleOpts('develop', {
+    // Pass `reviewPath` THROUGH, empty or not. It is empty whenever no reviewer ever ran — the gate
+    // never went green (and a gate failure resets it, line ~585) — and substituting a concrete
+    // acceptance-review path here would make parkPrompt's own "no review file yet" fallback unreachable,
+    // writing a path to a file that does not exist into the one record the operator reads days later.
+    const pk = await agent(parkPrompt(p, reviewPath, escalated), roleOpts('develop', {
       schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     const strays = pk?.strays_saved ?? 0;
@@ -702,7 +706,6 @@ for (const p of pending) {
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking plan ${p.id}; the tree is unsafe for the next plan.`;
     }
-    if (halted && !escalated && rec.status === 'pending') rec.status = 'parked (park incomplete)';
   }
   ledger.push(rec);
   if (halted) break;      // escalation / unsafe tree stops the roadmap; a clean park carries on

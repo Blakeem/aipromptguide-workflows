@@ -58,7 +58,10 @@ One phase, no mid-run questions — settle everything with the user first:
   scope, or subdivide with lens × unit.
 - **`lenses` — REQUIRED:** ≥1 axis (strings, or `{ id, focus, criteria }`). Ids that collide after
   slugging throw — two lenses would write the same proposal file.
-- **`target.repo`:** the repo the scope paths are relative to.
+- **`target.repo`:** the absolute path to the system under audit — the directory holding its `.git`.
+  REQUIRED whenever any `scope` path is relative (it is what they resolve against); the engine throws
+  otherwise rather than guessing, since `root` is this tool's own directory and defaulting would audit
+  the tool. Give every `scope` path as an absolute path and you can omit it.
 - **`goals` (strongly recommended):** what "better" means for this system.
 - **`conventions`:** house rules an enhancement must fit — or argue explicitly for changing.
 - **`minImpact`** (default `moderate`): the floor. `marginal` is below it on purpose. Lower it only if

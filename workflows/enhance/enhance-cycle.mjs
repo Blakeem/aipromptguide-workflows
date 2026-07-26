@@ -74,7 +74,12 @@ const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType:
 const ROOT      = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm      = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
-const REPO      = abs(TARGET.repo ?? '.');
+// No `?? '.'` default. `abs()` resolves a relative path against ROOT, and ROOT is this TOOL's directory
+// — so a default would silently point the audit at the tool instead of the system under audit. Unlike
+// the build engines this one is read-only, so it is required only when it is actually load-bearing:
+// when a scope path is relative and therefore has to resolve against something (checked below, once
+// SCOPE exists). An all-absolute scope needs no repo at all.
+const REPO      = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const PROPOSALS_DIR = `${STATE_DIR}/proposals`;
 
@@ -90,6 +95,12 @@ const proposalFile = (lensId) => `${PROPOSALS_DIR}/${fileSafe(lensId)}.md`;
 const SCOPE = (Array.isArray(A.scope) ? A.scope : (A.scope ? [A.scope] : [])).map(String).filter(Boolean);
 if (!SCOPE.length) {
   throw new Error('args.scope is required: the file/dir paths (repo-relative or absolute) every finder reads through its lens. Enhancements are cross-cutting, so each lens sees the WHOLE scope — keep it to what one agent can genuinely read in a turn, and split the run by subsystem if it is larger than that.');
+}
+// A relative scope path is meaningless without a repo to resolve it against — and guessing would send
+// every finder to read the wrong tree and return a confidently wrong proposal list.
+const RELATIVE_SCOPE = SCOPE.filter((p) => !/^([a-zA-Z]:)?\//.test(norm(p)));
+if (RELATIVE_SCOPE.length && !REPO) {
+  throw new Error(`args.target.repo is required when any args.scope path is relative (${RELATIVE_SCOPE.join(', ')}): pass the ABSOLUTE path to the system under audit — the directory holding its .git — since relative scope paths resolve against it. There is no default: args.root is THIS tool's directory, so defaulting would audit the tool. Give every scope path as an absolute path instead if the audit target is not one repo.`);
 }
 
 // Lenses — the axes of enhancement. Each becomes ONE finder (+ verifier) → ONE proposal file.
@@ -165,7 +176,7 @@ const VERIFY_SCHEMA = {
 // =============================================================================
 // Shared prompt fragment
 // =============================================================================
-const ENV = `TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
+const ENV = `${REPO ? `TARGET REPO: ${REPO}  ` : 'NO TARGET REPO — every scope path below is absolute.  '}(lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 SCOPE — read THESE, and judge only these (paths are repo-relative unless absolute):
 ${SCOPE.map((p) => `  - ${p}`).join('\n')}
 CONVENTIONS / house rules (an enhancement must fit these, or argue explicitly for changing them):
