@@ -52,8 +52,8 @@ No mid-run questions — settle the rubric with the user first:
 - **`requirements` (inline) OR `planPath` — one REQUIRED.** The rubric (§4).
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
   slugging throw, since two analysts would write the same `lenses/<lens>.md`.
-- **`target.repo` (optional):** pass it for a decision about existing code — analysts/decider read it
-  **read-only** for pattern-fit and feasibility; the engine never modifies it.
+- **`target.repo` (optional):** pass it for a decision about existing code — all three roles (analysts,
+  decider, reviewer) read it **read-only** for pattern-fit and feasibility; the engine never modifies it.
 - **`testbed` (optional):** how agents may **empirically test** claims (e.g. a sqlite db + how to query
   it, a script to benchmark against). All three roles are told to prefer measured evidence — run the
   check, cite command + result (#14) — and the reviewer re-runs measurements to verify. Set it up
@@ -122,15 +122,20 @@ the decider that one file's path next round; the decider revises rather than res
   a trap. Both modes run the same matrix, citation rule, and review loop.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
   `feature-cycle`/`migrate-cycle` next.
-- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts —
-  plus, in `ranked` mode, the shortlist **index** (rank + title + `combines_with`/`excludes`); the
-  matrices, buys/costs, and reasoning live in the files.
+- **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts, a
+  `wrote_file` write confirmation per role (unconfirmed ⇒ a `⚠` in the log, never a halt — open that
+  file before relaying it) — plus, in `ranked` mode, the shortlist **index** (rank + title +
+  `combines_with`/`excludes`); the matrices, buys/costs, and reasoning live in the files.
 
 ## 7. Resume
 
 Halts only when the decider or reviewer writes a user-only call to `NEEDS-USER.md`. Resume: read it,
 resolve with the user (usually by editing the requirements file), preserve `runs/<runId>/`, re-invoke
 with the same args.
+
+The run can also stop by **throwing**: no analyst produced a lens file, or the decider/reviewer returned
+nothing (agent skipped or died). Re-invoke with the same args/`runId` and pass the `Workflow` tool's
+`resumeFromRunId` to replay completed agents from cache, as the thrown message says.
 
 ## 8. Args reference
 
@@ -142,9 +147,9 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   `shortlist` (ranked only: how many options to carry, default 5, raised to 2 if you pass less) ·
   `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
   §3) · `target.repo` (absolute, read-only context) ·
-  `target.lang`/`target.framework` (hints) · `maxRounds` (3) · `models` (per-role tier:
-  analyst/decide/review) · `agentTypes` (custom subagent per role — must exist in your registry) ·
-  `stateDir` (override `runs/<runId>`).
+  `target.lang`/`target.framework` (hints) · `maxRounds` (3, raised to 1 if you pass less) ·
+  `models` (per-role tier: analyst/decide/review) · `agentTypes` (custom subagent per role — must exist
+  in your registry) · `stateDir` (override `runs/<runId>`).
 
 ## 9. State files (`runs/<runId>/`, gitignored)
 

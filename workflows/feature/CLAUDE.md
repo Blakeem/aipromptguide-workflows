@@ -153,7 +153,12 @@ next round; **any code change re-enters at quality.**
   (`BLOCKED (a parked plan left the tree unsafe — inspect before resuming)`); acceptance **passed but did
   not stage** (NOT parked — one `git add` both preserves the work and cleans the tree, so parking would
   be strictly worse; stage its files, resume from the NEXT plan id); a **dirty baseline** on round 1 (NOT
-  parked — that work is the user's, and parking it would take their changes hostage; §3). Every exit
+  parked — that work is the user's, and parking it would take their changes hostage; §3); and acceptance
+  that **staged while the same verdict reported `regression:true`** (`BLOCKED (a plan staged while
+  self-reporting a regression — inspect the staged diff before continuing)`) — that plan keeps its
+  `done (staged)` status, but the roadmap stops there, because its work is now the baseline every later
+  plan would be judged against. That case is neither re-reviewed (acceptance already ran `git add`) nor
+  parked (park must never touch the staged baseline): you inspect `git diff --cached`. Every exit
   leaves a clean tree except passed-but-unstaged (one `git add` from clean); a park that can't manage it
   halts with the status above instead of carrying on.
 - **Gates are the per-stack adapter.** `args.gates.build`/`test` are literal shell commands; `build`
@@ -182,6 +187,9 @@ Confirm:
   `DISMISSED-<id>.md`** for bad calls.
 - Any plan the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
   criteria carry no locators) passed on assertion rather than evidence — read that file closely.
+- Any plan the `ledger` flags `contradicted` returned `pass:true` next to `regression:true` or
+  `reachable:false` — a verdict that contradicts its own schema. The regression case also halts the run;
+  an unreachable "pass" does not, so grep that integration point yourself.
 - Every `parked` entry: its patch exists and is non-empty, and `NEEDS-USER.md` says why it parked.
 - Surface `NEEDS-USER.md`.
 
@@ -190,8 +198,9 @@ Confirm:
 Durable progress = git staging + the numbered review-file trail + the ordered `plans`. Running out of
 rounds is no longer a stop — that plan parks and the roadmap continues. The run ends early only on
 `BLOCKED (needs user input)`, `BLOCKED (working tree was not clean — nothing was built)`,
-`BLOCKED (a plan passed but was not staged — stage it, then resume)`, `BLOCKED (a parked plan left the
-tree unsafe — inspect before resuming)`, or `stopped on token budget (resume where it left off)`.
+`BLOCKED (a plan passed but was not staged — stage it, then resume)`, `BLOCKED (a plan staged while
+self-reporting a regression — inspect the staged diff before continuing)`, `BLOCKED (a parked plan left
+the tree unsafe — inspect before resuming)`, or `stopped on token budget (resume where it left off)`.
 1. Read the trail + `git -C <repo> diff --cached --stat` to see which features are staged/accepted, and
    the result's `parked` array (or `NEEDS-USER.md`) for which parked — their work is in a patch, not
    the tree.
@@ -261,9 +270,13 @@ inline to `Workflow`.
   `[{ id, planPath|plan, gate }]`, array order = build order; `id` is a stable kebab slug + the only
   routing key, the body is read verbatim from `planPath`/`plan`, `gate` is `green`|`build-only`) **or** a
   single top-level `planPath` (absolute) / `plan` (inline markdown) for one feature (back-compat;
-  synthesized as one plan `id:"feature"`) · `target.repo` (absolute path to the git repo) · `gates.build`
-  + `gates.test` (shell commands; non-zero exit = fail).
-- **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level `planPath`)
+  synthesized as one plan `id:"feature"`) · `target.repo` (absolute path to the git repo — **throws** if
+  missing; there is no default, so a typo can't silently retarget the tool's own repo) · `gates.build`
+  (shell command; **throws** if missing — an unset build command would no-op the build gate) +
+  `gates.test` (**throws** when any plan's gate is `green`; a `build-only` plan needs no test command).
+  Non-zero exit = fail.
+- **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level
+  `planPath`/`plan` and never reads `plans` — it **throws** if neither is set)
   · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `conventions` (the
   developer's rubric — language/version constraints, what stays additive, what NOT to touch; the blind
   reviewer is never shown it) · `reference` (path to a completed example to mirror) · `gates.testSetup`

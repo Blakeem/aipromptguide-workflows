@@ -82,7 +82,9 @@ const slug     = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').repl
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 // NOT issues/<unit>.md — that path is resolve-cycle's input and nothing here may be auto-applied.
 const proposalFile = (lensId) => `${PROPOSALS_DIR}/${fileSafe(lensId)}.md`;
-const NEEDS_USER   = `${STATE_DIR}/NEEDS-USER.md`;
+// And deliberately NO shared NEEDS-USER.md. Every lens verifies concurrently, and an agent "append" is a
+// read-modify-write, so two of them would silently clobber each other's entries in an unattended run. A
+// user-only call belongs in that lens's own proposal file, where its options + recommendation already go.
 
 // Scope — the paths every finder reads. Enhancements are cross-cutting, so a lens sees ALL of it.
 const SCOPE = (Array.isArray(A.scope) ? A.scope : (A.scope ? [A.scope] : [])).map(String).filter(Boolean);
@@ -302,8 +304,9 @@ note: PROPOSALS — human triage required. Not a defect inventory; nothing here 
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
 ${MIN_IMPACT_NAME} impact floor." followed by the Rejected section.
-If a candidate raises a question only the user can answer BEFORE the proposal can even be written up
-sensibly, append a full entry to ${NEEDS_USER} as well.
+A question only the user can answer stays in THIS file, in that candidate's own NEEDS_USER block — its
+**Options:** + **Recommendation:** lines ARE the escalation. There is no shared escalation file: the
+lenses write concurrently, so appends to one shared file would overwrite each other.
 Do NOT modify source, do NOT write into any issues/ directory, do NOT stage or commit.
 Set wrote_file=true and return all verdicts via the schema.`;
 
@@ -338,7 +341,18 @@ const results = await pipeline(
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
     }));
-    const verdicts = v?.verdicts || [];
+    // Match every verdict back to a candidate we actually submitted (same guard as debug/review.mjs):
+    // a hallucinated or repeated candidate_id would inflate the counts and put a phantom row in `kept`,
+    // and the main agent would report adoption numbers the proposal file does not contain.
+    const byId = new Set(items.map((x) => x.id));
+    const seen = new Set();
+    const verdicts = (v?.verdicts || []).filter((x) => {
+      if (!byId.has(x.candidate_id) || seen.has(x.candidate_id)) return false;
+      seen.add(x.candidate_id);
+      return true;
+    });
+    const stray = (v?.verdicts || []).length - verdicts.length;
+    if (stray) log(`  ⚠ ${lens.id}: ignored ${stray} verdict(s) with an unknown or duplicate candidate_id`);
     const by = (d) => verdicts.filter((x) => x.decision === d).length;
     const counts = {
       found: items.length,

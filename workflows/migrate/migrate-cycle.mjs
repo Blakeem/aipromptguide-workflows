@@ -1,12 +1,13 @@
 export const meta = {
   name: 'migrate-cycle',
-  description: 'Section-driven migration/upgrade/refactor: drive ONE prose goal — broken into ordered, dependency-sequenced SECTIONS in plan mode — to a production-ready, gate-green state across one target git repo. Per section: develop → BLIND pure-code review (must pass) → plan-aware section-acceptance + regression review (stages on pass), looped per round; the accepted baseline advances section by section. A whole-goal sweep brackets the run. Agents exchange messages as verbatim files; the harness only routes the section id, round, and verdicts.',
+  description: 'Section-driven migration/upgrade/refactor: drive ONE prose goal — broken into ordered, dependency-sequenced SECTIONS in plan mode — to a production-ready, gate-green state across one target git repo. Per section: develop → BLIND pure-code review (must pass) → plan-aware section-acceptance + regression review (stages on pass), looped per round; the accepted baseline advances section by section. A section that does not accept is PARKED — its work saved to a patch and cleared from the tree — and the run then STOPS, because the later sections depend on it. A whole-goal sweep brackets the run. Agents exchange messages as verbatim files; the harness only routes the section id, round, and verdicts.',
   whenToUse: 'A BREADTH-SPANNING goal across many call sites — migrate a data model, upgrade a language/runtime version, port a framework, refactor a subsystem — that is too big for one bounded feature (use the sibling feature-cycle for that) but is ONE coherent goal. The orchestrating agent decomposes the goal into ORDERED SECTIONS in PLAN MODE (EnterPlanMode → ~/.claude/plans/<name>.md, one "## Section: <id>" per bounded change), the user approves (ExitPlanMode), then runs MANDATORY phase:"refine" (whole-plan adversarial coverage review vs the real repo) — folds in the gaps, ensures a CLEAN unstaged working tree — then phase:"run" (executes the sections in order, staging each on accept). Reuse the same runId + planPath throughout.',
   phases: [
     { title: 'Refine', detail: 'MANDATORY first pass (refine phase only): an independent critic greps the WHOLE change surface, verifies every section of the plan against real code, returns coverage gaps + blocking questions + too_big to the orchestrating agent. Writes nothing.' },
     { title: 'Develop', detail: 'Developer reads the approved plan (verbatim) + its section + the latest review that flagged issues; implements ONLY that section minimally, runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no goal), flags production-blocking defects, writes quality-review-<section>-N.md. Must be clean to proceed.' },
     { title: 'Acceptance', detail: 'Plan-aware section gate: every acceptance criterion of THIS section met + reachable + section gate green + no regression vs the staged baseline. Writes acceptance-review-<section>-N.md; on pass, STAGES the section (git add, never commit) — the baseline advances.' },
+    { title: 'Park', detail: 'On a section that did not accept within its round budget, or one the developer escalated: SAVES that section\'s work to parked-<id>.patch, then clears it from the tree so the repo is left clean and buildable. The run STOPS either way — the sections after it depend on this one landing — but nothing is destroyed: NEEDS-USER.md carries the restore command.' },
     { title: 'Sweep', detail: 'After the FINAL section is staged: an independent agent re-greps the whole surface, runs the full gates, spot-checks the staged diff, writes SWEEP.md. The only whole-goal completeness check.' },
   ],
 };
@@ -28,6 +29,12 @@ if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object'))) {
 // absolute path the run-state dir hangs off, normally the workflow tool's own directory.
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
+}
+// `target.repo` is REQUIRED and has NO default (both phases). It used to fall back to `.`, i.e. ROOT —
+// so an omitted repo pointed every `git -C`, the park procedure's `checkout --` + file deletion, and the
+// gate commands at the workflow TOOL's own working tree instead of failing loud.
+if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
+  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the TARGET git repo. There is no default — an omitted repo would silently run every git command (including park\'s checkout/delete) against this workflow tool\'s own directory.');
 }
 
 const PHASE       = A.phase ?? 'run';                       // 'refine' (review the plan, stop) | 'run' (execute sections)
@@ -54,7 +61,7 @@ const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
 const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
-const REPO        = abs(TARGET.repo ?? '.');               // absolute path to the target git repo
+const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
 const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
 const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? String(A.plan) : '';
@@ -284,8 +291,11 @@ PROCEDURE:
      them, and telling the user to copy them back (preserving relative paths) as a SECOND step after the
      \`git apply\`. Omit this line entirely when there were no strays.
    - how to resume: fix the blocker (sharpening that section of the plan if needed), then re-invoke with
-     \`startAt:"${section.id}"\` — applying the patch FIRST if the partial work is worth continuing from,
-     or leaving it so the developer redoes the section from the clean baseline
+     \`startAt:"${section.id}"\` from the CLEAN baseline and let the developer redo the section — the
+     default, with the patch kept for reference. The ONLY alternative is to apply the patch and finish
+     this section BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty
+     one. Do NOT tell the user to \`git add -A\` the restored work: that folds UN-reviewed code into the
+     accepted baseline, invisible to the blind reviewer
 Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this section's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
 
@@ -527,6 +537,15 @@ if (PHASE === 'refine') {
 if (!ALL_SECTIONS.length) {
   throw new Error('args.sections is required for phase:"run": an ordered array of { id, title, gate } the main agent extracted from the approved plan (each maps to a "## Section: <id>" block). Got none.');
 }
+// The gate commands are what "it works" MEANS here, and gateOk() only enforces the build when
+// GATES.build is set — so an omitted command turns the build gate into a no-op and a build-only section
+// passes with nothing ever compiled. Required, and required to fail loud.
+if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
+  throw new Error('args.gates.build is required for phase:"run": the shell command that defines a GREEN build (non-zero exit = fail). Without it the build gate silently no-ops and a section can pass with nothing compiled.');
+}
+if (ALL_SECTIONS.some((s) => s.gate === 'green') && (typeof A.gates?.test !== 'string' || !A.gates.test.trim())) {
+  throw new Error('args.gates.test is required when any section has gate:"green": the shell command that runs this section\'s selector tests (non-zero exit = fail). A mechanical/testless section takes gate:"build-only" instead.');
+}
 
 // Resume / partial-slice scoping (control plane, supplied by the orchestrator after it reconstructs
 // progress from git-staging + the review-file trail — there is no progress file by design, #6/#10).
@@ -536,6 +555,11 @@ const runOnly = Array.isArray(A.runOnly) && A.runOnly.length ? A.runOnly : null;
 let pending = ALL_SECTIONS;
 if (runOnly) {
   pending = ALL_SECTIONS.filter((s) => runOnly.includes(s.id));
+  // An unknown id must FAIL FAST, exactly as startAt does below: a silently dropped id runs fewer
+  // sections than the operator asked for — and if every id is a typo, none at all, reported as a
+  // benign "partial slice complete" with no error.
+  const unknown = runOnly.filter((id) => !ALL_SECTIONS.some((s) => s.id === id));
+  if (unknown.length) throw new Error(`args.runOnly ${unknown.map((id) => `"${id}"`).join(', ')} matches no section id. Valid ids: ${ALL_SECTIONS.map((s) => s.id).join(', ')}`);
 } else if (A.startAt) {
   const i = ALL_SECTIONS.findIndex((s) => s.id === A.startAt);
   // An unknown id must FAIL FAST — silently falling back to the full list would re-run already accepted
@@ -549,6 +573,10 @@ log(`run: ${pending.length}/${ALL_SECTIONS.length} section(s) to process${runOnl
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
 let halted = false;
 let haltReason = '';
+// WHY the run halted, as a value rather than prose. The status line used to sniff substrings out of
+// haltReason, so every new halt reason (park, dirty baseline, budget) silently reported the same
+// generic status; every halt site now sets this.
+let haltKind = '';
 const doneIds = [];
 
 for (const section of pending) {
@@ -557,13 +585,14 @@ for (const section of pending) {
   // than letting an agent() call throw mid-section. Accepted sections are STAGED; resume continues.
   if (budget.total && budget.remaining() < (A.minSectionBudget ?? 150_000)) {
     halted = true;   // so the reason + resume instruction surface in the return value
+    haltKind = 'budget';
     haltReason = `Stopped before section ${section.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minSectionBudget). Resume phase:"run" with startAt:"${section.id}".`;
     log(`⏸ ${haltReason}`);
     break;
   }
 
   log(`▶ section ${section.id} — ${section.title} [gate=${section.gate}]`);
-  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false };
+  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false, contradicted: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
   // An escalation leaves real work in the tree (park it); a dirty-baseline halt changed nothing
@@ -592,6 +621,7 @@ for (const section of pending) {
       } else if (dirty > 0) {
         halted = true;
         rec.status = 'BLOCKED (dirty baseline)';
+        haltKind = 'dirty-baseline';
         haltReason = `Section ${section.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then run ONE command and re-invoke this run unchanged: \`git -C ${REPO} add -A\` to KEEP it (folds it into the accepted baseline), or \`git -C ${REPO} stash -u\` to set it aside. Nothing was built or changed.`;
         log(`  ✋ ${section.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A to fold into the baseline, or git stash -u, then re-run)`);
         break;
@@ -600,6 +630,7 @@ for (const section of pending) {
     if (dev?.needs_user === true) {
       halted = true;
       escalated = true;
+      haltKind = 'needs-user';
       haltReason = `Developer halted for a user-only decision in section ${section.id} round ${round} (see ${NEEDS_USER}).`;
       rec.status = 'BLOCKED (needs user)';
       log(`  ✋ ${section.id} r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
@@ -659,17 +690,36 @@ for (const section of pending) {
       // missing locators means the verdict rests on assertion, not evidence (#14). Detection only —
       // acceptance already staged, so flag it for the operator's audit rather than failing the section.
       rec.thinEvidence = rec.criteria.total === 0 || rec.criteria.met < rec.criteria.total || acc?.evidence_recorded !== true;
+      // `pass` MEANS "reachable and nothing regressed" (ACCEPTANCE_SCHEMA), and both fields are REQUIRED
+      // — so a pass alongside either one contradicts the verdict's own definition and cannot be a
+      // missing-field artifact. Flag both; HALT only on the regression, whose harm compounds hardest
+      // here: staged work becomes the baseline every LATER section (an ordered decomposition, each
+      // building on the last) is judged against. An unreachable section is bad but inert, and §7 already
+      // tells the operator to grep the integration points.
+      rec.contradicted = acc?.regression === true || acc?.reachable !== true;
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (evidence_recorded=${acc?.evidence_recorded}) — audit ${acceptanceFile(section.id, round)}` : '';
+      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, reachable=${acc?.reachable}) — audit ${acceptanceFile(section.id, round)}` : '';
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        log(`  ✓ ${section.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, gate=${acc?.suite_result || 'n/a'})${thinNote}`);
+        log(`  ✓ ${section.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
+        // Staged WITH a self-reported regression: stop here. Not another review round (the verifier
+        // already ran `git add`, so a re-round would leave staged-but-unaccepted work the next blind
+        // reviewer cannot see) and not a park (the work is staged; park must never touch the baseline).
+        // The section stays "done (staged)" — what halts is everything AFTER it.
+        if (acc?.regression === true) {
+          halted = true;
+          haltKind = 'acceptance-regression';
+          haltReason = `Section ${section.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(section.id, round)}). Its work is now the baseline every later section would build on and be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`; unstage/fix it, then resume from the NEXT section.`;
+          log(`  ✋ ${section.id}: staged while self-reporting a REGRESSION → halting the run (inspect git -C ${REPO} diff --cached)`);
+        }
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next section's blind diff would
       // include this section's unstaged work. Do NOT advance; halt for manual staging, then resume.
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
+      haltKind = 'passed-unstaged';
       haltReason = `Section ${section.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then resume phase:"run" with startAt the NEXT section.`;
       log(`  ✋ ${section.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
@@ -698,11 +748,15 @@ for (const section of pending) {
     if (!halted) {
       halted = true;
       rec.status = 'parked (not accepted within round budget)';
-      haltReason = `Section ${section.id} did not reach acceptance within ${MAX_ROUNDS} rounds (see ${reviewPath || acceptanceFile(section.id, round)}).`;
+      haltKind = 'parked';
+      // `reviewPath` is EMPTY when the section never produced a review file (its gate never went green,
+      // so neither reviewer ever ran). Naming an acceptance-review path that was never written points
+      // the operator — days later, in the one cumulative record — at a file that does not exist.
+      haltReason = `Section ${section.id} did not reach acceptance within ${MAX_ROUNDS} rounds (${reviewPath ? `see ${reviewPath}` : `it produced no review file — its gate never went green; see the run trail in ${STATE_DIR}`}).`;
       log(`  ✋ ${section.id}: not accepted within ${MAX_ROUNDS} rounds → parking its work, then halting`);
     }
     phase('Park');
-    const pk = await agent(parkPrompt(section, reviewPath || acceptanceFile(section.id, round), escalated), roleOpts('develop', {
+    const pk = await agent(parkPrompt(section, reviewPath, escalated), roleOpts('develop', {
       schema: PARK_SCHEMA, phase: 'Park', label: `park:${section.id}`,
     }));
     const strays = pk?.strays_saved ?? 0;
@@ -710,9 +764,14 @@ for (const section of pending) {
     rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(section.id) : null;
     if (strays > 0) rec.strays = parkedNewDir(section.id);
     log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}`);
+    // A tree we could not clear (or a self-contradictory park report) leaves the repo unsafe to resume
+    // into, which is a different operator problem from a plain park — say so in the status, not just
+    // deep in the reason string.
     if (contradictory) {
+      haltKind = 'park-unsafe';
       haltReason += ` Park reported saved=false while writing ${pk.patch_bytes} bytes to ${parkedPatch(section.id)} — the report contradicts itself; the patch is real, inspect it before resuming.`;
     } else if (pk?.cleared !== true) {
+      haltKind = 'park-unsafe';
       haltReason += ` Its work could NOT be cleared from the tree${pk?.saved === true ? ` (it IS saved to ${parkedPatch(section.id)})` : ' and was NOT saved — the tree still holds it'}; clean the tree yourself before resuming.`;
     } else {
       haltReason += ` Its work is SAVED to ${parkedPatch(section.id)} and the tree is CLEAN; resolve with the user, then resume from this section.`;
@@ -744,8 +803,21 @@ if (A.finalSweep !== false && allDone) {
 // =============================================================================
 // Result (control plane → the orchestrating agent; durable progress lives in git + the review-file trail)
 // =============================================================================
+// Anything with saved work the user must be told about. Keyed on the PATCH, not the status string: an
+// escalated section keeps its "BLOCKED (needs user)" status but was still parked, and dropping it here
+// would leave its patch path unreported anywhere in the return.
+const parkedSections = ledger.filter((r) => r.patch || (typeof r.status === 'string' && r.status.startsWith('parked')));
+const HALT_STATUS = {
+  'needs-user':      'BLOCKED (needs user input)',
+  'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
+  'passed-unstaged': 'BLOCKED (a section passed but was not staged — stage it, then resume)',
+  'acceptance-regression': 'BLOCKED (a section staged while self-reporting a regression — inspect the staged diff before continuing)',
+  'parked':          'halted (a section was parked — its work is saved to a patch; the sections after it were not attempted)',
+  'park-unsafe':     'BLOCKED (a parked section left the tree unsafe — inspect before resuming)',
+  'budget':          'stopped on token budget (resume where it left off)',
+};
 const status = halted
-  ? (haltReason.includes('needs user') || haltReason.includes('user-only') ? 'BLOCKED (needs user input)' : 'halted (section needs attention / budget)')
+  ? (HALT_STATUS[haltKind] || 'halted (section needs attention / budget)')
   : allDone
     ? 'done (all sections staged)'
     : 'partial slice complete';
@@ -762,10 +834,14 @@ return {
   sectionsDone: doneIds,
   sectionsTotal: ALL_SECTIONS.length,
   sweep: sweep ? { complete: sweep.complete === true, gaps: (sweep.gaps || []).length, suite: sweep.suite_result || '' } : null,
+  // Parked sections: NOT done, but their work is SAVED, not lost — and the sections after them were
+  // never attempted. Present each with its patch path (and strays dir when one exists — those need a
+  // second restore step).
+  parked: parkedSections.map((r) => ({ id: r.id, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
   reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<section>-rN.md, acceptance-review-<section>-rN.md) show every iteration; git staging marks each accepted section.`,
   followups: halted
-    ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply it first only if the partial work is worth continuing from; otherwise the developer redoes that section from the clean baseline.`
+    ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply the patch first ONLY if you want to finish that section by hand; otherwise resume from the clean baseline and the developer redoes it (a resumed run requires a clean unstaged tree and halts on a dirty one).`
     : allDone
       ? `All sections done. Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
       : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`,

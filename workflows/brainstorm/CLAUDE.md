@@ -43,8 +43,10 @@ everything with the user first:
   distinct **after slugging** — a collision throws rather than sending two generators into one
   `variations/<lens>/` folder; give near-identical lenses explicit `{ id, focus }`.
 - **`brief` OR `planPath` — one REQUIRED.**
-- **Fresh vs. resume.** A re-run with the same `runId` overwrites each lens folder. Want to keep an old
-  batch? Use a new `runId` (or `stateDir`).
+- **Fresh vs. resume.** A re-run with the same `runId` overwrites same-named files in each lens folder
+  but leaves unrelated files from an earlier run in place — an old `index.html` survives a re-run that
+  writes `index.md`, and the user can open the stale one. Use a fresh `runId` (or `stateDir`) whenever
+  `outputFormat`/`kind` changes, when you want a clean folder, or to keep an old batch.
 
 ## 4. Roles (in the engine)
 
@@ -86,4 +88,6 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
   any supporting files). These ARE the output; there are no review/status/log files.
 
 Report when done: how many variations landed, where (`variationsDir`), and the one-line differentiator
-of each — then help the user compare and choose. **Nothing is staged or committed.**
+of each — **plus every lens in the returned `failed` array** (it produced no output at all): name them
+and offer to re-run just those with the same `runId`. Never report a requested angle as covered when it
+is in `failed`. Then help the user compare and choose. **Nothing is staged or committed.**

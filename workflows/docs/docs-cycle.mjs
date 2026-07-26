@@ -282,9 +282,14 @@ while (rounds < MAX_ROUNDS) {
   }
 
   // -- Curate (barrier: reads the whole set) ------------------------------------
-  curate = await agent(curatePrompt(rounds), roleOpts('curate', {
+  // A dead gatherer is survivable (its writes are on disk, above); a dead curator is not — it is the
+  // only role that organizes, splits and indexes, and `gaps: []` from a null would look like "complete,
+  // zero gaps" and exit the loop into a success-shaped return with no set behind it.
+  const c = await agent(curatePrompt(rounds), roleOpts('curate', {
     schema: CURATE_SCHEMA, phase: 'Curate', label: `curate:r${rounds}`,
   }));
+  if (!c) throw new Error(`Curator returned nothing in round ${rounds} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  curate = c;
   const gaps = (curate?.gaps ?? []).filter((g) => g && g.focus);
   const fidChecked = curate?.fidelity_checked ?? 0;
   const fidFailed  = curate?.fidelity_failures ?? 0;
@@ -330,9 +335,10 @@ return {
   rounds,
   inconsistencies: curate?.inconsistencies ?? 0,
   fidelity: { checked: curate?.fidelity_checked ?? 0, failures: curate?.fidelity_failures ?? 0 },
+  indexWritten: curate?.wrote_index === true,
   foreignContent: foreignFound,
   foreignPaths,
   unresolvedGaps: (curate?.gaps ?? []).filter((g) => g && g.focus).length,
   stateDir: STATE_DIR,
-  nextStep: `Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${curate?.fidelity_checked ?? 0} file(s) compared against their source, ${curate?.fidelity_failures ?? 0} failed) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
+  nextStep: `${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${curate?.fidelity_checked ?? 0} file(s) compared against their source, ${curate?.fidelity_failures ?? 0} failed) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };

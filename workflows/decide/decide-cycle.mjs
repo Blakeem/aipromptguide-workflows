@@ -30,7 +30,7 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL read-only context
 const CONTEXT     = A.context ?? '';                       // short extra framing (domain facts the agents won't know)
 const TESTBED     = A.testbed ?? '';                       // OPTIONAL: how agents may empirically test claims (e.g. a read-only sqlite db + how to query it)
-const MAX_ROUNDS  = A.maxRounds ?? 3;                       // decider ⇄ reviewer rounds before "needs-attention"
+const MAX_ROUNDS  = Math.max(1, A.maxRounds ?? 3);          // decider ⇄ reviewer rounds before "needs-attention"
 
 // SELECTION — what the decider is asked to produce.
 //   'single' (default) : ONE justified winner + why-not-each-runner-up. The normal decision.
@@ -106,8 +106,9 @@ const ANALYST_SCHEMA = {
 
 const DECIDE_SCHEMA = {
   type: 'object',
-  required: RANKED ? ['chosen', 'shortlist', 'meets_all_requirements', 'needs_user'] : ['chosen', 'meets_all_requirements', 'needs_user'],
+  required: RANKED ? ['wrote_file', 'chosen', 'shortlist', 'meets_all_requirements', 'needs_user'] : ['wrote_file', 'chosen', 'meets_all_requirements', 'needs_user'],
   properties: {
+    wrote_file:             { type: 'boolean', description: 'true if you wrote the decision file' },
     chosen:                 { type: 'string', description: RANKED ? 'short title of the RANK-1 option (the list itself is in the file)' : 'short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)' },
     ...(RANKED ? {
       shortlist: {
@@ -133,8 +134,9 @@ const DECIDE_SCHEMA = {
 
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['agree', 'gap_count', 'needs_user'],
+  required: ['wrote_file', 'agree', 'gap_count', 'needs_user'],
   properties: {
+    wrote_file: { type: 'boolean', description: 'true if you wrote the review file' },
     agree:      { type: 'boolean', description: 'true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated' },
     gap_count:  { type: 'integer', description: 'number of gaps/objections written to the review file (0 when you agree)' },
     needs_user: { type: 'boolean', description: 'true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
@@ -211,7 +213,7 @@ WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed): the matrix (table
 with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.`}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to ${NEEDS_USER} and set needs_user=true (the run HALTS).
-Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — titles + rank + combines_with/excludes; the reasoning stays in the file)' : ''} + meets_all_requirements + open_questions + needs_user via the schema.`;
+Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — titles + rank + combines_with/excludes; the reasoning stays in the file)' : ''} + meets_all_requirements + open_questions + needs_user + wrote_file via the schema.`;
 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not argument evaluation): the reviewer
 // MUST see the decision + requirements to judge them. It does NOT read prior review files (that would
@@ -249,7 +251,7 @@ reference to the requirement or lens evidence it rests on — or, if sound, ${RA
     ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
     : '"Conclusion holds: every requirement met, matrix sound."'} Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.
-Return agree + gap_count + needs_user via the schema.`;
+Return agree + gap_count + needs_user + wrote_file via the schema.`;
 
 // =============================================================================
 // DIVERGE — fan out one analyst per lens, concurrently (read-only, write own lens file).
@@ -286,6 +288,7 @@ while (round < MAX_ROUNDS) {
     schema: DECIDE_SCHEMA, phase: 'Decide', label: `decide r${round}`,
   }));
   if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  if (dec.wrote_file !== true) log(`  ⚠ r${round}: decider did NOT confirm writing ${decisionFile(round)} — check it before relaying`);
   lastChosen = dec.chosen || lastChosen;
   if (RANKED && Array.isArray(dec.shortlist) && dec.shortlist.length) {
     lastShortlist = [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
@@ -305,6 +308,7 @@ while (round < MAX_ROUNDS) {
     schema: REVIEW_SCHEMA, phase: 'Review', label: `review r${round}`,
   }));
   if (!rev) throw new Error(`Reviewer returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
+  if (rev.wrote_file !== true) log(`  ⚠ r${round}: reviewer did NOT confirm writing ${decisionReviewFile(round)} — check it before relaying`);
   lastReviewFile = decisionReviewFile(round);
   if (rev.needs_user === true) {
     halted = true; haltReason = `Reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;

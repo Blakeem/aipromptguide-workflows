@@ -44,8 +44,10 @@ No mid-run questions — frame it with the user first:
    cross-source inconsistencies, unresolved gaps, and the fidelity spot-check (`fidelity.checked` /
    `fidelity.failures` — a low or zero count means the verbatim promise went *untested*, not that it
    held). If the return sets `foreignContent`, **warn the user first**: `outDir` was not a dedicated
-   folder (§3). Without `outDir` the set sits in gitignored run-state — copy it into the project (or
-   re-run with `outDir`) if it should persist. Point the working agent/plan at the INDEX.
+   folder (§3). If `indexWritten` is false the curator never confirmed writing `INDEX.md` — say so and
+   check the file exists before relying on the set. Without `outDir` the set sits in gitignored
+   run-state — copy it into the project (or re-run with `outDir`) if it should persist. Point the
+   working agent/plan at the INDEX.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -83,7 +85,9 @@ No mid-run questions — frame it with the user first:
 ## 4. Sources — the doc sets to pull
 
 Each source is one gatherer: `{ id, kind, focus }` (a bare string = a web source); ids that collide
-after slugging throw, since two gatherers would write into the same `<outDir>/<id>/`.
+after slugging throw, since two gatherers would write into the same `<outDir>/<id>/`. If **every** source
+reports zero files in round 1 the engine throws — nothing was captured, so check the sources/brief (and
+web access for `web` sources) and re-run.
 - **`web`** — official documentation pages for the version in scope; an external API means its official
   reference. Prefer primary sources over blogs.
 - **`repo`** — docs/READMEs/reference material inside `target.repo` (read-only, cited by path).
@@ -112,7 +116,9 @@ code, so every role defaults to a fast tier (override via `models`).
   (one line per file + Coverage notes), then — last, once the index is safe on disk — **spot-checks up
   to `fidelitySample` files against their cited source**. Returns gaps a fresh gather could fix: missing
   coverage **or** a recapture (wrong version pulled, failed spot-check). Reports (never deletes) content
-  in `outDir` it neither captured nor wrote.
+  in `outDir` it neither captured nor wrote. A dead gatherer is survivable (what it wrote is on disk and
+  still gets scrubbed + curated); a dead **curator throws** — nothing else produces the set, so re-invoke
+  with the same args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay from cache.
 
 ## 6. Contracts (keep intact)
 
@@ -151,9 +157,8 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
 - **Optional:** `outDir` (a fresh dir dedicated to this set, usually `<project>/docs/<system>/`; default
   `runs/<runId>/docs`) · `fidelitySample` (3; `0` disables the spot-check) · `maxRounds`
   (2) · `testbed` (how to empirically verify non-official claims — §3) · `target.repo` (absolute —
-  required for `repo` sources) · `target.lang`/`target.framework` (hints) · `models` (per-role tier:
-  gather/scrub/curate) · `agentTypes` (custom subagent per role — must exist in your registry) ·
-  `stateDir` (override `runs/<runId>`).
+  required for `repo` sources) · `models` (per-role tier: gather/scrub/curate) · `agentTypes` (custom
+  subagent per role — must exist in your registry) · `stateDir` (override `runs/<runId>`).
 
 ## 8. State files (`runs/<runId>/`, gitignored — or `outDir`)
 

@@ -64,28 +64,40 @@ the *dismissed list* lets it re-review the whole current diff fresh, so it both 
 production-blocking defect; the developer must then **fix or escalate it — never silently re-dismiss**
 (this bounds the loop and prevents a wrongly-dismissed real defect from being silently suppressed).
 
-### 6. The only writes are inter-agent messages (numbered) and notes for the user
+### 6. The only writes are inter-agent messages, ledgers/user notes, and the workflow's own product
 The **numbered, stage-named review files** (`quality-review-N.md`, `acceptance-review-N.md`) ARE the
 reviewers' messages — and they double as the **transparent progress trail** (the count of each file
-shows how many times each loop ran). Write **nothing else**: no status files, no run summaries, no
-"what I did" logs.
+shows how many times each loop ran).
+
+What is forbidden is **narration about the run**: status files, run summaries, progress logs, "what I
+did" reports. What is written is exactly three things — the numbered inter-agent messages, the
+**ledgers and user notes** below, and the workflow's **own product output**, the thing the run exists
+to produce: `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, the docs set +
+`INDEX.md`, migrate's `SWEEP.md`, and a **parked patch** (`parked-<id>.patch`, plus a
+`parked-<id>-newfiles/` dir when needed). The rule bans reports, not products.
+
+The teeth, so "product" can't be stretched to license a status file: a file that **restates numbers
+the harness already has** is narration however it is titled. That is precisely why `resolve-cycle`
+deleted its `SWEEP.md` while `migrate-cycle` keeps its — migrate's re-derives the change surface from
+the goal by grep and produces findings no per-section agent could reach; resolve's only retold the
+harness's own accounting.
 
 The **developer's *only* outputs besides code** are two append files:
-- **`DISMISSED.md`** — the dismissed-findings ledger: one **terse line** per review finding the
-  developer declined (false positive, intentional, conflicts-with-spec, not-a-real-path), just enough
-  context for a reviewer not to be in the dark — `<file:line> — <gist> — SKIPPED: <≤15-word reason>`.
-  This is an inter-agent message (developer → reviewers) and the user's end-of-run audit of every
-  judgment call made.
+- **`DISMISSED-<id>.md`** — the dismissed-findings ledger, one per plan / section / batch: one
+  **terse line** per review finding the developer declined (false positive, intentional,
+  conflicts-with-spec, not-a-real-path), just enough context for a reviewer not to be in the dark —
+  `<file:line> — <gist> — SKIPPED: <≤15-word reason>`. This is an inter-agent message (developer →
+  reviewers) and the user's end-of-run audit of every judgment call made.
 - **`NEEDS-USER.md`** — user-facing notes: blockers, questions, and decisions only the user can make.
   These may be **as full as needed** for the user to decide. A *hard blocker* also halts the run
   (#7); a *flag-and-proceed* item is recorded and the developer continues with a defensible default.
 
 The developer writes **no** "what I did" report — its code is its output (#8). Reviewers write **only**
-their numbered review files. Nothing else is ever written.
+their numbered review files. Nothing outside this list is ever written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity **itself**, via a decision matrix, before flagging anything. A
-finding it declines is logged tersely to `DISMISSED.md` (#6) so reviewers don't re-raise it; a
+finding it declines is logged tersely to `DISMISSED-<id>.md` (#6) so reviewers don't re-raise it; a
 **contested** dismissal must be **fixed or escalated, never silently re-dismissed** (#5). Only a
 genuine choice **no agent can make** (a real design/business decision, an unresolvable blocker) goes
 to `NEEDS-USER.md`; if the developer cannot proceed without the answer, the run **halts immediately**
@@ -186,22 +198,22 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
 - **Park, don't discard.** Work that cannot pass within its round budget is **saved to a patch file and
   then cleared from the tree** — never deleted, never left lying unstaged. Clearing is required (the next
   unit's blind diff must be clean, and the tree must be buildable); destroying the work never was. The
-  restore command goes in the user notes. A parked patch is not a status file or a "what I did" log —
-  it is **the work itself**, so it doesn't violate #6; the rule bans *narration about* the run, not
-  preserving its product.
+  restore command goes in the user notes. A parked patch is **the work itself**, so it is product, not
+  narration — one of #6's listed outputs, not an exception to it.
 - **Resume.** There is no progress file by design (#6). Durable progress is git staging plus the numbered
   review trail. Because every terminal exit leaves the tree clean — accepted work staged, unfinished work
   parked — a resumed run starts from the same clean baseline a fresh one does, which is what lets the
   round-1 precondition above apply unconditionally, including on resume. A parked unit's work lives in
   its patch; the user decides whether to restore it before re-running that unit. (This invariant is
   load-bearing: an engine that halts leaving work in the tree would false-halt its own resume.)
-- **Preventing review spin.** The `DISMISSED.md` ledger is what stops a blind reviewer from
+- **Preventing review spin.** The `DISMISSED-<id>.md` ledger is what stops a blind reviewer from
   re-flagging settled findings forever. Reviewers skip ledger items *for the stated reason*, may
   contest a clearly-wrong one once, and the developer must fix-or-escalate a contested item — bounding
   the loop and ensuring no wrongly-dismissed real defect is silently suppressed (#5).
-- **Fresh vs. resumed state dir.** `DISMISSED.md` and `NEEDS-USER.md` are cumulative single files. The
-  main agent **clears `runs/<id>/` for a genuinely fresh feature** and **preserves it on resume** (so
-  a halted run keeps its ledger + user notes). This is pre-run setup (#4), not an engine job.
+- **Fresh vs. resumed state dir.** `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative — the
+  per-unit ledgers append across rounds, `NEEDS-USER.md` is one global file. The main agent **clears
+  `runs/<id>/` for a genuinely fresh feature** and **preserves it on resume** (so a halted run keeps
+  its ledger + user notes). This is pre-run setup (#4), not an engine job.
 
 ---
 
@@ -220,8 +232,11 @@ Use these as yes/no checks when reviewing any workflow against these principles:
 - [ ] Is there an **unbiased code review** that must pass **before** the plan-aware acceptance review?
       (#5)
 - [ ] Are the **only** files written the numbered inter-agent reviews, the developer's terse
-      `DISMISSED.md` ledger, and full user-facing `NEEDS-USER.md`? Any status/summary/log file is a
-      violation. (#6)
+      `DISMISSED-<id>.md` ledger, full user-facing `NEEDS-USER.md`, and the workflow's **own product**
+      (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, docs set + `INDEX.md`,
+      migrate's `SWEEP.md`, a parked patch)? **Narration about the run** — any status, summary,
+      progress, or "what I did" file, including one that merely restates numbers the harness already
+      has — is a violation. (#6)
 - [ ] Do reviewers read the **dismissed ledger + user notes** (settled decisions) but **never the
       prior review files**, so they stay fresh yet don't re-litigate? (#5)
 - [ ] Can a reviewer **contest** a wrong dismissal, and must the developer then **fix or escalate**

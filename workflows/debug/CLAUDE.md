@@ -51,8 +51,8 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
 **`resolve-cycle.mjs` (batches run SEQUENTIALLY — staging serializes):**
 - **Fixer** (opus) — reads its batch's `issues/<unit>.md` verbatim, **verify-first** (vanished → STALE),
   fixes minimally, runs gates, leaves work UNSTAGED, owns the matrix, declines → `DISMISSED-<batch>.md`,
-  escalates → `NEEDS-USER.md`. Only the fixer halts the run. On round 1 it also reports two preconditions
-  before touching anything (see Contracts).
+  escalates → `NEEDS-USER.md`. Only the fixer halts the run for the user — Park halts too, but on an
+  unsafe tree. On round 1 it also reports two preconditions before touching anything (see Contracts).
 - **Blind quality reviewer** (sonnet) — reads ONLY the unstaged diff, no issue text — catches anything
   the fix introduced or broke. Must be clean before acceptance.
 - **Acceptance verifier** (opus) — reads the batch's issue file(s), **re-derives each fix's root cause**
@@ -91,7 +91,10 @@ sweep did cover that the harness cannot — *did acceptance leave anything unsta
   issue still exists before touching it and marks vanished ones STALE (normal, not a bug).
 - **Staging = the batch boundary.** Staged + HEAD = accepted baseline; unstaged = the current batch (the
   reviewers' scope). The fixer never stages (except `git add -N` for new files); acceptance stages on
-  pass. Nothing is ever committed.
+  pass. Nothing is ever committed. The fixer **attests** that with `unstaged_confirmed` every round —
+  without it the run halts, because neither review layer looks at the staged index (the blind reviewer is
+  told it's the accepted baseline; acceptance compares against it), so anything the fixer staged itself
+  would reach the user's commit unseen.
 - **Failed batches are PARKED, never discarded.** `git diff --binary > parked-<batch>.patch` (binary is
   required — a plain diff records "Binary files differ" and won't re-apply), untracked strays the patch
   can't carry are copied to `parked-<batch>-newfiles/`, THEN the tree is cleared and the gates re-run.
@@ -101,13 +104,17 @@ sweep did cover that the harness cannot — *did acceptance leave anything unsta
   acceptance-review file as retry context.
 - **Every exit leaves a clean tree — that's what makes the precondition below unconditional.** Accepted
   work is staged, unfinished work is parked. A resume therefore starts from the same clean baseline a
-  fresh run does.
+  fresh run does. **One exception, and it halts:** Park reporting `saved=false` with a non-empty patch
+  (the report contradicts itself), a tree it could not clear, or red gates after clearing. That is the
+  one exit where the tree may be dirty, and it halts precisely so a human inspects before anything else
+  touches the repo — `git status --porcelain` before the next batch or workflow.
 - **Two round-1 preconditions, checked before the fixer touches anything.** `baseline_dirty_files` — the
   unstaged tree must be empty, because the unstaged diff IS the reviewers' scope and pre-existing changes
   would be attributed to the batch and fail it for someone else's edits. `issue_entries_found` — the fixer
   must locate at least one `### [<id>]` block for its batch; zero means `runId`/`root`/`stateDir` don't
   match what wrote the inventory, and without the guard every issue would be reported STALE and the run
-  would end claiming false success. Either halts immediately, changing nothing.
+  would end claiming false success. Either halts immediately, changing nothing — as does a round-1 fixer
+  that returns nothing at all, since then neither precondition was checked and no work can be assumed.
 - **A lens narrows WHICH defects, never widens into improvements.** `args.lens` (or per-unit `unit.lens`)
   aims the same machinery at a class of defect. "Report DEFECTS, not redesigns" and the verifier's
   `scope-creep → REJECT` are UNCONDITIONAL — see the scope caveat at the top. Improvements are `enhance`.
@@ -123,7 +130,9 @@ document/drawing review. Fields (all optional, each falls back to the defect-hun
 charter, `categories` the finding enum, the rest the floor wording.
 
 - **`args.lens`** sets the default for every unit; **`unit.lens`** REPLACES it for that unit (it does not
-  merge — element-wise merging of arrays is unpredictable; per-field defaults still apply).
+  merge — element-wise merging of arrays is unpredictable; per-field defaults still apply). An **empty
+  array reads as unset** for `args.lens` and `unit.lens` alike — otherwise it would replace a real lens
+  set with nothing and that unit would get zero reviewers while still counting as processed.
 - **An ARRAY of lenses** reviews each unit once per lens and merges the results into that unit's SINGLE
   issue file behind ONE verifier. Use it to sweep the same code from genuinely different angles in one
   pass. Dedup is per-lens (`lens:file:category`), so two lenses may both report the same file+category —
@@ -156,7 +165,7 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    - a DEFER the user still wants → ACTIONABLE only if genuinely batchable; large cross-cutting work
      belongs in the migrate workflow as a goal.
 5. **Build `args.issues` from `review.mjs`'s returned `issues` array** — it is already in resolve's exact
-   shape (`{ id, unit, file, line, loc, severity, category, decision, effort, theme }`). Apply your
+   shape (`{ id, unit, file, line, loc, severity, category, decision, effort, title, theme }`). Apply your
    triage on top: drop what the user set to SKIP, flip approved NEEDS_USER items to ACTIONABLE (re-reading
    their rewritten `**Fix:**` lines). **Do not hand-rebuild it by grepping** — that's error-prone busywork
    (a hand rebuild is how a `file.py:224-276` range once became the number `224276`). Only an *external*
@@ -245,7 +254,8 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 
 **`review.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `conventions` · `units` (from `gen-units.mjs`).
-  `gates` is informational context for the reviewer here.
+  `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
+  `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`).
 - **Returns** `issues` (the machine-built index in resolve's exact shape — start step 5 from this),
@@ -254,6 +264,9 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 **`resolve-cycle.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `gates.build` + `gates.test` (shell commands; `test`
   must be GREEN before resolve) · `conventions` · `issues` (review's returned array + your triage).
+  Missing `runId`, `root`, `target.repo`, either gate, or `issues` **throws** — `target.repo` has no
+  default (park's `git checkout --` and delete run against it) and an unset gate would silently no-op
+  its half of the green check. `conventions` alone falls back to a placeholder rubric; supply it.
 - **Optional tuning:** `fixSeverity` (resolve-fix floor, medium) · `criticSeverity` (floor for NEW
   defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) ·
   `minBatchBudget` (stop cleanly between batches under a token target, 150000) · `resolveOnly` (ids/path

@@ -104,7 +104,9 @@ The loop is **develop → quality → acceptance**, repeated each round until ac
 change re-enters at the blind review. A section that does not accept is **parked** and the run stops
 there — its work is saved to a patch and cleared from your tree, so the repo is left clean and buildable
 rather than half-changed. The run stops because the sections are ordered: the ones after it were waiting
-on this one to land. You resolve it and resume from that section; nothing is lost.
+on this one to land. You resolve it and resume from that section; nothing is lost. The run also stops if
+the verifier ever stages a section while also reporting that something regressed — a verdict that
+contradicts itself — so you can look at the staged diff before later sections build on it.
 
 ---
 

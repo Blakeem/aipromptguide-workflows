@@ -96,7 +96,7 @@ answer; a bold, coherent take is the goal.
 
 YOUR LENS: ${lens.focus}
 THE BRIEF: read ${BRIEF_REF}.
-${REFERENCES.length ? `REFERENCE MATERIAL (read these for grounding; they are distinct sources, use what is relevant):\n${REFERENCES.map((r) => `  - ${r}`).join('\n')}\n` : ''}${REPO ? `EXISTING CODEBASE (read-only context, e.g. to match an existing style — do NOT modify it): ${REPO}\n` : ''}${CONSTRAINTS ? `CONSTRAINTS (shared — every variation must respect these): ${CONSTRAINTS}\n` : ''}OUTPUT FORMAT: ${FORMAT}.
+${REFERENCES.length ? `REFERENCE MATERIAL (read these for grounding; they are distinct sources, use what is relevant):\n${REFERENCES.map((r) => `  - ${r}`).join('\n')}\n` : ''}${REPO ? `EXISTING CODEBASE (read-only context, e.g. to match an existing style — do NOT modify it): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONSTRAINTS ? `CONSTRAINTS (shared — every variation must respect these): ${CONSTRAINTS}\n` : ''}OUTPUT FORMAT: ${FORMAT}.
 
 PROCEDURE:
 1. Produce your COMPLETE ${KIND} through your lens — fully realized, not an outline (unless the format
@@ -132,5 +132,7 @@ return {
   count: variations.length,
   variations: variations.map((v) => ({ lens: v.lens, focus: v.focus, entry: v.entry, summary: v.summary })),
   failed,
-  nextStep: `Present the variations to the user: open each entry under ${VAR_DIR}/ (or relay the one-line summaries) and walk them through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, hand it to feature-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.`,
+  nextStep: variations.length
+    ? `Present the variations to the user: open each entry under ${VAR_DIR}/ (or relay the one-line summaries) and walk them through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, hand it to feature-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failed.length ? ` Tell the user these lenses produced NOTHING: ${failed.join(', ')} — offer to re-run just those with the same runId.` : ''}`
+    : `NOTHING was produced: every generator failed or returned no entry (${failed.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first).`,
 };

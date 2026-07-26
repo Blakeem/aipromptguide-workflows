@@ -30,6 +30,12 @@ if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object') || 
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
+// `target.repo` is REQUIRED and has NO default (both phases). It used to fall back to `.`, i.e. ROOT —
+// so an omitted repo pointed every `git -C`, the park procedure's `checkout --` + file deletion, and the
+// gate commands at the workflow TOOL's own working tree instead of failing loud.
+if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
+  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the TARGET git repo. There is no default — an omitted repo would silently run every git command (including park\'s checkout/delete) against this workflow tool\'s own directory.');
+}
 
 const PHASE       = A.phase ?? 'build';                     // 'refine' (review the plan, stop) | 'build' (implement it)
 const RUN_ID      = A.runId;
@@ -55,7 +61,7 @@ const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
 const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
-const REPO        = abs(TARGET.repo ?? '.');               // absolute path to the target git repo
+const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
 const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
 const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? String(A.plan) : '';
@@ -425,6 +431,12 @@ Do NOT modify any files. Return your findings via the schema (the orchestrating 
 // next plan exists — so it takes the single planPath, not the `plans` array.
 // =============================================================================
 if (PHASE === 'refine') {
+  // Refine reads ONLY the top-level plan — `args.plans` is never consulted here. Reusing a roadmap args
+  // object for refine would otherwise satisfy the top-level check, leave PLAN_REF empty, and spawn the
+  // opus critic against nothing — which returns a plausible verdict:"ready" for a plan it never saw.
+  if (!PLAN_PATH && !PLAN_INLINE) {
+    throw new Error('phase:"refine" needs the SINGLE top-level planPath (absolute) or inline plan (markdown) for ONE plan: the `plans` roadmap array is NOT read in this phase. Run one refine pass per plan.');
+  }
   phase('Refine');
   log(`refine: critiquing the plan${PLAN_PATH ? ` at ${PLAN_PATH}` : ' (inline)'} against ${REPO}`);
   const critique = await agent(refinePrompt(), roleOpts('plan', {
@@ -463,6 +475,15 @@ if (PHASE === 'refine') {
 if (!ALL_PLANS.length) {
   throw new Error('args needs a plan for phase:"build": pass planPath|plan (one feature) or plans:[{id, planPath|plan, gate}] (an ordered roadmap). Got none.');
 }
+// The gate commands are what "it works" MEANS here, and gateOk() only enforces the build when
+// GATES.build is set — so an omitted command turns the build gate into a no-op and a build-only plan
+// passes with nothing ever compiled. Required, and required to fail loud.
+if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
+  throw new Error('args.gates.build is required for phase:"build": the shell command that defines a GREEN build (non-zero exit = fail). Without it the build gate silently no-ops and a plan can pass with nothing compiled.');
+}
+if (ALL_PLANS.some((p) => p.gate === 'green') && (typeof A.gates?.test !== 'string' || !A.gates.test.trim())) {
+  throw new Error('args.gates.test is required when any plan has gate:"green": the shell command that runs the verification (non-zero exit = fail). A feature that legitimately has none takes gate:"build-only" instead.');
+}
 
 // Resume / partial-slice scoping (control plane, supplied by the orchestrator after it reconstructs
 // progress from git-staging + the review-file trail — there is no progress file by design, #6/#10).
@@ -472,6 +493,11 @@ const runOnly = Array.isArray(A.runOnly) && A.runOnly.length ? A.runOnly : null;
 let pending = ALL_PLANS;
 if (runOnly) {
   pending = ALL_PLANS.filter((p) => runOnly.includes(p.id));
+  // An unknown id must FAIL FAST, exactly as startAt does below: a silently dropped id builds fewer
+  // plans than the operator asked for — and if every id is a typo, nothing at all, reported as a
+  // benign "partial slice complete" with no error.
+  const unknown = runOnly.filter((id) => !ALL_PLANS.some((p) => p.id === id));
+  if (unknown.length) throw new Error(`args.runOnly ${unknown.map((id) => `"${id}"`).join(', ')} matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
 } else if (A.startAt) {
   const i = ALL_PLANS.findIndex((p) => p.id === A.startAt);
   // An unknown id must FAIL FAST — silently falling back to the full roadmap would re-build already
@@ -503,7 +529,7 @@ for (const p of pending) {
   }
 
   log(`▶ plan ${p.id} [gate=${p.gate}]`);
-  const rec = { id: p.id, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false };
+  const rec = { id: p.id, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false, contradicted: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
   // `escalated` distinguishes the two halts: a developer escalation leaves real work in the tree (park
@@ -593,11 +619,28 @@ for (const p of pending) {
       // missing locators means the verdict rests on assertion, not evidence (#14). Detection only —
       // acceptance already staged, so flag it for the operator's audit rather than failing the plan.
       rec.thinEvidence = rec.criteria.total === 0 || rec.criteria.met < rec.criteria.total || acc?.evidence_recorded !== true;
+      // `pass` MEANS "reachable and nothing regressed" (ACCEPTANCE_SCHEMA), and both fields are REQUIRED
+      // — so a pass alongside either one contradicts the verdict's own definition and cannot be a
+      // missing-field artifact. Flag both; HALT only on the regression, whose harm compounds: staged
+      // work becomes the baseline every later plan is judged against. An unreachable feature is bad but
+      // inert, and §7 already tells the operator to grep the integration point.
+      rec.contradicted = acc?.regression === true || acc?.reachable !== true;
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (evidence_recorded=${acc?.evidence_recorded}) — audit ${acceptanceFile(p.id, round)}` : '';
+      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, reachable=${acc?.reachable}) — audit ${acceptanceFile(p.id, round)}` : '';
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        log(`  ✓ ${p.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})${thinNote}`);
+        log(`  ✓ ${p.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
+        // Staged WITH a self-reported regression: stop the roadmap here. Not another review round (the
+        // verifier already ran `git add`, so a re-round would leave staged-but-unaccepted work the next
+        // blind reviewer cannot see) and not a park (the work is staged; park must never touch the
+        // baseline). The plan stays "done (staged)" — what halts is everything AFTER it.
+        if (acc?.regression === true) {
+          halted = true;
+          haltKind = 'acceptance-regression';
+          haltReason = `Plan ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later plan would be judged against, so the roadmap stops here. Inspect \`git -C ${REPO} diff --cached\`; unstage/fix it, then resume with startAt the NEXT plan id.`;
+          log(`  ✋ ${p.id}: staged while self-reporting a REGRESSION → halting the roadmap (inspect git -C ${REPO} diff --cached)`);
+        }
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next plan's blind diff would include
@@ -686,6 +729,7 @@ const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'passed-unstaged': 'BLOCKED (a plan passed but was not staged — stage it, then resume)',
+  'acceptance-regression': 'BLOCKED (a plan staged while self-reporting a regression — inspect the staged diff before continuing)',
   'park-unsafe':     'BLOCKED (a parked plan left the tree unsafe — inspect before resuming)',
   'budget':          'stopped on token budget (resume where it left off)',
 };

@@ -97,7 +97,9 @@ Each is a fresh, throwaway context that does one job and returns one decision:
 The loop is **develop → quality → acceptance**, repeated each round until acceptance passes. Any code
 change re-enters at the blind review. A reviewer can contest a wrongly-declined finding, so the loop
 converges without burying a real defect. If a feature still can't pass, it's parked — saved to a patch,
-cleared from the tree — and the next feature in the roadmap starts clean.
+cleared from the tree — and the next feature in the roadmap starts clean. If the verifier ever stages a
+feature while also reporting that something regressed — a verdict that contradicts itself — the run
+stops there, so you can look at the staged diff before anything else is built on top of it.
 
 ---
 

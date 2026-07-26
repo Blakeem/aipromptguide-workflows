@@ -27,6 +27,12 @@ if (!A || !A.runId) {
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
+// `target.repo` is REQUIRED and has NO default. Every `git -C ${REPO}` in the fix, quality, acceptance
+// and park prompts runs there — including park's `git checkout --` and file deletion. A silent fallback
+// to `${ROOT}/.` would point that machinery at this workflow tool's own working tree.
+if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
+  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the target git repo being fixed. There is no default — every git command (including park\'s checkout/delete) runs against it.');
+}
 
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework }
@@ -57,7 +63,7 @@ const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType:
 const ROOT      = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm      = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
-const REPO      = abs(TARGET.repo ?? '.');
+const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target
@@ -402,7 +408,16 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 // =============================================================================
 const issues = A.issues;
 if (!Array.isArray(issues) || !issues.length) {
-  throw new Error('resolve-cycle requires args.issues — the ACTIONABLE issues the main agent grepped from runs/<runId>/issues/*.md after triage (use the SAME runId + root as review.mjs). Each: { id, unit, file, line, loc, severity, category, decision, effort, theme }. None supplied.');
+  throw new Error('resolve-cycle requires args.issues — the ACTIONABLE issues the main agent grepped from runs/<runId>/issues/*.md after triage (use the SAME runId + root as review.mjs). Each: { id, unit, file, line, loc, severity, category, decision, effort, title, theme }. None supplied.');
+}
+// Both gates are REQUIRED. `gateOk` skips the half whose command is unset, so a missing value does not
+// fail loudly — it silently passes every round with nothing built or tested, and acceptance is handed
+// "(none)" so it has no command to run either. A fix campaign assumes a green baseline; demand it.
+if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
+  throw new Error('args.gates.build is required: the shell command that defines a green build, run from the target repo root. There is no default — unset, gateOk() no-ops that half and every round "passes" unbuilt.');
+}
+if (typeof A.gates?.test !== 'string' || !A.gates.test.trim()) {
+  throw new Error('args.gates.test is required: the shell command that runs the tests (it must already be GREEN before resolve). There is no default — unset, gateOk() no-ops that half and every round "passes" untested.');
 }
 
 const resolveOnly = Array.isArray(A.resolveOnly) && A.resolveOnly.length ? A.resolveOnly : null;
@@ -482,6 +497,16 @@ for (const batch of batches) {
     // Both are things the harness cannot see for itself; the fixer checks them before doing any work,
     // so halting here costs one agent turn instead of maxRounds of agents chasing phantom findings.
     if (round === 1) {
+      // A dead fixer must never reach the -1 sentinels below: optional chaining collapses BOTH fields
+      // to "not applicable (round 2+)", so the two guards would be skipped for the one case they most
+      // need to cover — the fixer never ran, so nothing was checked and no work can be assumed.
+      if (fix == null) {
+        halted = true;
+        record.status = 'BLOCKED (fixer did not return)';
+        blockerReason = `The round-1 fixer for ${batch.id} returned nothing (the agent died or produced no structured output). Neither round-1 precondition was verified — the baseline was never checked for pre-existing changes, and the inventory at\n  ${issuePaths.join('\n  ')}\nwas never confirmed readable — so no work can be assumed either way. Nothing was changed; re-run with the same args.`;
+        log(`  ✋ ${batch.id}: round-1 fixer returned nothing → halting before any reviewer spawns (preconditions unverified)`);
+        break;
+      }
       const dirty = fix?.baseline_dirty_files ?? -1;
       if (dirty > 0) {
         halted = true;
@@ -500,6 +525,22 @@ for (const batch of batches) {
         log(`  ✋ ${batch.id}: fixer found 0 issue blocks in ${issuePaths.join(', ')} → halting (runId/root/stateDir mismatch?)`);
         break;
       }
+    }
+
+    // ---- Staging contract: the fixer must attest it left its work UNSTAGED --------------------
+    // Neither review layer can catch a violation: the blind critic is told the staged diff is the
+    // ACCEPTED baseline and must NOT be reviewed, and acceptance uses it as its comparison baseline —
+    // so content the fixer staged itself passes both unseen and lands in what the user commits.
+    // `fix &&` keeps a dead agent on the dead-agent path above rather than misreporting it as staging.
+    // No park call: `preconditionHalt` is `halted && !escalated`, so this halt skips Park by design —
+    // Park may not touch the staged baseline, and clearing only the unstaged half would leave the
+    // human a worse state to inspect.
+    if (fix && fix.unstaged_confirmed !== true) {
+      halted = true;
+      record.status = 'BLOCKED (staging contract violated)';
+      blockerReason = `The fixer for ${batch.id} round ${round} did not confirm it left its work UNSTAGED (unstaged_confirmed was not true). The staged index may therefore hold content neither review layer saw — the blind critic is told the staged diff is the accepted baseline, and acceptance compares against it. Inspect it before anything else touches the repo: \`git -C ${REPO} diff --cached\`, then \`git -C ${REPO} reset\` the batch's files to move them back to the unstaged tree and re-run with the same args.`;
+      log(`  ✋ ${batch.id} r${round}: fixer did not confirm UNSTAGED work → halting (inspect \`git -C ${REPO} diff --cached\`)`);
+      break;
     }
 
     for (const r of (fix?.results || [])) {

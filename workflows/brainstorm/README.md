@@ -16,7 +16,8 @@ A deliberately **lean, loose** workflow built on the shared [Workflow Principles
   hedging toward a safe average. That spread is what makes the variations worth comparing.
 - **One brief, read verbatim.** Every generator works from the same brief (a one-liner, or a richer
   requirements file you write in plan mode for a complex problem). Nothing is paraphrased between agents.
-- **The harness only routes.** The script fans out and passes folder paths — never content.
+- **The harness only routes.** The script fans out and passes folder paths and control signals — never
+  paraphrased content.
 - **Your repo is untouched.** Variations land in `runs/<runId>/variations/`; nothing is written to,
   staged, or committed in your codebase. You adopt what you like afterward.
 

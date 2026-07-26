@@ -24,6 +24,12 @@ if (!A || !A.runId) {
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
+// `target.repo` is REQUIRED and has NO default. This pass is read-only, so a wrong repo destroys
+// nothing — but it produces a bogus inventory that then feeds resolve-cycle's autonomous fixer, and the
+// run-state-inside-repo guard below is computed from the same value, so it would mis-fire too.
+if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
+  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the git repo under review. There is no default — every path the reviewers read, and the inventory that feeds resolve-cycle, resolves against it.');
+}
 
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework }
@@ -75,7 +81,13 @@ const oneLens = (L, i) => ({
 const asList = (v) => (Array.isArray(v) ? v : (v ? [v] : [{}]));
 // A unit's own lens list REPLACES the run default (it does not merge into it) — with arrays in play,
 // element-wise merging would be unpredictable, and per-field defaults already cover the common case.
-const lensesOf = (unit) => asList(unit && unit.lens ? unit.lens : A.lens).map(oneLens);
+// An EMPTY array reads as unset, for `unit.lens` and `A.lens` alike: `[]` is truthy, so without this it
+// would replace a real lens set with nothing and the per-lens loop would never run — the unit gets zero
+// reviewers, contributes 0 to every count, and still looks processed. Silent zero coverage is exactly
+// what the `args.units` throw exists to prevent. The dangerous shape is the mixed one — `args.lens: []`
+// ("no default, each unit brings its own") plus a unit whose `unit.lens` was forgotten.
+const pick = (v) => (Array.isArray(v) ? (v.length ? v : null) : (v || null));
+const lensesOf = (unit) => asList(pick(unit && unit.lens) ?? pick(A.lens)).map(oneLens);
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
@@ -89,7 +101,7 @@ const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType:
 const ROOT      = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm      = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
-const REPO      = abs(TARGET.repo ?? '.');
+const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target

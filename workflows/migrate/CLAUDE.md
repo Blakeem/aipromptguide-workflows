@@ -136,8 +136,14 @@ of ONE goal, so section N+1 routinely depends on N having landed. Parking buys a
 and a saved patch — not a continued run. Two exits deliberately do NOT park: a **dirty baseline** on
 round 1 (that work is the user's; parking it would take their changes hostage) and acceptance **passed
 but not staged** (one `git add` both preserves the work and cleans the tree, so parking would be
-strictly worse). Every exit therefore leaves a clean tree except passed-but-unstaged — and a park that
-reports it could NOT clear, which the halt reason calls out for you to clean up before resuming.
+strictly worse). A third exit parks nothing either: acceptance that **staged while the same verdict
+reported `regression:true`** (`BLOCKED (a section staged while self-reporting a regression — inspect the
+staged diff before continuing)`) — that section keeps its `done (staged)` status, but the run stops,
+because its work is now the baseline every later section builds on. It is neither re-reviewed
+(acceptance already ran `git add`) nor parked (park must never touch the staged baseline): you inspect
+`git diff --cached`. Every exit therefore leaves a clean tree except passed-but-unstaged — and a park
+that reports it could NOT clear, which gets its own status (`BLOCKED (a parked section left the tree
+unsafe — inspect before resuming)`) for you to clean up before resuming.
 
 **Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
 the section's OWN selector, never whole-suite-green):
@@ -157,7 +163,8 @@ the quality reviewer.
 
 ## 7. Verify ground truth yourself
 
-The engine reports `status`/`sectionsDone`/`ledger`/`sweep`. Confirm:
+The engine reports `status`/`sectionsDone`/`ledger`/`parked`/`sweep` — `parked` is
+`[{ id, patch, strays, status }]` for the section that stopped the run (empty on a clean run). Confirm:
 - Run the gates for real; each accepted section's selector is green (and the full suite, if the goal
   expects green at the end).
 - `git -C <repo> diff --cached`; `git status --porcelain` + read new files (`git diff` omits new files).
@@ -167,6 +174,9 @@ The engine reports `status`/`sectionsDone`/`ledger`/`sweep`. Confirm:
 - Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md`**.
 - Any section the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
   criteria carry no locators) passed on assertion rather than evidence — read that file closely.
+- Any section the `ledger` flags `contradicted` returned `pass:true` next to `regression:true` or
+  `reachable:false` — a verdict that contradicts its own schema. The regression case also halts the run;
+  an unreachable "pass" does not, so grep that section's integration points yourself.
 - Read `SWEEP.md` (evidence, not a substitute for your own check); surface `NEEDS-USER.md`.
 
 ## 8. Resume (no progress file by design, #6/#10)
@@ -175,18 +185,20 @@ Durable progress = git staging + the numbered review-file trail + the ordered pl
 clean tree except passed-but-unstaged (and a park that reports it could NOT clear — the halt reason says
 so), so a resume normally starts from the staged baseline.
 1. Read the trail + `git -C <repo> diff --cached --stat` to see which sections are staged/accepted and
-   which one stopped the run (its work is in **its patch**, not the tree; `NEEDS-USER.md` names it).
+   which one stopped the run (the result's `parked` array and `NEEDS-USER.md` both name it; its work is
+   in **its patch**, not the tree).
 2. Hard blocker → read `NEEDS-USER.md` / the section's latest review, resolve with the user. Passed-but-
    unstaged → stage that section's files yourself first.
 3. Re-invoke `phase:"run"` with the same args **plus `startAt:"<first not-yet-accepted section id>"`** (or
    `runOnly:[ids]` for an explicit subset). An id matching no section now **throws** — copy it from the
    `sections` list. A partial slice via `startAt`/`runOnly` skips the final sweep — run the full list
    once at the end to get it.
-4. **The parked section's work is in `parked-<id>.patch`.** Sharpen that section of the plan and let the
-   developer redo it from the clean baseline, or restore the patch first if the partial work is worth
-   continuing from — with the cost that the round-1 check then sees a dirty tree, so you must
-   `git add -A` it in (it enters as UN-reviewed baseline). `parked-<id>-newfiles/`, when present, is a
-   separate manual copy-back.
+4. **The parked section's work is in `parked-<id>.patch`.** Default: sharpen that section of the plan
+   and let the developer redo it from the CLEAN baseline (the patch stays as reference). The only
+   alternative is to apply the patch and finish that section **by hand** — a resumed run requires a
+   clean unstaged tree and halts on a dirty one, and `git add -A`-ing restored work is not a way around
+   that (it folds UN-reviewed code into the accepted baseline, invisible to the blind reviewer).
+   `parked-<id>-newfiles/`, when present, is a separate manual copy-back.
 
 Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the whole goal.
 
@@ -237,8 +249,11 @@ acceptance verdicts, anything in a `DISMISSED-<id>.md` worth a second look, the 
 Full schema + defaults: the Config block atop `migrate-cycle.mjs` (the canonical source). Pass `args`
 inline to `Workflow`.
 - **Required:** `runId` · `root` (§4) · `planPath` (absolute) **or** `plan` (inline markdown) ·
-  `sections` (§3, for `phase:"run"`) · `target.repo` (absolute path to the git repo) · `gates.build` +
-  `gates.test` (shell commands; non-zero exit = fail).
+  `sections` (§3, for `phase:"run"`) · `target.repo` (absolute path to the git repo — **throws** if
+  missing; there is no default, so a typo can't silently retarget the tool's own repo) · `gates.build`
+  (shell command; **throws** if missing — an unset build command would no-op the build gate) +
+  `gates.test` (**throws** when any section's gate is `green`; a run of purely mechanical `build-only`
+  sections needs no test command). Non-zero exit = fail.
 - **Optional:** `phase` (`refine`|`run`, default `run`) · `conventions` (the developer's rubric —
   language/version constraints, what stays additive, what NOT to touch; the blind reviewer is never shown
   it) · `reference` (path to a completed example to mirror) · `gates.testSetup` (runner quirks, how to

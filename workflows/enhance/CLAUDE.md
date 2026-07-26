@@ -111,10 +111,13 @@ noise.
 - **Defects are out of scope, both directions.** The finder is told not to report them; the verifier
   rejects them with `is_defect=true` and names what is broken so you can route it. Do not relax this —
   the two workflows stay clean by staying separate.
-- **Read-only.** The only files written are the per-lens proposal files and `NEEDS-USER.md`. Source is
-  never modified, nothing is staged, nothing is committed.
+- **Read-only.** The only files written are the per-lens proposal files. Source is never modified,
+  nothing is staged, nothing is committed.
 - **One writer per proposal file** — the finder when the lens is clean, the verifier when it has
-  candidates; never both (parallel-safe, same contract as debug's `review.mjs`).
+  candidates; never both (parallel-safe, same contract as debug's `review.mjs`). For the same reason
+  there is **no shared `NEEDS-USER.md`**: the lenses run concurrently and an agent "append" is a
+  read-modify-write, so two verifiers would silently clobber each other. A user-only call goes in that
+  candidate's block in its own lens file, options + recommendation included — nothing is lost.
 - **Thin returns (#8).** Counts and routing decisions only; every proposal's prose lives in its file.
 
 ## 7. Presenting the result (the deliverable is a triage conversation)
@@ -132,11 +135,15 @@ a ROADMAP item spanning many call sites is a `migrate-cycle` goal.
 
 ## 8. State files (`runs/<runId>/`, gitignored)
 
-- `proposals/<lens>.md` — one per lens: the verified, impact-scored proposals plus a `## Rejected`
-  section (one line each, defects marked). Frontmatter carries `lens`, `focus`, `reviewed`, and a `note`
-  stating these are proposals requiring human triage. This IS the deliverable.
-- `NEEDS-USER.md` — only when a candidate raises a question that must be answered before the proposal can
-  even be written up sensibly.
+- `proposals/<lens>.md` — one per lens (non-alphanumerics in the lens id become underscores:
+  `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals plus a `## Rejected`
+  section (one line each, defects marked). This IS the deliverable. A verifier-written file (a lens that
+  had candidates) carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring
+  human triage; a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens
+  leaves NO file when neither writer ran — its finder died, every candidate it found fell below the
+  floor (so no verifier was spawned), or its verifier died before writing — even though the run
+  still reports a path for it. The run logs a ⚠ naming that lens in each case; re-run it.
+- No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.
 
