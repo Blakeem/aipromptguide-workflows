@@ -1,11 +1,11 @@
 export const meta = {
   name: 'docs-cycle',
-  description: 'Documentation curation, lean/file-bus design: fan out ONE gatherer per source (web / repo / local files) that COPIES the docs the brief needs VERBATIM into a folder — selection and subtraction happen at capture, never paraphrase — a SCRUBBER cleans each source in place (capture junk only: nav fragments, widgets, broken markup), then a CURATOR reads the whole set, organizes and splits it, deletes what the brief does not need, writes INDEX.md, and checks cross-source consistency + coverage; coverage holes and files needing recapture drive a bounded gap-fill gather round. There is NO claim-verifier: verbatim capture removes the paraphrase gap a verifier would exist to check. The harness only routes paths + counts; every doc lives in files.',
+  description: 'Documentation curation, lean/file-bus design: fan out ONE gatherer per source (web / repo / local files) that COPIES the docs the brief needs VERBATIM into a folder — selection and subtraction happen at capture, never paraphrase — a SCRUBBER cleans each source in place (capture junk only: nav fragments, widgets, broken markup), then a CURATOR reads the whole set, organizes and splits it, deletes what the brief does not need, writes INDEX.md, and checks cross-source consistency + coverage, and finally spot-checks a bounded sample of files against their cited sources; coverage holes and files needing recapture (including a failed spot-check) drive a bounded gap-fill gather round. There is NO claim-verifier AGENT: verbatim capture removes the paraphrase gap a verifier would exist to check, and the one sample that tests that promise lives inside the curator. The harness only routes paths + counts; every doc lives in files.',
   whenToUse: 'Provision the local doc set a project needs to build against — an API integration (the official reference), an upgrade (release notes + migration guide + current docs), a complex feature touching several systems. The main agent frames the BRIEF (what the docs are FOR, versions in scope) + the SOURCES with the user, then runs this engine; the deliverable is the folder itself (verbatim docs + INDEX.md) — the ideal input to a feature-cycle/migrate-cycle plan. For a synthesized ANSWER to a question use the deep-research skill; to DECIDE among options use decide-cycle.',
   phases: [
     { title: 'Gather', detail: 'One gatherer per source (CONCURRENT). Each copies its brief-relevant slice VERBATIM into <outDir>/<source>/ — one file per page/topic, each with a source header (URL or path, version, retrieval date). Subtraction at capture: skip nav, marketing, other versions, features the brief does not touch. Returns thin counts.' },
     { title: 'Scrub', detail: 'One scrubber per source (pipelined off its gather — no barrier). Cleans the source dir IN PLACE: removes capture junk (nav/menu fragments, cookie banners, feedback widgets, broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure → keep; the curator judges relevance.' },
-    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need, writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps). Gaps it returns (missing coverage or recapture-needed files) spawn a bounded gap-fill Gather round (maxRounds).' },
+    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set — anything it finds there that this run neither captured nor wrote is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture — wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds).' },
   ],
 };
 
@@ -19,8 +19,18 @@ export const meta = {
 // files). A per-source SCRUB pass between gather and curate strips mechanical capture junk (haiku);
 // relevance deletion stays with the curator. There is NO review loop — a provision workflow is
 // happy-path (Scope: the user judges); the bounded gap loop is the only feedback.
+// The one thing verbatim capture ASSERTS and nothing tested is that the files really are the source's
+// own words, so the curator ends its turn (after the index is safely written) by comparing a bounded
+// sample — fidelitySample, default 3 — against the sources those files cite; a failure re-enters the
+// gap loop as a recapture. Sampled evidence, not a new role (#4), and it degrades to 0 checked when a
+// source is unreachable rather than failing the run.
 // The engine writes ONLY inside outDir (default: run-state) and never touches, stages, or
-// commits any repo. The main agent frames the brief + sources with the user BEFOREHAND (#4).
+// commits any repo. outDir is ENGINE-OWNED and must be a FRESH directory dedicated to ONE doc set: the
+// curator deletes freely inside it (that whole-set authority is what makes cross-source dedup and
+// re-curation work), so pre-existing hand-authored docs must not live there. The curator leaves content
+// it neither captured nor wrote in place and reports it (foreign_content) — a signal that outDir was
+// pointed at a shared folder, not a guard that makes one safe.
+// The main agent frames the brief + sources + a dedicated outDir with the user BEFOREHAND (#4).
 // =============================================================================
 const A = typeof args === 'string' ? JSON.parse(args) : args;
 if (!A || !A.runId) {
@@ -34,6 +44,7 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL (for repo sources)
 const MAX_ROUNDS  = A.maxRounds ?? 2;                       // curate passes: the initial one + gap-fill rounds
 const TESTBED     = A.testbed ?? '';                        // OPTIONAL: how agents may empirically verify claims (e.g. read-only curl against a live API)
+const FIDELITY_N  = Math.max(0, Number(A.fidelitySample ?? 3) || 0);   // files the curator spot-checks against their cited source (0 disables)
 
 // Per-role model tiers + OPTIONAL custom subagent types. Docs work is simple next to code — every role
 // defaults to a fast tier: gather + curate copy/organize/judge (sonnet); scrub strips junk (haiku).
@@ -48,7 +59,7 @@ const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').r
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
-const OUT_DIR     = A.outDir ? abs(A.outDir) : `${STATE_DIR}/docs`;  // the curated set — usually <project>/docs/<system>/; created if missing
+const OUT_DIR     = A.outDir ? abs(A.outDir) : `${STATE_DIR}/docs`;  // the curated set — a FRESH dir dedicated to this one set (usually <project>/docs/<system>/), created if missing; the curator deletes freely inside it
 const INDEX_FILE  = `${OUT_DIR}/INDEX.md`;
 
 // The brief: what the docs are FOR — the single source of truth (#11) that decides relevance, read
@@ -76,6 +87,10 @@ const dupes = [...new Set(SOURCES.map((s) => s.id).filter((id, i, a) => a.indexO
 if (dupes.length) {
   throw new Error(`source ids collide after slugging (${dupes.join(', ')}): two gatherers would write into the same directory — give each source a distinct id.`);
 }
+// Every source id ever used this run — gap-fill ids are slugged from CURATOR PROSE, so they can collide
+// with each other or with a round-1 id. Those are not operator errors, so they are disambiguated with a
+// counter (below) rather than thrown on: one gatherer per directory is the invariant that matters.
+const usedIds = new Set(SOURCES.map((s) => s.id));
 
 // Per-kind how-to-capture guidance handed to the gatherer (the only thing that varies by kind).
 const KIND_GUIDE = {
@@ -107,12 +122,16 @@ const SCRUB_SCHEMA = {
 
 const CURATE_SCHEMA = {
   type: 'object',
-  required: ['wrote_index', 'files', 'inconsistencies', 'gaps'],
+  required: ['wrote_index', 'files', 'inconsistencies', 'gaps', 'fidelity_checked', 'foreign_content'],
   properties: {
     wrote_index:     { type: 'boolean' },
     files:           { type: 'integer', description: 'doc files in the final set (excluding INDEX.md)' },
     deleted:         { type: 'integer', description: 'files/sections removed as irrelevant or duplicate (0 if none)' },
     inconsistencies: { type: 'integer', description: 'cross-source conflicts recorded in Coverage notes' },
+    fidelity_checked:  { type: 'integer', description: 'files you compared against their cited source — 0 is a valid answer (source unreachable / nothing checkable); say so in Coverage notes' },
+    fidelity_failures: { type: 'integer', description: 'of those, how many were paraphrase/summary rather than a verbatim copy (0 if none) — each also returned as a recapture gap' },
+    foreign_content:   { type: 'boolean', description: 'true ONLY if the out dir holds content that is neither a capture from this run\'s sources nor a file you wrote — i.e. it is not a dedicated directory for this doc set. You must NOT delete that content' },
+    foreign_paths:     { type: 'array', maxItems: 20, items: { type: 'string' }, description: 'paths of that content, so the operator can move it; [] when foreign_content is false' },
     gaps: {
       type: 'array',
       maxItems: 6,
@@ -180,19 +199,40 @@ file, then make the folder the best working set for a coding LLM on this brief.
 ${ENV}${TESTBED_ENV}
 ${round > 1 ? `This is curate round ${round}: the set was already curated + indexed once, then gap-fill
 gathers added files. Re-read the whole set, integrate the new files, and rewrite the index in full.\n` : ''}
+YOUR FOLDER: ${OUT_DIR} is a dedicated, engine-owned directory for THIS doc set. Everything in it is
+either a capture this run's gatherers made from its sources, or a file you yourself wrote. Inside it you
+have FULL delete authority — delete freely to serve the brief; whole-set judgment is what makes
+cross-source dedup and re-curation work.
+SAFETY CATCH: if you nonetheless find content under ${OUT_DIR} that is clearly NEITHER of those two
+things — no source header and unrelated to any source, hand-authored notes, an unrelated project's docs
+— then the operator pointed the engine at a folder that is not dedicated to this set. Do NOT delete,
+move, split, or rewrite that content: leave it exactly as it is, list its paths under Coverage notes,
+and return foreign_content=true with foreign_paths. Everything else stays under your full authority.
+
 JOBS (in order):
 1. ORGANIZE — consistent kebab-case names, grouped by topic; SPLIT any file too big for one focused read
    at heading boundaries (move the text verbatim; carry the source header into every part); DELETE files
    and sections the brief does not need, and exact duplicates (keep the more authoritative source).
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
-   pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers; (c) FIDELITY —
-   any file that reads as paraphrase/summary instead of verbatim copy, or lacks its source header: flag
-   it in Coverage notes, and return it as a gap if a fresh gather should replace it.
+   pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write ${INDEX_FILE}: one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
-Return via the schema: wrote_index, files, deleted, inconsistencies, and gaps — ONLY gaps a fresh gather
-could actually fix, each { kind, focus } actionable on its own ([] when coverage is adequate).`;
+${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK — LAST, after the index is written (the curated set must already be safe on
+   disk). The whole set's value is that it is the source's OWN WORDS; nothing has tested that yet, so
+   test it on a sample instead of asserting it. Pick up to ${FIDELITY_N} captured file(s), preferring in
+   this order: any file that read as paraphrase/summary or lacks a source header; files captured from a
+   repo/local path (the cited path is a local read — exact and nearly free); then the largest and least
+   official web files. For each, open the source cited in its OWN header and compare ONE substantive
+   passage word for word — a code block, or a parameter/field table.
+   A passage that has been reworded, condensed, or reordered is a FAILURE: name the file + the source in
+   Coverage notes and return it as a { kind, focus } recapture gap.
+   If a source cannot be reached (no web access, path gone) do NOT guess and do NOT fail: skip it, leave
+   it out of the count, and say so in Coverage notes — fidelity_checked: 0 is a valid, honest answer.
+   Return fidelity_checked + fidelity_failures.
+` : `Fidelity spot-checking is disabled for this run (fidelitySample: 0) — return fidelity_checked: 0.\n`}Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
+fidelity_failures, foreign_content (+ foreign_paths), and gaps — ONLY gaps a fresh gather could actually
+fix, each { kind, focus } actionable on its own ([] when coverage is adequate).`;
 
 // =============================================================================
 // [GATHER → SCRUB] ⇄ CURATE — gather→scrub pipelines per source (a source is scrubbed as soon as its
@@ -246,18 +286,40 @@ while (rounds < MAX_ROUNDS) {
     schema: CURATE_SCHEMA, phase: 'Curate', label: `curate:r${rounds}`,
   }));
   const gaps = (curate?.gaps ?? []).filter((g) => g && g.focus);
-  log(`  ✓ curated r${rounds}: ${curate?.files ?? '?'} file(s)${curate?.deleted ? `, ${curate.deleted} deleted` : ''}, ${curate?.inconsistencies ?? 0} inconsistency(ies), ${gaps.length} gap(s)`);
+  const fidChecked = curate?.fidelity_checked ?? 0;
+  const fidFailed  = curate?.fidelity_failures ?? 0;
+  log(`  ✓ curated r${rounds}: ${curate?.files ?? '?'} file(s)${curate?.deleted ? `, ${curate.deleted} deleted` : ''}, ${curate?.inconsistencies ?? 0} inconsistency(ies)${FIDELITY_N > 0 ? `, fidelity ${Math.max(0, fidChecked - fidFailed)}/${fidChecked}` : ''}, ${gaps.length} gap(s)`);
+  if (FIDELITY_N > 0 && fidChecked === 0) log(`  ⚠ no file was checked against its source this round — the verbatim promise is unverified; see Coverage notes for why`);
+  if (fidFailed) log(`  ⚠ ${fidFailed} file(s) failed the verbatim check — returned as recapture gap(s)`);
 
   if (!gaps.length) break;
   if (rounds >= MAX_ROUNDS) {
     log(`  ⚠ ${gaps.length} gap(s) remain at maxRounds — left open in Coverage notes`);
     break;
   }
-  toGather = gaps.map((g, i) => ({ id: slug(g.focus) || `gap-r${rounds + 1}-${i + 1}`, kind: normKind(g.kind), focus: g.focus }));
+  toGather = gaps.map((g, i) => {
+    const base = slug(g.focus) || `gap-r${rounds + 1}-${i + 1}`;
+    let id = base;
+    for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
+    usedIds.add(id);
+    return { id, kind: normKind(g.kind), focus: g.focus };
+  });
   log(`  ↻ gap-fill round ${rounds + 1}: ${toGather.map((s) => s.id).join(', ')}`);
 }
 
 if (!curate?.wrote_index) log(`  ⚠ curator did not confirm writing ${INDEX_FILE} — check it exists before relying on the set.`);
+
+// outDir is meant to be a fresh directory dedicated to THIS doc set (the curator deletes freely inside
+// it). If the curator found content it neither captured nor wrote, the operator pointed at a shared
+// folder — it was left untouched, but say so loudly: the next run against this outDir may not be so lucky.
+const foreignPaths = (curate?.foreign_paths ?? []).filter(Boolean);
+const foreignFound = curate?.foreign_content === true;
+if (foreignFound) {
+  log(`  ⚠⚠ ${OUT_DIR} is NOT a dedicated folder: the curator found content it neither captured nor wrote (left in place, NOT deleted):`);
+  for (const p of foreignPaths) log(`       - ${p}`);
+  if (!foreignPaths.length) log(`       (the curator reported no paths — inspect the folder yourself)`);
+  log(`     Point outDir at a fresh directory per doc set before re-running.`);
+}
 
 return {
   phase: 'docs',
@@ -267,7 +329,10 @@ return {
   files: curate?.files ?? 0,
   rounds,
   inconsistencies: curate?.inconsistencies ?? 0,
+  fidelity: { checked: curate?.fidelity_checked ?? 0, failures: curate?.fidelity_failures ?? 0 },
+  foreignContent: foreignFound,
+  foreignPaths,
   unresolvedGaps: (curate?.gaps ?? []).filter((g) => g && g.focus).length,
   stateDir: STATE_DIR,
-  nextStep: `Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, and unresolved gaps. ${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
+  nextStep: `Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${curate?.fidelity_checked ?? 0} file(s) compared against their source, ${curate?.fidelity_failures ?? 0} failed) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };

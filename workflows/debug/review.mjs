@@ -1,7 +1,7 @@
 export const meta = {
   name: 'review',
   description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; the sibling resolve-cycle.mjs then batches the approved issues and fixes each behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass — and lets a small codebase fan out by lens instead of by file-slice (same files, N units, distinct ids). A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. Then the main agent greps the issue files into args.issues and runs the sibling resolve-cycle.mjs (SAME runId), which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
+  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. The return carries an `issues` array in resolve-cycle\'s exact args.issues shape (pre-triage), so the operator applies their triage edits to it rather than re-grepping the files by hand. Then run the sibling resolve-cycle.mjs (SAME runId), which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
   phases: [
     { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
     { title: 'Verify', detail: 'Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
@@ -29,7 +29,6 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework }
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup } — informational context for reviewers
-const REVIEW_PASSES = A.reviewPasses ?? 1;                  // independent review passes per unit (2 = more thorough)
 
 // Severity floor. This pass reports >= reviewSeverity into the CLOSED inventory that resolve-cycle.mjs
 // then fixes (because the inventory is closed here, fixing mediums downstream converges — no fresh
@@ -54,21 +53,29 @@ const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
 // args.lens sets the default for every unit; a unit may override it with `unit.lens` (same shape). That
 // lets a SMALL codebase fan out by LENS instead of by file-slice: pass the same files as N units with
 // distinct ids and a different `unit.lens` each — one issue file per lens, reviewed concurrently.
-const DEFAULT_LENS = A.lens ?? {};
+// `lens` may be ONE lens or an ARRAY of them. An array reviews each unit once per lens and merges the
+// results into that unit's SINGLE issue file behind ONE verifier — genuinely different angles over the
+// same files, which is what the old `reviewPasses` arg was reaching for and never achieved (it re-ran
+// the IDENTICAL prompt, so pass 2 re-hunted pass 1's ground at full cost; the dedup comment below is
+// the code admitting it). Passing the same lens twice reproduces `reviewPasses: 2` exactly, so the arg
+// is subsumed, not lost.
 const BASE_CRITERIA = `correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
   data-integrity, types, api-contract, concurrency (races, shared state), testing (missing coverage
   of risky paths), performance, maintainability, convention adherence`;
 const BASE_CATEGORIES = ['correctness', 'security', 'error-handling', 'resource-leak', 'data-integrity', 'types', 'api-contract', 'concurrency', 'testing', 'performance', 'maintainability', 'convention'];
-const lensOf = (unit) => {
-  const L = { ...DEFAULT_LENS, ...(unit && unit.lens ? unit.lens : {}) };
-  return {
-    mandate:     L.mandate ?? 'examining ONE bounded unit of a codebase for PRODUCTION READINESS',
-    criteria:    L.criteria ?? BASE_CRITERIA,
-    categories:  Array.isArray(L.categories) && L.categories.length ? L.categories : BASE_CATEGORIES,
-    findingNoun: L.findingNoun ?? 'production DEFECTS',
-    matters:     L.matters ?? ' in production',   // "…why it matters<matters>"
-  };
-};
+// Field-level defaulting: a lens that sets only `mandate` still gets the base criteria and categories.
+const oneLens = (L, i) => ({
+  id:          L.id ?? `lens${i + 1}`,
+  mandate:     L.mandate ?? 'examining ONE bounded unit of a codebase for PRODUCTION READINESS',
+  criteria:    L.criteria ?? BASE_CRITERIA,
+  categories:  Array.isArray(L.categories) && L.categories.length ? L.categories : BASE_CATEGORIES,
+  findingNoun: L.findingNoun ?? 'production DEFECTS',
+  matters:     L.matters ?? ' in production',   // "…why it matters<matters>"
+});
+const asList = (v) => (Array.isArray(v) ? v : (v ? [v] : [{}]));
+// A unit's own lens list REPLACES the run default (it does not merge into it) — with arrays in play,
+// element-wise merging would be unpredictable, and per-field defaults already cover the common case.
+const lensesOf = (unit) => asList(unit && unit.lens ? unit.lens : A.lens).map(oneLens);
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
@@ -182,7 +189,7 @@ Prefer targeted grep over broad reads. Don't restate large files back; act on th
 // =============================================================================
 // Review-phase prompts
 // =============================================================================
-const reviewPrompt = (unit, handled, cleanEligible) => { const L = lensOf(unit); return `
+const reviewPrompt = (unit, L, handled, cleanEligible) => `
 You are the REVIEWER ${L.mandate}. This is a
 FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file in
 the target repo (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).
@@ -223,13 +230,13 @@ No issues found.
 If you report ANY finding, write NOTHING (a verifier writes this unit's file) and set wrote_clean_marker=false.
 Do NOT write issues.json, any shared doc, or a source file.
 ` : ''}
-Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`; };
+Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
 
 // CONTRACT with resolve-cycle.mjs — change both together. The issue-file BLOCK FORMAT the verifier writes
 // below (frontmatter unit/hash/reviewed; `### [<id>]` blocks; `- ` header lines; the decision values;
 // the `**Fix:**` line) is exactly what resolve-cycle.mjs's fixer + acceptance parse. Same runId + root
 // (+ stateDir if overridden) ⇒ same runs/<runId> across both engines.
-const verifyPrompt = (unit, items) => { const L = lensOf(unit); return `
+const verifyPrompt = (unit, items) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
 You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
 each candidate finding below, inspect the ACTUAL code in the repo to confirm it is real, correct its
 severity, then route it with the decision matrix. Reject false positives and gold-plating ruthlessly —
@@ -237,11 +244,23 @@ a noisy inventory wastes the user's triage time and the fixer's context. Reject,
 anything the code ALREADY does, and anything that is a preference rather than a defect.
 ${ENV}
 UNIT: ${unit.id}
-THE REVIEWER'S BRIEF for this unit (context for judging severity — it narrows which defects matter, it
-does NOT widen what counts as one): ${L.mandate}
-CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
-${items.map((i) => `  - ${i.id} :: ${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
-
+THE REVIEWER${multi ? "S'" : "'S"} BRIEF${multi ? 'S' : ''} for this unit — context for judging severity. ${multi
+    ? `${lenses.length} reviewers each swept these files under a DIFFERENT brief; judge each candidate against
+the brief it came from (named on its line below). A brief narrows which defects matter; it does NOT
+widen what counts as one.
+${lenses.map((l) => `  [${l.id}] ${l.mandate}`).join('\n')}`
+    : `It narrows which defects matter, it does NOT widen what counts as one:
+  ${lenses[0].mandate}`}
+CANDIDATE FINDINGS (finding_id :: ${multi ? 'lens :: ' : ''}file :: category/severity :: title):
+${items.map((i) => `  - ${i.id} :: ${multi ? `[${i.f._lens?.id || '?'}] :: ` : ''}${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
+${multi ? `
+FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
+two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
+justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
+"duplicate of <id>". Do not let one defect enter the inventory twice — the fixer would fix it, then find
+it stale. Candidates that merely share a file and category are NOT duplicates unless the underlying
+defect is the same.
+` : ''}
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
   effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
@@ -279,7 +298,7 @@ reviewed: true
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 - theme: <theme>
 
-**What:** <detail — what's wrong and why it matters${L.matters}>
+**What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>
 **Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
 **Options:** <options>                (NEEDS_USER only)
 **Recommendation:** <recommendation>  (NEEDS_USER only)
@@ -297,39 +316,44 @@ const units = A.units;
 if (!Array.isArray(units) || !units.length) {
   throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed. Reuse this runId when you run the sibling resolve-cycle.mjs — both engines key runs/<runId> off it.');
 }
+const totalReviewers = units.reduce((s, u) => s + lensesOf(u).length, 0);
 const lensedUnits = units.filter((u) => u && u.lens).length;
-log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [passes=${REVIEW_PASSES}, floor=${REVIEW_SEV_NAME}${A.lens ? ', default lens set' : ''}${lensedUnits ? `, ${lensedUnits} unit lens override(s)` : ''}]`);
-log(`spawn ceiling: ≤ ${units.length * REVIEW_PASSES + units.length} agents (${units.length} unit(s) × ${REVIEW_PASSES} review pass(es) = ${units.length * REVIEW_PASSES} reviewers + ≤${units.length} verifiers — verify spawns only where findings exist)`);
+log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [floor=${REVIEW_SEV_NAME}, ${totalReviewers} reviewer(s)${A.lens ? `, default lens x${asList(A.lens).length}` : ''}${lensedUnits ? `, ${lensedUnits} unit lens override(s)` : ''}]`);
+log(`spawn ceiling: ≤ ${totalReviewers + units.length} agents (${totalReviewers} reviewer(s) = one per unit x lens, + ≤${units.length} verifiers — verify spawns only where findings exist, ONE per unit however many lenses it ran)`);
 
-// Read-only fan-out: each unit flows reviewer → verifier independently and concurrently.
+// Read-only fan-out: each unit flows reviewer(s) → verifier independently and concurrently.
 const results = await pipeline(
   units,
-  // -- Review (1..REVIEW_PASSES, deduped by file:category across passes) ----
+  // -- Review: one pass per lens, merged into this unit's single finding set --------------------
   async (unit) => {
+    const lenses = lensesOf(unit);
     const found = [];
     const sigs = new Set();
     const handled = [];
     let markerWritten = false;
-    for (let p = 1; p <= REVIEW_PASSES; p++) {
-      // Only the FINAL pass, with no prior finding, may write the clean marker: an earlier clean pass
+    for (let p = 0; p < lenses.length; p++) {
+      const lens = lenses[p];
+      // Only the FINAL lens, with no prior finding, may write the clean marker: an earlier clean pass
       // that wrote it could be left as the terminal on-disk state if a later pass throws or the run is
       // cut before verify overwrites — resume would then trust that premature "clean" file and skip the
-      // unit, silently dropping a defect a later pass found.
-      const cleanEligible = handled.length === 0 && p === REVIEW_PASSES;
-      const r = await agent(reviewPrompt(unit, handled, cleanEligible), roleOpts('review', {
-        schema: reviewSchema(lensOf(unit).categories), phase: 'Review',
-        label: `review:${unit.id}${REVIEW_PASSES > 1 ? ` p${p}` : ''}`,
+      // unit, silently dropping a defect a later lens found.
+      const cleanEligible = handled.length === 0 && p === lenses.length - 1;
+      const r = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
+        schema: reviewSchema(lens.categories), phase: 'Review',
+        label: `review:${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`,
       }));
       if (cleanEligible && r?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
       for (const f of (r?.findings || [])) {
         if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
-        // Dedup across passes on file+category: re-reviews re-phrase the same concern, so
-        // title-based dedup leaks duplicates into the inventory.
-        const s = `${f.file}:${f.category}`;
+        // Dedup on lens+file+category. Within ONE lens this is the old file:category rule, which exists
+        // because a re-review re-phrases the same concern and title-based dedup leaks duplicates. Across
+        // lenses it must NOT collapse: a destructiveness lens and a correctness lens can each find a
+        // DIFFERENT real defect in the same file and category. The verifier folds any true overlap.
+        const s = `${lens.id}:${f.file}:${f.category}`;
         if (sigs.has(s)) continue;
         sigs.add(s);
         handled.push(f.title);
-        found.push(f);
+        found.push({ ...f, _lens: lens });
       }
     }
     return { unit, findings: found, markerWritten };
@@ -396,5 +420,13 @@ return {
   hottest,
   // Which files hold items that need a triage decision (open these to present options).
   needsUserFiles: processed.filter((r) => r.counts.needs_user > 0).map((r) => r.file),
-  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then grep the ACTIONABLE issues into args.issues and run the sibling resolve-cycle.mjs with the SAME runId (start scoped with resolveOnly).`,
+  // The machine-built index of every kept finding, in EXACTLY resolve-cycle's args.issues shape. The
+  // engine already had to build this to compute the counts above; discarding it forced the operator to
+  // re-derive the same array by hand-grepping the issue files, which is error-prone busywork (a hand
+  // rebuild is how a `file.py:224-276` range once became the number 224276).
+  // It is PRE-TRIAGE — the verifier's decisions, not the user's. Apply the triage on top: drop the ones
+  // the user set to SKIP, and flip approved NEEDS_USER items to ACTIONABLE (re-reading their rewritten
+  // Fix lines). The issue FILES remain the source of truth for WHAT to fix; this is only the index.
+  issues: all,
+  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then run the sibling resolve-cycle.mjs with the SAME runId (start scoped with resolveOnly), passing args.issues — start from the \`issues\` array in THIS return rather than re-grepping the files, and apply the triage edits you just made on top of it.`,
 };

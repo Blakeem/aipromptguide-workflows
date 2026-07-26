@@ -66,6 +66,10 @@ const LENSES = (Array.isArray(A.lenses) ? A.lenses : []).map((l, i) => {
 if (!LENSES.length) {
   throw new Error('args.lenses is required: a non-empty array of variation axes (strings, or { id, focus }). The main agent proposes these with the user beforehand (#4).');
 }
+const dupes = [...new Set(LENSES.map((l) => l.id).filter((id, i, a) => a.indexOf(id) !== i))];
+if (dupes.length) {
+  throw new Error(`lens ids collide after slugging (${dupes.join(', ')}): two generators would write into the same variation folder — give each lens a distinct id.`);
+}
 
 // =============================================================================
 // Schema — DECISIONS/INDEX ONLY (control plane). The variation itself lives in the file (#8).

@@ -31,6 +31,11 @@
 //   --pack-loc <n>      target LOC per unit for the sibling-merge bin-packing pass (default: 2000;
 //                       0 disables packing → old per-directory units)
 //   --out <path>        where to write the manifest (default: manifest.json in cwd)
+//   --issues-dir <path> RESUME: a completed review's runs/<runId>/issues/ dir. Each unit is joined
+//                       against <issues-dir>/<fileSafe(id)>.md and tagged state: new|changed|unchanged
+//                       by its frontmatter `hash:`; the manifest then also carries `staleUnits` (the
+//                       new + changed ones) to pass straight into review.mjs's args.units. Without the
+//                       flag the output is exactly as before.
 
 import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, relative, resolve, dirname, isAbsolute } from 'node:path';
@@ -56,6 +61,16 @@ const BIG_FILE  = Number(opt['big-file'] ?? 2000);
 const PACK_LOC  = Number(opt['pack-loc'] ?? 2000);
 const CEIL_LOC  = 3500;                          // ~350k-token review ceiling; warn on any unit past it
 const OUT       = isAbsolute(opt.out ?? '') ? opt.out : resolve(opt.out ?? 'manifest.json');
+const ISSUES    = opt['issues-dir'] ? resolve(opt['issues-dir']) : '';
+// A bare flag or a mistyped path would report every unit as `new` — the exact false signal the flag
+// exists to remove (the operator re-reviews the whole campaign believing the join worked). Fail instead.
+if (ISSUES) {
+  if (opt['issues-dir'] === 'true') { console.error('--issues-dir needs a path: the runs/<runId>/issues/ dir of the review you are resuming.'); process.exit(1); }
+  try { if (!statSync(ISSUES).isDirectory()) throw 0; } catch {
+    console.error(`--issues-dir ${ISSUES} is not a directory — every unit would read as new. Check the path.`);
+    process.exit(1);
+  }
+}
 
 const loc = (p) => readFileSync(p, 'utf8').split('\n').length;
 const rel = (p) => relative(REPO, p).replace(/\\/g, '/');
@@ -169,6 +184,25 @@ function pack(baseUnits) {
   });
 }
 
+// --issues-dir join. CONTRACT with review.mjs — change together: the issue-file name scheme
+// (fileSafe(unit.id) + '.md', review.mjs:95/102) and the `hash:` frontmatter line both writers stamp
+// (review.mjs:216/266) are the whole interface. A file with no readable hash counts as CHANGED — the
+// safe direction, since missing a changed unit means its defects are never reviewed.
+const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+
+function issueHash(unitId) {
+  let text;
+  try { text = readFileSync(join(ISSUES, `${fileSafe(unitId)}.md`), 'utf8'); } catch { return null; }
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  const m = (fm ? fm[1] : '').match(/^hash:[ \t]*(\S+)/m);
+  return m ? m[1] : '';
+}
+
+const stateOf = (u) => {
+  const h = issueHash(u.id);
+  return h === null ? 'new' : h === u.hash ? 'unchanged' : 'changed';
+};
+
 const units = pack(
   SRC_DIRS
     .flatMap((d) => {
@@ -188,12 +222,16 @@ for (const u of units) {
   if (u.loc > CEIL_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC (est. >~350k tokens) — past the review ceiling; lower --pack-loc or split the file`);
 }
 
+if (ISSUES) for (const u of units) u.state = stateOf(u);
+const stale = ISSUES ? units.filter((u) => u.state !== 'unchanged') : [];
+
 const manifest = {
   repo: REPO,
   src: SRC_DIRS,
   caps: { CAP_LOC, CAP_FILES, BIG_FILE, PACK_LOC },
   totalUnits: units.length,
   totalLoc: units.reduce((s, u) => s + u.loc, 0),
+  ...(ISSUES ? { issuesDir: ISSUES, staleUnits: stale } : {}),
   units,
 };
 
@@ -201,6 +239,12 @@ mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify(manifest, null, 2) + '\n');
 
 console.log(`${units.length} units, ${manifest.totalLoc} LOC → ${OUT}\n`);
+if (ISSUES) {
+  const n = (s) => units.filter((u) => u.state === s).length;
+  console.log(`vs ${ISSUES}: ${n('new')} new, ${n('changed')} changed, ${n('unchanged')} unchanged — pass manifest.staleUnits (${stale.length}) as review.mjs args.units`);
+  if (PACK_LOC > 0) console.log(`  approximate after a tree change: packing re-derives merged "<dir>#p<n>" ids, so files added or removed can shift ids and report units as new that were in fact reviewed`);
+  console.log('');
+}
 for (const u of [...units].sort((a, b) => a.loc - b.loc)) {
-  console.log(`${String(u.loc).padStart(6)} LOC  ${String(u.fileCount).padStart(2)}f  ${u.id}`);
+  console.log(`${String(u.loc).padStart(6)} LOC  ${String(u.fileCount).padStart(2)}f  ${u.id}${u.state ? `  [${u.state}]` : ''}`);
 }

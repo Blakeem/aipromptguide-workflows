@@ -123,8 +123,9 @@ function gateOk(gate, dev) {
 // =============================================================================
 const DEVELOP_SCHEMA = {
   type: 'object',
-  required: ['produced', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user'],
+  required: ['baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user'],
   properties: {
+    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     produced:          { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed-expected', 'failed-unexpected', 'not-run'], description: 'passed = this section\'s selector tests ran and PASSED. failed-expected = red baseline exactly as a test-first section intends. failed-unexpected = failed for a WRONG reason (a real defect / bad fixture). not-run = no tests executed.' },
@@ -149,11 +150,14 @@ const QUALITY_SCHEMA = {
 
 const ACCEPTANCE_SCHEMA = {
   type: 'object',
-  required: ['pass', 'staged', 'reachable'],
+  required: ['pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
     pass:        { type: 'boolean', description: 'true if every acceptance criterion of THIS section is met, it is reachable, the section gate is satisfied, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on this section\'s files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'this section\'s change is actually wired in / reachable (every call site converted, route mounted, symbol exported)' },
+    criteria_total: { type: 'integer', description: 'acceptance criteria you enumerated from THIS section (0 means you enumerated none — never a legitimate pass)' },
+    criteria_met:   { type: 'integer', description: 'of those, how many you found concrete evidence for' },
+    evidence_recorded: { type: 'boolean', description: 'true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file' },
     regression:  { type: 'boolean', description: 'true if the unstaged diff regressed previously-staged/accepted behavior' },
     gap_count:   { type: 'integer', description: 'number of unmet criteria / gaps written to the review file (0 on pass)' },
     suite_result:{ type: 'string', description: 'observed outcome of running the section gate (and, where the goal expects it, the full gates)' },
@@ -266,14 +270,23 @@ ${ENV}
 SECTION: ${section.id} — ${section.title}
 GATE EXPECTATION: ${gxLine}
 ${round === 1
-  ? `This is round 1 of this section: the unstaged working tree is clean (prior sections are STAGED = the
-accepted baseline). Implement this section from scratch on top of that baseline.`
+  ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Prior
+sections are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything unstaged
+at the end of this round is reviewed and judged as YOUR work.
+  \`git -C ${REPO} diff --name-only\`                        — unstaged tracked edits
+  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` — untracked files (\`git diff\` OMITS these)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
+staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
+write nothing, do no work, and return immediately with that count — the run halts so the operator can
+fold or stash that work. If it IS 0, implement this section from scratch on top of the staged baseline.`
   : reviewPath
     ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work for
 this section is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
     : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working tree —
 re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
-If ${dismissedFile(section.id)} exists, READ it first — it is YOUR running ledger of declined findings
+${round === 1 ? '' : `Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
+unstaged tree now holds YOUR work).
+`}If ${dismissedFile(section.id)} exists, READ it first — it is YOUR running ledger of declined findings
 for THIS section, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate
 an entry, and do not re-litigate what you already declined. If a review RE-RAISES one as
 \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
@@ -336,8 +349,11 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff --staged\` = accepted baseline (prior sections — compare against it for regressions).
 
 PROCEDURE:
-1. For EACH acceptance criterion of THIS section, find concrete evidence it holds (a diff hunk, a passing
-   test, an observed behavior). Mark met / not-met with file:line / test-name / output evidence.
+1. ENUMERATE THIS section's acceptance criteria FIRST, numbered — that count is criteria_total (never 0
+   for a real section). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an
+   observed behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
+   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file — a criterion you asserted without one does not count as met.
 2. REACHABILITY: prove every integration point this section owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it). A half-converted section
    is not done.
@@ -349,9 +365,9 @@ PROCEDURE:
    stageable "done"); for gate=build-only just build green. Do NOT treat the intentionally-red rest of
    the suite as a failure. If a configured MCP/tool is unavailable here, say so in the file (do not fake
    it) and return pass=false.
-5. WRITE ${acceptanceFile(section.id, round)} (create ${STATE_DIR}/ if needed): the per-criterion table,
-   the reachability + regression result, the gate output, and each gap (title + file:line + fix) — or
-   "All criteria met; reachable; no regression."
+5. WRITE ${acceptanceFile(section.id, round)} (create ${STATE_DIR}/ if needed) BEFORE you decide anything
+   in step 6: the numbered per-criterion table WITH its locators, the reachability + regression result,
+   the gate output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
 6. DECIDE:
    • All criteria met, reachable, gate satisfied, no regression → \`git -C ${REPO} add <this section's
      changed AND newly-created files>\` (NEVER commit); return pass=true, staged=true. The baseline now
@@ -454,7 +470,10 @@ if (runOnly) {
   pending = ALL_SECTIONS.filter((s) => runOnly.includes(s.id));
 } else if (A.startAt) {
   const i = ALL_SECTIONS.findIndex((s) => s.id === A.startAt);
-  pending = i >= 0 ? ALL_SECTIONS.slice(i) : ALL_SECTIONS;
+  // An unknown id must FAIL FAST — silently falling back to the full list would re-run already accepted
+  // sections against a baseline that already contains them, and skip the final sweep on top.
+  if (i < 0) throw new Error(`args.startAt "${A.startAt}" matches no section id. Valid ids: ${ALL_SECTIONS.map((s) => s.id).join(', ')}`);
+  pending = ALL_SECTIONS.slice(i);
 }
 const isFullRun = !runOnly && !A.startAt;   // a sweep is only meaningful when the whole goal was processed
 log(`run: ${pending.length}/${ALL_SECTIONS.length} section(s) to process${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : A.startAt ? ` (startAt: ${A.startAt})` : ''} [maxRounds=${MAX_ROUNDS}]`);
@@ -476,7 +495,7 @@ for (const section of pending) {
   }
 
   log(`▶ section ${section.id} — ${section.title} [gate=${section.gate}]`);
-  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false };
+  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
   let round = 0;
@@ -491,6 +510,22 @@ for (const section of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${section.id} r${round}`,
     }));
 
+    // ---- PRECONDITION (round 1 of every section): the unstaged tree must have been CLEAN -----------
+    // The reviewers scope on the unstaged diff, so stray pre-existing work would be reviewed as this
+    // section's and burn the whole round budget on code nobody in this run touched. Halt HERE — before
+    // any quality/acceptance agent spawns. The developer did no work, so there is nothing to unwind.
+    if (round === 1) {
+      const dirty = Number(dev?.baseline_dirty_files);
+      if (!Number.isFinite(dirty)) {
+        log(`  ⚠ ${section.id} r1: developer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
+      } else if (dirty > 0) {
+        halted = true;
+        rec.status = 'BLOCKED (dirty baseline)';
+        haltReason = `Section ${section.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then run ONE command and re-invoke this run unchanged: \`git -C ${REPO} add -A\` to KEEP it (folds it into the accepted baseline), or \`git -C ${REPO} stash -u\` to set it aside. Nothing was built or changed.`;
+        log(`  ✋ ${section.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A to fold into the baseline, or git stash -u, then re-run)`);
+        break;
+      }
+    }
     if (dev?.needs_user === true) {
       halted = true;
       haltReason = `Developer halted for a user-only decision in section ${section.id} round ${round} (see ${NEEDS_USER}).`;
@@ -545,12 +580,18 @@ for (const section of pending) {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${section.id} r${round}`,
     }));
     if (acc?.regression === true) rec.regression = true;
+    rec.criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
     if (acc?.pass === true) {
       rec.reachable = acc?.reachable === true;
+      // A pass is only as good as the enumeration behind it: no criteria, an incomplete count, or
+      // missing locators means the verdict rests on assertion, not evidence (#14). Detection only —
+      // acceptance already staged, so flag it for the operator's audit rather than failing the section.
+      rec.thinEvidence = rec.criteria.total === 0 || rec.criteria.met < rec.criteria.total || acc?.evidence_recorded !== true;
+      const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (evidence_recorded=${acc?.evidence_recorded}) — audit ${acceptanceFile(section.id, round)}` : '';
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        log(`  ✓ ${section.id}: acceptance PASSED — STAGED (reachable=${acc?.reachable}, gate=${acc?.suite_result || 'n/a'})`);
+        log(`  ✓ ${section.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, gate=${acc?.suite_result || 'n/a'})${thinNote}`);
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next section's blind diff would

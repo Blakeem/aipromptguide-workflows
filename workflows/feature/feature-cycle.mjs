@@ -1,12 +1,13 @@
 export const meta = {
   name: 'feature-cycle',
-  description: 'Plan-driven feature build, lean/file-bus design: implement ONE bounded feature — or an ordered ROADMAP of them (a `plans` array, each plan separately user-approved in plan mode) — from approved plan(s) → develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round until done, blocked, or flagged; the accepted baseline advances per accepted feature. Agents exchange messages as verbatim files; the harness only routes plan ids, paths + verdicts.',
+  description: 'Plan-driven feature build, lean/file-bus design: implement ONE bounded feature — or an ordered ROADMAP of them (a `plans` array, each plan separately user-approved in plan mode) — from approved plan(s) → develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round until done, blocked, or flagged; the accepted baseline advances per accepted feature. A plan that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — and the roadmap CONTINUES; nothing is discarded and every exit leaves a clean tree. Agents exchange messages as verbatim files; the harness only routes plan ids, paths + verdicts.',
   whenToUse: 'Build ONE bounded, mostly-additive, NON-TRIVIAL feature (~10–100+ LoC: a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix) integrated into an existing codebase — or an ordered ROADMAP of several such features in ONE run (the `plans` array = build order, each plan separately authored + user-approved in plan mode; staging advances per accepted feature). NOT for one-line/trivial changes (make those directly) and NOT for breadth-spanning migrations/refactors across many call sites (use the sibling migrate-cycle). The orchestrating agent authors each plan in PLAN MODE (EnterPlanMode → ~/.claude/plans/<name>.md), the user approves (ExitPlanMode), and runs MANDATORY phase:"refine" per plan (planPath = that file\'s absolute path) — adversarial plan review vs the real repo — folding in the gaps; then, with a CLEAN unstaged working tree, runs ONE phase:"build" with the plans array (reuse the same runId throughout).',
   phases: [
     { title: 'Refine', detail: 'MANDATORY first pass (refine phase only): an independent critic greps the repo, verifies the plan against real code, returns gaps + blocking questions to the orchestrating agent. Writes nothing.' },
     { title: 'Develop', detail: 'Developer reads the approved plan (verbatim) + the latest review that flagged issues; implements minimally, runs the gate to green, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags production-blocking defects, writes quality-review-<id>-rN.md. Must be clean to proceed.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion met + feature reachable + full gates green + no regression. Writes acceptance-review-<id>-rN.md; on pass, STAGES that feature (git add, never commit) — the accepted baseline advances plan by plan.' },
+    { title: 'Park', detail: 'On a plan that did not accept within its round budget, or one the developer escalated: SAVES that plan\'s work to parked-<id>.patch, then clears it from the tree. A budget-exhausted plan is parked and the ROADMAP CONTINUES (the next plan\'s blind diff is clean again); an escalation still stops the run, but leaves the tree clean either way. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
   ],
 };
 
@@ -94,6 +95,8 @@ const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
 const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER PLAN
+const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a plan's work, saved before the tree is cleared
+const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 // The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior
 // review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5). Scoped per plan.
 const SETTLED = (id) => `Before reviewing, READ these if they exist — they are the settled decisions, so you do
@@ -123,8 +126,9 @@ function gateOk(gate, dev) {
 // =============================================================================
 const DEVELOP_SCHEMA = {
   type: 'object',
-  required: ['build_passed', 'test_outcome', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user'],
+  required: ['baseline_dirty_files', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user'],
   properties: {
+    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed', 'not-run'], description: 'passed = the required verification ran and PASSED; failed = ran and failed; not-run = no verification executed' },
     tests_run_count:   { type: 'integer', description: 'unit/integration tests the runner ACTUALLY executed (0 = selector matched nothing = a FALSE green; -1 = N/A, e.g. manual/MCP verification)' },
@@ -149,11 +153,14 @@ const QUALITY_SCHEMA = {
 
 const ACCEPTANCE_SCHEMA = {
   type: 'object',
-  required: ['pass', 'staged', 'reachable'],
+  required: ['pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
     pass:        { type: 'boolean', description: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on the feature files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'the feature is actually wired in / reachable from the app entry points' },
+    criteria_total: { type: 'integer', description: 'acceptance criteria you enumerated from the plan (0 means you enumerated none — never a legitimate pass)' },
+    criteria_met:   { type: 'integer', description: 'of those, how many you found concrete evidence for' },
+    evidence_recorded: { type: 'boolean', description: 'true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file' },
     regression:  { type: 'boolean', description: 'true if the unstaged diff regressed previously-staged/committed behavior' },
     gap_count:   { type: 'integer', description: 'number of unmet criteria / gaps written to the review file (0 on pass)' },
     suite_result:{ type: 'string', description: 'observed outcome of running the FULL gates' },
@@ -201,6 +208,75 @@ ${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror): ${REFERENCE_P}\n` : 
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}`;
 
+// PARK — the terminal outcome for a plan that did not accept, and for one the developer escalated.
+// Its work is SAVED to a patch and then CLEARED from the tree. Clearing is what lifts the old staging
+// boundary: a parked plan no longer blocks the roadmap, because the next plan's blind reviewer once
+// again sees an unstaged diff that is purely its own. Nothing is discarded, and every exit from this
+// engine leaves a clean tree, so the user can run something else against the repo and come back later.
+const PARK_SCHEMA = {
+  type: 'object',
+  required: ['saved', 'cleared', 'gates_green'],
+  properties: {
+    saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree.' },
+    cleared:     { type: 'boolean', description: 'true if the plan\'s work was then removed from the working tree and `git diff` is empty' },
+    gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing (the tree is safe for the next plan)' },
+    patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
+    strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so.' },
+    notes:       { type: 'string' },
+  },
+};
+
+const parkPrompt = (p, lastReviewPath, escalated) => `
+You are PARKING the feature plan "${p.id}", which ${escalated
+    ? `hit a BLOCKER the developer escalated to the user (see ${NEEDS_USER}). The run stops after you, but its
+work is NOT left lying in the working tree`
+    : `did NOT reach acceptance within its round budget. Its work is NOT thrown away`}: you SAVE it to a
+patch file, then clear it from the working tree${escalated ? '' : ` so the REST OF THE ROADMAP can continue — the next
+plan's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that plan and
+fail it for this one's problems`}. Accepted features are STAGED and must survive untouched.
+${ENV}
+STAGING CONTRACT:
+  • staged index + HEAD  = ACCEPTED features (the baseline). Treat as known-good; do NOT touch.
+  • unstaged working tree = THIS plan's unsuccessful work — the only thing you save and clear.
+  • Nothing is EVER committed.
+
+SAVE BEFORE YOU CLEAR — never the other way round. If step 1 does not produce a non-empty patch, STOP:
+leave the tree exactly as it is and return saved=false, cleared=false.
+
+PROCEDURE:
+1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
+   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
+   Otherwise write the plan's work to ${parkedPatch(p.id)} (create ${STATE_DIR}/ if needed):
+     \`git -C ${REPO} diff --binary > ${parkedPatch(p.id)}\`
+   \`--binary\` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
+   unstaged diff IS exactly this plan's work, and files the developer created are in it via \`git add -N\`.
+   Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
+2. CATCH STRAYS. If \`git status --porcelain\` still lists any \`??\` untracked file this plan created
+   (the developer missed its \`git add -N\`), COPY those files into ${parkedNewDir(p.id)}/ preserving
+   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
+   strays_saved: it matters, because step 4 must tell the user those files exist.
+3. CLEAR. Restore every tracked file this plan modified to the staged baseline:
+   \`git -C ${REPO} checkout -- <files>\`. Then delete the files this plan CREATED (untracked + any
+   \`git add -N\` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
+   file is carried by the patch from step 1; a \`??\` stray is safe ONLY because step 2 copied it to
+   ${parkedNewDir(p.id)}/. If step 2 did not copy a stray, do NOT delete it.
+   Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
+4. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked plan: ${p.id}\` heading:
+   - that this plan is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining
+     roadmap continued without it
+   - one line on why it was parked (${escalated ? 'the blocker the developer escalated' : 'what acceptance was still failing'})
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : 'the latest review file for this plan in ' + STATE_DIR}
+   - the saved work: \`${parkedPatch(p.id)}\`
+   - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`
+   - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
+     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
+     (preserving relative paths) as a SECOND step after the \`git apply\`. Omit this line entirely when
+     there were no strays — do not leave a dangling reference to an empty directory.
+   - the user's options: restore the patch and finish the feature by hand · re-run this plan alone
+     (\`runOnly:["${p.id}"]\`) after sharpening the plan file · drop the patch
+Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this plan's work.
+Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
+
 const MATRIX = (id) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
@@ -230,14 +306,23 @@ NO scope creep beyond the plan.
 ${ENV}
 CONVENTIONS: ${CONVENTIONS}
 ${round === 1
-  ? `This is round 1: the unstaged working tree is clean (any earlier ACCEPTED features in this roadmap are
-STAGED = the accepted baseline). Implement this plan from scratch on top of that baseline.`
+  ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
+ACCEPTED features are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is reviewed and judged as YOUR work.
+  \`git -C ${REPO} diff --name-only\`                        — unstaged tracked edits
+  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` — untracked files (\`git diff\` OMITS these)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
+staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
+write nothing, do no work, and return immediately with that count — the run halts so the operator can
+fold or stash that work. If it IS 0, implement this plan from scratch on top of the staged baseline.`
   : reviewPath
     ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
     : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
-${round === 1 ? '' : `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings: do not
+${round === 1 ? '' : `Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
+unstaged tree now holds YOUR work).
+If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings: do not
 duplicate an entry. If the review you are addressing RE-RAISES one as \`CONTESTS DISMISSAL:\`, you MUST
 FIX or ESCALATE it (never silently re-add the same dismissal).`}
 
@@ -295,8 +380,11 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. For EACH acceptance criterion, find concrete evidence it holds (a diff hunk, a passing test, an
-   observed behavior). Mark met / not-met with file:line / test-name / output evidence.
+1. ENUMERATE the plan's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
+   a real plan). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
+   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
+   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file — a criterion you asserted without one does not count as met.
 2. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-working
@@ -305,9 +393,9 @@ PROCEDURE:
      build: ${GATES.build ?? '(none)'}    test: ${GATES.test ?? '(none)'}
    Re-run the plan's configured verification method to confirm the feature behaves as specified. If a
    configured MCP/tool is unavailable here, say so in the file (do not fake it) and return pass=false.
-5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed): the per-criterion table, the
-   reachability + regression result, the gate output, and each gap (title + file:line + fix) — or
-   "All criteria met; reachable; no regression."
+5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE you decide anything in
+   step 6: the numbered per-criterion table WITH its locators, the reachability + regression result, the
+   gate output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
 6. DECIDE:
    • Everything met, reachable, gates green, no regression → \`git -C ${REPO} add <the feature's changed
      AND newly-created files>\` (NEVER commit); return pass=true, staged=true.
@@ -384,7 +472,10 @@ if (runOnly) {
   pending = ALL_PLANS.filter((p) => runOnly.includes(p.id));
 } else if (A.startAt) {
   const i = ALL_PLANS.findIndex((p) => p.id === A.startAt);
-  pending = i >= 0 ? ALL_PLANS.slice(i) : ALL_PLANS;
+  // An unknown id must FAIL FAST — silently falling back to the full roadmap would re-build already
+  // accepted plans (their work is the staged baseline) and burn the whole run.
+  if (i < 0) throw new Error(`args.startAt "${A.startAt}" matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
+  pending = ALL_PLANS.slice(i);
 }
 const isFullRun = !runOnly && !A.startAt;
 log(`build: ${pending.length}/${ALL_PLANS.length} plan(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : A.startAt ? ` (startAt: ${A.startAt})` : ''} [maxRounds=${MAX_ROUNDS}]`);
@@ -392,6 +483,9 @@ log(`build: ${pending.length}/${ALL_PLANS.length} plan(s) to build${runOnly ? ` 
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
 let halted = false;
 let haltReason = '';
+// WHY the run halted, as a value rather than prose. The status line used to sniff substrings out of
+// haltReason, so a new halt reason silently reported the wrong status; every halt site now sets this.
+let haltKind = '';
 const doneIds = [];
 
 for (const p of pending) {
@@ -400,15 +494,19 @@ for (const p of pending) {
   // than letting an agent() call throw mid-plan. Accepted plans are STAGED; resume continues.
   if (budget.total && budget.remaining() < (A.minPlanBudget ?? 150_000)) {
     halted = true;   // so the reason + resume instruction surface in the return value
+    haltKind = 'budget';
     haltReason = `Stopped before plan ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Resume phase:"build" with startAt:"${p.id}".`;
     log(`⏸ ${haltReason}`);
     break;
   }
 
   log(`▶ plan ${p.id} [gate=${p.gate}]`);
-  const rec = { id: p.id, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false };
+  const rec = { id: p.id, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
+  // `escalated` distinguishes the two halts: a developer escalation leaves real work in the tree (park
+  // it), while a round-1 dirty-baseline halt changed nothing (that work is the OPERATOR's — never park it).
+  let escalated = false;
   let round = 0;
 
   while (round < MAX_ROUNDS) {
@@ -421,8 +519,27 @@ for (const p of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${p.id} r${round}`,
     }));
 
+    // ---- PRECONDITION (round 1 of every plan): the unstaged tree must have been CLEAN --------------
+    // The reviewers scope on the unstaged diff, so stray pre-existing work would be reviewed as this
+    // plan's and burn the whole round budget on code nobody in this run touched. Halt HERE — before any
+    // quality/acceptance agent spawns. The developer did no work, so there is nothing to unwind.
+    if (round === 1) {
+      const dirty = Number(dev?.baseline_dirty_files);
+      if (!Number.isFinite(dirty)) {
+        log(`  ⚠ ${p.id} r1: developer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
+      } else if (dirty > 0) {
+        halted = true;
+        rec.status = 'BLOCKED (dirty baseline)';
+        haltKind = 'dirty-baseline';
+        haltReason = `Plan ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then run ONE command and re-invoke this build unchanged: \`git -C ${REPO} add -A\` to KEEP it (folds it into the accepted baseline), or \`git -C ${REPO} stash -u\` to set it aside. Nothing was built or changed.`;
+        log(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A to fold into the baseline, or git stash -u, then re-run)`);
+        break;
+      }
+    }
     if (dev?.needs_user === true) {
       halted = true;
+      escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
+      haltKind = 'needs-user';
       haltReason = `Developer halted for a user-only decision in plan ${p.id} round ${round} (see ${NEEDS_USER}).`;
       rec.status = 'BLOCKED (needs user)';
       log(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
@@ -467,18 +584,25 @@ for (const p of pending) {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
     if (acc?.regression === true) rec.regression = true;
+    rec.criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
     if (acc?.pass === true) {
       rec.reachable = acc?.reachable === true;
+      // A pass is only as good as the enumeration behind it: no criteria, an incomplete count, or
+      // missing locators means the verdict rests on assertion, not evidence (#14). Detection only —
+      // acceptance already staged, so flag it for the operator's audit rather than failing the plan.
+      rec.thinEvidence = rec.criteria.total === 0 || rec.criteria.met < rec.criteria.total || acc?.evidence_recorded !== true;
+      const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (evidence_recorded=${acc?.evidence_recorded}) — audit ${acceptanceFile(p.id, round)}` : '';
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        log(`  ✓ ${p.id}: acceptance PASSED — STAGED (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})`);
+        log(`  ✓ ${p.id}: acceptance PASSED — ${rec.criteria.met}/${rec.criteria.total} criteria — STAGED (reachable=${acc?.reachable}, suite=${acc?.suite_result || 'n/a'})${thinNote}`);
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next plan's blind diff would include
       // this feature's unstaged work. Do NOT advance; halt for manual staging, then resume.
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
+      haltKind = 'passed-unstaged';
       haltReason = `Plan ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then resume phase:"build" with startAt the NEXT plan id.`;
       log(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
@@ -497,16 +621,46 @@ for (const p of pending) {
     continue;
   }
 
-  // Not accepted (and not already a needs-user halt): HALT the run. The staging boundary means we cannot
-  // start the next plan while this one's work is unstaged. Resume re-runs THIS plan on its unstaged work.
-  if (!halted) {
-    halted = true;
-    rec.status = 'needs-attention (round budget exhausted)';
-    haltReason = `Plan ${p.id} did not reach acceptance within ${MAX_ROUNDS} rounds (see ${reviewPath || acceptanceFile(p.id, round)}). Its work is UNSTAGED; resolve with the user, then resume from this plan id.`;
-    log(`  ✋ ${p.id}: not accepted within ${MAX_ROUNDS} rounds → halting run (staging boundary)`);
+  // ---- PARK: save this plan's work, then clear the tree ----------------------------------------
+  // Reached on either terminal outcome — round budget exhausted, or a developer escalation. Parking is
+  // what removes the old staging boundary: this plan's work no longer sits unstaged, so the NEXT plan's
+  // blind reviewer sees a diff that is purely its own and the roadmap can carry on. A budget-exhausted
+  // plan therefore PARKS AND CONTINUES; only an escalation still stops the run (the user must answer),
+  // and even then the tree is left clean.
+  // NOT reached on a dirty-baseline halt: that broke out before the developer changed anything, and the
+  // work in the tree belongs to the operator — parking it would be taking their changes hostage.
+  if (!(halted && !escalated)) {
+    phase('Park');
+    const pk = await agent(parkPrompt(p, reviewPath || acceptanceFile(p.id, round), escalated), roleOpts('develop', {
+      schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
+    }));
+    const strays = pk?.strays_saved ?? 0;
+    // Patch bytes written but `saved` false — an internally inconsistent report. The tree may already be
+    // cleared, so telling the user "nothing was saved" would be actively wrong: name the patch and stop.
+    const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
+    rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(p.id) : null;
+    if (strays > 0) rec.strays = parkedNewDir(p.id);
+    if (!escalated) rec.status = 'parked (not accepted within round budget)';
+    log(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(p.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}`);
+    // A tree we could not clear (or a broken build) is unsafe for the next plan, so those DO halt even
+    // though a plain park does not.
+    if (contradictory) {
+      halted = true;
+      haltKind = 'park-unsafe';
+      haltReason = `Park reported saved=false for plan ${p.id} but wrote ${pk.patch_bytes} bytes to ${parkedPatch(p.id)} — the report contradicts itself. The patch is real; inspect it before continuing (the tree was ${pk?.cleared === true ? 'already cleared' : 'left as-is'}).`;
+    } else if (pk?.cleared !== true) {
+      halted = true;
+      haltKind = 'park-unsafe';
+      haltReason = `Plan ${p.id} could not be cleared from the working tree${pk?.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for the next plan.`;
+    } else if (pk?.gates_green === false) {
+      halted = true;
+      haltKind = 'park-unsafe';
+      haltReason = `The build gate is not green after parking plan ${p.id}; the tree is unsafe for the next plan.`;
+    }
+    if (halted && !escalated && rec.status === 'pending') rec.status = 'parked (park incomplete)';
   }
   ledger.push(rec);
-  break;
+  if (halted) break;      // escalation / unsafe tree stops the roadmap; a clean park carries on
 }
 
 // No final sweep (deliberate asymmetry vs migrate-cycle): roadmap plans are INDEPENDENT features with no
@@ -522,11 +676,24 @@ const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
 // from `ledger`). `solo` is the one plan's record when the run built exactly one plan.
 const solo = ALL_PLANS.length === 1 ? ledger[0] : null;
 
+// Anything with saved work the user must be told about. Keyed on the PATCH, not the status string: an
+// escalated plan keeps its "BLOCKED (needs user)" status but was still parked, and dropping it here
+// would leave its patch path unreported anywhere in the return.
+const parkedPlans = ledger.filter((r) => r.patch || (typeof r.status === 'string' && r.status.startsWith('parked')));
+const HALT_STATUS = {
+  'needs-user':      'BLOCKED (needs user input)',
+  'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
+  'passed-unstaged': 'BLOCKED (a plan passed but was not staged — stage it, then resume)',
+  'park-unsafe':     'BLOCKED (a parked plan left the tree unsafe — inspect before resuming)',
+  'budget':          'stopped on token budget (resume where it left off)',
+};
 const status = halted
-  ? (haltReason.includes('needs user') || haltReason.includes('user-only') ? 'BLOCKED (needs user input)' : 'halted (plan needs attention / budget)')
+  ? (HALT_STATUS[haltKind] || 'halted (plan needs attention)')
   : allDone
     ? (ALL_PLANS.length === 1 ? 'done (staged)' : 'done (all plans staged)')
-    : 'partial slice complete';
+    : parkedPlans.length
+      ? `roadmap complete with ${parkedPlans.length} plan(s) parked`
+      : 'partial slice complete';
 
 log(`build: ${status} — ${doneIds.length}/${ALL_PLANS.length} plan(s) done [${ledger.reduce((s, r) => s + r.qualityRounds, 0)} quality pass(es)]`);
 
@@ -546,11 +713,12 @@ return {
   stateDir: STATE_DIR,
   plansDone: doneIds,
   plansTotal: ALL_PLANS.length,
+  // Parked plans: NOT done, but their work is SAVED, not lost — the roadmap carried on without them.
+  // Present each with its patch path (and strays dir when one exists — those need a second restore step).
+  parked: parkedPlans.map((r) => ({ id: r.id, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
   reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<id>-rN.md, acceptance-review-<id>-rN.md) show every iteration; git staging marks each accepted feature.`,
-  followups: halted
-    ? `Run halted — read ${NEEDS_USER} (if a hard blocker) and the latest review file for the plan in question, resolve with the user, confirm the tree still holds that plan's in-progress UNSTAGED work, then resume: re-invoke phase:"build" with the same args + startAt:"<that plan id>" (or runOnly).`
-    : allDone
-      ? `All plans done. Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding). Run the full gates yourself. Nothing is committed — you commit.`
-      : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"build" with startAt the next plan id.`,
+  followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the plan's latest review file, resolve with the user, then re-invoke phase:"build" with the same args + startAt (or runOnly) for the plans still to do. That plan's work is in its patch and the tree is clean — apply the patch first only if you want to continue it by hand.` : ' '}` : ''}${parkedPlans.length
+    ? `${parkedPlans.length} plan(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. Their work is saved to ${STATE_DIR}/parked-<id>.patch and cleared from the tree — nothing discarded; ${NEEDS_USER} carries each one's diagnosis and its \`git apply --3way\` restore command. Per parked plan the user decides: restore the patch and finish by hand, re-run it alone with runOnly after sharpening its plan file, or drop the patch. `
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ and audit every declined finding. Nothing is committed — you commit.`,
 };
