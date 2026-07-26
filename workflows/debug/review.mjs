@@ -38,6 +38,30 @@ const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
 const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
 const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
 
+// LENS — what this pass is looking FOR. Unset reproduces the defect-hunting text verbatim, so an
+// existing call is unaffected. Set it to point the same machinery at a different question (an
+// improvement audit, a document/drawing review, a compliance pass): `mandate` replaces the reviewer's
+// one-line charter, `criteria` its assessment list, `categories` the finding enum, and
+// `allowImprovements` flips the verifier's scope-creep routing from REJECT to ACTIONABLE (a
+// non-defect lens has no "creep" — proposing better is the job).
+const LENS = A.lens ?? {};
+const MANDATE  = LENS.mandate ?? 'examining ONE bounded unit of a codebase for PRODUCTION READINESS';
+const CRITERIA = LENS.criteria ?? `correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
+  data-integrity, types, api-contract, concurrency (races, shared state), testing (missing coverage
+  of risky paths), performance, maintainability, convention adherence`;
+const CATEGORIES = Array.isArray(LENS.categories) && LENS.categories.length
+  ? LENS.categories
+  : ['correctness', 'security', 'error-handling', 'resource-leak', 'data-integrity', 'types', 'api-contract', 'concurrency', 'testing', 'performance', 'maintainability', 'convention'];
+const ALLOW_IMPROVEMENTS = LENS.allowImprovements === true;
+// What the floor and the "defects not redesigns" rule mean under this lens.
+const FINDING_NOUN = LENS.findingNoun ?? 'production DEFECTS';
+const MATTERS      = LENS.matters ?? ' in production';   // "…why it matters<MATTERS>"
+const NO_CREEP_RULE = ALLOW_IMPROVEMENTS
+  ? `- Every finding must be CONCRETE and GROUNDED in what the code actually does today: name the current
+  behavior, then the better one. No vague "consider refactoring", no restating the design back, no
+  proposal you cannot tie to a specific cost (tokens, latency, a failure mode, operator effort).`
+  : `- Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.`;
+
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
 // that exists in YOUR registry. Verify is opus (high stakes); reviewer is the fast tier.
@@ -85,7 +109,7 @@ const REVIEW_SCHEMA = {
         properties: {
           file: { type: 'string', description: 'repo-relative path' },
           line: { type: 'string', description: 'line number or range, or "" if N/A' },
-          category: { type: 'string', enum: ['correctness', 'security', 'error-handling', 'resource-leak', 'data-integrity', 'types', 'api-contract', 'concurrency', 'testing', 'performance', 'maintainability', 'convention'] },
+          category: { type: 'string', enum: CATEGORIES },
           severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'] },
           title: { type: 'string', description: 'short, specific, stable' },
           detail: { type: 'string' },
@@ -150,8 +174,8 @@ Prefer targeted grep over broad reads. Don't restate large files back; act on th
 // Review-phase prompts
 // =============================================================================
 const reviewPrompt = (unit, handled, cleanEligible) => `
-You are the REVIEWER examining ONE bounded unit of a codebase for PRODUCTION READINESS. This is a
-FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file in
+You are the REVIEWER ${MANDATE}. This is a
+FIND-ONLY pass: you report findings; a verified+batched phase acts on them later. Do NOT modify any file in
 the target repo (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).
 ${ENV}
 UNIT: ${unit.id}
@@ -159,20 +183,18 @@ FILES TO REVIEW (read them fully; review ONLY these files):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
 
 Assess against these criteria and report concrete, located issues:
-  correctness, security, error-handling, resource-leak (unclosed handles/timers/sockets),
-  data-integrity, types, api-contract, concurrency (races, shared state), testing (missing coverage
-  of risky paths), performance, maintainability, convention adherence.
+  ${CRITERIA}.
 
 RULES:
-- SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ production DEFECTS. Do NOT report below-floor,
+- SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ ${FINDING_NOUN}. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions — they are dropped downstream and
   only waste the verify stage. If in doubt it's below the floor, omit it.
 - READ THE CURRENT FILE CONTENTS before reporting. Do NOT report anything already handled in the code
   as it exists now${handled.length ? ', and do NOT re-report anything in the ALREADY FOUND list below (even rephrased)' : ''}.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
-- Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.
-- Each finding: specific file + line, the right category/severity, what's wrong and why it matters in
-  production, and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass (do NOT re-report):\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
+${NO_CREEP_RULE}
+- Each finding: specific file + line, the right category/severity, what's wrong and why it matters${MATTERS},
+  and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass (do NOT re-report):\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO findings, WRITE the file ${issueFile(unit.id)} (create
 ${ISSUES_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
@@ -198,7 +220,9 @@ Return findings via the schema. An empty findings array means this unit is clean
 const verifyPrompt = (unit, items) => `
 You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
 each candidate finding below, inspect the ACTUAL code in the repo to confirm it is real, correct its
-severity, then route it with the decision matrix. Reject false positives and gold-plating ruthlessly —
+severity, then route it with the decision matrix. Reject ${ALLOW_IMPROVEMENTS
+  ? 'ruthlessly anything the code ALREADY does, anything whose claimed benefit you cannot substantiate from the code in front of you, and anything that is a matter of taste'
+  : 'false positives and gold-plating ruthlessly'} —
 a noisy inventory wastes the user's triage time and the fixer's context.
 ${ENV}
 UNIT: ${unit.id}
@@ -209,12 +233,16 @@ DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
   effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
   blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
-  scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
+  scope        : ${ALLOW_IMPROVEMENTS
+    ? 'in-scope (makes something that EXISTS work better) | scope-creep (invents a new capability, or is a preference with no demonstrated cost)'
+    : 'in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)'}
   architectural: true if it questions a design/structural decision
 
 ROUTING (apply in order; first match wins):
   - is_real == false                       -> REJECT
-  - scope == scope-creep                   -> REJECT (note why; do not pursue)
+  - scope == scope-creep                   -> ${ALLOW_IMPROVEMENTS
+    ? 'REJECT only if it invents a NEW capability or rests on taste alone; if it improves something that already exists and you can name the concrete cost it removes, score it in-scope instead and continue down this list'
+    : 'REJECT (note why; do not pursue)'}
   - architectural == true                  -> NEEDS_USER (the user must decide design direction; fill options + recommendation)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch; the user plans it)
