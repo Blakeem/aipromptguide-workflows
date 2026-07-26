@@ -1,7 +1,7 @@
 export const meta = {
   name: 'decide-cycle',
   description: 'Convergent decision, lean/file-bus design: fan out ONE analyst per lens (each finds + scores the best option through its lens, written to its own file), then a DECIDER funnels them into one conclusion via a global weighted decision matrix that pulls in the best of each, and a NON-BLIND adversarial reviewer checks that conclusion against the fixed requirements — looped until decider and reviewer agree. The harness only routes paths + verdicts; rich content lives in files.',
-  whenToUse: 'Have the AI reach a JUSTIFIED conclusion among approaches, weighing real trade-offs. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria — the rubric both the decider and reviewer judge against) in PLAN MODE, approves them with the user, picks the LENSES (e.g. efficiency, simplest, robustness, best-practice), then runs this engine. It diverges into lensed option-generation, then converges via decider ⇄ review loop. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to BUILD the chosen approach use feature-cycle.',
+  whenToUse: 'Have the AI reach a JUSTIFIED conclusion among approaches, weighing real trade-offs. Set selection:"ranked" instead when the answer is legitimately a PORTFOLIO rather than a choice — "give me the best N, I will pick or combine" — e.g. ranking a large pool of candidates surfaced by many agents over a big corpus; same matrix, same citation discipline, same adversarial review, but the output is an ordered shortlist with combine/exclusive notes and no single winner. The main agent authors the REQUIREMENTS (non-negotiable constraints + weighted criteria — the rubric both the decider and reviewer judge against) in PLAN MODE, approves them with the user, picks the LENSES (e.g. efficiency, simplest, robustness, best-practice), then runs this engine. It diverges into lensed option-generation, then converges via decider ⇄ review loop. To explore open-ended creative variations for a HUMAN to pick (no AI verdict) use brainstorm-cycle; to BUILD the chosen approach use feature-cycle.',
   phases: [
     { title: 'Diverge', detail: 'One analyst per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2–4 options, scores them under its lens, recommends one, and writes lenses/<lens>.md. Returns a thin index.' },
     { title: 'Decide', detail: 'The decider reads the requirements + every lens file (+ the latest review), combines the best elements, builds a GLOBAL weighted decision matrix enforcing the non-negotiables — every cell citing its lens evidence or marked own-judgment — picks the winner, and writes decision-rN.md. Returns the choice + a meets-all-requirements flag.' },
@@ -31,6 +31,23 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const CONTEXT     = A.context ?? '';                       // short extra framing (domain facts the agents won't know)
 const TESTBED     = A.testbed ?? '';                       // OPTIONAL: how agents may empirically test claims (e.g. a read-only sqlite db + how to query it)
 const MAX_ROUNDS  = A.maxRounds ?? 3;                       // decider ⇄ reviewer rounds before "needs-attention"
+
+// SELECTION — what the decider is asked to produce.
+//   'single' (default) : ONE justified winner + why-not-each-runner-up. The normal decision.
+//   'ranked'           : a RANKED SHORTLIST of the strongest options, no single winner, with what each
+//                        buys and costs and which of them combine. Use when the answer is legitimately
+//                        a portfolio rather than a choice — "give me the best N, I'll pick" — e.g.
+//                        ranking a large pool of candidates surfaced by many agents over a big corpus.
+// Both modes run the SAME weighted matrix with the same citation discipline (#14) and the same
+// adversarial review; only the shape of the conclusion (and what the reviewer checks) differs. In
+// 'single' the decider may still build a HYBRID that combines the best of several lenses — that has
+// always been in scope and is not what 'ranked' is for.
+const SELECTION   = A.selection ?? 'single';
+if (SELECTION !== 'single' && SELECTION !== 'ranked') {
+  throw new Error(`args.selection must be 'single' (one justified winner — the default) or 'ranked' (a ranked shortlist, no single winner); got "${SELECTION}".`);
+}
+const RANKED      = SELECTION === 'ranked';
+const SHORTLIST_N = Math.max(2, A.shortlist ?? 5);          // ranked only: how many to carry on the list
 
 // Per-role model tiers + OPTIONAL custom subagent types. Decider + reviewer are opus (high stakes);
 // the per-lens analysts are the fast tier by default.
@@ -89,10 +106,26 @@ const ANALYST_SCHEMA = {
 
 const DECIDE_SCHEMA = {
   type: 'object',
-  required: ['chosen', 'meets_all_requirements', 'needs_user'],
+  required: RANKED ? ['chosen', 'shortlist', 'meets_all_requirements', 'needs_user'] : ['chosen', 'meets_all_requirements', 'needs_user'],
   properties: {
-    chosen:                 { type: 'string', description: 'short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)' },
-    meets_all_requirements: { type: 'boolean', description: 'true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)' },
+    chosen:                 { type: 'string', description: RANKED ? 'short title of the RANK-1 option (the list itself is in the file)' : 'short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)' },
+    ...(RANKED ? {
+      shortlist: {
+        type: 'array',
+        description: 'the ranked shortlist, best first — an INDEX only; the reasoning and matrix live in the decision file',
+        items: {
+          type: 'object',
+          required: ['rank', 'title'],
+          properties: {
+            rank:  { type: 'integer', description: '1 = strongest' },
+            title: { type: 'string' },
+            combines_with: { type: 'array', items: { type: 'integer' }, description: 'ranks of the other listed options this genuinely composes with' },
+            excludes:      { type: 'array', items: { type: 'integer' }, description: 'ranks of listed options that are MUTUALLY EXCLUSIVE with this one' },
+          },
+        },
+      },
+    } : {}),
+    meets_all_requirements: { type: 'boolean', description: RANKED ? 'true if EVERY option on the shortlist satisfies every non-negotiable (any that does not must be off the list, not ranked last)' : 'true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)' },
     open_questions:         { type: 'integer', description: 'count of unresolved points you noted in the decision file (0 if none)' },
     needs_user:             { type: 'boolean', description: 'true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
   },
@@ -138,8 +171,12 @@ terse. Do NOT modify any repo, stage, or commit.
 Return wrote_file + top_pick via the schema (the analysis itself is the file).`;
 
 const decidePrompt = (round, reviewPath) => `
-You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted
-decision matrix that pulls in the best elements of each lens where they compose.
+You are the DECIDER. Converge the lensed analyses into ${RANKED
+    ? `a RANKED SHORTLIST of the strongest options (up to ${SHORTLIST_N}) via a global weighted decision
+matrix. You are NOT picking one winner — the user wants the best options in order, to choose among or
+combine. Rank honestly; do not pad the list to reach ${SHORTLIST_N}.`
+    : `ONE justified conclusion via a global weighted
+decision matrix that pulls in the best elements of each lens where they compose.`}
 ${ENV}
 LENS ANALYSES — read each VERBATIM (these are your inputs):
 ${LIVE.map((l) => `  - ${lensFile(l.id)}  (lens: ${l.focus})`).join('\n')}
@@ -157,13 +194,24 @@ PROCEDURE:
    GROUND every cell (#14): cite the lens evidence behind the score (lens + the specific claim); where
    none exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence" — never
    fabricate a citation.
-3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
+${RANKED
+    ? `3. RANK the strongest options by weighted total, best first, up to ${SHORTLIST_N}. An option that
+   violates a non-negotiable is OFF the list entirely — never ranked last. For EACH listed option give:
+   what it BUYS, what it COSTS, and its rank rationale (why it sits above the one below it). Then state
+   which listed options genuinely COMBINE and which are MUTUALLY EXCLUSIVE — a shortlist the user cannot
+   safely mix is a trap. Do NOT pad: a list of three real options beats ${SHORTLIST_N} with filler, and
+   if one option truly dominates, say so plainly at rank 1 rather than manufacturing rivals.
+WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed): the matrix (table, all candidates scored),
+then the RANKED SHORTLIST — one block per option with buys / costs / rank rationale — then a
+"Combine / exclude" section, then anything you considered and left OFF the list with one line why, then
+any open questions. Do NOT modify any repo, stage, or commit.`
+    : `3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
    Confirm it satisfies every non-negotiable and criterion; note any residual risk or follow-up.
 WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed): the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
+with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.`}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to ${NEEDS_USER} and set needs_user=true (the run HALTS).
-Return chosen + meets_all_requirements + open_questions + needs_user via the schema.`;
+Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — titles + rank + combines_with/excludes; the reasoning stays in the file)' : ''} + meets_all_requirements + open_questions + needs_user via the schema.`;
 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not argument evaluation): the reviewer
 // MUST see the decision + requirements to judge them. It does NOT read prior review files (that would
@@ -171,11 +219,11 @@ Return chosen + meets_all_requirements + open_questions + needs_user via the sch
 // instruction-based, not placement-based (#3): prior reviews share STATE_DIR, an accepted trade-off
 // vs. per-round directories.
 const reviewPrompt = (round) => `
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion: find any requirement it misses,
-any unsupported leap in the matrix, any clearly-better option it overlooked, any non-negotiable it
-violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'}: find any
+requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
+non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
 ${ENV}
-THE DECISION TO REVIEW (read it verbatim): ${decisionFile(round)}
+THE ${RANKED ? 'SHORTLIST' : 'DECISION'} TO REVIEW (read it verbatim): ${decisionFile(round)}
 THE LENS ANALYSES it drew on (cross-check its claims against these): ${LIVE.map((l) => lensFile(l.id)).join(', ')}
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
 
@@ -185,11 +233,21 @@ CHECK, against the requirements rubric:
    cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
    "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
    assertion is a gap. Re-derive any score that looks generous.
-3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
-4. The "why not others" honest, or does it strawman the runners-up?
+${RANKED
+    ? `3. A clearly stronger option the decider left OFF the list, or never considered?
+4. Is the ORDER defensible? Name any option that dominates the one ranked above it, and any pair whose
+   ranking the matrix does not actually support. Is anything on the list padding — a filler option that
+   should not be there at all?
+5. Are the COMBINE / MUTUALLY-EXCLUSIVE claims right? Two items sold as combinable that actually
+   conflict is the most damaging error this list can carry — check each claimed pair against the lens
+   evidence. Any option on the list violating a non-negotiable is an automatic NOT agree (it should
+   have been excluded, not ranked).`
+    : `3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
+4. The "why not others" honest, or does it strawman the runners-up?`}
 WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, "Conclusion holds: every
-requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+reference to the requirement or lens evidence it rests on — or, if sound, ${RANKED
+    ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
+    : '"Conclusion holds: every requirement met, matrix sound."'} Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.
 Return agree + gap_count + needs_user via the schema.`;
 
@@ -197,7 +255,7 @@ Return agree + gap_count + needs_user via the schema.`;
 // DIVERGE — fan out one analyst per lens, concurrently (read-only, write own lens file).
 // =============================================================================
 phase('Diverge');
-log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [maxRounds=${MAX_ROUNDS}]`);
+log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [selection=${SELECTION}${RANKED ? ` (top ${SHORTLIST_N})` : ''}, maxRounds=${MAX_ROUNDS}]`);
 const analysts = await parallel(LENSES.map((lens) => () =>
   agent(analystPrompt(lens), roleOpts('analyst', {
     schema: ANALYST_SCHEMA, phase: 'Diverge', label: `analyst:${lens.id}`,
@@ -217,6 +275,7 @@ let round = 0, agreed = false, halted = false, haltReason = '';
 let reviewPath = '';            // latest review the decider must address (control: a path only)
 let lastReviewFile = '';        // latest review written, agreeing or not (surfaced in the return)
 let lastChosen = '';
+let lastShortlist = [];         // ranked mode: the ordered index the decider returned (reasoning is in the file)
 
 while (round < MAX_ROUNDS) {
   round++;
@@ -228,12 +287,17 @@ while (round < MAX_ROUNDS) {
   }));
   if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
   lastChosen = dec.chosen || lastChosen;
+  if (RANKED && Array.isArray(dec.shortlist) && dec.shortlist.length) {
+    lastShortlist = [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  }
   if (dec.needs_user === true) {
     halted = true; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: decider escalated → halting (see ${NEEDS_USER})`);
     break;
   }
-  log(`  r${round}: chose "${dec.chosen || '?'}" (meets_all=${dec.meets_all_requirements}, open_q=${dec.open_questions ?? 0})`);
+  log(RANKED
+    ? `  r${round}: shortlisted ${lastShortlist.length} option(s), rank 1 = "${dec.chosen || '?'}" (meets_all=${dec.meets_all_requirements}, open_q=${dec.open_questions ?? 0})`
+    : `  r${round}: chose "${dec.chosen || '?'}" (meets_all=${dec.meets_all_requirements}, open_q=${dec.open_questions ?? 0})`);
 
   // ---- REVIEW (non-blind, adversarial) -------------------------------------
   phase('Review');
@@ -266,7 +330,9 @@ return {
   status,
   agreed,
   halted,
+  selection: SELECTION,
   chosen: lastChosen,
+  ...(RANKED ? { shortlist: lastShortlist } : {}),
   rounds: round,
   stateDir: STATE_DIR,
   decisionFile: round ? decisionFile(round) : '',
@@ -278,6 +344,8 @@ return {
   nextStep: halted
     ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then re-invoke with the same runId to continue.`
     : agreed
-      ? `Present the conclusion: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, hand it to feature-cycle.`
+      ? (RANKED
+        ? `Present the SHORTLIST: relay ${decisionFile(round)} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, hand it to feature-cycle (several picks become its plans[] roadmap).`
+        : `Present the conclusion: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, hand it to feature-cycle.`)
       : `No agreement within ${MAX_ROUNDS} rounds. Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user — the gap is usually an under-specified requirement; refine the requirements and re-run, or raise maxRounds.`,
 };
