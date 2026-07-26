@@ -1,12 +1,12 @@
 export const meta = {
   name: 'resolve-cycle',
-  description: 'Batched fix loop over a triaged issue inventory, lean/file-bus design. The main agent supplies the approved issues (from the sibling review.mjs, or hand-authored from live/manual testing); this engine batches them by area/LOC and runs fix → BLIND pure-code review (catches anything the fix broke) → issue-aware acceptance (re-derives each defect\'s root cause, confirms it is fully closed + no regression, stages on pass), looped per batch. A failed batch rolls back to the staged baseline; an optional sweep brackets the run. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  description: 'Batched fix loop over a triaged issue inventory, lean/file-bus design. The main agent supplies the approved issues (from the sibling review.mjs, or hand-authored from live/manual testing); this engine batches them by area/LOC and runs fix → BLIND pure-code review (catches anything the fix broke) → issue-aware acceptance (re-derives each defect\'s root cause, confirms it is fully closed + no regression, stages on pass), looped per batch. A failed batch is PARKED — its work is saved to a patch file, then cleared from the tree so the next batch starts clean; nothing is discarded. An optional sweep brackets the run. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
   whenToUse: 'Fix a verified, triaged issue inventory in one target git repo. Findings come from the sibling review.mjs OR from live/manual testing, a bug bash, or user reports (you hand-author runs/<runId>/issues/<unit>.md in the verifier format). The main agent greps the ACTIONABLE issues into args.issues, ensures a clean/staged baseline, then runs this engine with the SAME runId + root as review.mjs: it batches by area/LOC and fixes each batch behind a two-stage review (BLIND quality, then issue-aware acceptance), staging accepted work. Nothing is ever committed.',
   phases: [
     { title: 'Fix', detail: 'Fixer reads its batch\'s issue file(s) verbatim, verify-first, fixes minimally, runs gates, leaves work UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no issue text), flags defects the fix introduced or broke. Must be clean to proceed.' },
     { title: 'Acceptance', detail: 'Issue-aware gate: re-derives each claimed fix\'s root cause from current code, confirms it is fully closed + no regression + gates green. Writes acceptance-review; on pass, STAGES the batch.' },
-    { title: 'Rollback', detail: 'On terminal batch failure only: restores the batch to the staged baseline so the next batch starts from a clean diff; its issues are marked needs-attention.' },
+    { title: 'Park', detail: 'On terminal batch failure only: SAVES the batch\'s work to parked-<batch>.patch, then clears it from the tree so the next batch starts from a clean diff. Nothing is destroyed; the batch is recorded in NEEDS-USER.md for the user to restore, retry, or drop.' },
     { title: 'Sweep', detail: 'Optional final accounting: full gates, staged-diff spot-check, every issue has a terminal status. Writes SWEEP.md.' },
   ],
 };
@@ -79,6 +79,8 @@ const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
 const qualityFile    = (batchId, r) => `${STATE_DIR}/quality-review-${slug(batchId)}-r${r}.md`;
 const acceptanceFile = (batchId, r) => `${STATE_DIR}/acceptance-review-${slug(batchId)}-r${r}.md`;
 const dismissedFile  = (batchId) => `${STATE_DIR}/DISMISSED-${slug(batchId)}.md`;   // terse ledger; fixer → reviewers (anti-spin)
+const parkedPatch    = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}.patch`;    // a failed batch's work, saved before the tree is cleared
+const parkedNewDir   = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}-newfiles`; // untracked files the patch could not carry (rare)
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;                                // full detail; for the user (may halt the run)
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;
 
@@ -154,13 +156,15 @@ const ACCEPTANCE_SCHEMA = {
   },
 };
 
-const ROLLBACK_SCHEMA = {
+const PARK_SCHEMA = {
   type: 'object',
-  required: ['reverted', 'gates_green'],
+  required: ['saved', 'cleared', 'gates_green'],
   properties: {
-    reverted: { type: 'boolean', description: 'true if the batch files were restored to the staged baseline and created files deleted' },
-    gates_green: { type: 'boolean', description: 'true if the gates pass again after the revert (the tree is clean for the next batch)' },
-    files_restored: { type: 'array', items: { type: 'string' } },
+    saved: { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree.' },
+    cleared: { type: 'boolean', description: 'true if the batch work was then removed from the working tree and `git diff` is empty' },
+    gates_green: { type: 'boolean', description: 'true if the gates pass again after clearing (the tree is clean for the next batch)' },
+    patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
+    files_parked: { type: 'array', items: { type: 'string' } },
     notes: { type: 'string' },
   },
 };
@@ -330,19 +334,45 @@ each gap — or "All fixes close their root cause; no regression." Then DECIDE:
   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next fix round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
 
-const rollbackPrompt = (batch) => `
-You are restoring the git baseline after a batch FAILED to pass within its round budget. The accepted
-baseline is STAGED; this batch's unsuccessful work is UNSTAGED and must be removed so the next batch
-starts from a clean diff.
+const parkPrompt = (batch, lastReviewPath) => `
+You are PARKING a batch that FAILED to pass within its round budget. Its work is NOT thrown away: you
+SAVE it to a patch file, then clear it from the working tree so the NEXT batch starts from a clean diff
+(the reviewers scope on the unstaged diff — leftover work would be attributed to the next batch and
+cascade failures). The accepted baseline is STAGED and must survive untouched.
 ${ENV}
 ${STAGING}
 BATCH ${batch.id}. Files this batch touched: ${[...new Set(batch.issues.map((i) => i.file))].join(', ')}
+Issue ids: ${batch.issues.map((i) => i.id).join(', ')}
+
+SAVE BEFORE YOU CLEAR — never the other way round. If step 1 does not produce a non-empty patch, STOP:
+leave the tree exactly as it is and return saved=false, cleared=false.
+
 PROCEDURE:
-1. \`git -C ${REPO} status --porcelain\` to see the unstaged + untracked changes.
-2. Restore every tracked file this batch modified to the staged baseline: \`git -C ${REPO} checkout -- <files>\`.
-   Delete any file this batch CREATED (untracked, and any \`git add -N\` intent-to-add entries).
-3. Confirm \`git -C ${REPO} diff\` is EMPTY (clean tree) and run the GATES to confirm they are green again.
-Do NOT touch the staged baseline or any file outside this batch. Return reverted + gates_green via the schema.`;
+1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
+   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
+   Otherwise write the batch's work to ${parkedPatch(batch.id)} (create ${STATE_DIR}/ if needed):
+     \`git -C ${REPO} diff --binary > ${parkedPatch(batch.id)}\`
+   \`--binary\` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
+   unstaged diff IS exactly this batch's work, and files the fixer created are in it via \`git add -N\`.
+   Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
+2. CATCH STRAYS. If \`git status --porcelain\` still lists any \`??\` untracked file this batch created
+   (the fixer missed its \`git add -N\`), COPY those files into ${parkedNewDir(batch.id)}/ preserving
+   relative paths — the patch cannot carry them. Skip build output and caches.
+3. CLEAR. Restore every tracked file this batch modified to the staged baseline:
+   \`git -C ${REPO} checkout -- <files>\`. Delete the files this batch CREATED (untracked + any
+   \`git add -N\` intent-to-add entries) — they are safe in the patch now. Confirm \`git -C ${REPO} diff\`
+   is EMPTY, then run the GATES and record whether they are green again.
+4. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked batch: ${batch.id}\` heading:
+   - the issue ids above, and that they remain **OPEN and undecided — this is a status record, NOT a
+     dismissal**; nobody should treat these as settled or skip them because of this entry
+   - one line on why it was parked (which gate never passed)
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : 'the last review file for this batch in ' + STATE_DIR}
+   - the saved work: \`${parkedPatch(batch.id)}\`${''}
+   - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(batch.id)}\`
+   - the user's options: restore and finish by hand · re-run resolve scoped to these ids (the fix
+     instructions can be sharpened in the issue file first) · drop the patch
+Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this batch.
+Return saved + cleared + gates_green + patch_bytes via the schema.`;
 
 const sweepPrompt = (counts) => `
 You are the FINAL SWEEP. Every batch has been processed. Verify the campaign's end state honestly.
@@ -455,7 +485,7 @@ for (const batch of batches) {
     const claimedFixed = [...fixedIds].map((id) => batch.issues.find((i) => i.id === id)).filter(Boolean);
     const produced = (fix?.results || []).some((r) => r.status === 'FIXED' || r.status === 'FAILED');
 
-    // Nothing produced this round + gates green: no changes to review, stage, or roll back. Truly
+    // Nothing produced this round + gates green: no changes to review, stage, or park. Truly
     // all-stale is a clean outcome; an all-SKIPPED batch is not (its issues stay needs-attention).
     if (!produced && gateMet) {
       allStale = true;
@@ -503,15 +533,25 @@ for (const batch of batches) {
     log(`  ↻ ${batch.id} r${round}: acceptance found ${acc?.gap_count ?? bad.length} gap(s)${acc?.regression ? ' [REGRESSION]' : ''} → fix addresses ${reviewPath}`);
   }
 
-  // ---- Terminal-failure rollback: restore the batch so the next one starts clean ----------------
+  // ---- Terminal-failure PARK: save the batch's work, then clear the tree for the next batch ------
+  // Non-destructive by design: the work goes to parked-<batch>.patch and the batch is recorded in
+  // NEEDS-USER.md. The tree MUST end clean — the reviewers scope on the unstaged diff, so leftover work
+  // would be read as the next batch's and cascade. If it does not end clean, the run halts.
   if (!accepted && !allStale && !halted) {
-    phase('Rollback');
-    const rb = await agent(rollbackPrompt(batch), roleOpts('fix', {
-      schema: ROLLBACK_SCHEMA, phase: 'Rollback', label: `rollback:${batch.id}`,
+    phase('Park');
+    const pk = await agent(parkPrompt(batch, reviewPath), roleOpts('fix', {
+      schema: PARK_SCHEMA, phase: 'Park', label: `park:${batch.id}`,
     }));
-    record.status = 'needs-attention (reverted)';
-    log(`  ⚠ ${batch.id}: round budget exhausted — reverted to baseline (reverted=${rb?.reverted}, gates=${rb?.gates_green ? 'green' : 'RED'}), issues marked needs-attention`);
-    if (rb?.gates_green === false) { halted = true; blockerReason = `Gates not green after rolling back ${batch.id}; tree unsafe for the next batch.`; }
+    record.status = 'parked';
+    record.patch = pk?.saved === true ? parkedPatch(batch.id) : null;
+    log(`  ⚠ ${batch.id}: round budget exhausted — PARKED (work saved to ${record.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, gates ${pk?.gates_green ? 'green' : 'RED'}); issues stay open — see ${NEEDS_USER}`);
+    if (pk?.cleared !== true) {
+      halted = true;
+      blockerReason = `${batch.id} could not be cleared from the working tree${pk?.saved === true ? ` (its work IS saved to ${parkedPatch(batch.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for the next batch.`;
+    } else if (pk?.gates_green === false) {
+      halted = true;
+      blockerReason = `Gates not green after parking ${batch.id}; tree unsafe for the next batch.`;
+    }
   }
   if (record.status === 'pending') record.status = 'needs-attention (loop end)';
 
@@ -531,7 +571,7 @@ for (const batch of batches) {
 
 // ---- Optional final sweep --------------------------------------------------------------------
 // (Kept although feature-cycle's roadmap omits its sweep: resolve batches ROLL BACK and continue, so the
-// end state mixes accepted + reverted batches — the sweep's full-gate run + accounting reconciles it.)
+// end state mixes accepted + parked batches — the sweep's full-gate run + accounting reconciles it.)
 let sweep = null;
 const processedAll = !halted && ledger.length === batches.length;
 if (A.finalSweep !== false && processedAll) {
@@ -557,12 +597,15 @@ return {
   summary: {
     batchesProcessed: ledger.length,
     batchesAccepted: ledger.filter((r) => r.status === 'accepted' || r.status === 'all-stale').length,
+    batchesParked: ledger.filter((r) => r.status === 'parked').length,
     issuesFixed: ledger.reduce((s, r) => s + r.fixed, 0),
     issuesStale: ledger.reduce((s, r) => s + r.stale, 0),
     issuesNeedsAttention: ledger.reduce((s, r) => s + r.needsAttention, 0),
   },
-  ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, gates: r.gates })),
+  // Parked batches: their work is SAVED, not lost. Present these to the user with the patch path.
+  parked: ledger.filter((r) => r.status === 'parked').map((r) => ({ id: r.id, patch: r.patch, issues: r.perIssue.map((p) => p.id) })),
+  ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, gates: r.gates, patch: r.patch ?? null })),
   followups: halted
     ? `Run halted — ${blockerReason} Resolve it with the user, then re-invoke resolve-cycle.mjs with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged).`
-    : `Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (gaps!)` : ''}. needs-attention batches were rolled back to baseline — retry them interactively with their acceptance-review file as context. Nothing is committed — you commit.`,
+    : `Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (gaps!)` : ''}. PARKED batches were saved to ${STATE_DIR}/parked-<batch>.patch and cleared from the tree — nothing was discarded; ${NEEDS_USER} lists each with its diagnosis and the \`git apply --3way\` restore command. Per parked batch the user decides: restore and finish by hand, re-run resolve scoped to its ids (sharpen the Fix lines first), or drop the patch. Nothing is committed — you commit.`,
 };
