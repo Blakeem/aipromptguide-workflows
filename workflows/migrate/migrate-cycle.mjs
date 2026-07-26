@@ -82,6 +82,8 @@ const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
 const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER SECTION
+const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a section's work, saved before the tree is cleared
+const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 
 // The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior
@@ -221,6 +223,72 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 // Shared prompt fragments + decision matrix (developer-owned)
 // =============================================================================
+// PARK — the terminal outcome for a section that did not accept, and for one the developer escalated.
+// Its work is SAVED to a patch and then CLEARED from the tree, so EVERY exit leaves a clean unstaged
+// tree — which is what lets the clean-baseline precondition be unconditional, including on resume.
+// UNLIKE feature-cycle, a parked section does NOT let the run continue: migrate's sections are an
+// ORDERED decomposition of ONE goal, so section N+1 routinely depends on N having landed. Parking here
+// buys a clean, buildable tree and a saved patch — not a continued run.
+const PARK_SCHEMA = {
+  type: 'object',
+  required: ['saved', 'cleared', 'gates_green'],
+  properties: {
+    saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree.' },
+    cleared:     { type: 'boolean', description: 'true if the work was then removed from the working tree and `git diff` is empty' },
+    gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing' },
+    patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
+    strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so.' },
+    notes:       { type: 'string' },
+  },
+};
+
+const parkPrompt = (section, lastReviewPath, escalated) => `
+You are PARKING the migration section "${section.id}", which ${escalated
+    ? `hit a BLOCKER the developer escalated to the user (see ${NEEDS_USER})`
+    : `did NOT reach acceptance within its round budget`}. The run stops after you either way — the
+sections after this one depend on it — but its work is NOT thrown away and NOT left lying in the
+working tree: you SAVE it to a patch, then clear the tree so the repo is in a known, buildable state the
+user can come back to (or run something else against) before resuming.
+TARGET REPO: ${REPO}
+STAGING CONTRACT:
+  • staged index + HEAD  = ACCEPTED sections (the baseline). Treat as known-good; do NOT touch.
+  • unstaged working tree = THIS section's unsuccessful work — the only thing you save and clear.
+  • Nothing is EVER committed.
+
+SAVE BEFORE YOU CLEAR — never the other way round. If step 1 does not produce a non-empty patch, STOP:
+leave the tree exactly as it is and return saved=false, cleared=false.
+
+PROCEDURE:
+1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
+   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
+   Otherwise: \`git -C ${REPO} diff --binary > ${parkedPatch(section.id)}\` (create ${STATE_DIR}/ if needed).
+   \`--binary\` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). Confirm the
+   file exists and is non-empty; record its size as patch_bytes.
+2. CATCH STRAYS. If \`git status --porcelain\` still lists any \`??\` untracked file this section created
+   (the developer missed its \`git add -N\`), COPY those into ${parkedNewDir(section.id)}/ preserving
+   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
+   strays_saved.
+3. CLEAR. \`git -C ${REPO} checkout -- <the tracked files this section modified>\`, then delete the files
+   it CREATED (untracked + \`git add -N\` intent-to-add entries). An intent-to-add file is safe because the
+   patch carries it; a \`??\` stray is safe ONLY because step 2 copied it. If step 2 did not copy a stray,
+   do NOT delete it. Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether
+   it is green.
+4. RECORD. Append ONE entry to ${NEEDS_USER} under a \`## Parked section: ${section.id}\` heading:
+   - that this section is **NOT done and NOT abandoned — a status record, not a dismissal** — and that
+     the sections after it were NOT attempted, because they depend on this one
+   - one line on why it was parked (${escalated ? 'the blocker the developer escalated' : 'what acceptance was still failing'})
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : 'the latest review file for this section in ' + STATE_DIR}
+   - the saved work: \`${parkedPatch(section.id)}\`
+   - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(section.id)}\`
+   - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(section.id)}/\`, listing
+     them, and telling the user to copy them back (preserving relative paths) as a SECOND step after the
+     \`git apply\`. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening that section of the plan if needed), then re-invoke with
+     \`startAt:"${section.id}"\` — applying the patch FIRST if the partial work is worth continuing from,
+     or leaving it so the developer redoes the section from the clean baseline
+Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this section's work.
+Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
+
 const ENV = `GOAL CONTEXT — this run drives ONE breadth-spanning goal, decomposed into ordered sections in the plan.
 TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
 ${REFERENCE_P ? `REFERENCE (a COMPLETED example of this kind of change — mine it for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
@@ -498,6 +566,9 @@ for (const section of pending) {
   const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
+  // An escalation leaves real work in the tree (park it); a dirty-baseline halt changed nothing
+  // and that work is the OPERATOR's (never park it).
+  let escalated = false;
   let round = 0;
 
   while (round < MAX_ROUNDS) {
@@ -528,6 +599,7 @@ for (const section of pending) {
     }
     if (dev?.needs_user === true) {
       halted = true;
+      escalated = true;
       haltReason = `Developer halted for a user-only decision in section ${section.id} round ${round} (see ${NEEDS_USER}).`;
       rec.status = 'BLOCKED (needs user)';
       log(`  ✋ ${section.id} r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
@@ -616,14 +688,35 @@ for (const section of pending) {
     continue;
   }
 
-  // Not accepted (and not already a needs-user halt): HALT the run. The staging boundary means we
-  // cannot start the next section while this one's work is unstaged. Resume re-runs THIS section on
-  // its persisted unstaged work.
-  if (!halted) {
-    halted = true;
-    rec.status = 'needs-attention (round budget exhausted)';
-    haltReason = `Section ${section.id} did not reach acceptance within ${MAX_ROUNDS} rounds (see ${reviewPath || acceptanceFile(section.id, round)}). Its work is UNSTAGED; resolve with the user, then resume from this section.`;
-    log(`  ✋ ${section.id}: not accepted within ${MAX_ROUNDS} rounds → halting run (staging boundary)`);
+  // ---- PARK, then halt ---------------------------------------------------------------------------
+  // Reached on either terminal outcome: round budget exhausted, or a developer escalation. The run stops
+  // either way (later sections depend on this one), but the section's work is SAVED to a patch and the
+  // tree is CLEARED — leaving the repo buildable and clean, which is also what makes the clean-baseline
+  // precondition correct on the resume. NOT reached on a dirty-baseline halt: nothing was changed there
+  // and the work in the tree is the operator's, so parking it would take their changes hostage.
+  if (!(halted && !escalated)) {
+    if (!halted) {
+      halted = true;
+      rec.status = 'parked (not accepted within round budget)';
+      haltReason = `Section ${section.id} did not reach acceptance within ${MAX_ROUNDS} rounds (see ${reviewPath || acceptanceFile(section.id, round)}).`;
+      log(`  ✋ ${section.id}: not accepted within ${MAX_ROUNDS} rounds → parking its work, then halting`);
+    }
+    phase('Park');
+    const pk = await agent(parkPrompt(section, reviewPath || acceptanceFile(section.id, round), escalated), roleOpts('develop', {
+      schema: PARK_SCHEMA, phase: 'Park', label: `park:${section.id}`,
+    }));
+    const strays = pk?.strays_saved ?? 0;
+    const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
+    rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(section.id) : null;
+    if (strays > 0) rec.strays = parkedNewDir(section.id);
+    log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}`);
+    if (contradictory) {
+      haltReason += ` Park reported saved=false while writing ${pk.patch_bytes} bytes to ${parkedPatch(section.id)} — the report contradicts itself; the patch is real, inspect it before resuming.`;
+    } else if (pk?.cleared !== true) {
+      haltReason += ` Its work could NOT be cleared from the tree${pk?.saved === true ? ` (it IS saved to ${parkedPatch(section.id)})` : ' and was NOT saved — the tree still holds it'}; clean the tree yourself before resuming.`;
+    } else {
+      haltReason += ` Its work is SAVED to ${parkedPatch(section.id)} and the tree is CLEAN; resolve with the user, then resume from this section.`;
+    }
   }
   ledger.push(rec);
   break;
@@ -672,7 +765,7 @@ return {
   ledger,
   reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<section>-rN.md, acceptance-review-<section>-rN.md) show every iteration; git staging marks each accepted section.`,
   followups: halted
-    ? `Run halted — read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, confirm the tree still holds that section's in-progress UNSTAGED work, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly).`
+    ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply it first only if the partial work is worth continuing from; otherwise the developer redoes that section from the clean baseline.`
     : allDone
       ? `All sections done. Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
       : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`,
