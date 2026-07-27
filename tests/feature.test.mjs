@@ -184,6 +184,20 @@ section('phase:"refine" refuses a roadmap-shaped args object');
   ok(/Fold the gap fixes/.test(out.nextStep), 'nextStep routes the gaps back into the plan file');
 }
 
+section('a dead plan critic throws — a review that never happened is not a clean plan');
+// `verdict: critique?.verdict ?? 'ready'` made a dead critic byte-identical to a clean one: verdict
+// "ready", 0 gaps, 0 questions, nextStep "Plan is sound". Refine is the ONLY gate on a plan before an
+// autonomous developer builds against it, so that laundering did not degrade the review — it deleted it
+// and reported success. The engine already guards the adjacent case (a critic spawned against an empty
+// plan reference, above); this is the same bad outcome reached by the other door.
+{
+  const msg = await throwsWith(ENGINE, {
+    args: { ...baseArgs, phase: 'refine', planPath: 'plans/one.md' },
+    respond: { 'plan-critic': null },
+  });
+  ok(/skipped or died/.test(msg), `dead plan critic throws instead of reporting ready: ${msg.slice(0, 60)}`);
+}
+
 section('required args throw rather than silently defaulting');
 {
   const cases = [

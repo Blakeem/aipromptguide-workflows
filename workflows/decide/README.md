@@ -28,6 +28,9 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) next.
 
 For open-ended creative options a *human* picks (no AI verdict), use [`brainstorm-cycle`](../brainstorm/).
+When the answer probably **already exists** and the work is finding it and proving it meets fixed
+pass/fail requirements, use [`investigate-cycle`](../investigate/) — decide *generates* options and weighs
+them, investigate *searches* for one and qualifies it.
 
 ---
 
@@ -37,6 +40,8 @@ For open-ended creative options a *human* picks (no AI verdict), use [`brainstor
   architecture or pattern choice, build-vs-buy, data-model or algorithm selection.
 - ❌ **One obvious answer / a reversible coin-flip:** just decide.
 - ❌ **You want options, not a verdict:** use [`brainstorm-cycle`](../brainstorm/).
+- ❌ **You already believe an answer exists and want it found and qualified:** use
+  [`investigate-cycle`](../investigate/).
 - ❌ **You want it built:** use [`feature-cycle`](../feature/).
 
 ---

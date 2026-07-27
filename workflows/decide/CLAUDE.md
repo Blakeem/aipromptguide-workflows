@@ -17,6 +17,13 @@ small (one obvious answer, or a reversible coin-flip) → just decide and move o
 options for a *human* to pick with no AI verdict → **`brainstorm-cycle`**. Want to *build* the chosen
 approach → **`feature-cycle`**.
 
+**Believe the answer already EXISTS and just needs finding → `investigate-cycle`.** That is the adjacent
+workflow most often reached for by mistake. Decide *generates* options through lenses and weighs them;
+investigate *searches* for something that already exists and qualifies it against pass/fail criteria,
+keeping a ledger of what failed so each round diverges, until it can evidence nothing was left unsearched.
+The tell is your requirements: if you want to trade criterion A off against criterion B, you want the
+weighted matrix here. If missing A is simply disqualifying, you want investigate.
+
 **One winner, or a ranked shortlist?** `selection` (§8) picks the deliverable. Default `single`: one
 justified conclusion. Set `"ranked"` when the answer is legitimately a *portfolio* rather than a choice —
 "give me the best N, I'll pick or combine", e.g. ranking a large candidate pool surfaced by many agents
@@ -92,8 +99,9 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ the latest review);
   consolidates options, may build a hybrid, scores a **global weighted matrix** (non-negotiables forced
   to 0, **every cell citing its lens evidence or marked "own judgment, low-confidence"**, #14), picks
-  the winner with why-not-others, writes `decision-rN.md`. Owns escalation to `NEEDS-USER.md` (halts on
-  a hard blocker). In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
+  the winner with why-not-others, writes `decision-rN.md`. Escalates a user-only call to `NEEDS-USER.md`
+  (halts on a hard blocker) — **and so may the reviewer**, for a requirement contradiction (§7); those are
+  two distinct halt paths, not one. In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
   with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section —
   an option violating a non-negotiable is off the list entirely, and it is told not to pad.
 - **Reviewer** (review · opus) — **non-blind, adversarial**; reads the decision + requirements + lens

@@ -72,9 +72,12 @@ shows how many times each loop ran).
 What is forbidden is **narration about the run**: status files, run summaries, progress logs, "what I
 did" reports. What is written is exactly three things — the numbered inter-agent messages, the
 **ledgers and user notes** below, and the workflow's **own product output**, the thing the run exists
-to produce: `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, the docs set +
-`INDEX.md`, migrate's `SWEEP.md`, and a **parked patch** (`parked-<id>.patch`, plus a
-`parked-<id>-newfiles/` dir when needed). The rule bans reports, not products.
+to produce: `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
+`options/` + `DETERMINATION.md`, the docs set + `INDEX.md`, migrate's `SWEEP.md`, and a **parked patch**
+(`parked-<id>.patch`, plus a `parked-<id>-newfiles/` dir when needed). The rule bans reports, not
+products. (`DETERMINATION.md` earns its place the way migrate's `SWEEP.md` does: it holds the
+cross-option comparison and the coverage evidence, which no per-option file contains, and it links to
+`options/<id>.md` rather than restating them.)
 
 The teeth, so "product" can't be stretched to license a status file: a file that **restates numbers
 the harness already has** is narration however it is titled. That is precisely why `resolve-cycle`
@@ -91,6 +94,12 @@ The **developer's *only* outputs besides code** are two append files:
 - **`NEEDS-USER.md`** — user-facing notes: blockers, questions, and decisions only the user can make.
   These may be **as full as needed** for the user to decide. A *hard blocker* also halts the run
   (#7); a *flag-and-proceed* item is recorded and the developer continues with a defensible default.
+
+A **search-shaped** workflow carries a third ledger, on the same terms: investigate's
+**`DISQUALIFIED.md`** — one terse line per rejected candidate naming the criterion it fails. It is an
+inter-agent message like `DISMISSED-<id>.md` (each round's investigator reads it before searching, so the
+round diverges from what already failed) and it is the run's convergence mechanism, not a record of it.
+Its writers are strictly sequential, which is the only reason one shared append-only file is safe.
 
 The developer writes **no** "what I did" report — its code is its output (#8). Reviewers write **only**
 their numbered review files. Nothing outside this list is ever written.
@@ -175,11 +184,21 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
   at triage) is what makes its fix loop converge. A proposal list has no such property — there is always
   another enhancement — so a workflow that generates one stops at the inventory and hands it to a human.
   This is why enhance has no resolve sibling and writes to `proposals/`, never `issues/`.
-- **Convergence workflows** (the AI reaches a conclusion — e.g. decide) DO run a review loop in the
-  spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the requirements
-  it's judged against, because a reviewer blind to the decision can't evaluate it. Blindness (#3) guards
-  against *code-regression* anchoring; it is wrong for *evaluating an argument*. Such a loop converges
-  when reviewer and decider agree against a fixed requirements rubric, bounded by `maxRounds`.
+- **Convergence workflows** (the AI reaches a conclusion — e.g. decide, investigate) DO run a review loop
+  in the spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the
+  requirements it's judged against, because a reviewer blind to the decision can't evaluate it. Blindness
+  (#3) guards against *code-regression* anchoring; it is wrong for *evaluating an argument*. There are two
+  shapes, and **what converges** differs:
+  - **Argument** (decide): the loop converges when reviewer and decider **agree** against a fixed
+    requirements rubric, bounded by `maxRounds`. The candidate set is fixed by one up-front fan-out.
+  - **Search** (investigate): the loop converges on **coverage** — an evidenced claim that nothing
+    qualifying was left unsearched, which an adversarial critic may contest. Candidates are *found*
+    round by round rather than generated up front, and the ledger of what already failed is what makes
+    each round diverge instead of circling. Because the product is a claim about *absence*, such an
+    engine must keep its terminal states distinct: running out of rounds, running out of tokens, and
+    proving nothing can qualify are three different facts, and folding any pair together lets fatigue
+    masquerade as a proof. For the same reason every solo critical agent must **throw** when it returns
+    nothing — a dead searcher looks exactly like a completed one.
 
 ## Mechanics that follow from these
 
@@ -232,8 +251,9 @@ Use these as yes/no checks when reviewing any workflow against these principles:
 - [ ] Is there an **unbiased code review** that must pass **before** the plan-aware acceptance review?
       (#5)
 - [ ] Are the **only** files written the numbered inter-agent reviews, the developer's terse
-      `DISMISSED-<id>.md` ledger, full user-facing `NEEDS-USER.md`, and the workflow's **own product**
-      (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, docs set + `INDEX.md`,
+      `DISMISSED-<id>.md` ledger (or investigate's `DISQUALIFIED.md`), full user-facing `NEEDS-USER.md`,
+      and the workflow's **own product** (`issues/`, `proposals/`, `variations/`, `lenses/`, decision
+      files, investigate's `options/` + `DETERMINATION.md`, docs set + `INDEX.md`,
       migrate's `SWEEP.md`, a parked patch)? **Narration about the run** — any status, summary,
       progress, or "what I did" file, including one that merely restates numbers the harness already
       has — is a violation. (#6)

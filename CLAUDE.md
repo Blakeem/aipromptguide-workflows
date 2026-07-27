@@ -12,6 +12,7 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |
 | **Decide** among approaches — lensed analysis → weighted matrix → a justified conclusion, adversarially reviewed | `workflows/decide/CLAUDE.md` |
+| **Investigate** — find an answer that already exists and qualify it against fixed pass/fail criteria, until nothing qualifying is left unsearched | `workflows/investigate/CLAUDE.md` |
 | Gather the **docs** a project needs — verbatim capture (web/repo/files) → curate + index into a working folder | `workflows/docs/CLAUDE.md` |
 | Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` + the `workflow-principles-auditor` agent |
 
@@ -19,14 +20,22 @@ Right-size first: trivial one-liner/rename → just edit, no workflow. Then by i
 bounded change → feature (several features → feature's `plans` array); one goal spanning many files →
 migrate; find production defects → debug.
 **Audit** (what a working system could do better; human triages) → enhance; **diverge** (creative options,
-human judges) → brainstorm; **converge** (AI concludes among options) → decide; **provision** (copy +
-curate the docs to build against) → docs. The last four are generative/read-only: no code, no staging, no
+human judges) → brainstorm; **converge** (AI concludes among options it generates) → decide; **search**
+(the answer already exists; find it and prove it meets fixed criteria) → investigate; **provision** (copy +
+curate the docs to build against) → docs. The last five are generative/read-only: no code, no staging, no
 commit (they honor only the core principles — see WORKFLOW-PRINCIPLES.md "Scope").
 
 **Defect vs. enhancement is the sharpest split here.** Something the system gets *wrong* → debug, whose
 inventory feeds an autonomous fixer. Something it could do *better* → enhance, which stops at proposals
 and never auto-applies. Keep them apart: an improvement list would not converge the way debug's closed
 inventory does.
+
+**Decide vs. investigate is the other one.** No established answer, and the work is *weighing trade-offs*
+among approaches the AI generates → decide, which converges on reviewer agreement about an argument. The
+answer is already out there, and the work is *finding it and proving it fits* → investigate, which
+converges on evidenced coverage. The tell: if you want to trade requirement A off against requirement B,
+that is decide's weighted matrix; if missing A is simply disqualifying, that is investigate's pass/fail
+gate.
 
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
 workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.

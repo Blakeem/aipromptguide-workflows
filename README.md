@@ -20,13 +20,21 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 | **[enhance](workflows/enhance/)** | `/aipg-enhance` | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
+| **[investigate](workflows/investigate/)** | `/aipg-investigate` | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg-docs` | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-The first three are **build** workflows (code, reviewed and staged). The last four are
-**generative/read-only**: proposals, creative options, a decision, or a curated doc set, with no code and
-nothing staged or committed. `debug` and `enhance` are the pair to keep straight. Something the system
-gets **wrong** is a defect, which debug fixes. Something it could do **better** is an enhancement, which
-enhance proposes and you decide on. All seven share the design rules in **[principles/](principles/)**:
+The first three are **build** workflows (code, reviewed and staged). The last five are
+**generative/read-only**: proposals, creative options, a decision, a determination, or a curated doc set,
+with no code and nothing staged or committed.
+
+Two pairs are worth keeping straight. `debug` and `enhance`: something the system gets **wrong** is a
+defect, which debug fixes; something it could do **better** is an enhancement, which enhance proposes and
+you decide on. `decide` and `investigate`: when no established answer exists and the work is **weighing
+trade-offs**, that's decide; when the answer is already out there and the work is **finding it and proving
+it fits**, that's investigate. The tell is whether missing a requirement is a trade-off or simply
+disqualifying.
+
+All eight share the design rules in **[principles/](principles/)**:
 the fourteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents) and an [auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow
 against them.
@@ -123,6 +131,31 @@ You only re-copy a command if a brand-new workflow is added, which is rare by de
 ## Changelog
 
 What's changed, newest first. Only what you'd notice while running them.
+
+### 2026-07-27
+
+- **New workflow: [investigate](workflows/investigate/)** (`/aipg-investigate`) — for the question "what
+  already exists that meets all of these requirements?". One investigator per round searches and
+  qualifies candidates against **pass/fail** criteria, reading a `DISQUALIFIED.md` ledger of everything
+  that already failed so each round diverges instead of circling, while an adversarial critic verifies
+  every surviving option and every citation. It stops when the search can be **evidenced** as complete,
+  not when the first answer works, and "nothing qualifies" is a verified answer rather than a failure.
+  Running out of rounds, running out of tokens, and proving nothing can qualify stay three separate
+  results. Use `decide` when the work is weighing trade-offs instead of finding what exists.
+- **A dead plan critic no longer reports your plan sound.** In `feature` and `migrate`, a `phase:"refine"`
+  critic that died returned verdict `ready`, zero gaps, and "Plan is sound" — byte-identical to a genuine
+  clean review. Since refine is the only gate before an autonomous developer builds against the plan, that
+  did not degrade the review, it deleted it and reported success. It now throws and tells you to resume.
+- **A dead final sweep no longer reads as zero coverage gaps.** `migrate`'s completeness sweep logged
+  "0 potential gap(s)" for a check that never ran, citing a `SWEEP.md` nothing wrote. It now says the
+  check is missing, and the new `sweepFailed` return field distinguishes a *died* sweep from one that was
+  legitimately skipped (partial slice, `finalSweep:false`). It deliberately does not fail the run — every
+  section is already staged.
+- **Documentation is now called out as a poor fit** for `feature` and `migrate`. The blind quality stage
+  has no defect class to find in prose and acceptance's reachability/regression checks don't apply, and
+  bundling docs with code is the most common reason a sound plan comes back too big. Write them directly,
+  then verify with a `debug` review pass under a doc-accuracy lens. Both guides also now say to size a
+  plan against a comparable artifact **before** writing it, rather than discovering it at refine.
 
 ### 2026-07-26
 

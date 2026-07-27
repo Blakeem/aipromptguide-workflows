@@ -442,17 +442,23 @@ if (PHASE === 'refine') {
   const critique = await agent(refinePrompt(), roleOpts('plan', {
     schema: REFINE_SCHEMA, phase: 'Refine', label: 'plan-critic',
   }));
-  const gaps = critique?.gaps || [];
-  const questions = critique?.questions || [];
-  log(`refine: verdict=${critique?.verdict ?? 'ready'} — ${gaps.length} gap(s), ${questions.length} question(s)${critique?.too_big ? ' [TOO BIG — split it]' : ''}`);
+  // A dead critic must NEVER read as a clean plan. Every field below would otherwise launder null into
+  // exactly that — verdict "ready", 0 gaps, 0 questions, nextStep "Plan is sound" — and since refine is
+  // the ONLY gate on a plan before the developer builds against it, the review would be DELETED rather
+  // than degraded, and reported as passed. Same bad outcome as the empty-plan-reference case guarded
+  // above, reached through the other door.
+  if (!critique) throw new Error('Plan critic returned nothing (agent skipped or died) — that is NOT a clean plan review. Re-invoke with the same args (same runId); pass the Workflow tool\'s resumeFromRunId to replay completed agents from cache.');
+  const gaps = Array.isArray(critique.gaps) ? critique.gaps : [];
+  const questions = Array.isArray(critique.questions) ? critique.questions : [];
+  log(`refine: verdict=${critique.verdict ?? 'ready'} — ${gaps.length} gap(s), ${questions.length} question(s)${critique.too_big ? ' [TOO BIG — split it]' : ''}`);
   return {
     phase: 'refine',
     runId: RUN_ID,
-    verdict: critique?.verdict ?? 'ready',
-    tooBig: critique?.too_big === true,
+    verdict: critique.verdict ?? 'ready',
+    tooBig: critique.too_big === true,
     gaps,
     questions,
-    notes: critique?.notes || '',
+    notes: critique.notes || '',
     nextStep: questions.length
       ? 'Relay the questions to the user (AskUserQuestion), fold the answers + gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"build" with this SAME runId + planPath (or, for a roadmap, add this plan to the plans array once every plan is refined).'
       : gaps.length

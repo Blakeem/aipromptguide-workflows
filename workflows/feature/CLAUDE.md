@@ -15,6 +15,25 @@ bounded plans** and run them as a roadmap (refine's `too_big` routes here when t
 feature-shaped); a single goal that is a **pattern spanning many call sites** (migration/upgrade/port/
 refactor) → sibling **`migrate-cycle`**. Wrong size → say so and steer the user.
 
+**Documentation is a POOR FIT — keep it out of the plan.** The blind quality stage judges a diff on its
+own merits for production-blocking defects, and prose has no such defect class: the reviewer either
+returns clean trivially (a wasted opus pass) or manufactures nits that then burn develop rounds.
+Acceptance's reachability and regression checks are equally meaningless for markdown. Bundling the docs
+with the code is also the most common reason a sound plan comes back `too_big` and has to be split. So
+**build the feature here, then write the docs directly** (main agent, no engine) and verify them with a
+`debug` review pass under a doc-accuracy lens against the source — documentation drift is a *defect*
+(something the system states wrongly), and that inventory is closed by "every claim vs. the code", so it
+converges. The one thing worth keeping in the plan is a line naming which docs will need updating, so
+they are not forgotten.
+
+**Size it BEFORE you write the plan, not at refine.** `too_big` arriving from the plan critic means the
+planning work is already spent and has to be re-partitioned. Cheap pre-check while still in plan mode:
+name the **comparable artifacts already in this repo** and size against them (`ls -la` / `wc -l` the
+nearest sibling). One plan should be about **one coherent artifact plus its tests**. Several new files,
+or a new file plus edits to many existing ones, is a roadmap — decide that up front and write one plan
+per entry. If the honest estimate is more than roughly a single focused develop pass, split first;
+refine then confirms the pieces instead of rejecting the whole.
+
 ## 2. The flow
 
 Pick a `runId` now; reuse it for every phase. Every `Workflow` call loads by path: `scriptPath` = the

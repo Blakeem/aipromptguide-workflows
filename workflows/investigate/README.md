@@ -1,0 +1,101 @@
+# investigate-cycle
+
+An autonomous Claude Code workflow for the question **"what already exists that meets all of these
+requirements?"** — it searches, qualifies each candidate against fixed pass/fail criteria, and keeps
+looking until it can show you that nothing qualifying was left unsearched.
+
+You write the criteria: the question, the pass/fail gates, and what counts as proof. Claude runs one
+**investigator** per round that reads every earlier rejection before it starts, so each round diverges from
+what already failed instead of circling the same ground. An adversarial **critic** then verifies each
+surviving option against every criterion and checks every citation against its source. The loop closes only
+when the investigator can *evidence* that the search is complete and the critic agrees.
+
+### What sets it apart
+
+A **bounded exhaustive search** built on the shared [Workflow Principles](../../principles/):
+
+- **Pass/fail, not weighted.** Every criterion is a gate. Miss one and a candidate is out, however strong
+  it is elsewhere. There is no weighted total and no "close enough".
+- **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with the
+  criterion it failed, and every later round reads it first. That memory is what turns repeated searching
+  into converging rather than repeating.
+- **Exhaustion has to survive an attack.** Claiming the search is complete requires naming which avenues
+  were swept and why what remains cannot hold an answer. The critic can contest a thin claim and buy
+  another round. That is what makes "these are all of them" worth trusting.
+- **"Nothing qualifies" is a real answer.** Verified by the critic, delivered with the reason and the one
+  criterion you could relax to change it. It is kept strictly separate from "we ran out of rounds" and
+  "we ran out of tokens", so a stopped search is never reported as a finished one.
+- **Several answers is a normal outcome.** Qualifying options come back unranked with their trade-offs,
+  because ranking them is a different job — see below.
+- **A determination, not code.** Nothing is staged or committed. It feeds
+  [`feature-cycle`](../feature/) next.
+
+### investigate or decide?
+
+They look adjacent and are not. **[`decide-cycle`](../decide/)** is for when no established answer exists
+and the real work is *weighing trade-offs* among approaches the AI generates — it converges on reviewer
+agreement about an argument, via a weighted matrix. **investigate** is for when the answer is already out
+there and the work is *finding it and proving it fits* — it converges on coverage.
+
+The tell: if you want to trade criterion A off against criterion B, you want decide. If missing criterion A
+is simply disqualifying, you want investigate.
+
+---
+
+## Scope: is this the right tool?
+
+- ✅ **Right size:** a question with several hard constraints whose answer probably already exists — a
+  library, tool, API, config, technique, standard, or precedent — where you also want to know nothing
+  better was missed.
+- ✅ **Not just code.** Everything domain-specific arrives through the criteria file, so a regulatory,
+  procurement, or engineering-standards question works the same way.
+- ❌ **Weighing trade-offs among invented approaches:** use [`decide-cycle`](../decide/).
+- ❌ **Creative options for you to pick between:** use [`brainstorm-cycle`](../brainstorm/).
+- ❌ **You already know the answer, or one search settles it:** just look it up.
+
+---
+
+## How to use it
+
+Ships in the [AI Prompt Guide workflows](../../README.md) repo (clone as `aipg/`, copy the slash commands).
+Trigger it:
+
+- **Slash command:** `/aipg-investigate find a queue we can run on Node 20 with no paid tier, at-least-once delivery, and a maintained TypeScript client`
+- **Plain pointer:** tell Claude to *use the investigate-cycle **workflow** in `aipg/workflows/investigate/`*
+  and what you need to know.
+
+Claude reads `aipg/workflows/investigate/CLAUDE.md`, writes the criteria with you in plan mode, runs a
+mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
+
+1. **Frames the criteria.** Plan mode: the question, the pass/fail gates, the evidence standard, the search
+   space.
+2. **Reviews the criteria.** An independent critic returns gaps, blocking questions, and any criterion no
+   evidence could settle. Those get fixed before a single search runs.
+3. **Searches and qualifies.** Investigator finds and self-checks; critic verifies and disqualifies; the
+   ledger carries what died and why into the next round.
+4. **Concludes.** A determination with the qualifying options and the coverage evidence, or a verified dead
+   end naming the criterion to relax.
+
+---
+
+## Reviewing the result
+
+Under `runs/<runId>/`: the qualifying options with their per-criterion evidence (`options/<id>.md`), the
+full record of what was ruled out and why (`DISQUALIFIED.md`), the critic's round-by-round findings
+(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`).
+
+**Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
+`not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — treat
+it as partial and re-run to continue, since the ledger makes that cheap rather than repetitive.
+
+`DISQUALIFIED.md` is worth reading even on a clean run. It is usually the fastest way to see whether your
+criteria were doing what you meant them to.
+
+---
+
+## Requirements
+
+- **Claude Code** with the background **Workflow** capability.
+- **Web access** (WebSearch/WebFetch) for most questions, since the answer is usually out in the world.
+- A target git repo is **optional** — pass one when the answer has to fit existing code. Nothing is ever
+  written to it.

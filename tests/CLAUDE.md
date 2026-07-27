@@ -34,6 +34,15 @@ Real examples, all from one week:
   (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
 - **Lensed generative:** `brainstorm` · `decide` · `docs` · `enhance`
   (an id-keyed array fanned out to one file each)
+- **Non-blind review loops:** `decide` · `investigate`
+  (producer ⇄ adversarial critic against a fixed rubric, bounded by `maxRounds`, solo critical agents
+  that **throw** on a null return rather than defaulting to a clean verdict)
+
+`investigate` is the family's odd member: its candidates are *found* round by round rather than fanned
+out once, so its loop state lives in a ledger (`DISQUALIFIED.md`) instead of an up-front id array. When
+fixing a loop defect in `decide`, check whether investigate's round loop has the same shape — and note
+that the reverse is often NOT true, since decide's two-variable `reviewPath`/`lastReviewFile` split
+(`decide-cycle.mjs:277-278`) is correct there only because it has an agree-gate investigate lacks.
 
 **Do it by grep, not memory.** `grep -n "TARGET.repo" workflows/*/*.mjs` finds in seconds what a reviewer
 cannot find at all. Then fix each in its own file with parallel wording — never by extracting a shared

@@ -85,6 +85,32 @@ section('finalSweep:false opts out of the sweep on a full run');
   eq(out.status, 'done (all sections staged)', 'the run is still done');
 }
 
+section('a dead final sweep is reported as NOT RUN, never as zero gaps');
+// `(sweep?.gaps || []).length` logged "0 potential gap(s) — see SWEEP.md" for a check that never ran and
+// a file nothing wrote, and `sweep ? {…} : null` then made that indistinguishable from the two legitimate
+// did-not-run cases above (partial slice, finalSweep:false). The sweep is not a gate — the migration is
+// already staged — so it must NOT throw; it must say plainly that the completeness check is missing.
+{
+  const { out, logs } = await run({ ...GREEN_RUN, 'final-sweep': null });
+  eq(out.sweepFailed, true, 'the return distinguishes a DIED sweep from one that never ran');
+  eq(out.sweep, null, 'no fabricated sweep result');
+  ok(!logs.some((l) => /0 potential gap/.test(l)), 'never logs a clean-looking gap count for a check that died');
+  eq(out.status, 'done (all sections staged)', 'a dead sweep does not fail an otherwise complete run');
+}
+
+section('a dead plan critic throws — a review that never happened is not a clean plan');
+// Twin of the same defect in feature-cycle: `verdict: critique?.verdict ?? 'ready'` made a dead critic
+// byte-identical to a clean one (verdict "ready", 0 gaps, nextStep "Plan is sound"). Refine is the only
+// gate on a plan before an autonomous developer builds against it, so laundering it did not degrade the
+// review, it deleted it and reported success.
+{
+  const msg = await throwsWith(ENGINE, {
+    args: { ...baseArgs, phase: 'refine' },
+    respond: { 'plan-critic': null },
+  });
+  ok(/skipped or died/.test(msg), `dead plan critic throws instead of reporting ready: ${msg.slice(0, 60)}`);
+}
+
 section('acceptance that stages while reporting a regression halts without parking');
 // The work is STAGED, so park must not touch it; the run stops before later sections build on a
 // poisoned baseline.

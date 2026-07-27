@@ -15,6 +15,20 @@ sections that are each roughly feature-sized. Too small (one feature → `featur
 → just edit). Not one goal (several unrelated features) → `feature-cycle` once each. Wrong size → say so
 and steer the user.
 
+**Documentation is a POOR FIT as a section — keep it out of the plan** (same reasoning as
+`feature-cycle`'s §1). The blind quality stage has no defect class to find in prose, and acceptance's
+reachability and regression checks do not apply to markdown, so a docs section spends two review agents
+to learn nothing. Land the code sections here, then write the docs directly and verify them with a
+`debug` review pass under a doc-accuracy lens against the source — doc drift is a *defect*, and "every
+claim vs. the code" is a closed inventory, so it converges. Name the docs needing updates in the plan so
+they are not forgotten; do not make them a section.
+
+**Size the sections BEFORE writing the plan, not at refine.** A `too_big` verdict from the plan critic
+means the decomposition work is already spent. While still in plan mode, after grepping the change
+surface, sanity-check each intended section against a **comparable artifact already in this repo**
+(`wc -l` the nearest sibling): a section should be about one coherent change plus its tests. Split
+anything larger up front — refine should be confirming your decomposition, not rejecting it.
+
 ## 2. The flow
 
 Pick a `runId` now; reuse it. Loads by path: `scriptPath` = the absolute path to `migrate-cycle.mjs`,

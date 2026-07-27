@@ -506,17 +506,22 @@ if (PHASE === 'refine') {
   const critique = await agent(refinePrompt(), roleOpts('refine', {
     schema: REFINE_SCHEMA, phase: 'Refine', label: 'plan-critic',
   }));
-  const gaps = critique?.gaps || [];
-  const questions = critique?.questions || [];
-  log(`refine: verdict=${critique?.verdict ?? 'ready'} — ${gaps.length} gap(s), ${questions.length} question(s)${critique?.too_big ? ' [a section is TOO BIG — split it]' : ''}`);
+  // A dead critic must NEVER read as a clean plan. Every field below would otherwise launder null into
+  // exactly that — verdict "ready", 0 gaps, 0 questions, nextStep "Plan is sound" — and since refine is
+  // the ONLY gate on a plan before the developer builds against it, the review would be DELETED rather
+  // than degraded, and reported as passed. (Twin of the same guard in feature-cycle.)
+  if (!critique) throw new Error('Plan critic returned nothing (agent skipped or died) — that is NOT a clean plan review. Re-invoke with the same args (same runId); pass the Workflow tool\'s resumeFromRunId to replay completed agents from cache.');
+  const gaps = Array.isArray(critique.gaps) ? critique.gaps : [];
+  const questions = Array.isArray(critique.questions) ? critique.questions : [];
+  log(`refine: verdict=${critique.verdict ?? 'ready'} — ${gaps.length} gap(s), ${questions.length} question(s)${critique.too_big ? ' [a section is TOO BIG — split it]' : ''}`);
   return {
     phase: 'refine',
     runId: RUN_ID,
-    verdict: critique?.verdict ?? 'ready',
-    tooBig: critique?.too_big === true,
+    verdict: critique.verdict ?? 'ready',
+    tooBig: critique.too_big === true,
     gaps,
     questions,
-    notes: critique?.notes || '',
+    notes: critique.notes || '',
     nextStep: questions.length
       ? 'Relay the questions to the user (AskUserQuestion), fold the answers + gap fixes directly into the plan file (planPath), ensure a CLEAN unstaged working tree, then run phase:"run" with this SAME runId + planPath + the (possibly amended) sections list.'
       : gaps.length
@@ -789,15 +794,24 @@ for (const section of pending) {
 // finalSweep:false.
 // =============================================================================
 let sweep = null;
+let sweepFailed = false;   // the sweep RAN and DIED — distinct from the two legitimate did-not-run cases
 const allDone = isFullRun && !halted && doneIds.length === ALL_SECTIONS.length && ALL_SECTIONS.length > 0;
 if (A.finalSweep !== false && allDone) {
   phase('Sweep');
   sweep = await agent(sweepPrompt(doneIds), roleOpts('sweep', {
     schema: SWEEP_SCHEMA, phase: 'Sweep', label: 'final-sweep',
   }));
-  log(sweep?.complete
-    ? `sweep: no goal-coverage gaps found (suite: ${sweep?.suite_result || 'n/a'})`
-    : `sweep: ${(sweep?.gaps || []).length} potential gap(s) — see ${SWEEP_FILE}`);
+  // A dead sweep is NOT a clean sweep. `(sweep?.gaps || []).length` reported "0 potential gap(s)" for a
+  // check that never ran, citing a SWEEP_FILE nothing wrote — turning the run's final "did we actually
+  // finish?" signal into a false all-clear. Unlike the refine critic this does NOT throw: every section
+  // is already staged and accepted, so failing a complete migration over a missing advisory check would
+  // be worse than reporting the check as missing.
+  sweepFailed = !sweep;
+  log(sweepFailed
+    ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every section is staged, but NOTHING verified the goal was fully covered: re-run the sweep, or check coverage against the goal yourself.`
+    : sweep.complete
+      ? `sweep: no goal-coverage gaps found (suite: ${sweep.suite_result || 'n/a'})`
+      : `sweep: ${(sweep.gaps || []).length} potential gap(s) — see ${SWEEP_FILE}`);
 }
 
 // =============================================================================
@@ -834,6 +848,9 @@ return {
   sectionsDone: doneIds,
   sectionsTotal: ALL_SECTIONS.length,
   sweep: sweep ? { complete: sweep.complete === true, gaps: (sweep.gaps || []).length, suite: sweep.suite_result || '' } : null,
+  // true ONLY when the sweep ran and died. `sweep: null` on its own cannot say whether the check was
+  // deliberately skipped (partial slice, finalSweep:false) or lost — and those need different actions.
+  sweepFailed,
   // Parked sections: NOT done, but their work is SAVED, not lost — and the sections after them were
   // never attempted. Present each with its patch path (and strays dir when one exists — those need a
   // second restore step).
@@ -843,6 +860,6 @@ return {
   followups: halted
     ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply the patch first ONLY if you want to finish that section by hand; otherwise resume from the clean baseline and the developer redoes it (a resumed run requires a clean unstaged tree and halts on a dirty one).`
     : allDone
-      ? `All sections done. Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
+      ? `All sections done.${sweepFailed ? ` WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished.` : ''} Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
       : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`,
 };

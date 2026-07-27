@@ -38,7 +38,8 @@ notes. Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 **Generative / read-only** (no code, nothing staged or committed):
 [enhance-cycle](../workflows/enhance/) · [brainstorm-cycle](../workflows/brainstorm/) ·
-[decide-cycle](../workflows/decide/) · [docs-cycle](../workflows/docs/)
+[decide-cycle](../workflows/decide/) · [investigate-cycle](../workflows/investigate/) ·
+[docs-cycle](../workflows/docs/)
 
 Which principles apply to which kind is spelled out in
 [`WORKFLOW-PRINCIPLES.md` → Scope](WORKFLOW-PRINCIPLES.md#scope--which-principles-apply-to-which-workflow-kind).
