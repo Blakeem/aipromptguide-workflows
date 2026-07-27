@@ -15,6 +15,7 @@ export const ENGINES = [
   'workflows/decide/decide-cycle.mjs',
   'workflows/docs/docs-cycle.mjs',
   'workflows/brainstorm/brainstorm-cycle.mjs',
+  'workflows/investigate/investigate-cycle.mjs',
 ];
 
 section('every engine parses under the harness contract');
