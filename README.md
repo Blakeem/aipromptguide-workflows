@@ -12,16 +12,16 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 
 ## The workflows
 
-| Workflow | Trigger | Use it for |
-|----------|---------|------------|
-| **[feature](workflows/feature/)** | `/aipg-feature` | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
-| **[debug](workflows/debug/)** | `/aipg-debug` | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
-| **[migrate](workflows/migrate/)** | `/aipg-migrate` | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
-| **[enhance](workflows/enhance/)** | `/aipg-enhance` | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
-| **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
-| **[decide](workflows/decide/)** | `/aipg-decide` | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
-| **[investigate](workflows/investigate/)** | `/aipg-investigate` | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
-| **[docs](workflows/docs/)** | `/aipg-docs` | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
+| Workflow | Trigger | Flow | Use it for |
+|----------|---------|------|------------|
+| **[feature](workflows/feature/)** | `/aipg-feature` | [map](workflows/feature/FLOW.md) | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
+| **[debug](workflows/debug/)** | `/aipg-debug` | [review](workflows/debug/FLOW-review.md) · [resolve](workflows/debug/FLOW-resolve.md) | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
+| **[migrate](workflows/migrate/)** | `/aipg-migrate` | [map](workflows/migrate/FLOW.md) | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
+| **[enhance](workflows/enhance/)** | `/aipg-enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
+| **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
+| **[decide](workflows/decide/)** | `/aipg-decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
+| **[investigate](workflows/investigate/)** | `/aipg-investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
+| **[docs](workflows/docs/)** | `/aipg-docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
 The first three are **build** workflows (code, reviewed and staged). The last five are
 **generative/read-only**: proposals, creative options, a decision, a determination, or a curated doc set,
@@ -38,6 +38,17 @@ All eight share the design rules in **[principles/](principles/)**:
 the fourteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents) and an [auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow
 against them.
+
+**The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal
+state, rendered inline by GitHub. Read one before starting a run you have not done before: the terminal
+states in particular are the part worth knowing in advance, since "ran out of rounds" and "proved there
+is no answer" are different results that look alike in a summary.
+
+Those maps are **generated, never hand-drawn**. `tools/gen-flows.mjs` runs each engine against scripted
+agent replies and watches which agents it spawns, so a diagram can only ever show a path that really
+runs. That makes it a linter as much as a picture: it fails `node tests/run.mjs` when a map goes stale,
+when an engine grows a branch no scenario reaches, or when `meta.phases` stops matching the phases the
+agents actually run under.
 
 ## Why it's built this way
 
@@ -134,28 +145,25 @@ What's changed, newest first. Only what you'd notice while running them.
 
 ### 2026-07-27
 
-- **New workflow: [investigate](workflows/investigate/)** (`/aipg-investigate`) — for the question "what
-  already exists that meets all of these requirements?". One investigator per round searches and
-  qualifies candidates against **pass/fail** criteria, reading a `DISQUALIFIED.md` ledger of everything
-  that already failed so each round diverges instead of circling, while an adversarial critic verifies
-  every surviving option and every citation. It stops when the search can be **evidenced** as complete,
-  not when the first answer works, and "nothing qualifies" is a verified answer rather than a failure.
-  Running out of rounds, running out of tokens, and proving nothing can qualify stay three separate
-  results. Use `decide` when the work is weighing trade-offs instead of finding what exists.
-- **A dead plan critic no longer reports your plan sound.** In `feature` and `migrate`, a `phase:"refine"`
-  critic that died returned verdict `ready`, zero gaps, and "Plan is sound" — byte-identical to a genuine
-  clean review. Since refine is the only gate before an autonomous developer builds against the plan, that
-  did not degrade the review, it deleted it and reported success. It now throws and tells you to resume.
-- **A dead final sweep no longer reads as zero coverage gaps.** `migrate`'s completeness sweep logged
-  "0 potential gap(s)" for a check that never ran, citing a `SWEEP.md` nothing wrote. It now says the
-  check is missing, and the new `sweepFailed` return field distinguishes a *died* sweep from one that was
-  legitimately skipped (partial slice, `finalSweep:false`). It deliberately does not fail the run — every
-  section is already staged.
-- **Documentation is now called out as a poor fit** for `feature` and `migrate`. The blind quality stage
-  has no defect class to find in prose and acceptance's reachability/regression checks don't apply, and
-  bundling docs with code is the most common reason a sound plan comes back too big. Write them directly,
-  then verify with a `debug` review pass under a doc-accuracy lens. Both guides also now say to size a
-  plan against a comparable artifact **before** writing it, rather than discovering it at refine.
+- **Every workflow now ships a flow map** — a `FLOW.md` beside each engine (linked in the table above)
+  diagramming every agent, gate, loop and terminal state, rendered inline by GitHub. Worth a look before
+  a run you haven't done before: the terminal states are where two very different outcomes read alike.
+- **The maps are generated by watching each engine run**, not by reading its code, so a diagram can only
+  show a path that really executes. The same machinery lints the engines — `node tests/run.mjs` goes red
+  when a map is stale, when a branch no scenario covers appears, or when `meta.phases` stops matching
+  what the agents actually run under.
+- **New workflow: [investigate](workflows/investigate/)** (`/aipg-investigate`) — finds an answer that
+  already exists and qualifies it against **pass/fail** criteria, stopping when the search can be
+  *evidenced* as complete rather than when the first answer works. "Nothing qualifies" is a verified
+  result, not a failure. Use `decide` when the work is weighing trade-offs instead.
+- **`migrate` no longer tells you to resume into a red build.** A parked section that cleared the tree but
+  left the build broken now halts as unsafe, matching `feature` and `debug`.
+- **A dead plan critic no longer reports your plan sound.** In `feature` and `migrate`, a `refine` critic
+  that died returned a clean verdict indistinguishable from a real one. It now throws.
+- **A dead final sweep no longer reads as zero coverage gaps** in `migrate` — it reports the check as
+  missing, and distinguishes a died sweep from one you legitimately skipped.
+- **Documentation is called out as a poor fit** for `feature` and `migrate` plans: write it directly, then
+  verify with a `debug` pass. Both guides also say to size a plan against a comparable artifact first.
 
 ### 2026-07-26
 
@@ -171,20 +179,17 @@ What's changed, newest first. Only what you'd notice while running them.
 - **debug's review pass takes a lens *array*** — sweep the same code from several angles in one pass,
   merged into one issue file per unit. Replaces `reviewPasses`, which re-ran an identical prompt.
 - **debug's review pass returns the issue index**, so there's no hand-grepping the issue files to build
-  the fix loop's input. `gen-units.mjs --issues-dir` also tags units new/changed/unchanged for cheap
-  review resumes.
+  the fix loop's input. `gen-units.mjs --issues-dir` also tags units for cheap review resumes.
 - **decide gains `selection: "ranked"`** — a ranked shortlist instead of one winner, when the answer is
   legitimately a portfolio.
 - **docs spot-checks captured files against their source** and wants `outDir` pointed at a folder
   dedicated to that one doc set.
-- **`target.repo` is now required** on every engine that writes code, instead of quietly defaulting to
-  the checkout's own folder. Pointing one checkout at several projects has always worked. It's now
-  documented (see *One checkout, many projects*) and can't silently target the wrong one.
-- **A test suite** (`node tests/run.mjs`) that runs each engine against scripted agents, with no model
-  calls, in about a second. It's also the build and test gate to point a workflow at when working on
-  this repo.
-- resolve's final sweep is gone, since it restated numbers the run already had. migrate keeps its sweep,
-  which re-greps the change surface. Plus assorted edge-case fixes across every engine.
+- **`target.repo` is now required** on every engine that writes code, instead of quietly defaulting to the
+  checkout's own folder, so a typo can't retarget the wrong project (see *One checkout, many projects*).
+- **A test suite** (`node tests/run.mjs`) that runs each engine against scripted agents in about a second,
+  with no model calls. It's also the gate to point a workflow at when working on this repo.
+- resolve's final sweep is gone, since it restated numbers the run already had. Plus assorted edge-case
+  fixes across every engine.
 
 ### Earlier
 

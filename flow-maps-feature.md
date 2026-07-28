@@ -1,6 +1,8 @@
 # Flow Maps — generated Mermaid flow diagrams per workflow
 
-**Status:** Planned, not built. Design settled enough to implement; open questions in §8.
+**Status: BUILT (2026-07-27).** All nine engines are mapped. `tools/gen-flows.mjs` + `tools/flows/*.flow.mjs`
+generate `workflows/<x>/FLOW.md`; `tests/flow-coverage.test.mjs` gates them. See §10 for how §8's open
+questions resolved and what the design got wrong.
 
 **What:** a `FLOW.md` beside each workflow holding a Mermaid diagram of its complete agent flow — every
 agent, gate, loop, throw, and terminal state — **generated deterministically** by running the engine under
@@ -190,3 +192,58 @@ Suggested order:
 - `tests/harness.mjs` — the tracing machinery already exists; this feature is mostly a consumer of it.
 - `tests/README.md` — "the engine's control plane is a pure function of what its agents return." That
   sentence is the whole justification for this approach; a flow map is that function, drawn.
+
+## 10. How it actually landed (2026-07-27)
+
+**§8's open questions, resolved:**
+
+- **`FLOW.md` per workflow**, beside each engine. debug needed two (`FLOW-review.md`, `FLOW-resolve.md`):
+  two engines, two runs, two sets of terminal states, and a triage step between them that is deliberately
+  not automatic.
+- **Committed, and the suite fails when stale.** As §8 guessed, the linter assertions are what keep a
+  committed file honest.
+- **Assertions live in `tests/`** (`tests/flow-coverage.test.mjs`), emission in `tools/`. But they share
+  ONE `buildGraph(spec)` call — computing coverage twice let the diagram's own coverage line disagree
+  with the gate.
+- **Build loops fit in one diagram after all.** feature is 26 nodes / 33 edges and readable, because
+  role-folding plus a distinct "next item" edge does the compression a manual overview/detail split was
+  meant to. No second emitter mode was needed.
+- **A tool, not a workflow.** Confirmed — no prose, no model calls.
+
+**Four things this design got wrong, all caught at refine before any code was written:**
+
+1. **`meta.phases` must be measured against each call's `opts.phase`, not fired `phase()` calls.** §4
+   named the check but not the signal. `review.mjs` and `enhance-cycle` never call `phase()`; `docs-cycle`
+   calls it once against three declared phases. The naive check reports 3 of 9 engines as drifted and the
+   "fix" is deleting correct launch documentation. Measured properly, all nine agree today.
+2. **Five engines return no `status` at all** (brainstorm, review, enhance, docs, resolve), so §5's
+   "one end node per terminal state" collapses their every non-throw exit into one blank node. Scenarios
+   declare those terminals; `FLOW.md` marks each derived or declared so provenance stays visible.
+3. **Throw terminals must key on the static throw SITE, not the message.** Three of investigate's six
+   throw messages interpolate the round number, so dying in round 1 vs round 3 mints two nodes for one
+   site — and breaks byte-stability.
+4. **§3 was too optimistic about loops.** Folding is easy; *counting* is not. The repeat annotation has to
+   be traversals of that edge along one lane, where a lane is one item's pass through the graph. Counting
+   visits to the target node instead lets fan-out width and roadmap length inflate it — review read ×4
+   for 2 lenses, docs ×3 for a 2-round loop, feature ×3 for a plan retried once.
+
+**What §4's linter caught immediately, on engines nobody was editing — both since FIXED:**
+
+- **`migrate-cycle` never read `gates_green`.** It was `required` in `PARK_SCHEMA`, demanded by the park
+  prompt and printed in the run log, and no code consumed it — textbook attestation theater
+  (`tests/CLAUDE.md` §3). A park that cleared the tree but left the build RED therefore fell through to
+  the "tree is CLEAN; resolve with the user, then resume from this section" branch, telling the operator
+  to resume into a broken build. Both siblings already halted on it (`feature-cycle.mjs:710`,
+  `resolve-cycle.mjs:649`). Now a third `park-unsafe` branch, covered by `tests/migrate.test.mjs` and by
+  a `red build after parking` scenario in the flow spec.
+  **The diagram is what surfaced it**: feature drew three routes into `park-unsafe` and migrate only two.
+- **`resolve-cycle.mjs:654` was unreachable** — every loop exit either sets a status or falls into the
+  park block, which always sets one. The line stays as a guard for a future exit that forgets, but it no
+  longer reports `needs-attention (loop end)`, which read as a plausible outcome; it now names itself an
+  engine bug, the same way investigate handles an unmapped `haltKind`. `feature-cycle` and
+  `migrate-cycle` initialise the same `'pending'` and had no guard at all, so both got the twin (§1).
+
+Both are the class §1 predicted: things a per-unit reviewer structurally cannot see, which fall out of
+drawing the whole control graph at once. Neither is testable as a *reachable* path — the first was
+invisible because nothing read the field, the second because nothing can reach the line — which is
+precisely why a coverage gate over the whole graph found them and the review loop did not.

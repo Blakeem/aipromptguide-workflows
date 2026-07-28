@@ -1,3 +1,4 @@
 runs/
 plans/
 .claude/settings.local.json
+tools/.cache/

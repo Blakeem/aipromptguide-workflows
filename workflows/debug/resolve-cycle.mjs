@@ -651,7 +651,12 @@ for (const batch of batches) {
       blockerReason = `Gates not green after parking ${batch.id}; tree unsafe for the next batch.`;
     }
   }
-  if (record.status === 'pending') record.status = 'needs-attention (loop end)';
+  // Unreachable today: every loop exit either sets a status itself or falls into the park block above,
+  // which always sets one. It stays as a guard for a future exit that forgets — but it must NOT read as
+  // a plausible outcome. `needs-attention (loop end)` did, so a batch that escaped every status
+  // assignment would be reported as a normal, slightly-disappointing result instead of the engine bug it
+  // is. Same reasoning as investigate-cycle's unmapped-haltKind string.
+  if (record.status === 'pending') record.status = 'BLOCKED (engine bug: batch finished with no status set)';
 
   // Finalize per-issue outcomes (in-memory; returned to the main agent — no progress files).
   const perIssue = batch.issues.map((i) => {

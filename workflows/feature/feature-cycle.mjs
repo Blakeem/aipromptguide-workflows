@@ -713,6 +713,10 @@ for (const p of pending) {
       haltReason = `The build gate is not green after parking plan ${p.id}; the tree is unsafe for the next plan.`;
     }
   }
+  // Unreachable today (every exit sets a status, or parks — which sets one), and kept as a guard for a
+  // future exit that forgets. It must name itself an ENGINE BUG rather than leak the initial 'pending',
+  // which in a finished run's ledger reads as "still working" — see resolve-cycle's twin.
+  if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: plan finished with no status set)';
   ledger.push(rec);
   if (halted) break;      // escalation / unsafe tree stops the roadmap; a clean park carries on
 }

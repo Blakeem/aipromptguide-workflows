@@ -64,6 +64,30 @@ assert what an agent was actually told, and `byLabel()` when you need a call's `
 or phase). `throwsWith()` returns the thrown message for arg-validation cases, or `''` if it did not
 throw.
 
+`runTrace()` takes the same arguments and **never throws** — reach for it when you want the whole path,
+including one that dies halfway. On top of `runEngine`'s shape:
+
+- `calls[i].seq` — 0-based call index.
+- `calls[i].group` — `null` outside a fan-out, else `{ id, kind: 'parallel'|'pipeline', item, stage }`.
+  Several calls may share one `(id, item, stage)` triple: `review.mjs` loops its lenses sequentially
+  inside one stage. Compare `item` to tell a sequential repeat from concurrency.
+- `phases` — `[{ title, beforeCall }]` from `phase()`; `beforeCall` is the `seq` the next call will take.
+  **`[]` is a correct result** for `debug/review.mjs` and `enhance-cycle.mjs`: they carry the phase on
+  each agent's `opts.phase` and never call `phase()`.
+- `groups` — one entry per fan-out, `{ id, kind, items, stages }`.
+- `terminal` — `{ kind: 'return'|'throw', status, message }`. On a throw `out` is `undefined` and
+  `status` is `''`, but every call made **before** the throw is still in `calls`.
+
+Four readers answer questions about an engine from its **source text**, no run needed, alongside
+`ENGINES` (the nine engine paths):
+
+- `readMeta(src)` — the evaluated `meta` object.
+- `readRoles(src)` — the static label prefixes (an engine's roles) in source order, deduped;
+  `feature-cycle` → `['plan-critic','develop','quality','acceptance','park']`.
+- `readThrows(src)` — `[{ line, prefix }]` per `throw new Error(` site. A message that starts with an
+  interpolation yields `prefix: ''` and is still returned — a dropped site would read as covered.
+- `readHaltStatus(src)` — the evaluated `HALT_STATUS` map, or `{}` for an engine without one.
+
 ## What belongs here
 
 Failure paths, mostly. The happy path is what a real run exercises constantly; the halt, park, dead-agent,

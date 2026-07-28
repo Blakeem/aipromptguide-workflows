@@ -46,6 +46,12 @@ them apart is what keeps the issue files out of reach of the blind reviewer, and
 checkout drive many projects. The engines that write code **throw** rather than default `target.repo` —
 see the root README, "One checkout, many projects".
 
+**Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
+(`workflows/<x>/FLOW.md`; debug has `FLOW-review.md` + `FLOW-resolve.md`) — every agent, gate, loop and
+terminal state, drawn from real traced runs. Read one before driving a workflow you have not run before.
+Change an engine's control flow and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
+The generator and the rest of the repo's own machinery are catalogued in [`tools/CLAUDE.md`](tools/CLAUDE.md).
+
 **Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas
 (this file and each workflow's `CLAUDE.md` are for *running* the workflows; that one is for *editing*
 them). Above all: a defect found in one engine is usually in its siblings too — grep before you call it

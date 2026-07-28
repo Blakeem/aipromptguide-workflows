@@ -160,7 +160,72 @@ against (halt); an unreachable feature does not (flag).
 
 ---
 
-## 7. Before you call a change done
+## 7. Flow maps — the diagrams are a gate, not decoration
+
+`workflows/<x>/FLOW.md` is **generated**: `tools/gen-flows.mjs` runs each engine through
+`tests/harness.mjs` against a scenario table in `tools/flows/<name>.flow.mjs` and draws what it watched.
+Change an engine's control flow and you must regenerate, or the suite goes red:
+
+```bash
+node tools/gen-flows.mjs            # regenerate all
+node tools/gen-flows.mjs migrate    # just one
+node tools/gen-flows.mjs --check    # what the gate runs; exit 1 lists the stale files
+```
+
+`tests/flow-coverage.test.mjs` is the part that earns its keep. Per engine it asserts that every
+`agent()` role, every `throw new Error(` site and every `HALT_STATUS` value is reached by some scenario,
+that the committed map is fresh, and that **`meta.phases` matches the phases agents really run under**.
+
+Three things to know before you touch it:
+
+- **Phases are read from each call's `opts.phase`, never from fired `phase()` calls.** `review.mjs` and
+  `enhance-cycle` never call `phase()` at all, and `docs-cycle` calls it once against three declared
+  phases — measuring the calls would report three engines as drifted and the "fix" would be deleting
+  correct launch documentation.
+- **Coverage cannot see a branch that adds no role, no throw and no new terminal.** A dead-agent path, a
+  skipped stage, or a second route into an existing terminal is invisible to every assertion. The
+  scenario tables carry comments saying which branches are load-bearing for exactly this reason — read
+  them before deleting a scenario that looks redundant.
+- **Add a scenario, don't loosen a check.** `allowUncovered` demands a reason and fails if the item turns
+  out to be covered, so it cannot quietly become a dumping ground.
+
+The tables are deliberately **parallel to** the `*.test.mjs` files rather than shared with them: the tests
+optimize for failure paths, the maps for complete terminal coverage, and a test deleted as redundant
+would otherwise blank a branch of the diagram.
+
+### Is the diagram READABLE? — `tools/render-flows.mjs`
+
+`gen-flows.mjs` proves a map is **correct**; it cannot tell you the picture is legible. Mermaid does no
+collision avoidance on edge labels, so two long ones leaving the same node render on top of each other
+and neither can be read — invisible to every text assertion, and for a while it was only caught by a
+human squinting at screenshots.
+
+```bash
+node tools/render-flows.mjs            # lay every map out in real Mermaid, report overlapping labels
+node tools/render-flows.mjs feature    # one
+node tools/render-flows.mjs --png      # also write PNGs to tools/.cache/render/ (gitignored)
+```
+
+It drives the Chrome already on the machine with `--dump-dom` — no puppeteer, no playwright, still zero
+npm dependencies. Mermaid itself is fetched once into `tools/.cache/`. **It is not wired into
+`node tests/run.mjs`**, deliberately: it needs a browser and (once) the network, and the suite must stay
+runnable anywhere. Run it by hand after changing anything that affects layout.
+
+Layout knobs, all tuned against it — raise spacing before shortening text, because room is free and
+dropped information is not:
+
+- `NODE_SPACING` / `RANK_SPACING` in `gen-flows.mjs` (override via `FLOW_NODE_SPACING` /
+  `FLOW_RANK_SPACING` to re-run the sweep). 60/90 left 8 of 9 maps colliding; 80/200 leaves 1.
+- `WHEN_BUDGET` caps an edge label by length, with a tighter budget for self-loops (Mermaid parks those
+  in the narrow gutter beside the node).
+- Edges into a terminal are drawn **unlabelled** — one agent often fans out to six endings, and the
+  conditions live in the Terminal states table, indexed by the question a reader actually asks.
+
+**Known:** `debug/resolve` still reports one overlap — a self-loop label parked over a neighbouring throw
+node. The next lever is splitting the arg-validation throws into their own diagram; they all fire from
+`args` before any agent runs and have nothing to do with the run loop.
+
+## 8. Before you call a change done
 
 - [ ] Grepped the sibling engines for the same defect shape (§1) and fixed each in its own file
 - [ ] `node tests/run.mjs` green, **and** a new case covering what you changed
@@ -169,4 +234,6 @@ against (halt); an unreachable feature does not (flag).
 - [ ] The workflow's `CLAUDE.md` updated — a new required arg, return field, written file, or halt
       condition is a documented behavior change; its `README.md` too if a human-visible behavior changed
 - [ ] `meta` still a pure literal, still LF-only (the suite checks both)
+- [ ] Control flow changed? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
+      a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice

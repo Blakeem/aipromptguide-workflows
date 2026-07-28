@@ -35,6 +35,24 @@ section('a section that never accepts is parked and the run STOPS');
   ok(!labels.includes('final-sweep'), 'no whole-goal sweep on a halted run');
 }
 
+section('a park that leaves the BUILD red is unsafe, not a clean park');
+// gates_green was `required` in PARK_SCHEMA, demanded by the park prompt and printed in the run log —
+// and read by nothing, so a park that cleared the tree but left the build broken took the "tree is
+// CLEAN; resume from this section" branch. The operator was told to resume into a red build. Both
+// siblings halt on it (feature-cycle, resolve-cycle); this is the twin that was missing.
+{
+  const { out } = await run({
+    'develop': DEV, 'quality': CLEAN, 'acceptance': ACC_FAIL,
+    'park': { ...PARK_OK, gates_green: false },
+  });
+  eq(out.status, 'BLOCKED (a parked section left the tree unsafe — inspect before resuming)', 'status');
+  ok(/BUILD is RED/.test(out.haltReason), `the reason names the red build: ${out.haltReason.slice(-90)}`);
+  ok(!/tree is CLEAN; resolve with the user/.test(out.haltReason),
+    'and does NOT also tell the operator the tree is fine to resume from');
+  // The work still has to be recoverable — an unsafe tree must not cost the patch.
+  ok(out.parked[0]?.patch?.endsWith('parked-sec-a.patch'), 'the patch is still surfaced');
+}
+
 section('a dirty baseline halts without parking');
 {
   const { out, calls, labels } = await run({ 'develop': { ...DEV, baseline_dirty_files: 2 } });

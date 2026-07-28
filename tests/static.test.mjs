@@ -2,21 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { REPO_ROOT, section, ok } from './harness.mjs';
-
-// Every Workflow engine. gen-units.mjs is NOT here — it is ordinary Node (real imports, run directly),
-// so it gets a real `node --check` below instead.
-export const ENGINES = [
-  'workflows/feature/feature-cycle.mjs',
-  'workflows/migrate/migrate-cycle.mjs',
-  'workflows/debug/review.mjs',
-  'workflows/debug/resolve-cycle.mjs',
-  'workflows/enhance/enhance-cycle.mjs',
-  'workflows/decide/decide-cycle.mjs',
-  'workflows/docs/docs-cycle.mjs',
-  'workflows/brainstorm/brainstorm-cycle.mjs',
-  'workflows/investigate/investigate-cycle.mjs',
-];
+import { ENGINES, REPO_ROOT, section, ok } from './harness.mjs';
 
 section('every engine parses under the harness contract');
 for (const rel of ENGINES) {

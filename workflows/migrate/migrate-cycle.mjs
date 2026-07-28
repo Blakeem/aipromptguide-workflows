@@ -778,10 +778,21 @@ for (const section of pending) {
     } else if (pk?.cleared !== true) {
       haltKind = 'park-unsafe';
       haltReason += ` Its work could NOT be cleared from the tree${pk?.saved === true ? ` (it IS saved to ${parkedPatch(section.id)})` : ' and was NOT saved — the tree still holds it'}; clean the tree yourself before resuming.`;
+    } else if (pk?.gates_green === false) {
+      // A cleared tree is not a SAFE tree. `gates_green` was required by PARK_SCHEMA, demanded by the
+      // prompt and printed in the log above, but nothing read it — so a park that left the build RED
+      // fell through to the "tree is CLEAN, resume from this section" branch below and told the operator
+      // to resume into a broken build. Siblings both halt on it (feature-cycle.mjs, resolve-cycle.mjs).
+      haltKind = 'park-unsafe';
+      haltReason += ` Its work IS saved to ${parkedPatch(section.id)} and the tree was cleared, but the BUILD is RED afterwards — the tree is unsafe to resume into. Fix the build before re-running this section.`;
     } else {
       haltReason += ` Its work is SAVED to ${parkedPatch(section.id)} and the tree is CLEAN; resolve with the user, then resume from this section.`;
     }
   }
+  // Unreachable today (every exit sets a status, or parks — which sets one), and kept as a guard for a
+  // future exit that forgets. It must name itself an ENGINE BUG rather than leak the initial 'pending',
+  // which in a finished run's ledger reads as "still working" — see resolve-cycle's twin.
+  if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: section finished with no status set)';
   ledger.push(rec);
   break;
 }
