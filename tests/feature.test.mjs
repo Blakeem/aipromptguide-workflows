@@ -229,3 +229,78 @@ section('park never names a review file that was never written');
   ok(!/acceptance-review-plan-a-r\d+\.md/.test(p), 'no fabricated acceptance-review path in the prompt');
   ok(/produced NO review file/.test(p), 'the prompt says outright that no review file exists');
 }
+
+section('a roadmap block reaches the developer as a plan-block COMMAND, not the whole file');
+// The context+truncation fix: bodyless entries address "## Plan: <id>" blocks in the top-level plan
+// file. Handing over the file path would put every other feature in the developer's context AND let it
+// stop at the first `## Feature` (plan bodies are all h2) with a truncated spec that looks complete.
+{
+  const ROADMAP = { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] };
+  const { prompt } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS }, ROADMAP);
+  const dev = prompt('develop plan-a');
+  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(dev), 'the command names this plan, and every path is quoted');
+  ok(!/plan-block\.mjs \S+ plan-b/.test(dev), 'and never a sibling plan');
+  ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
+  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(prompt('acceptance plan-a')),
+    'acceptance is handed the same block, so it judges the same criteria the developer built to');
+  ok(!/plan-block|roadmap\.md/.test(prompt('quality plan-a')),
+    'the BLIND reviewer still gets no route to any plan (#3)');
+}
+
+section('planContext:"full" hands the file instead — for a plan that needs its neighbours');
+{
+  const ROADMAP = { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: [{ id: 'plan-a', planContext: 'full' }] };
+  const { prompt } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS }, ROADMAP);
+  const dev = prompt('develop plan-a');
+  ok(/"## Plan: plan-a" inside the roadmap at E:\/plans\/roadmap\.md/.test(dev), 'the block is named inside the file');
+  ok(!/plan-block\.mjs/.test(dev), 'and no extraction command is issued');
+}
+
+section('a bodyless roadmap with no plan file THROWS before any agent is spawned');
+// Previously ALL_PLANS kept the entry, planPath/plan both defaulted to '', and planRef emitted an empty
+// fence — the developer built against nothing and the run reported success.
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ id: 'plan-a' }, { id: 'plan-b' }] } });
+  ok(/plan-a, plan-b/.test(msg), 'the message names every bodyless plan');
+  ok(/top-level planPath/.test(msg), 'and says how to fix it');
+}
+
+section('an agent that never got its plan halts the run — the attestation has a consumer');
+// The block command runs in the AGENT's shell; the harness has no tools, so it cannot verify it. This
+// field is the only signal the plan ever arrived. Without the halt, a denied command or an id matching
+// no block builds something plausible and the run reports `done (staged)`.
+{
+  const { out, calls, labels } = await run({ 'develop': { ...DEV_OK, plan_obtained: false }, 'park': PARK_OK });
+  ok(!labels.some((l) => l.startsWith('quality')), 'no reviewer was spawned on a plan nobody read');
+  eq(out.status, 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)', 'status');
+  ok(/could not obtain its plan/.test(out.haltReason), 'halt reason says what happened');
+  ok(/plan-a/.test(out.haltReason), 'and names the plan');
+  ok(calls.length >= 1, 'the developer did run');
+}
+
+section('the acceptance verifier has the same channel — a verdict without the spec is worthless');
+// Its pass=false would otherwise read as an ordinary gap and park the plan, hiding "the spec never
+// arrived" behind a routine round-budget failure.
+{
+  const { out } = await run({
+    'develop': DEV_OK, 'quality': CLEAN,
+    'acceptance': { ...ACC_FAIL, plan_obtained: false },
+    'park': PARK_OK,
+  });
+  eq(out.status, 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)', 'status');
+  ok(/Acceptance verifier/.test(out.haltReason), 'halt reason names the role');
+}
+
+section('a dead agent is NOT laundered into the plan_obtained halt');
+// `=== false` on purpose: null must fall through to the existing guards, not become "never got it".
+{
+  const { out } = await run({ 'develop': null, 'park': PARK_OK });
+  ok(!/could not obtain/.test(out.haltReason || ''), 'a dead developer takes a different path');
+}
+
+section('a non-kebab plan id throws — it names files AND enters a shell command');
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ id: 'Plan A!', plan: 'x' }] } });
+  ok(/not kebab slugs/.test(msg), `throws: ${msg.slice(0, 60)}`);
+  ok(/Plan A!/.test(msg), 'and names the offender');
+}

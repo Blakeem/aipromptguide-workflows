@@ -60,6 +60,15 @@ approved plan:
 - **`title`** — logs/labels only.
 - **`gate`** — `green` | `red-baseline` | `build-only` (§6). The harness can't read the plan, so this
   knob travels as control.
+- **`planContext`** (optional) — `block` (default) hands that agent a `plan-block.mjs` command that
+  prints ONLY its section, so a twelve-section plan never enters a developer's context; `full` hands
+  the whole plan file with the section named, for a section that genuinely needs its neighbours in view.
+
+Derive the whole list rather than typing it:
+`node <root>/tools/plan-block.mjs <planPath> --list --kind section` prints `[{ id, title, gate }]` in
+file order, and throws on a duplicate id, a non-kebab id, an empty section or a missing/invalid gate —
+all of which would otherwise surface mid-run. **Only a `## Section:` header ends a section**, so the
+`###` bodies are safe and a section can never be silently truncated at one of its own subheadings.
 
 Everything else (`test_selector`, …) stays in the plan body. Order = dependency order.
 
@@ -73,7 +82,9 @@ Before `phase:"run"`:
   Still settle a dirty tree with the user BEFORE you start (`git add -A` to keep it as baseline,
   `git stash -u` to set it aside): finding out at run time costs a spawn.
 - **`root` — REQUIRED** (both phases): the tool's own directory so `runs/` lands beside the tool, not in
-  the target repo. Omit it → the engine errors.
+  the target repo. Omit it → the engine errors. It must be THIS checkout: the block command an agent
+  runs is `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every section
+  fails to get its plan (loudly — see `plan_obtained` below).
 - **Each section's `gate`** from its plan `gate:` line (mechanical/testless → `build-only`).
 - **Fresh vs. resume.** `DISMISSED-*.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
   genuinely new run; **preserve** it on resume.
@@ -119,7 +130,8 @@ worth reviewing before conversion.
 Roles mirror feature-cycle (the conductor passes only control signals, #1; agents fresh + throwaway):
 - **Plan Critic** (refine · opus) — re-greps the surface, verifies every section's files + integration
   points + ordering; returns gaps/questions/too_big.
-- **Developer** (run · opus) — reads its `## Section:` block + the latest flagging review verbatim;
+- **Developer** (run · opus) — gets its `## Section:` block from the `plan-block.mjs` command (§3) and
+  reads the latest flagging review verbatim;
   implements ONLY that section, **converts every call site it owns**, runs the section gate, leaves work
   **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`, user-only → `NEEDS-USER.md` (halts on a
   hard blocker).
@@ -158,6 +170,15 @@ because its work is now the baseline every later section builds on. It is neithe
 `git diff --cached`. Every exit therefore leaves a clean tree except passed-but-unstaged — and a park
 that reports it could NOT clear, which gets its own status (`BLOCKED (a parked section left the tree
 unsafe — inspect before resuming)`) for you to clean up before resuming.
+
+**An agent that never got its section halts the run.** The block command runs in the *agent's* shell, so
+the engine cannot verify it (the harness has no tools). Both the developer and the acceptance verifier
+report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
+section — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
+first: the command not permitted in the run environment (pre-allowlist
+`Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+matching no `## Section:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
+exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
 
 **Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
 the section's OWN selector, never whole-suite-green):
@@ -268,7 +289,8 @@ inline to `Workflow`.
   (shell command; **throws** if missing — an unset build command would no-op the build gate) +
   `gates.test` (**throws** when any section's gate is `green`; a run of purely mechanical `build-only`
   sections needs no test command). Non-zero exit = fail.
-- **Optional:** `phase` (`refine`|`run`, default `run`) · `conventions` (the developer's rubric —
+- **Optional:** `phase` (`refine`|`run`, default `run`) · each section's `planContext` (§3; `block`
+  default, `full` to hand over the whole plan file) · `conventions` (the developer's rubric —
   language/version constraints, what stays additive, what NOT to touch; the blind reviewer is never shown
   it) · `reference` (path to a completed example to mirror) · `gates.testSetup` (runner quirks, how to
   scope one test, run-as-user/container prefix) · `target.lang`/`target.framework` (hints) · `maxRounds`

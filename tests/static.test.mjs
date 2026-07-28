@@ -23,13 +23,15 @@ for (const rel of ENGINES) {
   if (m) ok(!/\$\{/.test(m[0]), `${rel} meta has no template interpolation`);
 }
 
-section('gen-units.mjs is ordinary Node');
-{
+section('the ordinary-Node scripts pass node --check (the harness contract does not apply to them)');
+// gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during feature and
+// migrate runs, so its syntax is a run-time dependency of two engines, not just dev machinery.
+for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/gen-flows.mjs']) {
   let err = '';
   try {
-    execFileSync(process.execPath, ['--check', join(REPO_ROOT, 'workflows/debug/gen-units.mjs')], { stdio: 'pipe' });
+    execFileSync(process.execPath, ['--check', join(REPO_ROOT, rel)], { stdio: 'pipe' });
   } catch (e) { err = String(e.stderr || e.message).split('\n')[0]; }
-  ok(err === '', `passes node --check${err ? ` — ${err}` : ''}`);
+  ok(err === '', `${rel}${err ? ` — ${err}` : ''}`);
 }
 
 section('no CR bytes anywhere (a CR makes the Workflow tool reject the file outright)');

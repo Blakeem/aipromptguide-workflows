@@ -1,11 +1,16 @@
 # tools — repo development machinery (for Claude)
 
 Plain Node, run directly, **zero dependencies**. These are NOT Workflow engines: they use real imports,
-`node --check` works on them, and they are judged as ordinary code (`../tests/CLAUDE.md` §2). Nothing here
-runs during a workflow — they exist to build and verify this repo's own artifacts.
+`node --check` works on them, and they are judged as ordinary code (`../tests/CLAUDE.md` §2).
+
+Most of them build and verify this repo's own artifacts. **`plan-block.mjs` is the exception: it runs
+DURING a workflow**, invoked by agents that feature-cycle and migrate-cycle hand a command. Its argv
+shape, its stdout bytes and its exit codes are a run-time contract two engines depend on — change them
+and you change what a developer agent receives, so treat it as engine surface, not dev machinery.
 
 | File | What it does |
 |---|---|
+| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the control array. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
 | `flows/<name>.flow.mjs` | One scenario table per engine: the args + scripted agent replies that drive each distinct path. The only hand-written part of a flow map. |
@@ -13,6 +18,27 @@ runs during a workflow — they exist to build and verify this repo's own artifa
 
 `workflows/debug/gen-units.mjs` is the same *kind* of thing but lives with debug, because you run it as
 part of that workflow rather than to maintain this repo.
+
+## plan-block.mjs
+
+```bash
+node tools/plan-block.mjs <plan.md|plan-name> <id>            # that block, verbatim, on stdout
+node tools/plan-block.mjs <plan.md|plan-name> --list          # [{ id, gate }] as JSON
+node tools/plan-block.mjs <plan.md> <id> --kind section       # migrate's blocks + its gate set
+```
+
+`--kind` picks the header keyword, the legal gate set, and whether `--list` carries `title`. A bare
+plan-name resolves against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
+
+**Every failure is loud** — unknown id, duplicate id, empty body, missing or invalid gate, an indented
+header, no blocks at all. Nothing may resolve to a plausible default, because the consumer is an agent
+that would build against it. Two silent-wrong-answer classes are guarded and have tests: a header
+inside a **fenced code block** is an example (it used to mint a phantom unit and truncate the real one),
+and the gate is read only from the **one place its kind documents** (a `gate:` in prose used to outrank
+the real one and yield `build-only`, which makes the engine accept a feature with nothing tested).
+
+The engines cannot verify the command ran — the harness has no tools. `plan_obtained` on the developer
+and acceptance schemas is that signal, and both engines halt on an explicit `false`.
 
 ## gen-flows.mjs
 

@@ -41,8 +41,8 @@ import { runEngine, throwsWith, section, ok } from './harness.mjs';
 
 section('a failed plan parks and the roadmap carries on');
 const { out, labels } = await runEngine('workflows/feature/feature-cycle.mjs', {
-  args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
-          gates: { build: 'b', test: 't' }, plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
+  args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' },
+          planPath: 'plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
   respond: {
     'develop': { build_passed: true, test_outcome: 'passed', unstaged_confirmed: true },
     'accept plan-a': { pass: false },        // longest matching prefix wins

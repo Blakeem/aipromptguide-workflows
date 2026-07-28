@@ -58,6 +58,14 @@ export default {
       when: 'every plans entry is missing its id',
       args: { ...base, plans: [{ planPath: 'plans/one.md' }] },
     },
+    {
+      // A roadmap of "## Plan: <id>" blocks with no file holding them. Each entry is legal on its own
+      // (it has an id), so only the bodyless check catches it — otherwise the developer is handed an
+      // empty plan and builds nothing while reporting success.
+      name: 'roadmap blocks with no plan file',
+      when: 'plans entries carry no body and there is no top-level planPath',
+      args: { ...base, plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
+    },
     { name: 'no build gate', when: 'args.gates.build is missing', args: { ...base, gates: { test: GATES.test } } },
     { name: 'no test gate for a green plan', when: 'a plan asks for gate:"green" with no test command', args: { ...base, gates: { build: GATES.build } } },
     { name: 'runOnly names no plan', when: 'runOnly holds an unknown plan id', args: { ...base, runOnly: ['nope'] } },
@@ -140,6 +148,26 @@ export default {
       when: 'acceptance stages while reporting a regression',
       args: base,
       respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_PASS, regression: true } },
+    },
+    {
+      name: 'plan id is not a slug',
+      when: 'a plans entry id is not a kebab slug',
+      args: { ...base, plans: [{ id: 'Plan A!', plan: '## Feature — A' }] },
+    },
+    {
+      // The block command runs in the AGENT's shell, so this attestation is the only signal the plan
+      // ever arrived. Without the halt, a denied command or an id matching no block builds something
+      // plausible and the run reports `done (staged)`.
+      name: 'developer never got its plan',
+      when: 'the developer reports plan_obtained=false',
+      args: base,
+      respond: { develop: { ...DEV_OK, plan_obtained: false }, park: PARK_OK },
+    },
+    {
+      name: 'acceptance never got its plan',
+      when: 'the acceptance verifier reports plan_obtained=false',
+      args: base,
+      respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK },
     },
     {
       // Halts before any reviewer is spawned, and does NOT park — that work is the operator's.

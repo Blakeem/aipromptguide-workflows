@@ -68,10 +68,25 @@ const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? Stri
 // The plan reference handed to plan-aware agents (developer, acceptance, refine, sweep). NEVER handed
 // to the blind quality reviewer.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it VERBATIM)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
-// How an agent locates its one section inside the verbatim plan — by header, no parsing.
-const sectionRef  = (id) => PLAN_PATH
-  ? `the section headed "## Section: ${id}" inside ${PLAN_PATH} (read THAT section verbatim — the other sections are CONTEXT only; do NOT implement them)`
-  : `the section headed "## Section: ${id}" in the plan above (the other sections are CONTEXT only; do NOT implement them)`;
+// How an agent gets its ONE section out of the verbatim plan. Default (`planContext:'block'`): a
+// COMMAND that prints just that section, so a twelve-section migration plan never enters a developer's
+// context and the section's END is decided by a parser rather than by eye. `planContext:'full'` hands
+// the file instead, for a section that genuinely needs its neighbours in view. An INLINE plan has no
+// file to address, so it keeps the by-header wording.
+const BLOCK_TOOL  = `${ROOT}/tools/plan-block.mjs`;
+const blockRef    = (id) => `the output of:  node '${BLOCK_TOOL}' '${PLAN_PATH}' '${id}' --kind section
+Run it and implement EXACTLY what it prints — that is your section, verbatim. If it exits non-zero,
+report plan_obtained=false and STOP: never guess at a section you could not read. The full plan is at
+${PLAN_PATH} if you need a neighbouring section for context; implement ONLY "${id}"`;
+const sectionRef  = (s) => !PLAN_PATH
+  // An INLINE plan has no file to address OR to run a command against, so the body must travel in the
+  // prompt itself. It previously said "the section headed X in the plan above" while no plan was above:
+  // PLAN_REF reaches only refine and the sweep, never develop or acceptance, so the developer was told
+  // to read a document it had never been given.
+  ? `the section headed "## Section: ${s.id}" in the approved plan below (the other sections are CONTEXT only; do NOT implement them):\n-----\n${PLAN_INLINE}\n-----`
+  : s.planContext === 'full'
+    ? `the section headed "## Section: ${s.id}" inside ${PLAN_PATH} (read THAT section verbatim — the other sections are CONTEXT only; do NOT implement them)`
+    : blockRef(s.id);
 
 // =============================================================================
 // Sections — the ordered, dependency-sequenced control list the main agent supplies. Each entry is a
@@ -83,7 +98,22 @@ const VALID_GATES = new Set(['green', 'red-baseline', 'build-only']);
 const ALL_SECTIONS = (Array.isArray(A.sections) ? A.sections : [])
   .map((s) => (typeof s === 'string' ? { id: s } : s))
   .filter((s) => s && s.id)
-  .map((s) => ({ id: String(s.id), title: s.title || s.id, gate: VALID_GATES.has(s.gate) ? s.gate : 'green' }));
+  .map((s) => ({
+    id: String(s.id),
+    title: s.title || s.id,
+    gate: VALID_GATES.has(s.gate) ? s.gate : 'green',
+    planContext: s.planContext === 'full' ? 'full' : 'block',
+  }));
+
+// An id routes review/ledger file names AND is interpolated into the block command, so anything but a
+// kebab slug is either a file-name collision (two ids that `slug()` folds together silently share one
+// DISMISSED file) or a shell metacharacter in a command an agent runs. The plan-block tool enforces
+// this on the file's headers; the engine must enforce the same rule on the control array.
+const KEBAB_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const BAD_IDS = ALL_SECTIONS.filter((s) => !KEBAB_ID.test(s.id)).map((s) => s.id);
+if (BAD_IDS.length) {
+  throw new Error(`section id(s) [${BAD_IDS.join(', ')}] are not kebab slugs (a-z, 0-9, single hyphens). An id names this section's review + ledger files and is passed to the plan-block command, so it must carry no spaces, punctuation or shell characters.`);
+}
 
 const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
@@ -132,8 +162,9 @@ function gateOk(gate, dev) {
 // =============================================================================
 const DEVELOP_SCHEMA = {
   type: 'object',
-  required: ['baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user'],
+  required: ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user'],
   properties: {
+    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your section text — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: never build from a section you could not read.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     produced:          { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     build_passed:      { type: 'boolean' },
@@ -159,8 +190,9 @@ const QUALITY_SCHEMA = {
 
 const ACCEPTANCE_SCHEMA = {
   type: 'object',
-  required: ['pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
+  required: ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
+    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the section text you are judging against — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: a verdict reached without the spec is worthless.' },
     pass:        { type: 'boolean', description: 'true if every acceptance criterion of THIS section is met, it is reachable, the section gate is satisfied, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on this section\'s files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'this section\'s change is actually wired in / reachable (every call site converted, route mounted, symbol exported)' },
@@ -342,7 +374,7 @@ const developPrompt = (section, round, reviewPath) => {
       ? 'build-only — no test pass/fail requirement; just keep the build green.'
       : 'green — this section\'s selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS section (the rest of the suite may be intentionally red mid-migration).';
   return `
-You are the DEVELOPER. Implement ${sectionRef(section.id)}. Build ONLY this section minimally and
+You are the DEVELOPER. Implement ${sectionRef(section)}. Build ONLY this section minimally and
 surgically; match conventions; NO scope creep beyond it.
 ${ENV}
 SECTION: ${section.id} — ${section.title}
@@ -413,7 +445,7 @@ contests) + issue_count + contested_dismissals via the schema. Do NOT modify sou
 const acceptancePrompt = (section, round) => `
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE section. The blind code review
 already passed. Verify, against the repo itself, that THIS section is fully delivered and nothing
-regressed. Read ${sectionRef(section.id)}.
+regressed. Read ${sectionRef(section)}.
 ${ENV}
 SECTION: ${section.id} — ${section.title}   (gate: ${section.gate})
 
@@ -615,6 +647,22 @@ for (const section of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${section.id} r${round}`,
     }));
 
+    // ---- PRECONDITION: the developer actually HAS its section ------------------------------------
+    // The block command runs in the AGENT's shell, so the harness cannot verify it (no tools). This
+    // attestation is the only signal that the section ever arrived — without a consumer it would be
+    // pure theater, and an agent whose command was denied, or whose id matches no block, would build
+    // something plausible while the run reported success. `=== false` so a dead agent (null) falls
+    // through to the existing guards rather than being laundered into this one.
+    if (dev?.plan_obtained === false) {
+      halted = true;
+      escalated = true;   // it may have touched the tree before giving up → park rather than abandon
+      haltKind = 'plan-unreadable';
+      haltReason = `Developer for section ${section.id} could not obtain its section (round ${round}). Its section reference was: ${sectionRef(section)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Section:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
+      rec.status = 'BLOCKED (plan unreadable)';
+      log(`  ✋ ${section.id} r${round}: developer never got its section → halting before any review agent`);
+      break;
+    }
+
     // ---- PRECONDITION (round 1 of every section): the unstaged tree must have been CLEAN -----------
     // The reviewers scope on the unstaged diff, so stray pre-existing work would be reviewed as this
     // section's and burn the whole round budget on code nobody in this run touched. Halt HERE — before
@@ -687,6 +735,18 @@ for (const section of pending) {
     const acc = await agent(acceptancePrompt(section, round), roleOpts('acceptance', {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${section.id} r${round}`,
     }));
+    // The verifier's sibling of the developer's check. An acceptance verifier without the section has
+    // no criteria to judge — its `pass:false` would otherwise read as an ordinary gap and park the
+    // section, hiding "the spec never arrived" behind a routine round-budget failure.
+    if (acc?.plan_obtained === false) {
+      halted = true;
+      escalated = true;
+      haltKind = 'plan-unreadable';
+      haltReason = `Acceptance verifier for section ${section.id} could not obtain its section (round ${round}), so it had no criteria to judge. Its section reference was: ${sectionRef(section)}. Run that yourself: a non-zero exit names the cause.`;
+      rec.status = 'BLOCKED (plan unreadable)';
+      log(`  ✋ ${section.id} r${round}: acceptance never got its section → halting`);
+      break;
+    }
     if (acc?.regression === true) rec.regression = true;
     rec.criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
     if (acc?.pass === true) {
@@ -835,6 +895,7 @@ const parkedSections = ledger.filter((r) => r.patch || (typeof r.status === 'str
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
+  'plan-unreadable': 'BLOCKED (an agent could not obtain its section — nothing was built from a guess)',
   'passed-unstaged': 'BLOCKED (a section passed but was not staged — stage it, then resume)',
   'acceptance-regression': 'BLOCKED (a section staged while self-reporting a regression — inspect the staged diff before continuing)',
   'parked':          'halted (a section was parked — its work is saved to a patch; the sections after it were not attempted)',

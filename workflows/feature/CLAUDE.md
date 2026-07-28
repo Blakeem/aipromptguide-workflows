@@ -39,8 +39,15 @@ refine then confirms the pieces instead of rejecting the whole.
 Pick a `runId` now; reuse it for every phase. Every `Workflow` call loads by path: `scriptPath` = the
 absolute path to `feature-cycle.mjs`, plus the phase args. **Plan + refine each feature, then build once.**
 
-Per feature (repeat for each feature in a roadmap — plan mode re-enters freely, and each session mints
-its own `~/.claude/plans/<name>.md`):
+**A roadmap belongs in ONE plan file.** Author every feature as a `## Plan: <id>` block in a single
+plan-mode session (§4): one approval, ONE refine pass that sees all the blocks together (so it can
+catch two plans converting the same call site), and no split into per-feature files — which is
+transcription (#2/#11), and the reason this used to be painful. Each agent is handed a **command**
+that prints just its block, so the other features never enter its context. One feature per plan-mode
+session still works: give each entry its own `planPath` (below, unchanged).
+
+Per feature (or per block; plan mode re-enters freely, and each session mints its own
+`~/.claude/plans/<name>.md`):
 
 1. **`EnterPlanMode`** (read-only). Explore the target repo (it runs Explore→Plan subagents for you),
    `AskUserQuestion` for anything ambiguous — **acceptance criteria + testing approach are the
@@ -59,10 +66,13 @@ its own `~/.claude/plans/<name>.md`):
 Then ONCE, for the whole roadmap:
 
 5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
-   array — `[{ id, planPath, gate }]` in build order (§11). One feature? Pass a single top-level
-   `planPath` + `gate` instead (back-compat). The develop → blind-quality → acceptance loop runs each
-   plan in order, **staging each accepted feature** before the next starts; a plan that can't pass is
-   **parked** (its work saved to a patch, the tree cleared) and the roadmap carries on (§6).
+   array in build order (§11). One plan file of blocks → keep the top-level `planPath` and pass
+   `[{ id, gate }]`; derive it rather than typing it:
+   `node <root>/tools/plan-block.mjs <planPath> --list`. Per-feature files → `[{ id, planPath, gate }]`.
+   One feature? A single top-level `planPath` + `gate` (back-compat). The develop → blind-quality →
+   acceptance loop runs each plan in order, **staging each accepted feature** before the next starts; a
+   plan that can't pass is **parked** (its work saved to a patch, the tree cleared) and the roadmap
+   carries on (§6).
 6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md`, surface
    `NEEDS-USER.md`, tell the user what to review. **Never commit.**
 
@@ -94,6 +104,9 @@ Before `phase:"build"`:
   are handed paths into that dir, and the blind reviewer must have no path that reaches a plan (#3).
 - **`root` — REQUIRED** (both phases): the absolute base run-state hangs off, normally the tool's own
   directory so `runs/` lands beside the tool, not in the target repo. Omit it → the engine errors.
+  For a roadmap of blocks it must ALSO be this checkout: the block command an agent runs is
+  `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every unit fails to get
+  its plan (loudly — see `plan_obtained` below).
 
 ## 4. Plan-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -128,6 +141,27 @@ green   # build + the required verification pass  (or: build-only). Becomes this
         # top-level `gate` arg for one feature, or the entry's `gate` in a `plans` roadmap.
 ```
 
+**A roadmap** is that same body, once per feature, under a `## Plan: <id> — <title>` header:
+
+```markdown
+## Plan: session-store — redis-backed session table
+
+## Feature
+...as above, through ## Gate...
+
+## Plan: login-endpoint — POST /session
+
+## Feature
+...
+```
+
+`<id>` is a kebab slug and the only routing key. **Only a `## Plan:` header ends a block** — the body
+keeps its `##` headers unchanged, so a single-feature plan pastes into a roadmap as-is. That boundary
+is a parser's, not an agent's: `tools/plan-block.mjs` slices the block and prints it verbatim, which is
+what each developer and acceptance verifier is handed. Check a roadmap before you run it —
+`plan-block.mjs <file> --list` throws on a duplicate id, a non-kebab id, an empty body or a missing
+gate, all of which would otherwise surface mid-build. A working sample: `tests/fixtures/roadmap-sample.md`.
+
 ## 5. Roles (in the engine)
 
 The JS conductor sequences `agent()` calls, passing only control signals (#1). Each agent is fresh and
@@ -135,7 +169,8 @@ throwaway.
 
 - **Plan Critic** (refine · opus) — read-only; greps the repo, verifies the plan's file list +
   integration points; returns gaps/questions/too_big.
-- **Developer** (build · opus) — reads its plan + the latest flagging review verbatim; implements
+- **Developer** (build · opus) — gets its plan from the `plan-block.mjs` command (§4) or its own
+  `planPath`, reads the latest flagging review verbatim; implements
   minimally, **wires it in**, runs the gate green, leaves work **UNSTAGED**. Owns the **decision
   matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
@@ -167,6 +202,14 @@ next round; **any code change re-enters at quality.**
   precedes clear — no patch, no clear. Clearing is the *point*: it restores the clean staging boundary
   the next plan's blind diff needs. Final status `roadmap complete with N plan(s) parked`, plus a
   `parked:[{ id, patch, strays, status }]` array in the result.
+- **An agent that never got its plan halts the run.** The block command runs in the *agent's* shell, so
+  the engine cannot verify it (the harness has no tools). Both the developer and the acceptance verifier
+  report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
+  plan — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
+  first: the command not permitted in the run environment (pre-allowlist
+  `Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+  matching no `## Plan:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
+  exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
 - **What still stops the run.** A hard blocker escalated to `NEEDS-USER.md` (parked first, then stopped —
   only the user can unblock it); a park that couldn't clear the tree or left the build red
   (`BLOCKED (a parked plan left the tree unsafe — inspect before resuming)`); acceptance **passed but did
@@ -219,7 +262,8 @@ rounds is no longer a stop — that plan parks and the roadmap continues. The ru
 `BLOCKED (needs user input)`, `BLOCKED (working tree was not clean — nothing was built)`,
 `BLOCKED (a plan passed but was not staged — stage it, then resume)`, `BLOCKED (a plan staged while
 self-reporting a regression — inspect the staged diff before continuing)`, `BLOCKED (a parked plan left
-the tree unsafe — inspect before resuming)`, or `stopped on token budget (resume where it left off)`.
+the tree unsafe — inspect before resuming)`, `BLOCKED (an agent could not obtain its plan — nothing was
+built from a guess)`, or `stopped on token budget (resume where it left off)`.
 1. Read the trail + `git -C <repo> diff --cached --stat` to see which features are staged/accepted, and
    the result's `parked` array (or `NEEDS-USER.md`) for which parked — their work is in a patch, not
    the tree.
@@ -286,8 +330,11 @@ anything in a `DISMISSED-<id>.md` worth a second look. **Never commit** — tell
 Full schema + defaults: the Config block atop `feature-cycle.mjs` (the canonical source). Pass `args`
 inline to `Workflow`.
 - **Required:** `runId` · `root` (§3) · a plan — **either** `plans` (the roadmap: an ordered array
-  `[{ id, planPath|plan, gate }]`, array order = build order; `id` is a stable kebab slug + the only
-  routing key, the body is read verbatim from `planPath`/`plan`, `gate` is `green`|`build-only`) **or** a
+  `[{ id, gate }]` whose bodies are `## Plan: <id>` blocks in the top-level `planPath`, or
+  `[{ id, planPath|plan, gate }]` with a body per entry; array order = build order; `id` is a stable
+  kebab slug + the only routing key, the body is read verbatim, `gate` is `green`|`build-only`; an
+  entry with no body **and** no top-level `planPath` **throws** — that combination used to hand the
+  developer an empty plan and build nothing while reporting success) **or** a
   single top-level `planPath` (absolute) / `plan` (inline markdown) for one feature (back-compat;
   synthesized as one plan `id:"feature"`) · `target.repo` (absolute path to the git repo — **throws** if
   missing; there is no default, so a typo can't silently retarget the tool's own repo) · `gates.build`
@@ -296,7 +343,10 @@ inline to `Workflow`.
   Non-zero exit = fail.
 - **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level
   `planPath`/`plan` and never reads `plans` — it **throws** if neither is set)
-  · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `conventions` (the
+  · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `planContext` (per
+  `plans` entry: `block`, the default, hands that agent the `plan-block.mjs` command so only its own
+  block is in context; `full` hands the whole roadmap file with the block named, for a feature that
+  genuinely needs its neighbours in view) · `conventions` (the
   developer's rubric — language/version constraints, what stays additive, what NOT to touch; the blind
   reviewer is never shown it) · `reference` (path to a completed example to mirror) · `gates.testSetup`
   (runner quirks, how to scope one test, run-as-user/container prefix, how to start a server) ·

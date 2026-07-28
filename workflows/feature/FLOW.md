@@ -20,39 +20,44 @@ flowchart TD
   t4(["roadmap complete with N plan(s) parked"])
   t5(["BLOCKED (a plan passed but was not staged — stage it, then resume)"])
   t6(["BLOCKED (a plan staged while self-reporting a regression — inspect the staged diff before continuing)"])
-  t7(["BLOCKED (working tree was not clean — nothing was built)"])
-  t8(["BLOCKED (needs user input)"])
-  t9(["BLOCKED (a parked plan left the tree unsafe — inspect before resuming)"])
-  t10(["stopped on token budget (resume where it left off)"])
-  t11(["partial slice complete"])
+  t7(["BLOCKED (an agent could not obtain its plan — nothing was built from a guess)"])
+  t8(["BLOCKED (working tree was not clean — nothing was built)"])
+  t9(["BLOCKED (needs user input)"])
+  t10(["BLOCKED (a parked plan left the tree unsafe — inspect before resuming)"])
+  t11(["stopped on token budget (resume where it left off)"])
+  t12(["partial slice complete"])
   x1[/"throw: args must include at least { runId, planPath #124; plan"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
-  x5[/"throw: Plan critic returned nothing"/]
-  x6[/"throw: args needs a plan for phase:#quot;build#quot;"/]
-  x7[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
-  x8[/"throw: args.gates.test is required when any plan has gate:…"/]
-  x9[/"throw: args.runOnly"/]
-  x10[/"throw: args.startAt #quot;"/]
+  x4[/"throw: plan id(s) ["/]
+  x5[/"throw: plans ["/]
+  x6[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
+  x7[/"throw: Plan critic returned nothing"/]
+  x8[/"throw: args needs a plan for phase:#quot;build#quot;"/]
+  x9[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
+  x10[/"throw: args.gates.test is required when any plan has gate:…"/]
+  x11[/"throw: args.runOnly"/]
+  x12[/"throw: args.startAt #quot;"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t10
+  S0 --> t11
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
+  S0 --> x5
   S0 --> x6
-  S0 --> x7
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
+  S0 --> x12
   a1 --> t1
-  a1 --> x5
+  a1 --> x7
   a2 -.->|"the build gate is never green (×4)"| a2
   a2 --> a3
   a2 --> a5
-  a2 --> t7
+  a2 --> t8
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
   a4 ==>|"next item"| a2
@@ -63,11 +68,12 @@ flowchart TD
   a4 --> t4
   a4 --> t5
   a4 --> t6
-  a4 --> t11
+  a4 --> t12
   a5 ==>|"next item"| a2
   a5 --> t4
-  a5 --> t8
+  a5 --> t7
   a5 --> t9
+  a5 --> t10
 ```
 
 ## Phases
@@ -90,6 +96,7 @@ flowchart TD
 | roadmap complete with N plan(s) parked |  | derived |
 | BLOCKED (a plan passed but was not staged — stage it, then resume) |  | derived |
 | BLOCKED (a plan staged while self-reporting a regression — inspect the staged diff before continuing) |  | derived |
+| BLOCKED (an agent could not obtain its plan — nothing was built from a guess) |  | derived |
 | BLOCKED (working tree was not clean — nothing was built) |  | derived |
 | BLOCKED (needs user input) |  | derived |
 | BLOCKED (a parked plan left the tree unsafe — inspect before resuming) |  | derived |
@@ -98,14 +105,16 @@ flowchart TD
 | throw: args must include at least { runId, planPath \| plan |  | throw (line 26) |
 | throw: args.root is required |  | throw (line 31) |
 | throw: args.target.repo is required |  | throw (line 37) |
-| throw: phase:"refine" needs the SINGLE top-level planPath |  | throw (line 438) |
-| throw: Plan critic returned nothing |  | throw (line 450) |
-| throw: args needs a plan for phase:"build" |  | throw (line 482) |
-| throw: args.gates.build is required for phase:"build" |  | throw (line 488) |
-| throw: args.gates.test is required when any plan has gate:… |  | throw (line 491) |
-| throw: args.runOnly |  | throw (line 506) |
-| throw: args.startAt " |  | throw (line 511) |
+| throw: plan id(s) [ |  | throw (line 123) |
+| throw: plans [ |  | throw (line 132) |
+| throw: phase:"refine" needs the SINGLE top-level planPath |  | throw (line 480) |
+| throw: Plan critic returned nothing |  | throw (line 492) |
+| throw: args needs a plan for phase:"build" |  | throw (line 524) |
+| throw: args.gates.build is required for phase:"build" |  | throw (line 530) |
+| throw: args.gates.test is required when any plan has gate:… |  | throw (line 533) |
+| throw: args.runOnly |  | throw (line 548) |
+| throw: args.startAt " |  | throw (line 553) |
 
 ## Coverage
 
-26 scenarios · 5/5 roles · 10/10 throw sites · 6/6 halt statuses · 21 terminal states.
+30 scenarios · 5/5 roles · 12/12 throw sites · 7/7 halt statuses · 24 terminal states.

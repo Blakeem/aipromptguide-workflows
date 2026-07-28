@@ -41,7 +41,8 @@ const DEV = { build_passed: true, test_outcome: 'passed', tests_run_count: 3, fu
 const featureScenario = (name, plans) => ({
   name,
   when: `${plans.length} plan(s) park`,
-  args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, maxRounds: 1, plans },
+  // planPath is what makes these bodyless entries legal: each is a "## Plan: <id>" block inside it.
+  args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, maxRounds: 1, planPath: 'plans/roadmap.md', plans },
   respond: {
     develop: DEV,
     quality: { clean: true },
@@ -70,7 +71,7 @@ const retrySpec = {
   scenarios: [{
     name: 'gaps, then a pass, then the next plan',
     when: 'acceptance finds gaps',
-    args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
+    args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, planPath: 'plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
     respond: {
       develop: DEV,
       quality: { clean: true },

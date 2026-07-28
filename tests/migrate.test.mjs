@@ -236,3 +236,63 @@ section('park never names a review file that was never written');
   ok(!/acceptance-review-sec-a-r\d+\.md/.test(p), 'no fabricated acceptance-review path in the prompt');
   ok(/produced NO review file/.test(p), 'the prompt says outright that no review file exists');
 }
+
+section('a section reaches the developer as a plan-block COMMAND, not the whole plan file');
+// Same context+truncation fix as feature-cycle's. A twelve-section migration plan in every developer's
+// context is the cost this removes; the parser-decided block end is the correctness half.
+{
+  const FILED = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md' };
+  const { prompt } = await run(GREEN_RUN, FILED);
+  const dev = prompt('develop sec-a');
+  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev), '--kind section, and this section only');
+  ok(!/plan-block\.mjs \S+ sec-b/.test(dev), 'never a sibling section');
+  ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
+  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(prompt('acceptance sec-a')),
+    'acceptance judges against the same section the developer built to');
+  ok(!/plan-block|migration\.md/.test(prompt('quality sec-a')), 'the BLIND reviewer still gets no route to the plan (#3)');
+}
+
+section('planContext:"full" and an INLINE plan both keep the by-header wording');
+// An inline plan has no file to run a command against, so it must NOT be handed one.
+{
+  const FULL = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md',
+    sections: [{ id: 'sec-a', title: 'A', planContext: 'full' }] };
+  const dev = (await run(GREEN_RUN, FULL)).prompt('develop sec-a');
+  ok(/"## Section: sec-a" inside E:\/plans\/migration\.md/.test(dev), 'full names the section inside the file');
+  ok(!/plan-block\.mjs/.test(dev), 'and issues no command');
+
+  const inline = (await run(GREEN_RUN)).prompt('develop sec-a');
+  ok(/"## Section: sec-a" in the approved plan below/.test(inline), 'an inline plan is addressed in place');
+  ok(!/plan-block\.mjs/.test(inline), 'and never gets a command it could not run');
+  // It used to say "in the plan above" while PLAN_REF reached only refine and the sweep — the developer
+  // was told to read a document it had never been given.
+  ok(inline.includes('## Section: sec-a\nA\n'), 'and the plan BODY actually travels in the prompt');
+}
+
+section('an agent that never got its section halts the run — the attestation has a consumer');
+// Same contract as feature-cycle's, and the same reason: the block command runs in the AGENT's shell,
+// so this field is the only signal the section ever arrived.
+{
+  const { out, labels } = await run({ 'develop': { ...DEV, plan_obtained: false }, 'park': PARK_OK });
+  ok(!labels.some((l) => l.startsWith('quality')), 'no reviewer was spawned on a section nobody read');
+  eq(out.status, 'BLOCKED (an agent could not obtain its section — nothing was built from a guess)', 'status');
+  ok(/sec-a/.test(out.haltReason), 'halt reason names the section');
+}
+
+section('migrate acceptance has the same channel');
+{
+  const { out } = await run({
+    'develop': DEV, 'quality': CLEAN,
+    'acceptance': { ...ACC_FAIL, plan_obtained: false },
+    'park': PARK_OK,
+  });
+  eq(out.status, 'BLOCKED (an agent could not obtain its section — nothing was built from a guess)', 'status');
+  ok(/Acceptance verifier/.test(out.haltReason), 'halt reason names the role');
+}
+
+section('a non-kebab section id throws — it names files AND enters a shell command');
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'Sec A!', title: 'A' }] } });
+  ok(/not kebab slugs/.test(msg), `throws: ${msg.slice(0, 60)}`);
+  ok(/Sec A!/.test(msg), 'and names the offender');
+}

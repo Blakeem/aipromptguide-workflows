@@ -163,6 +163,26 @@ export default {
       respond: { ...GREEN_RUN, acceptance: { ...ACC_PASS, regression: true } },
     },
     {
+      name: 'section id is not a slug',
+      when: 'a sections entry id is not a kebab slug',
+      args: { ...base, sections: [{ id: 'Sec A!', title: 'A' }] },
+    },
+    {
+      // The block command runs in the AGENT's shell, so this attestation is the only signal the section
+      // ever arrived. Without the halt, a denied command or an id matching no block builds something
+      // plausible and the run reports success.
+      name: 'developer never got its section',
+      when: 'the developer reports plan_obtained=false',
+      args: base,
+      respond: { develop: { ...DEV_OK, plan_obtained: false }, park: PARK_OK },
+    },
+    {
+      name: 'acceptance never got its section',
+      when: 'the acceptance verifier reports plan_obtained=false',
+      args: base,
+      respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK },
+    },
+    {
       // Halts before any reviewer is spawned, and does NOT park — that work is the operator's.
       name: 'dirty baseline',
       when: 'the tree was not clean on round 1',

@@ -72,9 +72,24 @@ if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
 }
 // The plan reference handed to plan-aware agents (developer, acceptance) — per plan entry, since a
 // roadmap carries one plan file per feature. NEVER handed to the blind quality reviewer (#3).
+// A roadmap entry with no body of its own is a "## Plan: <id>" BLOCK inside the top-level plan file.
+// Default (`planContext:'block'`): hand the agent a COMMAND that prints just its block, so the other
+// features never enter its context and the block's END is decided by a parser — plan bodies use `##`
+// headers, so an agent locating the block by eye can stop at the first `## Feature` and build against a
+// truncated spec that looks complete. `planContext:'full'` hands the file instead, for a feature that
+// genuinely needs its neighbours in view.
+const BLOCK_TOOL  = `${ROOT}/tools/plan-block.mjs`;
+const blockRef    = (id) => `the output of:  node '${BLOCK_TOOL}' '${PLAN_PATH}' '${id}'
+Run it and implement EXACTLY what it prints — that is your plan, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full roadmap is at
+${PLAN_PATH} if you need a neighbouring feature for context; implement ONLY "${id}"`;
 const planRef     = (p) => p.planPath
   ? `the approved plan file at ${p.planPath} (read it verbatim)`
-  : `the approved plan below:\n-----\n${p.plan}\n-----`;
+  : p.plan
+    ? `the approved plan below:\n-----\n${p.plan}\n-----`
+    : p.planContext === 'full'
+      ? `the block headed "## Plan: ${p.id}" inside the roadmap at ${PLAN_PATH} (read THAT block verbatim; the other blocks are CONTEXT only — implement ONLY "${p.id}")`
+      : blockRef(p.id);
 // Top-level single plan — used by the refine critic (one plan per refine pass) + back-compat build.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it verbatim)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
 
@@ -95,7 +110,27 @@ const ALL_PLANS = (Array.isArray(A.plans) && A.plans.length
     planPath: p.planPath ? abs(p.planPath) : '',
     plan: (!p.planPath && p.plan && typeof p.plan !== 'object') ? String(p.plan) : '',
     gate: VALID_GATES.has(p.gate) ? p.gate : 'green',
+    planContext: p.planContext === 'full' ? 'full' : 'block',
   }));
+
+// An id routes review/ledger file names AND is interpolated into the block command, so anything but a
+// kebab slug is either a file-name collision (two ids that `slug()` folds together silently share one
+// DISMISSED file) or a shell metacharacter in a command an agent runs. The plan-block tool enforces
+// this on the file's headers; the engine must enforce the same rule on the control array.
+const KEBAB_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const BAD_IDS = ALL_PLANS.filter((p) => !KEBAB_ID.test(p.id)).map((p) => p.id);
+if (BAD_IDS.length) {
+  throw new Error(`plan id(s) [${BAD_IDS.join(', ')}] are not kebab slugs (a-z, 0-9, single hyphens). An id names this plan's review + ledger files and is passed to the plan-block command, so it must carry no spaces, punctuation or shell characters.`);
+}
+
+// An entry with NO body of its own addresses a block in the top-level plan file. Without that file
+// there is nothing to address: planRef would hand the developer an empty plan and the build would run
+// against nothing, reporting success. Loud and early — before any agent is spawned. Skipped in refine,
+// which never reads `plans` at all (the docs tell you to reuse one args object across both phases).
+const BODYLESS = ALL_PLANS.filter((p) => !p.planPath && !p.plan);
+if (PHASE !== 'refine' && BODYLESS.length && !PLAN_PATH) {
+  throw new Error(`plans [${BODYLESS.map((p) => p.id).join(', ')}] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: <id>" blocks — the developer would be handed an empty plan. Either give each entry its own planPath, or pass the roadmap file as the top-level planPath.`);
+}
 
 const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
@@ -132,8 +167,9 @@ function gateOk(gate, dev) {
 // =============================================================================
 const DEVELOP_SCHEMA = {
   type: 'object',
-  required: ['baseline_dirty_files', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user'],
+  required: ['plan_obtained', 'baseline_dirty_files', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user'],
   properties: {
+    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your plan text — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: never build from a plan you could not read.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed', 'not-run'], description: 'passed = the required verification ran and PASSED; failed = ran and failed; not-run = no verification executed' },
@@ -159,8 +195,9 @@ const QUALITY_SCHEMA = {
 
 const ACCEPTANCE_SCHEMA = {
   type: 'object',
-  required: ['pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
+  required: ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
+    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the plan text you are judging against — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: a verdict reached without the spec is worthless.' },
     pass:        { type: 'boolean', description: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on the feature files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'the feature is actually wired in / reachable from the app entry points' },
@@ -201,7 +238,7 @@ const REFINE_SCHEMA = {
         },
       },
     },
-    too_big: { type: 'boolean', description: 'true if this is more than ONE bounded feature and should be split' },
+    too_big: { type: 'boolean', description: 'true if this is more than ONE bounded feature and should be split — in a roadmap of "## Plan:" blocks, NAME the offending block id(s) in notes, since this flag cannot say which' },
     notes:   { type: 'string' },
   },
 };
@@ -412,6 +449,11 @@ const refinePrompt = () => `
 You are an INDEPENDENT PLAN CRITIC (read-only). The orchestrating agent authored the feature plan in
 plan mode. Find what it MISSED or got WRONG against the REAL repo — not to restyle or re-architect it.
 An empty result (verdict="ready") is a GOOD outcome. Read ${PLAN_REF}.
+If that file carries several "## Plan: <id>" blocks it is a ROADMAP: critique EVERY block, name the
+block id at the start of each gap title, and judge too_big per BLOCK (not on the file as a whole) —
+too_big is ONE boolean for the whole return, so NAME the oversized block(s) in notes. Also
+report cross-block gaps — two blocks converting the same call site, a block depending on one ordered
+after it, work duplicated between them — since you are the only reviewer that sees them together.
 ${ENV}
 
 PROCEDURE:
@@ -553,6 +595,22 @@ for (const p of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${p.id} r${round}`,
     }));
 
+    // ---- PRECONDITION: the developer actually HAS its plan ------------------------------------------
+    // The block command runs in the AGENT's shell, so the harness cannot verify it (§2: no tools). This
+    // attestation is the only signal that the plan ever arrived — without a consumer it would be pure
+    // theater, and an agent whose command was denied, or whose id matches no block, would otherwise
+    // build something plausible and the run would report `done (staged)`. `=== false` so a dead agent
+    // (null) falls through to the existing guards rather than being laundered into this one.
+    if (dev?.plan_obtained === false) {
+      halted = true;
+      escalated = true;   // it may have touched the tree before giving up → park rather than abandon
+      haltKind = 'plan-unreadable';
+      haltReason = `Developer for plan ${p.id} could not obtain its plan (round ${round}). Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
+      rec.status = 'BLOCKED (plan unreadable)';
+      log(`  ✋ ${p.id} r${round}: developer never got its plan → halting before any review agent`);
+      break;
+    }
+
     // ---- PRECONDITION (round 1 of every plan): the unstaged tree must have been CLEAN --------------
     // The reviewers scope on the unstaged diff, so stray pre-existing work would be reviewed as this
     // plan's and burn the whole round budget on code nobody in this run touched. Halt HERE — before any
@@ -617,6 +675,18 @@ for (const p of pending) {
     const acc = await agent(acceptancePrompt(p, round), roleOpts('acceptance', {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
+    // The verifier's sibling of the developer's check. An acceptance verifier without the plan has no
+    // criteria to judge — its `pass:false` would otherwise read as an ordinary gap and park the plan,
+    // hiding "the spec never arrived" behind a routine round-budget failure.
+    if (acc?.plan_obtained === false) {
+      halted = true;
+      escalated = true;
+      haltKind = 'plan-unreadable';
+      haltReason = `Acceptance verifier for plan ${p.id} could not obtain its plan (round ${round}), so it had no criteria to judge. Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause.`;
+      rec.status = 'BLOCKED (plan unreadable)';
+      log(`  ✋ ${p.id} r${round}: acceptance never got its plan → halting`);
+      break;
+    }
     if (acc?.regression === true) rec.regression = true;
     rec.criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
     if (acc?.pass === true) {
@@ -741,6 +811,7 @@ const parkedPlans = ledger.filter((r) => r.patch || (typeof r.status === 'string
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
+  'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
   'passed-unstaged': 'BLOCKED (a plan passed but was not staged — stage it, then resume)',
   'acceptance-regression': 'BLOCKED (a plan staged while self-reporting a regression — inspect the staged diff before continuing)',
   'park-unsafe':     'BLOCKED (a parked plan left the tree unsafe — inspect before resuming)',

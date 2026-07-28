@@ -143,6 +143,13 @@ You only re-copy a command if a brand-new workflow is added, which is rare by de
 
 What's changed, newest first. Only what you'd notice while running them.
 
+### 2026-07-28
+
+- **A `feature` roadmap is now ONE approved plan file of `## Plan: <id>` blocks** — no more hand-splitting
+  an approved plan into per-feature files — and each agent in `feature` and `migrate` is handed a
+  `tools/plan-block.mjs` command that prints only its own block, so the other units never enter its
+  context and the block's end is a parser's decision rather than an agent's.
+
 ### 2026-07-27
 
 - **Every workflow now ships a flow map** — a `FLOW.md` beside each engine (linked in the table above)

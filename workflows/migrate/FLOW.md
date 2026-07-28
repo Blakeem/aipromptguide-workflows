@@ -21,37 +21,40 @@ flowchart TD
   t4(["halted (a section was parked — its work is saved to a patch; the sections after it were not attempted)"])
   t5(["BLOCKED (a section passed but was not staged — stage it, then resume)"])
   t6(["BLOCKED (a section staged while self-reporting a regression — inspect the staged diff before continuing)"])
-  t7(["BLOCKED (working tree was not clean — nothing was built)"])
-  t8(["BLOCKED (needs user input)"])
-  t9(["BLOCKED (a parked section left the tree unsafe — inspect before resuming)"])
-  t10(["stopped on token budget (resume where it left off)"])
+  t7(["BLOCKED (an agent could not obtain its section — nothing was built from a guess)"])
+  t8(["BLOCKED (working tree was not clean — nothing was built)"])
+  t9(["BLOCKED (needs user input)"])
+  t10(["BLOCKED (a parked section left the tree unsafe — inspect before resuming)"])
+  t11(["stopped on token budget (resume where it left off)"])
   x1[/"throw: args must include at least { runId, planPath #124; plan"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: Plan critic returned nothing"/]
-  x5[/"throw: args.sections is required for phase:#quot;run#quot;"/]
-  x6[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
-  x7[/"throw: args.gates.test is required when any section has ga…"/]
-  x8[/"throw: args.runOnly"/]
-  x9[/"throw: args.startAt #quot;"/]
+  x4[/"throw: section id(s) ["/]
+  x5[/"throw: Plan critic returned nothing"/]
+  x6[/"throw: args.sections is required for phase:#quot;run#quot;"/]
+  x7[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
+  x8[/"throw: args.gates.test is required when any section has ga…"/]
+  x9[/"throw: args.runOnly"/]
+  x10[/"throw: args.startAt #quot;"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t10
+  S0 --> t11
   S0 --> x1
   S0 --> x2
   S0 --> x3
-  S0 --> x5
+  S0 --> x4
   S0 --> x6
   S0 --> x7
   S0 --> x8
   S0 --> x9
+  S0 --> x10
   a1 --> t1
-  a1 --> x4
+  a1 --> x5
   a2 -.->|"the section gate is never green (×4)"| a2
   a2 --> a3
   a2 --> a4
   a2 --> a5
-  a2 --> t7
+  a2 --> t8
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
   a4 ==>|"next item"| a2
@@ -63,8 +66,9 @@ flowchart TD
   a4 --> t5
   a4 --> t6
   a5 --> t4
-  a5 --> t8
+  a5 --> t7
   a5 --> t9
+  a5 --> t10
   a6 --> t2
 ```
 
@@ -89,6 +93,7 @@ flowchart TD
 | halted (a section was parked — its work is saved to a patch; the sections after it were not attempted) |  | derived |
 | BLOCKED (a section passed but was not staged — stage it, then resume) |  | derived |
 | BLOCKED (a section staged while self-reporting a regression — inspect the staged diff before continuing) |  | derived |
+| BLOCKED (an agent could not obtain its section — nothing was built from a guess) |  | derived |
 | BLOCKED (working tree was not clean — nothing was built) |  | derived |
 | BLOCKED (needs user input) |  | derived |
 | BLOCKED (a parked section left the tree unsafe — inspect before resuming) |  | derived |
@@ -96,13 +101,14 @@ flowchart TD
 | throw: args must include at least { runId, planPath \| plan |  | throw (line 26) |
 | throw: args.root is required |  | throw (line 31) |
 | throw: args.target.repo is required |  | throw (line 37) |
-| throw: Plan critic returned nothing |  | throw (line 513) |
-| throw: args.sections is required for phase:"run" |  | throw (line 543) |
-| throw: args.gates.build is required for phase:"run" |  | throw (line 549) |
-| throw: args.gates.test is required when any section has ga… |  | throw (line 552) |
-| throw: args.runOnly |  | throw (line 567) |
-| throw: args.startAt " |  | throw (line 572) |
+| throw: section id(s) [ |  | throw (line 115) |
+| throw: Plan critic returned nothing |  | throw (line 545) |
+| throw: args.sections is required for phase:"run" |  | throw (line 575) |
+| throw: args.gates.build is required for phase:"run" |  | throw (line 581) |
+| throw: args.gates.test is required when any section has ga… |  | throw (line 584) |
+| throw: args.runOnly |  | throw (line 599) |
+| throw: args.startAt " |  | throw (line 604) |
 
 ## Coverage
 
-27 scenarios · 6/6 roles · 9/9 throw sites · 7/7 halt statuses · 19 terminal states.
+30 scenarios · 6/6 roles · 10/10 throw sites · 8/8 halt statuses · 21 terminal states.
