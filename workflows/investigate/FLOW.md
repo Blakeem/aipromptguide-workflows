@@ -16,8 +16,10 @@ flowchart TD
   t2(["exhaustive (search closed, critic agreed)"])
   t3(["no qualifying option exists (verified)"])
   t4(["not exhaustive (round budget spent)"])
-  t5(["stopped on token budget (resume where it left off)"])
-  t6(["BLOCKED (needs user input)"])
+  t5(["stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)"])
+  t6(["stalled (a round added nothing new and claimed nothing — stopped unverified)"])
+  t7(["stopped on token budget (resume where it left off)"])
+  t8(["BLOCKED (needs user input)"])
   x1[/"throw: args must include at least { runId, root, criteria#124;…"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: Invalid numeric arg"/]
@@ -27,7 +29,7 @@ flowchart TD
   x7[/"throw: Acceptance critic returned nothing in round"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t5
+  S0 --> t7
   S0 --> x1
   S0 --> x2
   S0 --> x3
@@ -37,12 +39,14 @@ flowchart TD
   a2 -.->|"L1 ×5"| a2
   a2 --> a3
   a2 --> t6
+  a2 --> t8
   a2 --> x6
-  a3 -.->|"the critic contests the coverage claim (×5)"| a2
+  a3 -.->|"the critic contests the coverage claim · +1 more (×5)"| a2
   a3 --> t2
   a3 --> t3
   a3 --> t4
-  a3 --> t6
+  a3 --> t5
+  a3 --> t8
   a3 --> x7
 ```
 
@@ -52,13 +56,13 @@ flowchart TD
 |---|---|
 | Refine | MANDATORY first pass (refine phase only): an independent criteria critic reads the criteria and returns gaps, blocking questions, and any criterion no evidence could settle either way. Writes nothing. |
 | Investigate | ONE investigator per round (sequential, which is what makes a single shared ledger safe): reads the criteria verbatim + the whole DISQUALIFIED.md ledger + the last critique, searches, self-checks every candidate against every criterion, writes options/&lt;id&gt;.md per qualifier, appends each reject to the ledger (marking NEAR-MISS: the ones that failed exactly one criterion), and writes DETERMINATION.md — the options, a comparison over the axes they DIFFER on, which to pick when, the near misses and the coverage evidence — on a terminating round AND on the last round the budget allows, where it is labelled a partial result. |
-| Critique | Adversarial non-blind critic — skipped only in a round that adds no option, claims no termination and owes no determination: verifies each new option against every criterion and each citation against its source, disqualifies what fails (appending to the same ledger), re-checks every NEAR-MISS marker, attacks any exhaustion / no-solution claim, and checks the determination when one was written. Agreement on a claim ends the loop; a contested claim buys another round. |
+| Critique | Adversarial non-blind critic — skipped only in a round that adds no option, claims no termination and owes no determination: verifies each new option against every criterion and each citation against its source, disqualifies what fails (appending to the same ledger), re-checks every NEAR-MISS marker, attacks any exhaustion / no-solution / saturation claim, and checks the determination when one was written. Agreement on a claim ends the loop; a contested claim buys another round. |
 
 ## Loops
 
 | Loop | Agent | Repeats while |
 |---|---|---|
-| L1 | investigate | a round adds no option and claims nothing · the investigator dies mid-search |
+| L1 | investigate | a round only rules candidates out · the investigator dies mid-search |
 
 ## Terminal states
 
@@ -68,16 +72,18 @@ flowchart TD
 | exhaustive (search closed, critic agreed) |  | derived |
 | no qualifying option exists (verified) |  | derived |
 | not exhaustive (round budget spent) |  | derived |
+| stopped on saturation (diminishing returns, critic agreed — the search is open, not closed) |  | derived |
+| stalled (a round added nothing new and claimed nothing — stopped unverified) |  | derived |
 | stopped on token budget (resume where it left off) |  | derived |
 | BLOCKED (needs user input) |  | derived |
 | throw: args must include at least { runId, root, criteria\|… |  | throw (line 30) |
 | throw: args.root is required |  | throw (line 33) |
 | throw: Invalid numeric arg |  | throw (line 54) |
-| throw: Provide the acceptance criteria the search qualifie… |  | throw (line 90) |
-| throw: Criteria critic returned nothing |  | throw (line 346) |
-| throw: Investigator returned nothing in round |  | throw (line 407) |
-| throw: Acceptance critic returned nothing in round |  | throw (line 436) |
+| throw: Provide the acceptance criteria the search qualifie… |  | throw (line 96) |
+| throw: Criteria critic returned nothing |  | throw (line 424) |
+| throw: Investigator returned nothing in round |  | throw (line 490) |
+| throw: Acceptance critic returned nothing in round |  | throw (line 531) |
 
 ## Coverage
 
-17 scenarios · 3/3 roles · 7/7 throw sites · 5/5 halt statuses · 13 terminal states.
+20 scenarios · 3/3 roles · 7/7 throw sites · 7/7 halt statuses · 15 terminal states.

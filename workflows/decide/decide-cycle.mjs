@@ -150,11 +150,12 @@ const DECIDE_SCHEMA = {
 
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'agree', 'gap_count', 'needs_user'],
+  required: ['wrote_file', 'agree', 'gap_count', 'gap_ids', 'needs_user'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true if you wrote the review file' },
     agree:      { type: 'boolean', description: 'true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated' },
     gap_count:  { type: 'integer', description: 'number of gaps/objections written to the review file (0 when you agree)' },
+    gap_ids:    { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. "p99-unproven", "lru-citation-stretched"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified' },
     needs_user: { type: 'boolean', description: 'true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
   },
 };
@@ -236,7 +237,7 @@ Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — title
 // anchor it) — it re-checks the CURRENT decision fresh against the fixed rubric. Freshness here is
 // instruction-based, not placement-based (#3): prior reviews share STATE_DIR, an accepted trade-off
 // vs. per-round directories.
-const reviewPrompt = (round) => `
+const reviewPrompt = (round, priorSlugs, isFinal) => `
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'}: find any
 requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
 non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
@@ -244,7 +245,12 @@ ${ENV}
 THE ${RANKED ? 'SHORTLIST' : 'DECISION'} TO REVIEW (read it verbatim): ${decisionFile(round)}
 THE LENS ANALYSES it drew on (cross-check its claims against these): ${LIVE.map((l) => lensFile(l.id)).join(', ')}
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-
+${priorSlugs.length ? `Gaps earlier reviews raised, AS SLUGS (ids only — you have not seen their content, and are not to go
+looking for it): ${priorSlugs.join(', ')}. If a gap you find is the SAME issue as one of those, then
+reuse its slug verbatim in gap_ids; otherwise mint a new short kebab-case one. Which gaps repeat is a
+measurement, not an opinion — do not stretch a slug to fit, and do not withhold one because it was
+raised before.
+` : ''}
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
 2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
@@ -266,8 +272,13 @@ WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/ob
 reference to the requirement or lens evidence it rests on — or, if sound, ${RANKED
     ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
     : '"Conclusion holds: every requirement met, matrix sound."'} Do NOT modify any repo, stage, or commit. If a requirement contradiction
-only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.
-Return agree + gap_count + needs_user + wrote_file via the schema.`;
+only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.${isFinal ? `
+This is the run's LAST round — no decider round follows this review. If you do NOT agree, END that file
+with a \`## WHERE NEXT\` section: the ONE requirement axis the rubric does not settle (the trade-off you
+and the decider keep landing on opposite sides of), and the ONE change to the requirements — a weight, a
+non-negotiable, a missing criterion — that would let a decision converge. It is the only thing that makes
+a stalled decision resumable; without it, it reads like a finished one with nothing left to do.` : ''}
+Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.`;
 
 // =============================================================================
 // DIVERGE — fan out one analyst per lens, concurrently (read-only, write own lens file).
@@ -295,6 +306,15 @@ let lastReviewFile = '';        // latest review written, agreeing or not (surfa
 let lastChosen = '';
 let lastShortlist = [];         // ranked mode: the ordered index the decider returned (reasoning is in the file)
 
+// WHICH gaps the reviewer raises, round over round. A gap COUNT cannot tell a decider that keeps failing
+// to resolve the objections it was already given from a question so under-specified that every round
+// finds fresh ones — the two are the same number and have opposite fixes, so a hand-back reading only the
+// count could ever name one of them by guessing. The slugs make the split a measurement. The map holds
+// the FIRST round each slug appeared in, which is also the review file that raised it.
+const gapFirstRound = new Map();   // slug -> first round that raised it
+const gapRounds     = [];          // [{ round, gaps, new, repeated }] — counts only (#8)
+let lastGapIds      = [];          // the last review's slugs, for the needs-attention diagnosis
+
 while (round < MAX_ROUNDS) {
   round++;
 
@@ -320,12 +340,30 @@ while (round < MAX_ROUNDS) {
 
   // ---- REVIEW (non-blind, adversarial) -------------------------------------
   phase('Review');
-  const rev = await agent(reviewPrompt(round), roleOpts('review', {
+  // Ids ONLY, and never the earlier files themselves: the reviewer must judge this decision fresh, so
+  // what it gets is enough to recognise a repeat and nothing more.
+  const priorSlugs = [...gapFirstRound.keys()];
+  const rev = await agent(reviewPrompt(round, priorSlugs, round === MAX_ROUNDS), roleOpts('review', {
     schema: REVIEW_SCHEMA, phase: 'Review', label: `review r${round}`,
   }));
   if (!rev) throw new Error(`Reviewer returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
   if (rev.wrote_file !== true) log(`  ⚠ r${round}: reviewer did NOT confirm writing ${decisionReviewFile(round)} — check it before relaying`);
   lastReviewFile = decisionReviewFile(round);
+
+  // Slugs are control plane, so they are filtered like one: non-strings and blanks are dropped, and a
+  // slug listed twice inside ONE review is one gap, not a repeat of itself.
+  const gapIds = [...new Set((Array.isArray(rev.gap_ids) ? rev.gap_ids : []).filter((id) => typeof id === 'string' && id))];
+  if (Number.isInteger(rev.gap_count) && rev.gap_count !== gapIds.length) {
+    // Self-contradictory, but the harm does not compound: the ids drive the split, the count is only
+    // printed. Flag it and carry on rather than halting a review that may be entirely sound.
+    log(`  ⚠ r${round}: reviewer returned gap_count=${rev.gap_count} but ${gapIds.length} gap id(s) — self-contradictory; the ids drive the new/repeated split`);
+  }
+  const repeatedIds = gapIds.filter((id) => gapFirstRound.has(id));
+  for (const id of gapIds) if (!gapFirstRound.has(id)) gapFirstRound.set(id, round);
+  gapRounds.push({ round, gaps: gapIds.length, new: gapIds.length - repeatedIds.length, repeated: repeatedIds.length });
+  lastGapIds = gapIds;
+  const split = gapIds.length ? ` — ${gapIds.length - repeatedIds.length} new, ${repeatedIds.length} repeated` : '';
+
   if (rev.needs_user === true) {
     halted = true; haltReason = `Reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: reviewer escalated → halting (see ${NEEDS_USER})`);
@@ -337,12 +375,25 @@ while (round < MAX_ROUNDS) {
     break;
   }
   reviewPath = decisionReviewFile(round);
-  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${rev.gap_count ?? '?'} gap(s) still open at round budget (see ${reviewPath})`); break; }
-  log(`  ↻ r${round}: reviewer found ${rev.gap_count ?? '?'} gap(s) → decider revises (addresses ${reviewPath})`);
+  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${rev.gap_count ?? '?'} gap(s)${split} still open at round budget (see ${reviewPath})`); break; }
+  log(`  ↻ r${round}: reviewer found ${rev.gap_count ?? '?'} gap(s)${split} → decider revises (addresses ${reviewPath})`);
 }
 
 const status = halted ? 'BLOCKED (needs user input)' : agreed ? 'decided (decider + reviewer agree)' : 'needs-attention (no agreement within round budget)';
 log(`decide: ${status} after ${round} round(s)`);
+
+// WHY there was no agreement, read off the last review's slugs. Mostly REPEATS: the decider is not
+// resolving objections it has already been handed, so another round against the same rubric buys the
+// same review again. Mostly NEW: the rubric is not settling what "best" means, and each round finds
+// fresh ground — an under-specified question. Opposite fixes, so naming the wrong one costs a whole
+// re-run. Empty when the last review raised no slugs at all: no evidence, no diagnosis.
+const finalGaps  = gapRounds.length ? gapRounds[gapRounds.length - 1] : null;
+const repeatsOut = lastGapIds.filter((id) => (gapFirstRound.get(id) ?? round) < round);
+const churn = !finalGaps || !finalGaps.gaps
+  ? ''
+  : finalGaps.repeated > finalGaps.new
+    ? `The final review re-raised ${finalGaps.repeated} gap(s) an earlier round already put to the decider (${repeatsOut.map((id) => `${id}, first raised in ${decisionReviewFile(gapFirstRound.get(id))}`).join('; ')}) — the decider is not RESOLVING them, so another round against the same rubric will not either. `
+    : `The final review raised ${finalGaps.new} gap(s) no earlier round did — every round finds fresh ground, which is what an UNDER-SPECIFIED question looks like from here: the rubric is not settling what "best" means. `;
 
 return {
   phase: 'decide',
@@ -354,6 +405,7 @@ return {
   chosen: lastChosen,
   ...(RANKED ? { shortlist: lastShortlist } : {}),
   rounds: round,
+  gapRounds,
   stateDir: STATE_DIR,
   decisionFile: round ? decisionFile(round) : '',
   reviewFile: lastReviewFile,
@@ -367,5 +419,5 @@ return {
       ? (RANKED
         ? `Present the SHORTLIST: relay ${decisionFile(round)} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, hand it to feature-cycle (several picks become its plans[] roadmap).`
         : `Present the conclusion: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, hand it to feature-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user — the gap is usually an under-specified requirement; refine the requirements and re-run, or raise maxRounds.`,
+      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements and re-run, or raise maxRounds.`,
 };

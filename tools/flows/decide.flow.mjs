@@ -16,8 +16,10 @@ const base = {
 
 const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
 const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_count: 0, needs_user: false };
-const GAPS    = { ...AGREE, agree: false, gap_count: 2 };
+const AGREE   = { wrote_file: true, agree: true, gap_count: 0, gap_ids: [], needs_user: false };
+// The ids must MATCH gap_count: a review returning a count with no slugs behind it is self-contradictory,
+// and the engine logs a ⚠ for it — in two scenarios here, over a return that is meant to be well-formed.
+const GAPS    = { ...AGREE, agree: false, gap_count: 2, gap_ids: ['slug-a', 'slug-b'] };
 
 export default {
   engine: 'workflows/decide/decide-cycle.mjs',

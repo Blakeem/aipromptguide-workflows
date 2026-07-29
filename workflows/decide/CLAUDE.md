@@ -107,7 +107,12 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
 - **Reviewer** (review · opus) — **non-blind, adversarial**; reads the decision + requirements + lens
   files and tries to break the conclusion (unmet requirement, uncited/unsupported score — **it verifies
   matrix citations against the lens files** (#14) — overlooked option, violated non-negotiable). Reads
-  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop. In
+  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop. Each
+  gap it raises carries a short **slug** (`gap_ids`); from round 2 it is handed the earlier rounds' slugs
+  as **ids only** — no content, so it still judges fresh — and reuses one when re-raising the same issue,
+  which is what makes repeated-vs-new measurable (§6). On the **last** round a non-agreeing review also
+  ends with a **WHERE NEXT** section: the requirement axis the rubric does not settle, and the change
+  that would let a decision converge. In
   `ranked` mode it also attacks the **order** (does anything dominate the option ranked above it?),
   **padding**, and the **combine/exclude claims** — two options sold as combinable that actually
   conflict is the most damaging error the list can carry.
@@ -119,8 +124,12 @@ the decider that one file's path next round; the decider revises rather than res
 
 - **The requirements file is the fixed rubric and the anti-spin ground.** Both agents judge against it,
   so the loop converges; there is no `DISMISSED.md` (the reviewer isn't blind-reviewing a diff, it's
-  checking one conclusion against fixed requirements). If it won't converge, the rubric is usually
-  under-specified — refine it, don't just raise `maxRounds`.
+  checking one conclusion against fixed requirements). If it won't converge, **`gapRounds` on the return
+  says which failure it is** — `[{ round, gaps, new, repeated }]`, one entry per review. Mostly *repeated*
+  gaps: the decider is not resolving objections it already has, and another round buys the same review.
+  Mostly *new* ones: the rubric is under-specified, so each round finds fresh ground — refine it rather
+  than raising `maxRounds`. The hand-back names whichever it is, and points at the last review's
+  WHERE NEXT.
 - **Non-blind is deliberate (#3/#5).** The reviewer must see the decision and rubric; never make it
   blind. It still reads no prior review file, to re-check fresh.
 - **`selection` shapes the deliverable, not the rigor.** `single` (default) → one winner + why-not-each
@@ -170,6 +179,6 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 
 Report when done: status (agreed / needs-attention / blocked), the chosen conclusion, where the matrix
 is (`decisionFile`), and the lens files for the user to inspect. The return carries the paths
-(`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), and `selection`
-as structured fields; in `ranked` mode it adds the ordered `shortlist` index and `chosen` is the rank-1
-option. **Nothing is staged or committed.**
+(`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), the per-round gap
+split (`gapRounds`, §6), and `selection` as structured fields; in `ranked` mode it adds the ordered
+`shortlist` index and `chosen` is the rank-1 option. **Nothing is staged or committed.**

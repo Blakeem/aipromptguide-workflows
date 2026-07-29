@@ -26,6 +26,11 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   answer is a *portfolio* — "give me the best N, I'll pick or combine" — the `ranked` mode returns an
   ordered shortlist instead: what each option buys, what it costs, and which of them safely combine
   (and which are mutually exclusive), held to the same matrix and the same adversarial review.
+- **Non-convergence diagnoses itself.** Every reviewer gap carries a stable slug, and the run tracks
+  which gaps are new and which are repeats across rounds. A run that ends without agreement says which
+  failure it was — the same gaps repeating (the decider is not resolving them) or fresh gaps every round
+  (the rubric is under-specified) — and the final review ends with a **WHERE NEXT**: the requirement
+  axis the rubric does not settle, and the change that would let a decision converge.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
   [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) next.
 

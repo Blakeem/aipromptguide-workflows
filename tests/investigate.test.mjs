@@ -1,9 +1,10 @@
 // investigate/investigate-cycle.mjs — bounded exhaustive search with memory.
-// Focus: the FIVE terminal statuses, each asserted as a whole literal. "Ran out of rounds", "ran out of
-// tokens" and "nothing can qualify" are three different facts, and a test that asserts only "the loop
-// ended" passes just as well when the engine reports the wrong one — which is exactly how fatigue would
-// come to masquerade as a proof. After that: the critic gate, dead agents (a dead investigator must
-// never read as an exhausted search), and what the prompts actually name.
+// Focus: the SEVEN terminal statuses, each asserted as a whole literal. "Ran out of rounds", "ran out of
+// tokens", "nothing can qualify", "stopped on diminishing returns" and "the round added nothing" are five
+// different facts, and a test that asserts only "the loop ended" passes just as well when the engine
+// reports the wrong one — which is exactly how fatigue would come to masquerade as a proof. After that:
+// the critic gate, dead agents (a dead investigator must never read as an exhausted search), and what the
+// prompts actually name.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
@@ -11,9 +12,14 @@ const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 const baseArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1' };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
-// A quiet round: nothing found, nothing claimed. Spread over it to script the interesting cases.
-const INV  = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, agree: false, needs_user: false };
+// An EMPTY round: nothing found, nothing ruled out, nothing claimed. Spread over it to script the
+// interesting cases — but note that on its own it now STALLS the run at r1, so a scenario that needs a
+// second round scripts LEARN instead.
+const INV  = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'low', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false };
+// A LEARNING round: it qualifies nothing but closes candidates in the ledger. Answer-neutral and still
+// legitimate — a real run does this constantly — so it must not trip the stalled backstop.
+const LEARN = { ...INV, disqualified_added: 1 };
 
 section('a dead investigator throws — it must never read as an exhausted search');
 // "Found nothing, swept everything" is the exact shape of a dead agent's return. Laundering it would
@@ -98,13 +104,112 @@ section('an uncontested exhaustion claim ends the loop before the round budget')
   ok(out.exhaustive === true && out.determination.endsWith('DETERMINATION.md'), 'the determination file is surfaced');
 }
 
+section('an agreed saturation claim is a STOPPED search with its own terminal, never a closed one');
+// The failure this exists to prevent: a critic agrees to "I am not finding more", and the run reports it
+// with the same word it uses for a search that was PROVED complete. They are different facts.
+{
+  const { out, byLabel } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'], saturated: true },
+    'critique': { ...CRIT, upheld: ['opt-a'], agree: true },
+  }, { ...baseArgs, maxRounds: 4 });
+  eq(byLabel('investigate').length, 1, 'the agreed claim ended the loop on round 1, well inside maxRounds=4');
+  eq(out.status, 'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)', 'status');
+  ok(out.saturated === true, 'the return carries the flag');
+  ok(out.exhaustive === false && out.noSolution === false,
+    'and nothing on the return claims the search was closed — that is the whole reason it is its own terminal');
+  ok(out.determination.endsWith('DETERMINATION.md'), 'the claiming round was told to write one, so it is named');
+  ok(/WHERE NEXT/.test(out.nextStep) && /OPEN, not closed/.test(out.nextStep),
+    'nextStep leads with WHERE NEXT and says plainly that the search is open');
+  eq(out.options.join(), 'opt-a', 'the upheld option is still a valid answer — stopping does not invalidate what was found');
+}
+
+section('a contested saturation claim buys another round, and reads only its OWN contest flag');
+{
+  const { out, labels, byLabel } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'], saturated: true },
+    'critique': { ...CRIT, contests_saturation: true },
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(labels.includes('investigate r2'), 'the contested claim forced a second investigator round');
+  eq(byLabel('investigate').length, 3, 'and it spun to the round bound');
+  eq(out.status, 'not exhaustive (round budget spent)', 'status');
+  ok(out.saturated === false, 'a contested claim never reaches the saturated terminal');
+
+  // The two contest flags are NOT interchangeable. A saturation claim attacked with the coverage flag was
+  // never attacked at all: the critic's saturation branch is the only place contests_saturation is asked
+  // for, so crossing the two would let a stop through on a verdict that was about something else.
+  const { out: crossed } = await run({
+    'investigate': { ...LEARN, saturated: true },
+    'critique': { ...CRIT, agree: true, contests_exhaustion: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  ok(crossed.saturated === true, 'contests_exhaustion does not block a saturation claim — each reads its own flag');
+}
+
+section('exhaustion and no-solution OUTRANK saturation, and claiming both is logged');
+// A search that can be EVIDENCED as closed must never be downgraded to "I stopped looking", and the
+// reverse would be worse still. Both flags arriving together is self-contradictory: the stronger fact
+// makes the weaker one moot.
+{
+  const { out, logs } = await run({
+    'investigate': { ...INV, exhausted: true, saturated: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(out.status, 'exhaustive (search closed, critic agreed)', 'the stronger fact wins');
+  ok(out.exhaustive === true && out.saturated === false, 'and only its flag is set');
+  ok(logs.some((l) => /claimed BOTH/.test(l) && /IGNORED/.test(l)),
+    'the contradictory return is flagged rather than silently resolved');
+
+  const { out: dead } = await run({
+    'investigate': { ...INV, no_solution: true, saturated: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(dead.status, 'no qualifying option exists (verified)', 'no_solution outranks it too');
+  ok(dead.saturated === false, 'and saturation is dropped, not carried alongside');
+}
+
+section('a round that adds NOTHING stalls the run rather than buying another empty one');
+// The backstop, and the only terminal reached with no critic at all. An empty round leaves the next round
+// nothing to diverge FROM, so another one costs full price for the same result. r1 counts: nothing at the
+// start just means we exit.
+{
+  const { out, labels, logs } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 5 });
+  eq(labels.join(), 'investigate r1', 'it stopped at r1 — no second round, and no critic spawned over nothing');
+  eq(out.status, 'stalled (a round added nothing new and claimed nothing — stopped unverified)', 'status');
+  eq(out.rounds, 1, 'one round ran');
+  eq(out.determination, '', 'and NO determination is named — nothing was claimed, none was due, none was written');
+  ok(/SEARCHED\.md/.test(out.nextStep) && /NEXT:/.test(out.nextStep),
+    'nextStep points at the avenue log\'s own NEXT: lines — the only record left of where to go');
+  ok(/same runId/.test(out.nextStep) && /criteria\/premise/.test(out.nextStep),
+    'and offers the two real continuations: resume from the memory, or change the question');
+  ok(logs.some((l) => /added NOTHING/.test(l)), 'and the round is called out in the log');
+}
+
+section('a LEARNING round is not a stall — ruling candidates out is progress');
+// The real-run finding this protects: a round that qualifies nothing but closes several candidates is
+// high-yield and answer-neutral. Counting it as "nothing" would end runs that were working.
+{
+  const { out, byLabel, labels } = await run({ 'investigate': LEARN, 'critique': CRIT }, { ...baseArgs, maxRounds: 3 });
+  eq(byLabel('investigate').length, 3, 'a round that only appends to the ledger keeps the loop going');
+  ok(!labels.includes('critique r1'), 'and still spawns no critic — there is no option to check');
+  eq(out.status, 'not exhaustive (round budget spent)', 'so it ends on the round budget, not on the backstop');
+}
+
+section('the FINAL round is never relabelled a stall — it owes a determination');
+// The `!det` guard. With maxRounds: 1 EVERY quiet run is a final round, and calling it 'stalled' would
+// hide the partial determination that round was just ordered to write and had verified.
+{
+  const { out, labels } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 1 });
+  eq(out.status, 'not exhaustive (round budget spent)', 'status — the round budget, not the backstop');
+  ok(labels.includes('critique r1'), 'the determination gate still opened, so the file reaching the user was checked');
+  ok(out.determination.endsWith('DETERMINATION.md'), 'and the partial determination is NAMED, not hidden behind a stall');
+}
+
 section('the critic gate: skipped over nothing, but never over a determination');
 // Both halves matter. Spawning a critic over an empty round buys a meaningless verdict; NOT spawning one
 // on the last round would let the determination — the file the user actually reads — reach them unchecked.
 {
-  const { labels } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
+  const { labels } = await run({ 'investigate': LEARN, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
   ok(labels.includes('investigate r1'), 'the investigator ran');
-  ok(!labels.includes('critique r1'), 'round 1 added nothing and claimed nothing — no critic spawned over it');
+  ok(!labels.includes('critique r1'), 'round 1 added no OPTION and claimed nothing — no critic spawned over it');
   ok(labels.includes('critique r2'), 'but the LAST round owes a determination, so its critic runs even though the round was just as quiet');
 }
 
@@ -328,7 +433,7 @@ section('the LAST round is told to write the determination; earlier rounds are n
 // The engine cannot write the file itself (the harness has no tools), so "a determination exists on a
 // round-budget exit" is only true if the prompt asks for it. That makes this a contract, not a hope.
 {
-  const { byLabel } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
+  const { byLabel } = await run({ 'investigate': LEARN, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
   const [p1, p2] = byLabel('investigate').map((c) => c.prompt);
   ok(!/this run's LAST/.test(p1), 'round 1 is not told it is last');
   ok(/this run's LAST/.test(p2) && /PARTIAL result/.test(p2),
@@ -358,9 +463,125 @@ section('the determination has a specified shape, and the critic is pointed at i
   ok(/NEAR-MISS/.test(crit), 'and re-checks the near-miss markers — an over-claimed one poisons the determination');
 }
 
+section('SEARCHED.md is the SECOND memory file, and both roles are pointed at it every round');
+// The ledger closes CANDIDATES; this closes GROUND. Without it, which avenues were already walked lives
+// only in the TERMINATING round's DETERMINATION — so every non-terminating round re-runs the last round's
+// searches with the same terms and calls the same candidates new.
+{
+  const { byLabel, prompt } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'] },
+    'critique': CRIT,
+  }, { ...baseArgs, maxRounds: 2 });
+  const [p1, p2] = byLabel('investigate').map((c) => c.prompt);
+  ok(p1.includes('SEARCHED.md') && p2.includes('SEARCHED.md'),
+    'every investigator round names it — memory re-read at the top of the round, like the ledger');
+  ok(/r1 SWEPT: /.test(p1) && /r2 SWEPT: /.test(p2), 'the SWEPT line is templated with the round number');
+  ok(/r1 NEXT: /.test(p1) && /confidence: high\|medium\|low\|none/.test(p1),
+    'and exactly one NEXT line, carrying the same scale the schema enumerates');
+  // Append-only is what makes a shared memory file safe, and it is stated for the ledger already. A
+  // SEARCHED.md without it would be rewritten each round and stop being memory at all.
+  eq((p1.match(/never rewrite, reorder or prune/g) || []).length, 2,
+    'append-only discipline is spelled out for BOTH memory files, in the same terms');
+  ok(prompt('critique').includes('SEARCHED.md'),
+    'the critic reads it too — it is the record its coverage attack is checked against');
+}
+
+section('a coverage contest costs a citation — an uncited one is not a contest');
+// "Name ONE avenue" was free: a bare "you missed something" can be said about any search that ever ended,
+// and it buys a whole round. The citation is what makes the contest falsifiable.
+{
+  const { prompt } = await run({
+    'investigate': { ...INV, exhausted: true },
+    'critique': { ...CRIT, contests_exhaustion: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  const crit = prompt('critique');
+  ok(/An UNCITED contest is not a contest\./.test(crit), 'the critic is told so in those words');
+  ok(/the source plus the exact locator/.test(crit), 'the citation must carry a source AND a locator');
+  ok(/which criterion or search-space bound/.test(crit),
+    'and connect to the criterion or search-space bound it puts back in play');
+  ok(/unfalsifiable/.test(crit), 'the reason is stated, not just the rule');
+}
+
+section('saturation is a standing instruction from round 2 — round 1 has nothing to compare against');
+{
+  const { byLabel } = await run({ 'investigate': LEARN, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
+  const [p1, p2] = byLabel('investigate').map((c) => c.prompt);
+  ok(!/DIMINISHING RETURNS/.test(p1), 'round 1 has no earlier round to measure a collapse against, so it is never offered the claim');
+  ok(/saturated = DIMINISHING RETURNS/.test(p2), 'round 2 is');
+  ok(/SEARCHED\.md/.test(p2) && /well under half/.test(p2),
+    'and is told what to measure against and where — a threshold in numbers, checked against the avenue log');
+  ok(/never both/.test(p2), 'plus that the stronger claim wins, so a return carrying both is not offered as an option');
+}
+
+section('WHERE NEXT is part of the determination shape, and the critic checks for it');
+// The section that makes a STOPPED result resumable. Without it a saturation, a no-solution and a partial
+// round all read like finished searches with nothing left to do.
+{
+  const { prompt } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'], no_solution: true },
+    'critique': { ...CRIT, upheld: ['opt-a'], agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  const inv = prompt('investigate');
+  ok(/WHERE NEXT — REQUIRED/.test(inv), 'the investigator is told to write it, and exactly when it is required');
+  ok(/confidence: high\|medium\|low\|none/.test(inv), 'one line per unswept avenue, on the scale the schema enumerates');
+  ok(/premise or the criteria/.test(inv), 'plus the change that would open search space this run could not reach');
+  ok(/WHERE NEXT/.test(prompt('critique')), 'and the critic\'s determination checklist covers it');
+}
+
+section('a saturation contest costs a citation too, and attacks different evidence');
+{
+  const crit = (await run({
+    'investigate': { ...LEARN, saturated: true },
+    'critique': { ...CRIT, contests_saturation: true },
+  }, { ...baseArgs, maxRounds: 1 })).prompt('critique');
+  ok(/ATTACK THE SATURATION CLAIM/.test(crit), 'the critic gets the saturation branch');
+  ok(!/ATTACK THE COVERAGE CLAIM/.test(crit), 'and only that one — the two claims are checked against different things');
+  ok(/It is NOT that the search is CLOSED/.test(crit),
+    'it is told what saturation does NOT assert, so it cannot attack a weaker claim as if it were exhaustion');
+  ok(/An UNCITED contest is not a contest\./.test(crit), 'an uncited contest is refused in the same words as the coverage one');
+  ok(/the source plus the exact locator/.test(crit) && /criterion or a search-space bound/.test(crit),
+    'the citation carries a source, a locator, and the bound it puts back in play');
+  ok(/contests_saturation=true/.test(crit), 'and the flag it must set is named');
+}
+
+section('the trajectory carries the search\'s shape round by round');
+// A single round cannot tell a search still opening ground from one grinding over what the ledger already
+// closed — 0 new options looks identical either way. Both new schema fields are consumed HERE and in the
+// round log; a field the harness never reads is attestation theater (tests/CLAUDE.md §3).
+{
+  const { out, logs } = await run({
+    'investigate': (label) => (/r1$/.test(label)
+      ? { ...INV, new_options: 1, option_ids: ['opt-a'], disqualified_added: 3, rediscovered: 3, next_avenue_confidence: 'medium' }
+      : { ...INV, rediscovered: 7, next_avenue_confidence: 'none' }),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-a'], disqualified: ['opt-b'] } : CRIT),
+  }, { ...baseArgs, maxRounds: 2 });
+  eq(out.trajectory.length, 2, 'one entry per investigator round');
+  eq(JSON.stringify(out.trajectory[0]),
+    JSON.stringify({ round: 1, options: 1, disqualified: 4, rediscovered: 3, confidence: 'medium' }),
+    'counts and the enum only (#8) — the findings stay in the files');
+  eq(out.trajectory[1].confidence, 'none',
+    'a round reporting no unswept avenue left is visible in the shape, not only in a prose file');
+  ok(logs.some((l) => /\+1 option\(s\), 4 disqualified, 3 rediscovered, next: medium/.test(l)),
+    'and the round line shows both new numbers beside the ledger growth');
+  ok(out.searchTrail.includes('SEARCHED.md'), 'searchTrail points the operator at the avenue log too');
+
+  // Garbage in the control plane must not reach the operator, and must not reach a stop rule reading the
+  // trajectory as measurements.
+  const { out: junk, logs: junkLogs } = await run({
+    'investigate': { ...INV, rediscovered: -8, next_avenue_confidence: 'pretty sure', no_solution: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(junk.trajectory[0].rediscovered, 0, 'a negative rediscovered count floors at 0, exactly like near_misses');
+  eq(junk.trajectory[0].confidence, '', 'a value outside the enum is taken as NO signal rather than passed through');
+  ok(!junkLogs.some((l) => /pretty sure/.test(l)), 'and it is never printed into the round log');
+  ok(!junkLogs.some((l) => /next:/.test(l)),
+    'which drops the field entirely rather than logging "next: " with nothing behind it');
+  ok(!junkLogs.some((l) => /rediscovered/.test(l)), 'a zero rediscovered count stays out of the line too');
+}
+
 section('the investigator prompt names the ledger every round, and a review file only when one exists');
 {
-  const quiet = await run({ 'investigate': INV }, { ...baseArgs, maxRounds: 2 });
+  const quiet = await run({ 'investigate': LEARN }, { ...baseArgs, maxRounds: 2 });
   const p1 = quiet.byLabel('investigate')[0].prompt;
   const p2 = quiet.byLabel('investigate')[1].prompt;
   ok(p1.includes('DISQUALIFIED.md') && p1.includes('/options'), 'r1 names the ledger + the options dir');

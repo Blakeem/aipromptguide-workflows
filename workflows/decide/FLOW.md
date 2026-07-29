@@ -67,9 +67,9 @@ flowchart TD
 | throw: Provide the requirements |  | throw (line 93) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives |  | throw (line 104) |
 | throw: lens ids collide after slugging |  | throw (line 108) |
-| throw: No analyst produced a lens file |  | throw (line 284) |
-| throw: Decider returned nothing in round |  | throw (line 306) |
-| throw: Reviewer returned nothing in round |  | throw (line 326) |
+| throw: No analyst produced a lens file |  | throw (line 295) |
+| throw: Decider returned nothing in round |  | throw (line 326) |
+| throw: Reviewer returned nothing in round |  | throw (line 349) |
 
 ## Coverage
 

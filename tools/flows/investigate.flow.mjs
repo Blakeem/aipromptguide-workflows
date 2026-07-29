@@ -2,10 +2,10 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs investigate`; `--check` fails the gate while FLOW.md is stale.
 //
-// Coverage aimed at here: all five terminal states (they are five different FACTS — folding any pair is
+// Coverage aimed at here: all seven terminal states (they are seven different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
-// an empty round, forced open on the last round because a determination is due), a contested claim buying
-// another round, and each of the six throw sites.
+// a round with nothing to check, forced open on the last round because a determination is due), a
+// contested claim of EACH kind buying another round, and each of the seven throw sites.
 
 const base = {
   runId: 'flow',
@@ -13,10 +13,15 @@ const base = {
   criteria: '## Question\nWhich library qualifies?\n## Acceptance Criteria\n- runs on Node 24',
 };
 
-// A quiet round: nothing found, nothing claimed. Spread over these to script the interesting rounds.
-const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, agree: false, needs_user: false };
+// An EMPTY round: nothing found, nothing ruled out, nothing claimed. This one now STALLS the run, so it
+// is the stalled scenario's script and nothing else's.
+const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'medium', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false };
 const FOUND = { ...INV, new_options: 1, option_ids: ['opt-a'] };
+// A LEARNING round: it qualifies nothing but closes candidates, so the critic gate stays shut and the loop
+// keeps going. This is what a multi-round scenario has to be scripted with now — an all-zero filler round
+// stalls at r1 and the rounds after it never happen.
+const LEARN = { ...INV, disqualified_added: 1 };
 
 export default {
   engine: 'workflows/investigate/investigate-cycle.mjs',
@@ -38,7 +43,7 @@ export default {
       respond: { 'criteria-critic': null },
     },
 
-    // ---- phase: run — the five terminal states -------------------------------------------------
+    // ---- phase: run — the seven terminal states ------------------------------------------------
     {
       name: 'exhaustion agreed',
       when: 'the critic agrees the search is closed',
@@ -58,13 +63,38 @@ export default {
       respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, contests_exhaustion: true } },
     },
     {
+      // Saturation is a STOPPED search, not a closed one, and it has its own terminal for exactly that
+      // reason — folding it into 'exhausted' is how "I stopped looking" becomes "nothing else is there".
+      name: 'saturation agreed',
+      when: 'the critic agrees the search has run dry',
+      args: base,
+      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, upheld: ['opt-a'], agree: true } },
+    },
+    {
+      // Its own contest flag, so its own back-edge: a saturation claim waved through by a coverage verdict
+      // would be a stop nobody checked.
+      name: 'saturation contested',
+      when: 'the critic contests the saturation claim',
+      args: base,
+      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, contests_saturation: true } },
+    },
+    {
+      // The backstop, and the one terminal reached WITHOUT a critic ever running: an empty round leaves
+      // the next round nothing to diverge from, so buying one gets the same empty round at full price.
+      name: 'stalled',
+      when: 'a round adds nothing at all',
+      args: base,
+      respond: { investigate: INV },
+    },
+    {
       // Rounds 1..n-1 skip the critic (nothing to check); the LAST round still spawns one, because it
       // owes a determination and that file is what reaches the user. So this scenario draws BOTH edges
-      // out of the investigator — the skip and the gate opening on the final round.
+      // out of the investigator — the skip and the gate opening on the final round. It must RULE THINGS
+      // OUT while qualifying nothing: an all-zero round stalls at r1 and there is no r2 to draw.
       name: 'quiet rounds',
-      when: 'a round adds no option and claims nothing',
+      when: 'a round only rules candidates out',
       args: base,
-      respond: { investigate: INV, critique: CRIT },
+      respond: { investigate: LEARN, critique: CRIT },
     },
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
@@ -109,11 +139,12 @@ export default {
     },
     {
       // Same SITE, different round: the message interpolates the round number, so keying on the message
-      // would mint two nodes for one throw. This scenario is what proves it does not.
+      // would mint two nodes for one throw. This scenario is what proves it does not. The filler rounds
+      // are LEARN, not INV — an all-zero r1 stalls the run and r3 never happens.
       name: 'dead investigator (round 3)',
       when: 'the investigator dies mid-search',
       args: base,
-      respond: { investigate: (label) => (/r3$/.test(label) ? null : INV) },
+      respond: { investigate: (label) => (/r3$/.test(label) ? null : LEARN) },
     },
     {
       name: 'dead acceptance critic',

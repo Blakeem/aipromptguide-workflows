@@ -143,6 +143,30 @@ You only re-copy a command if a brand-new workflow is added, which is rare by de
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-07-29
+
+- **`investigate` knows when to stop looking — and says so without claiming it finished.** Two new
+  terminal states, never folded into "exhaustive". **`stopped on saturation`**: from round 2 the
+  investigator watches its own yield collapse, writes a determination with a new **WHERE NEXT** section
+  (the unswept avenues, and the premise change that would open new space) and the critic verifies the
+  collapse before the run ends — the search is reported **open**, not closed. **`stalled`**: a round that
+  adds nothing at all — no option, no ledger line, no claim — stops the run immediately instead of buying
+  another empty round. A round that rules candidates out is still progress and keeps going.
+- **`investigate` remembers which ground it swept, not just which candidates died.** A second append-only
+  file, `SEARCHED.md`, records every avenue each round covered — with the search terms it used and what
+  they yielded — plus the most promising avenue still untried. Until now that survived only in the
+  *terminating* round's determination, so every other round was free to re-run the last one's searches with
+  the same terms and call the same candidates new.
+- **A coverage contest now costs the critic a citation.** Contesting "the search is finished" used to be
+  free: name any avenue, buy a whole round. It must now carry a source and locator connecting that avenue
+  to the criterion or search-space bound it puts back in play.
+- **`decide` says why it could not converge instead of guessing.** The reviewer now slugs every gap it
+  raises, so a run that spends its round budget can tell two opposite failures apart: the same gaps
+  coming back (the decider is not resolving them — the hand-back names them and the reviews that first
+  raised them) versus new gaps every round (the question is under-specified). The per-round split is on
+  the return as `gapRounds`, and the last non-agreeing review ends with a **WHERE NEXT** section — the
+  requirement axis the rubric does not settle, and the change that would let a decision converge.
+
 ### 2026-07-28
 
 - **`investigate` produces a real determination.** `DETERMINATION.md` now has a fixed shape — the

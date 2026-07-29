@@ -101,18 +101,20 @@ agents per run, so a fast tier buys nothing.
 - **Criteria Critic** (`criteria` · refine phase only) — reads the criteria, returns `gaps`, `questions`,
   and **`unfalsifiable`** (its distinctive job: criteria no evidence could settle, or that contradict each
   other). Writes nothing. A dead critic **throws** — "no gaps" and "no critic" must never look alike.
-- **Investigator** (`investigate`) — one per round, sequential. Reads the criteria verbatim, **the whole
-  ledger**, and the last critique; searches; self-checks every candidate against every criterion; writes
+- **Investigator** (`investigate`) — one per round, sequential. Reads the criteria verbatim, **both memory
+  files**, and the last critique; searches; self-checks every candidate against every criterion; writes
   `options/<id>.md` per qualifier and a ledger line per reject, marking `NEAR-MISS:` the ones that failed
-  **exactly one** criterion; writes `DETERMINATION.md` (§6) on a terminating round **and on the last round
-  the budget allows**. Escalates a user-only call to `NEEDS-USER.md` — **and so may the critic**, for a
-  criteria contradiction; those are two distinct halt paths, not one.
+  **exactly one** criterion; appends the avenues it swept and the one it would try next to `SEARCHED.md`;
+  writes `DETERMINATION.md` (§6) on a terminating round **and on the last round the budget allows**. From
+  round 2 it also weighs this round's genuinely-new material against the trajectory in `SEARCHED.md` and
+  claims **`saturated`** when the yield has collapsed. Escalates a user-only call to `NEEDS-USER.md` —
+  **and so may the critic**, for a criteria contradiction; those are two distinct halt paths, not one.
 - **Acceptance Critic** (`critique`) — adversarial, non-blind, **skipped only in a round that adds no
   option, claims no termination and owes no determination**. Verifies each new option against every
   criterion and each citation against its source, disqualifies what fails (appending to the same ledger),
   re-checks every `NEAR-MISS` marker (an over-claimed one poisons the determination), attacks any
-  exhaustion or no-solution claim, and checks the determination whenever one was written. Only ids it
-  **upholds** reach the caller.
+  exhaustion / no-solution / saturation claim, and checks the determination whenever one was written. Only
+  ids it **upholds** reach the caller.
 
 ## 6. Loop & contracts (keep intact)
 
@@ -122,11 +124,36 @@ agents per run, so a fast tier buys nothing.
 - **The ledger is the convergence mechanism.** One investigator per round, strictly sequential
   (investigator, then critic), is the *only* reason a single append-only file with two writers is safe.
   Do not parallelize the investigator without splitting the ledger per candidate first.
+- **Two memory files, not one.** `DISQUALIFIED.md` closes **candidates**; `SEARCHED.md` closes **ground** —
+  one `r<N> SWEPT:` line per avenue with the terms used and what it yielded, plus exactly one `r<N> NEXT:`
+  line naming the most promising unswept avenue and the confidence in it (`high|medium|low|none`). Both are
+  append-only and both are re-read at the top of every round. Without the second, which avenues were
+  already walked survives only in the *terminating* round's determination, so every other round re-runs the
+  last one's searches with the same terms and calls the same candidates new. The critic reads it; only the
+  investigator writes it.
 - **Exhaustion must be evidenced and survives an attack.** `exhausted` requires naming which avenues were
   swept and why what remains cannot hold a qualifier. The critic may set `contests_exhaustion`, which buys
-  another round. That contest is what makes "these are all of them" worth anything.
+  another round. That contest is what makes "these are all of them" worth anything — and it **costs a
+  citation**: the contest must name the missed avenue with a source and locator connecting it to the
+  criterion or search-space bound it puts back in play. A bare "you missed something" fits any search that
+  ever ended, so it settles nothing and still buys a round.
+- **Saturation is a STOP, not a close — and it never dresses as one.** From round 2 the investigator must
+  actively check for diminishing returns against its own trajectory: nothing genuinely new this round, or
+  a yield collapse to well under half the best round while the best unswept avenue is at most `medium`. It
+  then writes the determination as a *stopped* result and claims `saturated`. The critic verifies the
+  collapse against `SEARCHED.md` + the ledger and may set `contests_saturation` — which costs the same
+  citation a coverage contest does and buys another round. `exhausted` / `no_solution` **outrank** it
+  (both arriving at once logs a ⚠ and the stronger fact wins), and `exhaustive` stays **false**.
+- **A round that adds *nothing* stops the run.** No option, no ledger line, no claim, no escalation and no
+  determination owed → `stalled`, immediately, round 1 included: the next round would have nothing to
+  diverge from. Nothing was verified and no determination was written. A **learning round** — 0 options
+  but candidates ruled out — is *not* a stall and continues, because closing candidates is real progress;
+  neither is the final round, which was ordered to write a determination and keeps its own terminal state.
 - **`DETERMINATION.md` has a fixed shape** — ANSWER, COMPARISON, WHICH TO PICK WHEN, NEAR MISSES,
-  COVERAGE (plus, on a no-solution, the criterion to relax). The **comparison tables the axes the
+  COVERAGE, and **WHERE NEXT** on any *stopped* result (a saturation, a no-solution, or a partial last
+  round): the unswept avenues with a confidence each, plus the premise/criteria change that would open
+  space this run could not reach — it is what makes a stop resumable, and it generalizes the no-solution
+  "relax one criterion". The **comparison tables the axes the
   qualifiers actually differ on** — what each buys and costs — never the criteria, since every qualifier
   passes all of those and a criteria table compares nothing. "Which to pick when" is a discriminator, not
   a ranking. Loosen this and a multi-option run degrades into a bag of files, which is what it did before
@@ -148,17 +175,22 @@ agents per run, so a fast tier buys nothing.
   `acceptance-review-rN.md` before quoting the number. It counts **this invocation's** markers, while
   `DISQUALIFIED.md` is cumulative across resumes — a resumed run reporting 2 against a ledger holding 9 is
   correct, not a bug.
-- **Five terminal states, never folded together.** "Ran out of rounds", "ran out of tokens" and "nothing
-  can qualify" are three different facts, and collapsing any pair is how a *stopped* search gets reported
-  as a *finished* one:
+- **Seven terminal states, never folded together.** "Ran out of rounds", "ran out of tokens", "nothing can
+  qualify", "the yield collapsed" and "the round produced nothing" are five different facts, and
+  collapsing any pair is how a *stopped* search gets reported as a *finished* one:
 
   | `status` | What it means |
   |---|---|
   | `exhaustive (search closed, critic agreed)` | The answer set is complete as far as the criteria reach. |
   | `not exhaustive (round budget spent)` | Options may be valid, but **nothing was proved complete**. |
   | `no qualifying option exists (verified)` | Critic-verified: nothing can meet these criteria. |
+  | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid; the search is **open**. |
+  | `stalled (a round added nothing new and claimed nothing — stopped unverified)` | A round produced nothing at all. Unverified, no determination. |
   | `stopped on token budget (resume where it left off)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
+
+  Only the first is a *finished* search. `saturated` is the one most easily mistaken for it — a critic
+  agreed to it, exactly as one agrees to exhaustion — so it is the one to state plainly.
 
 - **Nothing unvetted reaches you.** The return carries the critic's **upheld ids only**, never a listing of
   `options/`. An escalation raised alongside new options still gets those options critiqued *before* the
@@ -166,6 +198,11 @@ agents per run, so a fast tier buys nothing.
 - **A dead agent throws.** All three roles are solo and critical, so death is never laundered into "found
   nothing, swept everything" — which is exactly the shape of a successful exhaustive search.
 - **No code, no git.** Files only; nothing staged, nothing committed.
+- **`trajectory` is the search's shape.** One entry per investigator round —
+  `{ round, options, disqualified, rediscovered, confidence }`, counts and the enum only. A single round
+  cannot tell a search still opening ground from one grinding over what the ledger already closed: both
+  show 0 new options. `rediscovered` climbing while `options` stays flat and `confidence` falls is what the
+  second one looks like.
 - **Thin returns (#8).** Counts, ids and verdicts; every citation, comparison and rejection reason is in a
   file.
 
@@ -188,6 +225,14 @@ agents per run, so a fast tier buys nothing.
   complete answer**. `DETERMINATION.md` exists here too, written on the final round and labelled a partial
   result — relay it *with that caveat attached*, never on its own. Re-invoke with the same `runId` (and a
   higher `maxRounds`) to continue from the ledger.
+- **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
+  `DETERMINATION.md` and lead with its **WHERE NEXT**: the options it names are critic-verified and valid,
+  but nothing was proved to be all of them. To continue, pick an avenue WHERE NEXT names and re-invoke
+  with the same `runId` (the memory files resume it), or make the premise/criteria change it proposes.
+  An unchanged re-run buys another round over the same worked-out ground.
+- **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no
+  determination to relay. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say so plainly,
+  then either re-invoke with the same `runId` to continue from that memory or change the criteria/premise.
 - **`BLOCKED`** — read `NEEDS-USER.md`, resolve with the user (usually by editing the criteria), re-invoke.
 - Always offer `DISQUALIFIED.md`. What was ruled out and why is often the most useful artifact in the run,
   and it is what makes a later re-run cheap.
@@ -224,6 +269,10 @@ inline.
 - `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate naming the criterion it
   fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. **This is the search's memory** and
   the reason each round diverges from the last.
+- `SEARCHED.md` — the append-only **avenue** log: an `r<N> SWEPT:` line per avenue swept, carrying the
+  search terms used and what it yielded, and exactly one `r<N> NEXT:` line per round naming the most
+  promising unswept avenue and the confidence in it. The ledger closes candidates; this closes ground, and
+  it is what a resumed run reads to avoid re-running the last round's searches.
 - `acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, near-miss
   corrections, any contested termination claim, and any defect in the determination. Sparse by design: a
   round with nothing to check produces none.

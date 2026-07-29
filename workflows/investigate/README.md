@@ -20,7 +20,9 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
   it is elsewhere. There is no weighted total and no "close enough".
 - **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with the
   criterion it failed, and every later round reads it first. That memory is what turns repeated searching
-  into converging rather than repeating.
+  into converging rather than repeating. A second file, `SEARCHED.md`, does the same for **ground**: which
+  avenues were swept, with what search terms, and the most promising one still untried. Closed candidates
+  do not come back, and neither do closed searches.
 - **Exhaustion has to survive an attack.** Claiming the search is complete requires naming which avenues
   were swept and why what remains cannot hold an answer. The critic can contest a thin claim and buy
   another round. That is what makes "these are all of them" worth trusting.
@@ -88,13 +90,19 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 ## Reviewing the result
 
 Under `runs/<runId>/`: the qualifying options with their per-criterion evidence (`options/<id>.md`), the
-full record of what was ruled out and why (`DISQUALIFIED.md`), the critic's round-by-round findings
-(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`).
+full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each round covered and what it
+would try next (`SEARCHED.md`), the critic's round-by-round findings (`acceptance-review-rN.md`), and the
+conclusion (`DETERMINATION.md`).
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
 `not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — you
 still get a determination, written on the final round and labelled a partial result, so treat it as partial
 and re-run to continue, since the ledger makes that cheap rather than repetitive.
+`stopped on saturation` means the yield collapsed and the critic agreed another round was not worth its
+cost: the options are verified, the search is **open**, and the determination's WHERE NEXT section names
+the avenues left and the premise change that would open new ground. `stalled` means a round produced
+nothing at all — no option, no ruled-out candidate, no claim — so the run stopped instead of buying
+another empty one; nothing was verified and there is no determination.
 
 `DISQUALIFIED.md` is worth reading even on a clean run. It is usually the fastest way to see whether your
 criteria were doing what you meant them to.

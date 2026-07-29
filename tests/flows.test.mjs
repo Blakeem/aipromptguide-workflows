@@ -176,18 +176,22 @@ section('a terminal with parens, quotes and an em dash survives into quoted Merm
   ok(!/\[\("[^"\n]*"[^"\n]*"/.test(md), 'no bare quote is left to close the Mermaid string early');
 }
 
-section('investigate keeps its FIVE status terminals distinct — asserted by their exact strings');
+section('investigate keeps its SEVEN status terminals distinct — asserted by their exact strings');
 // A count alone passes just as well when two of them are wrong, and folding any pair is how a stopped
-// search gets reported as a finished one.
+// search gets reported as a finished one. The two newest are the likeliest to be folded: a critic agrees
+// to a SATURATION claim exactly as it agrees to exhaustion, and a STALLED round is not a round budget
+// running out.
 {
   const g = await buildGraph(investigate);
   const derived = g.terminals.filter((t) => t.source === 'derived').map((t) => t.label).sort();
-  eq(derived.length, 5, 'five derived terminals');
+  eq(derived.length, 7, 'seven derived terminals');
   eq(derived.join(' | '), [
     'BLOCKED (needs user input)',
     'exhaustive (search closed, critic agreed)',
     'no qualifying option exists (verified)',
     'not exhaustive (round budget spent)',
+    'stalled (a round added nothing new and claimed nothing — stopped unverified)',
+    'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)',
     'stopped on token budget (resume where it left off)',
   ].join(' | '), 'and each is the engine\'s own string');
   eq(g.coverage.statuses.uncovered.length, 0, 'every HALT_STATUS entry was reached by some scenario');
