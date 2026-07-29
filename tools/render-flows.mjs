@@ -29,8 +29,18 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = dirname(HERE);
 const CACHE = join(HERE, '.cache');
-const MERMAID = join(CACHE, 'mermaid.min.js');
-const MERMAID_URL = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
+// PINNED on purpose. `mermaid@11` was a FLOATING tag: the cached build silently moved to 11.16.0, whose
+// self-loop layout change (one SVG path through two dummy nodes, label width never fed into layout) made
+// two maps' labels unreadable. The gate's verdict changed because a CDN moved, not because the maps did —
+// and a gate anchored to a floating tag is not reproducible, which is the byte-stability rule applied to
+// the measuring instrument rather than the artifact. The cache is keyed by version, so bumping this line
+// re-downloads instead of silently measuring against the old build.
+// Pinned to the NEWEST version measured, so a map that passes here also passes on older renderers.
+// GitHub renders the committed files and was last observed serving 11.4.1 (community/discussions/70672,
+// Apr 2025); bump this when GitHub moves, and re-run to see what its readers will actually see.
+const MERMAID_VERSION = '11.16.0';
+const MERMAID = join(CACHE, `mermaid-${MERMAID_VERSION}.min.js`);
+const MERMAID_URL = `https://cdn.jsdelivr.net/npm/mermaid@${MERMAID_VERSION}/dist/mermaid.min.js`;
 const OUT = join(CACHE, 'render');
 
 const argv = process.argv.slice(2);

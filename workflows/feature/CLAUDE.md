@@ -350,8 +350,11 @@ inline to `Workflow`.
   developer's rubric — language/version constraints, what stays additive, what NOT to touch; the blind
   reviewer is never shown it) · `reference` (path to a completed example to mirror) · `gates.testSetup`
   (runner quirks, how to scope one test, run-as-user/container prefix, how to start a server) ·
-  `target.lang`/`target.framework` (hints) · `maxRounds` (4) · `models` (per-role tier:
+  `target.lang`/`target.framework` (hints) · `maxRounds` (4; **throws** unless it is a number in 1–50 —
+  it used to coerce, and a NaN bound parked every plan without ever spawning a developer) · `models` (per-role tier:
   plan/develop/quality/acceptance) · `agentTypes` (custom subagent per role — must exist in your
   registry) · `stateDir` (override `runs/<runId>`) · `runOnly`/`startAt` (§8, scope a partial slice of
   the roadmap by plan id) · `minPlanBudget` (token floor to start another plan; default 150k — stops
-  cleanly between plans).
+  cleanly between plans; **throws** on a non-number, including `""`/`false`/`[]`, which all coerce to a
+  legal `0` and would silently disable the floor — and it is validated in **both** phases, so a bad value
+  is rejected by `refine` even though only `build` reads it).

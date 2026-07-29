@@ -268,8 +268,13 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
   default (park's `git checkout --` and delete run against it) and an unset gate would silently no-op
   its half of the green check. `conventions` alone falls back to a placeholder rubric; supply it.
 - **Optional tuning:** `fixSeverity` (resolve-fix floor, medium) · `criticSeverity` (floor for NEW
-  defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) ·
+  defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) — both now
+  **throw** below 1 or on a non-number (`0` used to be accepted and produced zero batches, i.e. a run
+  reporting nothing to do) ·
   `minBatchBudget` (stop cleanly between batches under a token target, 150000) · `resolveOnly` (ids/path
-  prefixes for a scoped first run) · `maxRounds` (2).
+  prefixes for a scoped first run) · `maxRounds` (2; **throws** unless it is a number in 1–50 — it used to
+  coerce, and a NaN bound returned every batch as needs-attention without ever spawning a fixer).
+  `minBatchBudget` throws on a non-number too, including `""`/`false`/`[]`, which all coerce to a legal
+  `0` and would silently disable the floor.
 - **Returns** `summary` counts, `parked` (each parked batch with its patch + strays paths and issue ids),
   the per-batch `ledger`, and `followups`.

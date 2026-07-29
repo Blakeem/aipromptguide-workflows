@@ -12,8 +12,8 @@ const baseArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Accep
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // A quiet round: nothing found, nothing claimed. Spread over it to script the interesting cases.
-const INV  = { wrote_files: true, new_options: 0, disqualified_added: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], contests_exhaustion: false, agree: false, needs_user: false };
+const INV  = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, agree: false, needs_user: false };
 
 section('a dead investigator throws — it must never read as an exhausted search');
 // "Found nothing, swept everything" is the exact shape of a dead agent's return. Laundering it would
@@ -79,7 +79,12 @@ section('a contested exhaustion claim buys another round, and the search can sti
   ok(labels.includes('investigate r2'), 'the contested claim forced a second investigator round');
   eq(byLabel('investigate').length, 3, 'and it spun to the round bound');
   eq(out.status, 'not exhaustive (round budget spent)', 'status');
-  ok(out.exhaustive === false && out.determination === '', 'nothing is reported as exhaustive, and no DETERMINATION.md is named');
+  ok(out.exhaustive === false, 'nothing is reported as exhaustive');
+  // The determination IS named here — the last round writes it as a labelled PARTIAL result — so the
+  // caveat has to travel with it, or a partial answer reads exactly like a finished one.
+  ok(out.determination.endsWith('DETERMINATION.md'), 'the partial determination is surfaced');
+  ok(/PARTIAL result/.test(out.nextStep) && /not.*complete answer/i.test(out.nextStep),
+    'and nextStep says plainly that it is partial, not a complete answer');
 }
 
 section('an uncontested exhaustion claim ends the loop before the round budget');
@@ -93,11 +98,14 @@ section('an uncontested exhaustion claim ends the loop before the round budget')
   ok(out.exhaustive === true && out.determination.endsWith('DETERMINATION.md'), 'the determination file is surfaced');
 }
 
-section('a round that adds nothing and claims nothing skips the critic');
+section('the critic gate: skipped over nothing, but never over a determination');
+// Both halves matter. Spawning a critic over an empty round buys a meaningless verdict; NOT spawning one
+// on the last round would let the determination — the file the user actually reads — reach them unchecked.
 {
-  const { labels } = await run({ 'investigate': INV }, { ...baseArgs, maxRounds: 1 });
+  const { labels } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
   ok(labels.includes('investigate r1'), 'the investigator ran');
-  ok(!labels.some((l) => l.startsWith('critique')), 'no critic spawned over nothing');
+  ok(!labels.includes('critique r1'), 'round 1 added nothing and claimed nothing — no critic spawned over it');
+  ok(labels.includes('critique r2'), 'but the LAST round owes a determination, so its critic runs even though the round was just as quiet');
 }
 
 section('an escalation with new options is vetted BEFORE the halt is honored');
@@ -124,6 +132,133 @@ section('a verified no-solution gets its own status, not the round-budget one');
   eq(out.status, 'no qualifying option exists (verified)', 'status');
   ok(out.noSolution === true && out.exhaustive === false, 'reported as a verified dead end, not as an exhaustive search');
   ok(/relaxing one criterion|relaxing a criterion|relax/.test(out.nextStep), 'nextStep tells the operator the only thing that changes the answer');
+}
+
+section('the determination is NEVER named where no investigator was told to write it');
+// The negative side of the flag is the whole risk surface, and it is what a positive-only test misses:
+// `haltKind` is INITIALISED to 'rounds', so any exit before the loop body inherits a terminal state that
+// means "the last round wrote a determination" when no round ran at all.
+{
+  // A non-numeric bound used to coerce to NaN, make `round < NaN` false, and return a zero-agent run
+  // carrying a DETERMINATION.md path. It now throws instead — the run never happened, so it may not be
+  // reported as one that ran out of rounds.
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, maxRounds: 'three' } });
+  ok(/Invalid numeric arg: args\.maxRounds/.test(msg) && /zero-round run/.test(msg),
+    `a non-numeric maxRounds throws rather than silently running nothing: ${msg.slice(0, 60)}`);
+  // The message must LEAD with a static clause: gen-flows.mjs labels a throw node with the first clause of
+  // its static prefix, and starting with `args.${name}` rendered six maps' node as "throw: args.".
+  ok(/^Invalid numeric arg: /.test(msg), 'and it leads with a static clause, so the flow-map node is legible');
+  ok(/Invalid numeric arg: args\.minRoundBudget/.test(await throwsWith(ENGINE, { args: { ...baseArgs, minRoundBudget: {} } })),
+    'a non-numeric budget floor throws too');
+  ok(/Invalid numeric arg: args\.maxRounds/.test(await throwsWith(ENGINE, { args: { ...baseArgs, maxRounds: 0 } })),
+    'zero rounds is rejected — it is the same silent no-op by another route');
+  // `Number('')` and `Number([])` are 0 and finite, so a COERCING guard waves them through. On a floor
+  // whose legal minimum IS 0 that silently disables the floor rather than shortening a loop.
+  ok(/Invalid numeric arg: args\.minRoundBudget/.test(await throwsWith(ENGINE, { args: { ...baseArgs, minRoundBudget: '' } })),
+    'and so is a value that merely COERCES to a legal 0');
+
+  // The two halts that name nothing: no agent ran (budget), or the investigator escalated (needs-user).
+  const { out: budget } = await run({}, baseArgs, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
+  eq(budget.determination, '', 'a token-budget stop before round 1 names no determination');
+  eq(budget.nearMisses, 0, 'and no near misses — nothing ran');
+
+  const { out: escalated } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'], needs_user: true },
+    'critique': { ...CRIT, upheld: ['opt-a'] },
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(escalated.status, 'BLOCKED (needs user input)', 'status');
+  eq(escalated.determination, '', 'and an escalation names no determination — the investigator escalated instead of concluding');
+}
+
+section('a later critic can REMOVE an option an earlier round upheld');
+// The answer set is not append-only. The widened gate routes a full re-verification pass through quiet
+// last rounds, so an option upheld in r1 can be broken in r2 — and "only upheld ids reach the caller" is
+// worth nothing if the id cannot be taken back out.
+{
+  const { out } = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] } : INV),
+    'critique': (label) => (/r1$/.test(label)
+      ? { ...CRIT, upheld: ['opt-a'] }
+      : { ...CRIT, disqualified: ['opt-a'] }),
+  }, { ...baseArgs, maxRounds: 2 });
+  eq(out.options.length, 0, 'the option upheld in r1 and knocked out in r2 is gone from the answer set');
+  ok(!JSON.stringify(out).includes('opt-a'), 'and appears nowhere in the return');
+
+  // ...and it STAYS out. A later critic cannot resurrect it by listing it in `upheld`: the last round
+  // always spawns a critic now, that critic is told to verify anything no earlier review cleared, and it
+  // has no memory of the round that knocked the option out. Without this the answer set hands the user an
+  // option their own DISQUALIFIED.md says fails a criterion — two artifacts contradicting, silently.
+  // r1 finds opt-a and the critic upholds it. r2 finds opt-b, and ITS critic knocks opt-a back out. r3 is
+  // the last round — quiet, but a determination is due, so a critic runs with no memory of r2 and upholds
+  // opt-a again. (r2 must add an option of its own, or its critic never spawns and there is nothing to
+  // disqualify — the gate is what makes this sequence reachable at all.)
+  const { out: zombie, logs: zLogs } = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] }
+      : /r2$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-b'] } : INV),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-a'] }
+      : /r2$/.test(label) ? { ...CRIT, upheld: ['opt-b'], disqualified: ['opt-a'] }
+        : { ...CRIT, upheld: ['opt-a'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(zombie.options.join(), 'opt-b', 'r3 upholding an id r2 disqualified does NOT put it back');
+  ok(zLogs.some((l) => /IGNORED/.test(l) && /opt-a/.test(l)), 'and the attempt is logged, not silently dropped');
+
+  // The legitimate re-open path stays open: a later round that RE-PROPOSES the option as a fresh
+  // options/<id>.md gets it re-verified on its merits, and an upholding critic brings it back. That is
+  // the channel the critic prompt actually documents (flag it in the review file → next investigator
+  // re-proposes), which is why the block above keys on "did THIS round re-propose it".
+  const { out: reopened } = await run({
+    'investigate': (label) => (/r2$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-b'] }
+      : { ...INV, new_options: 1, option_ids: ['opt-a'] }),
+    'critique': (label) => (/r2$/.test(label) ? { ...CRIT, upheld: ['opt-b'], disqualified: ['opt-a'] }
+      : { ...CRIT, upheld: ['opt-a'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(reopened.options.includes('opt-a'), 're-proposed in r3 and re-verified, it is genuinely back');
+
+  // A critic that lists the same id both ways contradicts itself; "broken" is the only safe reading.
+  const { out: both, logs } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'] },
+    'critique': { ...CRIT, upheld: ['opt-a'], disqualified: ['opt-a'] },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(both.options.length, 0, 'an id in BOTH lists is treated as disqualified, not upheld');
+  ok(logs.some((l) => /BOTH upheld and disqualified/.test(l)), 'and the contradiction is logged rather than swallowed');
+}
+
+section('both ledger writers mark and count near misses');
+// The critic appends to the same ledger. Counting only the investigator would drop the near misses found
+// by the one agent that knocks out options which already looked like answers.
+{
+  const { out, logs } = await run({
+    'investigate': { ...INV, new_options: 2, option_ids: ['a', 'b'], disqualified_added: 4, near_misses: 1, exhausted: true },
+    'critique': { ...CRIT, upheld: ['a'], disqualified: ['b'], near_misses: 1, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(out.nearMisses, 2, 'the investigator\'s 1 and the critic\'s 1 both count');
+  ok(logs.some((l) => /2 near-miss/.test(l)), 'and the round line shows the sum');
+  ok(out.options.join() === 'a', 'the disqualified option is still kept out of the answer set');
+
+  // Self-contradictory: more near misses than rejects. A near miss IS a reject, so one number is wrong.
+  const { logs: warned } = await run({
+    'investigate': { ...INV, disqualified_added: 0, near_misses: 7, no_solution: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  ok(warned.some((l) => /near-miss\(es\) but only 0 reject/.test(l)),
+    'the engine flags the contradiction rather than reporting the nonsense number silently');
+
+  // The critic gets the SAME check — it appends one ledger line per id it disqualified, so more near
+  // misses than disqualifications is the identical nonsense. Checking only the investigator left the
+  // number §7 tells the operator to LEAD with unguarded on one of its two writers.
+  const { logs: critWarned } = await run({
+    'investigate': { ...INV, no_solution: true },
+    'critique': { ...CRIT, disqualified: [], near_misses: 9, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  ok(critWarned.some((l) => /critic reported 9 near-miss\(es\) but disqualified only 0/.test(l)),
+    'the critic\'s contradiction is flagged too, not just the investigator\'s');
+
+  // A negative count is not a count. It used to flow straight through into the return and the log line.
+  const { out: neg } = await run({
+    'investigate': { ...INV, disqualified_added: 2, near_misses: -8, no_solution: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(neg.nearMisses, 0, 'a negative near-miss count floors at 0 rather than reporting -8 near misses');
 }
 
 section('required args throw, and the two throws cannot pass on each other\'s message');
@@ -157,6 +292,70 @@ section('the per-round log counts BOTH writers into the ledger');
   }, { ...baseArgs, maxRounds: 1 });
   ok(logs.some((l) => /\+1 option\(s\), 4 disqualified/.test(l)),
     'the round line sums the investigator\'s 3 and the critic\'s 1');
+}
+
+section('near misses survive the ledger — counted across rounds, logged, and led with on a dead end');
+// A candidate that failed EXACTLY ONE criterion is the actionable residue of a search that qualifies
+// nothing. It is one line among hundreds in the ledger, so if the return does not carry it, it is lost —
+// and on a no-solution run it is the only thing the user can act on.
+{
+  const { out, logs } = await run({
+    'investigate': { ...INV, disqualified_added: 9, near_misses: 2, no_solution: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(out.status, 'no qualifying option exists (verified)', 'status');
+  eq(out.nearMisses, 2, 'the count reaches the return');
+  ok(logs.some((l) => /2 near-miss/.test(l)), 'and the round line shows it next to the ledger growth');
+  ok(/NEAR MISS\(es\)/.test(out.nextStep), 'nextStep leads with them — on a dead end they are the only actionable finding');
+
+  // Counted ACROSS rounds, not just the last one: the ledger is cumulative, so the tally must be too.
+  const { out: multi } = await run({
+    'investigate': { ...INV, disqualified_added: 4, near_misses: 3 },
+    'critique': CRIT,
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(multi.nearMisses, 9, 'three rounds at 3 each — the tally accumulates rather than reporting the last round');
+
+  // A quiet search must not manufacture one: 0 near misses keeps the phrase out of nextStep entirely.
+  const { out: none } = await run({
+    'investigate': { ...INV, no_solution: true },
+    'critique': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(none.nearMisses, 0, 'none found');
+  ok(!/NEAR MISS/.test(none.nextStep), 'and nextStep says nothing about near misses when there are none');
+}
+
+section('the LAST round is told to write the determination; earlier rounds are not');
+// The engine cannot write the file itself (the harness has no tools), so "a determination exists on a
+// round-budget exit" is only true if the prompt asks for it. That makes this a contract, not a hope.
+{
+  const { byLabel } = await run({ 'investigate': INV, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });
+  const [p1, p2] = byLabel('investigate').map((c) => c.prompt);
+  ok(!/this run's LAST/.test(p1), 'round 1 is not told it is last');
+  ok(/this run's LAST/.test(p2) && /PARTIAL result/.test(p2),
+    'the final round is, and is told to label the file a partial result when it cannot claim termination');
+  ok(p1.includes('DETERMINATION.md') && p2.includes('DETERMINATION.md'), 'both rounds are told where it goes');
+}
+
+section('the determination has a specified shape, and the critic is pointed at it');
+// The defect this fixes: "the cross-option comparison" was the whole spec, so what a multi-option run
+// produced was whatever that investigator felt like writing. Each named section is load-bearing.
+{
+  const { prompt } = await run({
+    'investigate': { ...INV, new_options: 2, option_ids: ['opt-a', 'opt-b'], exhausted: true },
+    'critique': { ...CRIT, upheld: ['opt-a', 'opt-b'], agree: true },
+  }, { ...baseArgs, maxRounds: 1 });
+  const inv = prompt('investigate');
+  for (const s of ['ANSWER', 'COMPARISON', 'WHICH TO PICK WHEN', 'NEAR MISSES', 'COVERAGE']) {
+    ok(inv.includes(s), `the investigator is told to write the ${s} section`);
+  }
+  ok(/NOT the criteria/.test(inv), 'and told NOT to table the criteria every qualifier passes — that compares nothing');
+  ok(/UNRANKED/.test(inv), 'the options are explicitly unranked — ranking pass/fail qualifiers is decide-cycle\'s job');
+  ok(/NEAR-MISS: /.test(inv), 'the ledger marker is spelled out so the determination can be built from it');
+
+  const crit = prompt('critique');
+  ok(crit.includes('DETERMINATION.md') && /smuggles in a ranking/.test(crit),
+    'the critic reads the product file and is told the specific ways it goes wrong');
+  ok(/NEAR-MISS/.test(crit), 'and re-checks the near-miss markers — an over-claimed one poisons the determination');
 }
 
 section('the investigator prompt names the ledger every round, and a review file only when one exists');

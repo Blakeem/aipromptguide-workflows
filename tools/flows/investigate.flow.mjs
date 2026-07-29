@@ -3,7 +3,8 @@
 // `node tools/gen-flows.mjs investigate`; `--check` fails the gate while FLOW.md is stale.
 //
 // Coverage aimed at here: all five terminal states (they are five different FACTS — folding any pair is
-// how a stopped search gets reported as a finished one), the critic-skip gate, a contested claim buying
+// how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
+// an empty round, forced open on the last round because a determination is due), a contested claim buying
 // another round, and each of the six throw sites.
 
 const base = {
@@ -13,8 +14,8 @@ const base = {
 };
 
 // A quiet round: nothing found, nothing claimed. Spread over these to script the interesting rounds.
-const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], contests_exhaustion: false, agree: false, needs_user: false };
+const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: [] };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, agree: false, needs_user: false };
 const FOUND = { ...INV, new_options: 1, option_ids: ['opt-a'] };
 
 export default {
@@ -57,10 +58,13 @@ export default {
       respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, contests_exhaustion: true } },
     },
     {
+      // Rounds 1..n-1 skip the critic (nothing to check); the LAST round still spawns one, because it
+      // owes a determination and that file is what reaches the user. So this scenario draws BOTH edges
+      // out of the investigator — the skip and the gate opening on the final round.
       name: 'quiet rounds',
       when: 'a round adds no option and claims nothing',
       args: base,
-      respond: { investigate: INV },
+      respond: { investigate: INV, critique: CRIT },
     },
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
@@ -116,6 +120,13 @@ export default {
       when: 'the critic dies with options unverified',
       args: base,
       respond: { investigate: FOUND, critique: null },
+    },
+    {
+      // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN,
+      // the round loop never runs, and a zero-agent run comes back dressed as a round-budget exit.
+      name: 'non-numeric bound',
+      when: 'maxRounds is not a number',
+      args: { ...base, maxRounds: 'three' },
     },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },

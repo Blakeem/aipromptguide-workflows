@@ -65,7 +65,10 @@ One phase, no mid-run questions — settle everything with the user first:
 - **`goals` (strongly recommended):** what "better" means for this system.
 - **`conventions`:** house rules an enhancement must fit — or argue explicitly for changing.
 - **`minImpact`** (default `moderate`): the floor. `marginal` is below it on purpose. Lower it only if
-  you genuinely want the long tail; that is the noise spiral.
+  you genuinely want the long tail; that is the noise spiral. The return's `summary.belowFloor` counts
+  candidates cut **on the finder's own unverified score, before any verifier saw them** — so they are in
+  no proposal file. A thin run with a high `belowFloor` means the floor, not the system; that is the
+  number that tells you whether re-running lower is worth it.
 - **Fresh vs. resume.** A re-run with the same `runId` overwrites each lens's proposal file. Keep an old
   batch → new `runId` (or `stateDir`).
 
@@ -150,8 +153,10 @@ a ROADMAP item spanning many call sites is a `migrate-cycle` goal.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.
 
-Report when done: adopt/roadmap/needs-user counts, where the proposals are, the convergent findings, and
-any defects to route. **Nothing is staged or committed.**
+Report when done: adopt/roadmap/needs-user counts, where the proposals are, the convergent findings, any
+defects to route, and `summary.belowFloor` when it is non-zero (candidates cut before verification — they
+are in no file, and they are the reason to consider a lower `minImpact`). **Nothing is staged or
+committed.**
 
 ## 9. Args reference
 

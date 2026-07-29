@@ -82,6 +82,9 @@ export default {
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: null },
     },
+    // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
+    // decide loop never runs, and a zero-agent run comes back naming a decision-r0.md nothing wrote.
+    { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'bad selection', when: 'selection is neither single nor ranked', args: { runId: 'flow', root: 'E:/flow', selection: 'best' } },

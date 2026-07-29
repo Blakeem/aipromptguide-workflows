@@ -17,13 +17,14 @@ flowchart TD
   t3(["BLOCKED (needs user input)"])
   x1[/"throw: args must include at least { runId, root, lenses, r…"/]
   x2[/"throw: args.root is required"/]
-  x3[/"throw: args.selection must be 'single'"/]
-  x4[/"throw: Provide the requirements"/]
-  x5[/"throw: args.lenses requires >=2 evaluation perspectives"/]
-  x6[/"throw: lens ids collide after slugging"/]
-  x7[/"throw: No analyst produced a lens file"/]
-  x8[/"throw: Decider returned nothing in round"/]
-  x9[/"throw: Reviewer returned nothing in round"/]
+  x3[/"throw: Invalid numeric arg"/]
+  x4[/"throw: args.selection must be 'single'"/]
+  x5[/"throw: Provide the requirements"/]
+  x6[/"throw: args.lenses requires >=2 evaluation perspectives"/]
+  x7[/"throw: lens ids collide after slugging"/]
+  x8[/"throw: No analyst produced a lens file"/]
+  x9[/"throw: Decider returned nothing in round"/]
+  x10[/"throw: Reviewer returned nothing in round"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -31,16 +32,17 @@ flowchart TD
   S0 --> x4
   S0 --> x5
   S0 --> x6
+  S0 --> x7
   a1 --> a2
-  a1 --> x7
+  a1 --> x8
   a2 --> a3
   a2 --> t3
-  a2 --> x8
+  a2 --> x9
   a3 -.->|"the reviewer keeps finding gaps (×3)"| a2
   a3 --> t1
   a3 --> t2
   a3 --> t3
-  a3 --> x9
+  a3 --> x10
 ```
 
 ## Phases
@@ -60,14 +62,15 @@ flowchart TD
 | BLOCKED (needs user input) |  | derived |
 | throw: args must include at least { runId, root, lenses, r… |  | throw (line 23) |
 | throw: args.root is required |  | throw (line 26) |
-| throw: args.selection must be 'single' |  | throw (line 47) |
-| throw: Provide the requirements |  | throw (line 77) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives |  | throw (line 88) |
-| throw: lens ids collide after slugging |  | throw (line 92) |
-| throw: No analyst produced a lens file |  | throw (line 268) |
-| throw: Decider returned nothing in round |  | throw (line 290) |
-| throw: Reviewer returned nothing in round |  | throw (line 310) |
+| throw: Invalid numeric arg |  | throw (line 45) |
+| throw: args.selection must be 'single' |  | throw (line 63) |
+| throw: Provide the requirements |  | throw (line 93) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives |  | throw (line 104) |
+| throw: lens ids collide after slugging |  | throw (line 108) |
+| throw: No analyst produced a lens file |  | throw (line 284) |
+| throw: Decider returned nothing in round |  | throw (line 306) |
+| throw: Reviewer returned nothing in round |  | throw (line 326) |
 
 ## Coverage
 
-14 scenarios · 3/3 roles · 9/9 throw sites · 0/0 halt statuses · 12 terminal states.
+15 scenarios · 3/3 roles · 10/10 throw sites · 0/0 halt statuses · 13 terminal states.

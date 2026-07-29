@@ -43,7 +43,24 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const REFERENCE   = A.reference ?? '';                      // optional: a completed example to mirror
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
-const MAX_ROUNDS  = A.maxRounds ?? 4;                       // develop→quality→acceptance rounds before "needs-attention"
+// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
+// per-plan loop would never run: every plan would park having never spawned a developer, and the roadmap
+// would report that as an ordinary "could not accept" outcome. A documented default is not a licence to
+// accept garbage — same reasoning as the `target.repo` guard below.
+// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
+// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
+// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
+// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
+// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+const num = (v, name, min, dflt, max = 1_000_000) => {
+  if (v === undefined || v === null) return dflt;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage parks every plan without ever spawning a developer.`);
+  }
+  return Math.floor(v);
+};
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // develop→quality→acceptance rounds before "needs-attention"
+const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // token floor to start another plan
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
@@ -568,7 +585,7 @@ for (const p of pending) {
   if (halted) break;
   // Budget guard: when the user set a token target (e.g. "+500k"), stop CLEANLY between plans rather
   // than letting an agent() call throw mid-plan. Accepted plans are STAGED; resume continues.
-  if (budget.total && budget.remaining() < (A.minPlanBudget ?? 150_000)) {
+  if (budget.total && budget.remaining() < MIN_PLAN_BUDGET) {
     halted = true;   // so the reason + resume instruction surface in the return value
     haltKind = 'budget';
     haltReason = `Stopped before plan ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Resume phase:"build" with startAt:"${p.id}".`;

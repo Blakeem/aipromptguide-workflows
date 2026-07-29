@@ -38,10 +38,26 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework }
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
-const MAX_ROUNDS  = A.maxRounds ?? 2;                       // fix → quality → acceptance repair rounds per batch
-const BATCH_LOC   = A.batch?.locCap ?? 3000;               // max summed LOC of distinct files per batch (~150-250k tokens/agent)
-const BATCH_MAX   = A.batch?.maxIssues ?? 10;              // max issues per batch (soft — same-file issues never split)
-const MIN_BATCH_BUDGET = A.minBatchBudget ?? 150_000;      // with a token target set, stop cleanly between batches below this
+// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
+// repair loop would never run and every batch would come back needs-attention without a fixer ever having
+// been spawned. A bad batch cap is the same shape one level up: it silently produces zero batches, i.e. a
+// run that reports nothing to do. A documented default is not a licence to accept garbage.
+// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
+// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
+// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
+// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
+// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+const num = (v, name, min, dflt, max = 1_000_000) => {
+  if (v === undefined || v === null) return dflt;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage produces a zero-round or zero-batch run and reports it as an ordinary result.`);
+  }
+  return Math.floor(v);
+};
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 2, 50);    // fix → quality → acceptance repair rounds per batch
+const BATCH_LOC   = num(A.batch?.locCap, 'batch.locCap', 1, 3000);     // max summed LOC of distinct files per batch (~150-250k tokens/agent)
+const BATCH_MAX   = num(A.batch?.maxIssues, 'batch.maxIssues', 1, 10); // max issues per batch (soft — same-file issues never split)
+const MIN_BATCH_BUDGET = num(A.minBatchBudget, 'minBatchBudget', 0, 150_000); // with a token target set, stop cleanly between batches below this
 
 // Severity floors. resolve fixes >= fixSeverity; the blind critic floors NEW defects at criticSeverity.
 // The inventory is CLOSED (produced by review.mjs, or hand-authored), so fixing mediums HERE converges

@@ -29,15 +29,16 @@ flowchart TD
   x1[/"throw: args must include at least { runId, planPath #124; plan"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: plan id(s) ["/]
-  x5[/"throw: plans ["/]
-  x6[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
-  x7[/"throw: Plan critic returned nothing"/]
-  x8[/"throw: args needs a plan for phase:#quot;build#quot;"/]
-  x9[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
-  x10[/"throw: args.gates.test is required when any plan has gate:…"/]
-  x11[/"throw: args.runOnly"/]
-  x12[/"throw: args.startAt #quot;"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: plan id(s) ["/]
+  x6[/"throw: plans ["/]
+  x7[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
+  x8[/"throw: Plan critic returned nothing"/]
+  x9[/"throw: args needs a plan for phase:#quot;build#quot;"/]
+  x10[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
+  x11[/"throw: args.gates.test is required when any plan has gate:…"/]
+  x12[/"throw: args.runOnly"/]
+  x13[/"throw: args.startAt #quot;"/]
   S0 --> a1
   S0 --> a2
   S0 --> t11
@@ -47,21 +48,22 @@ flowchart TD
   S0 --> x4
   S0 --> x5
   S0 --> x6
-  S0 --> x8
+  S0 --> x7
   S0 --> x9
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
   a1 --> t1
-  a1 --> x7
-  a2 -.->|"the build gate is never green (×4)"| a2
+  a1 --> x8
+  a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a5
   a2 --> t8
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
   a4 ==>|"next item"| a2
-  a4 -.->|"acceptance finds gaps · a plan does not accept within its round budget · +3 more (×4)"| a2
+  a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
   a4 --> a5
   a4 --> t2
   a4 --> t3
@@ -86,6 +88,12 @@ flowchart TD
 | Acceptance | Plan-aware gate: every acceptance criterion met + feature reachable + full gates green + no regression. Writes acceptance-review-&lt;id&gt;-rN.md; on pass, STAGES that feature (git add, never commit) — the accepted baseline advances plan by plan. |
 | Park | On a plan that did not accept within its round budget, or one the developer escalated: SAVES that plan's work to parked-&lt;id&gt;.patch, then clears it from the tree. A budget-exhausted plan is parked and the ROADMAP CONTINUES (the next plan's blind diff is clean again); an escalation still stops the run, but leaves the tree clean either way. Nothing is destroyed — NEEDS-USER.md carries the restore command. |
 
+## Loops
+
+| Loop | Agent | Repeats while |
+|---|---|---|
+| L1 | develop | the build gate is never green |
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -105,16 +113,17 @@ flowchart TD
 | throw: args must include at least { runId, planPath \| plan |  | throw (line 26) |
 | throw: args.root is required |  | throw (line 31) |
 | throw: args.target.repo is required |  | throw (line 37) |
-| throw: plan id(s) [ |  | throw (line 123) |
-| throw: plans [ |  | throw (line 132) |
-| throw: phase:"refine" needs the SINGLE top-level planPath |  | throw (line 480) |
-| throw: Plan critic returned nothing |  | throw (line 492) |
-| throw: args needs a plan for phase:"build" |  | throw (line 524) |
-| throw: args.gates.build is required for phase:"build" |  | throw (line 530) |
-| throw: args.gates.test is required when any plan has gate:… |  | throw (line 533) |
-| throw: args.runOnly |  | throw (line 548) |
-| throw: args.startAt " |  | throw (line 553) |
+| throw: Invalid numeric arg |  | throw (line 58) |
+| throw: plan id(s) [ |  | throw (line 140) |
+| throw: plans [ |  | throw (line 149) |
+| throw: phase:"refine" needs the SINGLE top-level planPath |  | throw (line 497) |
+| throw: Plan critic returned nothing |  | throw (line 509) |
+| throw: args needs a plan for phase:"build" |  | throw (line 541) |
+| throw: args.gates.build is required for phase:"build" |  | throw (line 547) |
+| throw: args.gates.test is required when any plan has gate:… |  | throw (line 550) |
+| throw: args.runOnly |  | throw (line 565) |
+| throw: args.startAt " |  | throw (line 570) |
 
 ## Coverage
 
-30 scenarios · 5/5 roles · 12/12 throw sites · 7/7 halt statuses · 24 terminal states.
+31 scenarios · 5/5 roles · 13/13 throw sites · 7/7 halt statuses · 25 terminal states.

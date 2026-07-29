@@ -81,6 +81,9 @@ export default {
   title: 'debug/resolve-cycle',
   scenarios: [
     // ---- arg validation, in the order the engine checks it ---------------------------------------
+    // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
+    // repair loop never runs, and every batch comes back needs-attention with no fixer ever spawned.
+    { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...one, maxRounds: 'three' } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow' } },

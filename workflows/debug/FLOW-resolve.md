@@ -28,10 +28,11 @@ flowchart TD
   x1[/"throw: args must include at least { runId, root, target, g…"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: resolve-cycle requires args.issues"/]
-  x5[/"throw: args.gates.build is required"/]
-  x6[/"throw: args.gates.test is required"/]
-  x7[/"throw: No ACTIONABLE issues at or above the fix floor in a…"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: resolve-cycle requires args.issues"/]
+  x6[/"throw: args.gates.build is required"/]
+  x7[/"throw: args.gates.test is required"/]
+  x8[/"throw: No ACTIONABLE issues at or above the fix floor in a…"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -40,7 +41,8 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
-  a1 -.->|"the gate is red on round 1 · +1 more (×2)"| a1
+  S0 --> x8
+  a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> a4
   a1 --> t2
@@ -71,6 +73,12 @@ flowchart TD
 | Acceptance | Issue-aware gate: re-derives each claimed fix's root cause from current code, confirms it is fully closed + no regression + gates green. Writes acceptance-review; on pass, STAGES the batch. |
 | Park | On EITHER terminal outcome — round budget exhausted, or a fixer escalation that halts the run: SAVES the batch's work to parked-&lt;batch&gt;.patch, then clears it from the tree. Nothing is destroyed, every exit leaves a clean unstaged tree, and the batch is recorded in NEEDS-USER.md for the user to restore, retry, or drop. |
 
+## Loops
+
+| Loop | Agent | Repeats while |
+|---|---|---|
+| L1 | fix | the gate is red on round 1 · the gate is never green |
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -90,11 +98,12 @@ flowchart TD
 | throw: args must include at least { runId, root, target, g… |  | throw (line 23) |
 | throw: args.root is required |  | throw (line 28) |
 | throw: args.target.repo is required |  | throw (line 34) |
-| throw: resolve-cycle requires args.issues |  | throw (line 411) |
-| throw: args.gates.build is required |  | throw (line 417) |
-| throw: args.gates.test is required |  | throw (line 420) |
-| throw: No ACTIONABLE issues at or above the fix floor in a… |  | throw (line 430) |
+| throw: Invalid numeric arg |  | throw (line 53) |
+| throw: resolve-cycle requires args.issues |  | throw (line 427) |
+| throw: args.gates.build is required |  | throw (line 433) |
+| throw: args.gates.test is required |  | throw (line 436) |
+| throw: No ACTIONABLE issues at or above the fix floor in a… |  | throw (line 446) |
 
 ## Coverage
 
-23 scenarios · 4/4 roles · 7/7 throw sites · 0/0 halt statuses · 19 terminal states.
+24 scenarios · 4/4 roles · 8/8 throw sites · 0/0 halt statuses · 20 terminal states.

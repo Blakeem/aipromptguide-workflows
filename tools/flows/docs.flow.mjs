@@ -100,6 +100,10 @@ export default {
       args: base,
       respond: { gather: GATHER, scrub: SCRUB, curate: null },
     },
+    // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN and
+    // the round loop never runs; a bad fidelitySample silently became 0, leaving the verbatim promise
+    // asserted but never tested.
+    { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow' } },

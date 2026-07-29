@@ -5,7 +5,7 @@
 // The committed FLOW.md files are checked against a fresh generation here, so drift turns the gate red.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildGraph, generate, loadSpecs } from '../tools/gen-flows.mjs';
+import { buildGraph, generate, loadSpecs, whenLabel } from '../tools/gen-flows.mjs';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 
 // ---------------------------------------------------------------------------------------------
@@ -193,13 +193,47 @@ section('investigate keeps its FIVE status terminals distinct — asserted by th
   eq(g.coverage.statuses.uncovered.length, 0, 'every HALT_STATUS entry was reached by some scenario');
 }
 
+section('whenLabel budgets the WHOLE rendered string, and never shortens the last survivor');
+// Mermaid does no collision avoidance on edge labels, so the budget is the only thing standing between a
+// long condition and an unreadable diagram. Two ways it has been wrong: charging only the conditions while
+// appending " · +N more" and " (×N)" afterwards (a 34-char budget emitting 50), and "fixing" that by
+// ellipsising the last condition — which destroys text the Terminal-states table does not carry for a
+// back edge, to save a character or two.
+{
+  const A = 'alpha condition here', B = 'bravo condition here', C = 'charlie condition here';
+
+  eq(whenLabel([A]), A, 'one short condition passes through untouched');
+  eq(whenLabel([A, B], 100), `${A} · ${B}`, 'two that fit are both shown');
+
+  // The tail is priced the moment truncation happens, so the RESULT fits — not just the part before it.
+  const tight = whenLabel([A, B, C], 45);
+  ok(tight.length <= 45, `the rendered label fits the budget: ${tight.length} <= 45 ("${tight}")`);
+  ok(/\+\d more$/.test(tight), 'and it says how many conditions it left out');
+
+  // `reserve` is the caller's suffix (the "(×N)" repeat count), charged against the same budget. At 55
+  // two conditions fit; reserving 6 for the suffix drops it to one, rather than overflowing the gutter.
+  eq(whenLabel([A, B, C], 55), `${A} · ${B} · +1 more`, 'at 55 two conditions fit');
+  const withSuffix = whenLabel([A, B, C], 55, 6);
+  ok(withSuffix.length + 6 <= 55, `reserve is charged too: ${withSuffix.length} + 6 <= 55`);
+  ok(withSuffix.length < whenLabel([A, B, C], 55).length,
+    'so reserving room shows strictly less, rather than overflowing');
+
+  // The one thing it must NEVER do: shave characters off a condition it is still showing.
+  const single = whenLabel([C], 8);
+  eq(single, C, 'a single condition over budget is emitted WHOLE — truncating it would lose the only copy');
+  ok(!single.includes('…'), 'and carries no ellipsis');
+
+  // Always at least one, whatever the budget.
+  ok(whenLabel([A, B, C], 1).startsWith(A), 'an impossible budget still shows the first condition');
+}
+
 section('two scenarios dying at DIFFERENT rounds map to ONE throw node');
 // The message interpolates the round number, so keying on the message would mint a node per round and
 // break byte-stability the moment a scenario's round count changed.
 {
   const g = await buildGraph(investigate);
   const throwNodes = g.terminals.filter((t) => t.source === 'throw');
-  eq(throwNodes.length, 6, 'six throw sites, six nodes');
+  eq(throwNodes.length, 7, 'seven throw sites, seven nodes');
   const dead = throwNodes.filter((t) => t.label.includes('Investigator returned nothing'));
   eq(dead.length, 1, 'the two dead-investigator scenarios share one node');
   eq(dead[0].scenarios.join(', '), 'dead investigator (round 1), dead investigator (round 3)', 'both are credited to it');

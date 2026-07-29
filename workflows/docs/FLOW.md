@@ -16,25 +16,27 @@ flowchart TD
   t2(["gap(s) left open at the round budget"])
   x1[/"throw: args must include at least { runId, root, sources, …"/]
   x2[/"throw: args.root is required"/]
-  x3[/"throw: Provide the brief"/]
-  x4[/"throw: args.sources is required"/]
-  x5[/"throw: source ids collide after slugging"/]
-  x6[/"throw: Every source reported zero doc files"/]
-  x7[/"throw: Curator returned nothing in round"/]
+  x3[/"throw: Invalid numeric arg"/]
+  x4[/"throw: Provide the brief"/]
+  x5[/"throw: args.sources is required"/]
+  x6[/"throw: source ids collide after slugging"/]
+  x7[/"throw: Every source reported zero doc files"/]
+  x8[/"throw: Curator returned nothing in round"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
   S0 --> x5
+  S0 --> x6
   a1 --> a2
   a1 --> a3
-  a1 --> x6
+  a1 --> x7
   a2 --> a3
   a3 -.->|"the curator returns a gap the next round fills · +1 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x7
+  a3 --> x8
 ```
 
 ## Phases
@@ -53,12 +55,13 @@ flowchart TD
 | gap(s) left open at the round budget |  | declared |
 | throw: args must include at least { runId, root, sources, … |  | throw (line 37) |
 | throw: args.root is required |  | throw (line 40) |
-| throw: Provide the brief |  | throw (line 71) |
-| throw: args.sources is required |  | throw (line 84) |
-| throw: source ids collide after slugging |  | throw (line 88) |
-| throw: Every source reported zero doc files |  | throw (line 278) |
-| throw: Curator returned nothing in round |  | throw (line 291) |
+| throw: Invalid numeric arg |  | throw (line 58) |
+| throw: Provide the brief |  | throw (line 88) |
+| throw: args.sources is required |  | throw (line 101) |
+| throw: source ids collide after slugging |  | throw (line 105) |
+| throw: Every source reported zero doc files |  | throw (line 295) |
+| throw: Curator returned nothing in round |  | throw (line 308) |
 
 ## Coverage
 
-12 scenarios · 3/3 roles · 7/7 throw sites · 0/0 halt statuses · 9 terminal states.
+13 scenarios · 3/3 roles · 8/8 throw sites · 0/0 halt statuses · 10 terminal states.

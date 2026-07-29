@@ -160,17 +160,26 @@ const WHEN_BUDGET = 70;
 // the diagrams just get taller with nothing gained. The env overrides exist so the sweep is repeatable.
 const NODE_SPACING = Number(process.env.FLOW_NODE_SPACING ?? 80);
 const RANK_SPACING = Number(process.env.FLOW_RANK_SPACING ?? 200);
-const whenLabel = (whens, budget = WHEN_BUDGET) => {
-  const shown = [];
-  let len = 0;
-  for (const w of whens) {
-    const add = shown.length ? 3 + w.length : w.length;
-    if (shown.length && len + add > budget) break;
-    shown.push(w);
-    len += add;
-  }
-  const rest = whens.length - shown.length;
-  return shown.join(' · ') + (rest > 0 ? ` · +${rest} more` : '');
+// (There is deliberately no self-loop character budget. Tightening one was tried and measured: it moved
+// the collision to a third map rather than removing it, because the gutter Mermaid parks those labels in
+// is fixed and its width has nothing to do with the text. Self-loops carry a marker instead — edgeLine.)
+// The budget bounds the FINAL RENDERED label, so both suffixes are charged against it: the " · +N more"
+// tail this function adds when it truncates, and the caller's "(×N)" repeat count via `reserve`. Charging
+// only the conditions let a self-loop budgeted at 34 emit 50 characters into a gutter sized for 34 — which
+// is exactly how a label came to sit on top of its neighbouring node in two maps. Shrink from the whole
+// list rather than filling up to it, so the tail is priced the moment it appears.
+export const whenLabel = (whens, budget = WHEN_BUDGET, reserve = 0) => {
+  const room = Math.max(8, budget - reserve);
+  const render = (n) => whens.slice(0, n).join(' · ') + (whens.length - n > 0 ? ` · +${whens.length - n} more` : '');
+  let n = whens.length;
+  while (n > 1 && render(n).length > room) n--;
+  // A single condition over budget is returned WHOLE, never ellipsised. Truncating it is pure loss: a
+  // back-edge label is not a terminal, so the Terminal-states table does not carry it — its `Reached when`
+  // column is empty in every generated map — and nothing else in the document does either. The budget's
+  // job is to decide HOW MANY conditions to show, not to shave characters off the last survivor; an
+  // ellipsis here cost three non-colliding maps their final words to save one character each, and ate the
+  // "+N more" tail that told the reader other conditions existed. §7: room is free, dropped text is not.
+  return render(n);
 };
 
 // ---------------------------------------------------------------------------------------------
@@ -556,20 +565,36 @@ function nodeText(n) {
 // end up BLOCKED?"), and it is complete rather than truncated to fit on an arrow.
 // Loop and boundary edges KEEP their labels — they are few, they never fan out, and they carry the
 // structural story (which way round the loop goes, where the next item starts) that no table replaces.
-function edgeLine(e, terminalIds) {
+// A SELF-loop carries a MARKER (`L1 ×4`), never its conditions — same treatment, and for the same reason,
+// as an edge into a terminal. Mermaid parks a self-loop's label in a FIXED-WIDTH gutter beside the node
+// and never feeds the label's width into layout, so text long enough to matter lands on whatever box sits
+// next to it. That gutter does not scale with nodeSpacing/rankSpacing, and shrinking the text just moves
+// the collision elsewhere — both measured (tests/CLAUDE.md §7). A marker is bounded BY CONSTRUCTION, so
+// this cannot come back when a diagram grows a node or a renderer retunes its gutter again. The repeat
+// count stays on the arrow because it is the loop's bound, which is the structural fact a reader wants
+// from the picture; the conditions move to the Loops table, indexed by the loop.
+const selfLoopIds = (graph) => {
+  const m = new Map();
+  for (const e of graph.edges) if (e.back && e.fromId === e.toId) m.set(e, `L${m.size + 1}`);
+  return m;
+};
+
+function edgeLine(e, terminalIds, loopIds) {
   if (e.boundary) return `  ${e.fromId} ==>|"${esc('next item')}"| ${e.toId}`;
-  // A SELF-loop gets a tighter budget than a normal edge: Mermaid parks its label in the narrow gutter
-  // beside the node rather than in the open span between two ranks, so the same text that reads fine on
-  // a long edge lands on whatever box sits next to it.
   if (e.back) {
-    const budget = e.fromId === e.toId ? 34 : WHEN_BUDGET;
-    return `  ${e.fromId} -.->|"${esc(whenLabel(e.whens, budget))}${e.repeat > 1 ? ` (×${e.repeat})` : ''}"| ${e.toId}`;
+    const marker = loopIds.get(e);
+    // A non-self back edge (a3 → a2) is drawn in the open span between two ranks, where a real label fits.
+    if (!marker) {
+      const suffix = e.repeat > 1 ? ` (×${e.repeat})` : '';
+      return `  ${e.fromId} -.->|"${esc(whenLabel(e.whens, WHEN_BUDGET, suffix.length))}${suffix}"| ${e.toId}`;
+    }
+    return `  ${e.fromId} -.->|"${esc(marker)}${e.repeat > 1 ? ` ×${e.repeat}` : ''}"| ${e.toId}`;
   }
   if (e.labelled && !terminalIds.has(e.toId)) return `  ${e.fromId} -->|"${esc(whenLabel(e.whens))}"| ${e.toId}`;
   return `  ${e.fromId} --> ${e.toId}`;
 }
 
-function mermaid(graph) {
+function mermaid(graph, loopIds) {
   // Mermaid does no collision avoidance on edge labels, and these graphs fan several labelled edges out
   // of one node into separate terminals — at default spacing their labels land on top of each other and
   // neither is readable. More room per rank is what separates them; the values are TUNED against
@@ -603,7 +628,7 @@ function mermaid(graph) {
     else lines.push(`  ${n.id}[/"${nodeText(n)}"/]`);
   }
   const terminalIds = new Set(graph.nodes.filter((n) => n.kind !== 'agent').map((n) => n.id));
-  for (const e of graph.edges) lines.push(edgeLine(e, terminalIds));
+  for (const e of graph.edges) lines.push(edgeLine(e, terminalIds, loopIds));
   return lines.join('\n');
 }
 
@@ -618,14 +643,27 @@ export function generate(spec, graph) {
   out.push('Every node and edge below was *observed*: the scenarios in `tools/flows/` run the real engine');
   out.push('under the test harness with scripted agent returns, so this is what a run does rather than what');
   out.push('it might do. `node tools/gen-flows.mjs --check` fails the gate while this file is stale.', '');
+  const loopIds = selfLoopIds(graph);
   out.push('```mermaid');
-  out.push(mermaid(graph));
+  out.push(mermaid(graph, loopIds));
   out.push('```', '');
 
   out.push('## Phases', '');
   out.push('| Phase | What happens |', '|---|---|');
   for (const p of graph.phases) out.push(`| ${cell(p.title)} | ${cell(p.detail)} |`);
   out.push('');
+
+  // The self-loops' conditions, moved off the arrows (see edgeLine). Indexed by the marker the diagram
+  // shows, so a reader goes from `L1` in the picture to what actually keeps that agent looping.
+  if (loopIds.size) {
+    out.push('## Loops', '');
+    out.push('| Loop | Agent | Repeats while |', '|---|---|---|');
+    for (const [e, id] of loopIds) {
+      const node = graph.nodes.find((n) => n.id === e.fromId);
+      out.push(`| ${id} | ${cell(node ? node.label : e.fromId)} | ${cell((e.whens || []).join(' · '))} |`);
+    }
+    out.push('');
+  }
 
   out.push('## Terminal states', '');
   out.push('| Terminal | Reached when | Source |', '|---|---|---|');

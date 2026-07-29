@@ -25,6 +25,7 @@ Real examples, all from one week:
 | Acceptance stages on `pass` without reading `regression` | feature | feature, migrate |
 | Park names a review file that was never written | migrate | migrate, feature |
 | Lens/source id collision overwrites a sibling's file | brainstorm | brainstorm, decide, docs, enhance |
+| Non-numeric `maxRounds` → NaN → zero-round run reported as a normal terminal state | investigate | investigate, decide, docs, feature, migrate, resolve |
 
 **The families** — a fix in one member almost always belongs in the others:
 
@@ -99,6 +100,22 @@ without can report success having written nothing. Make the set consistent.
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt
 site and map it. feature did this; migrate had to catch up.
 
+**A coerced numeric bound turns a bad arg into a silent no-op run.** `Math.max(1, 'three')` is NaN, and so
+is `Number('three')` — but `round < NaN` is **false on the first test**, so the loop body never runs. The
+engine then returns a zero-agent run wearing an ordinary terminal state: a search that never happened,
+reported as one that ran out of rounds. Every numeric arg that bounds a loop or arms a floor must
+`Number.isFinite` and **throw**, never absorb (`static.test.mjs` sweeps every engine for this). Note the
+second-order version: any flag derived from a halt-kind **default** inherits the lie. `haltKind` starts as
+`'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file nothing wrote. Gate such a
+flag on `round > 0` — the proof an agent actually ran — the way decide's `round ? decisionFile(round) : ''`
+already did.
+
+**A pre-filter that drops candidates before the verifier makes the floor invisible.** enhance cut
+below-floor candidates on the *finder's own unverified score*, logged the count, and dropped it — so a
+`minImpact` set too high was indistinguishable from a clean system, and those candidates appeared in no
+proposal file at all. If a knob silently removes work, its count belongs in the return (#8: a count is
+control plane), or the operator cannot tell the knob from the verdict.
+
 **Documented-Required-but-defaulted.** `abs()` resolves a relative path against `ROOT`, and `ROOT` is the
 *tool's* directory — so `TARGET.repo ?? '.'` silently means "operate on the workflow tool itself." For an
 engine that runs `git checkout --` and deletes files, that is the destructive case. If a doc says
@@ -152,6 +169,15 @@ against (halt); an unreachable feature does not (flag).
   defect shape.
 - **Verify a regression test fails against the old code** before trusting it. Reintroduce the bug, watch
   it go red, put it back. A green test that would never have caught the bug is worse than none.
+- **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
+  grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
+  validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that
+  mattered and still pass — proven with a mutant that produced a zero-agent run. Grepping for the shape of
+  a fix cannot tell you the fix is wired to the thing it must guard. Same trap as attestation theater, one
+  level up.
+- **Don't hand an unguarded loop a huge bound to prove a cap exists.** Probing `maxRounds: 1e21` against an
+  engine that lost its cap does not fail the assertion — it runs until V8 dies, and a heap-exhaustion
+  stack trace buries every other result. Probe just above the cap (`51`).
 - **Prompt *correctness* is testable; prompt *quality* is not.** "Does this interpolate a path that
   exists" is a contract — assert it with `prompt(prefix)`. "Is this well written" is what the review
   loops are for.
@@ -215,15 +241,41 @@ Layout knobs, all tuned against it — raise spacing before shortening text, bec
 dropped information is not:
 
 - `NODE_SPACING` / `RANK_SPACING` in `gen-flows.mjs` (override via `FLOW_NODE_SPACING` /
-  `FLOW_RANK_SPACING` to re-run the sweep). 60/90 left 8 of 9 maps colliding; 80/200 leaves 1.
-- `WHEN_BUDGET` caps an edge label by length, with a tighter budget for self-loops (Mermaid parks those
-  in the narrow gutter beside the node).
-- Edges into a terminal are drawn **unlabelled** — one agent often fans out to six endings, and the
-  conditions live in the Terminal states table, indexed by the question a reader actually asks.
+  `FLOW_RANK_SPACING` to re-run the sweep). 60/90 left 8 of 9 maps colliding; 80/200 leaves 2.
+- `WHEN_BUDGET` caps an edge label by length. It bounds the string Mermaid receives (before `esc()`) —
+  the `· +N more` tail and the `(×N)` repeat count are charged against it, not added after. They used to
+  be added after, so a 34-char budget could emit 50 characters. The budget decides **how many conditions
+  to show**, never how many characters of the last one: a single over-budget condition is emitted whole,
+  because a back edge is not a terminal and no table below carries its text, so truncating destroys the
+  only copy.
+- **Two edge kinds carry a reference instead of their text, and never collide as a result:** edges into a
+  terminal are drawn **unlabelled** (one agent often fans out to six endings) with their conditions in the
+  Terminal states table; **self-loops carry a marker** (`L1 ×4`) with their conditions in the **Loops**
+  table. Both are indexed by the question a reader actually asks, both are complete rather than truncated
+  to fit on an arrow, and both are **bounded by construction** — which is the property that matters, since
+  it cannot regress when a diagram grows a node or a renderer retunes its layout.
 
-**Known:** `debug/resolve` still reports one overlap — a self-loop label parked over a neighbouring throw
-node. The next lever is splitting the arg-validation throws into their own diagram; they all fire from
-`args` before any agent runs and have nothing to do with the run loop.
+**Solved — all 9 maps render clean. Keep it that way by never putting authored text in a self-loop
+label.** The history is worth knowing, because the obvious fixes are all wrong:
+
+Mermaid **11.16.0** changed self-loops to a single SVG path through two dummy nodes
+(`layout-algorithms/dagre/index.js`, `getSelfLoopSide`: *"so loops are not always forced above the node"*),
+tucking the loop into a fixed-width side gutter without ever feeding the label's width into layout.
+Bisected: **11.4.1 / 11.8.0 / 11.12.0 / 11.15.0 clean; 11.16.0 broke two maps.** `render-flows.mjs` had
+been fetching `mermaid@11`, a **floating** tag, so the gate's verdict changed when the CDN moved rather
+than when the maps did. It is pinned now, cache keyed by version.
+
+Measured and ruled out — do not re-run these sweeps: `RANK_SPACING` to 340 changes nothing (the gutter
+does not scale with it); *shortening* a self-loop character budget makes it **worse** (relayout put a
+third map into collision); `layout: elk` renders byte-identically to no config at all (ELK left mermaid
+core in v11 and GitHub has not installed the separate package). **`defaultRenderer: "elk"` is a trap** —
+it reports zero overlaps and is a false positive: not ELK at all, it reverts to the legacy self-loop path
+and scores "clean" by dangling the label in whitespace at the tip of a long teardrop.
+
+The fix was structural, not a constant: self-loops carry a marker and their conditions live in the Loops
+table (above). Verified clean on **both** 11.4.1 (what GitHub was last observed serving) and 11.16.0 (the
+strictest layout measured), which is the point — a bounded label cannot regress when a renderer retunes.
+The Loops table also carries the **full** condition list, where the arrow had been truncating to `+N more`.
 
 ## 8. Before you call a change done
 

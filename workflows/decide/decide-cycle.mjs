@@ -30,7 +30,23 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL read-only context
 const CONTEXT     = A.context ?? '';                       // short extra framing (domain facts the agents won't know)
 const TESTBED     = A.testbed ?? '';                       // OPTIONAL: how agents may empirically test claims (e.g. a read-only sqlite db + how to query it)
-const MAX_ROUNDS  = Math.max(1, A.maxRounds ?? 3);          // decider ⇄ reviewer rounds before "needs-attention"
+// A non-numeric bound must THROW, never coerce. `Math.max(1, 'three')` is NaN, `round < NaN` is false on
+// the first test, and the loop then never runs — handing back a zero-agent run dressed as an ordinary
+// round-budget exit, with a nextStep naming decision-r0.md that nothing wrote. A documented default is
+// not a licence to accept garbage.
+// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
+// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
+// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
+// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
+// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+const num = (v, name, min, dflt, max = 1_000_000) => {
+  if (v === undefined || v === null) return dflt;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage produces a zero-round run and reports it as an ordinary result.`);
+  }
+  return Math.floor(v);
+};
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 3, 50);    // decider ⇄ reviewer rounds before "needs-attention"
 
 // SELECTION — what the decider is asked to produce.
 //   'single' (default) : ONE justified winner + why-not-each-runner-up. The normal decision.
@@ -47,7 +63,7 @@ if (SELECTION !== 'single' && SELECTION !== 'ranked') {
   throw new Error(`args.selection must be 'single' (one justified winner — the default) or 'ranked' (a ranked shortlist, no single winner); got "${SELECTION}".`);
 }
 const RANKED      = SELECTION === 'ranked';
-const SHORTLIST_N = Math.max(2, A.shortlist ?? 5);          // ranked only: how many to carry on the list
+const SHORTLIST_N = num(A.shortlist, 'shortlist', 2, 5, 50);    // ranked only: how many to carry on the list
 
 // Per-role model tiers + OPTIONAL custom subagent types. Decider + reviewer are opus (high stakes);
 // the per-lens analysts are the fast tier by default.

@@ -23,7 +23,7 @@ flowchart TD
   S0 --> x2
   S0 --> x3
   S0 --> x4
-  a1 -.->|"each unit is swept once per lens (×2)"| a1
+  a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
   a1 --> t2
@@ -37,6 +37,12 @@ flowchart TD
 |---|---|
 | Review | Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/&lt;unit&gt;.md marker itself. |
 | Verify | Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/&lt;runId&gt;/issues/&lt;unit&gt;.md verbatim (the inventory). Returns a slim verdict index. |
+
+## Loops
+
+| Loop | Agent | Repeats while |
+|---|---|---|
+| L1 | review | each unit is swept once per lens |
 
 ## Terminal states
 

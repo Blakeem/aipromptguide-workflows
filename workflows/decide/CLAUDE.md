@@ -152,10 +152,11 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   enforced) · `requirements`
   (inline) **or** `planPath` (absolute path to the rubric file).
 - **Optional:** `selection` (`"single"` default | `"ranked"` — §1/§6; anything else throws) ·
-  `shortlist` (ranked only: how many options to carry, default 5, raised to 2 if you pass less) ·
+  `shortlist` (ranked only: how many options to carry, default 5; **throws** below 2 or non-numeric) ·
   `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
   §3) · `target.repo` (absolute, read-only context) ·
-  `target.lang`/`target.framework` (hints) · `maxRounds` (3, raised to 1 if you pass less) ·
+  `target.lang`/`target.framework` (hints) · `maxRounds` (3; **throws** below 1 or non-numeric — it used
+  to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary result) ·
   `models` (per-role tier: analyst/decide/review) · `agentTypes` (custom subagent per role — must exist
   in your registry) · `stateDir` (override `runs/<runId>`).
 

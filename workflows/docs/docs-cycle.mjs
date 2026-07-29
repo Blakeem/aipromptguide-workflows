@@ -42,9 +42,26 @@ if (!A.root) {
 
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL (for repo sources)
-const MAX_ROUNDS  = A.maxRounds ?? 2;                       // curate passes: the initial one + gap-fill rounds
+// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
+// round loop would never run and the engine would hand back a zero-agent run as an ordinary result. The
+// same coercion silently turned a bad `fidelitySample` into 0 — which reads as "spot-check disabled" and
+// leaves the verbatim promise asserted but never tested. A documented default is not a licence to accept
+// garbage.
+// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite. That
+// matters most for `fidelitySample`, where 0 is a LEGAL value meaning "spot-check disabled" — so a
+// coercing check turned `fidelitySample: ''` into a silently untested verbatim promise, which is the
+// exact failure this guard exists to stop. The message leads with a STATIC clause because
+// tools/gen-flows.mjs labels a throw node with the first clause of its static prefix.
+const num = (v, name, min, dflt, max = 1_000_000) => {
+  if (v === undefined || v === null) return dflt;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage produces a zero-round run, or silently disables the fidelity spot-check, and reports either as an ordinary result.`);
+  }
+  return Math.floor(v);
+};
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 2, 50);    // curate passes: the initial one + gap-fill rounds
 const TESTBED     = A.testbed ?? '';                        // OPTIONAL: how agents may empirically verify claims (e.g. read-only curl against a live API)
-const FIDELITY_N  = Math.max(0, Number(A.fidelitySample ?? 3) || 0);   // files the curator spot-checks against their cited source (0 disables)
+const FIDELITY_N  = num(A.fidelitySample, 'fidelitySample', 0, 3);     // files the curator spot-checks against their cited source (0 disables)
 
 // Per-role model tiers + OPTIONAL custom subagent types. Docs work is simple next to code — every role
 // defaults to a fast tier: gather + curate copy/organize/judge (sonnet); scrub strips junk (haiku).

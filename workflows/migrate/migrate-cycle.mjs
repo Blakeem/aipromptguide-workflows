@@ -43,7 +43,24 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const REFERENCE   = A.reference ?? '';                      // optional: a completed example to mirror
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
-const MAX_ROUNDS  = A.maxRounds ?? 4;                       // develop→quality→acceptance rounds per section before "needs-attention"
+// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
+// per-section loop would never run: the first section would park having never spawned a developer, and
+// the run would stop there reporting that as an ordinary "could not accept" outcome. A documented default
+// is not a licence to accept garbage — same reasoning as the `target.repo` guard below.
+// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
+// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
+// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
+// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
+// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+const num = (v, name, min, dflt, max = 1_000_000) => {
+  if (v === undefined || v === null) return dflt;
+  if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
+    throw new Error(`Invalid numeric arg: args.${name} must be a number between ${min} and ${max}; got ${JSON.stringify(v)}. It is not coerced — a bound that absorbs garbage parks the first section without ever spawning a developer.`);
+  }
+  return Math.floor(v);
+};
+const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // develop→quality→acceptance rounds per section before "needs-attention"
+const MIN_SECTION_BUDGET = num(A.minSectionBudget, 'minSectionBudget', 0, 150_000); // token floor to start another section
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType that
@@ -620,7 +637,7 @@ for (const section of pending) {
   if (halted) break;
   // Budget guard: when the user set a token target (e.g. "+500k"), stop CLEANLY between sections rather
   // than letting an agent() call throw mid-section. Accepted sections are STAGED; resume continues.
-  if (budget.total && budget.remaining() < (A.minSectionBudget ?? 150_000)) {
+  if (budget.total && budget.remaining() < MIN_SECTION_BUDGET) {
     halted = true;   // so the reason + resume instruction surface in the return value
     haltKind = 'budget';
     haltReason = `Stopped before section ${section.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minSectionBudget). Resume phase:"run" with startAt:"${section.id}".`;

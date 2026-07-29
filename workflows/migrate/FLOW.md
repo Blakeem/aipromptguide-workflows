@@ -29,13 +29,14 @@ flowchart TD
   x1[/"throw: args must include at least { runId, planPath #124; plan"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: section id(s) ["/]
-  x5[/"throw: Plan critic returned nothing"/]
-  x6[/"throw: args.sections is required for phase:#quot;run#quot;"/]
-  x7[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
-  x8[/"throw: args.gates.test is required when any section has ga…"/]
-  x9[/"throw: args.runOnly"/]
-  x10[/"throw: args.startAt #quot;"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: section id(s) ["/]
+  x6[/"throw: Plan critic returned nothing"/]
+  x7[/"throw: args.sections is required for phase:#quot;run#quot;"/]
+  x8[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
+  x9[/"throw: args.gates.test is required when any section has ga…"/]
+  x10[/"throw: args.runOnly"/]
+  x11[/"throw: args.startAt #quot;"/]
   S0 --> a1
   S0 --> a2
   S0 --> t11
@@ -43,14 +44,15 @@ flowchart TD
   S0 --> x2
   S0 --> x3
   S0 --> x4
-  S0 --> x6
+  S0 --> x5
   S0 --> x7
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
   a1 --> t1
-  a1 --> x5
-  a2 -.->|"the section gate is never green (×4)"| a2
+  a1 --> x6
+  a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a4
   a2 --> a5
@@ -83,6 +85,12 @@ flowchart TD
 | Park | On a section that did not accept within its round budget, or one the developer escalated: SAVES that section's work to parked-&lt;id&gt;.patch, then clears it from the tree so the repo is left clean and buildable. The run STOPS either way — the sections after it depend on this one landing — but nothing is destroyed: NEEDS-USER.md carries the restore command. |
 | Sweep | After the FINAL section is staged: an independent agent re-greps the whole surface, runs the full gates, spot-checks the staged diff, writes SWEEP.md. The only whole-goal completeness check. |
 
+## Loops
+
+| Loop | Agent | Repeats while |
+|---|---|---|
+| L1 | develop | the section gate is never green |
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -101,14 +109,15 @@ flowchart TD
 | throw: args must include at least { runId, planPath \| plan |  | throw (line 26) |
 | throw: args.root is required |  | throw (line 31) |
 | throw: args.target.repo is required |  | throw (line 37) |
-| throw: section id(s) [ |  | throw (line 115) |
-| throw: Plan critic returned nothing |  | throw (line 545) |
-| throw: args.sections is required for phase:"run" |  | throw (line 575) |
-| throw: args.gates.build is required for phase:"run" |  | throw (line 581) |
-| throw: args.gates.test is required when any section has ga… |  | throw (line 584) |
-| throw: args.runOnly |  | throw (line 599) |
-| throw: args.startAt " |  | throw (line 604) |
+| throw: Invalid numeric arg |  | throw (line 58) |
+| throw: section id(s) [ |  | throw (line 132) |
+| throw: Plan critic returned nothing |  | throw (line 562) |
+| throw: args.sections is required for phase:"run" |  | throw (line 592) |
+| throw: args.gates.build is required for phase:"run" |  | throw (line 598) |
+| throw: args.gates.test is required when any section has ga… |  | throw (line 601) |
+| throw: args.runOnly |  | throw (line 616) |
+| throw: args.startAt " |  | throw (line 621) |
 
 ## Coverage
 
-30 scenarios · 6/6 roles · 10/10 throw sites · 8/8 halt statuses · 21 terminal states.
+31 scenarios · 6/6 roles · 11/11 throw sites · 8/8 halt statuses · 22 terminal states.

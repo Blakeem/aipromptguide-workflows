@@ -28,7 +28,12 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
   criterion you could relax to change it. It is kept strictly separate from "we ran out of rounds" and
   "we ran out of tokens", so a stopped search is never reported as a finished one.
 - **Several answers is a normal outcome.** Qualifying options come back unranked with their trade-offs,
-  because ranking them is a different job — see below.
+  because ranking them is a different job — see below. The determination tables them on the axes they
+  actually differ on and says which to pick when, so "unranked" does not mean undifferentiated.
+- **Near misses are not thrown away.** A candidate that failed *exactly one* criterion is marked as such
+  in the ledger, with the shortfall in numbers, and gets its own section in the determination. When
+  nothing qualifies, those are usually the most useful thing the run found — they are exactly what
+  relaxing a criterion would put back on the table.
 - **A determination, not code.** Nothing is staged or committed. It feeds
   [`feature-cycle`](../feature/) next.
 
@@ -87,8 +92,9 @@ full record of what was ruled out and why (`DISQUALIFIED.md`), the critic's roun
 (`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`).
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
-`not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — treat
-it as partial and re-run to continue, since the ledger makes that cheap rather than repetitive.
+`not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — you
+still get a determination, written on the final round and labelled a partial result, so treat it as partial
+and re-run to continue, since the ledger makes that cheap rather than repetitive.
 
 `DISQUALIFIED.md` is worth reading even on a clean run. It is usually the fastest way to see whether your
 criteria were doing what you meant them to.

@@ -155,8 +155,11 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
 - **Required:** `runId` · `root` (§3) · `sources` (§4) · `brief` (inline) **or** `planPath` (absolute
   path to a framing file).
 - **Optional:** `outDir` (a fresh dir dedicated to this set, usually `<project>/docs/<system>/`; default
-  `runs/<runId>/docs`) · `fidelitySample` (3; `0` disables the spot-check) · `maxRounds`
-  (2) · `testbed` (how to empirically verify non-official claims — §3) · `target.repo` (absolute —
+  `runs/<runId>/docs`) · `fidelitySample` (3; a literal `0` disables the spot-check, but **throws** on a
+  non-number — `""`, `false` and `[]` all coerce to `0`, and silently turning the verbatim check off is
+  exactly the failure it exists to prevent) · `maxRounds`
+  (2; **throws** unless it is a number in 1–50) · `testbed` (how to empirically verify non-official
+  claims — §3) · `target.repo` (absolute —
   required for `repo` sources) · `models` (per-role tier: gather/scrub/curate) · `agentTypes` (custom
   subagent per role — must exist in your registry) · `stateDir` (override `runs/<runId>`).
 

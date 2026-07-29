@@ -50,6 +50,9 @@ export default {
   title: 'migrate-cycle',
   scenarios: [
     // ---- arg validation, in the order the engine checks it ---------------------------------------
+    // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
+    // per-section round loop never runs, and the first section parks having never spawned a developer.
+    { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
     { name: 'no plan reference', when: 'args carry neither runId nor a plan', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow', planPath: 'plans/goal.md' } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow', planPath: 'plans/goal.md' } },

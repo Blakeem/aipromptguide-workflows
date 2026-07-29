@@ -335,19 +335,33 @@ const results = await pipeline(
       schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
     }));
     // Floor the finder's own scores before verify — below-floor candidates only cost verify tokens.
-    const kept = (r?.candidates || []).filter((c) => (IMPACT_RANK[c.impact] ?? 1) >= MIN_IMPACT);
-    const dropped = (r?.candidates || []).length - kept.length;
-    if (dropped) log(`  ${lens.id}: dropped ${dropped} below-floor candidate(s) before verify`);
-    return { lens, candidates: kept, markerWritten: r?.wrote_clean_marker === true };
+    // They are cut here, so they never reach the verifier and never appear in the proposal file's
+    // Rejected section: this count is the ONLY trace they existed. It has to reach the caller, because
+    // `minImpact` is a knob the operator is invited to lower (CLAUDE.md §3) and "12 candidates sat one
+    // rank under your floor" is exactly the fact that decides whether lowering it is worth a re-run.
+    // Logging it and dropping it made a floor that is too high indistinguishable from a clean system.
+    // A DEAD finder is not a clean lens. `r?.candidates || []` would make the two identical — zero
+    // candidates, zero below the floor, and a result object carrying this lens id, so `failed` stays empty
+    // and the run reports the lens as audited. Dropping it to null instead puts it in `failed`, which is
+    // the one place the operator can see that this lens produced nothing because nobody looked.
+    if (!r) {
+      log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, no marker file). Re-run it.`);
+      return null;
+    }
+    const kept = (r.candidates || []).filter((c) => (IMPACT_RANK[c.impact] ?? 1) >= MIN_IMPACT);
+    const belowFloor = (r.candidates || []).length - kept.length;
+    if (belowFloor) log(`  ${lens.id}: ${belowFloor} candidate(s) below the ${MIN_IMPACT_NAME} floor — cut before verify, not in the proposal file`);
+    return { lens, candidates: kept, belowFloor, markerWritten: r.wrote_clean_marker === true };
   },
   // -- Verify + write the lens proposal file — ONLY when the lens has candidates ---------------
   async (r) => {
-    const { lens, candidates, markerWritten } = r;
+    if (!r) return null;                        // stage 1 dropped a dead finder — it belongs in `failed`
+    const { lens, candidates, belowFloor, markerWritten } = r;
     const items = candidates.map((c, i) => ({ id: `${slug(lens.id)}-${i + 1}`, c }));
     if (items.length === 0) {
       if (markerWritten) log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
       else log(`  ⚠ ${lens.id}: nothing above the floor but no ${proposalFile(lens.id)} was written — re-run this lens to get its marker`);
-      return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 }, kept: [] };
+      return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0, belowFloor }, kept: [] };
     }
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
@@ -372,6 +386,7 @@ const results = await pipeline(
       needs_user: by('NEEDS_USER'),
       rejected: by('REJECT'),
       defects: verdicts.filter((x) => x.is_defect === true).length,
+      belowFloor,
     };
     if (v?.wrote_file !== true) log(`  ⚠ ${lens.id}: verifier did NOT confirm writing ${proposalFile(lens.id)} — check it before triaging`);
     log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}`);
@@ -390,17 +405,21 @@ if (failed.length) log(`  ⚠ no proposal file from: ${failed.join(', ')} (finde
 const total = (k) => live.reduce((s, r) => s + (r.counts[k] || 0), 0);
 const adopt = total('adopt'), roadmap = total('roadmap'), needsUser = total('needs_user');
 const defects = total('defects');
-log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}`);
+const belowFloor = total('belowFloor');
+log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}${belowFloor ? `; ${belowFloor} cut below the ${MIN_IMPACT_NAME} floor` : ''}`);
 
 return {
   phase: 'enhance',
   runId: RUN_ID,
   proposalsDir: PROPOSALS_DIR,
-  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects },
+  // `belowFloor` counts candidates cut on the FINDER's own unverified score, before any verifier saw
+  // them — so they are in no proposal file at all. It is the only signal that the floor, not the system,
+  // is why a lens came back thin.
+  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, belowFloor },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
   lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
   failed,
-  nextStep: `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items go to feature-cycle (several become its plans[] roadmap), ROADMAP items to migrate-cycle or a feature plan of their own, and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no resolve step — the user decides what gets built.`,
+  nextStep: `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items go to feature-cycle (several become its plans[] roadmap), ROADMAP items to migrate-cycle or a feature plan of their own, and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no resolve step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}`,
 };
