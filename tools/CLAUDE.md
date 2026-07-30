@@ -57,6 +57,12 @@ is authored.
 Output is byte-stable (no timestamps), so `--check` is a meaningful gate. Change an engine's control flow
 and you must regenerate, or `node tests/run.mjs` goes red.
 
+It is also **dash-free**: `dedash` flattens the finished document to ASCII hyphens (em, en and horizontal
+bar) because the maps are published on a user-facing site. Presentation only, applied once at the end of
+`generate()` — engine prose, `--json` and terminal identity keep the real characters, and the substitution
+is 1:1 so no label changes width. Write your prose however you like; only the emitted page is normalized.
+`tests/flow-coverage.test.mjs` asserts it over every spec.
+
 ## render-flows.mjs
 
 ```bash

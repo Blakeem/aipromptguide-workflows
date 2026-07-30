@@ -214,6 +214,10 @@ Three things to know before you touch it:
   them before deleting a scenario that looks redundant.
 - **Add a scenario, don't loosen a check.** `allowUncovered` demands a reason and fails if the item turns
   out to be covered, so it cannot quietly become a dumping ground.
+- **The maps are published, so they are dash-free.** `dedash` flattens em/en/horizontal-bar dashes to
+  ASCII hyphens in the finished document, and a coverage assertion holds every map to it. Do **not** strip
+  dashes from engine prose to satisfy it: a `HALT_STATUS` string is an engine return value that tests
+  assert verbatim, and the normalization is presentation-only by design.
 
 The tables are deliberately **parallel to** the `*.test.mjs` files rather than shared with them: the tests
 optimize for failure paths, the maps for complete terminal coverage, and a test deleted as redundant

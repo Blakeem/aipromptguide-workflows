@@ -199,6 +199,20 @@ for (const { spec, graph } of observed) {
     : `${spec.out} is ${committed === null ? 'missing' : 'stale'} — run \`node tools/gen-flows.mjs ${spec.name}\` and commit the result`);
 }
 
+section('no generated map carries an em dash');
+// The maps are published on a user-facing site whose house style takes no em dash, and every source that
+// feeds one is prose someone edits freely: engine HALT_STATUS strings, meta.phases details, throw
+// messages, and the scenario `when` lines. `dedash` flattens the finished document precisely so none of
+// those has to remember — this asserts it, over every real spec, so the day the emitter grows a path that
+// bypasses it the gate says so instead of the site. Asserting the FRESH text is enough: the freshness
+// check above already binds the committed bytes to it, and a hand-edited dash fails there.
+for (const { spec, graph } of observed) {
+  const hits = [...new Set(generate(spec, graph).match(/[–—―]/g) ?? [])];
+  ok(hits.length === 0, hits.length
+    ? `${spec.out} emits ${hits.join(' ')} — every dash must reach the page as an ASCII hyphen`
+    : `${spec.out} is free of em, en and horizontal-bar dashes`);
+}
+
 section('allowUncovered exemptions are explained and still needed');
 // A stale exemption quietly widens the hole it documents: the throw it excused is covered now (or gone),
 // and the entry goes on excusing whatever else its prefix happens to match.

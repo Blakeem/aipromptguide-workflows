@@ -156,7 +156,7 @@ section('a repeat inside ONE fan-out lane is a self-loop, not concurrency');
   ok(!!edgeBetween(g, 'review', 'verify'), 'and the stage edge still holds');
 }
 
-section('a terminal with parens, quotes and an em dash survives into quoted Mermaid');
+section('a terminal with parens and quotes survives into quoted Mermaid; its em dash is flattened');
 {
   const spec = {
     engine: 'workflows/brainstorm/brainstorm-cycle.mjs',
@@ -170,10 +170,15 @@ section('a terminal with parens, quotes and an em dash survives into quoted Merm
       terminal: 'wrapped up — "done" (all lenses)',
     }],
   };
-  const md = generate(spec, await buildGraph(spec));
-  ok(md.includes('(["wrapped up — #quot;done#quot; (all lenses)"])'),
-    'quotes become #quot;, parentheses and the em dash pass through inside the quoted string');
+  const g = await buildGraph(spec);
+  const md = generate(spec, g);
+  ok(md.includes('(["wrapped up - #quot;done#quot; (all lenses)"])'),
+    'quotes become #quot;, parentheses pass through, and the em dash flattens to a hyphen');
   ok(!/\[\("[^"\n]*"[^"\n]*"/.test(md), 'no bare quote is left to close the Mermaid string early');
+  // Presentation only: the graph still carries the label the scenario declared, so terminal identity and
+  // the `--json` output are judged against the engine's real text, not against a rewritten copy.
+  ok(g.terminals.some((t) => t.label === 'wrapped up — "done" (all lenses)'),
+    'and the graph keeps the em dash — only the emitted document drops it');
 }
 
 section('investigate keeps its SEVEN status terminals distinct — asserted by their exact strings');
