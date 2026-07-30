@@ -15,7 +15,7 @@ flowchart TD
   t1(["decided (decider + reviewer agree)"])
   t2(["needs-attention (no agreement within round budget)"])
   t3(["BLOCKED (needs user input)"])
-  x1[/"throw: args must include at least { runId, root, lenses, r…"/]
+  x1[/"throw: args must include at least { runId, root, lenses, requirements#124;planPath }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: Invalid numeric arg"/]
   x4[/"throw: args.selection must be 'single'"/]
@@ -57,19 +57,19 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| decided (decider + reviewer agree) |  | derived |
-| needs-attention (no agreement within round budget) |  | derived |
-| BLOCKED (needs user input) |  | derived |
-| throw: args must include at least { runId, root, lenses, r… |  | throw (line 23) |
-| throw: args.root is required |  | throw (line 26) |
-| throw: Invalid numeric arg |  | throw (line 45) |
-| throw: args.selection must be 'single' |  | throw (line 63) |
-| throw: Provide the requirements |  | throw (line 93) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives |  | throw (line 104) |
-| throw: lens ids collide after slugging |  | throw (line 108) |
-| throw: No analyst produced a lens file |  | throw (line 295) |
-| throw: Decider returned nothing in round |  | throw (line 326) |
-| throw: Reviewer returned nothing in round |  | throw (line 349) |
+| decided (decider + reviewer agree) | the reviewer agrees the conclusion holds · one analyst produces no lens file | derived |
+| needs-attention (no agreement within round budget) | the reviewer keeps finding gaps | derived |
+| BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
+| throw: args must include at least { runId, root, lenses, requirements\|planPath } | args carry no runId | throw (line 23) |
+| throw: args.root is required | args.root is missing | throw (line 26) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 45) |
+| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 63) |
+| throw: Provide the requirements | neither requirements nor planPath | throw (line 93) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 295) |
+| throw: Decider returned nothing in round | the decider dies | throw (line 326) |
+| throw: Reviewer returned nothing in round | the reviewer dies | throw (line 349) |
 
 ## Coverage
 

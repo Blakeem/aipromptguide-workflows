@@ -20,10 +20,10 @@ flowchart TD
   t6(["stalled (a round added nothing new and claimed nothing - stopped unverified)"])
   t7(["stopped on token budget (resume where it left off)"])
   t8(["BLOCKED (needs user input)"])
-  x1[/"throw: args must include at least { runId, root, criteria#124;…"/]
+  x1[/"throw: args must include at least { runId, root, criteria#124;planPath }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: Invalid numeric arg"/]
-  x4[/"throw: Provide the acceptance criteria the search qualifie…"/]
+  x4[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
   x5[/"throw: Criteria critic returned nothing"/]
   x6[/"throw: Investigator returned nothing in round"/]
   x7[/"throw: Acceptance critic returned nothing in round"/]
@@ -68,21 +68,21 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| criteria critique returned (refine stops here) |  | declared |
-| exhaustive (search closed, critic agreed) |  | derived |
-| no qualifying option exists (verified) |  | derived |
-| not exhaustive (round budget spent) |  | derived |
-| stopped on saturation (diminishing returns, critic agreed - the search is open, not closed) |  | derived |
-| stalled (a round added nothing new and claimed nothing - stopped unverified) |  | derived |
-| stopped on token budget (resume where it left off) |  | derived |
-| BLOCKED (needs user input) |  | derived |
-| throw: args must include at least { runId, root, criteria\|… |  | throw (line 30) |
-| throw: args.root is required |  | throw (line 33) |
-| throw: Invalid numeric arg |  | throw (line 54) |
-| throw: Provide the acceptance criteria the search qualifie… |  | throw (line 96) |
-| throw: Criteria critic returned nothing |  | throw (line 424) |
-| throw: Investigator returned nothing in round |  | throw (line 490) |
-| throw: Acceptance critic returned nothing in round |  | throw (line 531) |
+| criteria critique returned (refine stops here) | phase:"refine" | declared |
+| exhaustive (search closed, critic agreed) | the critic agrees the search is closed | derived |
+| no qualifying option exists (verified) | the critic agrees nothing can qualify | derived |
+| not exhaustive (round budget spent) | the critic contests the coverage claim · the critic contests the saturation claim · a round only rules candidates out | derived |
+| stopped on saturation (diminishing returns, critic agreed - the search is open, not closed) | the critic agrees the search has run dry | derived |
+| stalled (a round added nothing new and claimed nothing - stopped unverified) | a round adds nothing at all | derived |
+| stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
+| BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
+| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 30) |
+| throw: args.root is required | args.root is missing | throw (line 33) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 54) |
+| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 96) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 424) |
+| throw: Investigator returned nothing in round | the investigator dies · the investigator dies mid-search | throw (line 490) |
+| throw: Acceptance critic returned nothing in round | the critic dies with options unverified | throw (line 531) |
 
 ## Coverage
 

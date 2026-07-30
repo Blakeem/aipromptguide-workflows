@@ -199,6 +199,40 @@ for (const { spec, graph } of observed) {
     : `${spec.out} is ${committed === null ? 'missing' : 'stale'} — run \`node tools/gen-flows.mjs ${spec.name}\` and commit the result`);
 }
 
+section('a throw label is the WHOLE first clause of its message, never an ellipsised one');
+// The clause cut is a deliberate reduction (messages run to 289 characters, into paragraphs of resume
+// instructions); a character cap on top of it was not. It used to ellipsise at 52, which put
+// "throw: args must include at least { runId, root, target, s…" on a published page. Asserting the label
+// is a literal PREFIX of the static message catches any truncation without restating the cut list here —
+// two copies of that list is how the diagram and its gate come to disagree.
+for (const { spec, graph, sites } of observed) {
+  const byLine = new Map(sites.map((s) => [s.line, String(s.prefix ?? '').replace(/\s+/g, ' ').trim()]));
+  const throws = graph.terminals.filter((t) => t.source === 'throw');
+  const cut = throws.filter((t) => {
+    const full = byLine.get(t.line) ?? '';
+    return full && !full.startsWith(t.label.replace(/^throw: /, ''));
+  });
+  ok(cut.length === 0, cut.length
+    ? `${spec.name}: ${cut.map((t) => `line ${t.line} shows "${t.label}"`).join('; ')} — not a literal prefix of the thrown message, so the label was truncated`
+    : `${spec.name}: all ${throws.length} throw label(s) are whole clauses of their message`);
+}
+
+section('the Terminal states table says what reaches each terminal');
+// Edges into a terminal are drawn UNLABELLED on purpose — one agent fans out to six endings and Mermaid
+// piles those labels on top of each other — so this column is the ONLY place a reader can learn what
+// reaches an ending. buildGraph collected the conditions and the projection dropped them, which left the
+// column blank in all nine committed maps: the conditions were on no arrow and in no table. Asserted on
+// the RENDERED row, so neither the projection nor the emitter can lose them again.
+const tableCells = (row) => row.split(/(?<!\\)\|/).slice(1, -1).map((c) => c.trim());
+for (const { spec, graph } of observed) {
+  const body = generate(spec, graph).split('## Terminal states')[1]?.split('\n## ')[0] ?? '';
+  const rows = body.split('\n').filter((l) => l.startsWith('|') && !/^\|\s*-+/.test(l)).slice(1);
+  const blank = rows.filter((r) => !tableCells(r)[1]).map((r) => tableCells(r)[0]);
+  ok(rows.length === graph.terminals.length && blank.length === 0, blank.length
+    ? `${spec.name}: ${blank.length} terminal(s) print no condition (${blank.slice(0, 2).join('; ')}) — the "Reached when" column is where an unlabelled edge's conditions live`
+    : `${spec.name}: all ${rows.length} terminal row(s) name what reaches them`);
+}
+
 section('no generated map carries an em dash');
 // The maps are published on a user-facing site whose house style takes no em dash, and every source that
 // feeds one is prose someone edits freely: engine HALT_STATUS strings, meta.phases details, throw

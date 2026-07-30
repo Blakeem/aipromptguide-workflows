@@ -14,7 +14,7 @@ flowchart TD
   t1(["inventory written (the clean unit never reached verify)"])
   t2(["no inventory (every unit read clean)"])
   t3(["inventory written (both lenses merged behind one verifier)"])
-  x1[/"throw: args must include at least { runId, root, target, c…"/]
+  x1[/"throw: args must include at least { runId, root, target, conventions, units }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
   x4[/"throw: review requires a non-empty args.units array"/]
@@ -48,13 +48,13 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| inventory written (the clean unit never reached verify) |  | declared |
-| no inventory (every unit read clean) |  | declared |
-| inventory written (both lenses merged behind one verifier) |  | declared |
-| throw: args must include at least { runId, root, target, c… |  | throw (line 20) |
-| throw: args.root is required |  | throw (line 25) |
-| throw: args.target.repo is required |  | throw (line 31) |
-| throw: review requires a non-empty args.units array |  | throw (line 329) |
+| inventory written (the clean unit never reached verify) | one unit is clean, the other has findings | declared |
+| no inventory (every unit read clean) | a reviewer dies (its unit reads as clean, unmarked) | declared |
+| inventory written (both lenses merged behind one verifier) | each unit is swept once per lens | declared |
+| throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 20) |
+| throw: args.root is required | args.root is missing | throw (line 25) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 31) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 329) |
 
 ## Coverage
 

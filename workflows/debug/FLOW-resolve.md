@@ -25,14 +25,14 @@ flowchart TD
   t10(["BLOCKED (fixer did not return)"])
   t11(["BLOCKED (staging contract violated)"])
   t12(["stopped on token budget (resume where it left off)"])
-  x1[/"throw: args must include at least { runId, root, target, g…"/]
+  x1[/"throw: args must include at least { runId, root, target, gates, conventions, issues }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
   x4[/"throw: Invalid numeric arg"/]
   x5[/"throw: resolve-cycle requires args.issues"/]
   x6[/"throw: args.gates.build is required"/]
   x7[/"throw: args.gates.test is required"/]
-  x8[/"throw: No ACTIONABLE issues at or above the fix floor in a…"/]
+  x8[/"throw: No ACTIONABLE issues at or above the fix floor in args.issues"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -83,26 +83,26 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| accepted |  | declared |
-| all-stale |  | declared |
-| no-changes |  | declared |
-| parked |  | declared |
-| parked (run HALTED: park report contradicts itself) |  | declared |
-| parked (run HALTED: gates red after clearing) |  | declared |
-| BLOCKED (parked) |  | declared |
-| BLOCKED (dirty baseline) |  | declared |
-| BLOCKED (inventory not found) |  | declared |
-| BLOCKED (fixer did not return) |  | declared |
-| BLOCKED (staging contract violated) |  | declared |
-| stopped on token budget (resume where it left off) |  | declared |
-| throw: args must include at least { runId, root, target, g… |  | throw (line 23) |
-| throw: args.root is required |  | throw (line 28) |
-| throw: args.target.repo is required |  | throw (line 34) |
-| throw: Invalid numeric arg |  | throw (line 53) |
-| throw: resolve-cycle requires args.issues |  | throw (line 427) |
-| throw: args.gates.build is required |  | throw (line 433) |
-| throw: args.gates.test is required |  | throw (line 436) |
-| throw: No ACTIONABLE issues at or above the fix floor in a… |  | throw (line 446) |
+| accepted | both batches accept and stage · the gate is red on round 1 · the blind review finds defects · acceptance finds gaps | declared |
+| all-stale | verify-first finds every issue already fixed | declared |
+| no-changes | the fixer produced no change at all | declared |
+| parked | the gate is never green · a batch does not accept within its round budget | declared |
+| parked (run HALTED: park report contradicts itself) | park reports saved=false with bytes on disk | declared |
+| parked (run HALTED: gates red after clearing) | the gates are red after the tree is cleared | declared |
+| BLOCKED (parked) | the fixer hits a user-only blocker | declared |
+| BLOCKED (dirty baseline) | the tree was not clean on round 1 | declared |
+| BLOCKED (inventory not found) | the fixer finds no issue block in the inventory | declared |
+| BLOCKED (fixer did not return) | the round-1 fixer returns nothing | declared |
+| BLOCKED (staging contract violated) | the fixer never attests its work is unstaged | declared |
+| stopped on token budget (resume where it left off) | too few tokens left to start the next batch | declared |
+| throw: args must include at least { runId, root, target, gates, conventions, issues } | args carry no runId | throw (line 23) |
+| throw: args.root is required | args.root is missing | throw (line 28) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 34) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 53) |
+| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 427) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 433) |
+| throw: args.gates.test is required | args.gates.test is missing | throw (line 436) |
+| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 446) |
 
 ## Coverage
 

@@ -258,6 +258,17 @@ dropped information is not:
   table. Both are indexed by the question a reader actually asks, both are complete rather than truncated
   to fit on an arrow, and both are **bounded by construction** — which is the property that matters, since
   it cannot regress when a diagram grows a node or a renderer retunes its layout.
+  **That only works while the tables are actually populated.** `buildGraph` collected the terminals'
+  conditions and the projection dropped the field, so for nine committed maps the "Reached when" column
+  was blank: the conditions were on no arrow *and* in no table. Moving text off an arrow is only half the
+  fix — assert the destination, which `flow-coverage.test.mjs` now does on the rendered row.
+- **Node labels are NOT capped, and a cap is not the fix for a wide map.** Throw labels used to ellipsise
+  at 52 characters, which shipped `throw: args must include at least { runId, root, target, s…` to a
+  published page. Removing it was measured with `render-flows.mjs`: **+24px on 3 of 9 maps, 6 unchanged**,
+  because the widest box on these maps is a ~104-character *terminal* that nothing caps — the throw boxes
+  were never the binding constraint. The clause cut in `firstClause` stays (messages run to 289 characters
+  and continue into resume instructions); what survives it is emitted whole. If a map is genuinely too
+  wide, raise the spacing constants or wrap with `<br/>`.
 
 **Solved — all 9 maps render clean. Keep it that way by never putting authored text in a self-loop
 label.** The history is worth knowing, because the obvious fixes are all wrong:

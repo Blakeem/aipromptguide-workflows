@@ -14,7 +14,7 @@ flowchart TD
   a3["curate · sonnet"]
   t1(["curated set indexed (no gaps left)"])
   t2(["gap(s) left open at the round budget"])
-  x1[/"throw: args must include at least { runId, root, sources, …"/]
+  x1[/"throw: args must include at least { runId, root, sources, brief#124;planPath }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: Invalid numeric arg"/]
   x4[/"throw: Provide the brief"/]
@@ -51,16 +51,16 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| curated set indexed (no gaps left) |  | declared |
-| gap(s) left open at the round budget |  | declared |
-| throw: args must include at least { runId, root, sources, … |  | throw (line 37) |
-| throw: args.root is required |  | throw (line 40) |
-| throw: Invalid numeric arg |  | throw (line 58) |
-| throw: Provide the brief |  | throw (line 88) |
-| throw: args.sources is required |  | throw (line 101) |
-| throw: source ids collide after slugging |  | throw (line 105) |
-| throw: Every source reported zero doc files |  | throw (line 295) |
-| throw: Curator returned nothing in round |  | throw (line 308) |
+| curated set indexed (no gaps left) | every source captures files and the curator finds no gap · the curator returns a gap the next round fills · a gatherer dies mid-capture · one source reports zero files | declared |
+| gap(s) left open at the round budget | a gap is still open at maxRounds | declared |
+| throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 37) |
+| throw: args.root is required | args.root is missing | throw (line 40) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 88) |
+| throw: args.sources is required | args.sources is empty | throw (line 101) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 105) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 295) |
+| throw: Curator returned nothing in round | the curator dies | throw (line 308) |
 
 ## Coverage
 

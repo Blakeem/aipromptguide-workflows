@@ -12,7 +12,7 @@ flowchart TD
   a1["generate · opus<br/>×3 concurrent"]
   t1(["variations produced"])
   t2(["nothing produced (every generator failed)"])
-  x1[/"throw: args must include at least { runId, root, lenses, b…"/]
+  x1[/"throw: args must include at least { runId, root, lenses, brief#124;planPath }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: Provide the problem framing"/]
   x4[/"throw: args.lenses is required"/]
@@ -37,13 +37,13 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| variations produced |  | declared |
-| nothing produced (every generator failed) |  | declared |
-| throw: args must include at least { runId, root, lenses, b… |  | throw (line 20) |
-| throw: args.root is required |  | throw (line 23) |
-| throw: Provide the problem framing |  | throw (line 52) |
-| throw: args.lenses is required |  | throw (line 67) |
-| throw: lens ids collide after slugging |  | throw (line 71) |
+| variations produced | every generator returns a variation · one lens produces nothing | declared |
+| nothing produced (every generator failed) | no lens produced anything | declared |
+| throw: args must include at least { runId, root, lenses, brief\|planPath } | args carry no runId | throw (line 20) |
+| throw: args.root is required | args.root is missing | throw (line 23) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 52) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 67) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 71) |
 
 ## Coverage
 

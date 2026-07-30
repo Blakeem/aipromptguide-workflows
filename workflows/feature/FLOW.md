@@ -36,7 +36,7 @@ flowchart TD
   x8[/"throw: Plan critic returned nothing"/]
   x9[/"throw: args needs a plan for phase:#quot;build#quot;"/]
   x10[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
-  x11[/"throw: args.gates.test is required when any plan has gate:…"/]
+  x11[/"throw: args.gates.test is required when any plan has gate:#quot;green#quot;"/]
   x12[/"throw: args.runOnly"/]
   x13[/"throw: args.startAt #quot;"/]
   S0 --> a1
@@ -98,31 +98,31 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| plan critique returned (refine stops here) |  | declared |
-| done (all plans staged) |  | derived |
-| done (staged) |  | derived |
-| roadmap complete with N plan(s) parked |  | derived |
-| BLOCKED (a plan passed but was not staged - stage it, then resume) |  | derived |
-| BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing) |  | derived |
-| BLOCKED (an agent could not obtain its plan - nothing was built from a guess) |  | derived |
-| BLOCKED (working tree was not clean - nothing was built) |  | derived |
-| BLOCKED (needs user input) |  | derived |
-| BLOCKED (a parked plan left the tree unsafe - inspect before resuming) |  | derived |
-| stopped on token budget (resume where it left off) |  | derived |
-| partial slice complete |  | derived |
-| throw: args must include at least { runId, planPath \| plan |  | throw (line 26) |
-| throw: args.root is required |  | throw (line 31) |
-| throw: args.target.repo is required |  | throw (line 37) |
-| throw: Invalid numeric arg |  | throw (line 58) |
-| throw: plan id(s) [ |  | throw (line 140) |
-| throw: plans [ |  | throw (line 149) |
-| throw: phase:"refine" needs the SINGLE top-level planPath |  | throw (line 497) |
-| throw: Plan critic returned nothing |  | throw (line 509) |
-| throw: args needs a plan for phase:"build" |  | throw (line 541) |
-| throw: args.gates.build is required for phase:"build" |  | throw (line 547) |
-| throw: args.gates.test is required when any plan has gate:… |  | throw (line 550) |
-| throw: args.runOnly |  | throw (line 565) |
-| throw: args.startAt " |  | throw (line 570) |
+| plan critique returned (refine stops here) | phase:"refine" | declared |
+| done (all plans staged) | acceptance passes and stages · the blind review finds defects · acceptance finds gaps | derived |
+| done (staged) | a single top-level plan accepts | derived |
+| roadmap complete with N plan(s) parked | the build gate is never green · a plan does not accept within its round budget | derived |
+| BLOCKED (a plan passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
+| BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
+| BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
+| BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
+| BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
+| BLOCKED (a parked plan left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build gate is red after parking | derived |
+| stopped on token budget (resume where it left off) | too few tokens left to start a plan | derived |
+| partial slice complete | runOnly builds a subset of the roadmap | derived |
+| throw: args must include at least { runId, planPath \| plan | args carry neither runId nor a plan | throw (line 26) |
+| throw: args.root is required | args.root is missing | throw (line 31) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 37) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
+| throw: plan id(s) [ | a plans entry id is not a kebab slug | throw (line 140) |
+| throw: plans [ | plans entries carry no body and there is no top-level planPath | throw (line 149) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 497) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 509) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 541) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 547) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 550) |
+| throw: args.runOnly | runOnly holds an unknown plan id | throw (line 565) |
+| throw: args.startAt " | startAt is an unknown plan id | throw (line 570) |
 
 ## Coverage
 

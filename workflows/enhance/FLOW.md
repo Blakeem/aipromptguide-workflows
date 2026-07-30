@@ -13,11 +13,11 @@ flowchart TD
   a2["verify · opus<br/>×2 concurrent"]
   t1(["proposals written"])
   t2(["no proposal file (the lens produced nothing)"])
-  x1[/"throw: args must include at least { runId, root, target, s…"/]
+  x1[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.minImpact must be one of"/]
   x4[/"throw: args.scope is required"/]
-  x5[/"throw: args.target.repo is required when any args.scope pa…"/]
+  x5[/"throw: args.target.repo is required when any args.scope path is relative"/]
   x6[/"throw: args.lenses is required"/]
   x7[/"throw: lens ids collide after slugging"/]
   S0 --> a1
@@ -44,15 +44,15 @@ flowchart TD
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| proposals written |  | declared |
-| no proposal file (the lens produced nothing) |  | declared |
-| throw: args must include at least { runId, root, target, s… |  | throw (line 34) |
-| throw: args.root is required |  | throw (line 38) |
-| throw: args.minImpact must be one of |  | throw (line 52) |
-| throw: args.scope is required |  | throw (line 97) |
-| throw: args.target.repo is required when any args.scope pa… |  | throw (line 103) |
-| throw: args.lenses is required |  | throw (line 113) |
-| throw: lens ids collide after slugging |  | throw (line 117) |
+| proposals written | both finders return candidates above the floor | declared |
+| no proposal file (the lens produced nothing) | the finder dies · every candidate scores below the impact floor | declared |
+| throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 34) |
+| throw: args.root is required | args.root is missing | throw (line 38) |
+| throw: args.minImpact must be one of | args.minImpact names no rank | throw (line 52) |
+| throw: args.scope is required | args.scope is empty | throw (line 97) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 103) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 113) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 117) |
 
 ## Coverage
 

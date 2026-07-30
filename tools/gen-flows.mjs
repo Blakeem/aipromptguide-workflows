@@ -147,17 +147,28 @@ const dedash = (s) => s.replace(/[\u2013\u2014\u2015]/g, '-');
 
 /**
  * A throw node is keyed to its SITE; its LABEL is the first clause of that site's static prefix —
- * three of investigate's messages continue into a paragraph of resume instructions.
+ * three of investigate's messages continue into a paragraph of resume instructions, and several end in
+ * `; got typeof=` + an interpolation, so the whole prefix (up to 289 characters) belongs in no box.
+ * The clause cut is the ONLY reduction; what survives it is emitted WHOLE.
+ *
+ * The separators are matched against ENGINE SOURCE, which keeps its em dashes — `dedash` runs on the
+ * finished document, long after this. Do not "tidy" the ` — ` entry away.
+ *
+ * There used to be a further 52-character ellipsis cap here. It is gone, and should not come back:
+ *   • Its reason was that a throw box is wide and a neighbouring SELF-LOOP's label lands on top of one.
+ *     Self-loops have carried a bounded marker (`L1 ×4`) instead of authored text since, so the
+ *     collision it guarded against can no longer happen (tests/CLAUDE.md §7).
+ *   • It was not even the binding constraint. The longest clause in the repo is 78 characters, while the
+ *     widest box on these maps is already a 104-character TERMINAL, which nothing caps. Capping throws
+ *     alone shortened the diagram by nothing and cost a published page its text.
+ * §7: room is free, dropped information is not. If a map is ever genuinely too wide, raise the spacing
+ * constants or wrap the label with `<br/>` — do not silently drop characters.
  */
 function firstClause(prefix) {
   const s = String(prefix ?? '').replace(/\s+/g, ' ').trim();
   if (!s) return '(message built at runtime)';
   const cuts = [' — ', ': ', ' (', '; ', '. '].map((sep) => s.indexOf(sep)).filter((i) => i > 0);
-  const clause = s.slice(0, cuts.length ? Math.min(...cuts) : s.length);
-  // 52, not 72: a throw node is the widest box on most maps, and a wide box is what a neighbouring
-  // self-loop's label lands on top of. The Terminal states table carries the source line, so the full
-  // message is one grep away. Tuned against tools/render-flows.mjs.
-  return clause.length > 52 ? `${clause.slice(0, 51)}…` : clause;
+  return s.slice(0, cuts.length ? Math.min(...cuts) : s.length);
 }
 
 /** The scenario conditions on an edge, capped so one shared terminal cannot produce an unreadable label. */
@@ -545,7 +556,11 @@ export async function buildGraph(spec) {
   return {
     nodes,
     edges: edgeList,
-    terminals: [...termList, ...throwList].map((n) => ({ id: n.id, label: n.label, source: n.source, line: n.line ?? null, scenarios: n.scenarios })),
+    // `whens` is part of the projection, not just of the accumulator: the edges into a terminal are drawn
+    // UNLABELLED precisely because this table is their home (see edgeLine), and dropping the field here
+    // left the "Reached when" column blank in all nine committed maps — the conditions appeared neither
+    // on the arrow nor in the table that replaced it.
+    terminals: [...termList, ...throwList].map((n) => ({ id: n.id, label: n.label, source: n.source, line: n.line ?? null, scenarios: n.scenarios, whens: n.whens })),
     phases,
     loops: edgeList.filter((e) => e.back).map((e) => ({ from: e.fromId, to: e.toId, whens: e.whens, repeat: e.repeat })),
     coverage: {
