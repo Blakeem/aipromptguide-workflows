@@ -206,7 +206,9 @@ section('a throw label is the WHOLE first clause of its message, never an ellips
 // is a literal PREFIX of the static message catches any truncation without restating the cut list here —
 // two copies of that list is how the diagram and its gate come to disagree.
 for (const { spec, graph, sites } of observed) {
-  const byLine = new Map(sites.map((s) => [s.line, String(s.prefix ?? '').replace(/\s+/g, ' ').trim()]));
+  // Against `template` (the display form), NOT `prefix` (the keying head): `prefix` stops at the first
+  // `${`, so a label carrying the static words AFTER an elided value is correctly not a prefix of it.
+  const byLine = new Map(sites.map((s) => [s.line, String(s.template || s.prefix || '').replace(/\s+/g, ' ').trim()]));
   const throws = graph.terminals.filter((t) => t.source === 'throw');
   const cut = throws.filter((t) => {
     const full = byLine.get(t.line) ?? '';

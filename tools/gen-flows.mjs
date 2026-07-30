@@ -116,7 +116,7 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, statSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { runTrace, readMeta, readRoles, readThrows, readHaltStatus, REPO_ROOT } from '../tests/harness.mjs';
+import { runTrace, readMeta, readRoles, readThrows, readHaltStatus, INTERP, REPO_ROOT } from '../tests/harness.mjs';
 
 const FLOWS_DIR = fileURLToPath(new URL('flows/', import.meta.url));
 const START_ID = 'S0';
@@ -164,10 +164,45 @@ const dedash = (s) => s.replace(/[\u2013\u2014\u2015]/g, '-');
  * §7: room is free, dropped information is not. If a map is ever genuinely too wide, raise the spacing
  * constants or wrap the label with `<br/>` — do not silently drop characters.
  */
-function firstClause(prefix) {
-  const s = String(prefix ?? '').replace(/\s+/g, ' ').trim();
+const CLAUSE_SEPS = [' — ', ': ', ' (', '; ', '. '];
+const CLOSER = { '(': ')', '[': ']', '{': '}' };
+
+/**
+ * The first clause separator that is not inside something, or -1. Three spans are ATOMIC to the scan:
+ *   • BRACKETS. feature-cycle's arg list is
+ *     `{ runId, planPath | plan (markdown string) | plans:[{…}], target, gates }; got typeof=`, whose
+ *     first ` (` sits inside the braces — cutting there produced `args must include at least { runId,
+ *     planPath | plan`: an unbalanced brace ending on a dangling `|`.
+ *   • DOUBLE QUOTES. `holding their "## Plan: <id>" blocks — …` has a `: ` inside the quotes, and
+ *     cutting there ended a node mid-quote at `their "## Plan`. Single quotes are NOT tracked: these
+ *     messages are English prose full of apostrophes ("this section's review files"), and treating one
+ *     as an opener leaves the scan unbalanced for the rest of the message.
+ *   • THE ELIDED VALUE. `INTERP` is `...`, whose last character plus the following space IS the `. `
+ *     sentence separator — `args.runOnly ${…} matches no plan id` cut down to `args.runOnly ..`.
+ * An unbalanced message (a stray bracket, an unpaired quote) leaves the scan open and returns -1 rather
+ * than the whole 289-character message; the caller falls back to the depth-blind cut.
+ */
+function clauseEnd(s) {
+  const stack = [];
+  for (let i = 0; i < s.length; i++) {
+    if (s.startsWith(INTERP, i)) { i += INTERP.length - 1; continue; }
+    if (!stack.length) for (const sep of CLAUSE_SEPS) if (s.startsWith(sep, i)) return i;
+    const ch = s[i];
+    if (ch === '"') stack[stack.length - 1] === '"' ? stack.pop() : stack.push('"');
+    else if (CLOSER[ch]) stack.push(CLOSER[ch]);
+    else if (ch === stack[stack.length - 1]) stack.pop();
+  }
+  return stack.length ? -1 : s.length;
+}
+
+export function firstClause(message) {
+  const s = String(message ?? '').replace(/\s+/g, ' ').trim();
   if (!s) return '(message built at runtime)';
-  const cuts = [' — ', ': ', ' (', '; ', '. '].map((sep) => s.indexOf(sep)).filter((i) => i > 0);
+  const end = clauseEnd(s);
+  if (end >= 0) return s.slice(0, end);
+  // Unbalanced: fall back to the depth-blind cut rather than emitting the whole message. Still better
+  // than no clause at all, and the balanced case above is what every site in the repo actually hits.
+  const cuts = CLAUSE_SEPS.map((sep) => s.indexOf(sep)).filter((i) => i > 0);
   return s.slice(0, cuts.length ? Math.min(...cuts) : s.length);
 }
 
@@ -371,7 +406,11 @@ export async function buildGraph(spec) {
   const throwNode = (site, scenario, when) => {
     let node = throwsSeen.get(site.line);
     if (!node) {
-      node = { key: `x:${site.line}`, kind: 'throw', label: `throw: ${firstClause(site.prefix)}`, line: site.line, source: 'throw', scenarios: [], whens: [] };
+      // LABEL from `template`, KEY from `prefix` (see readThrows). `prefix` stops at the first `${`, so
+      // labelling from it drops every static word after an interpolated value — `plan id(s) [` for a
+      // message that goes on to say what is wrong with them. It falls back for a site whose literal the
+      // reader could not close, where a partial head still beats a blank node.
+      node = { key: `x:${site.line}`, kind: 'throw', label: `throw: ${firstClause(site.template || site.prefix)}`, line: site.line, source: 'throw', scenarios: [], whens: [] };
       throwsSeen.set(site.line, node);
     }
     if (!node.scenarios.includes(scenario)) node.scenarios.push(scenario);
@@ -548,7 +587,7 @@ export async function buildGraph(spec) {
     .filter((s) => !throwsSeen.has(s.line))
     .map((s) => ({
       line: s.line,
-      label: firstClause(s.prefix),
+      label: firstClause(s.template || s.prefix),
       reason: (spec.allowUncovered?.throws ?? []).find((a) => a.prefix && s.prefix.startsWith(a.prefix))?.reason ?? '',
     }));
   const statuses = [...new Set(Object.values(haltStatus).map(normDigits))];

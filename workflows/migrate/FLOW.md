@@ -26,17 +26,17 @@ flowchart TD
   t9(["BLOCKED (needs user input)"])
   t10(["BLOCKED (a parked section left the tree unsafe - inspect before resuming)"])
   t11(["stopped on token budget (resume where it left off)"])
-  x1[/"throw: args must include at least { runId, planPath #124; plan"/]
+  x1[/"throw: args must include at least { runId, planPath #124; plan (markdown string), sections, target, gates }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
   x4[/"throw: Invalid numeric arg"/]
-  x5[/"throw: section id(s) ["/]
+  x5[/"throw: section id(s) [...] are not kebab slugs"/]
   x6[/"throw: Plan critic returned nothing"/]
   x7[/"throw: args.sections is required for phase:#quot;run#quot;"/]
   x8[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
   x9[/"throw: args.gates.test is required when any section has gate:#quot;green#quot;"/]
-  x10[/"throw: args.runOnly"/]
-  x11[/"throw: args.startAt #quot;"/]
+  x10[/"throw: args.runOnly ... matches no section id"/]
+  x11[/"throw: args.startAt #quot;...#quot; matches no section id"/]
   S0 --> a1
   S0 --> a2
   S0 --> t11
@@ -106,17 +106,17 @@ flowchart TD
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked section left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a section | derived |
-| throw: args must include at least { runId, planPath \| plan | args carry neither runId nor a plan | throw (line 26) |
+| throw: args must include at least { runId, planPath \| plan (markdown string), sections, target, gates } | args carry neither runId nor a plan | throw (line 26) |
 | throw: args.root is required | args.root is missing | throw (line 31) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 37) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
-| throw: section id(s) [ | a sections entry id is not a kebab slug | throw (line 132) |
+| throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 132) |
 | throw: Plan critic returned nothing | the plan critic dies | throw (line 562) |
 | throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 592) |
 | throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 598) |
 | throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 601) |
-| throw: args.runOnly | runOnly holds an unknown section id | throw (line 616) |
-| throw: args.startAt " | startAt is an unknown section id | throw (line 621) |
+| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 616) |
+| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 621) |
 
 ## Coverage
 

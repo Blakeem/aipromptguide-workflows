@@ -23,8 +23,8 @@ flowchart TD
   x6[/"throw: args.lenses requires >=2 evaluation perspectives"/]
   x7[/"throw: lens ids collide after slugging"/]
   x8[/"throw: No analyst produced a lens file"/]
-  x9[/"throw: Decider returned nothing in round"/]
-  x10[/"throw: Reviewer returned nothing in round"/]
+  x9[/"throw: Decider returned nothing in round ..."/]
+  x10[/"throw: Reviewer returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -68,8 +68,8 @@ flowchart TD
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
 | throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 295) |
-| throw: Decider returned nothing in round | the decider dies | throw (line 326) |
-| throw: Reviewer returned nothing in round | the reviewer dies | throw (line 349) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 326) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 349) |
 
 ## Coverage
 

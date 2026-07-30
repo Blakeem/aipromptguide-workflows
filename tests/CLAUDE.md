@@ -269,6 +269,19 @@ dropped information is not:
   were never the binding constraint. The clause cut in `firstClause` stays (messages run to 289 characters
   and continue into resume instructions); what survives it is emitted whole. If a map is genuinely too
   wide, raise the spacing constants or wrap with `<br/>`.
+- **`readThrows` returns TWO forms of each message, and they are not interchangeable.** `prefix` stops at
+  the first `${` because it is the key a runtime message is matched against (`startsWith`) — it must stay
+  a literal head. `template` is the whole message with values elided to `INTERP` (`...`), and it is what a
+  LABEL is built from. Labelling off the key printed `throw: plan id(s) [` for a message that goes on to
+  say what is wrong with them. A test that only checks "the label is part of the message" cannot tell the
+  two apart, since the key is itself a prefix of the template — assert the rendered node.
+- **A clause cut must know what it is cutting inside of.** `firstClause` treats three spans as atomic, and
+  each was a shipped defect: **brackets** (` (` inside `{ runId, planPath | plan (markdown string) … }`
+  cut to a dangling `| plan`), **double quotes** (`: ` inside `"## Plan: <id>"` ended a node mid-quote),
+  and **the elided value** (`...` + a space reads as the `. ` sentence separator, cutting
+  `args.runOnly ... matches no plan id` down to `args.runOnly ..`). Single quotes are deliberately NOT
+  tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
+  rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
 **Solved — all 9 maps render clean. Keep it that way by never putting authored text in a self-loop
 label.** The history is worth knowing, because the obvious fixes are all wrong:

@@ -21,7 +21,7 @@ flowchart TD
   x5[/"throw: args.sources is required"/]
   x6[/"throw: source ids collide after slugging"/]
   x7[/"throw: Every source reported zero doc files"/]
-  x8[/"throw: Curator returned nothing in round"/]
+  x8[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -60,7 +60,7 @@ flowchart TD
 | throw: args.sources is required | args.sources is empty | throw (line 101) |
 | throw: source ids collide after slugging | two sources slug to one directory | throw (line 105) |
 | throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 295) |
-| throw: Curator returned nothing in round | the curator dies | throw (line 308) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 308) |
 
 ## Coverage
 

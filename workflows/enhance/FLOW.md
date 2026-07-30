@@ -15,7 +15,7 @@ flowchart TD
   t2(["no proposal file (the lens produced nothing)"])
   x1[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x2[/"throw: args.root is required"/]
-  x3[/"throw: args.minImpact must be one of"/]
+  x3[/"throw: args.minImpact must be one of ..."/]
   x4[/"throw: args.scope is required"/]
   x5[/"throw: args.target.repo is required when any args.scope path is relative"/]
   x6[/"throw: args.lenses is required"/]
@@ -48,7 +48,7 @@ flowchart TD
 | no proposal file (the lens produced nothing) | the finder dies · every candidate scores below the impact floor | declared |
 | throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 34) |
 | throw: args.root is required | args.root is missing | throw (line 38) |
-| throw: args.minImpact must be one of | args.minImpact names no rank | throw (line 52) |
+| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 52) |
 | throw: args.scope is required | args.scope is empty | throw (line 97) |
 | throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 103) |
 | throw: args.lenses is required | args.lenses is empty | throw (line 113) |

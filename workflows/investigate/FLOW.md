@@ -25,8 +25,8 @@ flowchart TD
   x3[/"throw: Invalid numeric arg"/]
   x4[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
   x5[/"throw: Criteria critic returned nothing"/]
-  x6[/"throw: Investigator returned nothing in round"/]
-  x7[/"throw: Acceptance critic returned nothing in round"/]
+  x6[/"throw: Investigator returned nothing in round ..."/]
+  x7[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -81,8 +81,8 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 54) |
 | throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 96) |
 | throw: Criteria critic returned nothing | the criteria critic dies | throw (line 424) |
-| throw: Investigator returned nothing in round | the investigator dies · the investigator dies mid-search | throw (line 490) |
-| throw: Acceptance critic returned nothing in round | the critic dies with options unverified | throw (line 531) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 490) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 531) |
 
 ## Coverage
 

@@ -277,10 +277,74 @@ export function readRoles(src) {
   return roles;
 }
 
+/** What an interpolated value is shown as in a `template`. ASCII on purpose: `…` is what a TRUNCATED
+ *  label ends in, and a reader must be able to tell "a value goes here" from "the text was cut". */
+export const INTERP = '...';
+
 /**
- * Every `throw new Error(` site: `[{ line, prefix }]`, line 1-based.
+ * Skip the balanced `${ … }` whose `$` sits at `i`; returns the index just past its `}`.
+ * A brace counter alone is not enough. feature-cycle interpolates
+ * `${unknown.map((id) => `"${id}"`).join(', ')}` — a template nested inside an arrow function inside the
+ * interpolation — so the scanner tracks a STACK of contexts (code / each string quote) and re-enters code
+ * on a nested `${`. Counting braces alone stops at the inner template's `}` and spills its tail into the
+ * message; skipping to the next backtick stops at the inner one and does the same.
+ */
+function skipInterpolation(src, i) {
+  const stack = ['code'];
+  i += 2;                                        // past the `${`
+  while (i < src.length && stack.length) {
+    const top = stack[stack.length - 1];
+    const ch = src[i];
+    if (top === 'code') {
+      if (ch === '{') stack.push('code');
+      else if (ch === '}') stack.pop();
+      else if (ch === "'" || ch === '"' || ch === '`') stack.push(ch);
+    } else if (ch === '\\') i++;
+    else if (ch === top) stack.pop();
+    else if (top === '`' && ch === '$' && src[i + 1] === '{') { stack.push('code'); i++; }
+    i++;
+  }
+  return i;
+}
+
+/**
+ * The WHOLE message literal at `fromIndex`, with each interpolation rendered as `INTERP`.
+ * `leadingLiteral` deliberately stops at the first `${` because its text is the KEY a runtime message is
+ * matched against (`startsWith`), and that key must stay a literal prefix. This is the DISPLAY form, and
+ * the two are not interchangeable: keying on this would never match, and labelling from the key throws
+ * away every static word after the first interpolation — which is how a node came to read `plan id(s) [`
+ * when the message goes on to say what is wrong with them.
+ * @returns {string} '' when there is no literal there, or the literal never closes.
+ */
+function fullLiteral(src, fromIndex) {
+  let i = fromIndex;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  const quote = src[i];
+  if (quote !== "'" && quote !== '"' && quote !== '`') return '';
+
+  let text = '';
+  for (i++; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '\\') { text += src[i + 1] ?? ''; i++; continue; }
+    if (ch === quote) return text;
+    if (quote === '`' && ch === '$' && src[i + 1] === '{') {
+      i = skipInterpolation(src, i) - 1;        // -1: the for-loop's i++ lands on the next character
+      text += INTERP;
+      continue;
+    }
+    text += ch;
+  }
+  return '';                                     // unterminated: report nothing rather than a guess
+}
+
+/**
+ * Every `throw new Error(` site: `[{ line, prefix, template }]`, line 1-based.
  * A message that STARTS with an interpolation yields `prefix: ''` and is still RETURNED — dropping it
  * would read as "this site is covered" to anything counting sites against the source.
+ *
+ * TWO forms of one message, for two jobs that pull in opposite directions:
+ *   `prefix`   — the literal head, for KEYING a runtime message to its site (`message.startsWith`).
+ *   `template` — the whole message with values as `INTERP`, for DISPLAY. Never key on it.
  */
 export function readThrows(src) {
   const NEEDLE = 'throw new Error(';
@@ -289,6 +353,7 @@ export function readThrows(src) {
     sites.push({
       line: src.slice(0, i).split('\n').length,
       prefix: leadingLiteral(src, i + NEEDLE.length).text,
+      template: fullLiteral(src, i + NEEDLE.length),
     });
   }
   return sites;

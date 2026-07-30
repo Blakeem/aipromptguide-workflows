@@ -5,13 +5,13 @@
 // The committed FLOW.md files are checked against a fresh generation here, so drift turns the gate red.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { buildGraph, generate, loadSpecs, whenLabel } from '../tools/gen-flows.mjs';
-import { REPO_ROOT, section, ok, eq } from './harness.mjs';
+import { buildGraph, firstClause, generate, loadSpecs, whenLabel } from '../tools/gen-flows.mjs';
+import { INTERP, REPO_ROOT, readThrows, section, ok, eq } from './harness.mjs';
 
 // ---------------------------------------------------------------------------------------------
 // Fixtures + tiny helpers
 // ---------------------------------------------------------------------------------------------
-const [brainstorm, investigate, resolve] = await loadSpecs(['brainstorm', 'investigate', 'resolve']);
+const [brainstorm, feature, investigate, resolve] = await loadSpecs(['brainstorm', 'feature', 'investigate', 'resolve']);
 
 const nodeByLabel = (g, label) => g.nodes.find((n) => n.label === label);
 const edgeBetween = (g, from, to) => {
@@ -154,6 +154,54 @@ section('a repeat inside ONE fan-out lane is a self-loop, not concurrency');
   ok(!!loop, 'the same unit reviewed twice produces a review → review edge');
   ok(loop && loop.back, 'flagged as a repeat (dotted), because both calls share one group.item');
   ok(!!edgeBetween(g, 'review', 'verify'), 'and the stage edge still holds');
+}
+
+section('a throw label keeps the static words AFTER an interpolated value');
+// `readThrows` returns two forms of one message and they are NOT interchangeable. `prefix` stops at the
+// first `${` because it is the KEY a runtime message is matched against; labelling from it printed
+// `throw: plan id(s) [` for a message that goes on to say what is wrong with them. `template` is the
+// display form, values elided.
+{
+  const sites = readThrows(readFileSync(join(REPO_ROOT, 'workflows/feature/feature-cycle.mjs'), 'utf8'));
+  const kebab = sites.find((s) => s.prefix.startsWith('plan id(s) ['));
+  eq(kebab.prefix, 'plan id(s) [', 'prefix still stops at the interpolation — it stays a literal head to key on');
+  eq(firstClause(kebab.template), `plan id(s) [${INTERP}] are not kebab slugs`, 'the label carries what follows the value');
+
+  // `args.runOnly ${unknown.map((id) => `"${id}"`).join(', ')} matches no plan id.` — a template nested
+  // in an arrow function nested in the interpolation. Counting braces stops at the INNER `}` and spills
+  // the rest of the expression into the message; scanning to the next backtick does the same.
+  const runOnly = sites.find((s) => s.prefix.startsWith('args.runOnly'));
+  eq(firstClause(runOnly.template), `args.runOnly ${INTERP} matches no plan id`,
+    'a template nested inside the interpolation does not spill into the label');
+
+  // WIRING, not just derivation. Every assertion above passes while the node is still labelled from
+  // `prefix` — `prefix` is a prefix of `template`, so a "label is part of the message" check cannot tell
+  // the two apart either. This is what fails if the emitter goes back to keying and labelling off one
+  // string, which is the defect that shipped `throw: plan id(s) [` to a published page.
+  const g = await buildGraph(feature);
+  ok(g.terminals.some((t) => t.label === `throw: plan id(s) [${INTERP}] are not kebab slugs`),
+    'and the NODE is labelled from the template, not from the key');
+}
+
+section('the clause cut treats brackets, quotes and elided values as atomic');
+// Every case here shipped a broken node label at some point. The cut list is unchanged; what changed is
+// that a separator only counts where it is not inside something.
+{
+  eq(firstClause('args must include at least { runId, planPath | plan (markdown string) }; got typeof='),
+    'args must include at least { runId, planPath | plan (markdown string) }',
+    'a separator inside brackets is not a clause boundary');
+  eq(firstClause('holding their "## Plan: <id>" blocks — the developer would be handed an empty plan'),
+    'holding their "## Plan: <id>" blocks',
+    'nor one inside double quotes');
+  eq(firstClause(`args.runOnly ${INTERP} matches no plan id. Valid ids: a, b`),
+    `args.runOnly ${INTERP} matches no plan id`,
+    'an elided value is atomic — its last character plus a space would otherwise read as a sentence break');
+  eq(firstClause("An id names this section's review files. Then more prose"),
+    "An id names this section's review files",
+    'a prose apostrophe is not an unclosed quote — tracking it would leave every such message unbalanced');
+  eq(firstClause('foo [unclosed bracket: text'), 'foo [unclosed bracket',
+    'an unbalanced message falls back to the depth-blind cut, never to the whole 289-character message');
+  eq(firstClause(''), '(message built at runtime)', 'a message starting with an interpolation still names itself');
 }
 
 section('a terminal with parens and quotes survives into quoted Mermaid; its em dash is flattened');
