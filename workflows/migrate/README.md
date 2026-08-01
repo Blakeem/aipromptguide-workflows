@@ -7,7 +7,7 @@ tested, staged state across your repo: a migration, a version upgrade, a framewo
 refactor.
 
 You describe the goal. In plan mode, Claude breaks it into **ordered sections** (each a bounded change),
-you approve the plan, an independent critic checks it against your real code, then a **develop → review →
+you approve the plan — or you hand it a finished sectioned plan and it skips plan mode — then an independent critic checks it against your real code, then a **develop → review →
 acceptance** loop builds each section and stages it. The accepted baseline advances section by section.
 You commit.
 
@@ -51,11 +51,11 @@ for a goal big enough that it must be **decomposed into sections**:
 
 ## How to use it
 
-This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install once — clone it
-into your project as `aipg/`, gitignore it, and copy the slash commands (see the
-[root README](../../README.md)) — then trigger it two ways:
+This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install the `aipg`
+plugin once (`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install
+aipg@aipromptguide`), or clone the repo as `aipg/` and drive it by path — then trigger it two ways:
 
-- **Slash command:** `/aipg-migrate` — then *"migrate the data model in this repo; build is
+- **Skill:** `/aipg:migrate` — then *"migrate the data model in this repo; build is
   `<your build command>`, tests are `<your test command>`; plan it first so I can review the
   breakdown."*
 - **Plain pointer:** tell Claude to *use the migrate-cycle **workflow** in `aipg/workflows/migrate/`*,

@@ -82,6 +82,11 @@ const REPO        = abs(TARGET.repo);                      // absolute path to t
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
 const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
 const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? String(A.plan) : '';
+// Blind-reviewer placement guard (#3): run-state must live OUTSIDE the target repo so the blind quality
+// reviewer cannot reach the review/ledger files through the repo tree. Warn loudly if root was set wrong.
+if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
+  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
+}
 // The plan reference handed to plan-aware agents (developer, acceptance, refine, sweep). NEVER handed
 // to the blind quality reviewer.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it VERBATIM)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
@@ -90,7 +95,12 @@ const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it
 // context and the section's END is decided by a parser rather than by eye. `planContext:'full'` hands
 // the file instead, for a section that genuinely needs its neighbours in view. An INLINE plan has no
 // file to address, so it keeps the by-header wording.
-const BLOCK_TOOL  = `${ROOT}/tools/plan-block.mjs`;
+// Where the plan-block tool lives. The default hangs it off ROOT because a checkout keeps engine,
+// tools and run-state under one folder — but an INSTALLED plugin splits them: run-state (ROOT) goes to
+// the persistent plugin data dir while tools/ ships in the versioned plugin cache. args.blockTool
+// carries the installed tool's absolute path in that case; without it a sectioned run whose ROOT has no
+// tools/ hands every agent a command that exits non-zero and halts on plan_obtained=false.
+const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
 const blockRef    = (id) => `the output of:  node '${BLOCK_TOOL}' '${PLAN_PATH}' '${id}' --kind section
 Run it and implement EXACTLY what it prints — that is your section, verbatim. If it exits non-zero,
 report plan_obtained=false and STOP: never guess at a section you could not read. The full plan is at
@@ -181,7 +191,7 @@ const DEVELOP_SCHEMA = {
   type: 'object',
   required: ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user'],
   properties: {
-    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your section text — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: never build from a section you could not read.' },
+    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your section text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your section by eye in the plan file. FALSE halts the run: never build from a section you could not read.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     produced:          { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     build_passed:      { type: 'boolean' },
@@ -209,7 +219,7 @@ const ACCEPTANCE_SCHEMA = {
   type: 'object',
   required: ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
-    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the section text you are judging against — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: a verdict reached without the spec is worthless.' },
+    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the section text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the section by eye. FALSE halts the run: a verdict reached without the spec is worthless.' },
     pass:        { type: 'boolean', description: 'true if every acceptance criterion of THIS section is met, it is reachable, the section gate is satisfied, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on this section\'s files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'this section\'s change is actually wired in / reachable (every call site converted, route mounted, symbol exported)' },

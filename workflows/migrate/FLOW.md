@@ -110,13 +110,13 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 31) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 37) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
-| throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 132) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 562) |
-| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 592) |
-| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 598) |
-| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 601) |
-| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 616) |
-| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 621) |
+| throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 142) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 572) |
+| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 602) |
+| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 608) |
+| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 611) |
+| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 626) |
+| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 631) |
 
 ## Coverage
 

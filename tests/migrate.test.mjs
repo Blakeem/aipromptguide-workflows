@@ -244,12 +244,34 @@ section('a section reaches the developer as a plan-block COMMAND, not the whole 
   const FILED = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md' };
   const { prompt } = await run(GREEN_RUN, FILED);
   const dev = prompt('develop sec-a');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev), '--kind section, and this section only');
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev), 'the <root>/tools default, --kind section, this section only');
   ok(!/plan-block\.mjs \S+ sec-b/.test(dev), 'never a sibling section');
   ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(prompt('acceptance sec-a')),
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(prompt('acceptance sec-a')),
     'acceptance judges against the same section the developer built to');
   ok(!/plan-block|migration\.md/.test(prompt('quality sec-a')), 'the BLIND reviewer still gets no route to the plan (#3)');
+}
+
+section('run-state pointed inside the target repo draws the placement warning');
+// Ported from feature-cycle (the missed sibling): a root/stateDir inside target.repo lets the blind
+// reviewer reach the review/ledger files. Warns loudly rather than halting (the operator may be mid-resume).
+{
+  const { logs } = await run(GREEN_RUN, { ...baseArgs, stateDir: 'E:/repo/runs/t' });
+  ok(logs.some((l) => l.includes('INSIDE the target repo')), 'the warning names the placement hazard');
+  ok(logs.some((l) => l.includes('never the plugin install dir')), 'and steers away from the version-swapped install dir');
+}
+
+section('args.blockTool points the section command at an installed plugin\'s own tools/ copy');
+// Same split as feature-cycle's blockTool case: an installed plugin keeps run-state (ROOT) in the
+// persistent data dir while tools/plan-block.mjs ships in the versioned cache dir.
+{
+  const FILED = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md',
+    blockTool: 'C:\\plug\\cache\\aipg\\1.0.0\\tools\\plan-block.mjs' };
+  const { prompt } = await run(GREEN_RUN, FILED);
+  const dev = prompt('develop sec-a');
+  ok(/node 'C:\/plug\/cache\/aipg\/1\.0\.0\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev),
+    'the command uses the passed path, backslashes normalized');
+  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
 }
 
 section('planContext:"full" and an INLINE plan both keep the by-header wording');

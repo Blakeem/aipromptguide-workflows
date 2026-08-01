@@ -85,7 +85,7 @@ const ISSUES_DIR = `${STATE_DIR}/issues`;
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target
 // repo so the blind quality reviewer cannot wander into it. Warn loudly if root was set wrong.
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
-  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Set args.root to THIS tool's own directory (see CLAUDE.md).`);
+  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
 
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);

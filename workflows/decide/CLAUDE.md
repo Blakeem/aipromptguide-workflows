@@ -55,7 +55,8 @@ No mid-run questions — settle the rubric with the user first:
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
-- **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory).
+- **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
+  aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir).
 - **`requirements` (inline) OR `planPath` — one REQUIRED.** The rubric (§4).
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
   slugging throw, since two analysts would write the same `lenses/<lens>.md`.
@@ -169,7 +170,7 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   `models` (per-role tier: analyst/decide/review) · `agentTypes` (custom subagent per role — must exist
   in your registry) · `stateDir` (override `runs/<runId>`).
 
-## 9. State files (`runs/<runId>/`, gitignored)
+## 9. State files (`runs/<runId>/`, outside every repo)
 
 - `lenses/<lens>.md` — each analyst's options + lens scores + recommendation.
 - `decision-rN.md` — the decider's matrix + conclusion + why-not-others for round N (in `ranked` mode:

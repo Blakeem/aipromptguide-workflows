@@ -51,7 +51,8 @@ No mid-run questions — frame it with the user first:
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
-- **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory).
+- **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
+  aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir).
 - **`sources` — REQUIRED:** the array from §4 (strings = web sources, or `{ id, kind, focus }`).
 - **`brief` (inline) OR `planPath` — one REQUIRED.** Include the versions in scope — the gatherers
   capture for those versions and the curator flags mismatches.
@@ -163,7 +164,7 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
   required for `repo` sources) · `models` (per-role tier: gather/scrub/curate) · `agentTypes` (custom
   subagent per role — must exist in your registry) · `stateDir` (override `runs/<runId>`).
 
-## 8. State files (`runs/<runId>/`, gitignored — or `outDir`)
+## 8. State files (`runs/<runId>/`, outside every repo — or `outDir`)
 
 - `docs/<source-id>/*.md` — the verbatim docs, one file per page/topic, source-headed. The curator may
   reorganize/split these.

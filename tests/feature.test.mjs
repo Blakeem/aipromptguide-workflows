@@ -238,13 +238,37 @@ section('a roadmap block reaches the developer as a plan-block COMMAND, not the 
   const ROADMAP = { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] };
   const { prompt } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS }, ROADMAP);
   const dev = prompt('develop plan-a');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(dev), 'the command names this plan, and every path is quoted');
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(dev), 'the command uses the <root>/tools default, this plan only, every path quoted');
   ok(!/plan-block\.mjs \S+ plan-b/.test(dev), 'and never a sibling plan');
   ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(prompt('acceptance plan-a')),
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(prompt('acceptance plan-a')),
     'acceptance is handed the same block, so it judges the same criteria the developer built to');
   ok(!/plan-block|roadmap\.md/.test(prompt('quality plan-a')),
     'the BLIND reviewer still gets no route to any plan (#3)');
+}
+
+section('run-state pointed inside the target repo draws the placement warning');
+// The blind reviewer is blind by PLACEMENT (#3): a root/stateDir inside target.repo lets it reach the
+// review/ledger files. The engine warns loudly rather than halting (the operator may be mid-resume).
+{
+  const { logs } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS },
+    { ...baseArgs, stateDir: 'E:/repo/runs/t' });
+  ok(logs.some((l) => l.includes('INSIDE the target repo')), 'the warning names the placement hazard');
+  ok(logs.some((l) => l.includes('never the plugin install dir')), 'and steers away from the version-swapped install dir');
+}
+
+section('args.blockTool points the block command at an installed plugin\'s own tools/ copy');
+// An installed plugin splits ROOT (the persistent data dir run-state hangs off) from the versioned
+// cache dir that ships tools/plan-block.mjs. Without the override the command names a file ROOT does
+// not hold, exits non-zero, and halts the run on plan_obtained=false.
+{
+  const ROADMAP = { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: [{ id: 'plan-a' }],
+    blockTool: 'C:\\plug\\cache\\aipg\\1.0.0\\tools\\plan-block.mjs' };
+  const { prompt } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS }, ROADMAP);
+  const dev = prompt('develop plan-a');
+  ok(/node 'C:\/plug\/cache\/aipg\/1\.0\.0\/tools\/plan-block\.mjs' 'E:\/plans\/roadmap\.md' 'plan-a'/.test(dev),
+    'the command uses the passed path, backslashes normalized');
+  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
 }
 
 section('planContext:"full" hands the file instead — for a plan that needs its neighbours');

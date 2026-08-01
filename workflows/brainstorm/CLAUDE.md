@@ -37,8 +37,9 @@ everything with the user first:
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
-- **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory) so
-  `runs/` lands beside the tool, not in any target repo.
+- **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
+  aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir) so
+  `runs/` lands outside any target repo.
 - **`lenses` — REQUIRED:** the array you agreed in §2 (strings or `{ id, focus }`). Ids must stay
   distinct **after slugging** — a collision throws rather than sending two generators into one
   `variations/<lens>/` folder; give near-identical lenses explicit `{ id, focus }`.
@@ -82,7 +83,7 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
   `agentTypes.generate` (custom subagent — must exist in your registry) · `stateDir` (override
   `runs/<runId>`).
 
-## 7. State files (`runs/<runId>/`, gitignored)
+## 7. State files (`runs/<runId>/`, outside every repo)
 
 - `variations/<lens>/` — one folder per lens, holding that generator's complete variation (entry +
   any supporting files). These ARE the output; there are no review/status/log files.

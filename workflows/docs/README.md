@@ -53,10 +53,11 @@ A **gather → curate** loop built on the shared [Workflow Principles](../../pri
 
 ## How to use it
 
-Ships in the [AI Prompt Guide workflows](../../README.md) repo (clone as `aipg/`, copy the slash
-commands). Trigger it:
+Ships in the [AI Prompt Guide workflows](../../README.md) repo — install the `aipg` plugin
+(`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`),
+or clone the repo as `aipg/` and drive it by path. Trigger it:
 
-- **Slash command:** `/aipg-docs pull the Stripe Payment Intents docs (API v2024-06-20) for our checkout integration`
+- **Skill:** `/aipg:docs pull the Stripe Payment Intents docs (API v2024-06-20) for our checkout integration`
 - **Plain pointer:** tell Claude to *use the docs-cycle **workflow** in `aipg/workflows/docs/`* and what
   the project needs.
 

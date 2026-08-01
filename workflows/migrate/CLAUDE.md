@@ -51,6 +51,22 @@ plus the phase args. Drive in order:
 6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-*.md`, surface
    `NEEDS-USER.md` + `SWEEP.md`, tell the user what to review. **Never commit.**
 
+**Working an existing plan / autonomous mode (no plan mode).** When the user hands you a finished
+sectioned plan, or tells you to work without them, skip `EnterPlanMode`/`ExitPlanMode` — their plan (or
+standing instruction) is the approval. Everything else keeps its order:
+
+1. If the plan file lives anywhere a reviewer can reach — inside `target.repo`, or under
+   `runs/<runId>/` — snapshot it to `plans/<runId>/<name>.md` beside `runs/` and use that copy as
+   `planPath`: the blind reviewer must have no route to a plan (#3). Never edit the user's original —
+   but do get it out of `target.repo`: snapshotting relocates the path you pass, not the file, and an
+   untracked plan there halts round 1 on the clean-tree check while a tracked one stays readable by
+   the blind reviewer.
+2. `phase:"refine"` as usual; fold gaps into the snapshot. Questions refine returns: user present →
+   `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
+   your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
+   → split the named section into more `## Section:` blocks in the snapshot and re-run refine.
+3. `phase:"run"` unchanged.
+
 ## 3. The `sections` list (the one new arg vs feature-cycle)
 
 `phase:"run"` requires **`sections`**: an **ordered** array `[{ id, title, gate }]` you extract from the
@@ -65,7 +81,9 @@ approved plan:
   the whole plan file with the section named, for a section that genuinely needs its neighbours in view.
 
 Derive the whole list rather than typing it:
-`node <root>/tools/plan-block.mjs <planPath> --list --kind section` prints `[{ id, title, gate }]` in
+`node <plan-block.mjs> <planPath> --list --kind section` (`<root>/tools/plan-block.mjs` in a checkout;
+from the installed plugin, the plugin's own copy — the same path you pass as `blockTool`) prints
+`[{ id, title, gate }]` in
 file order, and throws on a duplicate id, a non-kebab id, an empty section or a missing/invalid gate —
 all of which would otherwise surface mid-run. **Only a `## Section:` header ends a section**, so the
 `###` bodies are safe and a section can never be silently truncated at one of its own subheadings.
@@ -81,10 +99,14 @@ Before `phase:"run"`:
   any non-zero count halts the run **before a reviewer is spawned** — nothing built, nothing changed.
   Still settle a dirty tree with the user BEFORE you start (`git add -A` to keep it as baseline,
   `git stash -u` to set it aside): finding out at run time costs a spawn.
-- **`root` — REQUIRED** (both phases): the tool's own directory so `runs/` lands beside the tool, not in
-  the target repo. Omit it → the engine errors. It must be THIS checkout: the block command an agent
-  runs is `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every section
-  fails to get its plan (loudly — see `plan_obtained` below).
+- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off — this checkout when run
+  from a clone, or the persistent plugin data dir the skill resolves when run from the installed aipg
+  plugin (never the plugin install dir itself: it is version-swapped on update, which would strand
+  parked patches). Either way `runs/` lands outside the target repo. Omit it → the engine errors.
+  The block command an agent runs defaults to `<root>/tools/plan-block.mjs` — correct for a checkout;
+  from the installed plugin pass **`blockTool`** = the plugin's own `tools/plan-block.mjs` (the skill
+  resolves it). A block command pointing at a dir with no `tools/` means every section fails to get
+  its plan (loudly — see `plan_obtained` below).
 - **Each section's `gate`** from its plan `gate:` line (mechanical/testless → `build-only`).
 - **Fresh vs. resume.** `DISMISSED-*.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
   genuinely new run; **preserve** it on resume.
@@ -176,7 +198,10 @@ the engine cannot verify it (the harness has no tools). Both the developer and t
 report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
 section — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
 first: the command not permitted in the run environment (pre-allowlist
-`Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+the block command exactly as the agent runs it — the path is single-quoted, so the rule must match
+that string: `Bash(node '<abs path to plan-block.mjs>':*)`, the path being
+`<root>/tools/plan-block.mjs` or your `blockTool` value — since a background run cannot answer a
+prompt), an id
 matching no `## Section:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
 exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
 
@@ -255,10 +280,11 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 - **A halt is usually** a bad gate command, a missing dependency the plan assumed (a consumer before its
   producer — reorder the plan), or a real design question. Fix the root cause, resume from that section.
 - **`too_big`** → split the named section, update `sections`, re-run refine.
-- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
-  dir, relocate the stray state, re-run.
+- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
+  run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
+  dir) — relocate the stray state, re-run.
 
-## 10. State files (`runs/<runId>/`, gitignored)
+## 10. State files (`runs/<runId>/`, outside every repo)
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `tasks.json`/`progress/`/`LEDGER.md`/`CHANGELOG.md`/`PLAN-REVIEW.md`.
@@ -289,7 +315,9 @@ inline to `Workflow`.
   (shell command; **throws** if missing — an unset build command would no-op the build gate) +
   `gates.test` (**throws** when any section's gate is `green`; a run of purely mechanical `build-only`
   sections needs no test command). Non-zero exit = fail.
-- **Optional:** `phase` (`refine`|`run`, default `run`) · each section's `planContext` (§3; `block`
+- **Optional:** `phase` (`refine`|`run`, default `run`) · `blockTool` (absolute path to
+  `plan-block.mjs`; default `<root>/tools/plan-block.mjs` — required in practice when `root` is not
+  this checkout, e.g. the installed plugin's data dir; §4) · each section's `planContext` (§3; `block`
   default, `full` to hand over the whole plan file) · `conventions` (the developer's rubric —
   language/version constraints, what stays additive, what NOT to touch; the blind reviewer is never shown
   it) · `reference` (path to a completed example to mirror) · `gates.testSetup` (runner quirks, how to

@@ -146,14 +146,16 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 
 ## Playbook
 
-1. **Units:** `node gen-units.mjs --repo <abs> --src src --out runs/<runId>/manifest.json`. A bin-packing
+1. **Units:** `node <path to gen-units.mjs> --repo <abs> --src src --out <root>/runs/<runId>/manifest.json`
+   (`gen-units.mjs` sits beside this guide — `workflows/debug/` in a checkout, the path the skill
+   resolves from the installed plugin; the `--out` base is `root`, never your cwd). A bin-packing
    pass merges adjacent units up to `--pack-loc` LOC (default 2000 ≈ ~215k tokens/agent — a right-sized
    review turn); base caps are `--cap-loc 2000 --cap-files 24 --big-file 2000`. Show the user the printed
    unit list; tune `--pack-loc` (0 disables packing) or `--cap-loc/--big-file` if units look lopsided.
-2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (THIS tool's
-   directory — from the Workflow result's scriptPath — so run-state lands here, gitignored, not in the
-   target repo), `target.repo` (absolute), `gates`, and `conventions` (the project's CLAUDE.md distilled
-   to ~10 lines — the reviewer's rubric).
+2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
+   — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
+   version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
+   `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
 3. **Run `review.mjs`** (`scriptPath` = its absolute path). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. Then PRESENT the inventory: read the issue
    files, walk the user through totals by severity/decision, the hot areas, and every NEEDS_USER item
@@ -227,7 +229,7 @@ loose anchors safe — the fixer re-confirms each issue against current code.
 - **Token budget:** the user can append a directive (e.g. "+2m"); `resolve-cycle` stops cleanly between
   batches under `minBatchBudget`. Resume continues where it left off.
 
-## State files (`runs/<runId>/`, gitignored)
+## State files (`runs/<runId>/`, outside every repo)
 
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable) · `quality-review-<batch>-rN.md` (blind) ·
@@ -248,7 +250,8 @@ bulky fields you build per the playbook (`units` from `gen-units.mjs` for `revie
 from the triaged files for `resolve-cycle`). There is no `phase` arg — each engine is invoked by its own
 `scriptPath`.
 
-**Common (both engines):** `runId` · `root` (THIS tool's directory) — REUSE both across engines ·
+**Common (both engines):** `runId` · `root` (this checkout, or the plugin data dir the skill resolves)
+— REUSE both across engines ·
 `target.repo` (absolute) · `conventions` (the reviewer's/fixer's rubric, ~10 lines) · optional
 `gates.testSetup` · `target.lang`/`target.framework` (hints) · `models`/`agentTypes` · `stateDir`.
 

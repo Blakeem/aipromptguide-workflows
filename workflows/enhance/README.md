@@ -50,10 +50,11 @@ A **read-only audit** built on the shared [Workflow Principles](../../principles
 
 ## How to use it
 
-Ships in the [AI Prompt Guide workflows](../../README.md) repo (clone as `aipg/`, copy the slash
-commands). Trigger it:
+Ships in the [AI Prompt Guide workflows](../../README.md) repo — install the `aipg` plugin
+(`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`),
+or clone the repo as `aipg/` and drive it by path. Trigger it:
 
-- **Slash command:** `/aipg-enhance audit this MCP server for efficiency, simplification, and operator effort`
+- **Skill:** `/aipg:enhance audit this MCP server for efficiency, simplification, and operator effort`
 - **Plain pointer:** tell Claude to *use the enhance-cycle **workflow** in `aipg/workflows/enhance/`* and
   what to audit.
 

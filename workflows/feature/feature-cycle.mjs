@@ -85,7 +85,7 @@ const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? Stri
 // Blind-reviewer placement guard (#3): run-state must live OUTSIDE the target repo so the blind quality
 // reviewer cannot reach the review/ledger files through the repo tree. Warn loudly if root was set wrong.
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
-  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Set args.root to THIS tool's own directory (see CLAUDE.md).`);
+  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
 // The plan reference handed to plan-aware agents (developer, acceptance) — per plan entry, since a
 // roadmap carries one plan file per feature. NEVER handed to the blind quality reviewer (#3).
@@ -95,7 +95,12 @@ if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
 // headers, so an agent locating the block by eye can stop at the first `## Feature` and build against a
 // truncated spec that looks complete. `planContext:'full'` hands the file instead, for a feature that
 // genuinely needs its neighbours in view.
-const BLOCK_TOOL  = `${ROOT}/tools/plan-block.mjs`;
+// Where the plan-block tool lives. The default hangs it off ROOT because a checkout keeps engine,
+// tools and run-state under one folder — but an INSTALLED plugin splits them: run-state (ROOT) goes to
+// the persistent plugin data dir while tools/ ships in the versioned plugin cache. args.blockTool
+// carries the installed tool's absolute path in that case; without it a roadmap run whose ROOT has no
+// tools/ hands every agent a command that exits non-zero and halts on plan_obtained=false.
+const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
 const blockRef    = (id) => `the output of:  node '${BLOCK_TOOL}' '${PLAN_PATH}' '${id}'
 Run it and implement EXACTLY what it prints — that is your plan, verbatim. If it exits non-zero, report
 plan_obtained=false and STOP: never guess at a plan you could not read. The full roadmap is at
@@ -186,7 +191,7 @@ const DEVELOP_SCHEMA = {
   type: 'object',
   required: ['plan_obtained', 'baseline_dirty_files', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user'],
   properties: {
-    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your plan text — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: never build from a plan you could not read.' },
+    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your plan text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the roadmap file. FALSE halts the run: never build from a plan you could not read.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed', 'not-run'], description: 'passed = the required verification ran and PASSED; failed = ran and failed; not-run = no verification executed' },
@@ -214,7 +219,7 @@ const ACCEPTANCE_SCHEMA = {
   type: 'object',
   required: ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
   properties: {
-    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the plan text you are judging against — the plan-block command exited 0 and printed it, or you read the plan file. FALSE halts the run: a verdict reached without the spec is worthless.' },
+    plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the plan text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless.' },
     pass:        { type: 'boolean', description: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed' },
     staged:      { type: 'boolean', description: 'true if you ran `git add` on the feature files (only on pass; NEVER commit)' },
     reachable:   { type: 'boolean', description: 'the feature is actually wired in / reachable from the app entry points' },

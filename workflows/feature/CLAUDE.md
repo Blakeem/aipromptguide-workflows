@@ -68,7 +68,9 @@ Then ONCE, for the whole roadmap:
 5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
    array in build order (§11). One plan file of blocks → keep the top-level `planPath` and pass
    `[{ id, gate }]`; derive it rather than typing it:
-   `node <root>/tools/plan-block.mjs <planPath> --list`. Per-feature files → `[{ id, planPath, gate }]`.
+   `node <plan-block.mjs> <planPath> --list` (`<root>/tools/plan-block.mjs` in a checkout; from the
+   installed plugin, the plugin's own copy — the same path you pass as `blockTool`). Per-feature
+   files → `[{ id, planPath, gate }]`.
    One feature? A single top-level `planPath` + `gate` (back-compat). The develop → blind-quality →
    acceptance loop runs each plan in order, **staging each accepted feature** before the next starts; a
    plan that can't pass is **parked** (its work saved to a patch, the tree cleared) and the roadmap
@@ -79,6 +81,23 @@ Then ONCE, for the whole roadmap:
 Each entry's `planPath` points at that feature's plan-mode file — no copy for a same-session build. Only
 caveat: a build *resumed long after* could hit a pruned plan-mode file — for a long roadmap, snapshot
 each plan (§3).
+
+**Working an existing plan / autonomous mode (no plan mode).** When the user hands you a finished plan
+file, or tells you to work without them, skip `EnterPlanMode`/`ExitPlanMode` — their plan (or standing
+instruction) is the approval. Everything else keeps its order:
+
+1. If the plan file lives anywhere a reviewer can reach — inside `target.repo`, or under
+   `runs/<runId>/` — snapshot it to `plans/<runId>/<name>.md` beside `runs/` (or `<id>.md` each, for
+   per-feature files) and use that copy as `planPath`: the blind reviewer must have no route to a plan
+   (#3). Never edit the user's original — but do get it out of `target.repo`: snapshotting relocates
+   the path you pass, not the file, and an untracked plan there halts round 1 on the clean-tree check
+   while a tracked one stays readable by the blind reviewer.
+2. `phase:"refine"` as usual; fold gaps into the snapshot. Questions refine returns: user present →
+   `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
+   your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
+   → split it yourself into a roadmap of `## Plan:` blocks in the snapshot and re-run refine; a
+   pattern across many call sites → stop and report rather than switching workflows unattended.
+3. `phase:"build"` unchanged.
 
 **Testing approach** (decide with the user, bake into Test Strategy): backend / API / MCP tool / data →
 **unit tests** (often TDD: failing tests first). Frontend → usually **not** unit tests; pick
@@ -99,14 +118,17 @@ Before `phase:"build"`:
 - **Each plan's `gate`** from its `## Gate` line: `green` (build + required verification) or `build-only`
   (the feature legitimately has no test/verification). Default `green`.
 - **Long roadmap (spanning days)?** Snapshot each approved plan to `plans/<runId>/<id>.md` (beside
-  `runs/`, gitignored) and point that entry's `planPath` there (a stated-purpose copy per #11) —
+  `runs/`, outside every repo) and point that entry's `planPath` there (a stated-purpose copy per #11) —
   plan-mode files may be pruned before a late resume. NEVER snapshot into `runs/<runId>/`: reviewers
   are handed paths into that dir, and the blind reviewer must have no path that reaches a plan (#3).
-- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off, normally the tool's own
-  directory so `runs/` lands beside the tool, not in the target repo. Omit it → the engine errors.
-  For a roadmap of blocks it must ALSO be this checkout: the block command an agent runs is
-  `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every unit fails to get
-  its plan (loudly — see `plan_obtained` below).
+- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off — this checkout when run
+  from a clone, or the persistent plugin data dir the skill resolves when run from the installed aipg
+  plugin (never the plugin install dir itself: it is version-swapped on update, which would strand
+  parked patches). Either way `runs/` lands outside the target repo. Omit it → the engine errors.
+  For a roadmap of blocks the block command an agent runs defaults to `<root>/tools/plan-block.mjs` —
+  correct for a checkout; from the installed plugin pass **`blockTool`** = the plugin's own
+  `tools/plan-block.mjs` (the skill resolves it). A block command pointing at a dir with no `tools/`
+  means every plan's agents fail to get their plan (loudly — see `plan_obtained` below).
 
 ## 4. Plan-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -207,7 +229,10 @@ next round; **any code change re-enters at quality.**
   report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
   plan — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
   first: the command not permitted in the run environment (pre-allowlist
-  `Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+  the block command exactly as the agent runs it — the path is single-quoted, so the rule must match
+  that string: `Bash(node '<abs path to plan-block.mjs>':*)`, the path being
+  `<root>/tools/plan-block.mjs` or your `blockTool` value — since a background run cannot answer a
+  prompt), an id
   matching no `## Plan:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
   exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
 - **What still stops the run.** A hard blocker escalated to `NEEDS-USER.md` (parked first, then stopped —
@@ -289,8 +314,9 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
   — sanity-check the count, and scope one file per invocation or use the runner's filter. Manual/MCP →
   `tests_run_count` is `-1`; confirm the behavior was observed.
 - **Custom `agentTypes` must exist in the user's registry** — defaults use the standard subagent.
-- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
-  dir, relocate the stray state, re-run.
+- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
+  run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
+  dir) — relocate the stray state, re-run.
 - **A "passed but not staged" plan halts on purpose** (so the next feature's diff isn't corrupted) —
   stage its files yourself (`git add`), resume from the NEXT plan id. It is deliberately NOT parked:
   the work is good, and one `git add` both preserves it and cleans the tree.
@@ -301,7 +327,7 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
 - **`too_big`** (from refine, or you realize mid-plan) → split into multiple bounded feature-plans and
   run them as a roadmap (`plans`); a pattern across many call sites goes to `migrate-cycle` instead.
 
-## 10. State files (`runs/<runId>/`, gitignored)
+## 10. State files (`runs/<runId>/`, outside every repo)
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result), no `progress.json`.
@@ -343,7 +369,9 @@ inline to `Workflow`.
   Non-zero exit = fail.
 - **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level
   `planPath`/`plan` and never reads `plans` — it **throws** if neither is set)
-  · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `planContext` (per
+  · `blockTool` (absolute path to `plan-block.mjs`; default `<root>/tools/plan-block.mjs` — required
+  in practice when `root` is not this checkout, e.g. the installed plugin's data dir; §3) · `gate`
+  (§3; the single-plan gate — for a roadmap each entry carries its own) · `planContext` (per
   `plans` entry: `block`, the default, hands that agent the `plan-block.mjs` command so only its own
   block is in context; `full` hands the whole roadmap file with the block named, for a feature that
   genuinely needs its neighbours in view) · `conventions` (the

@@ -46,6 +46,12 @@ them apart is what keeps the issue files out of reach of the blind reviewer, and
 checkout drive many projects. The engines that write code **throw** rather than default `target.repo` —
 see the root README, "One checkout, many projects".
 
+**This repo is also the `aipg` Claude Code plugin** (manifests in `.claude-plugin/`, entry points in
+`skills/<x>/SKILL.md` → `/aipg:<x>`). Installed, the skills resolve the plugin paths and point `root`
+at the plugin's persistent data dir instead of a checkout. Rename an engine, guide,
+`tools/plan-block.mjs`, or `workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md`
+paths must move with it.
+
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug has `FLOW-review.md` + `FLOW-resolve.md`) — every agent, gate, loop and
 terminal state, drawn from real traced runs. Read one before driving a workflow you have not run before.

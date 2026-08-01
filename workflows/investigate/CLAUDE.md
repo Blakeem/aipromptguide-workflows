@@ -51,7 +51,8 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
-- **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory).
+- **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
+  aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir).
 - **`criteria` (inline) OR `planPath` — one REQUIRED.** The pass/fail rubric (§4). The guard is
   unconditional: it fires for `refine` as well as `run`.
 - **`sources` (optional but useful):** a starting set of avenues (strings, or `{ id, focus }`). It is
@@ -262,7 +263,7 @@ inline.
   `agentTypes` (custom subagent per role — must exist in your registry) · `stateDir` (override
   `runs/<runId>`).
 
-## 10. State files (`runs/<runId>/`, gitignored)
+## 10. State files (`runs/<runId>/`, outside every repo)
 
 - `options/<id>.md` — one per qualifying option: per-criterion evidence with citations, what it buys, what
   it costs, sources.

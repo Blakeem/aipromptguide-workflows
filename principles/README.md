@@ -7,7 +7,7 @@ so they stay in sync.
 
 - **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** — the fourteen principles for designing a
   background `Workflow` engine, the mechanics that follow from them, and a yes/no review checklist.
-- **[`workflow-principles-auditor`](../.claude/agents/workflow-principles-auditor.md)** — an agent that
+- **[`workflow-principles-auditor`](../agents/workflow-principles-auditor.md)** — an agent that
   audits a workflow against those principles and reports violations, gaps, and over-engineering smells.
 
 ## In brief
@@ -21,10 +21,11 @@ notes. Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 
 ## Using the auditor
 
-1. Copy the agent into your Claude Code agents folder:
+1. Installed as the `aipg` plugin, the agent registers automatically. From a bare checkout, copy it
+   into your Claude Code agents folder:
 
    ```bash
-   cp ../.claude/agents/workflow-principles-auditor.md ~/.claude/agents/
+   cp ../agents/workflow-principles-auditor.md ~/.claude/agents/
    ```
 
 2. Have it read `WORKFLOW-PRINCIPLES.md` before you build a new workflow.
