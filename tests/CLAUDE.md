@@ -100,15 +100,12 @@ without can report success having written nothing. Make the set consistent.
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt
 site and map it. feature did this; migrate had to catch up.
 
-**A coerced numeric bound turns a bad arg into a silent no-op run.** `Math.max(1, 'three')` is NaN, and so
-is `Number('three')` — but `round < NaN` is **false on the first test**, so the loop body never runs. The
-engine then returns a zero-agent run wearing an ordinary terminal state: a search that never happened,
-reported as one that ran out of rounds. Every numeric arg that bounds a loop or arms a floor must
-`Number.isFinite` and **throw**, never absorb (`static.test.mjs` sweeps every engine for this). Note the
-second-order version: any flag derived from a halt-kind **default** inherits the lie. `haltKind` starts as
-`'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file nothing wrote. Gate such a
-flag on `round > 0` — the proof an agent actually ran — the way decide's `round ? decisionFile(round) : ''`
-already did.
+**A flag derived from a halt-kind DEFAULT inherits a lie no sweep can see.** (Its first-order cousin —
+a coerced numeric bound silently producing a zero-agent run — is gate-enforced now: `static.test.mjs`
+runs every engine against garbage bounds and expects a throw, so it needs no manual vigilance.)
+`haltKind` starts as `'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file
+nothing wrote. Gate such a flag on `round > 0` — the proof an agent actually ran — the way decide's
+`round ? decisionFile(round) : ''` already did.
 
 **A pre-filter that drops candidates before the verifier makes the floor invisible.** enhance cut
 below-floor candidates on the *finder's own unverified score*, logged the count, and dropped it — so a

@@ -166,11 +166,33 @@ becomes "cell X cites lens Y, but Y says Z," not a duel of assertions. The same 
 reviewers reads *no evidence, no gap*; pointed at researchers, *a claim without a source is a
 hypothesis — mark it as such*.
 
+### 15. A missing result is its own outcome — fail loud, resume clean
+An agent that returns nothing (died mid-run, killed, empty output) is a **distinct outcome** — never
+conflatable with success, a clean verdict, or a legitimately empty result set. The defect shape is the
+absorbing idiom: `r?.findings || []`, `verdict ?? 'ready'`, `?? -1` — each makes the dead path
+byte-identical to a real one, so a run that lost an agent reports as a run that finished. Three rules
+close it:
+- **Every `agent()` consumption site states its death policy explicitly.** A **solo critical** agent
+  (the only producer of the run's product) **throws** — a dead searcher looks exactly like a completed
+  one. An agent **inside a build loop** halts-and-parks through the **same park path** any failure
+  takes. An **auxiliary** agent (a sweep, one lens of many) **logs the death and records it in the
+  return** (`failed`, `sweepFailed`, a needs-attention entry) — degraded coverage is reported, never
+  silently absorbed.
+- **Success is attested and the attestation is consumed.** An agent asked to write a file confirms it
+  (`wrote_file`), and the harness **reads** that field — a required field nothing consumes is theater
+  (#8). The file bus then makes death visible by absence: the stage's expected file does not exist,
+  and nothing downstream may fabricate a path to one.
+- **Failure resumes through the same mechanism as everything else.** No special recovery path: because
+  every exit leaves the tree clean (accepted work staged, unfinished work parked — Mechanics), a run
+  that lost an agent at any stage resumes exactly like a fresh run reading the durable trail (staging
+  + numbered files + ledgers), with nothing lost. If a failure would need bespoke cleanup to resume,
+  the exit path is wrong, not the resume.
+
 ---
 
 ## Scope — which principles apply to which workflow kind
 
-Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them. The rest are
+Principles #1–4, #6, #8, #11–15 are **core** — every workflow honors them. The rest are
 **build-loop** rules and apply only where they fit:
 
 - **Build loops** (produce code — feature/migrate/debug) honor everything, including the staged
@@ -198,7 +220,7 @@ Principles #1–4, #6, #8, #11–14 are **core** — every workflow honors them.
     engine must keep its terminal states distinct: running out of rounds, running out of tokens, and
     proving nothing can qualify are three different facts, and folding any pair together lets fatigue
     masquerade as a proof. For the same reason every solo critical agent must **throw** when it returns
-    nothing — a dead searcher looks exactly like a completed one.
+    nothing — a dead searcher looks exactly like a completed one (#15).
 
 ## Mechanics that follow from these
 
@@ -277,3 +299,9 @@ Use these as yes/no checks when reviewing any workflow against these principles:
 - [ ] Does every score, severity, verdict, and finding **cite checkable evidence** (file:line, source,
       lens claim) — or explicitly mark itself the judge's **own judgment with a confidence** — with no
       asserted numbers and no fabricated citations? (#14)
+- [ ] Does every `agent()` consumption site have an **explicit death policy** (solo critical → throw;
+      in a build loop → halt-and-park; auxiliary → log + record in the return), with **no absorbing
+      idiom** (`|| []`, `?? default`) that makes a dead agent identical to a legitimate outcome — and
+      is every write-attestation field actually **read** by the harness? (#15)
+- [ ] Can a run that lost an agent at **any** stage resume through the **same** mechanism as a normal
+      resume (clean tree + durable trail), with no bespoke recovery step and nothing lost? (#15)

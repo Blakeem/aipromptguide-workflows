@@ -35,7 +35,7 @@ it fits**, that's investigate. The tell is whether missing a requirement is a tr
 disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**:
-the fourteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
+the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents) and an [auditor agent](agents/workflow-principles-auditor.md) that reviews a workflow
 against them.
 
@@ -159,6 +159,17 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-01
 
+- **New principle #15: "A missing result is its own outcome — fail loud, resume clean."** A dead/null
+  agent must never be conflatable with success, a clean verdict, or an empty result; every `agent()`
+  consumption site states its death policy (solo critical → throw, build loop → park, auxiliary → log +
+  record), write-attestations must be consumed, and any failure resumes through the same clean-tree +
+  durable-trail mechanism as everything else. A debug run over the engines themselves found and fixed
+  the five engines that violated it (dead-agent visibility guards in review, resolve, enhance, migrate;
+  plus gate and numeric-arg validation).
+- **Plan mode is now the agent's judgment call** (feature + migrate guides): default INTO plan mode when
+  the task is complex, needs the user's answers, or touches something important; skip it when simple,
+  obvious, or already planned — the user always has the final say. A plan authored without plan mode
+  lives at `plans/<runId>/` under `root` (the plugin data dir when installed), same rules as snapshots.
 - **The repo is now a Claude Code plugin (`aipg`) and its own marketplace (`aipromptguide`).**
   `/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`.
   The copy-me command templates in `commands/` became plugin **skills** (`skills/<x>/SKILL.md`), so the

@@ -5,7 +5,7 @@ so they stay in sync.
 
 ## What's here
 
-- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** — the fourteen principles for designing a
+- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** — the fifteen principles for designing a
   background `Workflow` engine, the mechanics that follow from them, and a yes/no review checklist.
 - **[`workflow-principles-auditor`](../agents/workflow-principles-auditor.md)** — an agent that
   audits a workflow against those principles and reports violations, gaps, and over-engineering smells.

@@ -51,20 +51,28 @@ plus the phase args. Drive in order:
 6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-*.md`, surface
    `NEEDS-USER.md` + `SWEEP.md`, tell the user what to review. **Never commit.**
 
-**Working an existing plan / autonomous mode (no plan mode).** When the user hands you a finished
-sectioned plan, or tells you to work without them, skip `EnterPlanMode`/`ExitPlanMode` — their plan (or
-standing instruction) is the approval. Everything else keeps its order:
+**Plan mode is a judgment call — yours.** Default INTO `EnterPlanMode` when the goal is complex, when
+the decomposition or gates need the user's answers, or when the migration touches something important
+enough that the user should read the sectioned plan before anything runs — the approval gate is an
+extra quality gate, spent where it matters. SKIP plan mode when the goal is simple, well understood, or
+already planned — the user handed a finished sectioned plan, or the work is fully specified in context
+— there their request (or standing instruction) is the approval. The user always has the final say:
+asked to see the plan first → plan mode; told to run without them → skip it.
 
-1. If the plan file lives anywhere a reviewer can reach — inside `target.repo`, or under
-   `runs/<runId>/` — snapshot it to `plans/<runId>/<name>.md` beside `runs/` and use that copy as
+When you skip plan mode, everything else keeps its order:
+
+1. **The plan lives at `plans/<runId>/<name>.md` under `root`, beside `runs/`.** A plan YOU author goes
+   there directly (`## Section:` blocks, dependency order) — never inside `target.repo` and never under
+   `runs/<runId>/`. A plan the USER handed you that sits anywhere a reviewer can reach — inside
+   `target.repo`, or under `runs/<runId>/` — is snapshotted to that same place and the copy used as
    `planPath`: the blind reviewer must have no route to a plan (#3). Never edit the user's original —
    but do get it out of `target.repo`: snapshotting relocates the path you pass, not the file, and an
    untracked plan there halts round 1 on the clean-tree check while a tracked one stays readable by
    the blind reviewer.
-2. `phase:"refine"` as usual; fold gaps into the snapshot. Questions refine returns: user present →
+2. `phase:"refine"` as usual; fold gaps into your plan file. Questions refine returns: user present →
    `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
    your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
-   → split the named section into more `## Section:` blocks in the snapshot and re-run refine.
+   → split the named section into more `## Section:` blocks and re-run refine.
 3. `phase:"run"` unchanged.
 
 ## 3. The `sections` list (the one new arg vs feature-cycle)

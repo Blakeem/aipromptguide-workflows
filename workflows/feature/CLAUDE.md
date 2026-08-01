@@ -82,21 +82,30 @@ Each entry's `planPath` points at that feature's plan-mode file — no copy for 
 caveat: a build *resumed long after* could hit a pruned plan-mode file — for a long roadmap, snapshot
 each plan (§3).
 
-**Working an existing plan / autonomous mode (no plan mode).** When the user hands you a finished plan
-file, or tells you to work without them, skip `EnterPlanMode`/`ExitPlanMode` — their plan (or standing
-instruction) is the approval. Everything else keeps its order:
+**Plan mode is a judgment call — yours.** Default INTO `EnterPlanMode` when the task is complex, when
+acceptance criteria or testing approach need the user's answers (that is where `AskUserQuestion`
+belongs), or when the change touches something important enough that the user should read the plan
+before anything builds — the approval gate is an extra quality gate, spent where it matters. SKIP plan
+mode when the task is simple, obvious, well understood, or already planned — the user handed a finished
+plan file, or the work is fully specified in context — there their request (or standing instruction) is
+the approval, and stopping to ask again just costs them a round-trip. The user always has the final say:
+asked to see the plan first → plan mode; told to run without them → skip it.
 
-1. If the plan file lives anywhere a reviewer can reach — inside `target.repo`, or under
-   `runs/<runId>/` — snapshot it to `plans/<runId>/<name>.md` beside `runs/` (or `<id>.md` each, for
-   per-feature files) and use that copy as `planPath`: the blind reviewer must have no route to a plan
-   (#3). Never edit the user's original — but do get it out of `target.repo`: snapshotting relocates
-   the path you pass, not the file, and an untracked plan there halts round 1 on the clean-tree check
-   while a tracked one stays readable by the blind reviewer.
-2. `phase:"refine"` as usual; fold gaps into the snapshot. Questions refine returns: user present →
+When you skip plan mode, everything else keeps its order:
+
+1. **The plan lives at `plans/<runId>/<name>.md` under `root`, beside `runs/`.** A plan YOU author goes
+   there directly (`## Plan:` blocks for a roadmap; `<id>.md` each for per-feature files) — never
+   inside `target.repo` and never under `runs/<runId>/`. A plan the USER handed you that sits anywhere
+   a reviewer can reach — inside `target.repo`, or under `runs/<runId>/` — is snapshotted to that same
+   place and the copy used as `planPath`: the blind reviewer must have no route to a plan (#3). Never
+   edit the user's original — but do get it out of `target.repo`: snapshotting relocates the path you
+   pass, not the file, and an untracked plan there halts round 1 on the clean-tree check while a
+   tracked one stays readable by the blind reviewer.
+2. `phase:"refine"` as usual; fold gaps into your plan file. Questions refine returns: user present →
    `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
    your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
-   → split it yourself into a roadmap of `## Plan:` blocks in the snapshot and re-run refine; a
-   pattern across many call sites → stop and report rather than switching workflows unattended.
+   → split it yourself into a roadmap of `## Plan:` blocks and re-run refine; a pattern across many
+   call sites → stop and report rather than switching workflows unattended.
 3. `phase:"build"` unchanged.
 
 **Testing approach** (decide with the user, bake into Test Strategy): backend / API / MCP tool / data →
