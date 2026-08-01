@@ -75,7 +75,9 @@ approved plan:
   read verbatim from the file (#1/#2 — never transcribed).
 - **`title`** — logs/labels only.
 - **`gate`** — `green` | `red-baseline` | `build-only` (§6). The harness can't read the plan, so this
-  knob travels as control.
+  knob travels as control. An unrecognized value **throws** — it used to coerce to `green`, so a typoed
+  `red_baseline` silently demanded the very tests a test-first section means to leave failing. Omit the
+  field entirely to take the `green` default.
 - **`planContext`** (optional) — `block` (default) hands that agent a `plan-block.mjs` command that
   prints ONLY its section, so a twelve-section plan never enters a developer's context; `full` hands
   the whole plan file with the section named, for a section that genuinely needs its neighbours in view.
@@ -203,14 +205,26 @@ that string: `Bash(node '<abs path to plan-block.mjs>':*)`, the path being
 `<root>/tools/plan-block.mjs` or your `blockTool` value — since a background run cannot answer a
 prompt), an id
 matching no `## Section:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
-exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
+exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`) — it
+has its own halt, next.
+
+**An agent that comes back with NOTHING halts the run.** Any of the three per-round roles — developer,
+quality reviewer, acceptance verifier — returning null (skipped or died) halts with `BLOCKED (an agent
+returned nothing — it was skipped or died; re-invoke to replay it)`, work parked. A dead agent is not a
+failed round: nothing is known about the tree either way. Untreated, a dead developer read as an ordinary
+gate miss and burned the whole round budget into `parked (not accepted within round budget)` — pointing
+you at the plan when the fix is a replay — and a dead reviewer sent the next developer to a review file
+nobody wrote. Re-invoke with the same args/runId, passing the Workflow tool's `resumeFromRunId` to replay
+the agents that did complete.
 
 **Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
 the section's OWN selector, never whole-suite-green):
 - `green` — build passes AND this section's selector tests RAN and PASSED (`tests_run_count==0` = a false
   green, fails the gate).
 - `red-baseline` — build passes AND the authored tests FAIL for the expected reason (TDD red step; a
-  valid, stageable "done").
+  valid, stageable "done"). `tests_run_count==0` fails this gate too: a selector that matched nothing
+  exits non-zero and looks exactly like the intended red, so a false RED is caught the same way a false
+  green is. `-1` (manual/MCP verification) stays legal.
 - `build-only` — build passes; no test pass/fail requirement (mechanical/testless).
 Build (lint/compile) must ALWAYS pass. Whole-suite regression is the acceptance verifier's job (vs the
 staged baseline), not the scoped gate. `args.gates.build`/`test` are literal shell commands — the
@@ -266,8 +280,8 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 
 - **Verify what the runner actually ran.** Some test runners silently ignore extra path args, so a
   multi-file selector runs only the first file and gives a false green. The engine fails the gate on
-  `tests_run_count==0` for a green section (a required field, so it can't be omitted to dodge the
-  check) — sanity-check it; scope one file per invocation or use the runner's filter.
+  `tests_run_count==0` for a green OR red-baseline section (a required field, so it can't be omitted to
+  dodge the check) — sanity-check it; scope one file per invocation or use the runner's filter.
 - **`git diff` omits new files** — also `git status --porcelain` + read them.
 - **Custom `agentTypes` must exist** in the user's registry — defaults use the standard subagent.
 - **A "passed but not staged" section halts on purpose** (so the next section's diff isn't corrupted) —

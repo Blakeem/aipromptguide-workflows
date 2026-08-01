@@ -22,43 +22,47 @@ flowchart TD
   t5(["BLOCKED (a section passed but was not staged - stage it, then resume)"])
   t6(["BLOCKED (a section staged while self-reporting a regression - inspect the staged diff before continuing)"])
   t7(["BLOCKED (an agent could not obtain its section - nothing was built from a guess)"])
-  t8(["BLOCKED (working tree was not clean - nothing was built)"])
-  t9(["BLOCKED (needs user input)"])
-  t10(["BLOCKED (a parked section left the tree unsafe - inspect before resuming)"])
-  t11(["stopped on token budget (resume where it left off)"])
+  t8(["BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it)"])
+  t9(["BLOCKED (working tree was not clean - nothing was built)"])
+  t10(["BLOCKED (needs user input)"])
+  t11(["BLOCKED (a parked section left the tree unsafe - inspect before resuming)"])
+  t12(["stopped on token budget (resume where it left off)"])
   x1[/"throw: args must include at least { runId, planPath #124; plan (markdown string), sections, target, gates }"/]
   x2[/"throw: args.root is required"/]
   x3[/"throw: args.target.repo is required"/]
   x4[/"throw: Invalid numeric arg"/]
   x5[/"throw: section id(s) [...] are not kebab slugs"/]
-  x6[/"throw: Plan critic returned nothing"/]
-  x7[/"throw: args.sections is required for phase:#quot;run#quot;"/]
-  x8[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
-  x9[/"throw: args.gates.test is required when any section has gate:#quot;green#quot;"/]
-  x10[/"throw: args.runOnly ... matches no section id"/]
-  x11[/"throw: args.startAt #quot;...#quot; matches no section id"/]
+  x6[/"throw: section gate(s) [...] are not one of green #124; red-baseline #124; build-only"/]
+  x7[/"throw: Plan critic returned nothing"/]
+  x8[/"throw: args.sections is required for phase:#quot;run#quot;"/]
+  x9[/"throw: args.gates.build is required for phase:#quot;run#quot;"/]
+  x10[/"throw: args.gates.test is required when any section has gate:#quot;green#quot;"/]
+  x11[/"throw: args.runOnly ... matches no section id"/]
+  x12[/"throw: args.startAt #quot;...#quot; matches no section id"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t11
+  S0 --> t12
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
   S0 --> x5
-  S0 --> x7
+  S0 --> x6
   S0 --> x8
   S0 --> x9
   S0 --> x10
   S0 --> x11
+  S0 --> x12
   a1 --> t1
-  a1 --> x6
+  a1 --> x7
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a4
   a2 --> a5
-  a2 --> t8
+  a2 --> t9
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
+  a3 --> a5
   a4 ==>|"next item"| a2
   a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
   a4 --> a5
@@ -69,8 +73,9 @@ flowchart TD
   a4 --> t6
   a5 --> t4
   a5 --> t7
-  a5 --> t9
+  a5 --> t8
   a5 --> t10
+  a5 --> t11
   a6 --> t2
 ```
 
@@ -102,6 +107,7 @@ flowchart TD
 | BLOCKED (a section passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
 | BLOCKED (a section staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
 | BLOCKED (an agent could not obtain its section - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
+| BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
 | BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked section left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
@@ -111,13 +117,14 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 37) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
 | throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 142) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 572) |
-| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 602) |
-| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 608) |
-| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 611) |
-| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 626) |
-| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 631) |
+| throw: section gate(s) [...] are not one of green \| red-baseline \| build-only | a sections entry names an unknown gate | throw (line 155) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 589) |
+| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 619) |
+| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 625) |
+| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 628) |
+| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 643) |
+| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 648) |
 
 ## Coverage
 
-31 scenarios · 6/6 roles · 11/11 throw sites · 8/8 halt statuses · 22 terminal states.
+35 scenarios · 6/6 roles · 12/12 throw sites · 9/9 halt statuses · 24 terminal states.

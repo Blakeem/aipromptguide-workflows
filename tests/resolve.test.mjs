@@ -126,6 +126,54 @@ section('a DEAD round-1 fixer halts instead of being laundered into "not applica
   ok(/return|nothing/i.test(out.blockerReason), `blocker says the fixer returned nothing: ${out.blockerReason.slice(0, 55)}`);
 }
 
+section('a DEAD round-2 fixer is named as agent failure, not as a red gate');
+// Rounds 2+ have no halt, so the death fell through to gateOk(null) === false and the run reported
+// `gate not green (build=undefined, test=undefined)` — a build failure that never happened, which is the
+// cause the operator then debugs against.
+{
+  const { logs } = await run({
+    'fix': (l) => (l.endsWith('r1') ? FIXED : null),
+    'quality': (l) => (l.endsWith('r1') ? { clean: false, issue_count: 1 } : CLEAN),
+    'park': PARK_OK,
+  });
+  const text = logs.join('\n');
+  ok(/⚠ .* r2: fixer returned nothing/.test(text), `the dead round-2 fixer is named: ${text}`);
+  ok(text.includes('NOT a red gate'), 'and the log denies the gate diagnosis the next line implies');
+}
+
+section('a DEAD quality reviewer is named and does not send the next fixer to a file nobody wrote');
+// `quality?.clean !== true` is true for a dead agent too, so it read as "blind review found ? issue(s)"
+// and reviewPath was set to a qualityFile() the dead agent never wrote — which fixPrompt then orders the
+// next round's fixer to READ.
+{
+  const { logs, byLabel } = await run({
+    'fix': (l) => (l.endsWith('r1') ? FIXED : { ...GREEN, results: [] }),
+    'quality': (l) => (l.endsWith('r1') ? null : CLEAN),
+    'accept': { pass: true, staged: true },
+  });
+  const text = logs.join('\n');
+  ok(/⚠ .* r1: blind quality reviewer returned nothing/.test(text), `the dead reviewer is named: ${text}`);
+  ok(text.includes('quality-review-'), 'the log names the file that was NOT written');
+  const r2 = byLabel('fix')[1];
+  ok(r2 && !r2.prompt.includes('quality-review-'), 'the round-2 fixer is NOT pointed at the nonexistent review file');
+}
+
+section('a DEAD acceptance verifier is named — 0 gaps means UNVERIFIED, not near-pass');
+// `acc?.gap_count ?? bad.length` printed `0 gap(s)`, and reviewPath cited an acceptanceFile() that was
+// never written.
+{
+  const { logs, byLabel } = await run({
+    'fix': (l) => (l.endsWith('r1') ? FIXED : { ...GREEN, results: [] }),
+    'quality': CLEAN,
+    'accept': (l) => (l.endsWith('r1') ? null : { pass: true, staged: true }),
+  });
+  const text = logs.join('\n');
+  ok(/⚠ .* r1: acceptance verifier returned nothing/.test(text), `the dead verifier is named: ${text}`);
+  ok(text.includes('UNVERIFIED, not near-pass'), 'the 0-gap line is explicitly contradicted');
+  const r2 = byLabel('fix')[1];
+  ok(r2 && !r2.prompt.includes('acceptance-review-'), 'the round-2 fixer is NOT pointed at the nonexistent review file');
+}
+
 section('required args throw rather than silently defaulting');
 {
   const cases = [

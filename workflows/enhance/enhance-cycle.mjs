@@ -366,6 +366,13 @@ const results = await pipeline(
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
     }));
+    // A DEAD verifier is not a verified lens, exactly as a dead finder is not a clean one (:343-346).
+    // Returning the result object anyway kept the lens out of `failed`, counted it as audited, and
+    // reported a `file:` path nobody wrote. Dropping it to null is the one place the operator sees it.
+    if (!v) {
+      log(`  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and no ${proposalFile(lens.id)} was written. Re-run it.`);
+      return null;
+    }
     // Match every verdict back to a candidate we actually submitted (same guard as debug/review.mjs):
     // a hallucinated or repeated candidate_id would inflate the counts and put a phantom row in `kept`,
     // and the main agent would report adoption numbers the proposal file does not contain.

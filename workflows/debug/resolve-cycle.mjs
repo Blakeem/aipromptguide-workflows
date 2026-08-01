@@ -542,6 +542,11 @@ for (const batch of batches) {
         break;
       }
     }
+    // Rounds 2+ have no halt (the round-1 preconditions are the only thing a dead fixer strands), but
+    // the death must still be NAMED: `fix &&` below short-circuits the staging check, `gateOk(null)` is
+    // false, and the run would log `gate not green (build=undefined, test=undefined)` — a red build that
+    // never happened, which is the cause the operator then debugs against.
+    if (fix == null) log(`  ⚠ ${batch.id} r${round}: fixer returned nothing (agent died or produced no output) — the outcome below is agent failure, NOT a red gate`);
 
     // ---- Staging contract: the fixer must attest it left its work UNSTAGED --------------------
     // Neither review layer can catch a violation: the blind critic is told the staged diff is the
@@ -595,7 +600,11 @@ for (const batch of batches) {
     }
     if (!gateMet) {
       reviewPath = '';
-      if (round >= MAX_ROUNDS) { log(`  ⚠ ${batch.id} r${round}: gate still not green at round budget`); break; }
+      // The fixer re-runs the gate live each round, so the engine holds the only copy of WHY it was red
+      // once the round budget is gone — surface its tail here rather than collecting `gate_output` into
+      // a schema nothing reads. Prose stays out of the control plane: log only. (No `verification_method`
+      // on this engine's fix schema — the sibling loops log it too.)
+      if (round >= MAX_ROUNDS) { log(`  ⚠ ${batch.id} r${round}: gate still not green at round budget${fix?.gate_output ? ` — last gate output: ${String(fix.gate_output).slice(-500)}` : ''}`); break; }
       log(`  ↻ ${batch.id} r${round}: gate not green (build=${fix?.build_passed}, test=${fix?.test_outcome}) → another fix round`);
       continue;
     }
@@ -606,8 +615,12 @@ for (const batch of batches) {
       schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality:${batch.id} r${round}`,
     }));
     if (quality?.contested_dismissals) { contestedTotal += quality.contested_dismissals; log(`  ⚠ ${batch.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — fixer must fix or escalate`); }
+    // A dead blind reviewer is not a failed review: `quality?.clean !== true` is true either way. Name it,
+    // and do NOT point the next round at qualityFile() — the agent died without writing it, and fixPrompt
+    // would order the fixer to READ a file that cannot exist.
+    if (!quality) log(`  ⚠ ${batch.id} r${round}: blind quality reviewer returned nothing (agent died) — no ${qualityFile(batch.id, round)} was written`);
     if (quality?.clean !== true) {
-      reviewPath = qualityFile(batch.id, round);
+      if (quality) reviewPath = qualityFile(batch.id, round);
       if (round >= MAX_ROUNDS) { log(`  ⚠ ${batch.id} r${round}: ${quality?.issue_count ?? '?'} quality issue(s) open at round budget`); break; }
       log(`  ↻ ${batch.id} r${round}: blind review found ${quality?.issue_count ?? '?'} issue(s) → fix addresses ${reviewPath}`);
       continue;
@@ -618,6 +631,10 @@ for (const batch of batches) {
     const acc = await agent(acceptancePrompt(batch, round, claimedFixed, issuePaths), roleOpts('acceptance', {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `accept:${batch.id} r${round}`,
     }));
+    // Same shape as the quality guard above: a dead acceptance verifier fails `acc?.pass === true`, and
+    // `acc?.gap_count ?? bad.length` then prints `0 gap(s)` — which reads as a near-pass. And it wrote no
+    // acceptanceFile() for the next round's fixPrompt to cite.
+    if (!acc) log(`  ⚠ ${batch.id} r${round}: acceptance verifier returned nothing (agent died) — 0 gaps below means UNVERIFIED, not near-pass`);
     if (acc?.regression) record.regression = true;
     if (acc?.pass === true) {
       accepted = true;
@@ -626,7 +643,7 @@ for (const batch of batches) {
       log(`  ✓ ${batch.id} accepted after ${round} round(s) (staged=${record.staged}, suite=${acc?.suite_result || 'n/a'})`);
       break;
     }
-    reviewPath = acceptanceFile(batch.id, round);
+    if (acc) reviewPath = acceptanceFile(batch.id, round);
     const bad = (acc?.fix_checks || []).filter((c) => c.actually_fixed === false);
     if (round >= MAX_ROUNDS) { log(`  ⚠ ${batch.id} r${round}: ${acc?.gap_count ?? bad.length} gap(s) at round budget`); break; }
     log(`  ↻ ${batch.id} r${round}: acceptance found ${acc?.gap_count ?? bad.length} gap(s)${acc?.regression ? ' [REGRESSION]' : ''} → fix addresses ${reviewPath}`);

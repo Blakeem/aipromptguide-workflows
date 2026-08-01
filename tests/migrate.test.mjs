@@ -312,6 +312,71 @@ section('migrate acceptance has the same channel');
   ok(/Acceptance verifier/.test(out.haltReason), 'halt reason names the role');
 }
 
+section('a dead round-loop agent halts and parks — never a "gate miss" or a clean review');
+// The number-one defect shape (tests/CLAUDE.md §3) in the three per-round roles. Each failure used to be
+// indistinguishable from an ordinary content failure: a dead developer read as a gate miss and burned the
+// round budget into `parked (not accepted within round budget)`; a dead quality/acceptance set reviewPath
+// to a review file nobody wrote and pointed the NEXT developer at it.
+{
+  const DEAD = [
+    ['developer', { 'develop': null, 'park': PARK_OK }, /Developer for section sec-a/],
+    ['quality reviewer', { ...GREEN_RUN, 'quality': null, 'park': PARK_OK }, /Quality reviewer for section sec-a/],
+    ['acceptance verifier', { ...GREEN_RUN, 'acceptance': null, 'park': PARK_OK }, /Acceptance verifier for section sec-a/],
+  ];
+  for (const [role, respond, names] of DEAD) {
+    const { out, labels } = await run(respond);
+    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `a dead ${role} halts`);
+    ok(names.test(out.haltReason) && /skipped or died/.test(out.haltReason), `the reason names the ${role}`);
+    ok(/resumeFromRunId/.test(out.haltReason), 'and says how to replay it');
+    ok(labels.includes('park:sec-a'), 'its work is PARKED, not abandoned in the tree');
+    ok(!labels.some((l) => l.includes('sec-b')), 'sec-b never started');
+    eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died, not "round budget"');
+  }
+}
+
+section('a dead round-loop agent never points the next round at a review file nobody wrote');
+{
+  const { calls } = await run({ ...GREEN_RUN, 'quality': null, 'park': PARK_OK });
+  ok(!calls.some((c) => c.label.startsWith('develop sec-a r2')), 'no second develop round after a dead reviewer');
+  ok(!calls.some((c) => c.label.startsWith('park')
+    && /quality-review-sec-a-r\d+\.md/.test(c.prompt)), 'and park names no phantom quality-review file');
+}
+
+section('a red-baseline gate rejects a count of 0 exactly as green does');
+// A mistyped selector collects nothing and exits non-zero; a developer that EXPECTS failure at the red
+// step reports failed-expected with tests_run_count 0. That is a gate passed on a test that never ran.
+{
+  const RED = { ...baseArgs, sections: [{ id: 'sec-a', title: 'A', gate: 'red-baseline' }] };
+  const RED_DEV = { ...DEV, test_outcome: 'failed-expected' };
+
+  // Scripted so that everything DOWNSTREAM of the gate would accept — the gate is the only thing that
+  // can stop a phantom red baseline being staged.
+  const zero = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: 0 }, 'park': PARK_OK }, RED);
+  ok(!zero.labels.some((l) => l.startsWith('quality')), 'no reviewer spawned on a phantom red baseline');
+  eq(zero.out.sectionsDone.length, 0, 'nothing is staged on a test that never ran');
+  ok(zero.out.ledger[0].status.startsWith('parked'), 'the section parks at the round budget instead');
+
+  // -1 is the schema's N/A (manual/MCP verification) and must stay a legal red baseline.
+  const na = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: -1 } }, RED);
+  eq(na.out.status, 'done (all sections staged)', 'tests_run_count -1 still passes the red-baseline gate');
+
+  const real = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: 3 } }, RED);
+  eq(real.out.status, 'done (all sections staged)', 'a real red baseline still passes');
+}
+
+section('an unrecognized section gate throws instead of silently becoming green');
+// `VALID_GATES.has(s.gate) ? s.gate : 'green'` turned a typoed red_baseline into the gate that DEMANDS
+// the very tests a test-first section intends to leave failing — a guaranteed park after the full budget.
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'sec-a', title: 'A', gate: 'red_baseline' }] } });
+  ok(/are not one of green \| red-baseline \| build-only/.test(msg), `throws: ${msg.slice(0, 70)}`);
+  ok(/sec-a: red_baseline/.test(msg), 'and names the offending section + value');
+
+  // An OMITTED gate is not a typo — it keeps the documented green default.
+  const { out } = await run(GREEN_RUN, { ...baseArgs, sections: [{ id: 'sec-a', title: 'A' }] });
+  eq(out.ledger[0].gate, 'green', 'an omitted gate still defaults to green');
+}
+
 section('a non-kebab section id throws — it names files AND enters a shell command');
 {
   const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'Sec A!', title: 'A' }] } });

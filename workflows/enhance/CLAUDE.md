@@ -147,9 +147,10 @@ a ROADMAP item spanning many call sites is a `migrate-cycle` goal.
   section (one line each, defects marked). This IS the deliverable. A verifier-written file (a lens that
   had candidates) carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring
   human triage; a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens
-  leaves NO file when neither writer ran — its finder died, every candidate it found fell below the
-  floor (so no verifier was spawned), or its verifier died before writing — even though the run
-  still reports a path for it. The run logs a ⚠ naming that lens in each case; re-run it.
+  leaves NO file when neither writer ran — its finder died, its verifier died (both land the lens in
+  `failed`, with no path reported for it), or every candidate it found fell below the floor so no
+  verifier was spawned and the finder wrote no marker — that last case is the one where the run still
+  reports a path for it. The run logs a ⚠ naming that lens in each case; re-run it.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.

@@ -3,6 +3,7 @@
 // between two concurrent agents, folds two terminal states into one node, or mints a second node for
 // one throw site still renders beautifully — it just lies, and nothing else in this repo would notice.
 // The committed FLOW.md files are checked against a fresh generation here, so drift turns the gate red.
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildGraph, firstClause, generate, loadSpecs, whenLabel } from '../tools/gen-flows.mjs';
@@ -485,4 +486,23 @@ section('an uncovered throw site is reported, with the reason when one is allowe
   eq(allowed.length, 1, 'exactly the one allowUncovered names');
   eq(allowed[0].reason, 'covered by the sibling spec', 'and its reason rides along');
   ok(generate(spec, g).includes('covered by the sibling spec'), 'which reaches FLOW.md too');
+}
+
+section('a non-numeric spacing override throws instead of interpolating NaN into every map');
+// Guarded in a CHILD process because the constants are read once, at module load. The sweep shell
+// (tests/CLAUDE.md §7) is the only reason these vars exist and is exactly where the corruption hid:
+// `--check` computes the SAME NaN as generate(), so the diff matched and the gate stayed green while
+// every committed map carried an invalid Mermaid init directive.
+{
+  const check = (env) => {
+    try {
+      execFileSync(process.execPath, [join(REPO_ROOT, 'tools/gen-flows.mjs'), '--check'],
+        { stdio: 'pipe', encoding: 'utf8', env: { ...process.env, ...env } });
+      return '';
+    } catch (e) { return `${e.stdout || ''}${e.stderr || ''}`; }
+  };
+  ok(/FLOW_NODE_SPACING=wide is not a finite number/.test(check({ FLOW_NODE_SPACING: 'wide' })),
+    'the offending var and its raw value are named');
+  ok(/FLOW_RANK_SPACING=x2 is not a finite number/.test(check({ FLOW_RANK_SPACING: 'x2' })),
+    'the rank override is guarded too');
 }

@@ -328,3 +328,17 @@ section('a non-kebab plan id throws — it names files AND enters a shell comman
   ok(/not kebab slugs/.test(msg), `throws: ${msg.slice(0, 60)}`);
   ok(/Plan A!/.test(msg), 'and names the offender');
 }
+
+section('a gate that never goes green surfaces the developer\'s own diagnostics');
+// `gate_output`/`verification_method` were collected every round and read NOWHERE (attestation theater,
+// tests/CLAUDE.md §3). The developer re-runs the gate live, so once the round budget is gone the run log
+// holds the only copy of why it was red — the operator otherwise has to re-run the gate to find out.
+{
+  const DEV_RED = { ...DEV_OK, build_passed: false, verification_method: 'pytest -q tests/x.py', gate_output: 'E   assert 1 == 2\n1 failed' };
+  const { logs } = await run({ 'develop': DEV_RED, 'park': PARK_OK }, { ...baseArgs, plans: [PLANS[0]], maxRounds: 2 });
+  ok(logs.some((l) => /another develop round/.test(l) && /via=pytest -q tests\/x\.py/.test(l)),
+    'the retry line names what was actually run');
+  const budget = logs.find((l) => /not green at round budget/.test(l));
+  ok(!!budget && /via=pytest -q tests\/x\.py/.test(budget) && /last gate output: E   assert 1 == 2/.test(budget),
+    `the round-budget line carries the failing output: ${budget}`);
+}

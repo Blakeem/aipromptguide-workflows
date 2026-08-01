@@ -221,6 +221,12 @@ const WHEN_BUDGET = 70;
 // the diagrams just get taller with nothing gained. The env overrides exist so the sweep is repeatable.
 const NODE_SPACING = Number(process.env.FLOW_NODE_SPACING ?? 80);
 const RANK_SPACING = Number(process.env.FLOW_RANK_SPACING ?? 200);
+// A non-finite override is NOT caught downstream: it interpolates `NaN` into the Mermaid init directive
+// of every map, which is invalid JSON, and `--check` computes the same NaN as `generate()`, so the diff
+// matches and the gate stays green while the committed files stop rendering. Throw instead of coercing.
+for (const [name, value] of [['FLOW_NODE_SPACING', NODE_SPACING], ['FLOW_RANK_SPACING', RANK_SPACING]]) {
+  if (!Number.isFinite(value)) throw new Error(`${name}=${process.env[name]} is not a finite number`);
+}
 // (There is deliberately no self-loop character budget. Tightening one was tried and measured: it moved
 // the collision to a third map rather than removing it, because the gutter Mermaid parks those labels in
 // is fixed and its width has nothing to do with the text. Self-loops carry a marker instead — edgeLine.)

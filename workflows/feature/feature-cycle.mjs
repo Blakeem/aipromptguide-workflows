@@ -669,8 +669,11 @@ for (const p of pending) {
       // Build/verification not green and no user escalation: give the developer another fresh round to
       // fix it (it re-runs the gate and sees the failure live). No content is carried by the harness.
       reviewPath = '';
-      if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: gate(${p.gate}) not green at round budget`); break; }
-      log(`  ↻ ${p.id} r${round}: gate(${p.gate}) not green (build=${dev?.build_passed}, test=${dev?.test_outcome}, suite=${dev?.full_suite_outcome}) → another develop round`);
+      // The developer re-runs the gate live each round, so the engine holds the only copy of WHY it was
+      // red once the round budget is gone — surface its diagnostics here rather than collecting them
+      // into a schema nothing reads (:622-623). Prose stays out of the control plane: log only.
+      if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: gate(${p.gate}) not green at round budget (via=${dev?.verification_method || 'n/a'})${dev?.gate_output ? ` — last gate output: ${String(dev.gate_output).slice(-500)}` : ''}`); break; }
+      log(`  ↻ ${p.id} r${round}: gate(${p.gate}) not green (build=${dev?.build_passed}, test=${dev?.test_outcome}, suite=${dev?.full_suite_outcome}, via=${dev?.verification_method || 'n/a'}) → another develop round`);
       continue;
     }
 

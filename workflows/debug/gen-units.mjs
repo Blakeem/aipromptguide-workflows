@@ -50,15 +50,29 @@ function parseArgs(argv) {
 }
 const opt = parseArgs(process.argv.slice(2));
 
+// Nothing is COERCED. `Number('abc')` and a bare flag's `Number('true')` are both NaN, and every
+// comparison against NaN is false — so a typo does not error, it silently DISABLES the bound it was
+// meant to set (no LOC cap, no big-file split, no bin-packing) and the run pays for review agents
+// scoped by a limit that was never applied. Fail fast instead, in the same style as --issues-dir below.
+const num = (raw, name, min, dflt) => {
+  if (raw === undefined) return dflt;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < min) {
+    console.error(`--${name} must be a number >= ${min} (got "${raw}")`);
+    process.exit(1);
+  }
+  return n;
+};
+
 const REPO      = resolve(opt.repo ?? '.');
 const SRC_DIRS  = (opt.src ?? 'src').split(',').map((s) => s.trim()).filter(Boolean);
 const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.go,.rs,.java,.kt,.rb,.php,.cs,.cpp,.cc,.c,.h,.hpp,.swift,.scala').split(',').map((s) => s.trim()).filter(Boolean);
 const SKIP_RE   = new RegExp(opt.skip ?? String.raw`\.d\.ts$|\.min\.`);
 const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git,target,__pycache__,.venv,venv,.tox,.gradle').split(',').map((s) => s.trim()));
-const CAP_LOC   = Number(opt['cap-loc'] ?? 2000);
-const CAP_FILES = Number(opt['cap-files'] ?? 24);
-const BIG_FILE  = Number(opt['big-file'] ?? 2000);
-const PACK_LOC  = Number(opt['pack-loc'] ?? 2000);
+const CAP_LOC   = num(opt['cap-loc'], 'cap-loc', 1, 2000);
+const CAP_FILES = num(opt['cap-files'], 'cap-files', 1, 24);
+const BIG_FILE  = num(opt['big-file'], 'big-file', 1, 2000);
+const PACK_LOC  = num(opt['pack-loc'], 'pack-loc', 0, 2000);   // 0 stays legal — it disables packing
 const CEIL_LOC  = 3500;                          // ~350k-token review ceiling; warn on any unit past it
 const OUT       = isAbsolute(opt.out ?? '') ? opt.out : resolve(opt.out ?? 'manifest.json');
 const ISSUES    = opt['issues-dir'] ? resolve(opt['issues-dir']) : '';

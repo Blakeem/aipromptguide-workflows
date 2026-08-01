@@ -142,6 +142,19 @@ if (BAD_IDS.length) {
   throw new Error(`section id(s) [${BAD_IDS.join(', ')}] are not kebab slugs (a-z, 0-9, single hyphens). An id names this section's review + ledger files and is passed to the plan-block command, so it must carry no spaces, punctuation or shell characters.`);
 }
 
+// A gate is control input like the ids above, and this file fails loud on every other one (unknown
+// runOnly/startAt ids, a missing gates.build/test). Coercing an unrecognized value to 'green' instead
+// meant a section typoed `red_baseline` got the gate that DEMANDS the very tests a test-first section
+// intends to leave failing — a guaranteed park after the full round budget. Read off the RAW entries,
+// because the normalization above has already flattened them. An OMITTED gate keeps the 'green' default:
+// only a value that was typed and is wrong throws.
+const BAD_GATES = (Array.isArray(A.sections) ? A.sections : [])
+  .filter((s) => s && typeof s === 'object' && s.gate != null && !VALID_GATES.has(s.gate))
+  .map((s) => `${s.id ?? '(no id)'}: ${s.gate}`);
+if (BAD_GATES.length) {
+  throw new Error(`section gate(s) [${BAD_GATES.join(', ')}] are not one of green | red-baseline | build-only. A gate decides what "done" MEANS for its section, so an unrecognized value must never coerce. Omit the field entirely to take the green default.`);
+}
+
 const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
@@ -177,7 +190,11 @@ function gateOk(gate, dev) {
   if (!dev) return false;
   if (GATES.build && dev.build_passed !== true) return false;       // build/lint must always pass
   if (gate === 'build-only') return true;
-  if (gate === 'red-baseline') return dev.test_outcome === 'failed-expected';
+  // A red baseline needs the same false-red guard green gets below: a mistyped selector collects NOTHING
+  // and exits non-zero, and a developer that EXPECTS failure at the red step reports `failed-expected`
+  // with a count of 0 — a gate passed on a test that never ran, staged as a phantom TDD baseline.
+  // `!== 0` not `> 0`: -1 is the schema's N/A (manual/MCP verification) and stays legal.
+  if (gate === 'red-baseline') return dev.test_outcome === 'failed-expected' && dev.tests_run_count !== 0;
   // green:
   if (dev.test_outcome === 'not-run') return false;                  // green requires the selector tests to have run
   if (dev.tests_run_count === 0) return false;                       // selector matched NOTHING = a FALSE green
@@ -674,12 +691,29 @@ for (const section of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${section.id} r${round}`,
     }));
 
+    // ---- PRECONDITION: the developer AGENT itself came back --------------------------------------
+    // A dead agent is not a failed round: nothing is known about the tree either way. Unguarded it fell
+    // into `gateOk(!dev) === false` and read as an ordinary gate miss, so the section burned its whole
+    // round budget and was reported `parked (not accepted within round budget)` — telling the operator
+    // to sharpen the plan when the real action is resume/replay. A HALT, not a throw: a throw inside the
+    // section loop exits with the developer's work still unstaged and unparked. (The refine critic
+    // throws instead because it is solo, writes nothing, and has no tree to save.)
+    if (!dev) {
+      halted = true;
+      escalated = true;   // it may have touched the tree before dying → park rather than abandon
+      haltKind = 'agent-dead';
+      haltReason = `Developer for section ${section.id} returned nothing in round ${round} (agent skipped or died) — no work can be assumed either way. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+      rec.status = 'BLOCKED (agent died)';
+      log(`  ✋ ${section.id} r${round}: developer returned nothing (agent skipped or died) → halting before any review agent`);
+      break;
+    }
+
     // ---- PRECONDITION: the developer actually HAS its section ------------------------------------
     // The block command runs in the AGENT's shell, so the harness cannot verify it (no tools). This
     // attestation is the only signal that the section ever arrived — without a consumer it would be
     // pure theater, and an agent whose command was denied, or whose id matches no block, would build
-    // something plausible while the run reported success. `=== false` so a dead agent (null) falls
-    // through to the existing guards rather than being laundered into this one.
+    // something plausible while the run reported success. `=== false` so a dead agent (null) is caught
+    // by the halt directly above rather than being laundered into this one.
     if (dev?.plan_obtained === false) {
       halted = true;
       escalated = true;   // it may have touched the tree before giving up → park rather than abandon
@@ -727,8 +761,11 @@ for (const section of pending) {
       // re-runs the gate and sees the failure live). RETAIN reviewPath — if a prior review is still open
       // (e.g. a quality CONTEST not yet re-confirmed clean), the developer must keep addressing it while
       // also fixing the gate; only a clean quality review advances the pointer. On round 1 it is '' anyway.
-      if (round >= MAX_ROUNDS) { log(`  ⚠ ${section.id} r${round}: gate(${section.gate}) not satisfied at round budget`); break; }
-      log(`  ↻ ${section.id} r${round}: gate(${section.gate}) not satisfied (build=${dev?.build_passed}, test=${dev?.test_outcome}, count=${dev?.tests_run_count}) → another develop round`);
+      // The developer re-runs the gate live each round, so the engine holds the only copy of WHY it was
+      // red once the round budget is gone — surface its diagnostics here rather than collecting them
+      // into a schema nothing reads. Prose stays out of the control plane: log only.
+      if (round >= MAX_ROUNDS) { log(`  ⚠ ${section.id} r${round}: gate(${section.gate}) not satisfied at round budget (via=${dev?.verification_method || 'n/a'})${dev?.gate_output ? ` — last gate output: ${String(dev.gate_output).slice(-500)}` : ''}`); break; }
+      log(`  ↻ ${section.id} r${round}: gate(${section.gate}) not satisfied (build=${dev?.build_passed}, test=${dev?.test_outcome}, count=${dev?.tests_run_count}, via=${dev?.verification_method || 'n/a'}) → another develop round`);
       continue;
     }
     // ---- QUALITY REVIEW (blind, must pass before acceptance) ----------------
@@ -742,6 +779,18 @@ for (const section of pending) {
       const quality = await agent(qualityPrompt(section, round), roleOpts('quality', {
         schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${section.id} r${round}`,
       }));
+      // A dead blind reviewer is NOT a clean review. Left unguarded, `quality?.clean !== true` sent the
+      // developer to a quality-review file that was never written ("READ <path> and resolve exactly
+      // those"), so the next round either stalls on a missing file or invents fixes and churns the tree.
+      if (!quality) {
+        halted = true;
+        escalated = true;
+        haltKind = 'agent-dead';
+        haltReason = `Quality reviewer for section ${section.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a clean review. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+        rec.status = 'BLOCKED (agent died)';
+        log(`  ✋ ${section.id} r${round}: quality reviewer returned nothing (agent skipped or died) → halting`);
+        break;
+      }
       if (quality?.contested_dismissals) {
         rec.contested += quality.contested_dismissals;
         log(`  ⚠ ${section.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss`);
@@ -762,6 +811,17 @@ for (const section of pending) {
     const acc = await agent(acceptancePrompt(section, round), roleOpts('acceptance', {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${section.id} r${round}`,
     }));
+    // Same shape as the two guards above: a dead verifier is not a gap verdict. Unguarded it fell to the
+    // bottom of the loop and pointed the next developer at an acceptance-review file nobody wrote.
+    if (!acc) {
+      halted = true;
+      escalated = true;
+      haltKind = 'agent-dead';
+      haltReason = `Acceptance verifier for section ${section.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a gap verdict, and nothing was staged. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+      rec.status = 'BLOCKED (agent died)';
+      log(`  ✋ ${section.id} r${round}: acceptance verifier returned nothing (agent skipped or died) → halting`);
+      break;
+    }
     // The verifier's sibling of the developer's check. An acceptance verifier without the section has
     // no criteria to judge — its `pass:false` would otherwise read as an ordinary gap and park the
     // section, hiding "the spec never arrived" behind a routine round-budget failure.
@@ -923,6 +983,7 @@ const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its section — nothing was built from a guess)',
+  'agent-dead':      'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)',
   'passed-unstaged': 'BLOCKED (a section passed but was not staged — stage it, then resume)',
   'acceptance-regression': 'BLOCKED (a section staged while self-reporting a regression — inspect the staged diff before continuing)',
   'parked':          'halted (a section was parked — its work is saved to a patch; the sections after it were not attempted)',

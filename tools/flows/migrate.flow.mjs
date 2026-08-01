@@ -171,6 +171,13 @@ export default {
       args: { ...base, sections: [{ id: 'Sec A!', title: 'A' }] },
     },
     {
+      // A gate is control input, and an unrecognized one used to coerce to 'green' — so `red_baseline`
+      // got the gate that DEMANDS the tests a test-first section intends to leave failing.
+      name: 'section gate is not a valid gate',
+      when: 'a sections entry names an unknown gate',
+      args: { ...base, sections: [{ id: 'sec-a', title: 'A', gate: 'red_baseline' }] },
+    },
+    {
       // The block command runs in the AGENT's shell, so this attestation is the only signal the section
       // ever arrived. Without the halt, a denied command or an id matching no block builds something
       // plausible and the run reports success.
@@ -184,6 +191,27 @@ export default {
       when: 'the acceptance verifier reports plan_obtained=false',
       args: base,
       respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK },
+    },
+    {
+      // A dead agent shares ONE terminal across all three round-loop roles, and none of the three is
+      // visible to any other assertion — no new role, no throw. Scripted separately so the map shows
+      // that develop, quality and acceptance each halt on it rather than only the first.
+      name: 'the developer dies',
+      when: 'the developer agent dies',
+      args: base,
+      respond: { develop: null, park: PARK_OK },
+    },
+    {
+      name: 'the quality reviewer dies',
+      when: 'the blind quality reviewer dies',
+      args: base,
+      respond: { ...GREEN_RUN, quality: null, park: PARK_OK },
+    },
+    {
+      name: 'the acceptance verifier dies',
+      when: 'the acceptance verifier dies',
+      args: base,
+      respond: { ...GREEN_RUN, acceptance: null, park: PARK_OK },
     },
     {
       // Halts before any reviewer is spawned, and does NOT park — that work is the operator's.

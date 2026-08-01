@@ -354,6 +354,14 @@ const results = await pipeline(
         schema: reviewSchema(lens.categories), phase: 'Review',
         label: `review:${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`,
       }));
+      // A DEAD reviewer is not a clean lens. `r?.findings || []` would make the two identical — zero
+      // findings from this lens, while a surviving sibling lens keeps `items.length > 0`, so the unit
+      // goes to verify and is logged as normally processed. The issue file is then written with the unit
+      // hash, and hash-based resume skips a unit one of whose lenses never looked at it.
+      if (!r) {
+        log(`  ⚠ ${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
+        continue;
+      }
       if (cleanEligible && r?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
       for (const f of (r?.findings || [])) {
         if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
@@ -383,6 +391,12 @@ const results = await pipeline(
     const verify = await agent(verifyPrompt(unit, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
     }));
+    // `wrote_file` is REQUIRED by VERIFY_SCHEMA and instructed in the prompt — read it, or two failures
+    // both log as a normal ✓: a verifier that returned verdicts without writing issues/<unit>.md (the
+    // ✓ line points at a file that does not exist), and a DEAD verifier, where `verify?.verdicts || []`
+    // yields no kept issues at all and this unit's real findings vanish from the returned `issues` array
+    // the operator builds resolve-cycle's args.issues from. Same guard as enhance-cycle.mjs's verifier.
+    if (verify?.wrote_file !== true) log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
     const byId = new Map(items.map((x) => [x.id, x]));
     const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
     const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
