@@ -256,7 +256,8 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 `gates.testSetup` · `target.lang`/`target.framework` (hints) · `models`/`agentTypes` · `stateDir`.
 
 **`review.mjs`:**
-- **Required:** `runId` · `root` · `target.repo` · `conventions` · `units` (from `gen-units.mjs`).
+- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`). `conventions` is
+  strongly recommended, not enforced — omitted, the reviewer runs on a placeholder rubric; supply it.
   `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `lens` (one lens or an ARRAY —
@@ -266,10 +267,11 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 
 **`resolve-cycle.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `gates.build` + `gates.test` (shell commands; `test`
-  must be GREEN before resolve) · `conventions` · `issues` (review's returned array + your triage).
+  must be GREEN before resolve) · `issues` (review's returned array + your triage).
   Missing `runId`, `root`, `target.repo`, either gate, or `issues` **throws** — `target.repo` has no
   default (park's `git checkout --` and delete run against it) and an unset gate would silently no-op
-  its half of the green check. `conventions` alone falls back to a placeholder rubric; supply it.
+  its half of the green check. `conventions` is strongly recommended, not enforced — omitted, the
+  fixer runs on a placeholder rubric; supply it.
 - **Optional tuning:** `fixSeverity` (resolve-fix floor, medium) · `criticSeverity` (floor for NEW
   defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) — both now
   **throw** below 1 or on a non-number (`0` used to be accepted and produced zero batches, i.e. a run
