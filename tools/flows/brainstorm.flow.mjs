@@ -44,7 +44,10 @@ export default {
       terminal: 'nothing produced (every generator failed)',
     },
 
-    // ---- the five throw sites, in the order the engine checks them -----------------------------
+    // ---- the six throw sites, in the order the engine checks them -----------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow', lenses: ['a'] } },

@@ -13,13 +13,14 @@ flowchart TD
   a2["verify · opus<br/>×2 concurrent"]
   t1(["proposals written"])
   t2(["no proposal file (the lens produced nothing)"])
-  x1[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: args.minImpact must be one of ..."/]
-  x4[/"throw: args.scope is required"/]
-  x5[/"throw: args.target.repo is required when any args.scope path is relative"/]
-  x6[/"throw: args.lenses is required"/]
-  x7[/"throw: lens ids collide after slugging"/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: args.minImpact must be one of ..."/]
+  x5[/"throw: args.scope is required"/]
+  x6[/"throw: args.target.repo is required when any args.scope path is relative"/]
+  x7[/"throw: args.lenses is required"/]
+  x8[/"throw: lens ids collide after slugging"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -28,6 +29,7 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
+  S0 --> x8
   a1 --> a2
   a1 --> t2
   a2 --> t1
@@ -46,14 +48,15 @@ flowchart TD
 |---|---|---|
 | proposals written | both finders return candidates above the floor | declared |
 | no proposal file (the lens produced nothing) | the finder dies · every candidate scores below the impact floor | declared |
-| throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 34) |
-| throw: args.root is required | args.root is missing | throw (line 38) |
-| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 52) |
-| throw: args.scope is required | args.scope is empty | throw (line 97) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 103) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 113) |
-| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 117) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 38) |
+| throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 41) |
+| throw: args.root is required | args.root is missing | throw (line 45) |
+| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 59) |
+| throw: args.scope is required | args.scope is empty | throw (line 104) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 110) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 120) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 124) |
 
 ## Coverage
 
-10 scenarios · 2/2 roles · 7/7 throw sites · 0/0 halt statuses · 9 terminal states.
+11 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 10 terminal states.

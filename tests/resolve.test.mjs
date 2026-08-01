@@ -1,7 +1,7 @@
 // debug/resolve-cycle.mjs — the batched fix loop.
 // Focus: the paths that only fire when something goes WRONG. Those are the ones a real run rarely
 // exercises and the ones where a regression is silent.
-import { runEngine, throwsWith, section, ok } from './harness.mjs';
+import { runEngine, section, ok } from './harness.mjs';
 
 const ENGINE = 'workflows/debug/resolve-cycle.mjs';
 
@@ -174,17 +174,6 @@ section('a DEAD acceptance verifier is named — 0 gaps means UNVERIFIED, not ne
   ok(r2 && !r2.prompt.includes('acceptance-review-'), 'the round-2 fixer is NOT pointed at the nonexistent review file');
 }
 
-section('required args throw rather than silently defaulting');
-{
-  const cases = [
-    ['target.repo', { runId: 't', root: 'E:/r', gates: { build: 'b', test: 't' }, conventions: 'c', issues: baseArgs.issues }],
-    ['gates.build', { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { test: 't' }, conventions: 'c', issues: baseArgs.issues }],
-    ['gates.test', { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, conventions: 'c', issues: baseArgs.issues }],
-    ['root', { runId: 't', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, conventions: 'c', issues: baseArgs.issues }],
-    ['issues', { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, conventions: 'c' }],
-  ];
-  for (const [name, args] of cases) {
-    const msg = await throwsWith(ENGINE, { args, respond: {} });
-    ok(msg !== '', `missing ${name} throws: ${msg.slice(0, 50)}`);
-  }
-}
+// The 'required args throw rather than silently defaulting' section (target.repo, gates.build,
+// gates.test, root, issues) moved to required-args.test.mjs, which sweeps the same keys across EVERY
+// engine — the axis this defect class actually travels on.

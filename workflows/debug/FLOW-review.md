@@ -14,15 +14,17 @@ flowchart TD
   t1(["inventory written (the clean unit never reached verify)"])
   t2(["no inventory (every unit read clean)"])
   t3(["inventory written (both lenses merged behind one verifier)"])
-  x1[/"throw: args must include at least { runId, root, target, conventions, units }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: review requires a non-empty args.units array"/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, target, conventions, units }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: args.target.repo is required"/]
+  x5[/"throw: review requires a non-empty args.units array"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
+  S0 --> x5
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
@@ -51,11 +53,12 @@ flowchart TD
 | inventory written (the clean unit never reached verify) | one unit is clean, the other has findings | declared |
 | no inventory (every unit read clean) | a reviewer dies (its unit reads as clean, unmarked) | declared |
 | inventory written (both lenses merged behind one verifier) | each unit is swept once per lens | declared |
-| throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 20) |
-| throw: args.root is required | args.root is missing | throw (line 25) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 31) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 329) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
+| throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
+| throw: args.root is required | args.root is missing | throw (line 32) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 336) |
 
 ## Coverage
 
-7 scenarios · 2/2 roles · 4/4 throw sites · 0/0 halt statuses · 7 terminal states.
+8 scenarios · 2/2 roles · 5/5 throw sites · 0/0 halt statuses · 8 terminal states.

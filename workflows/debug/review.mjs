@@ -15,7 +15,14 @@ export const meta = {
 // organizer — see WORKFLOW-PRINCIPLES.md #2/#4/#6). This engine is READ-ONLY and STOPS after writing the
 // inventory; the sibling resolve-cycle.mjs fixes the approved issues (reuse the same runId + root).
 // =============================================================================
-const A = typeof args === 'string' ? JSON.parse(args) : args;
+// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
+// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+let A;
+try {
+  A = typeof args === 'string' ? JSON.parse(args) : args;
+} catch (e) {
+  throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
+}
 if (!A || !A.runId) {
   throw new Error('args must include at least { runId, root, target, conventions, units }; got typeof=' + (typeof args));
 }

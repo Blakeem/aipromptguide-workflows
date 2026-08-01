@@ -14,14 +14,15 @@ flowchart TD
   a3["curate · sonnet"]
   t1(["curated set indexed (no gaps left)"])
   t2(["gap(s) left open at the round budget"])
-  x1[/"throw: args must include at least { runId, root, sources, brief#124;planPath }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: Invalid numeric arg"/]
-  x4[/"throw: Provide the brief"/]
-  x5[/"throw: args.sources is required"/]
-  x6[/"throw: source ids collide after slugging"/]
-  x7[/"throw: Every source reported zero doc files"/]
-  x8[/"throw: Curator returned nothing in round ..."/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, sources, brief#124;planPath }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: Provide the brief"/]
+  x6[/"throw: args.sources is required"/]
+  x7[/"throw: source ids collide after slugging"/]
+  x8[/"throw: Every source reported zero doc files"/]
+  x9[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -29,14 +30,15 @@ flowchart TD
   S0 --> x4
   S0 --> x5
   S0 --> x6
+  S0 --> x7
   a1 --> a2
   a1 --> a3
-  a1 --> x7
+  a1 --> x8
   a2 --> a3
   a3 -.->|"the curator returns a gap the next round fills · +1 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x8
+  a3 --> x9
 ```
 
 ## Phases
@@ -53,15 +55,16 @@ flowchart TD
 |---|---|---|
 | curated set indexed (no gaps left) | every source captures files and the curator finds no gap · the curator returns a gap the next round fills · a gatherer dies mid-capture · one source reports zero files | declared |
 | gap(s) left open at the round budget | a gap is still open at maxRounds | declared |
-| throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 37) |
-| throw: args.root is required | args.root is missing | throw (line 40) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 88) |
-| throw: args.sources is required | args.sources is empty | throw (line 101) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 105) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 295) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 308) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 41) |
+| throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 44) |
+| throw: args.root is required | args.root is missing | throw (line 47) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 95) |
+| throw: args.sources is required | args.sources is empty | throw (line 108) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 112) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 302) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 315) |
 
 ## Coverage
 
-13 scenarios · 3/3 roles · 8/8 throw sites · 0/0 halt statuses · 10 terminal states.
+14 scenarios · 3/3 roles · 9/9 throw sites · 0/0 halt statuses · 11 terminal states.

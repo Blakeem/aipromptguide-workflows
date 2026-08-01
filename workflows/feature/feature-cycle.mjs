@@ -21,7 +21,14 @@ export const meta = {
 // ensures a clean unstaged working tree before phase:"build" (#4) — there is no baseline/loader/scribe
 // agent; each plan's authoring + approval happen in plan mode.
 // =============================================================================
-const A = typeof args === 'string' ? JSON.parse(args) : args;
+// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
+// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+let A;
+try {
+  A = typeof args === 'string' ? JSON.parse(args) : args;
+} catch (e) {
+  throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
+}
 if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object') || (Array.isArray(A.plans) && A.plans.length))) {
   throw new Error('args must include at least { runId, planPath | plan (markdown string) | plans:[{id,planPath|plan,gate}], target, gates }; got typeof=' + (typeof args));
 }

@@ -18,7 +18,14 @@ export const meta = {
 // WORKFLOW-PRINCIPLES.md #2/#4/#6). The main agent also ensures a clean/staged baseline before this
 // engine runs (#4) — there is no loader/baseline/scribe agent.
 // =============================================================================
-const A = typeof args === 'string' ? JSON.parse(args) : args;
+// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
+// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+let A;
+try {
+  A = typeof args === 'string' ? JSON.parse(args) : args;
+} catch (e) {
+  throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
+}
 if (!A || !A.runId) {
   throw new Error('args must include at least { runId, root, target, gates, conventions, issues }; got typeof=' + (typeof args));
 }
@@ -134,7 +141,6 @@ const FIX_SCHEMA = {
     // by the fixer BEFORE it edits anything, and either one halts the run before a single reviewer spawns.
     baseline_dirty_files: { type: 'integer', description: 'ROUND 1 ONLY: how many files were already modified/untracked in the UNSTAGED tree BEFORE you touched anything (git diff --name-only plus untracked from git status --porcelain). Must be 0 to proceed. -1 if you did not check (round 2+).' },
     issue_entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [<id>]` blocks for THIS batch\'s issue ids you actually located in the inventory file(s) you were given. 0 means you could not read the inventory — the run halts. -1 if not applicable (round 2+, which addresses a review file instead).' },
-    tests_written: { type: 'boolean' },
     build_passed: { type: 'boolean' },
     test_outcome: { type: 'string', enum: ['passed', 'failed', 'not-run'] },
     unstaged_confirmed: { type: 'boolean', description: 'true if changes were left UNSTAGED (git add NOT run, except add -N for new files)' },
@@ -189,8 +195,7 @@ const PARK_SCHEMA = {
     gates_green: { type: 'boolean', description: 'true if the gates pass again after clearing (the tree is clean for the next batch)' },
     patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
     strays_saved: { type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so.' },
-    files_parked: { type: 'array', items: { type: 'string' } },
-    notes: { type: 'string' },
+    notes: { type: 'string', description: 'anything the numbers above cannot say — above all WHY nothing was saved when there was nothing to park' },
   },
 };
 
@@ -672,7 +677,11 @@ for (const batch of batches) {
     record.status = escalated ? 'BLOCKED (parked)' : 'parked';
     record.patch = (pk?.saved === true || contradictory) ? parkedPatch(batch.id) : null;
     if (strays > 0) record.strays = parkedNewDir(batch.id);
-    log(`  ⚠ ${batch.id}: ${escalated ? 'escalated to the user' : 'round budget exhausted'} — PARKED (work saved to ${record.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(batch.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, gates ${pk?.gates_green ? 'green' : 'RED'}); issues stay open — see ${NEEDS_USER}`);
+    // Park's `notes` is the only place the "nothing to park" case can explain itself: step 1 tells the
+    // agent to skip ahead with saved=false, patch_bytes=0 "and a note saying so", and without surfacing it
+    // the line reads `work saved to nothing to save` with no reason given. Prose stays out of the control
+    // plane — log only, same as the fixer's gate_output tail above.
+    log(`  ⚠ ${batch.id}: ${escalated ? 'escalated to the user' : 'round budget exhausted'} — PARKED (work saved to ${record.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(batch.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, gates ${pk?.gates_green ? 'green' : 'RED'}); issues stay open — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     if (contradictory) {
       halted = true;
       blockerReason = `Park reported saved=false for ${batch.id} but wrote ${pk.patch_bytes} bytes to ${parkedPatch(batch.id)} — the report contradicts itself. The patch is real; inspect it before continuing (the tree was ${pk?.cleared === true ? 'already cleared' : 'left as-is'}).`;

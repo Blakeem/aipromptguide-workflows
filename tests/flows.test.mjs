@@ -291,7 +291,7 @@ section('two scenarios dying at DIFFERENT rounds map to ONE throw node');
 {
   const g = await buildGraph(investigate);
   const throwNodes = g.terminals.filter((t) => t.source === 'throw');
-  eq(throwNodes.length, 7, 'seven throw sites, seven nodes');
+  eq(throwNodes.length, 8, 'eight throw sites, eight nodes');
   const dead = throwNodes.filter((t) => t.label.includes('Investigator returned nothing'));
   eq(dead.length, 1, 'the two dead-investigator scenarios share one node');
   eq(dead[0].scenarios.join(', '), 'dead investigator (round 1), dead investigator (round 3)', 'both are credited to it');
@@ -481,7 +481,7 @@ section('an uncovered throw site is reported, with the reason when one is allowe
   };
   const g = await buildGraph(spec);
   eq(g.coverage.throws.covered, 1, 'one site reached');
-  eq(g.coverage.throws.uncovered.length, 4, 'the other four are reported, not ignored');
+  eq(g.coverage.throws.uncovered.length, 5, 'the other five are reported, not ignored');
   const allowed = g.coverage.throws.uncovered.filter((t) => t.reason);
   eq(allowed.length, 1, 'exactly the one allowUncovered names');
   eq(allowed[0].reason, 'covered by the sibling spec', 'and its reason rides along');

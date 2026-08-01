@@ -1,7 +1,7 @@
 // debug/review.mjs — the read-only fan-out that builds the inventory.
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
 // returned issues[] index, which is the contract resolve-cycle's args.issues is built from.
-import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+import { runEngine, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
 
@@ -165,16 +165,6 @@ section('the returned issues[] is resolve-cycle\'s args.issues shape');
   eq(out.inventory.actionable, 1, 'counted actionable');
 }
 
-section('required args throw rather than silently defaulting');
-{
-  const cases = [
-    ['runId', { ...baseArgs, units: [UNIT], runId: undefined }],
-    ['root', { ...baseArgs, units: [UNIT], root: undefined }],
-    ['target.repo', { ...baseArgs, units: [UNIT], target: {} }],
-    ['units', { ...baseArgs }],
-  ];
-  for (const [name, args] of cases) {
-    const msg = await throwsWith(ENGINE, { args });
-    ok(msg !== '', `missing ${name} throws: ${msg.slice(0, 50)}`);
-  }
-}
+// The 'required args throw rather than silently defaulting' section (runId, root, target.repo, units)
+// moved to required-args.test.mjs, which sweeps the same keys across EVERY engine — the axis this defect
+// class actually travels on.

@@ -206,22 +206,9 @@ section('a section id matching nothing throws instead of running a smaller list'
   }
 }
 
-section('required args throw rather than silently defaulting');
-{
-  const cases = [
-    ['target.repo', { ...baseArgs, target: {} }],
-    ['gates.build', { ...baseArgs, gates: { test: 't' } }],
-    // gates.test is only required when a section actually asks for verification.
-    ['gates.test with a green section', { ...baseArgs, gates: { build: 'b' } }],
-    ['root', { ...baseArgs, root: undefined }],
-    ['plan', { ...baseArgs, plan: undefined }],
-    ['sections', { ...baseArgs, sections: [] }],
-  ];
-  for (const [name, args] of cases) {
-    const msg = await throwsWith(ENGINE, { args });
-    ok(msg !== '', `missing ${name} throws: ${msg.slice(0, 50)}`);
-  }
-}
+// The 'required args throw rather than silently defaulting' section (target.repo, gates.build,
+// gates.test with a green section, root, plan, sections) moved to required-args.test.mjs, which sweeps
+// the same keys across EVERY engine — the axis this defect class actually travels on.
 
 section('park never names a review file that was never written');
 // Same contract as feature-cycle's: with the gate never green neither reviewer runs, so the park entry

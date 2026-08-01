@@ -5,7 +5,7 @@
 // Coverage aimed at here: all three terminal states, the agree-gate ending the loop versus a review that
 // buys another round, BOTH needs-user escalations (the decider's and the reviewer's — two separate exits
 // landing on ONE status string, so terminal coverage alone leaves half the engine undrawn), a PARTIAL
-// analyst failure the run survives on the remaining lenses, and each of the nine throw sites.
+// analyst failure the run survives on the remaining lenses, and each of the ten throw sites.
 
 const base = {
   runId: 'flow',
@@ -65,7 +65,10 @@ export default {
       respond: { 'analyst:robustness': null, analyst: ANALYST, decide: DECIDE, review: AGREE },
     },
 
-    // ---- the nine throw sites -------------------------------------------------------------------
+    // ---- the ten throw sites -------------------------------------------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     {
       name: 'every lens dies',
       when: 'no analyst produced a lens file',

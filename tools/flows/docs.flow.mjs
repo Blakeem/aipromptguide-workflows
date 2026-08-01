@@ -10,7 +10,7 @@
 // budget), and the two survivable per-source branches the coverage assertions CANNOT force — a dead
 // gatherer (scrubbed anyway: what it wrote is already on disk) and a zero-file source (scrub SKIPPED,
 // the run continues). Neither throws and neither has its own terminal, so this table is the only thing
-// holding them in the diagram. Plus each of the seven throw sites.
+// holding them in the diagram. Plus each of the eight throw sites.
 
 const base = {
   runId: 'flow',
@@ -86,7 +86,10 @@ export default {
       terminal: CURATED,
     },
 
-    // ---- the seven throw sites -------------------------------------------------------------------
+    // ---- the eight throw sites -------------------------------------------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     {
       // Fires only when EVERY source is empty in round 1 — distinct from the single zero-file source above.
       name: 'every source empty',

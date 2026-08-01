@@ -29,7 +29,14 @@ export const meta = {
 // to a unit-scoped reader. For a corpus too large for one turn, either run per-subsystem with a
 // narrower scope or subdivide with args.units (lens x unit).
 // =============================================================================
-const A = typeof args === 'string' ? JSON.parse(args) : args;
+// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
+// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+let A;
+try {
+  A = typeof args === 'string' ? JSON.parse(args) : args;
+} catch (e) {
+  throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
+}
 if (!A || !A.runId) {
   throw new Error('args must include at least { runId, root, target, scope, lenses }; got typeof=' + (typeof args));
 }

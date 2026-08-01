@@ -48,6 +48,9 @@ export default {
   title: 'feature-cycle',
   scenarios: [
     // ---- arg validation, in the order the engine checks it ---------------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-plan round loop never runs, and every plan parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
