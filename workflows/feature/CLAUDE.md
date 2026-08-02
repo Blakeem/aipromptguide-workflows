@@ -15,6 +15,11 @@ bounded plans** and run them as a roadmap (refine's `too_big` routes here when t
 feature-shaped); a single goal that is a **pattern spanning many call sites** (migration/upgrade/port/
 refactor) → sibling **`migrate-cycle`**. Wrong size → say so and steer the user.
 
+**Independent features can run in PARALLEL** — one engine run per chain, each in its own git worktree
+so their unstaged diffs (what the blind reviewer is handed) never share a tree. The whole lifecycle
+(`init`/`prep`/`land`/`clean`, `tools/wt.mjs`) is one playbook: [`docs/worktree-batches.md`](../../docs/worktree-batches.md).
+Sequential features stay in one run's `plans` array; a batch is only for genuine fan-out.
+
 **Documentation is a POOR FIT — keep it out of the plan.** The blind quality stage judges a diff on its
 own merits for production-blocking defects, and prose has no such defect class: the reviewer either
 returns clean trivially (a wasted opus pass) or manufactures nits that then burn develop rounds.

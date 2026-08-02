@@ -122,6 +122,9 @@ branch, not to carry a message.
 Only the **final acceptance gate** stages (`git add`), and **only on pass**. **Nothing is ever
 committed — the user commits.** Staging at the end is the regression boundary (staged = accepted
 baseline, unstaged = the work under review) and lets features be built back-to-back without overlap.
+(A deterministic, operator-invoked script may commit on `aipg/*` batch branches — `tools/wt.mjs
+land`'s accept/sync/landing commits — because no agent decides them; the user still makes every
+commit that reaches their own branches.)
 
 ### 10. Statelessness is a feature, not a cost
 Each agent starts cold and re-reads what it needs. For one bounded feature this is cheap, and it

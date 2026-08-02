@@ -159,6 +159,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-01
 
+- **Parallel runs via batch worktrees: `tools/wt.mjs` + [`docs/worktree-batches.md`](docs/worktree-batches.md).**
+  Run several engine runs at once, each chain in its own git worktree (`init`/`prep`), landed one at a
+  time into a per-batch integration branch (`land`: index-only accept commit → sync → gate on the merged
+  state → merge, serialized by a heartbeat-liveness lock) and cleaned without `--force` so unlanded work
+  is refused, not deleted. A `reference-transaction` hook refuses `git stash` inside `aipg-*` worktrees —
+  `refs/stash` is the one stack every worktree shares, and a stray `pop` would inject one chain's work
+  into a sibling's blind-review diff. Built from the `worktree-parallelism-1` decide run (E-c); engines
+  unchanged — a worktree is just a different `target.repo`.
 - **New principle #15: "A missing result is its own outcome — fail loud, resume clean."** A dead/null
   agent must never be conflatable with success, a clean verdict, or an empty result; every `agent()`
   consumption site states its death policy (solo critical → throw, build loop → park, auxiliary → log +

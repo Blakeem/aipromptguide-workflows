@@ -25,8 +25,9 @@ for (const rel of ENGINES) {
 
 section('the ordinary-Node scripts pass node --check (the harness contract does not apply to them)');
 // gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during feature and
-// migrate runs, so its syntax is a run-time dependency of two engines, not just dev machinery.
-for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/gen-flows.mjs']) {
+// migrate runs, so its syntax is a run-time dependency of two engines, not just dev machinery. wt.mjs
+// is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
+for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs']) {
   let err = '';
   try {
     execFileSync(process.execPath, ['--check', join(REPO_ROOT, rel)], { stdio: 'pipe' });

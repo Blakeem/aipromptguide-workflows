@@ -15,6 +15,7 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | **Investigate** — find an answer that already exists and qualify it against fixed pass/fail criteria, until nothing qualifying is left unsearched | `workflows/investigate/CLAUDE.md` |
 | Gather the **docs** a project needs — verbatim capture (web/repo/files) → curate + index into a working folder | `workflows/docs/CLAUDE.md` |
 | Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` + the `workflow-principles-auditor` agent |
+| Run several engine runs **in parallel** — one batch, one worktree per chain, landed into an integration branch | `docs/worktree-batches.md` (`tools/wt.mjs`) |
 
 Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent — **build** one
 bounded change → feature (several features → feature's `plans` array); one goal spanning many files →
