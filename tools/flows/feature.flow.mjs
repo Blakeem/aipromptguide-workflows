@@ -33,7 +33,7 @@ const base = { runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, pla
 const solo = { runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, planPath: 'plans/one.md', gate: 'green' };
 
 // Agent returns carrying every attestation the engine reads.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN    = { clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
@@ -48,6 +48,9 @@ export default {
   title: 'feature-cycle',
   scenarios: [
     // ---- arg validation, in the order the engine checks it ---------------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-plan round loop never runs, and every plan parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
@@ -171,6 +174,27 @@ export default {
       when: 'the acceptance verifier reports plan_obtained=false',
       args: base,
       respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK },
+    },
+    {
+      // A dead agent shares ONE terminal across all three round-loop roles, and none of the three is
+      // visible to any other assertion — no new role, no throw. Scripted separately so the map shows
+      // that develop, quality and acceptance each halt on it rather than only the first.
+      name: 'the developer dies',
+      when: 'the developer agent dies',
+      args: base,
+      respond: { develop: null, park: PARK_OK },
+    },
+    {
+      name: 'the quality reviewer dies',
+      when: 'the blind quality reviewer dies',
+      args: base,
+      respond: { develop: DEV_OK, quality: null, acceptance: ACC_PASS, park: PARK_OK },
+    },
+    {
+      name: 'the acceptance verifier dies',
+      when: 'the acceptance verifier dies',
+      args: base,
+      respond: { develop: DEV_OK, quality: CLEAN, acceptance: null, park: PARK_OK },
     },
     {
       // Halts before any reviewer is spawned, and does NOT park — that work is the operator's.

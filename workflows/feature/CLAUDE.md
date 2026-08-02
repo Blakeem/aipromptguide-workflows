@@ -15,6 +15,11 @@ bounded plans** and run them as a roadmap (refine's `too_big` routes here when t
 feature-shaped); a single goal that is a **pattern spanning many call sites** (migration/upgrade/port/
 refactor) → sibling **`migrate-cycle`**. Wrong size → say so and steer the user.
 
+**Independent features can run in PARALLEL** — one engine run per chain, each in its own git worktree
+so their unstaged diffs (what the blind reviewer is handed) never share a tree. The whole lifecycle
+(`init`/`prep`/`land`/`clean`, `tools/wt.mjs`) is one playbook: [`docs/worktree-batches.md`](../../docs/worktree-batches.md).
+Sequential features stay in one run's `plans` array; a batch is only for genuine fan-out.
+
 **Documentation is a POOR FIT — keep it out of the plan.** The blind quality stage judges a diff on its
 own merits for production-blocking defects, and prose has no such defect class: the reviewer either
 returns clean trivially (a wasted opus pass) or manufactures nits that then burn develop rounds.
@@ -68,17 +73,47 @@ Then ONCE, for the whole roadmap:
 5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
    array in build order (§11). One plan file of blocks → keep the top-level `planPath` and pass
    `[{ id, gate }]`; derive it rather than typing it:
-   `node <root>/tools/plan-block.mjs <planPath> --list`. Per-feature files → `[{ id, planPath, gate }]`.
+   `node <plan-block.mjs> <planPath> --list` (`<root>/tools/plan-block.mjs` in a checkout; from the
+   installed plugin, the plugin's own copy — the same path you pass as `blockTool`). Per-feature
+   files → `[{ id, planPath, gate }]`.
    One feature? A single top-level `planPath` + `gate` (back-compat). The develop → blind-quality →
    acceptance loop runs each plan in order, **staging each accepted feature** before the next starts; a
    plan that can't pass is **parked** (its work saved to a patch, the tree cleared) and the roadmap
    carries on (§6).
-6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md`, surface
+6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md` +
+   any `AMENDED-<id>.md` (a plan clause the developer overrode — fold it back into the plan file if
+   you agree), surface
    `NEEDS-USER.md`, tell the user what to review. **Never commit.**
 
 Each entry's `planPath` points at that feature's plan-mode file — no copy for a same-session build. Only
 caveat: a build *resumed long after* could hit a pruned plan-mode file — for a long roadmap, snapshot
 each plan (§3).
+
+**Plan mode is a judgment call — yours.** Default INTO `EnterPlanMode` when the task is complex, when
+acceptance criteria or testing approach need the user's answers (that is where `AskUserQuestion`
+belongs), or when the change touches something important enough that the user should read the plan
+before anything builds — the approval gate is an extra quality gate, spent where it matters. SKIP plan
+mode when the task is simple, obvious, well understood, or already planned — the user handed a finished
+plan file, or the work is fully specified in context — there their request (or standing instruction) is
+the approval, and stopping to ask again just costs them a round-trip. The user always has the final say:
+asked to see the plan first → plan mode; told to run without them → skip it.
+
+When you skip plan mode, everything else keeps its order:
+
+1. **The plan lives at `plans/<runId>/<name>.md` under `root`, beside `runs/`.** A plan YOU author goes
+   there directly (`## Plan:` blocks for a roadmap; `<id>.md` each for per-feature files) — never
+   inside `target.repo` and never under `runs/<runId>/`. A plan the USER handed you that sits anywhere
+   a reviewer can reach — inside `target.repo`, or under `runs/<runId>/` — is snapshotted to that same
+   place and the copy used as `planPath`: the blind reviewer must have no route to a plan (#3). Never
+   edit the user's original — but do get it out of `target.repo`: snapshotting relocates the path you
+   pass, not the file, and an untracked plan there halts round 1 on the clean-tree check while a
+   tracked one stays readable by the blind reviewer.
+2. `phase:"refine"` as usual; fold gaps into your plan file. Questions refine returns: user present →
+   `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
+   your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
+   → split it yourself into a roadmap of `## Plan:` blocks and re-run refine; a pattern across many
+   call sites → stop and report rather than switching workflows unattended.
+3. `phase:"build"` unchanged.
 
 **Testing approach** (decide with the user, bake into Test Strategy): backend / API / MCP tool / data →
 **unit tests** (often TDD: failing tests first). Frontend → usually **not** unit tests; pick
@@ -99,14 +134,17 @@ Before `phase:"build"`:
 - **Each plan's `gate`** from its `## Gate` line: `green` (build + required verification) or `build-only`
   (the feature legitimately has no test/verification). Default `green`.
 - **Long roadmap (spanning days)?** Snapshot each approved plan to `plans/<runId>/<id>.md` (beside
-  `runs/`, gitignored) and point that entry's `planPath` there (a stated-purpose copy per #11) —
+  `runs/`, outside every repo) and point that entry's `planPath` there (a stated-purpose copy per #11) —
   plan-mode files may be pruned before a late resume. NEVER snapshot into `runs/<runId>/`: reviewers
   are handed paths into that dir, and the blind reviewer must have no path that reaches a plan (#3).
-- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off, normally the tool's own
-  directory so `runs/` lands beside the tool, not in the target repo. Omit it → the engine errors.
-  For a roadmap of blocks it must ALSO be this checkout: the block command an agent runs is
-  `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every unit fails to get
-  its plan (loudly — see `plan_obtained` below).
+- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off — this checkout when run
+  from a clone, or the persistent plugin data dir the skill resolves when run from the installed aipg
+  plugin (never the plugin install dir itself: it is version-swapped on update, which would strand
+  parked patches). Either way `runs/` lands outside the target repo. Omit it → the engine errors.
+  For a roadmap of blocks the block command an agent runs defaults to `<root>/tools/plan-block.mjs` —
+  correct for a checkout; from the installed plugin pass **`blockTool`** = the plugin's own
+  `tools/plan-block.mjs` (the skill resolves it). A block command pointing at a dir with no `tools/`
+  means every plan's agents fail to get their plan (loudly — see `plan_obtained` below).
 
 ## 4. Plan-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -172,9 +210,12 @@ throwaway.
 - **Developer** (build · opus) — gets its plan from the `plan-block.mjs` command (§4) or its own
   `planPath`, reads the latest flagging review verbatim; implements
   minimally, **wires it in**, runs the gate green, leaves work **UNSTAGED**. Owns the **decision
-  matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, escalates user-only calls to
+  matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, and — matrix case 6a — OVERRIDES
+  a plan clause it VERIFIED prescribes a real defect, recording the amendment in `AMENDED-<id>.md`
+  (read by acceptance alone, never the blind reviewer) with a plan-text-free pointer line in
+  `NEEDS-USER.md`; unverified plan conflicts stay 6b declines. Escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
-- **Quality Reviewer** (build · sonnet) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
+- **Quality Reviewer** (build · opus) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
   for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
   review files. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion (enumerated and
@@ -207,7 +248,10 @@ next round; **any code change re-enters at quality.**
   report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
   plan — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
   first: the command not permitted in the run environment (pre-allowlist
-  `Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+  the block command exactly as the agent runs it — the path is single-quoted, so the rule must match
+  that string: `Bash(node '<abs path to plan-block.mjs>':*)`, the path being
+  `<root>/tools/plan-block.mjs` or your `blockTool` value — since a background run cannot answer a
+  prompt), an id
   matching no `## Plan:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
   exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
 - **What still stops the run.** A hard blocker escalated to `NEEDS-USER.md` (parked first, then stopped —
@@ -229,6 +273,12 @@ next round; **any code change re-enters at quality.**
   carries its own `gate`.
 - **Two-stage review = blind then plan-aware** — keep separate (deliberate de-biasing, #5); never hand
   the plan to the quality reviewer (per-plan files keep even a roadmap placement-blind for the others).
+- **An agent that comes back with NOTHING halts the run.** Any of the three per-round roles —
+  developer, quality reviewer, acceptance verifier — returning null (skipped or died) halts with
+  `BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)`, work
+  parked. A dead agent is not a failed round: nothing is known about the tree either way. Enforced
+  repo-wide by `tests/dead-agent.test.mjs`, which kills each role once per engine and requires a
+  visibly different outcome.
 - **Anti-spin (#5).** The developer logs each decline as one terse line in `DISMISSED-<id>.md`; reviewers
   skip settled items for the stated reason. A reviewer that thinks a dismissal is wrong raises
   `CONTESTS DISMISSAL:` once; the developer must fix or escalate, never silently re-dismiss. Rising
@@ -289,8 +339,12 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
   — sanity-check the count, and scope one file per invocation or use the runner's filter. Manual/MCP →
   `tests_run_count` is `-1`; confirm the behavior was observed.
 - **Custom `agentTypes` must exist in the user's registry** — defaults use the standard subagent.
-- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
-  dir, relocate the stray state, re-run.
+- **A plan file inside `target.repo`** now draws its own ⚠ warning at run start (top-level `planPath`
+  and every `plans[].planPath`) — the blind reviewer must have no route to a plan (#3). Move it under
+  `<root>/plans/` (the snapshot rule in §2's skip-path).
+- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
+  run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
+  dir) — relocate the stray state, re-run.
 - **A "passed but not staged" plan halts on purpose** (so the next feature's diff isn't corrupted) —
   stage its files yourself (`git add`), resume from the NEXT plan id. It is deliberately NOT parked:
   the work is good, and one `git add` both preserves it and cleans the tree.
@@ -301,7 +355,7 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
 - **`too_big`** (from refine, or you realize mid-plan) → split into multiple bounded feature-plans and
   run them as a roadmap (`plans`); a pattern across many call sites goes to `migrate-cycle` instead.
 
-## 10. State files (`runs/<runId>/`, gitignored)
+## 10. State files (`runs/<runId>/`, outside every repo)
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result), no `progress.json`.
@@ -343,7 +397,9 @@ inline to `Workflow`.
   Non-zero exit = fail.
 - **Optional:** `phase` (`refine`|`build`, default `build`; refine takes the single top-level
   `planPath`/`plan` and never reads `plans` — it **throws** if neither is set)
-  · `gate` (§3; the single-plan gate — for a roadmap each entry carries its own) · `planContext` (per
+  · `blockTool` (absolute path to `plan-block.mjs`; default `<root>/tools/plan-block.mjs` — required
+  in practice when `root` is not this checkout, e.g. the installed plugin's data dir; §3) · `gate`
+  (§3; the single-plan gate — for a roadmap each entry carries its own) · `planContext` (per
   `plans` entry: `block`, the default, hands that agent the `plan-block.mjs` command so only its own
   block is in context; `full` hands the whole roadmap file with the block named, for a feature that
   genuinely needs its neighbours in view) · `conventions` (the

@@ -90,8 +90,17 @@ halt for one inside a loop (resolve's fixer).
 a *missing* value. Check the null path separately, before the sentinel logic.
 
 **Attestation theater.** A schema field the prompt demands and the harness never reads does nothing.
-`unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months. Grep every schema
-field for a consumer.
+`unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months; `wrote_file` sat
+unread in `review.mjs` until 2026-08-01. **TOP-LEVEL fields are gate-enforced now:** `static.test.mjs`
+resolves every schema an `agent()` call is handed — including the function-built one — and fails any
+top-level property with no `.field` / `['field']` / destructured read **through that site's RECEIVER
+variable** (aliases via bare `x = recv;` assignments count, transitively; a receiver name with more
+than one binding in the file is a loud extractor error — rename the colliding local). Sites with no
+resolvable receiver (pipeline stages, `.then` chains, bare `return agent(`) fall back to the old
+file-wide name-level match and are LISTED in the test file, so degraded coverage is visible. NESTED item
+fields are still on you: they are excluded deliberately (measured — an all-depth rule was 33 false
+positives out of 36) because a container is routinely consumed wholesale, so a dead field one level down
+is invisible to the sweep.
 
 **Write-confirmation asymmetry.** If one role's schema has `wrote_file` and its siblings don't, the ones
 without can report success having written nothing. Make the set consistent.
@@ -100,15 +109,12 @@ without can report success having written nothing. Make the set consistent.
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt
 site and map it. feature did this; migrate had to catch up.
 
-**A coerced numeric bound turns a bad arg into a silent no-op run.** `Math.max(1, 'three')` is NaN, and so
-is `Number('three')` — but `round < NaN` is **false on the first test**, so the loop body never runs. The
-engine then returns a zero-agent run wearing an ordinary terminal state: a search that never happened,
-reported as one that ran out of rounds. Every numeric arg that bounds a loop or arms a floor must
-`Number.isFinite` and **throw**, never absorb (`static.test.mjs` sweeps every engine for this). Note the
-second-order version: any flag derived from a halt-kind **default** inherits the lie. `haltKind` starts as
-`'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file nothing wrote. Gate such a
-flag on `round > 0` — the proof an agent actually ran — the way decide's `round ? decisionFile(round) : ''`
-already did.
+**A flag derived from a halt-kind DEFAULT inherits a lie no sweep can see.** (Its first-order cousin —
+a coerced numeric bound silently producing a zero-agent run — is gate-enforced now: `static.test.mjs`
+runs every engine against garbage bounds and expects a throw, so it needs no manual vigilance.)
+`haltKind` starts as `'rounds'`, so `determination: haltKind === 'rounds' ? FILE : ''` named a file
+nothing wrote. Gate such a flag on `round > 0` — the proof an agent actually ran — the way decide's
+`round ? decisionFile(round) : ''` already did.
 
 **A pre-filter that drops candidates before the verifier makes the floor invisible.** enhance cut
 below-floor candidates on the *finder's own unverified score*, logged the count, and dropped it — so a

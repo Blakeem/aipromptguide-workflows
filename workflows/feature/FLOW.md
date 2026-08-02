@@ -11,7 +11,7 @@ flowchart TD
   S0(["args"])
   a1["plan-critic · opus<br/>Refine"]
   a2["develop · opus"]
-  a3["quality · sonnet"]
+  a3["quality · opus"]
   a4["acceptance · opus"]
   a5["park · opus"]
   t1(["plan critique returned (refine stops here)"])
@@ -21,27 +21,29 @@ flowchart TD
   t5(["BLOCKED (a plan passed but was not staged - stage it, then resume)"])
   t6(["BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing)"])
   t7(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
-  t8(["BLOCKED (working tree was not clean - nothing was built)"])
-  t9(["BLOCKED (needs user input)"])
-  t10(["BLOCKED (a parked plan left the tree unsafe - inspect before resuming)"])
-  t11(["stopped on token budget (resume where it left off)"])
-  t12(["partial slice complete"])
-  x1[/"throw: args must include at least { runId, planPath #124; plan (markdown string) #124; plans:[{id,planPath#124;plan,gate}], target, gates }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: Invalid numeric arg"/]
-  x5[/"throw: plan id(s) [...] are not kebab slugs"/]
-  x6[/"throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their #quot;## Plan: <id>#quot; blocks"/]
-  x7[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
-  x8[/"throw: Plan critic returned nothing"/]
-  x9[/"throw: args needs a plan for phase:#quot;build#quot;"/]
-  x10[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
-  x11[/"throw: args.gates.test is required when any plan has gate:#quot;green#quot;"/]
-  x12[/"throw: args.runOnly ... matches no plan id"/]
-  x13[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
+  t8(["BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it)"])
+  t9(["BLOCKED (working tree was not clean - nothing was built)"])
+  t10(["BLOCKED (needs user input)"])
+  t11(["BLOCKED (a parked plan left the tree unsafe - inspect before resuming)"])
+  t12(["stopped on token budget (resume where it left off)"])
+  t13(["partial slice complete"])
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, planPath #124; plan (markdown string) #124; plans:[{id,planPath#124;plan,gate}], target, gates }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: args.target.repo is required"/]
+  x5[/"throw: Invalid numeric arg"/]
+  x6[/"throw: plan id(s) [...] are not kebab slugs"/]
+  x7[/"throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their #quot;## Plan: <id>#quot; blocks"/]
+  x8[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
+  x9[/"throw: Plan critic returned nothing"/]
+  x10[/"throw: args needs a plan for phase:#quot;build#quot;"/]
+  x11[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
+  x12[/"throw: args.gates.test is required when any plan has gate:#quot;green#quot;"/]
+  x13[/"throw: args.runOnly ... matches no plan id"/]
+  x14[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t11
+  S0 --> t12
   S0 --> x1
   S0 --> x2
   S0 --> x3
@@ -49,19 +51,21 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
-  S0 --> x9
+  S0 --> x8
   S0 --> x10
   S0 --> x11
   S0 --> x12
   S0 --> x13
+  S0 --> x14
   a1 --> t1
-  a1 --> x8
+  a1 --> x9
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a5
-  a2 --> t8
+  a2 --> t9
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
+  a3 --> a5
   a4 ==>|"next item"| a2
   a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
   a4 --> a5
@@ -70,12 +74,13 @@ flowchart TD
   a4 --> t4
   a4 --> t5
   a4 --> t6
-  a4 --> t12
+  a4 --> t13
   a5 ==>|"next item"| a2
   a5 --> t4
   a5 --> t7
-  a5 --> t9
+  a5 --> t8
   a5 --> t10
+  a5 --> t11
 ```
 
 ## Phases
@@ -105,25 +110,27 @@ flowchart TD
 | BLOCKED (a plan passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
 | BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
 | BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
+| BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
 | BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked plan left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build gate is red after parking | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a plan | derived |
 | partial slice complete | runOnly builds a subset of the roadmap | derived |
-| throw: args must include at least { runId, planPath \| plan (markdown string) \| plans:[{id,planPath\|plan,gate}], target, gates } | args carry neither runId nor a plan | throw (line 26) |
-| throw: args.root is required | args.root is missing | throw (line 31) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 37) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 140) |
-| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 149) |
-| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 497) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 509) |
-| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 541) |
-| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 547) |
-| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 550) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 565) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 570) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 30) |
+| throw: args must include at least { runId, planPath \| plan (markdown string) \| plans:[{id,planPath\|plan,gate}], target, gates } | args carry neither runId nor a plan | throw (line 33) |
+| throw: args.root is required | args.root is missing | throw (line 38) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 44) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 172) |
+| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 181) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 558) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 570) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 602) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 608) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 611) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 626) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 631) |
 
 ## Coverage
 
-31 scenarios · 5/5 roles · 13/13 throw sites · 7/7 halt statuses · 25 terminal states.
+35 scenarios · 5/5 roles · 14/14 throw sites · 8/8 halt statuses · 27 terminal states.

@@ -15,7 +15,14 @@ export const meta = {
 // organizer — see WORKFLOW-PRINCIPLES.md #2/#4/#6). This engine is READ-ONLY and STOPS after writing the
 // inventory; the sibling resolve-cycle.mjs fixes the approved issues (reuse the same runId + root).
 // =============================================================================
-const A = typeof args === 'string' ? JSON.parse(args) : args;
+// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
+// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+let A;
+try {
+  A = typeof args === 'string' ? JSON.parse(args) : args;
+} catch (e) {
+  throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
+}
 if (!A || !A.runId) {
   throw new Error('args must include at least { runId, root, target, conventions, units }; got typeof=' + (typeof args));
 }
@@ -91,9 +98,11 @@ const lensesOf = (unit) => asList(pick(unit && unit.lens) ?? pick(A.lens)).map(o
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
-// that exists in YOUR registry. Verify is opus (high stakes); reviewer is the fast tier.
+// that exists in YOUR registry. Verify is opus (high stakes); the reviewer (the finder) is opus too —
+// measured 2026-08-01 (wt-tooling): the fast tier under-reports on large surfaces, and a missed finding
+// here never reaches verify at all.
 const AT = { ...(A.agentTypes ?? {}) };
-const M  = { review: 'sonnet', verify: 'opus', ...(A.models ?? {}) };
+const M  = { review: 'opus', verify: 'opus', ...(A.models ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // ROOT is the ABSOLUTE base run-state hangs off (supplied by the main agent), so every agent +
@@ -107,7 +116,7 @@ const ISSUES_DIR = `${STATE_DIR}/issues`;
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target
 // repo so the blind quality reviewer (in resolve-cycle.mjs) cannot wander into it. Warn loudly if root was set wrong.
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
-  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Set args.root to THIS tool's own directory (see CLAUDE.md).`);
+  log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
 
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
@@ -350,12 +359,22 @@ const results = await pipeline(
       // cut before verify overwrites — resume would then trust that premature "clean" file and skip the
       // unit, silently dropping a defect a later lens found.
       const cleanEligible = handled.length === 0 && p === lenses.length - 1;
-      const r = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
+      // `rev`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
+      // to the variable its agent return lands in, and `r` is bound five times in this file.
+      const rev = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
         schema: reviewSchema(lens.categories), phase: 'Review',
         label: `review:${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`,
       }));
-      if (cleanEligible && r?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
-      for (const f of (r?.findings || [])) {
+      // A DEAD reviewer is not a clean lens. `rev?.findings || []` would make the two identical — zero
+      // findings from this lens, while a surviving sibling lens keeps `items.length > 0`, so the unit
+      // goes to verify and is logged as normally processed. The issue file is then written with the unit
+      // hash, and hash-based resume skips a unit one of whose lenses never looked at it.
+      if (!rev) {
+        log(`  ⚠ ${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
+        continue;
+      }
+      if (cleanEligible && rev?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
+      for (const f of (rev?.findings || [])) {
         if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
         // Dedup on lens+file+category. Within ONE lens this is the old file:category rule, which exists
         // because a re-review re-phrases the same concern and title-based dedup leaks duplicates. Across
@@ -383,6 +402,12 @@ const results = await pipeline(
     const verify = await agent(verifyPrompt(unit, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
     }));
+    // `wrote_file` is REQUIRED by VERIFY_SCHEMA and instructed in the prompt — read it, or two failures
+    // both log as a normal ✓: a verifier that returned verdicts without writing issues/<unit>.md (the
+    // ✓ line points at a file that does not exist), and a DEAD verifier, where `verify?.verdicts || []`
+    // yields no kept issues at all and this unit's real findings vanish from the returned `issues` array
+    // the operator builds resolve-cycle's args.issues from. Same guard as enhance-cycle.mjs's verifier.
+    if (verify?.wrote_file !== true) log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
     const byId = new Map(items.map((x) => [x.id, x]));
     const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
     const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };

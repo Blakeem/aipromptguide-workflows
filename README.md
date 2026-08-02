@@ -14,14 +14,14 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 
 | Workflow | Trigger | Flow | Use it for |
 |----------|---------|------|------------|
-| **[feature](workflows/feature/)** | `/aipg-feature` | [map](workflows/feature/FLOW.md) | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
-| **[debug](workflows/debug/)** | `/aipg-debug` | [review](workflows/debug/FLOW-review.md) · [resolve](workflows/debug/FLOW-resolve.md) | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
-| **[migrate](workflows/migrate/)** | `/aipg-migrate` | [map](workflows/migrate/FLOW.md) | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
-| **[enhance](workflows/enhance/)** | `/aipg-enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
-| **[brainstorm](workflows/brainstorm/)** | `/aipg-brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
-| **[decide](workflows/decide/)** | `/aipg-decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
-| **[investigate](workflows/investigate/)** | `/aipg-investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
-| **[docs](workflows/docs/)** | `/aipg-docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
+| **[feature](workflows/feature/)** | `/aipg:feature` | [map](workflows/feature/FLOW.md) | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
+| **[debug](workflows/debug/)** | `/aipg:debug` | [review](workflows/debug/FLOW-review.md) · [resolve](workflows/debug/FLOW-resolve.md) | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
+| **[migrate](workflows/migrate/)** | `/aipg:migrate` | [map](workflows/migrate/FLOW.md) | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
+| **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
+| **[brainstorm](workflows/brainstorm/)** | `/aipg:brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
+| **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
+| **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
+| **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
 The first three are **build** workflows (code, reviewed and staged). The last five are
 **generative/read-only**: proposals, creative options, a decision, a determination, or a curated doc set,
@@ -35,8 +35,8 @@ it fits**, that's investigate. The tell is whether missing a requirement is a tr
 disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**:
-the fourteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
-agents) and an [auditor agent](.claude/agents/workflow-principles-auditor.md) that reviews a workflow
+the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
+agents) and an [auditor agent](agents/workflow-principles-auditor.md) that reviews a workflow
 against them.
 
 **The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal
@@ -52,50 +52,52 @@ agents actually run under.
 
 ## Why it's built this way
 
-The slash commands are **thin and stable**. They carry *no* workflow prompt, only a pointer to the
-matching `workflows/<x>/CLAUDE.md`. That split is deliberate:
+This repo is a **Claude Code plugin** (`aipg`), and its skills are **thin and stable**. Each carries
+*no* workflow prompt, only the install's resolved paths and a pointer to the matching
+`workflows/<x>/CLAUDE.md`. That split is deliberate:
 
-- **The prompt lives in the workflow, not the command.** Plan mode (and its approval gate) must run
+- **The prompt lives in the workflow, not the skill.** Plan mode (and its approval gate) must run
   *outside* a background Workflow, so the `CLAUDE.md` guide, not the engine, drives it. Loading a
   workflow the ordinary way wouldn't include that prompt. Pointing at the `CLAUDE.md` does.
-- **Copy the command once, pull to update.** Because the command never changes, you `git pull` this
-  repo to get new and updated workflows, with no commands to re-copy.
+- **One update moves everything together.** Skills, guides, engines and the `plan-block` tool ship as
+  one plugin version — nothing to copy, nothing to drift.
 
 ```
-You run /aipg-feature  →  Claude reads aipg/workflows/feature/CLAUDE.md  →  plan mode + your approval
-                       →  runs feature-cycle.mjs by path  →  staged result you review & commit
+You run /aipg:feature  →  Claude reads the plugin's workflows/feature/CLAUDE.md  →  plan mode + your
+approval (or the autonomous path when you hand it a finished plan)  →  runs feature-cycle.mjs by path
+→  staged result you review & commit
 ```
 
-## Install
+## Install (plugin)
 
-1. **Clone into your project and gitignore it.** The trailing `aipg` names the folder so it matches the
-   `/aipg-*` commands (recommended):
+```
+/plugin marketplace add Blakeem/aipromptguide-workflows
+/plugin install aipg@aipromptguide
+```
+
+That's it — the workflows land in the plugin cache, the
+[auditor agent](agents/workflow-principles-auditor.md) registers automatically, and run-state
+goes to the plugin's persistent data dir (`~/.claude/plugins/data/…`), outside every project. Run one:
+`/aipg:feature add a search_docs MCP tool. Plan it first.`
+
+## Install (checkout — for development, or driving workflows by path)
+
+1. **Clone it anywhere** (in a project, gitignore it):
 
    ```bash
    git clone https://github.com/Blakeem/aipromptguide-workflows.git aipg
    echo "aipg/" >> .gitignore
    ```
 
-   A plain `git clone …` (which lands in `aipromptguide-workflows/`) also works, since the commands
-   auto-locate the checkout, but the `aipg` target keeps paths short and mirrors the command prefix.
-   (Or clone once centrally and symlink `aipg` into each project.)
+2. **Open the checkout in Claude Code** — the root `CLAUDE.md` routes to each workflow's guide, with
+   `root` = the checkout. To use the plugin's skills against a local clone, add it as a local
+   marketplace instead: `/plugin marketplace add ./aipg` then `/plugin install aipg@aipromptguide`.
 
-2. **Copy the slash commands** into your Claude Code commands folder (per-project `.claude/commands/`
-   or global `~/.claude/commands/`):
-
-   ```bash
-   cp aipg/commands/aipg-*.md ~/.claude/commands/
-   ```
-
-   See **[commands/](commands/)** for details.
-
-3. **(Optional) Install the auditor agent** if you author/modify workflows:
+3. **(Optional) Copy the auditor agent** to use it outside the plugin:
 
    ```bash
-   cp aipg/.claude/agents/workflow-principles-auditor.md ~/.claude/agents/
+   cp aipg/agents/workflow-principles-auditor.md ~/.claude/agents/
    ```
-
-4. **Run one.** For example: `/aipg-feature add a search_docs MCP tool. Plan it first.`
 
 ## One checkout, many projects
 
@@ -116,10 +118,10 @@ E:/myproject/          ← target.repo   the project itself, the folder holding 
 
 Keeping them apart is what makes the blind review work: the issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-Three engines warn if you point run-state inside the target repo.
+The build and debug engines warn if you point run-state inside the target repo, and the build engines (feature, migrate) warn when a plan file resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
-give each its own `runId`. The run-state stacks up beside the tool, so you can queue work across several
+give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several
 repos and still read every trail in one place:
 
 ```
@@ -131,17 +133,91 @@ You never type these yourself. Tell Claude which project you mean and it fills t
 There is no default for `target.repo` on the engines that write code, because guessing wrong would point
 a build, or a park's `git checkout`, at the wrong repo. They fail loudly instead.
 
+**Installed as the plugin, the same two-path rule holds — only `root` moves.** The plugin install dir
+is version-swapped on every update, so run-state cannot live beside the engines there. The skills point
+`root` at the plugin's persistent data dir instead, and everything stacks up the same way, still outside
+every project:
+
+```
+~/.claude/plugins/cache/aipromptguide/aipg/<version>/   ← the engines (read-only, swapped on update)
+~/.claude/plugins/data/aipg-aipromptguide/              ← root: runs/<runId>/ + plans/<runId>/
+```
+
 ## Updating
+
+Plugin: `/plugin` → **Installed** → `aipg` → update (auto-update lives under **Marketplaces**, off by
+default) — skills, guides and engines move together, and every commit is a new version (`plugin.json`
+carries no `version` field, so the git commit SHA is the version). Checkout:
 
 ```bash
 cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ```
 
-You only re-copy a command if a brand-new workflow is added, which is rare by design.
-
 ## Changelog
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
+
+### 2026-08-02
+
+- **Principle #15 is now machine-checked, and the plan-defect wedge is closed** (batch h2, phased):
+  `tests/dead-agent.test.mjs` kills every agent role once per engine and demands a visibly different
+  outcome — building it exposed and fixed four real launderers (feature-cycle's dead develop/quality/
+  acceptance read as `done (staged)`; docs-cycle's dead scrubber logged `✓ scrubbed: 0 file(s)`).
+  And a blind-review finding that indicts the PLAN's own text is no longer a dead end: a developer
+  that VERIFIES the defect fixes it and records the override in `AMENDED-<id>.md` (read by
+  acceptance, never the blind reviewer), so the wt-land-style wedge cannot recur.
+- **First live parallel batch shipped two hardening features** (`planpath-guard` + `attestation-scoping`),
+  built simultaneously in worktrees and landed through `aipg/int-h1` — the wt.mjs lifecycle's own
+  shakedown. The features: feature + migrate now **warn when a plan file resolves inside `target.repo`**
+  (blindness by placement made structural), and the attestation sweep **binds each schema's consumer
+  check to its `agent()` call's receiver variable** (closing the shared-field-name mask; three
+  previously-hidden dead `notes` fields got real consumers).
+- **Every code-review role now runs on opus** (feature/migrate/resolve blind quality critics + debug's
+  review finder). Measured on the wt-tooling build: the fast tier surfaced one deep-verified defect per
+  round on large diffs, serializing discovery across rounds and burning the round budget.
+
+### 2026-08-01
+
+- **Parallel runs via batch worktrees: `tools/wt.mjs` + [`docs/worktree-batches.md`](docs/worktree-batches.md).**
+  Run several engine runs at once, each chain in its own git worktree (`init`/`prep`), landed one at a
+  time into a per-batch integration branch (`land`: index-only accept commit → sync → gate on the merged
+  state → merge, serialized by a heartbeat-liveness lock) and cleaned without `--force` so unlanded work
+  is refused, not deleted. A `reference-transaction` hook refuses `git stash` inside `aipg-*` worktrees —
+  `refs/stash` is the one stack every worktree shares, and a stray `pop` would inject one chain's work
+  into a sibling's blind-review diff. Built from the `worktree-parallelism-1` decide run (E-c); engines
+  unchanged — a worktree is just a different `target.repo`.
+- **New principle #15: "A missing result is its own outcome — fail loud, resume clean."** A dead/null
+  agent must never be conflatable with success, a clean verdict, or an empty result; every `agent()`
+  consumption site states its death policy (solo critical → throw, build loop → park, auxiliary → log +
+  record), write-attestations must be consumed, and any failure resumes through the same clean-tree +
+  durable-trail mechanism as everything else. A debug run over the engines themselves found and fixed
+  the five engines that violated it (dead-agent visibility guards in review, resolve, enhance, migrate;
+  plus gate and numeric-arg validation).
+- **Plan mode is now the agent's judgment call** (feature + migrate guides): default INTO plan mode when
+  the task is complex, needs the user's answers, or touches something important; skip it when simple,
+  obvious, or already planned — the user always has the final say. A plan authored without plan mode
+  lives at `plans/<runId>/` under `root` (the plugin data dir when installed), same rules as snapshots.
+- **The repo is now a Claude Code plugin (`aipg`) and its own marketplace (`aipromptguide`).**
+  `/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`.
+  The copy-me command templates in `commands/` became plugin **skills** (`skills/<x>/SKILL.md`), so the
+  triggers are now namespaced: `/aipg-feature` → **`/aipg:feature`**, and likewise for all eight. A
+  bare checkout still works exactly as before (root `CLAUDE.md` router, `root` = the checkout); the
+  old copied `/aipg-*` commands keep working against a checkout but no longer ship.
+- **Run-state moved out of reach of plugin updates.** Installed, the engines live in the version-swapped
+  plugin cache; the skills therefore point `root` at the plugin's persistent data dir
+  (`~/.claude/plugins/data/…`), where `runs/<runId>/` and `plans/<runId>/` survive updates — and stay
+  outside every target repo, where the blind reviewer cannot reach them.
+- **`feature` and `migrate` take `blockTool`** (optional): the absolute path to `plan-block.mjs` for
+  the roadmap/section block command, defaulting to `<root>/tools/plan-block.mjs` as before. Required in
+  practice when `root` is not a checkout (the plugin data dir has no `tools/`); the skills pass it
+  automatically.
+- **`feature` and `migrate` document an autonomous path** — the user hands a finished plan (or says to
+  run unattended): skip plan mode, snapshot the plan to `plans/<runId>/` if a reviewer could reach it
+  (inside `target.repo` or `runs/`), refine as usual, resolve refine's questions conservatively when
+  unattended, then build. Approval comes from the user's own plan; the blind reviewer still never sees
+  one.
+- **The official Claude Code plugin docs are captured under `docs/claude-code-plugins/`** (verbatim,
+  via docs-cycle) for building against.
 
 ### 2026-07-29
 

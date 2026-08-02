@@ -51,8 +51,9 @@ One phase, no mid-run questions — settle everything with the user first:
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
-- **`root` — REQUIRED:** the absolute base run-state hangs off (normally this tool's own directory) so
-  `runs/` lands beside the tool, not in the target repo.
+- **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
+  aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir) so
+  `runs/` lands outside the target repo.
 - **`scope` — REQUIRED:** the file/dir paths every finder reads. Each lens sees **all** of it, so keep it
   to what one agent can genuinely read in a turn. Larger than that → run per subsystem with a narrower
   scope, or subdivide with lens × unit.
@@ -60,8 +61,8 @@ One phase, no mid-run questions — settle everything with the user first:
   slugging throw — two lenses would write the same proposal file.
 - **`target.repo`:** the absolute path to the system under audit — the directory holding its `.git`.
   REQUIRED whenever any `scope` path is relative (it is what they resolve against); the engine throws
-  otherwise rather than guessing, since `root` is this tool's own directory and defaulting would audit
-  the tool. Give every `scope` path as an absolute path and you can omit it.
+  otherwise rather than guessing, since defaulting to `root` would audit the run-state base (this
+  checkout, or the plugin data dir). Give every `scope` path as an absolute path and you can omit it.
 - **`goals` (strongly recommended):** what "better" means for this system.
 - **`conventions`:** house rules an enhancement must fit — or argue explicitly for changing.
 - **`minImpact`** (default `moderate`): the floor. `marginal` is below it on purpose. Lower it only if
@@ -139,16 +140,17 @@ The proposal files are the output; the return is an index into them. Read them a
 Then decide scope together. Adopted items become `feature-cycle` plans (several = its `plans` roadmap);
 a ROADMAP item spanning many call sites is a `migrate-cycle` goal.
 
-## 8. State files (`runs/<runId>/`, gitignored)
+## 8. State files (`runs/<runId>/`, outside every repo)
 
 - `proposals/<lens>.md` — one per lens (non-alphanumerics in the lens id become underscores:
   `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals plus a `## Rejected`
   section (one line each, defects marked). This IS the deliverable. A verifier-written file (a lens that
   had candidates) carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring
   human triage; a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens
-  leaves NO file when neither writer ran — its finder died, every candidate it found fell below the
-  floor (so no verifier was spawned), or its verifier died before writing — even though the run
-  still reports a path for it. The run logs a ⚠ naming that lens in each case; re-run it.
+  leaves NO file when neither writer ran — its finder died, its verifier died (both land the lens in
+  `failed`, with no path reported for it), or every candidate it found fell below the floor so no
+  verifier was spawned and the finder wrote no marker — that last case is the one where the run still
+  reports a path for it. The run logs a ⚠ naming that lens in each case; re-run it.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.

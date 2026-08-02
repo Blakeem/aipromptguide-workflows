@@ -5,7 +5,7 @@
 // Coverage aimed at here: all seven terminal states (they are seven different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a round with nothing to check, forced open on the last round because a determination is due), a
-// contested claim of EACH kind buying another round, and each of the seven throw sites.
+// contested claim of EACH kind buying another round, and each of the eight throw sites.
 
 const base = {
   runId: 'flow',
@@ -130,7 +130,10 @@ export default {
       respond: { investigate: { ...INV, needs_user: true } },
     },
 
-    // ---- the six throw sites -------------------------------------------------------------------
+    // ---- the seven throw sites -------------------------------------------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     {
       name: 'dead investigator (round 1)',
       when: 'the investigator dies',

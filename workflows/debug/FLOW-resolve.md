@@ -10,7 +10,7 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 flowchart TD
   S0(["args"])
   a1["fix · opus"]
-  a2["quality · sonnet"]
+  a2["quality · opus"]
   a3["accept · opus<br/>Acceptance"]
   a4["park · opus"]
   t1(["accepted"])
@@ -25,14 +25,15 @@ flowchart TD
   t10(["BLOCKED (fixer did not return)"])
   t11(["BLOCKED (staging contract violated)"])
   t12(["stopped on token budget (resume where it left off)"])
-  x1[/"throw: args must include at least { runId, root, target, gates, conventions, issues }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: args.target.repo is required"/]
-  x4[/"throw: Invalid numeric arg"/]
-  x5[/"throw: resolve-cycle requires args.issues"/]
-  x6[/"throw: args.gates.build is required"/]
-  x7[/"throw: args.gates.test is required"/]
-  x8[/"throw: No ACTIONABLE issues at or above the fix floor in args.issues"/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, target, gates, conventions, issues }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: args.target.repo is required"/]
+  x5[/"throw: Invalid numeric arg"/]
+  x6[/"throw: resolve-cycle requires args.issues"/]
+  x7[/"throw: args.gates.build is required"/]
+  x8[/"throw: args.gates.test is required"/]
+  x9[/"throw: No ACTIONABLE issues at or above the fix floor in args.issues"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -42,6 +43,7 @@ flowchart TD
   S0 --> x6
   S0 --> x7
   S0 --> x8
+  S0 --> x9
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> a4
@@ -95,15 +97,16 @@ flowchart TD
 | BLOCKED (fixer did not return) | the round-1 fixer returns nothing | declared |
 | BLOCKED (staging contract violated) | the fixer never attests its work is unstaged | declared |
 | stopped on token budget (resume where it left off) | too few tokens left to start the next batch | declared |
-| throw: args must include at least { runId, root, target, gates, conventions, issues } | args carry no runId | throw (line 23) |
-| throw: args.root is required | args.root is missing | throw (line 28) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 34) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 53) |
-| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 427) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 433) |
-| throw: args.gates.test is required | args.gates.test is missing | throw (line 436) |
-| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 446) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
+| throw: args must include at least { runId, root, target, gates, conventions, issues } | args carry no runId | throw (line 30) |
+| throw: args.root is required | args.root is missing | throw (line 35) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 41) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 60) |
+| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 464) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 470) |
+| throw: args.gates.test is required | args.gates.test is missing | throw (line 473) |
+| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 483) |
 
 ## Coverage
 
-24 scenarios · 4/4 roles · 8/8 throw sites · 0/0 halt statuses · 20 terminal states.
+25 scenarios · 4/4 roles · 9/9 throw sites · 0/0 halt statuses · 21 terminal states.

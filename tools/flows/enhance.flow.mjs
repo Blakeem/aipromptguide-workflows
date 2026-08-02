@@ -83,7 +83,10 @@ export default {
       terminal: 'no proposal file (the lens produced nothing)',
     },
 
-    // ---- the seven throw sites, in the order the engine checks them ------------------------------
+    // ---- the eight throw sites, in the order the engine checks them ------------------------------
+    // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
+    // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
+    { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'bad minImpact', when: 'args.minImpact names no rank', args: { runId: 'flow', root: 'E:/flow', minImpact: 'enormous' } },

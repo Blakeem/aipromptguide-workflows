@@ -12,17 +12,19 @@ flowchart TD
   a1["generate · opus<br/>×3 concurrent"]
   t1(["variations produced"])
   t2(["nothing produced (every generator failed)"])
-  x1[/"throw: args must include at least { runId, root, lenses, brief#124;planPath }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: Provide the problem framing"/]
-  x4[/"throw: args.lenses is required"/]
-  x5[/"throw: lens ids collide after slugging"/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, lenses, brief#124;planPath }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: Provide the problem framing"/]
+  x5[/"throw: args.lenses is required"/]
+  x6[/"throw: lens ids collide after slugging"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
   S0 --> x5
+  S0 --> x6
   a1 --> t1
   a1 --> t2
 ```
@@ -39,12 +41,13 @@ flowchart TD
 |---|---|---|
 | variations produced | every generator returns a variation · one lens produces nothing | declared |
 | nothing produced (every generator failed) | no lens produced anything | declared |
-| throw: args must include at least { runId, root, lenses, brief\|planPath } | args carry no runId | throw (line 20) |
-| throw: args.root is required | args.root is missing | throw (line 23) |
-| throw: Provide the problem framing | neither brief nor planPath | throw (line 52) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 67) |
-| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 71) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
+| throw: args must include at least { runId, root, lenses, brief\|planPath } | args carry no runId | throw (line 27) |
+| throw: args.root is required | args.root is missing | throw (line 30) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 59) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 74) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 78) |
 
 ## Coverage
 
-8 scenarios · 1/1 roles · 5/5 throw sites · 0/0 halt statuses · 7 terminal states.
+9 scenarios · 1/1 roles · 6/6 throw sites · 0/0 halt statuses · 8 terminal states.

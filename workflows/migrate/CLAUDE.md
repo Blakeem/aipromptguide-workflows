@@ -51,6 +51,30 @@ plus the phase args. Drive in order:
 6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-*.md`, surface
    `NEEDS-USER.md` + `SWEEP.md`, tell the user what to review. **Never commit.**
 
+**Plan mode is a judgment call — yours.** Default INTO `EnterPlanMode` when the goal is complex, when
+the decomposition or gates need the user's answers, or when the migration touches something important
+enough that the user should read the sectioned plan before anything runs — the approval gate is an
+extra quality gate, spent where it matters. SKIP plan mode when the goal is simple, well understood, or
+already planned — the user handed a finished sectioned plan, or the work is fully specified in context
+— there their request (or standing instruction) is the approval. The user always has the final say:
+asked to see the plan first → plan mode; told to run without them → skip it.
+
+When you skip plan mode, everything else keeps its order:
+
+1. **The plan lives at `plans/<runId>/<name>.md` under `root`, beside `runs/`.** A plan YOU author goes
+   there directly (`## Section:` blocks, dependency order) — never inside `target.repo` and never under
+   `runs/<runId>/`. A plan the USER handed you that sits anywhere a reviewer can reach — inside
+   `target.repo`, or under `runs/<runId>/` — is snapshotted to that same place and the copy used as
+   `planPath`: the blind reviewer must have no route to a plan (#3). Never edit the user's original —
+   but do get it out of `target.repo`: snapshotting relocates the path you pass, not the file, and an
+   untracked plan there halts round 1 on the clean-tree check while a tracked one stays readable by
+   the blind reviewer.
+2. `phase:"refine"` as usual; fold gaps into your plan file. Questions refine returns: user present →
+   `AskUserQuestion`; unattended → resolve each conservatively against the plan's own text, say so in
+   your report, and let `NEEDS-USER.md` catch what genuinely cannot proceed. `too_big:true` unattended
+   → split the named section into more `## Section:` blocks and re-run refine.
+3. `phase:"run"` unchanged.
+
 ## 3. The `sections` list (the one new arg vs feature-cycle)
 
 `phase:"run"` requires **`sections`**: an **ordered** array `[{ id, title, gate }]` you extract from the
@@ -59,13 +83,17 @@ approved plan:
   read verbatim from the file (#1/#2 — never transcribed).
 - **`title`** — logs/labels only.
 - **`gate`** — `green` | `red-baseline` | `build-only` (§6). The harness can't read the plan, so this
-  knob travels as control.
+  knob travels as control. An unrecognized value **throws** — it used to coerce to `green`, so a typoed
+  `red_baseline` silently demanded the very tests a test-first section means to leave failing. Omit the
+  field entirely to take the `green` default.
 - **`planContext`** (optional) — `block` (default) hands that agent a `plan-block.mjs` command that
   prints ONLY its section, so a twelve-section plan never enters a developer's context; `full` hands
   the whole plan file with the section named, for a section that genuinely needs its neighbours in view.
 
 Derive the whole list rather than typing it:
-`node <root>/tools/plan-block.mjs <planPath> --list --kind section` prints `[{ id, title, gate }]` in
+`node <plan-block.mjs> <planPath> --list --kind section` (`<root>/tools/plan-block.mjs` in a checkout;
+from the installed plugin, the plugin's own copy — the same path you pass as `blockTool`) prints
+`[{ id, title, gate }]` in
 file order, and throws on a duplicate id, a non-kebab id, an empty section or a missing/invalid gate —
 all of which would otherwise surface mid-run. **Only a `## Section:` header ends a section**, so the
 `###` bodies are safe and a section can never be silently truncated at one of its own subheadings.
@@ -81,10 +109,14 @@ Before `phase:"run"`:
   any non-zero count halts the run **before a reviewer is spawned** — nothing built, nothing changed.
   Still settle a dirty tree with the user BEFORE you start (`git add -A` to keep it as baseline,
   `git stash -u` to set it aside): finding out at run time costs a spawn.
-- **`root` — REQUIRED** (both phases): the tool's own directory so `runs/` lands beside the tool, not in
-  the target repo. Omit it → the engine errors. It must be THIS checkout: the block command an agent
-  runs is `<root>/tools/plan-block.mjs`. Point `root` at a bare scratch directory and every section
-  fails to get its plan (loudly — see `plan_obtained` below).
+- **`root` — REQUIRED** (both phases): the absolute base run-state hangs off — this checkout when run
+  from a clone, or the persistent plugin data dir the skill resolves when run from the installed aipg
+  plugin (never the plugin install dir itself: it is version-swapped on update, which would strand
+  parked patches). Either way `runs/` lands outside the target repo. Omit it → the engine errors.
+  The block command an agent runs defaults to `<root>/tools/plan-block.mjs` — correct for a checkout;
+  from the installed plugin pass **`blockTool`** = the plugin's own `tools/plan-block.mjs` (the skill
+  resolves it). A block command pointing at a dir with no `tools/` means every section fails to get
+  its plan (loudly — see `plan_obtained` below).
 - **Each section's `gate`** from its plan `gate:` line (mechanical/testless → `build-only`).
 - **Fresh vs. resume.** `DISMISSED-*.md`/`NEEDS-USER.md` are cumulative: clear `runs/<runId>/` for a
   genuinely new run; **preserve** it on resume.
@@ -133,9 +165,11 @@ Roles mirror feature-cycle (the conductor passes only control signals, #1; agent
 - **Developer** (run · opus) — gets its `## Section:` block from the `plan-block.mjs` command (§3) and
   reads the latest flagging review verbatim;
   implements ONLY that section, **converts every call site it owns**, runs the section gate, leaves work
-  **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`, user-only → `NEEDS-USER.md` (halts on a
+  **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`; a verified defect in what the plan
+  prescribes (6a) → fixed + recorded in `AMENDED-<id>.md` (acceptance-only) with a pointer in
+  `NEEDS-USER.md`; user-only → `NEEDS-USER.md` (halts on a
   hard blocker).
-- **Quality Reviewer** (run · sonnet) — **blind**; reviews ONLY the unstaged diff for introduced
+- **Quality Reviewer** (run · opus) — **blind**; reviews ONLY the unstaged diff for introduced
   production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria (enumerated and evidenced
   with locators), reachability, the section gate, regression vs the staged baseline. Writes
@@ -176,16 +210,31 @@ the engine cannot verify it (the harness has no tools). Both the developer and t
 report `plan_obtained`, and an explicit `false` halts with `BLOCKED (an agent could not obtain its
 section — nothing was built from a guess)` — before any reviewer spawns, work parked. Causes, likeliest
 first: the command not permitted in the run environment (pre-allowlist
-`Bash(node <root>/tools/plan-block.mjs:*)`, since a background run cannot answer a prompt), an id
+the block command exactly as the agent runs it — the path is single-quoted, so the rule must match
+that string: `Bash(node '<abs path to plan-block.mjs>':*)`, the path being
+`<root>/tools/plan-block.mjs` or your `blockTool` value — since a background run cannot answer a
+prompt), an id
 matching no `## Section:` block, or a pruned/mistyped plan file. Run the command yourself — its non-zero
-exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`).
+exit names the cause. A *dead* agent is deliberately not folded in here (the check is `=== false`) — it
+has its own halt, next.
+
+**An agent that comes back with NOTHING halts the run.** Any of the three per-round roles — developer,
+quality reviewer, acceptance verifier — returning null (skipped or died) halts with `BLOCKED (an agent
+returned nothing — it was skipped or died; re-invoke to replay it)`, work parked. A dead agent is not a
+failed round: nothing is known about the tree either way. Untreated, a dead developer read as an ordinary
+gate miss and burned the whole round budget into `parked (not accepted within round budget)` — pointing
+you at the plan when the fix is a replay — and a dead reviewer sent the next developer to a review file
+nobody wrote. Re-invoke with the same args/runId, passing the Workflow tool's `resumeFromRunId` to replay
+the agents that did complete.
 
 **Gate semantics** (per section — the suite may be intentionally RED mid-migration; "done" is judged on
 the section's OWN selector, never whole-suite-green):
 - `green` — build passes AND this section's selector tests RAN and PASSED (`tests_run_count==0` = a false
   green, fails the gate).
 - `red-baseline` — build passes AND the authored tests FAIL for the expected reason (TDD red step; a
-  valid, stageable "done").
+  valid, stageable "done"). `tests_run_count==0` fails this gate too: a selector that matched nothing
+  exits non-zero and looks exactly like the intended red, so a false RED is caught the same way a false
+  green is. `-1` (manual/MCP verification) stays legal.
 - `build-only` — build passes; no test pass/fail requirement (mechanical/testless).
 Build (lint/compile) must ALWAYS pass. Whole-suite regression is the acceptance verifier's job (vs the
 staged baseline), not the scoped gate. `args.gates.build`/`test` are literal shell commands — the
@@ -206,7 +255,9 @@ The engine reports `status`/`sectionsDone`/`ledger`/`parked`/`sweep` — `parked
   Except after a passed-but-unstaged halt, `status --porcelain` should show nothing unstaged.
 - Grep each section's integration points — reachable, conversions complete (no call site on the old
   path).
-- Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md`**.
+- Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md` and
+  `AMENDED-<id>.md`** (an amendment = the developer overrode a plan clause it verified was defective —
+  fold it back into the plan if you agree).
 - Any section the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
   criteria carry no locators) passed on assertion rather than evidence — read that file closely.
 - Any section the `ledger` flags `contradicted` returned `pass:true` next to `regression:true` or
@@ -241,8 +292,8 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 
 - **Verify what the runner actually ran.** Some test runners silently ignore extra path args, so a
   multi-file selector runs only the first file and gives a false green. The engine fails the gate on
-  `tests_run_count==0` for a green section (a required field, so it can't be omitted to dodge the
-  check) — sanity-check it; scope one file per invocation or use the runner's filter.
+  `tests_run_count==0` for a green OR red-baseline section (a required field, so it can't be omitted to
+  dodge the check) — sanity-check it; scope one file per invocation or use the runner's filter.
 - **`git diff` omits new files** — also `git status --porcelain` + read them.
 - **Custom `agentTypes` must exist** in the user's registry — defaults use the standard subagent.
 - **A "passed but not staged" section halts on purpose** (so the next section's diff isn't corrupted) —
@@ -255,10 +306,13 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 - **A halt is usually** a bad gate command, a missing dependency the plan assumed (a consumer before its
   producer — reorder the plan), or a real design question. Fix the root cause, resume from that section.
 - **`too_big`** → split the named section, update `sections`, re-run refine.
-- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` at the tool's
-  dir, relocate the stray state, re-run.
+- **A plan file inside `target.repo`** now draws its own ⚠ warning at run start — the blind reviewer
+  must have no route to a plan (#3). Move it under `<root>/plans/` (the snapshot rule in §2).
+- **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
+  run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
+  dir) — relocate the stray state, re-run.
 
-## 10. State files (`runs/<runId>/`, gitignored)
+## 10. State files (`runs/<runId>/`, outside every repo)
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `tasks.json`/`progress/`/`LEDGER.md`/`CHANGELOG.md`/`PLAN-REVIEW.md`.
@@ -289,7 +343,9 @@ inline to `Workflow`.
   (shell command; **throws** if missing — an unset build command would no-op the build gate) +
   `gates.test` (**throws** when any section's gate is `green`; a run of purely mechanical `build-only`
   sections needs no test command). Non-zero exit = fail.
-- **Optional:** `phase` (`refine`|`run`, default `run`) · each section's `planContext` (§3; `block`
+- **Optional:** `phase` (`refine`|`run`, default `run`) · `blockTool` (absolute path to
+  `plan-block.mjs`; default `<root>/tools/plan-block.mjs` — required in practice when `root` is not
+  this checkout, e.g. the installed plugin's data dir; §4) · each section's `planContext` (§3; `block`
   default, `full` to hand over the whole plan file) · `conventions` (the developer's rubric —
   language/version constraints, what stays additive, what NOT to touch; the blind reviewer is never shown
   it) · `reference` (path to a completed example to mirror) · `gates.testSetup` (runner quirks, how to

@@ -40,10 +40,11 @@ To have the AI *conclude* among options with a weighted decision matrix, use the
 
 ## How to use it
 
-Ships in the [AI Prompt Guide workflows](../../README.md) repo (clone as `aipg/`, copy the slash
-commands). Trigger it:
+Ships in the [AI Prompt Guide workflows](../../README.md) repo — install the `aipg` plugin
+(`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install aipg@aipromptguide`),
+or clone the repo as `aipg/` and drive it by path. Trigger it:
 
-- **Slash command:** `/aipg-brainstorm 4 landing-page designs: minimalist, bold/editorial, corporate, playful`
+- **Skill:** `/aipg:brainstorm 4 landing-page designs: minimalist, bold/editorial, corporate, playful`
 - **Plain pointer:** tell Claude to *use the brainstorm-cycle **workflow** in `aipg/workflows/brainstorm/`*
   and what to explore.
 

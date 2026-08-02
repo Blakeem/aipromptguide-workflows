@@ -20,13 +20,14 @@ flowchart TD
   t6(["stalled (a round added nothing new and claimed nothing - stopped unverified)"])
   t7(["stopped on token budget (resume where it left off)"])
   t8(["BLOCKED (needs user input)"])
-  x1[/"throw: args must include at least { runId, root, criteria#124;planPath }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: Invalid numeric arg"/]
-  x4[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
-  x5[/"throw: Criteria critic returned nothing"/]
-  x6[/"throw: Investigator returned nothing in round ..."/]
-  x7[/"throw: Acceptance critic returned nothing in round ..."/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, criteria#124;planPath }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
+  x6[/"throw: Criteria critic returned nothing"/]
+  x7[/"throw: Investigator returned nothing in round ..."/]
+  x8[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -34,20 +35,21 @@ flowchart TD
   S0 --> x2
   S0 --> x3
   S0 --> x4
+  S0 --> x5
   a1 --> t1
-  a1 --> x5
+  a1 --> x6
   a2 -.->|"L1 ×5"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
-  a2 --> x6
+  a2 --> x7
   a3 -.->|"the critic contests the coverage claim · +1 more (×5)"| a2
   a3 --> t2
   a3 --> t3
   a3 --> t4
   a3 --> t5
   a3 --> t8
-  a3 --> x7
+  a3 --> x8
 ```
 
 ## Phases
@@ -76,14 +78,15 @@ flowchart TD
 | stalled (a round added nothing new and claimed nothing - stopped unverified) | a round adds nothing at all | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
-| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 30) |
-| throw: args.root is required | args.root is missing | throw (line 33) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 54) |
-| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 96) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 424) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 490) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 531) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 34) |
+| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 37) |
+| throw: args.root is required | args.root is missing | throw (line 40) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 61) |
+| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 103) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 431) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 497) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 538) |
 
 ## Coverage
 
-20 scenarios · 3/3 roles · 7/7 throw sites · 7/7 halt statuses · 15 terminal states.
+21 scenarios · 3/3 roles · 8/8 throw sites · 7/7 halt statuses · 16 terminal states.

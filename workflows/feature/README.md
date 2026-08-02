@@ -5,7 +5,8 @@
 An autonomous Claude Code workflow that builds **ONE bounded feature** — or an ordered **roadmap** of
 several, one approved plan each — test-verified, wired in, and staged for you to commit.
 
-You ask for a feature. Claude writes a short plan, you approve it, an independent critic checks that
+You ask for a feature. Claude writes a short plan, you approve it — or you hand it a plan you already
+wrote and it skips plan mode — then an independent critic checks that
 plan against your real code, then a **develop → review → acceptance** loop builds it and stages the
 result. You commit. Building a roadmap? Plan and approve each feature up front, then one run builds them
 in order, **staging each accepted feature** before starting the next.
@@ -50,18 +51,17 @@ for a feature **big enough to deserve a written plan**:
 
 ## How to use it
 
-This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install once — clone it
-into your project as `aipg/`, gitignore it, and copy the slash commands (see the
-[root README](../../README.md)) — then trigger it two ways:
+This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install the `aipg`
+plugin once (`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install
+aipg@aipromptguide`), or clone the repo as `aipg/` and drive it by path — then trigger it two ways:
 
-- **Slash command:** `/aipg-feature add a search_docs MCP tool to this server. Plan it first.`
+- **Skill:** `/aipg:feature add a search_docs MCP tool to this server. Plan it first.`
 - **Plain pointer:** tell Claude to *use the feature-cycle **workflow** in `aipg/workflows/feature/`*
   and what to build.
 
 Either way Claude reads `aipg/workflows/feature/CLAUDE.md`, drives plan mode + your approval, then runs
 `feature-cycle.mjs` **by path** (the engine is in no global registry, so the folder pointer is how it's
-discovered; nothing to build). Optional: drop `feature-cycle.mjs` into a `~/.claude/workflows/`
-directory to invoke it by name instead.
+discovered; nothing to build).
 
 From there Claude drives everything:
 

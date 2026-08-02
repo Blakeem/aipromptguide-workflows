@@ -38,7 +38,7 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
 ## Roles (5)
 
 **`review.mjs` (read-only; units run CONCURRENTLY via `pipeline`):**
-- **Reviewer** (sonnet) — finds production defects in ONE unit's files through ONE lens; returns findings.
+- **Reviewer** (opus) — finds production defects in ONE unit's files through ONE lens; returns findings.
   When it finds NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues
   found." + unit hash — what makes hash-based resume work); with findings it writes nothing and hands off
   to the verifier. With a lens ARRAY the unit gets one reviewer per lens, and only the LAST may write the
@@ -51,9 +51,11 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
 **`resolve-cycle.mjs` (batches run SEQUENTIALLY — staging serializes):**
 - **Fixer** (opus) — reads its batch's `issues/<unit>.md` verbatim, **verify-first** (vanished → STALE),
   fixes minimally, runs gates, leaves work UNSTAGED, owns the matrix, declines → `DISMISSED-<batch>.md`,
+  a verified defect in an issue's own **Fix:** instruction (6a) → fixed + recorded in
+  `AMENDED-<batch>.md` (acceptance-only, pointer in `NEEDS-USER.md`),
   escalates → `NEEDS-USER.md`. Only the fixer halts the run for the user — Park halts too, but on an
   unsafe tree. On round 1 it also reports two preconditions before touching anything (see Contracts).
-- **Blind quality reviewer** (sonnet) — reads ONLY the unstaged diff, no issue text — catches anything
+- **Blind quality reviewer** (opus) — reads ONLY the unstaged diff, no issue text — catches anything
   the fix introduced or broke. Must be clean before acceptance.
 - **Acceptance verifier** (opus) — reads the batch's issue file(s), **re-derives each fix's root cause**
   from current code, passes only if the fix closes it *completely* with no regression and green gates.
@@ -146,14 +148,16 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 
 ## Playbook
 
-1. **Units:** `node gen-units.mjs --repo <abs> --src src --out runs/<runId>/manifest.json`. A bin-packing
+1. **Units:** `node <path to gen-units.mjs> --repo <abs> --src src --out <root>/runs/<runId>/manifest.json`
+   (`gen-units.mjs` sits beside this guide — `workflows/debug/` in a checkout, the path the skill
+   resolves from the installed plugin; the `--out` base is `root`, never your cwd). A bin-packing
    pass merges adjacent units up to `--pack-loc` LOC (default 2000 ≈ ~215k tokens/agent — a right-sized
    review turn); base caps are `--cap-loc 2000 --cap-files 24 --big-file 2000`. Show the user the printed
    unit list; tune `--pack-loc` (0 disables packing) or `--cap-loc/--big-file` if units look lopsided.
-2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (THIS tool's
-   directory — from the Workflow result's scriptPath — so run-state lands here, gitignored, not in the
-   target repo), `target.repo` (absolute), `gates`, and `conventions` (the project's CLAUDE.md distilled
-   to ~10 lines — the reviewer's rubric).
+2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
+   — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
+   version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
+   `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
 3. **Run `review.mjs`** (`scriptPath` = its absolute path). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. Then PRESENT the inventory: read the issue
    files, walk the user through totals by severity/decision, the hot areas, and every NEEDS_USER item
@@ -227,11 +231,13 @@ loose anchors safe — the fixer re-confirms each issue against current code.
 - **Token budget:** the user can append a directive (e.g. "+2m"); `resolve-cycle` stops cleanly between
   batches under `minBatchBudget`. Resume continues where it left off.
 
-## State files (`runs/<runId>/`, gitignored)
+## State files (`runs/<runId>/`, outside every repo)
 
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable) · `quality-review-<batch>-rN.md` (blind) ·
 `acceptance-review-<batch>-rN.md` (issue-aware) · `DISMISSED-<batch>.md` (fixer's declines) ·
+`AMENDED-<batch>.md` (Fix instructions the fixer overrode as verified-defective; correct the issue
+file if you agree) ·
 `NEEDS-USER.md` (fixer escalations + every parked batch's diagnosis and restore command) ·
 `parked-<batch>.patch` (a failed batch's saved work) · `parked-<batch>-newfiles/` (only when the batch
 created untracked files the patch couldn't carry). No `issues.json`, no `SWEEP.md`, no progress JSON, no
@@ -248,12 +254,14 @@ bulky fields you build per the playbook (`units` from `gen-units.mjs` for `revie
 from the triaged files for `resolve-cycle`). There is no `phase` arg — each engine is invoked by its own
 `scriptPath`.
 
-**Common (both engines):** `runId` · `root` (THIS tool's directory) — REUSE both across engines ·
+**Common (both engines):** `runId` · `root` (this checkout, or the plugin data dir the skill resolves)
+— REUSE both across engines ·
 `target.repo` (absolute) · `conventions` (the reviewer's/fixer's rubric, ~10 lines) · optional
 `gates.testSetup` · `target.lang`/`target.framework` (hints) · `models`/`agentTypes` · `stateDir`.
 
 **`review.mjs`:**
-- **Required:** `runId` · `root` · `target.repo` · `conventions` · `units` (from `gen-units.mjs`).
+- **Required:** `runId` · `root` · `target.repo` · `units` (from `gen-units.mjs`). `conventions` is
+  strongly recommended, not enforced — omitted, the reviewer runs on a placeholder rubric; supply it.
   `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `lens` (one lens or an ARRAY —
@@ -263,10 +271,11 @@ from the triaged files for `resolve-cycle`). There is no `phase` arg — each en
 
 **`resolve-cycle.mjs`:**
 - **Required:** `runId` · `root` · `target.repo` · `gates.build` + `gates.test` (shell commands; `test`
-  must be GREEN before resolve) · `conventions` · `issues` (review's returned array + your triage).
+  must be GREEN before resolve) · `issues` (review's returned array + your triage).
   Missing `runId`, `root`, `target.repo`, either gate, or `issues` **throws** — `target.repo` has no
   default (park's `git checkout --` and delete run against it) and an unset gate would silently no-op
-  its half of the green check. `conventions` alone falls back to a placeholder rubric; supply it.
+  its half of the green check. `conventions` is strongly recommended, not enforced — omitted, the
+  fixer runs on a placeholder rubric; supply it.
 - **Optional tuning:** `fixSeverity` (resolve-fix floor, medium) · `criticSeverity` (floor for NEW
   defects the blind reviewer reports, high) · `batch.locCap` (3000) / `batch.maxIssues` (10) — both now
   **throw** below 1 or on a non-number (`0` used to be accepted and produced zero batches, i.e. a run

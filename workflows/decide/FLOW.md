@@ -15,16 +15,17 @@ flowchart TD
   t1(["decided (decider + reviewer agree)"])
   t2(["needs-attention (no agreement within round budget)"])
   t3(["BLOCKED (needs user input)"])
-  x1[/"throw: args must include at least { runId, root, lenses, requirements#124;planPath }"/]
-  x2[/"throw: args.root is required"/]
-  x3[/"throw: Invalid numeric arg"/]
-  x4[/"throw: args.selection must be 'single'"/]
-  x5[/"throw: Provide the requirements"/]
-  x6[/"throw: args.lenses requires >=2 evaluation perspectives"/]
-  x7[/"throw: lens ids collide after slugging"/]
-  x8[/"throw: No analyst produced a lens file"/]
-  x9[/"throw: Decider returned nothing in round ..."/]
-  x10[/"throw: Reviewer returned nothing in round ..."/]
+  x1[/"throw: Invalid args JSON"/]
+  x2[/"throw: args must include at least { runId, root, lenses, requirements#124;planPath }"/]
+  x3[/"throw: args.root is required"/]
+  x4[/"throw: Invalid numeric arg"/]
+  x5[/"throw: args.selection must be 'single'"/]
+  x6[/"throw: Provide the requirements"/]
+  x7[/"throw: args.lenses requires >=2 evaluation perspectives"/]
+  x8[/"throw: lens ids collide after slugging"/]
+  x9[/"throw: No analyst produced a lens file"/]
+  x10[/"throw: Decider returned nothing in round ..."/]
+  x11[/"throw: Reviewer returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -33,16 +34,17 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
+  S0 --> x8
   a1 --> a2
-  a1 --> x8
+  a1 --> x9
   a2 --> a3
   a2 --> t3
-  a2 --> x9
+  a2 --> x10
   a3 -.->|"the reviewer keeps finding gaps (×3)"| a2
   a3 --> t1
   a3 --> t2
   a3 --> t3
-  a3 --> x10
+  a3 --> x11
 ```
 
 ## Phases
@@ -60,17 +62,18 @@ flowchart TD
 | decided (decider + reviewer agree) | the reviewer agrees the conclusion holds · one analyst produces no lens file | derived |
 | needs-attention (no agreement within round budget) | the reviewer keeps finding gaps | derived |
 | BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
-| throw: args must include at least { runId, root, lenses, requirements\|planPath } | args carry no runId | throw (line 23) |
-| throw: args.root is required | args.root is missing | throw (line 26) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 45) |
-| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 63) |
-| throw: Provide the requirements | neither requirements nor planPath | throw (line 93) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 295) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 326) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 349) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
+| throw: args must include at least { runId, root, lenses, requirements\|planPath } | args carry no runId | throw (line 30) |
+| throw: args.root is required | args.root is missing | throw (line 33) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
+| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 70) |
+| throw: Provide the requirements | neither requirements nor planPath | throw (line 100) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 111) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 115) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 302) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 333) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 356) |
 
 ## Coverage
 
-15 scenarios · 3/3 roles · 10/10 throw sites · 0/0 halt statuses · 13 terminal states.
+16 scenarios · 3/3 roles · 11/11 throw sites · 0/0 halt statuses · 14 terminal states.

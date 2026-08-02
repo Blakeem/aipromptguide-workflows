@@ -10,7 +10,7 @@ const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates:
   plan: '## Section: sec-a\nA\n## Section: sec-b\nB\n', sections: SECTIONS };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
-const DEV       = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 4, unstaged_confirmed: true, needs_user: false };
+const DEV       = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 4, unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN     = { clean: true, issue_count: 0 };
 const ACC_PASS  = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 2, criteria_met: 2, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL  = { pass: false, staged: false, reachable: false, regression: false, criteria_total: 2, criteria_met: 0, evidence_recorded: true, gap_count: 2 };
@@ -206,22 +206,9 @@ section('a section id matching nothing throws instead of running a smaller list'
   }
 }
 
-section('required args throw rather than silently defaulting');
-{
-  const cases = [
-    ['target.repo', { ...baseArgs, target: {} }],
-    ['gates.build', { ...baseArgs, gates: { test: 't' } }],
-    // gates.test is only required when a section actually asks for verification.
-    ['gates.test with a green section', { ...baseArgs, gates: { build: 'b' } }],
-    ['root', { ...baseArgs, root: undefined }],
-    ['plan', { ...baseArgs, plan: undefined }],
-    ['sections', { ...baseArgs, sections: [] }],
-  ];
-  for (const [name, args] of cases) {
-    const msg = await throwsWith(ENGINE, { args });
-    ok(msg !== '', `missing ${name} throws: ${msg.slice(0, 50)}`);
-  }
-}
+// The 'required args throw rather than silently defaulting' section (target.repo, gates.build,
+// gates.test with a green section, root, plan, sections) moved to required-args.test.mjs, which sweeps
+// the same keys across EVERY engine — the axis this defect class actually travels on.
 
 section('park never names a review file that was never written');
 // Same contract as feature-cycle's: with the gate never green neither reviewer runs, so the park entry
@@ -244,12 +231,66 @@ section('a section reaches the developer as a plan-block COMMAND, not the whole 
   const FILED = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md' };
   const { prompt } = await run(GREEN_RUN, FILED);
   const dev = prompt('develop sec-a');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev), '--kind section, and this section only');
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev), 'the <root>/tools default, --kind section, this section only');
   ok(!/plan-block\.mjs \S+ sec-b/.test(dev), 'never a sibling section');
   ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
-  ok(/node '\S*plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(prompt('acceptance sec-a')),
+  ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(prompt('acceptance sec-a')),
     'acceptance judges against the same section the developer built to');
   ok(!/plan-block|migration\.md/.test(prompt('quality sec-a')), 'the BLIND reviewer still gets no route to the plan (#3)');
+}
+
+section('run-state pointed inside the target repo draws the placement warning');
+// Ported from feature-cycle (the missed sibling): a root/stateDir inside target.repo lets the blind
+// reviewer reach the review/ledger files. Warns loudly rather than halting (the operator may be mid-resume).
+{
+  const { logs } = await run(GREEN_RUN, { ...baseArgs, stateDir: 'E:/repo/runs/t' });
+  ok(logs.some((l) => l.includes('INSIDE the target repo')), 'the warning names the placement hazard');
+  ok(logs.some((l) => l.includes('never the plugin install dir')), 'and steers away from the version-swapped install dir');
+  ok(!logs.some((l) => l.includes('resolves inside the target repo')), 'and does not also fire the PLAN guard');
+}
+
+section('a plan file pointed inside the target repo draws its own placement warning');
+// The sibling of feature-cycle's guard (§1). Sections carry no path of their own, so the top-level
+// planPath is the whole surface here. The substring is deliberately NOT the run-state guard's
+// "INSIDE the target repo" — two guards that match one assertion prove nothing about either.
+const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside the target repo'));
+{
+  const INSIDE = { ...baseArgs, plan: undefined, planPath: 'E:/repo/docs/migration.md' };
+  const { logs } = await run(GREEN_RUN, INSIDE);
+  const warn = planWarnings(logs);
+  eq(warn.length, 1, 'exactly one plan-placement warning');
+  ok((warn[0] ?? '').includes('E:/repo/docs/migration.md'), `it names the offending path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+  ok(!logs.some((l) => l.includes('INSIDE the target repo')), 'and it is not the run-state guard firing');
+}
+{
+  // The repo ROOT itself, through backslashes + a trailing slash — the check runs on the abs()-normalized
+  // path, so neither separator style nor a trailing slash can dodge it.
+  const ROOTPATH = { ...baseArgs, plan: undefined, planPath: 'E:\\repo\\' };
+  const warn = planWarnings((await run(GREEN_RUN, ROOTPATH)).logs);
+  eq(warn.length, 1, 'a plan path equal to the repo root itself warns, normalization and all');
+  ok((warn[0] ?? '').includes('E:/repo'), 'and the path it names is the normalized one');
+}
+{
+  // Negative, FILE-BACKED: a plan outside the repo is the case the guard must stay silent on.
+  const OUTSIDE = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md' };
+  eq(planWarnings((await run(GREEN_RUN, OUTSIDE)).logs).length, 0, 'a plan file outside the repo draws nothing');
+}
+{
+  // Negative, INLINE (baseArgs): no path exists to compare — skipped by construction, not by check.
+  eq(planWarnings((await run(GREEN_RUN)).logs).length, 0, 'an inline plan has no path — skipped by construction');
+}
+
+section('args.blockTool points the section command at an installed plugin\'s own tools/ copy');
+// Same split as feature-cycle's blockTool case: an installed plugin keeps run-state (ROOT) in the
+// persistent data dir while tools/plan-block.mjs ships in the versioned cache dir.
+{
+  const FILED = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md',
+    blockTool: 'C:\\plug\\cache\\aipg\\1.0.0\\tools\\plan-block.mjs' };
+  const { prompt } = await run(GREEN_RUN, FILED);
+  const dev = prompt('develop sec-a');
+  ok(/node 'C:\/plug\/cache\/aipg\/1\.0\.0\/tools\/plan-block\.mjs' 'E:\/plans\/migration\.md' 'sec-a' --kind section/.test(dev),
+    'the command uses the passed path, backslashes normalized');
+  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
 }
 
 section('planContext:"full" and an INLINE plan both keep the by-header wording');
@@ -290,9 +331,133 @@ section('migrate acceptance has the same channel');
   ok(/Acceptance verifier/.test(out.haltReason), 'halt reason names the role');
 }
 
+section('a dead round-loop agent halts and parks — never a "gate miss" or a clean review');
+// The number-one defect shape (tests/CLAUDE.md §3) in the three per-round roles. Each failure used to be
+// indistinguishable from an ordinary content failure: a dead developer read as a gate miss and burned the
+// round budget into `parked (not accepted within round budget)`; a dead quality/acceptance set reviewPath
+// to a review file nobody wrote and pointed the NEXT developer at it.
+{
+  const DEAD = [
+    ['developer', { 'develop': null, 'park': PARK_OK }, /Developer for section sec-a/],
+    ['quality reviewer', { ...GREEN_RUN, 'quality': null, 'park': PARK_OK }, /Quality reviewer for section sec-a/],
+    ['acceptance verifier', { ...GREEN_RUN, 'acceptance': null, 'park': PARK_OK }, /Acceptance verifier for section sec-a/],
+  ];
+  for (const [role, respond, names] of DEAD) {
+    const { out, labels } = await run(respond);
+    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `a dead ${role} halts`);
+    ok(names.test(out.haltReason) && /skipped or died/.test(out.haltReason), `the reason names the ${role}`);
+    ok(/resumeFromRunId/.test(out.haltReason), 'and says how to replay it');
+    ok(labels.includes('park:sec-a'), 'its work is PARKED, not abandoned in the tree');
+    ok(!labels.some((l) => l.includes('sec-b')), 'sec-b never started');
+    eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died, not "round budget"');
+  }
+}
+
+section('a dead round-loop agent never points the next round at a review file nobody wrote');
+{
+  const { calls } = await run({ ...GREEN_RUN, 'quality': null, 'park': PARK_OK });
+  ok(!calls.some((c) => c.label.startsWith('develop sec-a r2')), 'no second develop round after a dead reviewer');
+  ok(!calls.some((c) => c.label.startsWith('park')
+    && /quality-review-sec-a-r\d+\.md/.test(c.prompt)), 'and park names no phantom quality-review file');
+}
+
+section('a red-baseline gate rejects a count of 0 exactly as green does');
+// A mistyped selector collects nothing and exits non-zero; a developer that EXPECTS failure at the red
+// step reports failed-expected with tests_run_count 0. That is a gate passed on a test that never ran.
+{
+  const RED = { ...baseArgs, sections: [{ id: 'sec-a', title: 'A', gate: 'red-baseline' }] };
+  const RED_DEV = { ...DEV, test_outcome: 'failed-expected' };
+
+  // Scripted so that everything DOWNSTREAM of the gate would accept — the gate is the only thing that
+  // can stop a phantom red baseline being staged.
+  const zero = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: 0 }, 'park': PARK_OK }, RED);
+  ok(!zero.labels.some((l) => l.startsWith('quality')), 'no reviewer spawned on a phantom red baseline');
+  eq(zero.out.sectionsDone.length, 0, 'nothing is staged on a test that never ran');
+  ok(zero.out.ledger[0].status.startsWith('parked'), 'the section parks at the round budget instead');
+
+  // -1 is the schema's N/A (manual/MCP verification) and must stay a legal red baseline.
+  const na = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: -1 } }, RED);
+  eq(na.out.status, 'done (all sections staged)', 'tests_run_count -1 still passes the red-baseline gate');
+
+  const real = await run({ ...GREEN_RUN, 'develop': { ...RED_DEV, tests_run_count: 3 } }, RED);
+  eq(real.out.status, 'done (all sections staged)', 'a real red baseline still passes');
+}
+
+section('an unrecognized section gate throws instead of silently becoming green');
+// `VALID_GATES.has(s.gate) ? s.gate : 'green'` turned a typoed red_baseline into the gate that DEMANDS
+// the very tests a test-first section intends to leave failing — a guaranteed park after the full budget.
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'sec-a', title: 'A', gate: 'red_baseline' }] } });
+  ok(/are not one of green \| red-baseline \| build-only/.test(msg), `throws: ${msg.slice(0, 70)}`);
+  ok(/sec-a: red_baseline/.test(msg), 'and names the offending section + value');
+
+  // An OMITTED gate is not a typo — it keeps the documented green default.
+  const { out } = await run(GREEN_RUN, { ...baseArgs, sections: [{ id: 'sec-a', title: 'A' }] });
+  eq(out.ledger[0].gate, 'green', 'an omitted gate still defaults to green');
+}
+
 section('a non-kebab section id throws — it names files AND enters a shell command');
 {
   const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'Sec A!', title: 'A' }] } });
   ok(/not kebab slugs/.test(msg), `throws: ${msg.slice(0, 60)}`);
   ok(/Sec A!/.test(msg), 'and names the offender');
+}
+
+section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED section defect, 6b keeps the old drop');
+// The sibling of feature-cycle's plan-defect wedge (§1): a blind finding indicting what the SECTION
+// prescribes routed to case 6 (DROP — LOG), the reviewer re-raised it, and the round budget burned.
+{
+  const dev = (await run(GREEN_RUN)).prompt('develop sec-a');
+  ok(/6a\. Conflicts with the plan AND you VERIFIED/.test(dev), '6a exists and is gated on verification');
+  ok(/the verified defect outranks the\s+prescription/.test(dev), 'and says the verified defect outranks the prescription');
+  ok(/that verified defect also outranks the "NO scope creep beyond\s+it" instruction above and the CONVENTIONS rubric/.test(dev),
+    'the PRECEDENCE clause names both lines that produced the observed wedge');
+  ok(/Everywhere else the plan and the conventions\s+still bind/.test(dev), 'and confines the override to that one clause');
+  ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), '6b keeps the unverified/intentional case a DROP');
+  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/DISMISSED-sec-a\.md/.test(dev),
+    'and LOGGING re-points the DROP route at 6b, not the whole of 6');
+  ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), 'ESCALATE (case 7) is untouched');
+}
+
+section('an amendment is RECORDED in a per-section AMENDED file, with a pointer line for the user');
+{
+  const dev = (await run(GREEN_RUN)).prompt('develop sec-a');
+  ok(/AMEND \(6a\): append ONE entry to E:\/r\/runs\/t\/AMENDED-sec-a\.md/.test(dev), 'the record is the per-section AMENDED file');
+  ok(/## Section amendment: sec-a r1/.test(dev), 'the entry heading uses THIS engine\'s idiom and carries the round');
+  ok(/QUOTED verbatim/.test(dev) && /file:line \+ one line on why it\s+is real/.test(dev) && /what you built instead/.test(dev),
+    'the entry shape demands the overridden clause, the defect evidence and what was built');
+  ok(/ONE POINTER line to E:\/r\/runs\/t\/NEEDS-USER\.md/.test(dev) && /NO plan text/.test(dev),
+    'NEEDS-USER gets a pointer line only — no plan text travels with it');
+}
+
+section('the AMENDED record never reaches the BLIND reviewer, and SETTLED is untouched');
+{
+  const q = (await run(GREEN_RUN)).prompt('quality sec-a');
+  ok(q !== '', 'the blind reviewer ran');
+  ok(!/AMENDED/.test(q) && !/amendment/i.test(q), 'the blind quality prompt gains no AMENDED path and no mention of one');
+  ok(/DISMISSED-sec-a\.md/.test(q) && /NEEDS-USER\.md/.test(q), 'while SETTLED still hands it exactly the two files it always had');
+}
+
+section('acceptance judges an amended criterion against the AMENDED behavior — with evidence or not at all');
+{
+  const a = (await run(GREEN_RUN)).prompt('acceptance sec-a');
+  ok(/READ E:\/r\/runs\/t\/AMENDED-sec-a\.md if it exists/.test(a), 'acceptance is told to read the record');
+  ok(/against the AMENDED behavior, not the superseded clause/.test(a), 'and to judge the amended criterion against what was built');
+  ok(/NAME every\s+criterion you judged under an amendment in your review file/.test(a), 'each such criterion must be named in the review file');
+  ok(/states NO defect\s+evidence excuses NOTHING/.test(a) && /stays UNMET/.test(a),
+    'an evidence-free amendment excuses nothing — the escape hatch is not a free pass');
+}
+
+section('a recorded amendment is logged, counted into the ledger and named in followups; zero is silent');
+{
+  const one = await run({ ...GREEN_RUN, 'develop': { ...DEV, plan_amendments: 1 } });
+  ok(one.logs.some((l) => /⚠ sec-a r1: 1 plan amendment\(s\) recorded — see E:\/r\/runs\/t\/AMENDED-sec-a\.md/.test(l)),
+    `the amendment is logged with the file that holds it: ${one.logs.find((l) => /amendment/.test(l))}`);
+  eq(one.out.ledger[0].planAmendments, 1, 'accumulated into the section\'s ledger record');
+  ok(/PLAN AMENDED for: sec-a, sec-b/.test(one.out.followups), 'and followups names every amended section');
+
+  const none = await run({ ...GREEN_RUN, 'develop': { ...DEV, plan_amendments: 0 } });
+  ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing at all');
+  eq(none.out.ledger[0].planAmendments, 0, 'the ledger rec still carries the field, initialized in its literal');
+  ok(!/PLAN AMENDED/.test(none.out.followups), 'and followups says nothing about amendments');
 }

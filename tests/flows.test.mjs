@@ -3,6 +3,7 @@
 // between two concurrent agents, folds two terminal states into one node, or mints a second node for
 // one throw site still renders beautifully — it just lies, and nothing else in this repo would notice.
 // The committed FLOW.md files are checked against a fresh generation here, so drift turns the gate red.
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildGraph, firstClause, generate, loadSpecs, whenLabel } from '../tools/gen-flows.mjs';
@@ -290,7 +291,7 @@ section('two scenarios dying at DIFFERENT rounds map to ONE throw node');
 {
   const g = await buildGraph(investigate);
   const throwNodes = g.terminals.filter((t) => t.source === 'throw');
-  eq(throwNodes.length, 7, 'seven throw sites, seven nodes');
+  eq(throwNodes.length, 8, 'eight throw sites, eight nodes');
   const dead = throwNodes.filter((t) => t.label.includes('Investigator returned nothing'));
   eq(dead.length, 1, 'the two dead-investigator scenarios share one node');
   eq(dead[0].scenarios.join(', '), 'dead investigator (round 1), dead investigator (round 3)', 'both are credited to it');
@@ -480,9 +481,28 @@ section('an uncovered throw site is reported, with the reason when one is allowe
   };
   const g = await buildGraph(spec);
   eq(g.coverage.throws.covered, 1, 'one site reached');
-  eq(g.coverage.throws.uncovered.length, 4, 'the other four are reported, not ignored');
+  eq(g.coverage.throws.uncovered.length, 5, 'the other five are reported, not ignored');
   const allowed = g.coverage.throws.uncovered.filter((t) => t.reason);
   eq(allowed.length, 1, 'exactly the one allowUncovered names');
   eq(allowed[0].reason, 'covered by the sibling spec', 'and its reason rides along');
   ok(generate(spec, g).includes('covered by the sibling spec'), 'which reaches FLOW.md too');
+}
+
+section('a non-numeric spacing override throws instead of interpolating NaN into every map');
+// Guarded in a CHILD process because the constants are read once, at module load. The sweep shell
+// (tests/CLAUDE.md §7) is the only reason these vars exist and is exactly where the corruption hid:
+// `--check` computes the SAME NaN as generate(), so the diff matched and the gate stayed green while
+// every committed map carried an invalid Mermaid init directive.
+{
+  const check = (env) => {
+    try {
+      execFileSync(process.execPath, [join(REPO_ROOT, 'tools/gen-flows.mjs'), '--check'],
+        { stdio: 'pipe', encoding: 'utf8', env: { ...process.env, ...env } });
+      return '';
+    } catch (e) { return `${e.stdout || ''}${e.stderr || ''}`; }
+  };
+  ok(/FLOW_NODE_SPACING=wide is not a finite number/.test(check({ FLOW_NODE_SPACING: 'wide' })),
+    'the offending var and its raw value are named');
+  ok(/FLOW_RANK_SPACING=x2 is not a finite number/.test(check({ FLOW_RANK_SPACING: 'x2' })),
+    'the rank override is guarded too');
 }

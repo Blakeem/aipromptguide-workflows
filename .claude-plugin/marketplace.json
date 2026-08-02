@@ -1,0 +1,12 @@
+{
+  "name": "aipromptguide",
+  "description": "AI Prompt Guide workflows — multi-agent dynamic workflows for Claude Code, installed as the aipg plugin.",
+  "owner": { "name": "Blake McDonald", "url": "https://github.com/Blakeem" },
+  "plugins": [
+    {
+      "name": "aipg",
+      "source": "./",
+      "description": "Multi-agent dynamic workflows for Claude Code: feature, debug, migrate, enhance, brainstorm, decide, investigate, docs."
+    }
+  ]
+}

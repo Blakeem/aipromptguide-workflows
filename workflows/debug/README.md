@@ -67,11 +67,11 @@ pass over a body of code, not a single targeted change:
 
 ## How to use it
 
-This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install once — clone it
-into your project as `aipg/`, gitignore it, and copy the slash commands (see the
-[root README](../../README.md)) — then trigger it two ways:
+This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install the `aipg`
+plugin once (`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install
+aipg@aipromptguide`), or clone the repo as `aipg/` and drive it by path — then trigger it two ways:
 
-- **Slash command:** `/aipg-debug` — then *"review this repo for production readiness; build is
+- **Skill:** `/aipg:debug` — then *"review this repo for production readiness; build is
   `<your build command>`, tests are `<your test command>`; start with the review pass."*
 - **Plain pointer:** tell Claude to *use the debug **workflow** in `aipg/workflows/debug/`* to review a
   target, with your build and test commands.
