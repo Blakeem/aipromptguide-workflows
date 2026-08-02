@@ -243,6 +243,55 @@ section('run-state pointed inside the target repo draws the placement warning');
     { ...baseArgs, stateDir: 'E:/repo/runs/t' });
   ok(logs.some((l) => l.includes('INSIDE the target repo')), 'the warning names the placement hazard');
   ok(logs.some((l) => l.includes('never the plugin install dir')), 'and steers away from the version-swapped install dir');
+  ok(!logs.some((l) => l.includes('resolves inside the target repo')), 'and does not also fire the PLAN guard');
+}
+
+section('a plan file pointed inside the target repo draws its own placement warning');
+// Same hazard as run-state, one door over: the plan carries the SPEC, so a planPath inside target.repo
+// puts it where the blind reviewer can read it out of the repo tree and the park/diff machinery can sweep
+// it. Warns rather than halting, same precedent. The substring is deliberately NOT the run-state guard's
+// "INSIDE the target repo" — two guards that match one assertion prove nothing about either.
+const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside the target repo'));
+const GREEN = { 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS };
+{
+  // Top-level planPath. This site is unconditional top-level code, so the refine phase is covered too.
+  const { logs } = await run(GREEN, { ...baseArgs, planPath: 'E:/repo/docs/plan.md' });
+  const warn = planWarnings(logs);
+  eq(warn.length, 1, 'exactly one plan-placement warning');
+  ok((warn[0] ?? '').includes('E:/repo/docs/plan.md'), `it names the offending path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+  ok(!logs.some((l) => l.includes('INSIDE the target repo')), 'and it is not the run-state guard firing');
+}
+{
+  // A roadmap ENTRY's own planPath — the top-level file is outside, so only the entry can be the source.
+  const ROADMAP = { ...baseArgs, planPath: 'E:/plans/roadmap.md',
+    plans: [{ id: 'plan-a', planPath: 'E:/repo/plans/a.md', gate: 'build-only' },
+      { id: 'plan-b', plan: '## Feature\nB', gate: 'build-only' }] };
+  const warn = planWarnings((await run(GREEN, ROADMAP)).logs);
+  eq(warn.length, 1, 'the offending entry warns, its inline sibling does not');
+  ok((warn[0] ?? '').includes('E:/repo/plans/a.md'), `it names the entry path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+}
+{
+  // The repo ROOT itself, reached through backslashes + a trailing slash — the check runs on the
+  // abs()-normalized path, so neither separator style nor a trailing slash can dodge it.
+  const warn = planWarnings((await run(GREEN, { ...baseArgs, planPath: 'E:\\repo\\' })).logs);
+  eq(warn.length, 1, 'a plan path equal to the repo root itself warns, normalization and all');
+  ok((warn[0] ?? '').includes('E:/repo'), 'and the path it names is the normalized one');
+}
+{
+  // Back-compat: no `plans`, so ALL_PLANS synthesizes {id:'feature', planPath: A.planPath} — the SAME
+  // path both guard sites see. Without the Set the operator gets the identical line twice.
+  const { logs } = await run(GREEN, { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
+    gates: { build: 'b', test: 't' }, planPath: 'E:/repo/docs/plan.md', gate: 'build-only' });
+  eq(planWarnings(logs).length, 1, 'the single-plan back-compat case warns ONCE, not once per site');
+}
+{
+  // Negative, FILE-BACKED: a plan outside the repo is the case the guard must stay silent on.
+  const OUTSIDE = { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] };
+  eq(planWarnings((await run(GREEN, OUTSIDE)).logs).length, 0, 'a plan file outside the repo draws nothing');
+}
+{
+  // Negative, INLINE: no path exists to compare, so the skip is by construction rather than by check.
+  eq(planWarnings((await run(GREEN)).logs).length, 0, 'an inline plan has no path — skipped by construction');
 }
 
 section('args.blockTool points the block command at an installed plugin\'s own tools/ copy');
