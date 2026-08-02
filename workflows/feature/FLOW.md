@@ -117,15 +117,15 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 38) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 44) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 153) |
-| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 162) |
-| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 510) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 522) |
-| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 554) |
-| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 560) |
-| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 563) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 578) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 583) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 172) |
+| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 181) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 529) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 541) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 573) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 579) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 582) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 597) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 602) |
 
 ## Coverage
 
