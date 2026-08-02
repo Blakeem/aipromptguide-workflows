@@ -85,6 +85,14 @@ gate (30) stay the arbiters. No fatal mode in v1.
   loser then *refuses to merge* and exits 75 (retry) rather than writing unguarded. Set
   `--stale-ms` above your slowest gate to avoid ever hitting that path.
 
+## One divergence to know: untracked files
+
+A fresh worktree carries only TRACKED files — nothing gitignored or untracked crosses over. A gate
+that scans the tree (a cache dir, a downloaded artifact, a stray fixture) can therefore pass in every
+chain worktree and still fail in the main checkout after the merge (measured: batch h2's control-byte
+scan vs `tools/.cache`). Always run the full suite in the main checkout after merging the integration
+branch — that run is part of the batch, not optional.
+
 ## What commits, and who
 
 `land` is the only verb that commits: the index-only accept commit, the sync merge, the landing

@@ -165,7 +165,9 @@ Roles mirror feature-cycle (the conductor passes only control signals, #1; agent
 - **Developer** (run · opus) — gets its `## Section:` block from the `plan-block.mjs` command (§3) and
   reads the latest flagging review verbatim;
   implements ONLY that section, **converts every call site it owns**, runs the section gate, leaves work
-  **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`, user-only → `NEEDS-USER.md` (halts on a
+  **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`; a verified defect in what the plan
+  prescribes (6a) → fixed + recorded in `AMENDED-<id>.md` (acceptance-only) with a pointer in
+  `NEEDS-USER.md`; user-only → `NEEDS-USER.md` (halts on a
   hard blocker).
 - **Quality Reviewer** (run · opus) — **blind**; reviews ONLY the unstaged diff for introduced
   production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
@@ -253,7 +255,9 @@ The engine reports `status`/`sectionsDone`/`ledger`/`parked`/`sweep` — `parked
   Except after a passed-but-unstaged halt, `status --porcelain` should show nothing unstaged.
 - Grep each section's integration points — reachable, conversions complete (no call site on the old
   path).
-- Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md`**.
+- Read the latest `acceptance-review-<id>-rN.md` per section; **audit every `DISMISSED-<id>.md` and
+  `AMENDED-<id>.md`** (an amendment = the developer overrode a plan clause it verified was defective —
+  fold it back into the plan if you agree).
 - Any section the `ledger` flags `thinEvidence` (no criteria enumerated, criteria unmet, or a pass whose
   criteria carry no locators) passed on assertion rather than evidence — read that file closely.
 - Any section the `ledger` flags `contradicted` returned `pass:true` next to `regression:true` or

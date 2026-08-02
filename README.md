@@ -159,6 +159,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-02
 
+- **Principle #15 is now machine-checked, and the plan-defect wedge is closed** (batch h2, phased):
+  `tests/dead-agent.test.mjs` kills every agent role once per engine and demands a visibly different
+  outcome — building it exposed and fixed four real launderers (feature-cycle's dead develop/quality/
+  acceptance read as `done (staged)`; docs-cycle's dead scrubber logged `✓ scrubbed: 0 file(s)`).
+  And a blind-review finding that indicts the PLAN's own text is no longer a dead end: a developer
+  that VERIFIES the defect fixes it and records the override in `AMENDED-<id>.md` (read by
+  acceptance, never the blind reviewer), so the wt-land-style wedge cannot recur.
 - **First live parallel batch shipped two hardening features** (`planpath-guard` + `attestation-scoping`),
   built simultaneously in worktrees and landed through `aipg/int-h1` — the wt.mjs lifecycle's own
   shakedown. The features: feature + migrate now **warn when a plan file resolves inside `target.repo`**

@@ -51,6 +51,8 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
 **`resolve-cycle.mjs` (batches run SEQUENTIALLY — staging serializes):**
 - **Fixer** (opus) — reads its batch's `issues/<unit>.md` verbatim, **verify-first** (vanished → STALE),
   fixes minimally, runs gates, leaves work UNSTAGED, owns the matrix, declines → `DISMISSED-<batch>.md`,
+  a verified defect in an issue's own **Fix:** instruction (6a) → fixed + recorded in
+  `AMENDED-<batch>.md` (acceptance-only, pointer in `NEEDS-USER.md`),
   escalates → `NEEDS-USER.md`. Only the fixer halts the run for the user — Park halts too, but on an
   unsafe tree. On round 1 it also reports two preconditions before touching anything (see Contracts).
 - **Blind quality reviewer** (opus) — reads ONLY the unstaged diff, no issue text — catches anything
@@ -234,6 +236,8 @@ loose anchors safe — the fixer re-confirms each issue against current code.
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable) · `quality-review-<batch>-rN.md` (blind) ·
 `acceptance-review-<batch>-rN.md` (issue-aware) · `DISMISSED-<batch>.md` (fixer's declines) ·
+`AMENDED-<batch>.md` (Fix instructions the fixer overrode as verified-defective; correct the issue
+file if you agree) ·
 `NEEDS-USER.md` (fixer escalations + every parked batch's diagnosis and restore command) ·
 `parked-<batch>.patch` (a failed batch's saved work) · `parked-<batch>-newfiles/` (only when the batch
 created untracked files the patch couldn't carry). No `issues.json`, no `SWEEP.md`, no progress JSON, no

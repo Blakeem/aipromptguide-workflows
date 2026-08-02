@@ -80,7 +80,9 @@ Then ONCE, for the whole roadmap:
    acceptance loop runs each plan in order, **staging each accepted feature** before the next starts; a
    plan that can't pass is **parked** (its work saved to a patch, the tree cleared) and the roadmap
    carries on (§6).
-6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md`, surface
+6. **Verify ground truth yourself** (§7), read the numbered review files + `DISMISSED-<id>.md` +
+   any `AMENDED-<id>.md` (a plan clause the developer overrode — fold it back into the plan file if
+   you agree), surface
    `NEEDS-USER.md`, tell the user what to review. **Never commit.**
 
 Each entry's `planPath` points at that feature's plan-mode file — no copy for a same-session build. Only
@@ -208,7 +210,10 @@ throwaway.
 - **Developer** (build · opus) — gets its plan from the `plan-block.mjs` command (§4) or its own
   `planPath`, reads the latest flagging review verbatim; implements
   minimally, **wires it in**, runs the gate green, leaves work **UNSTAGED**. Owns the **decision
-  matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, escalates user-only calls to
+  matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, and — matrix case 6a — OVERRIDES
+  a plan clause it VERIFIED prescribes a real defect, recording the amendment in `AMENDED-<id>.md`
+  (read by acceptance alone, never the blind reviewer) with a plan-text-free pointer line in
+  `NEEDS-USER.md`; unverified plan conflicts stay 6b declines. Escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
 - **Quality Reviewer** (build · opus) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
   for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
@@ -268,6 +273,12 @@ next round; **any code change re-enters at quality.**
   carries its own `gate`.
 - **Two-stage review = blind then plan-aware** — keep separate (deliberate de-biasing, #5); never hand
   the plan to the quality reviewer (per-plan files keep even a roadmap placement-blind for the others).
+- **An agent that comes back with NOTHING halts the run.** Any of the three per-round roles —
+  developer, quality reviewer, acceptance verifier — returning null (skipped or died) halts with
+  `BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)`, work
+  parked. A dead agent is not a failed round: nothing is known about the tree either way. Enforced
+  repo-wide by `tests/dead-agent.test.mjs`, which kills each role once per engine and requires a
+  visibly different outcome.
 - **Anti-spin (#5).** The developer logs each decline as one terse line in `DISMISSED-<id>.md`; reviewers
   skip settled items for the stated reason. A reviewer that thinks a dismissal is wrong raises
   `CONTESTS DISMISSAL:` once; the developer must fix or escalate, never silently re-dismiss. Rising
