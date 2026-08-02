@@ -644,12 +644,30 @@ for (const p of pending) {
       schema: DEVELOP_SCHEMA, phase: 'Develop', label: `develop ${p.id} r${round}`,
     }));
 
+    // ---- PRECONDITION: the developer AGENT itself came back -----------------------------------------
+    // A dead agent is not a failed round: nothing is known about the tree either way. Unguarded it fell
+    // into `gateOk(!dev) === false` and read as an ordinary gate miss, so the plan burned its whole round
+    // budget and the roadmap carried on — reported `roadmap complete with 1 plan(s) parked`, telling the
+    // operator to sharpen the plan when the real action is resume/replay. A HALT, not a throw: a throw
+    // inside the plan loop exits with the developer's work still unstaged and unparked. (The refine critic
+    // throws instead because it is solo, writes nothing, and has no tree to save.) Mirrors
+    // migrate-cycle.mjs's twin of this guard.
+    if (!dev) {
+      halted = true;
+      escalated = true;   // it may have touched the tree before dying → park rather than abandon
+      haltKind = 'agent-dead';
+      haltReason = `Developer for plan ${p.id} returned nothing in round ${round} (agent skipped or died) — no work can be assumed either way. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+      rec.status = 'BLOCKED (agent died)';
+      log(`  ✋ ${p.id} r${round}: developer returned nothing (agent skipped or died) → halting before any review agent`);
+      break;
+    }
+
     // ---- PRECONDITION: the developer actually HAS its plan ------------------------------------------
     // The block command runs in the AGENT's shell, so the harness cannot verify it (§2: no tools). This
     // attestation is the only signal that the plan ever arrived — without a consumer it would be pure
     // theater, and an agent whose command was denied, or whose id matches no block, would otherwise
     // build something plausible and the run would report `done (staged)`. `=== false` so a dead agent
-    // (null) falls through to the existing guards rather than being laundered into this one.
+    // (null) is caught by the halt directly above rather than being laundered into this one.
     if (dev?.plan_obtained === false) {
       halted = true;
       escalated = true;   // it may have touched the tree before giving up → park rather than abandon
@@ -710,6 +728,18 @@ for (const p of pending) {
     const quality = await agent(qualityPrompt(p, round), roleOpts('quality', {
       schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
     }));
+    // A dead blind reviewer is NOT a clean review. Left unguarded, `quality?.clean !== true` sent the
+    // developer to a quality-review file that was never written ("READ <path> and resolve exactly
+    // those"), so the next round either stalls on a missing file or invents fixes and churns the tree.
+    if (!quality) {
+      halted = true;
+      escalated = true;
+      haltKind = 'agent-dead';
+      haltReason = `Quality reviewer for plan ${p.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a clean review. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+      rec.status = 'BLOCKED (agent died)';
+      log(`  ✋ ${p.id} r${round}: quality reviewer returned nothing (agent skipped or died) → halting`);
+      break;
+    }
     if (quality?.contested_dismissals) {
       rec.contested += quality.contested_dismissals;
       log(`  ⚠ ${p.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss (audit ${dismissedFile(p.id)})`);
@@ -727,6 +757,17 @@ for (const p of pending) {
     const acc = await agent(acceptancePrompt(p, round), roleOpts('acceptance', {
       schema: ACCEPTANCE_SCHEMA, phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
+    // Same shape as the two guards above: a dead verifier is not a gap verdict. Unguarded it fell to the
+    // bottom of the loop and pointed the next developer at an acceptance-review file nobody wrote.
+    if (!acc) {
+      halted = true;
+      escalated = true;
+      haltKind = 'agent-dead';
+      haltReason = `Acceptance verifier for plan ${p.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a gap verdict, and nothing was staged. Re-invoke with the same args/runId; pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`;
+      rec.status = 'BLOCKED (agent died)';
+      log(`  ✋ ${p.id} r${round}: acceptance verifier returned nothing (agent skipped or died) → halting`);
+      break;
+    }
     // The verifier's sibling of the developer's check. An acceptance verifier without the plan has no
     // criteria to judge — its `pass:false` would otherwise read as an ordinary gap and park the plan,
     // hiding "the spec never arrived" behind a routine round-budget failure.
@@ -868,6 +909,7 @@ const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
+  'agent-dead':      'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)',
   'passed-unstaged': 'BLOCKED (a plan passed but was not staged — stage it, then resume)',
   'acceptance-regression': 'BLOCKED (a plan staged while self-reporting a regression — inspect the staged diff before continuing)',
   'park-unsafe':     'BLOCKED (a parked plan left the tree unsafe — inspect before resuming)',

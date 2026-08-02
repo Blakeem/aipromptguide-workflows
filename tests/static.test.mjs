@@ -35,7 +35,12 @@ for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'too
   ok(err === '', `${rel}${err ? ` — ${err}` : ''}`);
 }
 
-section('no CR bytes anywhere (a CR makes the Workflow tool reject the file outright)');
+section('no CR — and no other control byte — anywhere in the repo text');
+// Two failures of the same shape: a byte no editor renders, changing how a TOOL reads the whole file.
+// CR makes the Workflow tool reject the file outright. Any other C0 byte (NUL is the one that shipped,
+// twice, as an invisible separator inside a template literal in tests/dead-agent.test.mjs) is the
+// binary-detection sentinel for grep/ripgrep/git grep: the file still parses, still diffs as text, still
+// passes every other check here, and drops out of every content search silently.
 {
   const SKIP = new Set(['.git', 'node_modules', 'runs', 'plans']);
   const walk = (dir, out = []) => {
@@ -48,9 +53,15 @@ section('no CR bytes anywhere (a CR makes the Workflow tool reject the file outr
     return out;
   };
   const files = walk(REPO_ROOT);
-  const bad = files.filter((p) => readFileSync(p).includes(13))
-    .map((p) => p.slice(REPO_ROOT.length + 1).replace(/\\/g, '/'));
+  const rel = (p) => p.slice(REPO_ROOT.length + 1).replace(/\\/g, '/');
+  const bad = files.filter((p) => readFileSync(p).includes(13)).map(rel);
   ok(bad.length === 0, `${files.length} files scanned${bad.length ? ` — CR in: ${bad.join(', ')}` : ''}`);
+
+  const ctrl = files
+    .map((p) => [p, readFileSync(p).findIndex((b) => b < 0x20 && b !== 0x09 && b !== 0x0a && b !== 0x0d)])
+    .filter(([, at]) => at !== -1)
+    .map(([p, at]) => `${rel(p)} (byte ${at})`);
+  ok(ctrl.length === 0, `${files.length} files scanned${ctrl.length ? ` — control byte in: ${ctrl.join(', ')}` : ''}`);
 }
 
 section('every engine requires args.root (run-state must never guess its own location)');

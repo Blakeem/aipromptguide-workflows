@@ -21,11 +21,12 @@ flowchart TD
   t5(["BLOCKED (a plan passed but was not staged - stage it, then resume)"])
   t6(["BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing)"])
   t7(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
-  t8(["BLOCKED (working tree was not clean - nothing was built)"])
-  t9(["BLOCKED (needs user input)"])
-  t10(["BLOCKED (a parked plan left the tree unsafe - inspect before resuming)"])
-  t11(["stopped on token budget (resume where it left off)"])
-  t12(["partial slice complete"])
+  t8(["BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it)"])
+  t9(["BLOCKED (working tree was not clean - nothing was built)"])
+  t10(["BLOCKED (needs user input)"])
+  t11(["BLOCKED (a parked plan left the tree unsafe - inspect before resuming)"])
+  t12(["stopped on token budget (resume where it left off)"])
+  t13(["partial slice complete"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, planPath #124; plan (markdown string) #124; plans:[{id,planPath#124;plan,gate}], target, gates }"/]
   x3[/"throw: args.root is required"/]
@@ -42,7 +43,7 @@ flowchart TD
   x14[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
   S0 --> a1
   S0 --> a2
-  S0 --> t11
+  S0 --> t12
   S0 --> x1
   S0 --> x2
   S0 --> x3
@@ -61,9 +62,10 @@ flowchart TD
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a5
-  a2 --> t8
+  a2 --> t9
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
+  a3 --> a5
   a4 ==>|"next item"| a2
   a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
   a4 --> a5
@@ -72,12 +74,13 @@ flowchart TD
   a4 --> t4
   a4 --> t5
   a4 --> t6
-  a4 --> t12
+  a4 --> t13
   a5 ==>|"next item"| a2
   a5 --> t4
   a5 --> t7
-  a5 --> t9
+  a5 --> t8
   a5 --> t10
+  a5 --> t11
 ```
 
 ## Phases
@@ -107,6 +110,7 @@ flowchart TD
 | BLOCKED (a plan passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
 | BLOCKED (a plan staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
 | BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
+| BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
 | BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked plan left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build gate is red after parking | derived |
@@ -129,4 +133,4 @@ flowchart TD
 
 ## Coverage
 
-32 scenarios · 5/5 roles · 14/14 throw sites · 7/7 halt statuses · 26 terminal states.
+35 scenarios · 5/5 roles · 14/14 throw sites · 8/8 halt statuses · 27 terminal states.

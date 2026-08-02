@@ -176,6 +176,27 @@ export default {
       respond: { develop: DEV_OK, quality: CLEAN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK },
     },
     {
+      // A dead agent shares ONE terminal across all three round-loop roles, and none of the three is
+      // visible to any other assertion — no new role, no throw. Scripted separately so the map shows
+      // that develop, quality and acceptance each halt on it rather than only the first.
+      name: 'the developer dies',
+      when: 'the developer agent dies',
+      args: base,
+      respond: { develop: null, park: PARK_OK },
+    },
+    {
+      name: 'the quality reviewer dies',
+      when: 'the blind quality reviewer dies',
+      args: base,
+      respond: { develop: DEV_OK, quality: null, acceptance: ACC_PASS, park: PARK_OK },
+    },
+    {
+      name: 'the acceptance verifier dies',
+      when: 'the acceptance verifier dies',
+      args: base,
+      respond: { develop: DEV_OK, quality: CLEAN, acceptance: null, park: PARK_OK },
+    },
+    {
       // Halts before any reviewer is spawned, and does NOT park — that work is the operator's.
       name: 'dirty baseline',
       when: 'the tree was not clean on round 1',
