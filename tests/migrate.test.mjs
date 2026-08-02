@@ -10,7 +10,7 @@ const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates:
   plan: '## Section: sec-a\nA\n## Section: sec-b\nB\n', sections: SECTIONS };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
-const DEV       = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 4, unstaged_confirmed: true, needs_user: false };
+const DEV       = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 4, unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN     = { clean: true, issue_count: 0 };
 const ACC_PASS  = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 2, criteria_met: 2, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL  = { pass: false, staged: false, reachable: false, regression: false, criteria_total: 2, criteria_met: 0, evidence_recorded: true, gap_count: 2 };
@@ -401,4 +401,63 @@ section('a non-kebab section id throws — it names files AND enters a shell com
   const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sections: [{ id: 'Sec A!', title: 'A' }] } });
   ok(/not kebab slugs/.test(msg), `throws: ${msg.slice(0, 60)}`);
   ok(/Sec A!/.test(msg), 'and names the offender');
+}
+
+section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED section defect, 6b keeps the old drop');
+// The sibling of feature-cycle's plan-defect wedge (§1): a blind finding indicting what the SECTION
+// prescribes routed to case 6 (DROP — LOG), the reviewer re-raised it, and the round budget burned.
+{
+  const dev = (await run(GREEN_RUN)).prompt('develop sec-a');
+  ok(/6a\. Conflicts with the plan AND you VERIFIED/.test(dev), '6a exists and is gated on verification');
+  ok(/the verified defect outranks the\s+prescription/.test(dev), 'and says the verified defect outranks the prescription');
+  ok(/that verified defect also outranks the "NO scope creep beyond\s+it" instruction above and the CONVENTIONS rubric/.test(dev),
+    'the PRECEDENCE clause names both lines that produced the observed wedge');
+  ok(/Everywhere else the plan and the conventions\s+still bind/.test(dev), 'and confines the override to that one clause');
+  ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), '6b keeps the unverified/intentional case a DROP');
+  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/DISMISSED-sec-a\.md/.test(dev),
+    'and LOGGING re-points the DROP route at 6b, not the whole of 6');
+  ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), 'ESCALATE (case 7) is untouched');
+}
+
+section('an amendment is RECORDED in a per-section AMENDED file, with a pointer line for the user');
+{
+  const dev = (await run(GREEN_RUN)).prompt('develop sec-a');
+  ok(/AMEND \(6a\): append ONE entry to E:\/r\/runs\/t\/AMENDED-sec-a\.md/.test(dev), 'the record is the per-section AMENDED file');
+  ok(/## Section amendment: sec-a r1/.test(dev), 'the entry heading uses THIS engine\'s idiom and carries the round');
+  ok(/QUOTED verbatim/.test(dev) && /file:line \+ one line on why it\s+is real/.test(dev) && /what you built instead/.test(dev),
+    'the entry shape demands the overridden clause, the defect evidence and what was built');
+  ok(/ONE POINTER line to E:\/r\/runs\/t\/NEEDS-USER\.md/.test(dev) && /NO plan text/.test(dev),
+    'NEEDS-USER gets a pointer line only — no plan text travels with it');
+}
+
+section('the AMENDED record never reaches the BLIND reviewer, and SETTLED is untouched');
+{
+  const q = (await run(GREEN_RUN)).prompt('quality sec-a');
+  ok(q !== '', 'the blind reviewer ran');
+  ok(!/AMENDED/.test(q) && !/amendment/i.test(q), 'the blind quality prompt gains no AMENDED path and no mention of one');
+  ok(/DISMISSED-sec-a\.md/.test(q) && /NEEDS-USER\.md/.test(q), 'while SETTLED still hands it exactly the two files it always had');
+}
+
+section('acceptance judges an amended criterion against the AMENDED behavior — with evidence or not at all');
+{
+  const a = (await run(GREEN_RUN)).prompt('acceptance sec-a');
+  ok(/READ E:\/r\/runs\/t\/AMENDED-sec-a\.md if it exists/.test(a), 'acceptance is told to read the record');
+  ok(/against the AMENDED behavior, not the superseded clause/.test(a), 'and to judge the amended criterion against what was built');
+  ok(/NAME every\s+criterion you judged under an amendment in your review file/.test(a), 'each such criterion must be named in the review file');
+  ok(/states NO defect\s+evidence excuses NOTHING/.test(a) && /stays UNMET/.test(a),
+    'an evidence-free amendment excuses nothing — the escape hatch is not a free pass');
+}
+
+section('a recorded amendment is logged, counted into the ledger and named in followups; zero is silent');
+{
+  const one = await run({ ...GREEN_RUN, 'develop': { ...DEV, plan_amendments: 1 } });
+  ok(one.logs.some((l) => /⚠ sec-a r1: 1 plan amendment\(s\) recorded — see E:\/r\/runs\/t\/AMENDED-sec-a\.md/.test(l)),
+    `the amendment is logged with the file that holds it: ${one.logs.find((l) => /amendment/.test(l))}`);
+  eq(one.out.ledger[0].planAmendments, 1, 'accumulated into the section\'s ledger record');
+  ok(/PLAN AMENDED for: sec-a, sec-b/.test(one.out.followups), 'and followups names every amended section');
+
+  const none = await run({ ...GREEN_RUN, 'develop': { ...DEV, plan_amendments: 0 } });
+  ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing at all');
+  eq(none.out.ledger[0].planAmendments, 0, 'the ledger rec still carries the field, initialized in its literal');
+  ok(!/PLAN AMENDED/.test(none.out.followups), 'and followups says nothing about amendments');
 }

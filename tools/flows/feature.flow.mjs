@@ -33,7 +33,7 @@ const base = { runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, pla
 const solo = { runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, planPath: 'plans/one.md', gate: 'green' };
 
 // Agent returns carrying every attestation the engine reads.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN    = { clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };

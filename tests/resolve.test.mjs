@@ -13,7 +13,7 @@ const baseArgs = {
 const run = (respond, args = baseArgs) => runEngine(ENGINE, { args, respond });
 
 // A fixer return with every attestation the engine now checks.
-const GREEN = { build_passed: true, test_outcome: 'passed', unstaged_confirmed: true, needs_user: false, baseline_dirty_files: 0, issue_entries_found: 1 };
+const GREEN = { build_passed: true, test_outcome: 'passed', unstaged_confirmed: true, needs_user: false, baseline_dirty_files: 0, issue_entries_found: 1, plan_amendments: 0 };
 const FIXED = { ...GREEN, results: [{ issue_id: 'i1', status: 'FIXED' }] };
 const CLEAN = { clean: true, issue_count: 0 };
 const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 900, strays_saved: 0 };
@@ -172,6 +172,53 @@ section('a DEAD acceptance verifier is named — 0 gaps means UNVERIFIED, not ne
   ok(text.includes('UNVERIFIED, not near-pass'), 'the 0-gap line is explicitly contradicted');
   const r2 = byLabel('fix')[1];
   ok(r2 && !r2.prompt.includes('acceptance-review-'), 'the round-2 fixer is NOT pointed at the nonexistent review file');
+}
+
+section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED defect in the issue\'s Fix, 6b keeps the old drop');
+// The same wedge as the two build-loop siblings (§1), against a prescribed **Fix:** instead of a plan
+// clause: it routed to case 6 (DROP — LOG), the reviewer re-raised it, and the round budget burned.
+{
+  const { prompt } = await run({ 'fix': FIXED, 'quality': CLEAN, 'accept': { pass: true, staged: true, fix_checks: [] } });
+  const fix = prompt('fix:');
+  ok(/6a\. Conflicts with the issue AND you VERIFIED/.test(fix), '6a exists and is gated on verification');
+  ok(/the verified defect outranks the\s+prescription/.test(fix), 'and says the verified defect outranks the prescription');
+  ok(/that verified defect also outranks the "NO scope creep beyond\s+what each fix requires" instruction above and the CONVENTIONS rubric/.test(fix),
+    'the PRECEDENCE clause names both lines that produced the observed wedge');
+  ok(/6b\. Conflicts with the issue but you did NOT verify it/.test(fix), '6b keeps the unverified/intentional case a DROP');
+  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/DISMISSED-batch-01-src\.md/.test(fix),
+    'and LOGGING re-points the DROP route at 6b, not the whole of 6');
+  ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(fix), 'ESCALATE (case 7) is untouched');
+
+  ok(/AMEND \(6a\): append ONE entry to E:\/r\/runs\/t\/AMENDED-batch-01-src\.md/.test(fix), 'the record is the per-BATCH AMENDED file');
+  ok(/## Issue amendment: batch-01-src r1/.test(fix), 'the entry heading uses THIS engine\'s idiom and carries the round');
+  ok(/ONE POINTER line to E:\/r\/runs\/t\/NEEDS-USER\.md/.test(fix) && /NO issue text/.test(fix),
+    'NEEDS-USER gets a pointer line only — no issue text travels with it');
+
+  const q = prompt('quality:');
+  ok(q !== '' && !/AMENDED/.test(q) && !/amendment/i.test(q), 'the BLIND quality prompt gains no AMENDED path and no mention of one');
+  ok(/DISMISSED-batch-01-src\.md/.test(q), 'while settled() still hands it the DISMISSED ledger — unchanged');
+
+  const a = prompt('accept:');
+  ok(/READ E:\/r\/runs\/t\/AMENDED-batch-01-src\.md if it exists/.test(a), 'acceptance is told to read the record');
+  ok(/against the AMENDED behavior, not the superseded instruction/.test(a), 'and to judge the amended issue against what was built');
+  ok(/NAME\s+every issue you judged under an amendment in your review file/.test(a), 'each such issue must be named in the review file');
+  ok(/states NO defect\s+evidence excuses NOTHING/.test(a) && /stays actually_fixed=false/.test(a),
+    'an evidence-free amendment excuses nothing — the escape hatch is not a free pass');
+}
+
+section('a recorded amendment is logged, counted into the ledger and named in followups; zero is silent');
+{
+  const ACC = { pass: true, staged: true, fix_checks: [] };
+  const one = await run({ 'fix': { ...FIXED, plan_amendments: 2 }, 'quality': CLEAN, 'accept': ACC });
+  ok(one.logs.some((l) => /⚠ batch-01-src r1: 2 plan amendment\(s\) recorded — see E:\/r\/runs\/t\/AMENDED-batch-01-src\.md/.test(l)),
+    `the amendment is logged with the file that holds it: ${one.logs.find((l) => /amendment/.test(l))}`);
+  ok(one.out.ledger[0].planAmendments === 2, 'accumulated into the batch\'s ledger record');
+  ok(/FIX INSTRUCTION AMENDED for: batch-01-src/.test(one.out.followups), 'and followups names every amended batch');
+
+  const none = await run({ 'fix': { ...FIXED, plan_amendments: 0 }, 'quality': CLEAN, 'accept': ACC });
+  ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing at all');
+  ok(none.out.ledger[0].planAmendments === 0, 'the ledger record still carries the field, initialized in its literal');
+  ok(!/AMENDED for/.test(none.out.followups), 'and followups says nothing about amendments');
 }
 
 // The 'required args throw rather than silently defaulting' section (target.repo, gates.build,

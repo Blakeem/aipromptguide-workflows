@@ -123,13 +123,13 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
 | throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 172) |
 | throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 181) |
-| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 529) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 541) |
-| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 573) |
-| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 579) |
-| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 582) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 597) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 602) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 558) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 570) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 602) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 608) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 611) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 626) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 631) |
 
 ## Coverage
 
