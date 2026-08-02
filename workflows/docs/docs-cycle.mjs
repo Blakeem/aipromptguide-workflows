@@ -290,7 +290,13 @@ while (rounds < MAX_ROUNDS) {
         return agent(scrubPrompt(prev.src), roleOpts('scrub', {
           schema: SCRUB_SCHEMA, phase: 'Scrub', label: `scrub:${prev.src.id}`,
         })).then((s) => {
-          log(`  ✓ scrubbed ${prev.src.id}: ${s?.files_cleaned ?? 0} file(s)`);
+          // A dead scrubber and one that found nothing to clean both collapsed onto the `?? 0` sentinel,
+          // so `✓ scrubbed <id>: 0 file(s)` was byte-identical either way — and no scrub field reaches the
+          // return, so the death was recorded NOWHERE. Scrub is an AUXILIARY role (its death cannot stop
+          // the run: what the gatherer wrote is on disk and the curator still indexes it), so its death
+          // policy is log + record — never a success line.
+          if (!s) log(`  ⚠ scrub:${prev.src.id} returned nothing (agent skipped or died) — that source's captured files were NOT scrubbed, so nav chrome/ads may survive into the set; re-run this source or clean them by hand.`);
+          else log(`  ✓ scrubbed ${prev.src.id}: ${s.files_cleaned ?? 0} file(s)`);
           return prev;
         });
       },

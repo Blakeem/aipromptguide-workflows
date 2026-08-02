@@ -108,6 +108,10 @@ const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
 const qualityFile    = (batchId, r) => `${STATE_DIR}/quality-review-${slug(batchId)}-r${r}.md`;
 const acceptanceFile = (batchId, r) => `${STATE_DIR}/acceptance-review-${slug(batchId)}-r${r}.md`;
 const dismissedFile  = (batchId) => `${STATE_DIR}/DISMISSED-${slug(batchId)}.md`;   // terse ledger; fixer → reviewers (anti-spin)
+// Issue **Fix:** instructions the fixer OVERRODE under MATRIX 6a, having verified the instruction itself
+// prescribes a real defect — PER BATCH. Read by the ACCEPTANCE verifier only: deliberately NOT in
+// settled(), and never handed to the blind quality reviewer, which would learn the issue text from it (#3).
+const amendedFile    = (batchId) => `${STATE_DIR}/AMENDED-${slug(batchId)}.md`;
 const parkedPatch    = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}.patch`;    // a failed batch's work, saved before the tree is cleared
 const parkedNewDir   = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}-newfiles`; // untracked files the patch could not carry (rare)
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;                                // full detail; for the user (may halt the run)
@@ -125,7 +129,7 @@ const gateOk = (res) => !!res
 // =============================================================================
 const FIX_SCHEMA = {
   type: 'object',
-  required: ['results', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user'],
+  required: ['results', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
     results: {
       type: 'array',
@@ -149,6 +153,10 @@ const FIX_SCHEMA = {
     unstaged_confirmed: { type: 'boolean', description: 'true if changes were left UNSTAGED (git add NOT run, except add -N for new files)' },
     needs_user: { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     dismissed_count: { type: 'integer', description: 'how many review findings you declined and logged to DISMISSED this round (0 if none)' },
+    // REQUIRED, unlike its optional twin dismissed_count: the DISMISSED file is its own standing record,
+    // while an amendment's ABSENCE has to be an explicit claim of zero — an omitted field must not be
+    // indistinguishable from "none this round".
+    plan_amendments: { type: 'integer', description: 'how many issue **Fix:** instructions you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the issue prescribes, recorded as an entry in this batch\'s AMENDED file. Report 0 when there were none; this field is required, so "none" must be stated, never omitted.' },
     gate_output: { type: 'string', description: 'tail of failing gate output, or "" if green' },
     notes: { type: 'string' },
   },
@@ -232,13 +240,21 @@ diff FRESH (so you also catch new or similar nearby issues, and independently re
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ''}`;
 
-const matrix = (batchId) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+const matrix = (batchId, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
   3. Stops the build/tests ............................ FIX (always).
   4. A real, clear, in-scope fix (local, small) ....... FIX.
   5. Needed to make THIS batch's fix actually hold .... FIX.
-  6. Conflicts with the issue / intentional / not a real path ... DROP — LOG it (see LOGGING).
+  6a. Conflicts with the issue AND you VERIFIED that what its **Fix:** instruction PRESCRIBES is itself
+      defective — you reproduced it, or demonstrated the failure path, to the same evidence bar as any
+      FIX .......................................... FIX it: the verified defect outranks the
+      prescription. RECORD an amendment (see LOGGING).
+      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond
+      what each fix requires" instruction above and the CONVENTIONS rubric. Everywhere else the issue's
+      instruction and the conventions still bind, exactly as written.
+  6b. Conflicts with the issue but you did NOT verify it / intentional / not a real path
+        .............................................. DROP — LOG it (see LOGGING).
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
         .............................................. ESCALATE (see LOGGING).
   8. Anything else (style, medium/low polish, a different issue) ... DROP silently.
@@ -246,8 +262,15 @@ const matrix = (batchId) => `DECISION MATRIX — for each ambiguity or review fi
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6): append ONE terse line to ${dismissedFile(batchId)} so reviewers won't re-raise it —
+  • DROP (1 or 6b): append ONE terse line to ${dismissedFile(batchId)} so reviewers won't re-raise it —
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
+  • AMEND (6a): append ONE entry to ${amendedFile(batchId)} —
+      \`## Issue amendment: ${batchId} r${round}\`
+      then the issue's **Fix:** clause you overrode (QUOTED verbatim), the defect (file:line + one line on
+      why it is real), and what you built instead.
+    Then append ONE POINTER line to ${NEEDS_USER}: the batch id, the round, the defect's file:line, and
+    the path ${amendedFile(batchId)} — and NO issue text, so the amendment reaches the user where they
+    already look without copying the instruction anywhere else. Count every entry in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
     If you can proceed with a defensible default, record it there too but leave needs_user=false.`;
@@ -303,7 +326,7 @@ ${round === 1 ? `0. PRECONDITIONS — do these FIRST, before reading or editing 
 4. LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content, do NOT commit. EXCEPTION: for any file you
    CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add) so the reviewer's \`git diff\` shows it.
    Set unstaged_confirmed=true.
-5. ${matrix(batch.id)}
+5. ${matrix(batch.id, round)}
 6. SELF-REVIEW your own diff before returning and fix anything obviously wrong.
 Return ONLY the decision fields via the schema (your code IS the output).`;
 
@@ -343,6 +366,12 @@ ${settled(batch.id, false)}
 OVERRIDE: ${dismissedFile(batch.id)} entries are the fixer's judgment calls. You are issue-aware — if a
 dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
 dismissal: fail acceptance for it and record it in your review file.
+
+AMENDMENTS: READ ${amendedFile(batch.id)} if it exists. It records issue **Fix:** instructions the fixer
+OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
+prescribing instruction was amended against the AMENDED behavior, not the superseded instruction, and NAME
+every issue you judged under an amendment in your review file. An amendment entry that states NO defect
+evidence excuses NOTHING — that issue stays actually_fixed=false, or the escape hatch becomes a free pass.
 
 SCOPE — this batch's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -500,7 +529,7 @@ for (const batch of batches) {
   // Issue inventory file path(s) the fixer + acceptance read verbatim for this batch.
   const issuePaths = batch.units.length ? batch.units.map((u) => issueFile(u)) : [...new Set(batch.issues.map((i) => issueFile(i.unit || batch.id)))];
   const statusById = new Map(batch.issues.map((i) => [i.id, { status: 'needs-attention', summary: 'not reached' }]));
-  const record = { id: batch.id, issues: batch.issues.length, rounds: 0, status: 'pending', gates: null, staged: false };
+  const record = { id: batch.id, issues: batch.issues.length, rounds: 0, status: 'pending', gates: null, staged: false, planAmendments: 0 };
 
   // `escalated` distinguishes the two halts: a fixer escalation leaves real work in the tree (park it),
   // while a round-1 precondition halt changed nothing at all (there is nothing to park).
@@ -578,6 +607,14 @@ for (const batch of batches) {
       statusById.set(r.issue_id, { status: s === 'stale' ? 'stale' : s === 'fixed' ? 'fixed' : 'needs-attention', summary: r.summary || '' });
     }
     if (fix?.dismissed_count) log(`  r${round}: fixer declined ${fix.dismissed_count} finding(s) → ${dismissedFile(batch.id)} (audit these)`);
+    // MATRIX 6a: the fixer overrode an issue's Fix instruction it verified defective. The COUNT is control
+    // plane (#1/#8) — the amendment text stays in AMENDED-<batch>.md, which only acceptance is handed.
+    // Coerced and floored so a garbage value cannot poison the ledger total; 0/absent logs nothing.
+    const amendments = Number(fix?.plan_amendments) || 0;
+    if (amendments > 0) {
+      record.planAmendments += amendments;
+      log(`  ⚠ ${batch.id} r${round}: ${amendments} plan amendment(s) recorded — see ${amendedFile(batch.id)}`);
+    }
     // `notes` is the fixer's only free-text channel back to the operator — every other FIX_SCHEMA field is
     // a number, a boolean or an enum, and `gate_output` is surfaced only when the round budget runs out.
     // Log only, sliced: prose stays out of the control plane, same as park's `notes` below.
@@ -730,6 +767,9 @@ for (const batch of batches) {
 // produces findings no per-section agent could have — a different thing entirely.
 
 const parked = ledger.filter((r) => r.status === 'parked' || r.status === 'BLOCKED (parked)');
+// Batches whose fixer overrode an issue's Fix instruction under MATRIX 6a. Named in followups because
+// AMENDED-<batch>.md is reachable by acceptance alone — without this the user would not know it exists.
+const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
 return {
   phase: 'resolve',
   runId: RUN_ID,
@@ -748,6 +788,6 @@ return {
   // Parked batches: their work is SAVED, not lost. Present these to the user with the patch path (and
   // the strays dir when one exists — those files need a second restore step beyond `git apply`).
   parked: parked.map((r) => ({ id: r.id, patch: r.patch, strays: r.strays ?? null, issues: r.perIssue.map((p) => p.id) })),
-  ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, gates: r.gates, patch: r.patch ?? null })),
-  followups: `${halted ? `Run halted — ${blockerReason}\n` : ''}Verify the end state yourself: run the FULL gates once, \`git -C ${REPO} diff --cached --stat\` for what is staged, and \`git -C ${REPO} status --porcelain\` to confirm NOTHING is left unstaged (an acceptance verifier that missed a newly-created file is the one gap the engine cannot see). Read the numbered review files + DISMISSED-*.md in ${STATE_DIR}/.${parked.length ? ` ${parked.length} batch(es) were PARKED — their work is saved to ${STATE_DIR}/parked-<batch>.patch and cleared from the tree, nothing discarded; ${NEEDS_USER} lists each with its diagnosis and the \`git apply --3way\` restore command. Per parked batch the user decides: restore and finish by hand, re-run resolve scoped to its ids (sharpen the Fix lines first), or drop the patch.` : ''}${halted ? ` Resolve the blocker with the user, then re-invoke with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged, and the halted batch's work is in its patch — the tree is clean).` : ''} Nothing is committed — you commit.`,
+  ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, planAmendments: r.planAmendments, gates: r.gates, patch: r.patch ?? null })),
+  followups: `${halted ? `Run halted — ${blockerReason}\n` : ''}Verify the end state yourself: run the FULL gates once, \`git -C ${REPO} diff --cached --stat\` for what is staged, and \`git -C ${REPO} status --porcelain\` to confirm NOTHING is left unstaged (an acceptance verifier that missed a newly-created file is the one gap the engine cannot see). Read the numbered review files + DISMISSED-*.md in ${STATE_DIR}/.${amendedIds.length ? ` FIX INSTRUCTION AMENDED for: ${amendedIds.join(', ')} — the fixer overrode an issue's **Fix:** instruction it verified prescribes a real defect; read ${STATE_DIR}/AMENDED-<batch>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and correct the issue file if you agree.` : ''}${parked.length ? ` ${parked.length} batch(es) were PARKED — their work is saved to ${STATE_DIR}/parked-<batch>.patch and cleared from the tree, nothing discarded; ${NEEDS_USER} lists each with its diagnosis and the \`git apply --3way\` restore command. Per parked batch the user decides: restore and finish by hand, re-run resolve scoped to its ids (sharpen the Fix lines first), or drop the patch.` : ''}${halted ? ` Resolve the blocker with the user, then re-invoke with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged, and the halted batch's work is in its patch — the tree is clean).` : ''} Nothing is committed — you commit.`,
 };
