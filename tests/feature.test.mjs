@@ -353,10 +353,42 @@ section('the acceptance verifier has the same channel — a verdict without the 
 }
 
 section('a dead agent is NOT laundered into the plan_obtained halt');
-// `=== false` on purpose: null must fall through to the existing guards, not become "never got it".
+// `=== false` on purpose: null must fall through to the dead-agent guard above it, not become
+// "never got it".
 {
   const { out } = await run({ 'develop': null, 'park': PARK_OK });
   ok(!/could not obtain/.test(out.haltReason || ''), 'a dead developer takes a different path');
+}
+
+section('a dead round-loop agent halts and parks — never a "gate miss" or a clean review');
+// The number-one defect shape (tests/CLAUDE.md §3) in the three per-round roles, and the twin of
+// migrate-cycle's guards. Each was laundered into a success-shaped roadmap: a dead developer read as an
+// ordinary gate miss and burned the round budget into `roadmap complete with 1 plan(s) parked`; a dead
+// quality/acceptance set reviewPath to a review file nobody wrote, pointed the NEXT developer at it, and
+// the run still ended `done (all plans staged)` on the strength of the rounds that did return.
+{
+  const DEAD = [
+    ['developer', { 'develop': null, 'park': PARK_OK }, /Developer for plan plan-a/],
+    ['quality reviewer', { 'develop': DEV_OK, 'quality': null, 'acceptance': ACC_PASS, 'park': PARK_OK }, /Quality reviewer for plan plan-a/],
+    ['acceptance verifier', { 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': null, 'park': PARK_OK }, /Acceptance verifier for plan plan-a/],
+  ];
+  for (const [role, respond, names] of DEAD) {
+    const { out, labels } = await run(respond);
+    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `a dead ${role} halts`);
+    ok(names.test(out.haltReason) && /skipped or died/.test(out.haltReason), `the reason names the ${role}`);
+    ok(/resumeFromRunId/.test(out.haltReason), 'and says how to replay it');
+    ok(labels.includes('park:plan-a'), 'its work is PARKED, not abandoned in the tree');
+    ok(!labels.some((l) => l.includes('plan-b')), 'the roadmap STOPPED — plan-b never started');
+    eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died, not "round budget"');
+  }
+}
+
+section('a dead round-loop agent never points the next round at a review file nobody wrote');
+{
+  const { calls } = await run({ 'develop': DEV_OK, 'quality': null, 'acceptance': ACC_PASS, 'park': PARK_OK });
+  ok(!calls.some((c) => c.label.startsWith('develop plan-a r2')), 'no second develop round after a dead reviewer');
+  ok(!calls.some((c) => c.label.startsWith('park')
+    && /quality-review-plan-a-r\d+\.md/.test(c.prompt)), 'and park names no phantom quality-review file');
 }
 
 section('a non-kebab plan id throws — it names files AND enters a shell command');
