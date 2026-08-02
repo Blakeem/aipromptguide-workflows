@@ -175,6 +175,10 @@ const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
 const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER SECTION
+// Section clauses the developer OVERRODE under MATRIX 6a, having verified the clause prescribes a real
+// defect — PER SECTION. Read by the ACCEPTANCE verifier only: it is deliberately NOT in SETTLED and never
+// reaches the blind quality reviewer, which would otherwise learn the plan's content from it (#3).
+const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a section's work, saved before the tree is cleared
 const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
@@ -222,7 +226,7 @@ function gateOk(gate, dev) {
 // =============================================================================
 const DEVELOP_SCHEMA = {
   type: 'object',
-  required: ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user'],
+  required: ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
     plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your section text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your section by eye in the plan file. FALSE halts the run: never build from a section you could not read.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
@@ -234,6 +238,10 @@ const DEVELOP_SCHEMA = {
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files)' },
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this section\'s DISMISSED file this round (0 if none)' },
+    // REQUIRED, unlike its optional twin dismissed_count: the DISMISSED file is its own standing record,
+    // while an amendment's ABSENCE has to be an explicit claim of zero — an omitted field must not be
+    // indistinguishable from "none this round".
+    plan_amendments:   { type: 'integer', description: 'how many SECTION CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the section prescribes, recorded as an entry in this section\'s AMENDED file. Report 0 when there were none; this field is required, so "none" must be stated, never omitted.' },
     gate_output:       { type: 'string', description: 'tail of failing gate/verification output, or "" if green' },
   },
 };
@@ -401,13 +409,21 @@ BE TOKEN-ECONOMICAL: read ONLY the files this section touches plus the SPECIFIC 
 you need — do NOT re-read the whole tree, the whole plan body, or the entire reference. Prefer targeted
 grep over broad reads. Don't restate large files back; act on them.`;
 
-const MATRIX = (id) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+const MATRIX = (id, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
   3. Stops the build/tests/verification ............... FIX (always).
   4. A real, clear, in-scope fix (local, small) ....... FIX.
   5. Needed to satisfy THIS section / wire it in ...... FIX (an unreachable or incomplete section is not done).
-  6. Conflicts with the plan / intentional / not a real-world code path ... DROP — LOG it (see LOGGING).
+  6a. Conflicts with the plan AND you VERIFIED that what this section PRESCRIBES is itself defective —
+      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
+        .............................................. FIX it: the verified defect outranks the
+      prescription. RECORD an amendment (see LOGGING).
+      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond
+      it" instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
+      still bind, exactly as written.
+  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
+        .............................................. DROP — LOG it (see LOGGING).
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
         .............................................. ESCALATE (see LOGGING).
   8. Anything else (style, medium/low polish, a different section's work) ... DROP silently.
@@ -415,8 +431,15 @@ const MATRIX = (id) => `DECISION MATRIX — for each ambiguity or review finding
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6): append ONE terse line to ${dismissedFile(id)} so reviewers won't re-raise it —
+  • DROP (1 or 6b): append ONE terse line to ${dismissedFile(id)} so reviewers won't re-raise it —
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
+  • AMEND (6a): append ONE entry to ${amendedFile(id)} —
+      \`## Section amendment: ${id} r${round}\`
+      then the section clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it
+      is real), and what you built instead.
+    Then append ONE POINTER line to ${NEEDS_USER}: the section id, the round, the defect's file:line, and
+    the path ${amendedFile(id)} — and NO plan text, so the amendment reaches the user where they already
+    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
     If you can proceed with a defensible default, record it there too but leave needs_user=false.
@@ -475,7 +498,7 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file you
    CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it; it does
    not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on accept.
-5. ${MATRIX(section.id)}
+5. ${MATRIX(section.id, round)}
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
 };
 
@@ -513,6 +536,12 @@ ${SETTLED(section.id, false)}
 OVERRIDE: ${dismissedFile(section.id)} entries are the developer's judgment calls. You are plan-aware —
 if a dismissed item ACTUALLY breaks one of this section's acceptance criteria, leaves it unreachable,
 or causes a regression, that OVERRIDES the dismissal: fail acceptance for it and record it in your file.
+
+AMENDMENTS: READ ${amendedFile(section.id)} if it exists. It records section clauses the developer
+OVERRODE after verifying the clause itself prescribes a real defect (MATRIX 6a). Judge a criterion whose
+prescribing clause was amended against the AMENDED behavior, not the superseded clause, and NAME every
+criterion you judged under an amendment in your review file. An amendment entry that states NO defect
+evidence excuses NOTHING — that criterion stays UNMET, or the escape hatch becomes a free pass.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -689,7 +718,7 @@ for (const section of pending) {
   }
 
   log(`▶ section ${section.id} — ${section.title} [gate=${section.gate}]`);
-  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false, contradicted: false };
+  const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false, contradicted: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   let accepted = false;
   // An escalation leaves real work in the tree (park it); a dirty-baseline halt changed nothing
@@ -771,6 +800,14 @@ for (const section of pending) {
     }
     if (dev?.dismissed_count) {
       log(`  ${section.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(section.id)} (audit these at the end)`);
+    }
+    // MATRIX 6a: the developer overrode a section clause it verified defective. The COUNT is control
+    // plane (#1/#8) — the amendment text stays in AMENDED-<id>.md, which only acceptance is handed.
+    // Coerced and floored so a garbage value cannot poison the ledger total; 0/absent logs nothing.
+    const amendments = Number(dev?.plan_amendments) || 0;
+    if (amendments > 0) {
+      rec.planAmendments += amendments;
+      log(`  ⚠ ${section.id} r${round}: ${amendments} plan amendment(s) recorded — see ${amendedFile(section.id)}`);
     }
     if (!gateOk(section.gate, dev)) {
       // Gate not satisfied and no user escalation: give the developer another fresh round to fix it (it
@@ -999,6 +1036,12 @@ if (A.finalSweep !== false && allDone) {
 // escalated section keeps its "BLOCKED (needs user)" status but was still parked, and dropping it here
 // would leave its patch path unreported anywhere in the return.
 const parkedSections = ledger.filter((r) => r.patch || (typeof r.status === 'string' && r.status.startsWith('parked')));
+// Sections whose developer overrode a section clause under MATRIX 6a. Named in followups because
+// AMENDED-<id>.md is reachable by acceptance alone — without this the user would not know it exists.
+const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
+const amendedNote = amendedIds.length
+  ? ` PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a section clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file.`
+  : '';
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
@@ -1037,9 +1080,9 @@ return {
   parked: parkedSections.map((r) => ({ id: r.id, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
   reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<section>-rN.md, acceptance-review-<section>-rN.md) show every iteration; git staging marks each accepted section.`,
-  followups: halted
+  followups: (halted
     ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply the patch first ONLY if you want to finish that section by hand; otherwise resume from the clean baseline and the developer redoes it (a resumed run requires a clean unstaged tree and halts on a dirty one).`
     : allDone
       ? `All sections done.${sweepFailed ? ` WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished.` : ''} Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
-      : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`,
+      : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`) + amendedNote,
 };

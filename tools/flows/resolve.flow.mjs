@@ -47,7 +47,7 @@ const one = { ...base, issues: [I1] };
 // Both ids ride in `results` so one constant serves either batch; each batch keeps only its own
 // (`statusById.has` drops the rest).
 const fixed = (id) => ({ issue_id: id, status: 'FIXED', files_changed: [], summary: 'root cause closed' });
-const FIX_OK   = { baseline_dirty_files: 0, issue_entries_found: 1, unstaged_confirmed: true, needs_user: false, build_passed: true, test_outcome: 'passed', dismissed_count: 0, results: [fixed('i1'), fixed('i2')] };
+const FIX_OK   = { baseline_dirty_files: 0, issue_entries_found: 1, unstaged_confirmed: true, needs_user: false, build_passed: true, test_outcome: 'passed', dismissed_count: 0, plan_amendments: 0, results: [fixed('i1'), fixed('i2')] };
 const CLEAN    = { clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { pass: true, staged: true, regression: false, gap_count: 0, suite_result: 'green', fix_checks: [] };
