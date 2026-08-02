@@ -93,7 +93,11 @@ a *missing* value. Check the null path separately, before the sentinel logic.
 `unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months; `wrote_file` sat
 unread in `review.mjs` until 2026-08-01. **TOP-LEVEL fields are gate-enforced now:** `static.test.mjs`
 resolves every schema an `agent()` call is handed — including the function-built one — and fails any
-top-level property with no `.field` / `['field']` / destructured read in that same engine. NESTED item
+top-level property with no `.field` / `['field']` / destructured read **through that site's RECEIVER
+variable** (aliases via bare `x = recv;` assignments count, transitively; a receiver name with more
+than one binding in the file is a loud extractor error — rename the colliding local). Sites with no
+resolvable receiver (pipeline stages, `.then` chains, bare `return agent(`) fall back to the old
+file-wide name-level match and are LISTED in the test file, so degraded coverage is visible. NESTED item
 fields are still on you: they are excluded deliberately (measured — an all-depth rule was 33 false
 positives out of 36) because a container is routinely consumed wholesale, so a dead field one level down
 is invisible to the sweep.

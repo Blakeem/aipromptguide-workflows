@@ -38,7 +38,7 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
 ## Roles (5)
 
 **`review.mjs` (read-only; units run CONCURRENTLY via `pipeline`):**
-- **Reviewer** (sonnet) — finds production defects in ONE unit's files through ONE lens; returns findings.
+- **Reviewer** (opus) — finds production defects in ONE unit's files through ONE lens; returns findings.
   When it finds NOTHING it writes the clean `issues/<unit>.md` marker itself (frontmatter + "No issues
   found." + unit hash — what makes hash-based resume work); with findings it writes nothing and hands off
   to the verifier. With a lens ARRAY the unit gets one reviewer per lens, and only the LAST may write the
@@ -53,7 +53,7 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
   fixes minimally, runs gates, leaves work UNSTAGED, owns the matrix, declines → `DISMISSED-<batch>.md`,
   escalates → `NEEDS-USER.md`. Only the fixer halts the run for the user — Park halts too, but on an
   unsafe tree. On round 1 it also reports two preconditions before touching anything (see Contracts).
-- **Blind quality reviewer** (sonnet) — reads ONLY the unstaged diff, no issue text — catches anything
+- **Blind quality reviewer** (opus) — reads ONLY the unstaged diff, no issue text — catches anything
   the fix introduced or broke. Must be clean before acceptance.
 - **Acceptance verifier** (opus) — reads the batch's issue file(s), **re-derives each fix's root cause**
   from current code, passes only if the fix closes it *completely* with no regression and green gates.

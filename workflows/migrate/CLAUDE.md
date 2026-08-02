@@ -167,7 +167,7 @@ Roles mirror feature-cycle (the conductor passes only control signals, #1; agent
   implements ONLY that section, **converts every call site it owns**, runs the section gate, leaves work
   **UNSTAGED**. Owns the matrix: declines → `DISMISSED-<id>.md`, user-only → `NEEDS-USER.md` (halts on a
   hard blocker).
-- **Quality Reviewer** (run · sonnet) — **blind**; reviews ONLY the unstaged diff for introduced
+- **Quality Reviewer** (run · opus) — **blind**; reviews ONLY the unstaged diff for introduced
   production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria (enumerated and evidenced
   with locators), reachability, the section gate, regression vs the staged baseline. Writes
@@ -302,6 +302,8 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 - **A halt is usually** a bad gate command, a missing dependency the plan assumed (a consumer before its
   producer — reorder the plan), or a real design question. Fix the root cause, resume from that section.
 - **`too_big`** → split the named section, update `sections`, re-run refine.
+- **A plan file inside `target.repo`** now draws its own ⚠ warning at run start — the blind reviewer
+  must have no route to a plan (#3). Move it under `<root>/plans/` (the snapshot rule in §2).
 - **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
   run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
   dir) — relocate the stray state, re-run.

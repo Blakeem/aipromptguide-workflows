@@ -12,19 +12,9 @@ args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required
    different terminal status, a `failed`/`needsAttention`/`sweepFailed` entry, a throw, or a log line
    naming the death. Any Stage-4 expression that launders the null makes dead ≡ healthy and the sweep
    goes red. Highest value, largest build of the set.
-2. **Schema-scoped attestation matching** — closes the known name-collision blind spot (two schemas in
-   one engine sharing a field name, e.g. FIX_SCHEMA.notes vs PARK_SCHEMA.notes: consuming one masks
-   the other). Fix is test-side only: bind each schema's consumer check to the RECEIVER variable of
-   its `agent()` call (`const fix = await agent(...)` → only `fix.notes` counts), falling back to the
-   current file-wide match where the receiver is anonymous (pipeline stage returns). Do NOT rename
-   schema fields — they are the runtime contract. Optional rider: nested-field coverage as a separate
-   allowlist-heavy block (measured 2026-08-01: all-depth flags 33 false positives of 36).
 3. **Write-confirmation asymmetry heuristic** — a prompt that instructs writing a file should carry a
    consumed `wrote_*`/marker boolean in its schema. Only approximately formalizable (detecting "this
    prompt instructs a write" is heuristic); scope a v1 to prompts that interpolate a state-file path.
-4. **planPath-inside-target-repo guard** — engines warn (or throw) when a `planPath`/`plans[].planPath`
-   resolves inside `target.repo`, mirroring the existing run-state placement guard. The guide's
-   snapshot rule covers this by instruction today; this makes it structural (#3).
 5. **Plan-defect wedge — the round loop cannot converge when the PLAN is what's wrong.** Observed
    2026-08-01, wt-tooling/wt-land: the roadmap's lock spec was itself defective (`startedAt`-only
    staleness), conventions said "follow the plan text exactly, do not improve", so every round the
@@ -60,5 +50,11 @@ args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required
 ## Done since filing
 
 - **Worktree parallelism** — BUILT 2026-08-01 (wt-tooling roadmap: `tools/wt.mjs`, `tests/wt.test.mjs`,
-  playbook `docs/worktree-batches.md`). First live parallel batch still pending: the debug+migrate
-  guide links to the playbook, run as two chains.
+  playbook `docs/worktree-batches.md`). First live parallel batch ran 2026-08-02 (batch h1, below).
+- **Item 2, schema-scoped attestation matching** — BUILT 2026-08-02 (batch h1, `attestation-scoping`):
+  receiver-bound `consumed()`, alias rule, ambiguity = extractor error (three local renames), explicit
+  fallback list, per-site ALLOW shape; three hidden dead `notes` fields got real consumers. The
+  nested-field rider (all-depth: 33 false positives of 36 measured) remains open by choice.
+- **Item 4, planPath-inside-target-repo guard** — BUILT 2026-08-02 (batch h1, `planpath-guard`):
+  feature (top-level + `plans[]`, deduped) and migrate (top-level) warn loudly, mirroring the
+  run-state placement guard.

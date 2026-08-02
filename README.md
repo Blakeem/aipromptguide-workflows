@@ -118,7 +118,7 @@ E:/myproject/          ← target.repo   the project itself, the folder holding 
 
 Keeping them apart is what makes the blind review work: the issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-The build and debug engines warn if you point run-state inside the target repo.
+The build and debug engines warn if you point run-state inside the target repo, and the build engines (feature, migrate) warn when a plan file resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
 give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several
@@ -156,6 +156,18 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ## Changelog
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
+
+### 2026-08-02
+
+- **First live parallel batch shipped two hardening features** (`planpath-guard` + `attestation-scoping`),
+  built simultaneously in worktrees and landed through `aipg/int-h1` — the wt.mjs lifecycle's own
+  shakedown. The features: feature + migrate now **warn when a plan file resolves inside `target.repo`**
+  (blindness by placement made structural), and the attestation sweep **binds each schema's consumer
+  check to its `agent()` call's receiver variable** (closing the shared-field-name mask; three
+  previously-hidden dead `notes` fields got real consumers).
+- **Every code-review role now runs on opus** (feature/migrate/resolve blind quality critics + debug's
+  review finder). Measured on the wt-tooling build: the fast tier surfaced one deep-verified defect per
+  round on large diffs, serializing discovery across rounds and burning the round budget.
 
 ### 2026-08-01
 

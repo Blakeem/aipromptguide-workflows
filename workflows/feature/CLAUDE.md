@@ -210,7 +210,7 @@ throwaway.
   minimally, **wires it in**, runs the gate green, leaves work **UNSTAGED**. Owns the **decision
   matrix**: fixes what's real, logs declines to `DISMISSED-<id>.md`, escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
-- **Quality Reviewer** (build · sonnet) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
+- **Quality Reviewer** (build · opus) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
   for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
   review files. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion (enumerated and
@@ -328,6 +328,9 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
   — sanity-check the count, and scope one file per invocation or use the runner's filter. Manual/MCP →
   `tests_run_count` is `-1`; confirm the behavior was observed.
 - **Custom `agentTypes` must exist in the user's registry** — defaults use the standard subagent.
+- **A plan file inside `target.repo`** now draws its own ⚠ warning at run start (top-level `planPath`
+  and every `plans[].planPath`) — the blind reviewer must have no route to a plan (#3). Move it under
+  `<root>/plans/` (the snapshot rule in §2's skip-path).
 - **Stray `runs/` in the target repo** = `root`/`stateDir` pointed into it. Point `root` back at your
   run-state base — the checkout, or the plugin data dir the skill resolved (never the plugin install
   dir) — relocate the stray state, re-run.
