@@ -113,10 +113,12 @@ const parkedNewDir   = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}-newfil
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;                                // full detail; for the user (may halt the run)
 
 // Full-suite gate: a review-fix campaign assumes a green baseline, so every accepted batch must keep
-// build AND tests green.
-const gateOk = (fix) => !!fix
-  && (!GATES.build || fix.build_passed === true)
-  && (!GATES.test || fix.test_outcome === 'passed');
+// build AND tests green. The parameter is `res`, not `fix`: the attestation sweep in tests/static.test.mjs
+// scopes each schema's consumer check to the variable its agent return lands in, and `fix` is that
+// variable at the Fix site below.
+const gateOk = (res) => !!res
+  && (!GATES.build || res.build_passed === true)
+  && (!GATES.test || res.test_outcome === 'passed');
 
 // =============================================================================
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose/content lives in files.
@@ -576,6 +578,10 @@ for (const batch of batches) {
       statusById.set(r.issue_id, { status: s === 'stale' ? 'stale' : s === 'fixed' ? 'fixed' : 'needs-attention', summary: r.summary || '' });
     }
     if (fix?.dismissed_count) log(`  r${round}: fixer declined ${fix.dismissed_count} finding(s) → ${dismissedFile(batch.id)} (audit these)`);
+    // `notes` is the fixer's only free-text channel back to the operator — every other FIX_SCHEMA field is
+    // a number, a boolean or an enum, and `gate_output` is surfaced only when the round budget runs out.
+    // Log only, sliced: prose stays out of the control plane, same as park's `notes` below.
+    if (fix?.notes) log(`  r${round}: fixer note: ${String(fix.notes).slice(0, 300)}`);
     if (fix?.needs_user === true) {
       halted = true;
       escalated = true;   // work may be in the tree → park it below rather than abandoning it there

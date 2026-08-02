@@ -119,14 +119,14 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 38) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 44) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
-| throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 150) |
-| throw: section gate(s) [...] are not one of green \| red-baseline \| build-only | a sections entry names an unknown gate | throw (line 163) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 597) |
-| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 627) |
-| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 633) |
-| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 636) |
-| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 651) |
-| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 656) |
+| throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 158) |
+| throw: section gate(s) [...] are not one of green \| red-baseline \| build-only | a sections entry names an unknown gate | throw (line 171) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 605) |
+| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 635) |
+| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 641) |
+| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 644) |
+| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 659) |
+| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 664) |
 
 ## Coverage
 

@@ -338,7 +338,9 @@ const results = await pipeline(
   LENSES,
   // -- Find: one agent per lens, reading the whole scope --------------------------------------
   async (lens) => {
-    const r = await agent(findPrompt(lens), roleOpts('find', {
+    // `found`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
+    // to the variable its agent return lands in, and `r` is bound five times in this file.
+    const found = await agent(findPrompt(lens), roleOpts('find', {
       schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
     }));
     // Floor the finder's own scores before verify — below-floor candidates only cost verify tokens.
@@ -347,18 +349,18 @@ const results = await pipeline(
     // `minImpact` is a knob the operator is invited to lower (CLAUDE.md §3) and "12 candidates sat one
     // rank under your floor" is exactly the fact that decides whether lowering it is worth a re-run.
     // Logging it and dropping it made a floor that is too high indistinguishable from a clean system.
-    // A DEAD finder is not a clean lens. `r?.candidates || []` would make the two identical — zero
+    // A DEAD finder is not a clean lens. `found?.candidates || []` would make the two identical — zero
     // candidates, zero below the floor, and a result object carrying this lens id, so `failed` stays empty
     // and the run reports the lens as audited. Dropping it to null instead puts it in `failed`, which is
     // the one place the operator can see that this lens produced nothing because nobody looked.
-    if (!r) {
+    if (!found) {
       log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, no marker file). Re-run it.`);
       return null;
     }
-    const kept = (r.candidates || []).filter((c) => (IMPACT_RANK[c.impact] ?? 1) >= MIN_IMPACT);
-    const belowFloor = (r.candidates || []).length - kept.length;
+    const kept = (found.candidates || []).filter((c) => (IMPACT_RANK[c.impact] ?? 1) >= MIN_IMPACT);
+    const belowFloor = (found.candidates || []).length - kept.length;
     if (belowFloor) log(`  ${lens.id}: ${belowFloor} candidate(s) below the ${MIN_IMPACT_NAME} floor — cut before verify, not in the proposal file`);
-    return { lens, candidates: kept, belowFloor, markerWritten: r.wrote_clean_marker === true };
+    return { lens, candidates: kept, belowFloor, markerWritten: found.wrote_clean_marker === true };
   },
   // -- Verify + write the lens proposal file — ONLY when the lens has candidates ---------------
   async (r) => {

@@ -95,6 +95,14 @@ const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? Stri
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
+// The PLAN has the same exposure, one door over: a plan file inside the target repo puts the SPEC where
+// the blind quality reviewer can reach it through the repo tree, and where the diff/park machinery could
+// sweep it. WARN rather than throw, matching the run-state guard's precedent. Sections carry no path of
+// their own ({id, title, gate, planContext}), so this single check is the whole surface here; an INLINE
+// plan (`plan` as a markdown string) has no path at all and is skipped by construction.
+if (PLAN_PATH && REPO && (PLAN_PATH === REPO || PLAN_PATH.startsWith(REPO + '/'))) {
+  log(`⚠ plan file (${PLAN_PATH}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
+}
 // The plan reference handed to plan-aware agents (developer, acceptance, refine, sweep). NEVER handed
 // to the blind quality reviewer.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it VERBATIM)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
@@ -923,7 +931,11 @@ for (const section of pending) {
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
     rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(section.id) : null;
     if (strays > 0) rec.strays = parkedNewDir(section.id);
-    log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}`);
+    // Park's `notes` is the only place the "nothing to park" case can explain itself: step 1 tells the
+    // agent to skip ahead with saved=false, patch_bytes=0 "and a note saying so", and without surfacing it
+    // the line reads `work saved to nothing to save` with no reason given. Prose stays out of the control
+    // plane — log only, same as resolve-cycle's twin.
+    log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     // A tree we could not clear (or a self-contradictory park report) leaves the repo unsafe to resume
     // into, which is a different operator problem from a plain park — say so in the status, not just
     // deep in the reason string.
