@@ -246,6 +246,38 @@ section('run-state pointed inside the target repo draws the placement warning');
   const { logs } = await run(GREEN_RUN, { ...baseArgs, stateDir: 'E:/repo/runs/t' });
   ok(logs.some((l) => l.includes('INSIDE the target repo')), 'the warning names the placement hazard');
   ok(logs.some((l) => l.includes('never the plugin install dir')), 'and steers away from the version-swapped install dir');
+  ok(!logs.some((l) => l.includes('resolves inside the target repo')), 'and does not also fire the PLAN guard');
+}
+
+section('a plan file pointed inside the target repo draws its own placement warning');
+// The sibling of feature-cycle's guard (§1). Sections carry no path of their own, so the top-level
+// planPath is the whole surface here. The substring is deliberately NOT the run-state guard's
+// "INSIDE the target repo" — two guards that match one assertion prove nothing about either.
+const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside the target repo'));
+{
+  const INSIDE = { ...baseArgs, plan: undefined, planPath: 'E:/repo/docs/migration.md' };
+  const { logs } = await run(GREEN_RUN, INSIDE);
+  const warn = planWarnings(logs);
+  eq(warn.length, 1, 'exactly one plan-placement warning');
+  ok((warn[0] ?? '').includes('E:/repo/docs/migration.md'), `it names the offending path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+  ok(!logs.some((l) => l.includes('INSIDE the target repo')), 'and it is not the run-state guard firing');
+}
+{
+  // The repo ROOT itself, through backslashes + a trailing slash — the check runs on the abs()-normalized
+  // path, so neither separator style nor a trailing slash can dodge it.
+  const ROOTPATH = { ...baseArgs, plan: undefined, planPath: 'E:\\repo\\' };
+  const warn = planWarnings((await run(GREEN_RUN, ROOTPATH)).logs);
+  eq(warn.length, 1, 'a plan path equal to the repo root itself warns, normalization and all');
+  ok((warn[0] ?? '').includes('E:/repo'), 'and the path it names is the normalized one');
+}
+{
+  // Negative, FILE-BACKED: a plan outside the repo is the case the guard must stay silent on.
+  const OUTSIDE = { ...baseArgs, plan: undefined, planPath: 'E:/plans/migration.md' };
+  eq(planWarnings((await run(GREEN_RUN, OUTSIDE)).logs).length, 0, 'a plan file outside the repo draws nothing');
+}
+{
+  // Negative, INLINE (baseArgs): no path exists to compare — skipped by construction, not by check.
+  eq(planWarnings((await run(GREEN_RUN)).logs).length, 0, 'an inline plan has no path — skipped by construction');
 }
 
 section('args.blockTool points the section command at an installed plugin\'s own tools/ copy');

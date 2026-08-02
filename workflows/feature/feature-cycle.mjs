@@ -95,6 +95,20 @@ const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? Stri
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
+// The PLAN has the same exposure, one door over (#3): a plan file inside the target repo puts the SPEC
+// where the blind quality reviewer can reach it through the repo tree, and where the diff/park machinery
+// could sweep it. WARN rather than throw, matching the run-state guard's precedent — a mid-flight throw
+// strands a run the operator may still want, and the loud line names the correction. Deduped on the
+// resolved path: the back-compat single-plan entry synthesized below repeats this very PLAN_PATH.
+// An INLINE plan (`plan` as a markdown string) has no path at all, so it is skipped by construction.
+const PLAN_PLACEMENT_WARNED = new Set();
+const warnPlanPlacement = (p) => {
+  if (!p || !REPO || PLAN_PLACEMENT_WARNED.has(p)) return;
+  if (p !== REPO && !p.startsWith(REPO + '/')) return;
+  PLAN_PLACEMENT_WARNED.add(p);
+  log(`⚠ plan file (${p}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
+};
+warnPlanPlacement(PLAN_PATH);
 // The plan reference handed to plan-aware agents (developer, acceptance) — per plan entry, since a
 // roadmap carries one plan file per feature. NEVER handed to the blind quality reviewer (#3).
 // A roadmap entry with no body of its own is a "## Plan: <id>" BLOCK inside the top-level plan file.
@@ -142,6 +156,11 @@ const ALL_PLANS = (Array.isArray(A.plans) && A.plans.length
     gate: VALID_GATES.has(p.gate) ? p.gate : 'green',
     planContext: p.planContext === 'full' ? 'full' : 'block',
   }));
+
+// The same placement check across the ROADMAP — each entry's OWN planPath, abs()-resolved just above
+// (the raw `A.plans` entries beside the top-level guard are unresolved strings, and ALL_PLANS is in its
+// TDZ up there). The synthesized back-compat entry repeats PLAN_PATH, which the Set has already absorbed.
+for (const p of ALL_PLANS) warnPlanPlacement(p.planPath);
 
 // An id routes review/ledger file names AND is interpolated into the block command, so anything but a
 // kebab slug is either a file-name collision (two ids that `slug()` folds together silently share one

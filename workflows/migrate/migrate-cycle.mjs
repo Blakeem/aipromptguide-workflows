@@ -95,6 +95,14 @@ const PLAN_INLINE = (!A.planPath && A.plan && typeof A.plan !== 'object') ? Stri
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
+// The PLAN has the same exposure, one door over: a plan file inside the target repo puts the SPEC where
+// the blind quality reviewer can reach it through the repo tree, and where the diff/park machinery could
+// sweep it. WARN rather than throw, matching the run-state guard's precedent. Sections carry no path of
+// their own ({id, title, gate, planContext}), so this single check is the whole surface here; an INLINE
+// plan (`plan` as a markdown string) has no path at all and is skipped by construction.
+if (PLAN_PATH && REPO && (PLAN_PATH === REPO || PLAN_PATH.startsWith(REPO + '/'))) {
+  log(`⚠ plan file (${PLAN_PATH}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
+}
 // The plan reference handed to plan-aware agents (developer, acceptance, refine, sweep). NEVER handed
 // to the blind quality reviewer.
 const PLAN_REF    = PLAN_PATH ? `the approved plan file at ${PLAN_PATH} (read it VERBATIM)` : `the approved plan below:\n-----\n${PLAN_INLINE}\n-----`;
