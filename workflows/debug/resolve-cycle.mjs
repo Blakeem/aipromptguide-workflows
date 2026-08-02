@@ -76,9 +76,10 @@ const CRITIC_SEV_NAME = A.criticSeverity ?? 'high';        // floor for NEW defe
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
 // that exists in YOUR registry. Fix + acceptance are opus (high stakes); the blind quality critic is
-// the fast tier.
+// opus too — measured 2026-08-01 (wt-tooling): the fast tier surfaced ONE deep-verified defect per
+// round, serializing discovery across rounds.
 const AT = { ...(A.agentTypes ?? {}) };
-const M  = { fix: 'opus', quality: 'sonnet', acceptance: 'opus', ...(A.models ?? {}) };
+const M  = { fix: 'opus', quality: 'opus', acceptance: 'opus', ...(A.models ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // ROOT is the ABSOLUTE base run-state hangs off (supplied by the main agent), so every agent +

@@ -72,8 +72,9 @@ const MIN_SECTION_BUDGET = num(A.minSectionBudget, 'minSectionBudget', 0, 150_00
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType that
 // exists in YOUR registry. Acceptance is opus (spec + regression, high stakes); the blind quality
-// critic is the fast tier (runs every round). The refine/sweep critics reuse the quality tier.
-const M  = { develop: 'opus', quality: 'sonnet', acceptance: 'opus', refine: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
+// critic is opus too — measured 2026-08-01 (wt-tooling): the fast tier surfaced ONE deep-verified defect
+// per round on large diffs, serializing discovery. Sweep stays fast — it searches, it doesn't review.
+const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', refine: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
 const AT = { ...(A.agentTypes ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 

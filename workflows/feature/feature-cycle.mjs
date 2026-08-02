@@ -72,8 +72,9 @@ const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // to
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
 // that exists in YOUR registry. Acceptance is opus (spec + regression, high stakes); the blind
-// quality critic is the fast tier (runs every round).
-const M  = { plan: 'opus', develop: 'opus', quality: 'sonnet', acceptance: 'opus', ...(A.models ?? {}) };
+// quality critic is opus too — measured 2026-08-01 (wt-tooling): the fast tier surfaced ONE deep-verified
+// defect per round on large diffs, serializing discovery across rounds and burning the round budget.
+const M  = { plan: 'opus', develop: 'opus', quality: 'opus', acceptance: 'opus', ...(A.models ?? {}) };
 const AT = { ...(A.agentTypes ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 

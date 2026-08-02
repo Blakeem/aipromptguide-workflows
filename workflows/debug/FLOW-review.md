@@ -9,7 +9,7 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 %%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 200}}}%%
 flowchart TD
   S0(["args"])
-  a1["review · sonnet<br/>×2 concurrent"]
+  a1["review · opus<br/>×2 concurrent"]
   a2["verify · opus<br/>×2 concurrent"]
   t1(["inventory written (the clean unit never reached verify)"])
   t2(["no inventory (every unit read clean)"])
@@ -57,7 +57,7 @@ flowchart TD
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 336) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 338) |
 
 ## Coverage
 

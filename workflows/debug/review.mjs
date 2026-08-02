@@ -98,9 +98,11 @@ const lensesOf = (unit) => asList(pick(unit && unit.lens) ?? pick(A.lens)).map(o
 
 // Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every
 // role runs as the harness's standard workflow subagent (always available). Only set an agentType
-// that exists in YOUR registry. Verify is opus (high stakes); reviewer is the fast tier.
+// that exists in YOUR registry. Verify is opus (high stakes); the reviewer (the finder) is opus too —
+// measured 2026-08-01 (wt-tooling): the fast tier under-reports on large surfaces, and a missed finding
+// here never reaches verify at all.
 const AT = { ...(A.agentTypes ?? {}) };
-const M  = { review: 'sonnet', verify: 'opus', ...(A.models ?? {}) };
+const M  = { review: 'opus', verify: 'opus', ...(A.models ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // ROOT is the ABSOLUTE base run-state hangs off (supplied by the main agent), so every agent +
