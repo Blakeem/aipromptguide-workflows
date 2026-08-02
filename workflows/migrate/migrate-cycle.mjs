@@ -931,7 +931,11 @@ for (const section of pending) {
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
     rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(section.id) : null;
     if (strays > 0) rec.strays = parkedNewDir(section.id);
-    log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}`);
+    // Park's `notes` is the only place the "nothing to park" case can explain itself: step 1 tells the
+    // agent to skip ahead with saved=false, patch_bytes=0 "and a note saying so", and without surfacing it
+    // the line reads `work saved to nothing to save` with no reason given. Prose stays out of the control
+    // plane — log only, same as resolve-cycle's twin.
+    log(`  ⚠ ${section.id}: PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(section.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     // A tree we could not clear (or a self-contradictory park report) leaves the repo unsafe to resume
     // into, which is a different operator problem from a plain park — say so in the status, not just
     // deep in the reason string.

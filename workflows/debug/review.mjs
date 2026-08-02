@@ -359,20 +359,22 @@ const results = await pipeline(
       // cut before verify overwrites — resume would then trust that premature "clean" file and skip the
       // unit, silently dropping a defect a later lens found.
       const cleanEligible = handled.length === 0 && p === lenses.length - 1;
-      const r = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
+      // `rev`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
+      // to the variable its agent return lands in, and `r` is bound five times in this file.
+      const rev = await agent(reviewPrompt(unit, lens, handled, cleanEligible), roleOpts('review', {
         schema: reviewSchema(lens.categories), phase: 'Review',
         label: `review:${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}`,
       }));
-      // A DEAD reviewer is not a clean lens. `r?.findings || []` would make the two identical — zero
+      // A DEAD reviewer is not a clean lens. `rev?.findings || []` would make the two identical — zero
       // findings from this lens, while a surviving sibling lens keeps `items.length > 0`, so the unit
       // goes to verify and is logged as normally processed. The issue file is then written with the unit
       // hash, and hash-based resume skips a unit one of whose lenses never looked at it.
-      if (!r) {
+      if (!rev) {
         log(`  ⚠ ${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
         continue;
       }
-      if (cleanEligible && r?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
-      for (const f of (r?.findings || [])) {
+      if (cleanEligible && rev?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
+      for (const f of (rev?.findings || [])) {
         if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
         // Dedup on lens+file+category. Within ONE lens this is the old file:category rule, which exists
         // because a re-review re-phrases the same concern and title-based dedup leaks duplicates. Across

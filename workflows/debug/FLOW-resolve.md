@@ -102,10 +102,10 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 35) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 41) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 60) |
-| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 433) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 439) |
-| throw: args.gates.test is required | args.gates.test is missing | throw (line 442) |
-| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 452) |
+| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 435) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 441) |
+| throw: args.gates.test is required | args.gates.test is missing | throw (line 444) |
+| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 454) |
 
 ## Coverage
 
