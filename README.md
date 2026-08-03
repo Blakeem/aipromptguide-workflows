@@ -36,8 +36,7 @@ disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**:
 the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
-agents) and an [auditor agent](agents/workflow-principles-auditor.md) that reviews a workflow
-against them.
+agents).
 
 **The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal
 state, rendered inline by GitHub. Read one before starting a run you have not done before: the terminal
@@ -75,9 +74,8 @@ approval (or the autonomous path when you hand it a finished plan)  →  runs fe
 /plugin install aipg@aipromptguide
 ```
 
-That's it — the workflows land in the plugin cache, the
-[auditor agent](agents/workflow-principles-auditor.md) registers automatically, and run-state
-goes to the plugin's persistent data dir (`~/.claude/plugins/data/…`), outside every project. Run one:
+That's it — the workflows land in the plugin cache and run-state goes to the plugin's persistent
+data dir (`~/.claude/plugins/data/…`), outside every project. Run one:
 `/aipg:feature add a search_docs MCP tool. Plan it first.`
 
 ## Install (checkout — for development, or driving workflows by path)
@@ -92,12 +90,6 @@ goes to the plugin's persistent data dir (`~/.claude/plugins/data/…`), outside
 2. **Open the checkout in Claude Code** — the root `CLAUDE.md` routes to each workflow's guide, with
    `root` = the checkout. To use the plugin's skills against a local clone, add it as a local
    marketplace instead: `/plugin marketplace add ./aipg` then `/plugin install aipg@aipromptguide`.
-
-3. **(Optional) Copy the auditor agent** to use it outside the plugin:
-
-   ```bash
-   cp aipg/agents/workflow-principles-auditor.md ~/.claude/agents/
-   ```
 
 ## One checkout, many projects
 
@@ -159,6 +151,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-02
 
+- **All eight skills are model-invocable, and the auditor agent is gone.** The three build skills'
+  `disable-model-invocation` flag also hid them from Claude's context, so calling one out by name
+  ("use the aipg feature workflow") only worked as a slash command — dropped; the opt-in gate is each
+  description's "only when the user explicitly asks" clause, which `tests/skills.test.mjs` now
+  enforces in the new direction. The `workflow-principles-auditor` agent registered in every project
+  a user-level install touched — deleted; audit an engine by running debug with
+  `principles/WORKFLOW-PRINCIPLES.md` as a lens, keeping the principles doc the single source of truth.
 - **Principle #15 is now machine-checked, and the plan-defect wedge is closed** (batch h2, phased):
   `tests/dead-agent.test.mjs` kills every agent role once per engine and demands a visibly different
   outcome — building it exposed and fixed four real launderers (feature-cycle's dead develop/quality/

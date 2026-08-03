@@ -1,6 +1,5 @@
 ---
 description: "Run the AIPG migrate-cycle dynamic workflow — one plan driven across many call sites (migration, upgrade, port, refactor) in ordered, section-gated changes. Use only when the user explicitly asks for the AIPG migrate workflow."
-disable-model-invocation: "true"
 argument-hint: "[migration/upgrade goal]"
 ---
 
