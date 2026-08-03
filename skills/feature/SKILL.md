@@ -1,6 +1,5 @@
 ---
 description: "Run the AIPG feature-cycle dynamic workflow — build one bounded feature (new MCP tool, endpoint, page, form, contained enhancement, design-needing bugfix) or an ordered roadmap of them, plan-first and staged. Use only when the user explicitly asks for the AIPG feature workflow."
-disable-model-invocation: "true"
 argument-hint: "[feature or roadmap to build]"
 ---
 

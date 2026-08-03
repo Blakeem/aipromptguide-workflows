@@ -1,6 +1,5 @@
 ---
 description: "Run the AIPG debug dynamic workflow — find production defects in a repo or change (triaged review), and/or fix a verified issue inventory in batches (resolve loop). Use only when the user explicitly asks for the AIPG debug workflow."
-disable-model-invocation: "true"
 argument-hint: "[repo/change to review, or inventory to fix]"
 ---
 

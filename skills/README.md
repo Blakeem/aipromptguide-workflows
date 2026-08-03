@@ -27,10 +27,10 @@ together.
 
 Then run one from any project — e.g. `/aipg:feature add a search_docs MCP tool. Plan it first.`
 Claude reads the matching `workflows/<x>/CLAUDE.md` from the installed plugin and drives the workflow
-(plan mode → approval → engine — or the autonomous path when you hand it a finished plan). The three
-build skills (`feature`, `debug`, `migrate`) are **user-invoked only** — Claude never triggers them on
-its own; the five read-only/generative ones it may suggest. Note `/debug` and `/docs` un-namespaced
-are Claude Code's own bundled skills — use the `/aipg:` forms.
+(plan mode → approval → engine — or the autonomous path when you hand it a finished plan). All eight
+skills are visible to Claude, so naming one in prose ("use the aipg migrate workflow on X") works
+without the slash form; each description tells Claude to run it only when you explicitly ask. Note
+`/debug` and `/docs` un-namespaced are Claude Code's own bundled skills — use the `/aipg:` forms.
 
 Run-state never touches your project or the plugin install dir: runs land in the plugin's persistent
 data dir (`~/.claude/plugins/data/aipg-aipromptguide/runs/<runId>/`; on Windows

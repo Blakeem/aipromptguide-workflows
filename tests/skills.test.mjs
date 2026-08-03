@@ -15,10 +15,11 @@ section('every workflow ships a skill, and every skill is a known workflow');
 ok(SKILLS.join(',') === 'brainstorm,debug,decide,docs,enhance,feature,investigate,migrate',
   `skills/ holds exactly the eight workflows — got: ${SKILLS.join(',')}`);
 
-// The three build skills spawn engines that write code and stage work — user-invoked only (the
-// Workflow tool's own opt-in rule, enforced structurally instead of by prose). The five generative/
-// read-only skills stay model-invocable so "use the aipg docs workflow to gather X" keeps working.
-const USER_ONLY = new Set(['feature', 'debug', 'migrate']);
+// All eight skills stay model-invocable, so naming a workflow in prose ("use the aipg feature
+// workflow on X") is enough — no slash command required. The Workflow tool's opt-in rule is carried
+// by each description's "Use only when the user explicitly asks" clause. The build skills used to set
+// disable-model-invocation instead, but that flag also hides the skill from the model's context, so
+// the model could not even recognize the workflow's name when the operator called it out.
 
 for (const name of SKILLS) {
   section(`skills/${name}/SKILL.md frontmatter is well-formed`);
@@ -38,8 +39,8 @@ for (const name of SKILLS) {
   }
   ok(!!fields.description, 'description present (the invocation gate)');
   ok(!!fields['argument-hint'], 'argument-hint present');
-  ok(USER_ONLY.has(name) === (fields['disable-model-invocation'] === 'true'),
-    USER_ONLY.has(name) ? 'build skill is user-invoked only' : 'generative skill stays model-invocable');
+  ok(!('disable-model-invocation' in fields),
+    'skill stays model-invocable (the opt-in gate lives in the description prose)');
   ok(body.includes('${CLAUDE_PLUGIN_ROOT}'), 'body resolves the plugin root');
   ok(body.includes('${CLAUDE_PLUGIN_DATA}'), 'body resolves the data dir (run-state root)');
   ok(body.includes(`/workflows/${name}/CLAUDE.md`), 'body points at this workflow\'s guide');
