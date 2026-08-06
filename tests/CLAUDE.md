@@ -289,8 +289,14 @@ dropped information is not:
   tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
   rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
-**Solved — all 9 maps render clean. Keep it that way by never putting authored text in a self-loop
-label.** The history is worth knowing, because the obvious fixes are all wrong:
+**Solved for self-loops — 9 of the 10 maps render clean. Keep it that way by never putting authored
+text in a self-loop label.** (The known residual is gauntlet's map: its `code-gate → build` node pair
+legitimately carries TWO edges — the thick next-item boundary and the dotted review back-edge — and
+the second label overlaps the first. Spacing constants, shorter labels and declaration order were all
+measured and change nothing; the structural fix is the same move that solved self-loops — a bounded
+marker on the second edge of a node pair, conditions in a table — and it lives in `gen-flows.mjs`,
+regenerating all 10 maps when done.) The history is worth knowing, because the obvious fixes are all
+wrong:
 
 Mermaid **11.16.0** changed self-loops to a single SVG path through two dummy nodes
 (`layout-algorithms/dagre/index.js`, `getSelfLoopSide`: *"so loops are not always forced above the node"*),

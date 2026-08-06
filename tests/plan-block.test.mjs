@@ -4,7 +4,8 @@
 // dangerous cases are the ones that would hand an agent something that LOOKS like a plan: a truncated
 // body, a silently defaulted gate, a duplicate id quietly sharing another plan's review files.
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { emitList, parseBlocks, readGate, resolveRoadmap, run, validate } from '../tools/plan-block.mjs';
@@ -13,13 +14,18 @@ const CLI = join(REPO_ROOT, 'tools/plan-block.mjs');
 const SAMPLE = join(REPO_ROOT, 'tests/fixtures/roadmap-sample.md');
 const sampleText = readFileSync(SAMPLE, 'utf8');
 
-/** The CLI as a user runs it: `{ stdout, stderr, code }`, never throwing. */
-function cli(...argv) {
+/** The CLI as a user runs it, from an explicit script path: `{ stdout, stderr, code }`, never throwing. */
+function cliAt(script, ...argv) {
   try {
-    return { stdout: execFileSync(process.execPath, [CLI, ...argv], { encoding: 'utf8', stdio: 'pipe' }), stderr: '', code: 0 };
+    return { stdout: execFileSync(process.execPath, [script, ...argv], { encoding: 'utf8', stdio: 'pipe' }), stderr: '', code: 0 };
   } catch (e) {
     return { stdout: String(e.stdout || ''), stderr: String(e.stderr || ''), code: e.status ?? 1 };
   }
+}
+
+/** The CLI at its real path — what every case but the link one below runs. */
+function cli(...argv) {
+  return cliAt(CLI, ...argv);
 }
 
 /** The message from a `run()` that should fail, or '' if it wrongly succeeded. */
@@ -150,10 +156,52 @@ section('--kind section reads migrate\'s blocks, gates and titles');
   eq(parseBlocks(sampleText, 'section').length, 0, 'section kind finds no Plan blocks');
 }
 
+section('--kind component reads gauntlet\'s blocks, gates and titles');
+{
+  const COMPONENTS = join(REPO_ROOT, 'tests/fixtures/components-sample.md');
+  const componentsText = readFileSync(COMPONENTS, 'utf8');
+  const listed = JSON.parse(run([COMPONENTS, '--list', '--kind', 'component']));
+  eq(JSON.stringify(listed), JSON.stringify([
+    { id: 'trail-store', title: 'the offline trail cache', gate: 'green' },
+    { id: 'trail-list', title: 'the browse screen', gate: 'green' },
+    { id: 'about-panel', title: 'the static about panel', gate: 'build-only' },
+  ]), 'components carry a title too — gauntlet\'s control array is derived from this, minus the title');
+
+  const block = run([COMPONENTS, 'trail-list', '--kind=component']);
+  ok(block.startsWith('## Component: trail-list'), '--kind=name form works as well as --kind name');
+  // The body's own `## Component` header is the truncation trap this tool exists for: only a header WITH
+  // an id ends a block, so a builder reading the printed block cannot stop one paragraph in.
+  ok(block.includes('## Test Strategy'), 'the whole block, not truncated at its own "## Component" body header');
+  ok(block.includes('## Gate'), 'including the gate');
+  ok(!block.includes('about-panel'), 'and it stops at the next component');
+
+  ok(/no gate for: a/.test(gateFails('## Component: a — t\n\n## Feature\nx\n', 'component')),
+    'a missing gate throws rather than defaulting to green');
+  // red-baseline is legal in a migration and NOT in a gauntlet component: gauntlet builds forward, so
+  // there is no intentionally-red step, and a coerced fallback would accept an untested component.
+  ok(/invalid gate/.test(gateFails('## Component: a — t\n\n## Gate\nred-baseline\n', 'component')),
+    'a gate outside green|build-only throws under --kind component');
+  ok(/twice/.test(componentFails('## Component: a — t\n\nbody\n\n## Component: a — t2\n\nbody\n')),
+    'a duplicate id throws — two components would share one DISMISSED file and one code review');
+
+  // The kinds must not see each other's blocks, or a mixed file would parse as one giant unit.
+  eq(parseBlocks(componentsText, 'plan').length, 0, 'plan kind finds no Component blocks');
+  eq(parseBlocks(sampleText, 'component').length, 0, 'component kind finds no Plan blocks');
+}
+
+/** Validate arbitrary component text through the same path the CLI uses. */
+function componentFails(text) {
+  try {
+    validate(parseBlocks(text, 'component'), 'test', 'component');
+    return '';
+  } catch (e) { return e.message; }
+}
+
 section('an unknown --kind throws rather than falling back to plan');
 {
   ok(/unknown --kind "chapter"/.test(failsWith(SAMPLE, 'session-store', '--kind', 'chapter')), 'named in the message');
   ok(/--kind needs a value/.test(failsWith(SAMPLE, 'session-store', '--kind')), 'a bare --kind throws');
+  ok(/plan, section or component/.test(failsWith(SAMPLE, 'session-store', '--kind')), 'and names every kind');
 }
 
 section('a bare name resolves to the plan-mode directory; a path is left alone');
@@ -221,6 +269,55 @@ section('a header inside a fenced code block is an example, not a boundary');
   eq(JSON.parse(emitList(blocks, 'test')).length, 1, '--list agrees');
 }
 
+section('an UNCLOSED fence throws — it used to delete every block after it, at exit 0');
+{
+  // `fence` is threaded across the whole file and was never inspected after the loop, so ONE unbalanced
+  // marker left it open to EOF and every later header was read as an example. --list then printed a SHORTER
+  // roadmap at exit 0: the missing units never run, and the survivor's gate becomes the merged tail's.
+  const plan = ['## Plan: session-store — a', '', '## Implementation Steps', '```js',
+    'const a = 1;', '', '## Plan: login-endpoint — b', '', '## Gate', 'build-only', ''].join('\n');
+  ok(/unclosed "```" code fence/.test(failsWith0(plan)), 'the open fence is named and refused');
+
+  // migrate's kind takes the same path: two of three sections vanished from the control array.
+  const sections = ['## Section: date-shim — Shim Date', 'gate: green', '', '```js', 'code', '',
+    '## Section: report-callsites — Report', '', '## Section: drop-moment — Drop', ''].join('\n');
+  let msg = '';
+  try { parseBlocks(sections, 'section'); } catch (e) { msg = e.message; }
+  ok(/unclosed "```" code fence/.test(msg) && /section header after it/.test(msg),
+    'and --kind section names the noun it would have swallowed');
+}
+
+section('a column-0 header that misses the shape throws — it must never merge into its neighbour');
+{
+  // Neither a boundary nor an error before the fix, so the block merged into the previous one: `beta`
+  // vanished from --list AND alpha's gate flipped green -> build-only (beta's), in one exit-0 answer.
+  const noColon = '## Plan: alpha — a\n\nbody a\n\n## Gate\ngreen\n\n## Plan beta — b\n\nbody b\n\n## Gate\nbuild-only\n';
+  ok(/malformed "## Plan:"/.test(failsWith0(noColon)), 'a forgotten colon is named and refused');
+  ok(/## Plan beta — b/.test(failsWith0(noColon)), 'and the offending header is quoted back');
+
+  const emptyId = '## Plan: alpha — a\n\nbody a\n\n## Gate\ngreen\n\n## Plan:\n\nbody b\n\n## Gate\nbuild-only\n';
+  ok(/malformed "## Plan:"/.test(failsWith0(emptyId)), 'a colon with no id throws the same way');
+
+  // Same mechanism, same exit-0 corruption, two more near-miss shapes: a space before the colon, and a
+  // header one level too deep. Both were live-reproduced printing `[{ id: alpha, gate: build-only }]`.
+  const spacedColon = '## Plan: alpha — a\n\nbody a\n\n## Gate\ngreen\n\n## Plan : beta — b\n\nbody b\n\n## Gate\nbuild-only\n';
+  ok(/malformed "## Plan:"/.test(failsWith0(spacedColon)), 'a space before the colon is named and refused');
+  ok(/## Plan : beta — b/.test(failsWith0(spacedColon)), 'and that header is quoted back too');
+
+  const deepHeader = '## Plan: alpha — a\n\nbody a\n\n## Gate\ngreen\n\n### Plan: beta — b\n\nbody b\n\n## Gate\nbuild-only\n';
+  ok(/malformed "## Plan:"/.test(failsWith0(deepHeader)), 'a "###" header throws rather than merging');
+
+  // Every kind shares the code path, so the throw must name its own noun.
+  let deepSection = '';
+  try { parseBlocks('## Section: a — t\n\nbody\n\n### Section: b — t\n\nbody\n', 'section'); } catch (e) { deepSection = e.message; }
+  ok(/malformed "## Section:"/.test(deepSection) && /a section header must be/.test(deepSection),
+    'and --kind section takes the same throw with the right noun');
+
+  // The kebab-token requirement is what keeps ordinary prose headings out of that throw.
+  eq(parseBlocks('## Plan: alpha — a\n\n## Plan Rationale\n\nwhy\n\n## Gate\ngreen\n').length, 1,
+    'a prose heading such as "## Plan Rationale" is still just body text');
+}
+
 section('an indented header throws — it must never be silently dropped');
 {
   // 1-3 spaces still renders as a heading, so a human sees a plan the parser does not. Dropping it
@@ -255,4 +352,28 @@ section('the gate is read ONLY from the place its kind documents');
   const late = '## Section: a — t\n\n### Implementation Steps\n1. Write:\n\ngate: build-only\n';
   eq(readGate(parseBlocks(late, 'section')[0].body, 'section'), null, 'a gate: below the first ### is not the gate');
   eq(readGate('\ngate: red-baseline\n\n### Acceptance Criteria\n- x\n', 'section'), 'red-baseline', 'the preamble one is');
+}
+
+section('the CLI still prints when its own path goes through a symlink or junction');
+{
+  // Node resolves the MAIN module through realpath, so comparing `import.meta.url` against the RAW argv[1]
+  // made `invokedDirectly` false through any link: the process wrote NOTHING and exited 0, bypassing every
+  // loud failure above. An installed plugin dir, a subst drive or macOS /tmp -> /private/tmp all trigger it.
+  // Skipped where a link cannot be created (no privilege, no support) rather than failing for the machine.
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-plan-block-'));
+  const link = join(dir, 'tools');
+  let linked = false;
+  try {
+    symlinkSync(join(REPO_ROOT, 'tools'), link, process.platform === 'win32' ? 'junction' : 'dir');
+    linked = true;
+  } catch { linked = false; }
+
+  if (linked) {
+    const viaLink = cliAt(join(link, 'plan-block.mjs'), SAMPLE, '--list');
+    eq(viaLink.code, 0, 'exit 0 through the link');
+    ok(viaLink.stdout.includes('session-store'), 'and it actually printed the control array, rather than nothing');
+  } else {
+    ok(true, 'skipped — this machine cannot create a link');
+  }
+  rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }

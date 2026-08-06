@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "aipg",
   "displayName": "AI Prompt Guide Workflows",
-  "description": "Multi-agent dynamic workflows for Claude Code: feature (plan-first builds), debug (defect review + fix loop), migrate, enhance, brainstorm, decide, investigate, docs. Each skill loads its workflow's operator guide and drives the engine via the Workflow tool.",
+  "description": "Multi-agent dynamic workflows for Claude Code: feature (plan-first builds), debug (defect review + fix loop), gauntlet (MVP build + quality-bar climb), migrate, enhance, brainstorm, decide, investigate, docs. Each skill loads its workflow's operator guide and drives the engine via the Workflow tool.",
   "author": { "name": "Blake McDonald", "url": "https://github.com/Blakeem" },
   "homepage": "https://github.com/Blakeem/aipromptguide-workflows",
   "repository": "https://github.com/Blakeem/aipromptguide-workflows",

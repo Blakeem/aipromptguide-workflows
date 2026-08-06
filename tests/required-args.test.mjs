@@ -51,12 +51,25 @@ const UNIT     = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
 const ISSUE    = { id: 'i1', unit: 'u1', file: 'src/a.js', line: '1', loc: 10, severity: 'high',
   category: 'correctness', decision: 'ACTIONABLE', effort: 'small', title: 'T', theme: 'x' };
 
+// Both plans are build-only, so this baseline deliberately carries NO test command: it is the
+// condition-FALSE payload, and the baseline assertion below is what proves gates.test is optional there.
 const FEATURE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
-  gates: { build: 'b', test: 't' }, plans: PLANS };
+  gates: { build: 'b' }, plans: PLANS };
 const MIGRATE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   gates: { build: 'b', test: 't' }, plan: '## Section: sec-a\nA\n## Section: sec-b\nB\n', sections: SECTIONS };
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
+// Both components are build-only, so this baseline deliberately carries NO test command: it is the
+// condition-FALSE payload, and the baseline assertion below is what proves gates.test is optional there.
+const GAUNTLET_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' },
+  canonPath: 'plans/t/CANON.md', componentsPath: 'plans/t/COMPONENTS.md',
+  components: [{ id: 'comp-a', gate: 'build-only' }, { id: 'comp-b', gate: 'build-only' }] };
+// gauntlet's OTHER phase is a second row: refine requires a different set (aspects + bar + cycles) and
+// requires NONE of the mvp inputs, which is what makes it usable as an entry point on its own. A single
+// row could not express that — deleting componentsPath from a refine payload must NOT throw.
+const GAUNTLET_REFINE_ARGS = { runId: 't', root: 'E:/r', phase: 'refine', target: { repo: 'E:/repo' },
+  gates: { build: 'b', test: 't' }, canonPath: 'plans/t/CANON.md', barPath: 'plans/t/BAR.md',
+  aspectsPath: 'plans/t/ASPECTS.md', aspects: [{ id: 'aspect-a' }], cycles: 1 };
 
 // decide and docs are the two engines that do NOT reach a terminal on empty returns (measured
 // 2026-08-01: decide throws "No analyst produced a lens file", docs throws "Every source reported zero
@@ -83,9 +96,13 @@ const SWEEP = [
     respond: {},
     required: ['runId', 'root', 'target.repo', 'gates.build', 'plans',
       // Both baseline plans are gate:"build-only", which needs no test command — so this one needs a
-      // variant whose plan actually asks for verification.
+      // variant whose plan actually asks for verification. The baseline carries no gates.test at all, so
+      // the line-197 assertion above covers the OTHER direction: the arg is NOT required when no plan
+      // asks for green. Without that, an over-strict guard (the condition lost) stays green here while
+      // every build-only roadmap throws at launch.
       { path: 'gates.test', when: 'a plan has gate:"green"',
-        args: { ...FEATURE_ARGS, plans: [{ id: 'plan-a', plan: '## Feature\nA', gate: 'green' }] } }],
+        args: { ...FEATURE_ARGS, gates: { build: 'b', test: 't' },
+          plans: [{ id: 'plan-a', plan: '## Feature\nA', gate: 'green' }] } }],
   },
   {
     engine: 'workflows/migrate/migrate-cycle.mjs',
@@ -95,6 +112,30 @@ const SWEEP = [
       // Same documented condition as feature's, but it is already true in the baseline: a section that
       // omits `gate` takes the 'green' default, so no variant args are needed.
       { path: 'gates.test', when: 'a section has gate:"green" — the default the baseline sections take' }],
+  },
+  {
+    engine: 'workflows/gauntlet/gauntlet-cycle.mjs',
+    phase: 'mvp',
+    baseArgs: GAUNTLET_ARGS,
+    respond: {},
+    required: ['runId', 'root', 'target.repo', 'canonPath', 'componentsPath', 'components', 'gates.build',
+      // Both baseline components are gate:"build-only", which needs no test command — so this one needs a
+      // variant whose component actually asks for verification. The baseline carries no gates.test at all,
+      // so the line-197 assertion above covers the OTHER direction: the arg is NOT required when no
+      // component asks for green — the half an over-strict guard would break silently.
+      { path: 'gates.test', when: 'a component has gate:"green"',
+        args: { ...GAUNTLET_ARGS, gates: { build: 'b', test: 't' },
+          components: [{ id: 'comp-a', gate: 'green' }] } }],
+  },
+  {
+    engine: 'workflows/gauntlet/gauntlet-cycle.mjs',
+    phase: 'refine',
+    baseArgs: GAUNTLET_REFINE_ARGS,
+    respond: {},
+    // `cycles` is here because it deliberately has NO default: the wave budget is the user's only brake on
+    // a climb, so an engine-chosen number would be a run length nobody agreed to pay for.
+    required: ['runId', 'root', 'target.repo', 'canonPath', 'barPath', 'aspectsPath', 'aspects', 'cycles',
+      'gates.build'],
   },
   {
     engine: 'workflows/debug/review.mjs',
@@ -153,8 +194,10 @@ const SWEEP = [
 // ---------------------------------------------------------------------------------------------
 // The sweep
 // ---------------------------------------------------------------------------------------------
-for (const { engine, baseArgs, respond, required } of SWEEP) {
-  const name = engine.split('/').pop();
+for (const { engine, baseArgs, respond, required, phase } of SWEEP) {
+  // `phase` names the row when one engine takes more than one shape (gauntlet's mvp vs refine), so two
+  // rows of the same engine cannot print the same heading and the same `missing runId throws` line.
+  const name = `${engine.split('/').pop()}${phase ? ` (phase:"${phase}")` : ''}`;
   section(`${name} — every documented-required arg throws when missing`);
 
   // The guard on this row's own validity: a baseline that already threw would make every deletion below

@@ -36,6 +36,7 @@ export const ENGINES = [
   'workflows/docs/docs-cycle.mjs',
   'workflows/brainstorm/brainstorm-cycle.mjs',
   'workflows/investigate/investigate-cycle.mjs',
+  'workflows/gauntlet/gauntlet-cycle.mjs',
 ];
 
 // ---------------------------------------------------------------------------------------------
@@ -70,7 +71,7 @@ export const eq = (actual, expected, msg) =>
 // PREFIX (longest match wins) whose values are responses or functions of the same shape.
 //   undefined  -> the agent returns {}   (no script for this label)
 //   null       -> the agent DIED         (what parallel()/pipeline() hand back on failure)
-function toResponder(respond) {
+export function toResponder(respond) {
   if (typeof respond === 'function') return respond;
   const keys = Object.keys(respond || {}).sort((a, b) => b.length - a.length);
   return (label, prompt, calls) => {

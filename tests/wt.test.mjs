@@ -12,7 +12,7 @@
 // hook without leaving a probe entry on the shared stash stack, and that N concurrent preps do not race
 // (M26 — spawn + Promise.all; execFileSync is blocking and would prove nothing).
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
@@ -159,6 +159,31 @@ const spawnCli = (args) => new Promise((done) => {
   child.stderr.on('data', (d) => { stderr += d; });
   child.on('close', (code) => done({ code, stdout, stderr }));
 });
+
+section('the CLI still speaks when its own path goes through a symlink or junction');
+{
+  // Node resolves the MAIN module through realpath, so comparing `import.meta.url` against the RAW argv[1]
+  // made `invokedDirectly` false through any link: the process exited 0 having printed NOTHING, and every
+  // loud failure in the file (unknown verb, bad flags, missing args) was bypassed. Twin of the plan-block
+  // case (tests/CLAUDE.md §1). No git needed, so it sits above the git gate. Skipped where a link cannot be
+  // created (no privilege, no support) rather than failing for the machine.
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-wt-link-'));
+  const link = join(dir, 'tools');
+  let linked = false;
+  try {
+    symlinkSync(join(REPO_ROOT, 'tools'), link, process.platform === 'win32' ? 'junction' : 'dir');
+    linked = true;
+  } catch { linked = false; }
+
+  if (linked) {
+    const viaLink = runCli(process.execPath, [join(link, 'wt.mjs')]);
+    eq(viaLink.code, 1, 'no verb through the link exits 1, not a silent 0');
+    ok(/no verb given/.test(viaLink.stderr), `...and says why: ${firstLine(viaLink.stderr)}`);
+  } else {
+    ok(true, 'skipped — this machine cannot create a link');
+  }
+  rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+}
 
 // ---------------------------------------------------------------------------------------------
 

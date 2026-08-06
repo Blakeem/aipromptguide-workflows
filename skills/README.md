@@ -9,6 +9,7 @@ together.
 | Skill               | Workflow guide it loads              | Use for |
 |---------------------|--------------------------------------|---------|
 | `/aipg:feature`     | `workflows/feature/CLAUDE.md`        | One bounded feature (new tool/endpoint/page/form) — or an ordered roadmap of them. |
+| `/aipg:gauntlet`    | `workflows/gauntlet/CLAUDE.md`       | Build to a working MVP, then climb it toward an exemplar quality bar in critic-led waves — or refine an existing product. |
 | `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects and/or fix a verified issue inventory (triage → batched fixes). |
 | `/aipg:enhance`     | `workflows/enhance/CLAUDE.md`        | Audit a working system for enhancements (read-only) — proposals you triage; nothing is applied. |
 | `/aipg:migrate`     | `workflows/migrate/CLAUDE.md`        | Breadth-spanning migration/upgrade across many call sites. |
@@ -27,7 +28,7 @@ together.
 
 Then run one from any project — e.g. `/aipg:feature add a search_docs MCP tool. Plan it first.`
 Claude reads the matching `workflows/<x>/CLAUDE.md` from the installed plugin and drives the workflow
-(plan mode → approval → engine — or the autonomous path when you hand it a finished plan). All eight
+(plan mode → approval → engine — or the autonomous path when you hand it a finished plan). All nine
 skills are visible to Claude, so naming one in prose ("use the aipg migrate workflow on X") works
 without the slash form; each description tells Claude to run it only when you explicitly ask. Note
 `/debug` and `/docs` un-namespaced are Claude Code's own bundled skills — use the `/aipg:` forms.

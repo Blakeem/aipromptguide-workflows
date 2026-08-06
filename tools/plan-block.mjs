@@ -1,8 +1,9 @@
 // tools/plan-block.mjs — print ONE unit's block out of a multi-unit plan file, byte-exact.
 //
-// Why this exists. feature-cycle's roadmap and migrate-cycle's decomposition both live in ONE approved
-// plan file (the file plan mode mints), carrying one block per unit — `## Plan: <id>` for a feature,
-// `## Section: <id>` for a migration section. Agents are handed a COMMAND that prints their own block
+// Why this exists. feature-cycle's roadmap, migrate-cycle's decomposition and gauntlet-cycle's component
+// list all live in ONE approved file, carrying one block per unit — `## Plan: <id>` for a feature,
+// `## Section: <id>` for a migration section, `## Component: <id>` for a gauntlet MVP component.
+// Agents are handed a COMMAND that prints their own block
 // instead of a path to the whole file, which buys two things:
 //
 //   1. A five-unit plan does not enter every developer's and every acceptance verifier's context.
@@ -17,6 +18,7 @@
 //   node tools/plan-block.mjs <plan.md|plan-name> <id>              # that block, verbatim, on stdout
 //   node tools/plan-block.mjs <plan.md|plan-name> --list            # [{ id, gate }, ...] as JSON
 //   node tools/plan-block.mjs <plan.md|plan-name> <id> --kind section    # migrate's blocks + gates
+//   node tools/plan-block.mjs <plan.md|plan-name> <id> --kind component  # gauntlet's blocks + gates
 //
 // A bare <plan-name> (no path separator, no .md) resolves to
 // <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md — where plan mode puts its files.
@@ -27,12 +29,12 @@
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-// The two engines that decompose one plan file into id-addressed units. `gates` mirrors each engine's
+// The three engines that decompose one plan file into id-addressed units. `gates` mirrors each engine's
 // own VALID_GATES: a value outside the set falls back to `green` inside the engine, silently.
 // `gateStyle` is the ONE place that kind's gate may be written — deliberately not "either shape
 // anywhere in the body", which let a `gate:` line in prose outrank the real one and emit a confident
@@ -47,6 +49,12 @@ export const KINDS = {
     noun: 'section', keyword: 'Section', withTitle: true,
     gates: ['green', 'red-baseline', 'build-only'],
     gateStyle: 'preamble',  // migrate's template: a "gate:" line above the first "###" subheading
+  },
+  component: {
+    noun: 'component', keyword: 'Component', withTitle: true,
+    // No red-baseline: gauntlet builds an MVP forward, so there is no intentionally-red step to declare.
+    gates: ['green', 'build-only'],
+    gateStyle: 'heading',   // gauntlet's COMPONENTS.md: the LAST "## Gate" heading, value on the next line
   },
 };
 
@@ -105,8 +113,24 @@ export function parseBlocks(rawText, kindName = 'plan') {
   // 1-3 leading spaces still renders as a heading in most markdown, but is not a block boundary here.
   // Silently dropping it would delete a whole unit the human can see, so it is a hard error.
   const indentedRe = new RegExp(`^[ \\t]{1,3}##[ \\t]+${keyword}:`);
+  // A header that misses the shape any OTHER way (colon forgotten, a colon with no id, a space before the
+  // colon, or written as `###`) is today neither a boundary nor an error — it is scanned as ordinary body
+  // text, so its block MERGES into the previous one: the unit vanishes from the roadmap array AND the
+  // survivor's gate flips to the merged tail's gate, at exit 0. Same silent-wrong-answer class as the
+  // indent, so it gets the same hard error.
+  // The kebab-token requirement in `noColonRe` is load-bearing: it is what keeps a prose heading such as
+  // "## Plan Rationale" from throwing. The other three need no such guard — `## Plan :` and a bare
+  // `## Plan:` have no legitimate reading as prose, and a `#{3,6}` header is the same class as the 1-3
+  // space indent below: a heading the human reads as a boundary that the parser does not. All three were
+  // scanned against every `.md`/`.mjs` in the repo for all three keywords: zero matches.
+  const emptyIdRe = new RegExp(`^##[ \\t]+${keyword}:[ \\t]*$`);
+  const noColonRe = new RegExp(`^##[ \\t]+${keyword}[ \\t]+[a-z0-9]+(?:-[a-z0-9]+)*[ \\t]*(?:$|[—–-][ \\t])`);
+  const spacedColonRe = new RegExp(`^##[ \\t]+${keyword}[ \\t]+:`);
+  const deepHeaderRe = new RegExp(`^#{3,6}[ \\t]+${keyword}:`);
+  const nearMissRes = [emptyIdRe, noColonRe, spacedColonRe, deepHeaderRe];
   const headers = [];
   const indented = [];
+  const malformed = [];
   let offset = 0;
   let fence = '';
 
@@ -119,12 +143,24 @@ export function parseBlocks(rawText, kindName = 'plan') {
       const hit = line.match(headerRe);
       if (hit) headers.push({ start: offset, bodyStart: offset + line.length, label: hit[1] });
       else if (indentedRe.test(line)) indented.push(line.trim());
+      else if (nearMissRes.some((re) => re.test(line))) malformed.push(line.trim());
     }
     offset += raw.length + 1;
   }
 
+  // One unbalanced fence marker leaves `fence` open to EOF, and every later header is read as an example —
+  // every remaining unit silently deleted from the control array at exit 0. An open fence at end of file is
+  // always malformed markdown, so there is no false-positive surface here.
+  if (fence) {
+    throw new Error(`unclosed "${fence}" code fence in this file — it swallows every ${noun} header after it; close the fence`);
+  }
+
   if (indented.length) {
     throw new Error(`indented "## ${keyword}:" header(s) in this file: ${indented.join(' | ')} — a ${noun} header must start at column 0 to be a block boundary; un-indent it, or fence it if it is an example`);
+  }
+
+  if (malformed.length) {
+    throw new Error(`malformed "## ${keyword}:" header(s) in this file: ${malformed.join(' | ')} — a ${noun} header must be "## ${keyword}: <id>"; fix the header, or fence it if it is an example`);
   }
 
   return headers.map((header, i) => {
@@ -255,7 +291,8 @@ const USAGE = `usage:
   node tools/plan-block.mjs <plan.md|plan-name> <id>       print that block, verbatim
   node tools/plan-block.mjs <plan.md|plan-name> --list     print the control array as JSON
 
-  --kind plan (default) | section        feature's "## Plan:" blocks, or migrate's "## Section:"
+  --kind plan (default) | section | component
+      feature's "## Plan:" blocks, migrate's "## Section:", or gauntlet's "## Component:"
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
 
@@ -267,7 +304,7 @@ export function parseArgv(argv) {
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--kind') {
       kind = argv[++i];
-      if (kind === undefined) throw new Error('--kind needs a value (plan or section)');
+      if (kind === undefined) throw new Error('--kind needs a value (plan, section or component)');
     } else if (argv[i].startsWith('--kind=')) {
       kind = argv[i].slice('--kind='.length);
     } else {
@@ -291,7 +328,17 @@ export function run(argv) {
   return selector === '--list' ? emitList(blocks, path, kind) : emitBlock(blocks, selector, path, kind);
 }
 
-const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+// Node resolves the MAIN module through realpath by default (`--preserve-symlinks-main` off), so
+// `import.meta.url` is canonical while argv[1] is whatever the caller typed. A symlink or Windows junction
+// anywhere in the script path made the two differ, `invokedDirectly` false, and the process wrote NOTHING
+// at exit 0 — every loud failure above bypassed, which is the plausible-looking default this file forbids.
+// Realpath BOTH sides, so it holds under `--preserve-symlinks-main` too.
+let invokedDirectly = false;
+try {
+  invokedDirectly = Boolean(process.argv[1])
+    && pathToFileURL(realpathSync(process.argv[1])).href === pathToFileURL(realpathSync(fileURLToPath(import.meta.url))).href;
+} catch { invokedDirectly = false; }
+
 if (invokedDirectly) {
   try {
     process.stdout.write(run(process.argv.slice(2)));

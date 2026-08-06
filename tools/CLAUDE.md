@@ -10,7 +10,7 @@ and you change what a developer agent receives, so treat it as engine surface, n
 
 | File | What it does |
 |---|---|
-| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the control array. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
+| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` / `## Component: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the control array. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
 | `wt.mjs` | The batch-worktree lifecycle (`init`/`prep`/`land`/`clean`) for running several engine runs in **parallel**, each in its own git worktree. **Operator-invoked around the runs** — no agent ever calls it, no engine knows it exists. Its header comment is the contract (hook bytes, lock liveness, exit codes — all measured decisions); the operator playbook is [`../docs/worktree-batches.md`](../docs/worktree-batches.md). |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
@@ -26,17 +26,22 @@ part of that workflow rather than to maintain this repo.
 node tools/plan-block.mjs <plan.md|plan-name> <id>            # that block, verbatim, on stdout
 node tools/plan-block.mjs <plan.md|plan-name> --list          # [{ id, gate }] as JSON
 node tools/plan-block.mjs <plan.md> <id> --kind section       # migrate's blocks + its gate set
+node tools/plan-block.mjs <plan.md> <id> --kind component     # gauntlet's blocks + its gate set
 ```
 
 `--kind` picks the header keyword, the legal gate set, and whether `--list` carries `title`. A bare
 plan-name resolves against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
 
 **Every failure is loud** — unknown id, duplicate id, empty body, missing or invalid gate, an indented
-header, no blocks at all. Nothing may resolve to a plausible default, because the consumer is an agent
-that would build against it. Two silent-wrong-answer classes are guarded and have tests: a header
-inside a **fenced code block** is an example (it used to mint a phantom unit and truncate the real one),
-and the gate is read only from the **one place its kind documents** (a `gate:` in prose used to outrank
-the real one and yield `build-only`, which makes the engine accept a feature with nothing tested).
+header, a **malformed** header (colon forgotten, a colon with no id, a space before the colon, or a `###`
+level), an **unclosed code fence**, no blocks at all. Nothing may resolve to a plausible default, because
+the consumer is an agent that would build against it. Two silent-wrong-answer classes are guarded and
+have tests: a header inside a **fenced code block** is an example (it used to mint a phantom unit and
+truncate the real one), and the gate is read only from the **one place its kind documents** (a `gate:` in
+prose used to outrank the real one and yield `build-only`, which makes the engine accept a feature with
+nothing tested).
+The last two loud failures share one shape: a block that merges into its predecessor deletes a unit from
+the control array AND flips the survivor's gate to the merged tail's, in one exit-0 answer.
 
 The engines cannot verify the command ran — the harness has no tools. `plan_obtained` on the developer
 and acceptance schemas is that signal, and both engines halt on an explicit `false`.

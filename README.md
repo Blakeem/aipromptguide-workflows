@@ -17,13 +17,14 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 | **[feature](workflows/feature/)** | `/aipg:feature` | [map](workflows/feature/FLOW.md) | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
 | **[debug](workflows/debug/)** | `/aipg:debug` | [review](workflows/debug/FLOW-review.md) · [resolve](workflows/debug/FLOW-resolve.md) | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
 | **[migrate](workflows/migrate/)** | `/aipg:migrate` | [map](workflows/migrate/FLOW.md) | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
+| **[gauntlet](workflows/gauntlet/)** | `/aipg:gauntlet` | [map](workflows/gauntlet/FLOW.md) | **Build-then-climb**: get a working MVP down, then climb it toward an inspectable **quality bar** (exemplar A/B, critic-led waves) — or point the climb at an existing product. You set the wave budget. |
 | **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg:brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-The first three are **build** workflows (code, reviewed and staged). The last five are
+The first four are **build** workflows (code, reviewed and staged). The last five are
 **generative/read-only**: proposals, creative options, a decision, a determination, or a curated doc set,
 with no code and nothing staged or committed.
 
@@ -34,7 +35,7 @@ trade-offs**, that's decide; when the answer is already out there and the work i
 it fits**, that's investigate. The tell is whether missing a requirement is a trade-off or simply
 disqualifying.
 
-All eight share the design rules in **[principles/](principles/)**:
+All nine share the design rules in **[principles/](principles/)**:
 the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents).
 
@@ -110,7 +111,7 @@ E:/myproject/          ← target.repo   the project itself, the folder holding 
 
 Keeping them apart is what makes the blind review work: the issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-The build and debug engines warn if you point run-state inside the target repo, and the build engines (feature, migrate) warn when a plan file resolves inside it.
+The build and debug engines warn if you point run-state inside the target repo, and the build engines (feature, migrate, gauntlet) warn when a plan file — or gauntlet's run documents (canon/bar/components/aspects) — resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
 give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several
@@ -148,6 +149,23 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ## Changelog
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
+
+### 2026-08-06
+
+- **New workflow: `gauntlet`** (`/aipg:gauntlet`) — the Gauntlet Loop pattern (builder + fresh blind
+  critic vs. an inspectable exemplar) adapted to the house principles. `phase:"mvp"` builds an approved
+  `COMPONENTS.md` decomposition to a working, code-sound alpha: per component, builder → blind code
+  gate (defects AND structural debt) → staged; a component that cannot pass parks and STOPS.
+  `phase:"refine"` — also the entry point for an **existing** product — climbs the staged product
+  toward `BAR.md` in waves: one fresh critic per open quality aspect observes the RUNNING product with
+  its own persistent `testbed/` tooling, A/Bs it blind against the exemplar, names ONE largest gap with
+  evidence; an improver closes exactly that gap; the wave diff is blind-reviewed and staged. `cycles`
+  (the wave budget) is required with no default — you are the brake — and every stop lands on a staged
+  clean tree, so resume = buy more waves (`startWave`). No mid-run user escalation by design: agents
+  settle judgment calls via decision matrix into `SETTLED.md`, the end-of-run audit; only environment
+  faults halt. Ships with `plan-block.mjs --kind component`, 49 flow scenarios, and full dead-agent
+  coverage. Known cosmetic: its FLOW.md renders one overlapping edge label (`code-gate → build` carries
+  two); the structural fix belongs in `gen-flows.mjs`.
 
 ### 2026-08-02
 

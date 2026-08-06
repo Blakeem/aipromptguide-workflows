@@ -12,10 +12,10 @@ const SKILLS = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory()).map((d) => d.name).sort();
 
 section('every workflow ships a skill, and every skill is a known workflow');
-ok(SKILLS.join(',') === 'brainstorm,debug,decide,docs,enhance,feature,investigate,migrate',
-  `skills/ holds exactly the eight workflows — got: ${SKILLS.join(',')}`);
+ok(SKILLS.join(',') === 'brainstorm,debug,decide,docs,enhance,feature,gauntlet,investigate,migrate',
+  `skills/ holds exactly the nine workflows — got: ${SKILLS.join(',')}`);
 
-// All eight skills stay model-invocable, so naming a workflow in prose ("use the aipg feature
+// All nine skills stay model-invocable, so naming a workflow in prose ("use the aipg feature
 // workflow on X") is enough — no slash command required. The Workflow tool's opt-in rule is carried
 // by each description's "Use only when the user explicitly asks" clause. The build skills used to set
 // disable-model-invocation instead, but that flag also hides the skill from the model's context, so

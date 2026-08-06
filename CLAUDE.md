@@ -7,6 +7,7 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | Want to… | Read & follow |
 |----------|---------------|
 | Build **one bounded feature** — or an ordered **roadmap** of them (one approved plan each): new MCP tool, endpoint, page, form, contained enhancement, design-needing bugfix | `workflows/feature/CLAUDE.md` |
+| **Gauntlet** — build to a working **MVP**, then **climb** it toward an inspectable quality bar (exemplar A/B, critic-led waves, flagship/AAA standard) — or point the climb at an existing product | `workflows/gauntlet/CLAUDE.md` |
 | **Debug** — find production defects and/or fix a verified issue inventory (bring your own from manual testing) — triage → batched fixes | `workflows/debug/CLAUDE.md` |
 | Drive **one plan across many call sites** — migration/upgrade/port/refactor, in ordered sections | `workflows/migrate/CLAUDE.md` |
 | **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
@@ -19,7 +20,8 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 
 Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent — **build** one
 bounded change → feature (several features → feature's `plans` array); one goal spanning many files →
-migrate; find production defects → debug.
+migrate; build to an MVP then **climb** it toward an exemplar quality bar (or climb an existing
+product) → gauntlet; find production defects → debug.
 **Audit** (what a working system could do better; human triages) → enhance; **diverge** (creative options,
 human judges) → brainstorm; **converge** (AI concludes among options it generates) → decide; **search**
 (the answer already exists; find it and prove it meets fixed criteria) → investigate; **provision** (copy +
@@ -37,6 +39,12 @@ answer is already out there, and the work is *finding it and proving it fits* �
 converges on evidenced coverage. The tell: if you want to trade requirement A off against requirement B,
 that is decide's weighted matrix; if missing A is simply disqualifying, that is investigate's pass/fail
 gate.
+
+**Gauntlet sits between build and audit.** feature converges on an enumerable spec and stops; enhance
+stops at proposals a human triages; gauntlet keeps changing a working product toward an exemplar bar —
+comparative quality, the user's `cycles` as the brake, judgment calls self-settled to a ledger instead
+of escalated. The tell: "done" is a checklist → feature; a human should triage the list → enhance; "a
+blind critic prefers ours to the exemplar" → gauntlet.
 
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
 workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.

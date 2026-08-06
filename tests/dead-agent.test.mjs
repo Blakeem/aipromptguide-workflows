@@ -43,7 +43,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadSpecs } from '../tools/gen-flows.mjs';
-import { REPO_ROOT, readHaltStatus, readRoles, runTrace, section, ok } from './harness.mjs';
+import { REPO_ROOT, readHaltStatus, readRoles, runTrace, section, ok, toResponder } from './harness.mjs';
 
 // ---------------------------------------------------------------------------------------------
 // The expected-signal table — one entry per engine x role, keyed `<spec name> x <role>`
@@ -75,6 +75,13 @@ const EXPECTED = {
   'migrate x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'migrate x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'migrate x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'gauntlet x build':               { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'gauntlet x code-gate':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  // refine's two roles halt the same way. The critic's is the sharper one: its verdict CLOSES an aspect
+  // for the whole run, so a null read as "not behind" would retire an aspect nobody looked at — a
+  // finished climb, manufactured out of a dead agent.
+  'gauntlet x critic':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'gauntlet x improve':             { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'resolve x fix':                  { signal: 'log', expect: /round-1 fixer returned nothing/ },
   'resolve x quality':              { signal: 'log', expect: /blind quality reviewer returned nothing/ },
   'resolve x accept':               { signal: 'log', expect: /acceptance verifier returned nothing/ },
@@ -82,6 +89,7 @@ const EXPECTED = {
   // the park agent itself: its death IS the unsafe tree, and that is the terminal it must reach
   'feature x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked plan left the tree unsafe/ },
   'migrate x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked section left the tree unsafe/ },
+  'gauntlet x park':                { signal: 'terminal', expect: /BLOCKED \(a parked component left the tree unsafe/ },
   'resolve x park':                 { signal: 'field', field: 'halted' },
 
   // auxiliary -> the death is logged and recorded; the run legitimately carries on
@@ -105,7 +113,7 @@ const ALLOW = [];
 // Machinery
 // ---------------------------------------------------------------------------------------------
 const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const PARK_ENGINES = new Set(['feature', 'migrate', 'resolve']);
+const PARK_ENGINES = new Set(['feature', 'migrate', 'resolve', 'gauntlet']);
 
 /** Longest-prefix match of a label against the engine's static roles; '' when nothing matches. */
 const roleOf = (label, roles) => {
@@ -114,18 +122,10 @@ const roleOf = (label, roles) => {
   return best;
 };
 
-/** The harness's own `respond` contract, re-expressed as a plain function so it can be WRAPPED. */
-function toDelegate(respond) {
-  if (typeof respond === 'function') return respond;
-  const keys = Object.keys(respond || {}).sort((a, b) => b.length - a.length);
-  return (label, prompt, calls) => {
-    const k = keys.find((key) => label.startsWith(key));
-    if (k === undefined) return undefined;
-    const v = respond[k];
-    return typeof v === 'function' ? v(label, prompt, calls) : v;
-  };
-}
-
+// The harness's OWN responder is reused (not re-implemented) so the two traces cannot be scripted by
+// different rules: the BASELINE goes through `execute` -> `toResponder`, and the KILL wraps this same
+// function. A private copy drifting would make every comparison below measure script divergence rather
+// than the death — silently green.
 const j = (v) => JSON.stringify(v ?? null);
 const termOf = (t) => `${t.kind} | ${t.status} | ${t.message}`;
 /** What `expect` is matched against: the status of a return, the message of a throw. */
@@ -140,7 +140,12 @@ const results = [];
 for (const spec of specs) {
   const src = readFileSync(join(REPO_ROOT, spec.engine), 'utf8');
   const roles = readRoles(src);
-  const parkUnsafe = readHaltStatus(src)['park-unsafe'] ?? null;
+  // EVERY unsafe terminal, not just the `park-unsafe` key: gauntlet has two (`park-unsafe` for a component,
+  // `wave-park-unsafe` for a wave), and its whole refine phase can only ever reach the WAVE one — so a
+  // single-key lookup printed a PASS for a case it could not see.
+  const unsafeStatuses = new Set(Object.entries(readHaltStatus(src))
+    .filter(([k]) => /unsafe/.test(k))
+    .map(([, v]) => v));
 
   // Walk the scenario table in order, tracing each one ONCE, until every role has its first spawning
   // scenario. Order is the spec's own, so the pick is deterministic and re-reading the spec explains it.
@@ -161,7 +166,7 @@ for (const spec of specs) {
     const { sc, baseline } = hit;
 
     let killApplied = false;
-    const delegate = toDelegate(sc.respond ?? {});
+    const delegate = toResponder(sc.respond ?? {});
     const responder = (label, prompt, calls) => {
       const r = roleOf(label, roles);
       if (!killApplied && r === role) { killApplied = true; return null; }
@@ -179,7 +184,7 @@ for (const spec of specs) {
       role,
       scenario: sc.name,
       killApplied,
-      parkUnsafe,
+      unsafeStatuses,
       killStatus: kill.terminal.status,
       terminalDiffers: termOf(baseline.terminal) !== termOf(kill.terminal),
       terminalText: termText(kill.terminal),
@@ -260,10 +265,11 @@ section('no non-park kill is disguised as an unsafe park');
 // The PARK_OK merge exists for exactly this: without it the halt these engines take on a dead round-loop
 // agent gets rewritten to `park-unsafe` by the unscripted park, and the sweep reads a difference that
 // would still be there with the death guard deleted.
-for (const r of results.filter((x) => !x.unspawned && x.parkUnsafe && x.role !== 'park')) {
-  ok(r.killStatus !== r.parkUnsafe, r.killStatus === r.parkUnsafe
-    ? `${r.key}: the kill ended on ${r.spec.name}'s park-unsafe terminal, not on a death signal — the park response was not scripted`
-    : `${r.key}: ends on a death signal, not park-unsafe`);
+for (const r of results.filter((x) => !x.unspawned && x.unsafeStatuses.size && x.role !== 'park')) {
+  const disguised = r.unsafeStatuses.has(r.killStatus);
+  ok(!disguised, disguised
+    ? `${r.key}: the kill ended on "${r.killStatus}" — one of ${r.spec.name}'s unsafe-park terminals, not on a death signal; the park response was not scripted`
+    : `${r.key}: ends on a death signal, not on any of ${r.spec.name}'s ${r.unsafeStatuses.size} unsafe-park terminal(s)`);
 }
 
 section('every allowlist entry is explained and still needed');

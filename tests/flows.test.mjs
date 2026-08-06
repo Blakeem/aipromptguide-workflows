@@ -386,7 +386,7 @@ section('edge labels stay inside a length budget — Mermaid will not stop them 
       if (m[1].length > longest.length) longest = m[1];
     }
   }
-  ok(longest.length <= 90, `longest edge label across all 9 maps is ${longest.length} chars: "${longest}"`);
+  ok(longest.length <= 90, `longest edge label across all 10 maps is ${longest.length} chars: "${longest}"`);
 }
 
 section('a phase is a box only when it groups 2+ agents, and rides on the node otherwise');

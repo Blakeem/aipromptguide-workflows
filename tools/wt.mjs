@@ -77,9 +77,9 @@
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
 import { execFileSync } from 'node:child_process';
-import { chmodSync, closeSync, mkdirSync, openSync, readFileSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { chmodSync, closeSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const EXIT_OK = 0;
 export const EXIT_NOTHING = 10;
@@ -1071,7 +1071,18 @@ export function main(argv) {
   VERBS[verb].fn(opt);
 }
 
-const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+// Node resolves the MAIN module through realpath by default (`--preserve-symlinks-main` off), so
+// `import.meta.url` is canonical while argv[1] is whatever the caller typed. A symlink, a Windows junction
+// or a `subst` drive anywhere in the invocation path made the two differ, `invokedDirectly` false, and the
+// process wrote NOTHING at exit 0 — every loud failure above bypassed, which is the silent-success shape
+// this file exists to prevent. Realpath BOTH sides, so it holds under `--preserve-symlinks-main` too.
+// (Twin of the same expression in tools/plan-block.mjs — tests/CLAUDE.md §1.)
+let invokedDirectly = false;
+try {
+  invokedDirectly = Boolean(process.argv[1])
+    && pathToFileURL(realpathSync(process.argv[1])).href === pathToFileURL(realpathSync(fileURLToPath(import.meta.url))).href;
+} catch { invokedDirectly = false; }
+
 if (invokedDirectly) {
   try {
     main(process.argv.slice(2));

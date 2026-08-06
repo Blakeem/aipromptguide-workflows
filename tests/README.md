@@ -79,7 +79,7 @@ including one that dies halfway. On top of `runEngine`'s shape:
   `status` is `''`, but every call made **before** the throw is still in `calls`.
 
 Four readers answer questions about an engine from its **source text**, no run needed, alongside
-`ENGINES` (the nine engine paths):
+`ENGINES` (the ten engine paths):
 
 - `readMeta(src)` — the evaluated `meta` object.
 - `readRoles(src)` — the static label prefixes (an engine's roles) in source order, deduped;
