@@ -149,7 +149,9 @@ against (halt); an unreachable feature does not (flag).
   where the blind reviewer cannot see it and every later regression check treats it as known-good.
 - **Staging is the only boundary, and nothing is ever committed.** The user commits.
 - **The blind reviewer is blind by *placement*.** Run-state lives outside the target repo so it cannot
-  reach the issue files. Never hand it a path into `runs/`.
+  reach the issue files, and the blind prompt's only run-state paths point into its own
+  `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into
+  `runs/<runId>/` outside `gate/` — NEEDS-USER, AMENDED, critiques and issue files all live there.
 - **debug hunts defects only.** Its inventory feeds an autonomous fixer, and an improvement list never
   converges. Improvements are `enhance`, which deliberately has no resolve sibling.
 
@@ -289,14 +291,14 @@ dropped information is not:
   tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
   rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
-**Solved for self-loops — 9 of the 10 maps render clean. Keep it that way by never putting authored
-text in a self-loop label.** (The known residual is gauntlet's map: its `code-gate → build` node pair
-legitimately carries TWO edges — the thick next-item boundary and the dotted review back-edge — and
-the second label overlaps the first. Spacing constants, shorter labels and declaration order were all
-measured and change nothing; the structural fix is the same move that solved self-loops — a bounded
-marker on the second edge of a node pair, conditions in a table — and it lives in `gen-flows.mjs`,
-regenerating all 10 maps when done.) The history is worth knowing, because the obvious fixes are all
-wrong:
+**Solved — all 10 maps render clean. Keep it that way by never putting authored text on a self-loop
+or on either edge of a marked node pair.** Both shapes are markered now: self-loops carry `L<n>`
+(conditions in the Loops table), the back edge of a boundary+back pair carries `E<n>` (conditions in
+the Edges table), and the boundary edge of a marked pair renders caption-less — mermaid places both
+labels of a multi-edge pair at the same path midpoint (measured 39×22px overlap at every one of six
+swept spacings, even with a 5-char marker), so a pair can carry at most ONE label; the Edges table's
+fixed sentence carries the next-item advance instead. The history is worth knowing, because the
+obvious fixes are all wrong:
 
 Mermaid **11.16.0** changed self-loops to a single SVG path through two dummy nodes
 (`layout-algorithms/dagre/index.js`, `getSelfLoopSide`: *"so loops are not always forced above the node"*),

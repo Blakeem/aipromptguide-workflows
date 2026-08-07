@@ -55,8 +55,9 @@ approved issues to `resolve-cycle`, and verify ground truth at the end.
   `AMENDED-<batch>.md` (acceptance-only, pointer in `NEEDS-USER.md`),
   escalates → `NEEDS-USER.md`. Only the fixer halts the run for the user — Park halts too, but on an
   unsafe tree. On round 1 it also reports two preconditions before touching anything (see Contracts).
-- **Blind quality reviewer** (opus) — reads ONLY the unstaged diff, no issue text — catches anything
-  the fix introduced or broke. Must be clean before acceptance.
+- **Blind quality reviewer** (opus) — **blind by placement**: its prompt's only run-state paths point
+  into `runs/<runId>/gate/` (#3); reads ONLY the unstaged diff + `gate/DISMISSED-<batch>.md`, no issue
+  text — catches anything the fix introduced or broke. Must be clean before acceptance.
 - **Acceptance verifier** (opus) — reads the batch's issue file(s), **re-derives each fix's root cause**
   from current code, passes only if the fix closes it *completely* with no regression and green gates.
   Stages the batch on pass — the only agent that stages.
@@ -86,9 +87,10 @@ sweep did cover that the harness cannot — *did acceptance leave anything unsta
   fixer at missing issue files. No `issues.json` — the per-unit markdown files ARE the inventory.
 - **Two-stage escalating review (#5).** The blind reviewer (no issue text/path) catches
   confirmation-bias-proof regressions; the acceptance reviewer (issue-aware, re-derives root cause)
-  catches under-scoped fixes. Both must pass to stage; any code change re-enters at blind. Reviewers read
-  `DISMISSED-<batch>.md` + `NEEDS-USER.md` but NEVER prior review files; a `CONTESTS DISMISSAL:` must be
-  fixed or escalated.
+  catches under-scoped fixes. Both must pass to stage; any code change re-enters at blind. The blind
+  reviewer reads `gate/DISMISSED-<batch>.md` (its `gate/` dir is its whole disclosed run-state world);
+  acceptance reads the ledger + `NEEDS-USER.md`; neither reads prior review files. A
+  `CONTESTS DISMISSAL:` must be fixed or escalated.
 - **Verify-first fixing.** The inventory is a snapshot; code may have moved. The fixer confirms each
   issue still exists before touching it and marks vanished ones STALE (normal, not a bug).
 - **Staging = the batch boundary.** Staged + HEAD = accepted baseline; unstaged = the current batch (the
@@ -216,9 +218,9 @@ loose anchors safe — the fixer re-confirms each issue against current code.
 - **Reviewer severity is inflated** — that's why the verifier re-scores it; don't skip verify to save
   tokens (an unverified inventory wastes far more user-triage time than verify costs).
 - **`git diff` omits new files** — when verifying by hand, check `git status --porcelain` too.
-- **The blind reviewer is blind by instruction, not placement** (issue files share the run-state dir), so
-  the prompt forbids reading any inventory/issue file. If you ever move issue files, keep them off any
-  path the blind reviewer is handed.
+- **The blind reviewer is blind by placement AND instruction.** Its prompt's only run-state paths point
+  into `runs/<runId>/gate/`; the issue files live at the run-state root, off every path it is handed,
+  and the prompt still forbids reading any inventory/issue file as defense-in-depth.
 - **A parked batch left the tree CLEAN, and its work is NOT gone.** It's in
   `parked-<batch>.patch` (plus `parked-<batch>-newfiles/` when the batch created untracked files the
   patch couldn't carry — those need a second copy-back step after `git apply --3way`). Read the batch's
@@ -234,8 +236,9 @@ loose anchors safe — the fixer re-confirms each issue against current code.
 ## State files (`runs/<runId>/`, outside every repo)
 
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
-triage doc, verifier-written, user-editable) · `quality-review-<batch>-rN.md` (blind) ·
-`acceptance-review-<batch>-rN.md` (issue-aware) · `DISMISSED-<batch>.md` (fixer's declines) ·
+triage doc, verifier-written, user-editable) · `gate/quality-review-<batch>-rN.md` (blind; the
+`gate/` subdir is the blind reviewer's whole disclosed run-state world) ·
+`acceptance-review-<batch>-rN.md` (issue-aware) · `gate/DISMISSED-<batch>.md` (fixer's declines) ·
 `AMENDED-<batch>.md` (Fix instructions the fixer overrode as verified-defective; correct the issue
 file if you agree) ·
 `NEEDS-USER.md` (fixer escalations + every parked batch's diagnosis and restore command) ·

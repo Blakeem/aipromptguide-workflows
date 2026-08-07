@@ -55,8 +55,8 @@ flowchart TD
   a1 --> t11
   a2 -.->|"the blind review finds defects (×2)"| a1
   a2 --> a3
-  a3 ==>|"next item"| a1
-  a3 -.->|"acceptance finds gaps · +3 more (×2)"| a1
+  a3 ==> a1
+  a3 -.->|"E1 ×2"| a1
   a3 --> a4
   a3 --> t1
   a3 --> t12
@@ -81,6 +81,14 @@ flowchart TD
 |---|---|---|
 | L1 | fix | the gate is red on round 1 · the gate is never green |
 
+## Edges
+
+| Edge | From | To | Taken when |
+|---|---|---|---|
+| E1 | accept | fix | acceptance finds gaps · a batch does not accept within its round budget · park reports saved=false with bytes on disk · the gates are red after the tree is cleared |
+
+The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -102,10 +110,10 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 35) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 41) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 60) |
-| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 464) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 470) |
-| throw: args.gates.test is required | args.gates.test is missing | throw (line 473) |
-| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 483) |
+| throw: resolve-cycle requires args.issues | args.issues is missing | throw (line 496) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 502) |
+| throw: args.gates.test is required | args.gates.test is missing | throw (line 505) |
+| throw: No ACTIONABLE issues at or above the fix floor in args.issues | triage left no ACTIONABLE issue at the fix floor | throw (line 515) |
 
 ## Coverage
 

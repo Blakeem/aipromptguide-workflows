@@ -235,6 +235,40 @@ for (const { spec, graph } of observed) {
     : `${spec.name}: all ${rows.length} terminal row(s) name what reaches them`);
 }
 
+section('every marker on an arrow has a table row, and that row carries the condition');
+// A marker (`L1`, `E1`) is a REFERENCE, not a label: the arrow deliberately carries no text of its own,
+// so the row below the diagram is the ONLY place that edge's conditions exist. This is the Terminal-states
+// failure one rank down — text moved off an arrow into a table nobody asserted ended up in neither — and
+// the Loops table has gone unasserted since the day it was introduced. Read off the RENDERED document, so
+// neither the marker assignment nor the table emitter can drop a row without this going red. The row
+// count is checked both ways: an orphan row names a marker no arrow shows.
+const MARKED_TABLES = [
+  { kind: 'L', heading: 'Loops', condition: 2 },     // | Loop | Agent | Repeats while |
+  { kind: 'E', heading: 'Edges', condition: 3 },     // | Edge | From | To | Taken when |
+];
+for (const { spec, graph } of observed) {
+  const md = generate(spec, graph);
+  for (const { kind, heading, condition } of MARKED_TABLES) {
+    const shown = [...md.matchAll(new RegExp('-\\.->\\|"(' + kind + '\\d+)', 'g'))].map((m) => m[1]);
+    const markers = [...new Set(shown)];
+    const body = md.split('## ' + heading)[1]?.split('\n## ')[0] ?? '';
+    const rows = new Map(body.split('\n')
+      .filter((l) => l.startsWith('|') && !/^\|\s*-+/.test(l)).slice(1)
+      .map((r) => [tableCells(r)[0], tableCells(r)]));
+    const missing = markers.filter((m) => !rows.has(m));
+    const blank = markers.filter((m) => rows.has(m) && !rows.get(m)[condition]);
+    const orphan = [...rows.keys()].filter((id) => !markers.includes(id));
+    const faults = [
+      ...missing.map((m) => m + ' is on an arrow with no ' + heading + ' row'),
+      ...blank.map((m) => m + ' has a row with an empty condition cell'),
+      ...orphan.map((m) => m + ' has a row but is on no arrow'),
+    ];
+    ok(faults.length === 0, faults.length
+      ? `${spec.name}: ${faults.join('; ')} — a marked arrow's conditions exist nowhere else`
+      : `${spec.name}: every ${kind} marker has a ${heading} row naming its condition (${markers.length})`);
+  }
+}
+
 section('no generated map carries an em dash');
 // The maps are published on a user-facing site whose house style takes no em dash, and every source that
 // feeds one is prose someone edits freely: engine HALT_STATUS strings, meta.phases details, throw

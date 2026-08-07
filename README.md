@@ -152,6 +152,23 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-08-06
 
+- **Every blind reviewer is now blind by placement** (feature, migrate, debug's resolve — following
+  gauntlet's precedent): the blind prompt's only run-state paths point into `runs/<runId>/gate/`
+  (its review files + `DISMISSED-*` ledgers); NEEDS-USER, AMENDED, critiques and debug's issue files
+  all live outside it. Closes a real leak — the AMENDED pointer line in NEEDS-USER.md handed the
+  blind reviewer a route to verbatim plan text — and debug's documented instruction-only-blindness
+  gap. Principle #5 amended to match (blind stage reads the gate-scoped ledger; acceptance reads
+  ledger + user notes). Breaking only for in-flight runs resumed from the old layout.
+- **Agent-reported preconditions are value-guarded** in feature/migrate/resolve: the `Number()` /
+  `?? -1` coercion on `baseline_dirty_files` (and resolve's `issue_entries_found`) is replaced by
+  the typeof guard gauntlet shipped — `null`/`false`/`''`/`[]` now warn ("precondition was NOT
+  verified") instead of silently reading as a clean tree; resolve's schema now requires both fields.
+- **Flow maps: at most one label per node pair, ever.** The second labeled edge of a boundary+back
+  pair carries a bounded `E<n>` marker with its full conditions in a new `## Edges` table, and the
+  boundary edge of a marked pair renders caption-less (the table's fixed sentence carries the
+  next-item advance) — mermaid places both labels of a pair at the same midpoint, so one label per
+  pair is the only shape that cannot collide. All 10 maps measured overlap-free with
+  `tools/render-flows.mjs`. Also: `plan-block.mjs` + `wt.mjs` CLI entry detection is symlink-proof.
 - **New workflow: `gauntlet`** (`/aipg:gauntlet`) — the Gauntlet Loop pattern (builder + fresh blind
   critic vs. an inspectable exemplar) adapted to the house principles. `phase:"mvp"` builds an approved
   `COMPONENTS.md` decomposition to a working, code-sound alpha: per component, builder → blind code
@@ -164,8 +181,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   clean tree, so resume = buy more waves (`startWave`). No mid-run user escalation by design: agents
   settle judgment calls via decision matrix into `SETTLED.md`, the end-of-run audit; only environment
   faults halt. Ships with `plan-block.mjs --kind component`, 49 flow scenarios, and full dead-agent
-  coverage. Known cosmetic: its FLOW.md renders one overlapping edge label (`code-gate → build` carries
-  two); the structural fix belongs in `gen-flows.mjs`.
+  coverage. A rendering overlap noted here at ship time was closed the same day — see the flow-maps
+  bullet above.
 
 ### 2026-08-02
 

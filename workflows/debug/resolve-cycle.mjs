@@ -105,12 +105,23 @@ const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 // SAME values for all three across both engines — a mismatch silently points the fixer at missing
 // issue files.
 const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
-const qualityFile    = (batchId, r) => `${STATE_DIR}/quality-review-${slug(batchId)}-r${r}.md`;
+// The blind quality reviewer's OWN directory, and the whole of what it is handed (#3). Blindness is a
+// property of PLACEMENT, not of a polite instruction: STATE_DIR holds `issues/<unit>.md` — the INVENTORY,
+// i.e. the defect text this diff was written from — plus `acceptance-review-<batch>-rN.md`, which
+// re-states each issue's root cause, `AMENDED-<batch>.md`, which quotes the overridden **Fix:**
+// instruction VERBATIM, and NEEDS-USER.md, whose amendment pointer line names that file. Disclosing
+// STATE_DIR to the reviewer (as its output path and its "create the dir if needed") put all four one
+// `ls` away from this engine's only unbiased code reviewer. So the two files it legitimately needs move
+// down here, and no path outside this directory is ever interpolated into its prompt.
+const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
+const qualityFile    = (batchId, r) => `${GATE_DIR}/quality-review-${slug(batchId)}-r${r}.md`;
 const acceptanceFile = (batchId, r) => `${STATE_DIR}/acceptance-review-${slug(batchId)}-r${r}.md`;
-const dismissedFile  = (batchId) => `${STATE_DIR}/DISMISSED-${slug(batchId)}.md`;   // terse ledger; fixer → reviewers (anti-spin)
+const dismissedFile  = (batchId) => `${GATE_DIR}/DISMISSED-${slug(batchId)}.md`;   // terse ledger; fixer → reviewers (anti-spin)
 // Issue **Fix:** instructions the fixer OVERRODE under MATRIX 6a, having verified the instruction itself
-// prescribes a real defect — PER BATCH. Read by the ACCEPTANCE verifier only: deliberately NOT in
-// settled(), and never handed to the blind quality reviewer, which would learn the issue text from it (#3).
+// prescribes a real defect — PER BATCH. Read by the ACCEPTANCE verifier only: it quotes the superseded
+// instruction verbatim, so it stays at the STATE_DIR root, OUTSIDE the reviewer's GATE_DIR — out of reach
+// by placement, not by an instruction not to read it (#3). It is deliberately NOT in settled() either.
+// The NEEDS-USER pointer line that names it is out of reach the same way.
 const amendedFile    = (batchId) => `${STATE_DIR}/AMENDED-${slug(batchId)}.md`;
 const parkedPatch    = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}.patch`;    // a failed batch's work, saved before the tree is cleared
 const parkedNewDir   = (batchId) => `${STATE_DIR}/parked-${slug(batchId)}-newfiles`; // untracked files the patch could not carry (rare)
@@ -129,7 +140,7 @@ const gateOk = (res) => !!res
 // =============================================================================
 const FIX_SCHEMA = {
   type: 'object',
-  required: ['results', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
+  required: ['results', 'baseline_dirty_files', 'issue_entries_found', 'build_passed', 'test_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
     results: {
       type: 'array',
@@ -146,6 +157,10 @@ const FIX_SCHEMA = {
     },
     // Two ROUND-1 preconditions the harness cannot check itself (it has no shell). Both are reported
     // by the fixer BEFORE it edits anything, and either one halts the run before a single reviewer spawns.
+    // REQUIRED, because their consumer reads an ABSENT value as "not verified, carry on": a schema-valid
+    // fixer that simply left either field out would downgrade its halt to a warning line, after which
+    // acceptance stages the operator's pre-existing work — or a run reads an unreadable inventory as an
+    // empty one. `-1` is how a round-2+ fixer says "not applicable", which IS an answer.
     baseline_dirty_files: { type: 'integer', description: 'ROUND 1 ONLY: how many files were already modified/untracked in the UNSTAGED tree BEFORE you touched anything (git diff --name-only plus untracked from git status --porcelain). Must be 0 to proceed. -1 if you did not check (round 2+).' },
     issue_entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [<id>]` blocks for THIS batch\'s issue ids you actually located in the inventory file(s) you were given. 0 means you could not read the inventory — the run halts. -1 if not applicable (round 2+, which addresses a review file instead).' },
     build_passed: { type: 'boolean' },
@@ -231,15 +246,29 @@ const STAGING = `STAGING CONTRACT (the batch boundary is git itself):
 
 // The settled-decisions both resolve reviewers read so they don't re-raise closed findings (but NOT
 // prior review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5).
-const settled = (batchId, canContest = true) => `Before reviewing, READ these if they exist — they are the settled decisions, so you do
+// canContest=true is the BLIND reviewer, and the flag carries both halves of that role: it gets the
+// contest channel (its schema reports contested_dismissals) and the gate-scoped DISMISSED ledger ALONE —
+// NEEDS-USER lives at the STATE_DIR root and its amendment pointer line names the AMENDED file, i.e. a
+// route to verbatim issue text (#3). The acceptance verifier passes false: it is issue-aware, so
+// NEEDS-USER is legitimate context, and it does not contest via this token — it has the stronger
+// issue-aware OVERRIDE channel below (a dismissed item that leaves a fix incomplete fails acceptance
+// regardless), and ACCEPTANCE_SCHEMA carries no contest field.
+const settled = (batchId, canContest = true) => `Before reviewing, READ ${canContest ? 'this if it exists — it is' : 'these if they exist — they are'} the settled decisions, so you do
 NOT re-raise what is already closed:
-  • ${dismissedFile(batchId)} — findings the fixer declined this batch, each with a one-line reason.
-  • ${NEEDS_USER} — items already escalated to the user.
+  • ${dismissedFile(batchId)} — findings the fixer declined this batch, each with a one-line reason.${canContest ? '' : `
+  • ${NEEDS_USER} — items already escalated to the user.`}
 Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
 diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ''}`;
 
+// Case 7's proceeding branch (needs_user=false) writes to BOTH ledgers, and the second write is what the
+// gate/ placement made load-bearing: NEEDS-USER.md sits at the STATE_DIR root, so the blind reviewer no
+// longer reads it, while the escalated call's defensible default is sitting in the diff. Without a line in
+// the gate-scoped DISMISSED ledger, the reviewer flags that default, the fixer re-routes it to case 7
+// (still a user-only call), nothing changes, and the pair spins to maxRounds — which PARKS a batch that
+// used to accept. The anti-spin channel (#5) has to reach the reviewer through the ONE file it is still
+// handed.
 const matrix = (batchId, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
@@ -273,7 +302,10 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     already look without copying the instruction anywhere else. Count every entry in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
-    If you can proceed with a defensible default, record it there too but leave needs_user=false.`;
+    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
+    append ONE terse line to ${dismissedFile(batchId)} in the DROP shape above, its reason
+    \`ESCALATED: <the default you took, ≤15 words>\` — the blind reviewer is NOT shown ${NEEDS_USER},
+    so without that line it re-raises your default every round and the batch parks instead of accepting.`;
 
 // =============================================================================
 // Resolve-phase prompts
@@ -349,7 +381,7 @@ data-integrity/error-handling/api-contract bugs, or anything that breaks the bui
 silently: anything pre-existing in the baseline, style, naming, medium/low polish, speculation,
 redesigns. An EMPTY result is the normal, GOOD outcome.
 
-WRITE your findings to ${qualityFile(batch.id, round)} (create ${STATE_DIR}/ if needed): one section per
+WRITE your findings to ${qualityFile(batch.id, round)} (create ${GATE_DIR}/ if needed): one section per
 defect — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests) +
 issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
@@ -550,9 +582,10 @@ for (const batch of batches) {
     // Both are things the harness cannot see for itself; the fixer checks them before doing any work,
     // so halting here costs one agent turn instead of maxRounds of agents chasing phantom findings.
     if (round === 1) {
-      // A dead fixer must never reach the -1 sentinels below: optional chaining collapses BOTH fields
-      // to "not applicable (round 2+)", so the two guards would be skipped for the one case they most
-      // need to cover — the fixer never ran, so nothing was checked and no work can be assumed.
+      // A dead fixer must never reach the two value guards below: optional chaining collapses BOTH
+      // fields to `undefined`, which takes their "was NOT verified" warn branch and carries on, so the
+      // two halts would be skipped for the one case they most need to cover — the fixer never ran, so
+      // nothing was checked and no work can be assumed.
       if (fix == null) {
         halted = true;
         record.status = 'BLOCKED (fixer did not return)';
@@ -560,8 +593,15 @@ for (const batch of batches) {
         log(`  ✋ ${batch.id}: round-1 fixer returned nothing → halting before any reviewer spawns (preconditions unverified)`);
         break;
       }
-      const dirty = fix?.baseline_dirty_files ?? -1;
-      if (dirty > 0) {
+      // Guard the VALUE, never a sentinel it could collapse into. `?? -1` only catches null/undefined,
+      // while `false`, `''` and `[]` all slip past it and then compare `> 0` as false — so a malformed
+      // return read as "0 = clean" and waved this precondition through silently, letting the blind
+      // critic judge the operator's pre-existing work as this batch's and acceptance stage it into the
+      // accepted baseline. `-1` (the legitimate round-2+ n/a) is a number and still just falls through.
+      const dirty = fix?.baseline_dirty_files;
+      if (typeof dirty !== 'number' || !Number.isFinite(dirty)) {
+        log(`  ⚠ ${batch.id} r1: fixer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
+      } else if (dirty > 0) {
         halted = true;
         record.status = 'BLOCKED (dirty baseline)';
         blockerReason = `The working tree was NOT clean when ${batch.id} started: ${dirty} file(s) already modified or untracked in ${REPO}. Resolve needs the unstaged diff to be purely the current batch's work — pre-existing changes get attributed to the batch and fail it for someone else's edits. Fix it one of two ways, then re-run with the same args: \`git -C ${REPO} add -A\` to fold the existing work into the accepted baseline, or \`git -C ${REPO} stash\` to set it aside. Nothing was changed.`;
@@ -569,9 +609,14 @@ for (const batch of batches) {
         break;
       }
       // > 0, never an exact match against batch size: a fixer that miscounts blocks must not halt a
-      // healthy run, and hand-authored external inventories are formatted more loosely.
-      const entries = fix?.issue_entries_found ?? -1;
-      if (entries === 0 && batch.issues.length > 0) {
+      // healthy run, and hand-authored external inventories are formatted more loosely. Same value guard
+      // as above, and the sentinel collision is sharper here: `?? -1` left `false`/`''`/`[]` failing the
+      // `=== 0` test, so an unreadable inventory reported as garbage read exactly like a readable one and
+      // the run would end reporting every issue STALE as false success.
+      const entries = fix?.issue_entries_found;
+      if (typeof entries !== 'number' || !Number.isFinite(entries)) {
+        log(`  ⚠ ${batch.id} r1: fixer did not report issue_entries_found — the inventory-readable precondition was NOT verified`);
+      } else if (entries === 0 && batch.issues.length > 0) {
         halted = true;
         record.status = 'BLOCKED (inventory not found)';
         blockerReason = `The fixer could not find ANY of ${batch.id}'s issue blocks in the inventory file(s) it was handed:\n  ${issuePaths.join('\n  ')}\nThose paths are computed from runId="${RUN_ID}" + root + stateDir — they must be the SAME values review.mjs used, or they point at files that do not exist. Check them and re-run; nothing was changed. (Without this guard the fixer would report every issue STALE and the run would end reporting false success.)`;
@@ -789,5 +834,5 @@ return {
   // the strays dir when one exists — those files need a second restore step beyond `git apply`).
   parked: parked.map((r) => ({ id: r.id, patch: r.patch, strays: r.strays ?? null, issues: r.perIssue.map((p) => p.id) })),
   ledger: ledger.map((r) => ({ id: r.id, status: r.status, rounds: r.rounds, fixed: r.fixed, stale: r.stale, needsAttention: r.needsAttention, regression: r.regression === true, planAmendments: r.planAmendments, gates: r.gates, patch: r.patch ?? null })),
-  followups: `${halted ? `Run halted — ${blockerReason}\n` : ''}Verify the end state yourself: run the FULL gates once, \`git -C ${REPO} diff --cached --stat\` for what is staged, and \`git -C ${REPO} status --porcelain\` to confirm NOTHING is left unstaged (an acceptance verifier that missed a newly-created file is the one gap the engine cannot see). Read the numbered review files + DISMISSED-*.md in ${STATE_DIR}/.${amendedIds.length ? ` FIX INSTRUCTION AMENDED for: ${amendedIds.join(', ')} — the fixer overrode an issue's **Fix:** instruction it verified prescribes a real defect; read ${STATE_DIR}/AMENDED-<batch>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and correct the issue file if you agree.` : ''}${parked.length ? ` ${parked.length} batch(es) were PARKED — their work is saved to ${STATE_DIR}/parked-<batch>.patch and cleared from the tree, nothing discarded; ${NEEDS_USER} lists each with its diagnosis and the \`git apply --3way\` restore command. Per parked batch the user decides: restore and finish by hand, re-run resolve scoped to its ids (sharpen the Fix lines first), or drop the patch.` : ''}${halted ? ` Resolve the blocker with the user, then re-invoke with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged, and the halted batch's work is in its patch — the tree is clean).` : ''} Nothing is committed — you commit.`,
+  followups: `${halted ? `Run halted — ${blockerReason}\n` : ''}Verify the end state yourself: run the FULL gates once, \`git -C ${REPO} diff --cached --stat\` for what is staged, and \`git -C ${REPO} status --porcelain\` to confirm NOTHING is left unstaged (an acceptance verifier that missed a newly-created file is the one gap the engine cannot see). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the issue text lives in it) and each DISMISSED-<batch>.md in ${GATE_DIR}/, auditing every declined finding.${amendedIds.length ? ` FIX INSTRUCTION AMENDED for: ${amendedIds.join(', ')} — the fixer overrode an issue's **Fix:** instruction it verified prescribes a real defect; read ${STATE_DIR}/AMENDED-<batch>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and correct the issue file if you agree.` : ''}${parked.length ? ` ${parked.length} batch(es) were PARKED — their work is saved to ${STATE_DIR}/parked-<batch>.patch and cleared from the tree, nothing discarded; ${NEEDS_USER} lists each with its diagnosis and the \`git apply --3way\` restore command. Per parked batch the user decides: restore and finish by hand, re-run resolve scoped to its ids (sharpen the Fix lines first), or drop the patch.` : ''}${halted ? ` Resolve the blocker with the user, then re-invoke with the remaining open issues (re-grep issues/*.md; already-fixed issues are now staged, and the halted batch's work is in its patch — the tree is clean).` : ''} Nothing is committed — you commit.`,
 };

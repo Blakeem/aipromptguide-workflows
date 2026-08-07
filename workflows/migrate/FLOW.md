@@ -65,8 +65,8 @@ flowchart TD
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
   a3 --> a5
-  a4 ==>|"next item"| a2
-  a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
+  a4 ==> a2
+  a4 -.->|"E1 ×4"| a2
   a4 --> a5
   a4 --> a6
   a4 --> t2
@@ -98,6 +98,14 @@ flowchart TD
 |---|---|---|
 | L1 | develop | the section gate is never green |
 
+## Edges
+
+| Edge | From | To | Taken when |
+|---|---|---|---|
+| E1 | acceptance | develop | acceptance finds gaps · a section does not accept within its round budget · park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking |
+
+The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -121,12 +129,12 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
 | throw: section id(s) [...] are not kebab slugs | a sections entry id is not a kebab slug | throw (line 158) |
 | throw: section gate(s) [...] are not one of green \| red-baseline \| build-only | a sections entry names an unknown gate | throw (line 171) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 634) |
-| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 664) |
-| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 670) |
-| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 673) |
-| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 688) |
-| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 693) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 656) |
+| throw: args.sections is required for phase:"run" | every sections entry is missing its id | throw (line 686) |
+| throw: args.gates.build is required for phase:"run" | args.gates.build is missing | throw (line 692) |
+| throw: args.gates.test is required when any section has gate:"green" | a section asks for gate:"green" with no test command | throw (line 695) |
+| throw: args.runOnly ... matches no section id | runOnly holds an unknown section id | throw (line 710) |
+| throw: args.startAt "..." matches no section id | startAt is an unknown section id | throw (line 715) |
 
 ## Coverage
 

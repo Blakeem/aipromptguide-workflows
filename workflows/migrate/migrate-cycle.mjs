@@ -171,13 +171,22 @@ if (BAD_GATES.length) {
   throw new Error(`section gate(s) [${BAD_GATES.join(', ')}] are not one of green | red-baseline | build-only. A gate decides what "done" MEANS for its section, so an unrecognized value must never coerce. Omit the field entirely to take the green default.`);
 }
 
-const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
+// The blind quality reviewer's OWN directory, and the whole of what it is handed (#3). Blindness is a
+// property of PLACEMENT, not of a polite instruction: STATE_DIR holds `acceptance-review-<id>-rN.md` —
+// the section's acceptance criteria enumerated one by one — `AMENDED-<id>.md`, which quotes the overridden
+// section clause VERBATIM, and NEEDS-USER.md, whose amendment pointer line names that file. Disclosing
+// STATE_DIR to the reviewer (as its output path and its "create the dir if needed") put all three one
+// `ls` away from this engine's only unbiased code reviewer. So the two files it legitimately needs move
+// down here, and no path outside this directory is ever interpolated into its prompt.
+const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
+const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
-const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER SECTION
+const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER SECTION
 // Section clauses the developer OVERRODE under MATRIX 6a, having verified the clause prescribes a real
-// defect — PER SECTION. Read by the ACCEPTANCE verifier only: it is deliberately NOT in SETTLED and never
-// reaches the blind quality reviewer, which would otherwise learn the plan's content from it (#3).
+// defect — PER SECTION. Read by the ACCEPTANCE verifier only: it quotes the superseded clause verbatim, so
+// it stays at the STATE_DIR root, OUTSIDE the reviewer's GATE_DIR — out of reach by placement, not by an
+// instruction not to read it (#3). The NEEDS-USER pointer line that names it is out of reach the same way.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a section's work, saved before the tree is cleared
 const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
@@ -185,14 +194,17 @@ const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-g
 
 // The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior
 // review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5). Scoped per section.
-// canContest=true gives the BLIND quality reviewer the contest channel (its schema reports
-// contested_dismissals). The acceptance verifier passes false — it does not contest via this token; it
-// has the stronger plan-aware OVERRIDE channel below (a dismissed item that breaks a criterion fails
-// acceptance regardless), and its schema carries no contest field.
-const SETTLED = (id, canContest = true) => `Before reviewing, READ these if they exist — they are the settled decisions, so you do
+// canContest=true is the BLIND reviewer, and the flag carries both halves of that role: it gets the
+// contest channel (its schema reports contested_dismissals) and the gate-scoped DISMISSED ledger ALONE —
+// NEEDS-USER lives at the STATE_DIR root and its amendment pointer line names the AMENDED file, i.e. a
+// route to verbatim section text (#3). The acceptance verifier passes false: it is plan-aware, so
+// NEEDS-USER is legitimate context, and it does not contest via this token — it has the stronger
+// plan-aware OVERRIDE channel below (a dismissed item that breaks a criterion fails acceptance
+// regardless), and its schema carries no contest field.
+const SETTLED = (id, canContest = true) => `Before reviewing, READ ${canContest ? 'this if it exists — it is' : 'these if they exist — they are'} the settled decisions, so you do
 NOT re-raise what is already closed:
-  • ${dismissedFile(id)} — findings the developer declined for THIS section, each with a one-line reason.
-  • ${NEEDS_USER} — items already escalated to the user.
+  • ${dismissedFile(id)} — findings the developer declined for THIS section, each with a one-line reason.${canContest ? '' : `
+  • ${NEEDS_USER} — items already escalated to the user.`}
 Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
 diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
@@ -409,6 +421,13 @@ BE TOKEN-ECONOMICAL: read ONLY the files this section touches plus the SPECIFIC 
 you need — do NOT re-read the whole tree, the whole plan body, or the entire reference. Prefer targeted
 grep over broad reads. Don't restate large files back; act on them.`;
 
+// Case 7's proceeding branch (needs_user=false) writes to BOTH ledgers, and the second write is what the
+// gate/ placement made load-bearing: NEEDS-USER.md sits at the STATE_DIR root, so the blind reviewer no
+// longer reads it, while the escalated call's defensible default is sitting in the diff. Without a line in
+// the gate-scoped DISMISSED ledger, the reviewer flags that default, the developer re-routes it to case 7
+// (still a user-only call), nothing changes, and the pair spins to maxRounds — which here PARKS the section
+// and STOPS the run. The anti-spin channel (#5) has to reach the reviewer through the ONE file it is still
+// handed.
 const MATRIX = (id, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
@@ -442,7 +461,10 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
-    If you can proceed with a defensible default, record it there too but leave needs_user=false.
+    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
+    append ONE terse line to ${dismissedFile(id)} in the DROP shape above, its reason
+    \`ESCALATED: <the default you took, ≤15 words>\` — the blind reviewer is NOT shown ${NEEDS_USER},
+    so without that line it re-raises your default every round, and this section parks and stops the run.
 This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
 THIS section correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
 nothing else.`;
@@ -520,7 +542,7 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low polish,
 speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-WRITE your findings to ${qualityFile(section.id, round)} (create ${STATE_DIR}/ if needed): one section
+WRITE your findings to ${qualityFile(section.id, round)} (create ${GATE_DIR}/ if needed): one section
 per defect — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write
 exactly "No production-blocking defects found." Then return clean (true if NO findings, including no
 contests) + issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
@@ -774,8 +796,14 @@ for (const section of pending) {
     // section's and burn the whole round budget on code nobody in this run touched. Halt HERE — before
     // any quality/acceptance agent spawns. The developer did no work, so there is nothing to unwind.
     if (round === 1) {
-      const dirty = Number(dev?.baseline_dirty_files);
-      if (!Number.isFinite(dirty)) {
+      // Guard the VALUE, never its coercion. `Number(undefined)` is NaN and takes the warn branch, but
+      // `Number(null)`, `Number(false)`, `Number('')` and `Number([])` are all 0 and all FINITE — so a
+      // coercing check reads every one of them as "0 = clean" and waves this precondition through
+      // silently, after which the blind reviewer judges the operator's pre-existing work as this
+      // section's and acceptance stages it into the accepted baseline. Same reasoning the numeric-arg
+      // validators above state, applied to an AGENT-supplied value.
+      const dirty = dev?.baseline_dirty_files;
+      if (typeof dirty !== 'number' || !Number.isFinite(dirty)) {
         log(`  ⚠ ${section.id} r1: developer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
       } else if (dirty > 0) {
         halted = true;
@@ -1079,10 +1107,10 @@ return {
   // second restore step).
   parked: parkedSections.map((r) => ({ id: r.id, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
-  reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<section>-rN.md, acceptance-review-<section>-rN.md) show every iteration; git staging marks each accepted section.`,
+  reviewTrail: `Numbered review files show every iteration: quality-review-<section>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<section>-rN.md in ${STATE_DIR}/; git staging marks each accepted section.`,
   followups: (halted
     ? `Run halted — ${haltReason} Read ${NEEDS_USER} (if a hard blocker) and the latest review file for the section in question, resolve with the user, then resume: re-invoke phase:"run" with the same args + startAt:"<that section id>" (or runOnly). A PARKED section's work is in ${STATE_DIR}/parked-<id>.patch, NOT in the tree — apply the patch first ONLY if you want to finish that section by hand; otherwise resume from the clean baseline and the developer redoes it (a resumed run requires a clean unstaged tree and halts on a dirty one).`
     : allDone
-      ? `All sections done.${sweepFailed ? ` WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished.` : ''} Review the staged diff in ${REPO} (git diff --cached), the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
+      ? `All sections done.${sweepFailed ? ` WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished.` : ''} Review the staged diff in ${REPO} (git diff --cached), the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/ (audit every declined finding)${sweep && sweep.complete !== true ? `, and ${SWEEP_FILE} (coverage gaps!)` : ''}. Run the full gates yourself. Nothing is committed — you commit.`
       : `Partial slice complete (${doneIds.join(', ') || 'none'}). Reconstruct the next start point from git staging + the review trail and re-invoke phase:"run" with startAt the next section (or the full list to also run the final sweep).`) + amendedNote,
 };

@@ -55,8 +55,11 @@ Stage 1 must be clean before stage 2 runs. **Any code change re-enters at stage 
 
 **Reviewers stay fresh, but not amnesiac.** A blind reviewer that re-runs each round would otherwise
 re-flag every finding the developer already, deliberately, declined — an unbounded re-litigation that
-never converges. So reviewers read the **dismissed-findings ledger** and the **user-notes file**
-(#6) — the settled decisions — but **never the prior review files**. Reading the last review anchors a
+never converges. So the **blind** reviewer reads the **dismissed-findings ledger** — and, per #3,
+reads it from its own `gate/` directory, the only run-state path its prompt discloses (user notes,
+amendments, critiques and every plan-adjacent file live outside it) — while the **plan-aware
+acceptance** stage reads the ledger **and the user-notes file** (#6), the settled decisions. Neither
+ever reads **the prior review files**. Reading the last review anchors a
 reviewer to *that one finding* and it misses the similar bug introduced two lines away; reading only
 the *dismissed list* lets it re-review the whole current diff fresh, so it both skips settled noise
 **and** independently re-verifies prior fixes (catching nearby/similar issues). A reviewer may
@@ -282,8 +285,9 @@ Use these as yes/no checks when reviewing any workflow against these principles:
       migrate's `SWEEP.md`, a parked patch)? **Narration about the run** — any status, summary,
       progress, or "what I did" file, including one that merely restates numbers the harness already
       has — is a violation. (#6)
-- [ ] Do reviewers read the **dismissed ledger + user notes** (settled decisions) but **never the
-      prior review files**, so they stay fresh yet don't re-litigate? (#5)
+- [ ] Does the **blind** reviewer read the **dismissed ledger** from its own `gate/` dir (#3), the
+      **acceptance** stage the ledger **+ user notes**, and neither the prior review files, so they
+      stay fresh yet don't re-litigate? (#5)
 - [ ] Can a reviewer **contest** a wrong dismissal, and must the developer then **fix or escalate**
       (never silently re-dismiss), so no real defect is suppressed and the loop still converges? (#5)
 - [ ] Does the **developer** own ambiguity resolution, log declines tersely, and is it the **only**

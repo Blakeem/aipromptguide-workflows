@@ -181,26 +181,41 @@ if (PHASE !== 'refine' && BODYLESS.length && !PLAN_PATH) {
   throw new Error(`plans [${BODYLESS.map((p) => p.id).join(', ')}] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: <id>" blocks — the developer would be handed an empty plan. Either give each entry its own planPath, or pass the roadmap file as the top-level planPath.`);
 }
 
-const qualityFile    = (id, r) => `${STATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
+// The blind quality reviewer's OWN directory, and the whole of what it is handed (#3). Blindness is a
+// property of PLACEMENT, not of a polite instruction: STATE_DIR holds `acceptance-review-<id>-rN.md` —
+// the plan's acceptance criteria enumerated one by one — `AMENDED-<id>.md`, which quotes the overridden
+// plan clause VERBATIM, and NEEDS-USER.md, whose amendment pointer line names that file. Disclosing
+// STATE_DIR to the reviewer (as its output path and its "create the dir if needed") put all three one
+// `ls` away from this engine's only unbiased code reviewer. So the two files it legitimately needs move
+// down here, and no path outside this directory is ever interpolated into its prompt.
+const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
+const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
-const dismissedFile  = (id) => `${STATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER PLAN
+const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER PLAN
 // Plan clauses the developer OVERRODE under MATRIX 6a, having verified the clause prescribes a real
-// defect — PER PLAN. Read by the ACCEPTANCE verifier only: it is deliberately NOT in SETTLED and never
-// reaches the blind quality reviewer, which would otherwise learn the plan's content from it (#3).
+// defect — PER PLAN. Read by the ACCEPTANCE verifier only: it quotes the superseded clause verbatim, so
+// it stays at the STATE_DIR root, OUTSIDE the reviewer's GATE_DIR — out of reach by placement, not by an
+// instruction not to read it (#3). The NEEDS-USER pointer line that names it is out of reach the same way.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a plan's work, saved before the tree is cleared
 const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 // The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior
 // review files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5). Scoped per plan.
-const SETTLED = (id) => `Before reviewing, READ these if they exist — they are the settled decisions, so you do
+// canContest=true is the BLIND reviewer, and the flag carries both halves of that role: it gets the
+// contest channel (its schema reports contested_dismissals) and the gate-scoped DISMISSED ledger ALONE —
+// NEEDS-USER lives at the STATE_DIR root and its amendment pointer line names the AMENDED file, i.e. a
+// route to verbatim plan text (#3). The acceptance verifier passes false: it is plan-aware, so NEEDS-USER
+// is legitimate context, and it does not contest via this token — it has the stronger plan-aware OVERRIDE
+// channel below, and ACCEPTANCE_SCHEMA carries no contest field, so the instruction reported nothing.
+const SETTLED = (id, canContest = true) => `Before reviewing, READ ${canContest ? 'this if it exists — it is' : 'these if they exist — they are'} the settled decisions, so you do
 NOT re-raise what is already closed:
-  • ${dismissedFile(id)} — findings the developer declined for THIS feature, each with a one-line reason.
-  • ${NEEDS_USER} — items already escalated to the user.
+  • ${dismissedFile(id)} — findings the developer declined for THIS feature, each with a one-line reason.${canContest ? '' : `
+  • ${NEEDS_USER} — items already escalated to the user.`}
 Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
+diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
-it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.`;
+it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ''}`;
 
 // Gate check (additive feature; no intentionally-red phase). 'green' => build passes AND the required
 // verification passes AND the existing suite is not reddened. 'build-only' => build passes. When a
@@ -377,6 +392,12 @@ PROCEDURE:
 Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this plan's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
 
+// Case 7's proceeding branch (needs_user=false) writes to BOTH ledgers, and the second write is what the
+// gate/ placement made load-bearing: NEEDS-USER.md sits at the STATE_DIR root, so the blind reviewer no
+// longer reads it, while the escalated call's defensible default is sitting in the diff. Without a line in
+// the gate-scoped DISMISSED ledger, the reviewer flags that default, the developer re-routes it to case 7
+// (still a user-only call), nothing changes, and the pair spins to maxRounds and PARKS a plan that used to
+// accept. The anti-spin channel (#5) has to reach the reviewer through the ONE file it is still handed.
 const MATRIX = (id, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
@@ -410,7 +431,10 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
     needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
-    If you can proceed with a defensible default, record it there too but leave needs_user=false.`;
+    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
+    append ONE terse line to ${dismissedFile(id)} in the DROP shape above, its reason
+    \`ESCALATED: <the default you took, ≤15 words>\` — the blind reviewer is NOT shown ${NEEDS_USER},
+    so without that line it re-raises your default every round and the plan parks instead of accepting.`;
 
 // =============================================================================
 // Role prompts — succinct; each agent gets ONE document link for its task.
@@ -474,7 +498,7 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-WRITE your findings to ${qualityFile(p.id, round)} (create ${STATE_DIR}/ if needed): one section per defect
+WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests)
 + issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
@@ -485,7 +509,7 @@ Verify, against the repo itself, that the FEATURE is fully delivered and nothing
 ${planRef(p)}.
 ${ENV}
 
-${SETTLED(p.id)}
+${SETTLED(p.id, false)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are plan-aware — if a dismissed
 item ACTUALLY breaks an acceptance criterion, leaves the feature unreachable, or causes a regression,
 that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -712,8 +736,14 @@ for (const p of pending) {
     // plan's and burn the whole round budget on code nobody in this run touched. Halt HERE — before any
     // quality/acceptance agent spawns. The developer did no work, so there is nothing to unwind.
     if (round === 1) {
-      const dirty = Number(dev?.baseline_dirty_files);
-      if (!Number.isFinite(dirty)) {
+      // Guard the VALUE, never its coercion. `Number(undefined)` is NaN and takes the warn branch, but
+      // `Number(null)`, `Number(false)`, `Number('')` and `Number([])` are all 0 and all FINITE — so a
+      // coercing check reads every one of them as "0 = clean" and waves this precondition through
+      // silently, after which the blind reviewer judges the operator's pre-existing work as this plan's
+      // and acceptance stages it into the accepted baseline. Same reasoning the numeric-arg validators
+      // above state, applied to an AGENT-supplied value.
+      const dirty = dev?.baseline_dirty_files;
+      if (typeof dirty !== 'number' || !Number.isFinite(dirty)) {
         log(`  ⚠ ${p.id} r1: developer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
       } else if (dirty > 0) {
         halted = true;
@@ -985,10 +1015,10 @@ return {
   // Present each with its patch path (and strays dir when one exists — those need a second restore step).
   parked: parkedPlans.map((r) => ({ id: r.id, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
-  reviewTrail: `Numbered review files in ${STATE_DIR}/ (quality-review-<id>-rN.md, acceptance-review-<id>-rN.md) show every iteration; git staging marks each accepted feature.`,
+  reviewTrail: `Numbered review files show every iteration: quality-review-<id>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<id>-rN.md in ${STATE_DIR}/; git staging marks each accepted feature.`,
   followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the plan's latest review file, resolve with the user, then re-invoke phase:"build" with the same args + startAt (or runOnly) for the plans still to do. That plan's work is in its patch and the tree is clean — apply the patch first only if you want to continue it by hand.` : ' '}` : ''}${parkedPlans.length
     ? `${parkedPlans.length} plan(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. Their work is saved to ${STATE_DIR}/parked-<id>.patch and cleared from the tree — nothing discarded; ${NEEDS_USER} carries each one's diagnosis and its \`git apply --3way\` restore command. Per parked plan the user decides: restore the patch and finish by hand, re-run it alone with runOnly after sharpening its plan file, or drop the patch. `
     : ''}${amendedIds.length
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files + DISMISSED-*.md in ${STATE_DIR}/ and audit every declined finding. Nothing is committed — you commit.`,
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Nothing is committed — you commit.`,
 };

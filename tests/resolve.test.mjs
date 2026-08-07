@@ -1,7 +1,7 @@
 // debug/resolve-cycle.mjs — the batched fix loop.
 // Focus: the paths that only fire when something goes WRONG. Those are the ones a real run rarely
 // exercises and the ones where a regression is silent.
-import { runEngine, section, ok } from './harness.mjs';
+import { runEngine, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/debug/resolve-cycle.mjs';
 
@@ -61,6 +61,24 @@ section('precondition: an unreadable inventory halts instead of reporting false 
   ok(/runId="t"/.test(out.blockerReason), 'blocker names the runId that produced the paths');
   ok(!calls.some((c) => c.label.startsWith('park')), 'did not park');
   ok(out.summary.batchesAccepted === 0, 'NOT counted as accepted');
+}
+
+section('BOTH round-1 preconditions read the VALUE, not a sentinel it can collapse into');
+// `?? -1` only catches null/undefined: `false`, `''` and `[]` slipped past it, then compared `> 0` as
+// false and `=== 0` as false — so a malformed return read as "0 = clean" AND as a readable inventory,
+// silently, which is the pair of halts this engine exists to make unmissable.
+{
+  const ACC = { pass: true, staged: true, fix_checks: [] };
+  for (const bad of [null, false, '', []]) {
+    const label = JSON.stringify(bad);
+    const d = await run({ 'fix': { ...FIXED, baseline_dirty_files: bad }, 'quality': CLEAN, 'accept': ACC });
+    ok(d.logs.some((l) => /baseline_dirty_files — the clean-baseline precondition was NOT verified/.test(l)),
+      `${label} is not silently a clean tree`);
+
+    const e = await run({ 'fix': { ...FIXED, issue_entries_found: bad }, 'quality': CLEAN, 'accept': ACC });
+    ok(e.logs.some((l) => /issue_entries_found — the inventory-readable precondition was NOT verified/.test(l)),
+      `${label} is not silently a readable inventory`);
+  }
 }
 
 section('a fixer escalation parks its work before halting');
@@ -185,7 +203,7 @@ section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED defect in the issue\'s Fix,
   ok(/that verified defect also outranks the "NO scope creep beyond\s+what each fix requires" instruction above and the CONVENTIONS rubric/.test(fix),
     'the PRECEDENCE clause names both lines that produced the observed wedge');
   ok(/6b\. Conflicts with the issue but you did NOT verify it/.test(fix), '6b keeps the unverified/intentional case a DROP');
-  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/DISMISSED-batch-01-src\.md/.test(fix),
+  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/gate\/DISMISSED-batch-01-src\.md/.test(fix),
     'and LOGGING re-points the DROP route at 6b, not the whole of 6');
   ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(fix), 'ESCALATE (case 7) is untouched');
 
@@ -196,9 +214,12 @@ section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED defect in the issue\'s Fix,
 
   const q = prompt('quality:');
   ok(q !== '' && !/AMENDED/.test(q) && !/amendment/i.test(q), 'the BLIND quality prompt gains no AMENDED path and no mention of one');
-  ok(/DISMISSED-batch-01-src\.md/.test(q), 'while settled() still hands it the DISMISSED ledger — unchanged');
+  ok(/E:\/r\/runs\/t\/gate\/DISMISSED-batch-01-src\.md/.test(q) && !/NEEDS-USER/.test(q),
+    'settled() hands it the gate-scoped DISMISSED ledger and nothing else');
 
   const a = prompt('accept:');
+  ok(/E:\/r\/runs\/t\/gate\/DISMISSED-batch-01-src\.md/.test(a) && /E:\/r\/runs\/t\/NEEDS-USER\.md/.test(a),
+    'while the issue-aware verifier still reads both settled-decision files');
   ok(/READ E:\/r\/runs\/t\/AMENDED-batch-01-src\.md if it exists/.test(a), 'acceptance is told to read the record');
   ok(/against the AMENDED behavior, not the superseded instruction/.test(a), 'and to judge the amended issue against what was built');
   ok(/NAME\s+every issue you judged under an amendment in your review file/.test(a), 'each such issue must be named in the review file');
@@ -219,6 +240,55 @@ section('a recorded amendment is logged, counted into the ledger and named in fo
   ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing at all');
   ok(none.out.ledger[0].planAmendments === 0, 'the ledger record still carries the field, initialized in its literal');
   ok(!/AMENDED for/.test(none.out.followups), 'and followups says nothing about amendments');
+}
+
+const STATE = 'E:/r/runs/t';
+/**
+ * Every run-state path the BLIND quality reviewer's prompt discloses must sit under `runs/<runId>/gate/`.
+ * Naming the state dir at all is a disclosure of everything IN it — `issues/<unit>.md` IS the inventory the
+ * diff was written from, `acceptance-review-<batch>-rN.md` re-states each issue's root cause,
+ * `AMENDED-<batch>.md` quotes the overridden **Fix:** instruction verbatim, and NEEDS-USER.md carries the
+ * pointer line naming that file — and #3 forbids relying on "please don't read X". So the reviewer's own
+ * two files live one directory down, and this is the assertion that keeps a later edit from interpolating a
+ * state-dir path back into the prompt.
+ */
+const stateRefsOutsideGate = (p) =>
+  (p.match(/E:\/r\/runs\/t\/[^\s`'")]*/g) ?? []).filter((s) => !s.startsWith(`${STATE}/gate/`));
+
+section('the quality reviewer is blind BY PLACEMENT — its prompt carries no run-state path outside gate/');
+// WORKFLOW-PRINCIPLES.md #3: blindness is a property of what the agent is HANDED, not of a polite
+// instruction. This engine is where that mattered most — the issue files sit one `ls` below the state dir
+// the prompt used to name, so the blind critic could read the very defect text it must not know.
+{
+  const { prompt } = await run({ 'fix': FIXED, 'quality': CLEAN, 'accept': { pass: true, staged: true, fix_checks: [] } });
+  const q = prompt('quality:');
+  ok(q !== '', 'the blind reviewer ran');
+  ok(q.includes(`${STATE}/gate/DISMISSED-batch-01-src.md`),
+    'it IS given the anti-spin ledger — fresh, but not amnesiac (#5)');
+  ok(q.includes(`${STATE}/gate/quality-review-batch-01-src-r1.md`), 'and its own output path, gate-scoped too');
+  ok(!q.includes('issues/u1.md') && !q.includes('NEEDS-USER.md'),
+    'but neither the inventory nor NEEDS-USER, whose amendment pointer line names the AMENDED file');
+  eq(stateRefsOutsideGate(q).join(', '), '',
+    'and no run-state path outside gate/ — not the state dir itself, which would disclose the issues/ dir in it');
+  ok(/do NOT read any inventory\/issue file/.test(q),
+    'the instruction stays as defense-in-depth, now that no disclosed path has issues/ beneath it');
+}
+
+section('taking NEEDS-USER off the blind reviewer re-routes case 7 through the ledger it still reads');
+// Consequence of the placement above, and the half that is easy to forget: case 7's PROCEEDING branch
+// (needs_user=false) leaves the fixer's defensible default sitting in the diff, and it used to be silenced
+// by NEEDS-USER.md — the file the blind critic no longer gets. With nothing in the gate-scoped ledger it
+// flags that default, the fixer re-routes it to case 7 (still a user-only call), no code changes, and the
+// pair spins to maxRounds: a batch that used to accept PARKS. The anti-spin channel (#5) has to reach the
+// reviewer through the ONE file it is still handed.
+{
+  const { prompt } = await run({ 'fix': FIXED, 'quality': CLEAN, 'accept': { pass: true, staged: true, fix_checks: [] } });
+  const fix = prompt('fix:');
+  ok(/ESCALATE \(7\)[\s\S]*?append ONE terse line to E:\/r\/runs\/t\/gate\/DISMISSED-batch-01-src\.md/.test(fix),
+    'case 7 proceeding also writes the gate-scoped ledger, the only settled-decisions file the blind reviewer is handed');
+  ok(/ESCALATED: <the default you took/.test(fix), 'and the line states the default that was taken, not just that it escalated');
+  ok(/the blind reviewer is NOT shown E:\/r\/runs\/t\/NEEDS-USER\.md/.test(fix),
+    'with the reason attached, so the two halves cannot drift apart again');
 }
 
 // The 'required args throw rather than silently defaulting' section (target.repo, gates.build,

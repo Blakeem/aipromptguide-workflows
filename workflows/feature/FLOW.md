@@ -66,8 +66,8 @@ flowchart TD
   a3 -.->|"the blind review finds defects (×2)"| a2
   a3 --> a4
   a3 --> a5
-  a4 ==>|"next item"| a2
-  a4 -.->|"acceptance finds gaps · +4 more (×4)"| a2
+  a4 ==> a2
+  a4 -.->|"E1 ×4"| a2
   a4 --> a5
   a4 --> t2
   a4 --> t3
@@ -99,6 +99,14 @@ flowchart TD
 |---|---|---|
 | L1 | develop | the build gate is never green |
 
+## Edges
+
+| Edge | From | To | Taken when |
+|---|---|---|---|
+| E1 | acceptance | develop | acceptance finds gaps · a plan does not accept within its round budget · park could not clear the tree · park reports saved=false with bytes on disk · the build gate is red after parking |
+
+The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).
+
 ## Terminal states
 
 | Terminal | Reached when | Source |
@@ -123,13 +131,13 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
 | throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 172) |
 | throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 181) |
-| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 558) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 570) |
-| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 602) |
-| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 608) |
-| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 611) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 626) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 631) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 582) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 594) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 626) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 632) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 635) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 650) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 655) |
 
 ## Coverage
 

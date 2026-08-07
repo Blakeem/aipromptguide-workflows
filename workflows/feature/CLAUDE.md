@@ -215,9 +215,10 @@ throwaway.
   (read by acceptance alone, never the blind reviewer) with a plan-text-free pointer line in
   `NEEDS-USER.md`; unverified plan conflicts stay 6b declines. Escalates user-only calls to
   `NEEDS-USER.md` (halts only on a hard blocker).
-- **Quality Reviewer** (build · opus) — **blind**: no plan/spec/goal, reviews ONLY the unstaged diff
-  for introduced production-blocking defects. Reads `DISMISSED-<id>.md` + `NEEDS-USER.md`, never prior
-  review files. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
+- **Quality Reviewer** (build · opus) — **blind by placement**: no plan/spec/goal, and its prompt's
+  only run-state paths point into `runs/<runId>/gate/` (#3). Reviews ONLY the unstaged diff for
+  introduced production-blocking defects. Reads `gate/DISMISSED-<id>.md` — never `NEEDS-USER.md` and
+  never prior review files. Writes `gate/quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (build · opus) — **plan-aware** final gate: every criterion (enumerated and
   evidenced with locators), reachability, full gates, regression vs the staged baseline. Writes
   `acceptance-review-<id>-rN.md`. Only agent that stages (`git add`), on pass — the baseline advances
@@ -359,9 +360,10 @@ Use `runOnly:[firstFewIds]` for a cheap first slice of a roadmap before committi
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `PLAN-REVIEW.md` (refine returns in the result), no `progress.json`.
-- `quality-review-<id>-rN.md` — blind findings for plan `<id>`, round N.
+- `gate/quality-review-<id>-rN.md` — blind findings for plan `<id>`, round N (the `gate/` subdir is
+  the blind reviewer's whole disclosed run-state world — #3).
 - `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
-- `DISMISSED-<id>.md` — the plan's declined findings, one terse line each; **you audit before committing.**
+- `gate/DISMISSED-<id>.md` — the plan's declined findings, one terse line each; **you audit before committing.**
 - `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run, and every parked
   plan has a `## Parked plan: <id>` entry with its diagnosis + restore command.
 - `parked-<id>.patch` — a parked plan's saved work (`git diff --binary`); restore with

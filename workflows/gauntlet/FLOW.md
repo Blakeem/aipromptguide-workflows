@@ -92,8 +92,8 @@ flowchart TD
   a3 ==>|"next item"| a1
   a3 -.->|"the code gate finds defects in the wave diff · +2 more (×3)"| a2
   a3 --> a4
-  a3 ==>|"next item"| a5
-  a3 -.->|"the blind code gate finds defects or structural debt · +4 more (×4)"| a5
+  a3 ==> a5
+  a3 -.->|"E1 ×4"| a5
   a3 --> t1
   a3 --> t3
   a3 --> t11
@@ -126,6 +126,14 @@ flowchart TD
 |---|---|---|
 | L1 | improve | an improvement leaves the gates red |
 | L2 | build | the build gate is never green |
+
+## Edges
+
+| Edge | From | To | Taken when |
+|---|---|---|---|
+| E1 | code-gate | build | the blind code gate finds defects or structural debt · a component does not pass within its round budget · park could not clear the tree · park reports saved=false with bytes on disk · the build gate is red after parking |
+
+The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).
 
 ## Terminal states
 

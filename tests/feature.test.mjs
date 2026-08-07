@@ -69,6 +69,21 @@ section('a dirty baseline halts without parking');
   ok(/4 file\(s\)/.test(out.haltReason), 'halt reason names the count');
 }
 
+section('the clean-baseline guard reads the VALUE, not what Number() makes of it');
+// `Number(undefined)` is NaN and warns, but `Number(null)`, `Number(false)`, `Number('')` and
+// `Number([])` are all 0 and all FINITE — so the coercing check read every one of them as "0 = clean"
+// and waved the precondition through silently, after which the blind reviewer judges the operator's
+// pre-existing work as this plan's and acceptance stages it into the accepted baseline.
+{
+  for (const bad of [null, false, '', []]) {
+    const { logs } = await run({
+      'develop': { ...DEV_OK, baseline_dirty_files: bad }, 'quality': CLEAN, 'acceptance': ACC_PASS,
+    });
+    ok(logs.some((l) => /precondition was NOT verified/.test(l)),
+      `${JSON.stringify(bad)} is not silently a clean tree`);
+  }
+}
+
 section('acceptance that passed without staging halts without parking');
 // The work is good and one `git add` both preserves it and cleans the tree — parking would be strictly
 // worse. But the roadmap cannot advance onto an unstaged baseline either.
@@ -411,7 +426,7 @@ section('MATRIX case 6 is SPLIT: 6a fixes a VERIFIED plan defect, 6b keeps the o
     'the PRECEDENCE clause names both lines that produced the observed wedge');
   ok(/Everywhere else the plan and the\s+conventions still bind/.test(dev), 'and confines the override to that one clause');
   ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), '6b keeps the unverified/intentional case a DROP');
-  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/DISMISSED-plan-a\.md/.test(dev),
+  ok(/DROP \(1 or 6b\): append ONE terse line to E:\/r\/runs\/t\/gate\/DISMISSED-plan-a\.md/.test(dev),
     'and LOGGING re-points the DROP route at 6b, not the whole of 6');
   // Case 7 is unchanged: a plan-conflicting finding that is genuinely a user-only call still escalates.
   ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), 'ESCALATE (case 7) is untouched');
@@ -429,14 +444,66 @@ section('an amendment is RECORDED in a per-plan AMENDED file, with a pointer lin
   ok(/Count every entry you wrote in plan_amendments/.test(dev), 'and the count is reported through the schema');
 }
 
-section('the AMENDED record never reaches the BLIND reviewer, and SETTLED is untouched');
+const STATE = 'E:/r/runs/t';
+/**
+ * Every run-state path the BLIND quality reviewer's prompt discloses must sit under `runs/<runId>/gate/`.
+ * Naming the state dir at all is a disclosure of everything IN it — `acceptance-review-<id>-rN.md`
+ * enumerates the plan's acceptance criteria, `AMENDED-<id>.md` quotes the overridden plan clause verbatim,
+ * and NEEDS-USER.md carries the pointer line naming that file — and #3 forbids relying on "please don't
+ * read X". So the reviewer's own two files live one directory down, and this is the assertion that keeps a
+ * later edit from interpolating a state-dir path back into the prompt.
+ */
+const stateRefsOutsideGate = (p) =>
+  (p.match(/E:\/r\/runs\/t\/[^\s`'")]*/g) ?? []).filter((s) => !s.startsWith(`${STATE}/gate/`));
+
+section('the quality reviewer is blind BY PLACEMENT — its prompt carries no run-state path outside gate/');
+// WORKFLOW-PRINCIPLES.md #3: blindness is a property of what the agent is HANDED, not of a polite
+// instruction. The AMENDED pointer line in NEEDS-USER.md was the live leak — one path to it and the blind
+// critic reads the plan clause it quotes verbatim, and the unbiased first stage this engine is built on
+// is gone.
+{
+  const q = (await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS })).prompt('quality plan-a');
+  ok(q !== '', 'the blind reviewer ran');
+  ok(q.includes(`${STATE}/gate/DISMISSED-plan-a.md`),
+    'it IS given the anti-spin ledger — fresh, but not amnesiac (#5)');
+  ok(q.includes(`${STATE}/gate/quality-review-plan-a-r1.md`), 'and its own output path, gate-scoped too');
+  ok(!q.includes('NEEDS-USER.md'),
+    'but NOT NEEDS-USER: its amendment pointer line names the AMENDED file, which quotes the plan verbatim');
+  eq(stateRefsOutsideGate(q).join(', '), '',
+    'and no run-state path outside gate/ — not the state dir itself, which would disclose the plan-bearing files in it');
+}
+
+section('taking NEEDS-USER off the blind reviewer re-routes case 7 through the ledger it still reads');
+// Consequence of the placement above, and the half that is easy to forget: case 7's PROCEEDING branch
+// (needs_user=false) leaves the developer's defensible default sitting in the diff, and it used to be
+// silenced by NEEDS-USER.md — the file the blind critic no longer gets. With nothing in the gate-scoped
+// ledger it flags that default, the developer re-routes it to case 7 (still a user-only call), no code
+// changes, and the pair spins to maxRounds: a plan that used to accept PARKS. The anti-spin channel (#5)
+// has to reach the reviewer through the ONE file it is still handed.
+{
+  const dev = (await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS })).prompt('develop plan-a');
+  ok(/ESCALATE \(7\)[\s\S]*?append ONE terse line to E:\/r\/runs\/t\/gate\/DISMISSED-plan-a\.md/.test(dev),
+    'case 7 proceeding also writes the gate-scoped ledger, the only settled-decisions file the blind reviewer is handed');
+  ok(/ESCALATED: <the default you took/.test(dev), 'and the line states the default that was taken, not just that it escalated');
+  ok(/the blind reviewer is NOT shown E:\/r\/runs\/t\/NEEDS-USER\.md/.test(dev),
+    'with the reason attached, so the two halves cannot drift apart again');
+}
+
+section('the AMENDED record never reaches the BLIND reviewer, and SETTLED hands it the gate ledger alone');
 // Same placement rule as the plan itself (#3): the blind critic must learn nothing about the spec, and
 // an amendment quotes the spec verbatim. Mirrors the no-route-to-plan assertion above.
 {
   const q = (await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS })).prompt('quality plan-a');
   ok(q !== '', 'the blind reviewer ran');
   ok(!/AMENDED/.test(q) && !/amendment/i.test(q), 'the blind quality prompt gains no AMENDED path and no mention of one');
-  ok(/DISMISSED-plan-a\.md/.test(q) && /NEEDS-USER\.md/.test(q), 'while SETTLED still hands it exactly the two files it always had');
+  ok(/E:\/r\/runs\/t\/gate\/DISMISSED-plan-a\.md/.test(q) && !/NEEDS-USER/.test(q),
+    'SETTLED hands it the gate-scoped DISMISSED ledger and nothing else');
+  const a = (await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS })).prompt('acceptance plan-a');
+  ok(/E:\/r\/runs\/t\/gate\/DISMISSED-plan-a\.md/.test(a) && /E:\/r\/runs\/t\/NEEDS-USER\.md/.test(a),
+    'while the plan-aware verifier still reads both settled-decision files');
+  ok(!/CONTESTS DISMISSAL/.test(a),
+    'and loses the contest paragraph — ACCEPTANCE_SCHEMA has no contest field, so it reported nothing');
+  ok(/CONTESTS DISMISSAL/.test(q), 'the blind reviewer, whose schema DOES carry one, keeps it');
 }
 
 section('acceptance judges an amended criterion against the AMENDED behavior — with evidence or not at all');

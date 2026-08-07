@@ -126,8 +126,8 @@ The run leaves a transparent trail under `runs/<runId>/`:
 
 - `acceptance-review-<id>-rN.md`: the plan-aware verdict per section (criteria, reachability, regression,
   gate result). Read the latest per section before committing.
-- `quality-review-<id>-rN.md`: what the blind critic found each round.
-- `DISMISSED-<id>.md`: every finding the developer declined for that section, one line each with a reason.
+- `gate/quality-review-<id>-rN.md`: what the blind critic found each round (the `gate/` subdir is the blind reviewer's whole disclosed run-state world).
+- `gate/DISMISSED-<id>.md`: every finding the developer declined for that section, one line each with a reason.
   **Audit these.**
 - `NEEDS-USER.md`: anything flagged for you — why a run stopped, and, for a parked section, its
   diagnosis and its restore command.

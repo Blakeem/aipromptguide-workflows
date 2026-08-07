@@ -330,10 +330,14 @@ section('advancing to the NEXT item is a boundary edge, not a loop');
   ok(e && !e.back, 'and NOT a back-edge — nothing looped');
 }
 
-section('one node pair carrying BOTH shapes stays TWO edges');
+section('one node pair carrying BOTH shapes stays TWO edges, marked and captionless, and ONE label');
 // Keying an edge on its node pair alone re-folds exactly what the boundary rule exists to split: the two
 // collapse into one edge whose boundary flag wins in edgeLine, so the diagram claims every acceptance
 // advances to the next plan and the retry loop — the engine's whole inner cycle — vanishes.
+// Drawing both with labels is the other half of the problem: Mermaid puts both labels of a multi-edge at
+// the SAME path midpoint, so the smaller sits inside the larger and no spacing or shortening separates
+// them (measured: 39x22px at every spacing swept). Only ONE label in that band closes it, so the back
+// edge carries a bounded MARKER and the boundary goes BARE, its words restated once under the table.
 {
   const g = await buildGraph(retrySpec);
   const from = nodeByLabel(g, 'acceptance').id;
@@ -344,8 +348,36 @@ section('one node pair carrying BOTH shapes stays TWO edges');
   ok(pair.some((e) => e.back && !e.boundary), 'once as the SAME plan going round again');
 
   const md = generate(retrySpec, g);
-  ok(md.includes(`${from} ==>|"next item"| ${to}`), 'the advance renders thick');
-  ok(md.includes(`${from} -.->|"acceptance finds gaps`), 'the retry renders dotted and keeps its condition');
+  ok(md.includes(`\n  ${from} ==> ${to}\n`), 'the advance renders thick');
+  ok(!md.includes(`${from} ==>|`), 'and CAPTION-LESS — nothing left to stack on the marker');
+  // Bounded BY CONSTRUCTION: the marker plus the measured repeat count, no authored text and no budget.
+  // plan-a goes round once, so the target is entered twice — the ×N form the self-loops already use,
+  // unparenthesised.
+  ok(md.includes(`${from} -.->|"E1 ×2"| ${to}`), 'the retry renders dotted, marked and bounded');
+  ok(!md.includes('-.->|"acceptance finds gaps'), 'with no authored text left on the arrow to collide');
+
+  // Moving text off an arrow is only half the fix — assert the destination, or it lands nowhere. Both
+  // arrows of this pair moved their text here: the marker's conditions into a row, the boundary's caption
+  // into the sentence that tells a reader what the bare thick arrow above means.
+  const table = md.split('\n## Edges\n')[1]?.split('\n## ')[0] ?? '';
+  ok(table.includes('| E1 | acceptance | develop | acceptance finds gaps |'),
+    'and the Edges table is where its condition now lives, in full');
+  ok(table.includes('The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).'),
+    'and the dropped caption lives in one fixed sentence under that table');
+}
+
+section('an UNMARKED boundary edge KEEPS its caption — the captionless rule cannot silently widen');
+// The rule is "this pair holds two labels", not "boundary edges are bare". featureSpec's park → develop is
+// the only edge between that pair, so its label is alone in the band and there is nothing to collide with:
+// dropping it here would delete the one word that distinguishes an advance from a retry for no gain.
+{
+  const g = await buildGraph(featureSpec);
+  const from = nodeByLabel(g, 'park').id;
+  const to = nodeByLabel(g, 'develop').id;
+  const pair = g.edges.filter((e) => e.fromId === from && e.toId === to);
+  eq(pair.length, 1, 'park → develop is the pair\'s ONLY edge');
+  const md = generate(featureSpec, g);
+  ok(md.includes(`${from} ==>|"next item"| ${to}`), 'so the advance keeps its words on the arrow');
 }
 
 section('a COLON-separated round marker is a round, not an item');

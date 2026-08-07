@@ -70,7 +70,9 @@
 //     `sep` being the same `[\s:/]` class `readRoles` trims, since docs-cycle writes its round as
 //     `curate:r${rounds}` — to get an observed label's ITEM ID (`develop plan-a r2` -> `plan-a`;
 //     `investigate r3` -> `''`; `curate:r1` -> `''`). Consecutive calls with different non-empty item
-//     ids make a BOUNDARY edge, drawn thick and labelled as advancing to the next item. That is what
+//     ids make a BOUNDARY edge, drawn thick and captioned as advancing to the next item — or drawn thick
+//     and BARE where its ordered pair also holds an E-marked back edge, the caption being restated once
+//     under the Edges table for the whole map (edgeLine). That is what
 //     separates "loop again on the same plan" from "advance to the next plan" in
 //     feature/migrate/resolve, which would otherwise fold into one
 //     `acceptance -> develop` edge meaning two different things. It is derived from labels alone;
@@ -79,7 +81,7 @@
 //     repeat it really is, not an advance to a new unit. A boundary edge is a SEPARATE edge from a
 //     same-item one between the same pair — feature-cycle observes both `acceptance -> develop` shapes
 //     (retry this plan / advance to the next), and merging them on the node pair alone would re-fold the
-//     exact pair this rule exists to split, printing only the "next item" advance.
+//     exact pair this rule exists to split, printing only the boundary advance and losing the retry.
 //   • LOOPS: an edge into a role already seen earlier in the same trace, that is not a boundary edge,
 //     is a BACK-EDGE — dotted, labelled with that scenario's `when`, annotated with the MEASURED max
 //     repeat count (read from the trace, never from the engine's source). "Already seen earlier" means
@@ -217,8 +219,10 @@ const WHEN_BUDGET = 70;
 
 // Layout spacing, tuned against tools/render-flows.mjs (real Mermaid, measured boxes). Raise these
 // before shortening labels further: room is free, dropped information is not.
-// Swept with render-flows.mjs: 60/90 left 8 of 9 maps with colliding labels, 80/200 leaves 1. Past 200
-// the diagrams just get taller with nothing gained. The env overrides exist so the sweep is repeatable.
+// Swept with render-flows.mjs: 60/90 left 8 of 9 maps with colliding labels, 80/200 left 1. That last one
+// was not a spacing problem and was closed structurally instead (edgeLine's caption-less pairs); all 10
+// maps now measure 0 overlaps at 80/200. Past 200 the diagrams just get taller with nothing gained. The
+// env overrides exist so the sweep is repeatable.
 const NODE_SPACING = Number(process.env.FLOW_NODE_SPACING ?? 80);
 const RANK_SPACING = Number(process.env.FLOW_RANK_SPACING ?? 200);
 // A non-finite override is NOT caught downstream: it interpolates `NaN` into the Mermaid init directive
@@ -638,8 +642,10 @@ function nodeText(n) {
 // tools/render-flows.mjs, that was 8 of 9 maps rendering with text piled on text. The table is the
 // better home anyway: it is indexed by TERMINAL, which is the question a reader actually asks ("how do I
 // end up BLOCKED?"), and it is complete rather than truncated to fit on an arrow.
-// Loop and boundary edges KEEP their labels — they are few, they never fan out, and they carry the
-// structural story (which way round the loop goes, where the next item starts) that no table replaces.
+// Loop and boundary edges KEEP their labels wherever they are alone in the band — they are few, they
+// never fan out, and they carry the structural story (which way round the loop goes, where the next item
+// starts) that no table replaces. The one exception is a boundary edge sharing its pair with a marked
+// back edge, below: two labels at one midpoint, so that one goes bare.
 // A SELF-loop carries a MARKER (`L1 ×4`), never its conditions — same treatment, and for the same reason,
 // as an edge into a terminal. Mermaid parks a self-loop's label in a FIXED-WIDTH gutter beside the node
 // and never feeds the label's width into layout, so text long enough to matter lands on whatever box sits
@@ -648,17 +654,73 @@ function nodeText(n) {
 // this cannot come back when a diagram grows a node or a renderer retunes its gutter again. The repeat
 // count stays on the arrow because it is the loop's bound, which is the structural fact a reader wants
 // from the picture; the conditions move to the Loops table, indexed by the loop.
-const selfLoopIds = (graph) => {
+//
+// The SECOND edge of a node PAIR carries a marker too (`E1 ×2`), and the FIRST renders CAPTION-LESS.
+// When one ordered pair holds BOTH shapes — the thick "next item" boundary and a dotted back edge, which
+// is what every build loop draws between its last agent and its first — Mermaid places both labels at the
+// SAME path midpoint, not merely in the same band, so the smaller box sits INSIDE the larger one whatever
+// either says. READ THIS BEFORE RE-TUNING ANYTHING FOR IT: no amount of shortening closes that, and a
+// marker alone does not either. Measured in Chrome on gauntlet's `code-gate -> build`, the overlap was
+// 70x24px with the old ~200px condition list and 39x22px once the back edge carried the 39px marker — and
+// it is 39x22px at every spacing setting swept (node 80/140/240 x rank 120/200/320/340), the map merely
+// getting wider. Only ONE label in that band closes it.
+//
+// So the pair keeps ONE, and the marker is the side that keeps it: a back edge's conditions are a long,
+// open-ended list, while the boundary's caption is three fixed words that one sentence under the `## Edges`
+// table restates for every pair in the map at once. The USER TOOK that trade — a boundary edge whose
+// ordered pair holds an E-marked back edge renders as a bare thick arrow, the Edges-table sentence carries
+// the advance, and migrate and resolve deliberately give up their ONLY on-arrow boundary caption for it.
+// Detection is by KIND — the pair holds an E marker — never by position, pixels, or which map it is. Every
+// other boundary edge keeps its words (feature's `park -> develop`, gauntlet's six others).
+//
+// What the marker buys on top is the property that made the self-loop fix worth it: the one label left in
+// that band is bounded BY CONSTRUCTION, so it cannot grow with the scenario table, and the conditions it
+// replaced are readable in a table instead of truncated to `+N more` on an arrow nothing could read anyway.
+//
+// ONE MERGED MAP, self-loops first. `improve -> improve` in gauntlet is a self-loop AND half of a
+// boundary+back pair; two maps would give it an L and an E, and the diagram would name one arrow twice.
+// Detection is by KIND — the pair's `boundary`-keyed edge exists and its `plain`-keyed edge is a back
+// edge (addEdge's key scheme allows at most those two, and the two flags are mutually exclusive because
+// `back` is only computed where `boundary` is false). NOT by declaration order: the edge list is sorted
+// by node rank, so which of a pair comes first is an accident of that ordering and swaps between pairs.
+const pairKey = (e) => e.fromId + '->' + e.toId;
+
+const assignMarkers = (graph) => {
   const m = new Map();
-  for (const e of graph.edges) if (e.back && e.fromId === e.toId) m.set(e, `L${m.size + 1}`);
+  let loops = 0;
+  for (const e of graph.edges) if (e.back && e.fromId === e.toId) m.set(e, `L${++loops}`);
+  const boundaries = new Set(graph.edges.filter((e) => e.boundary).map(pairKey));
+  let pairs = 0;
+  for (const e of graph.edges) {
+    if (m.has(e) || !e.back || !boundaries.has(pairKey(e))) continue;
+    m.set(e, `E${++pairs}`);
+  }
   return m;
 };
 
-function edgeLine(e, terminalIds, loopIds) {
-  if (e.boundary) return `  ${e.fromId} ==>|"${esc('next item')}"| ${e.toId}`;
+// The ordered pairs whose two labels Mermaid would stack at one midpoint — read back off the SAME merged
+// marker map the diagram is drawn from, so the caption-less boundary and the `E<n>` back edge can never
+// disagree about which pairs those are. E only: a self-loop's `L` marker names one arrow, not a pair, and
+// gauntlet's `improve -> improve` is both at once (a self-loop AND half of a boundary pair) — it takes the
+// L and keeps its boundary caption, because a self-loop's label goes to a side gutter, not to the midpoint.
+const markedPairs = (markerIds) =>
+  new Set([...markerIds].filter(([, id]) => id.startsWith('E')).map(([e]) => pairKey(e)));
+
+function edgeLine(e, terminalIds, markerIds, markedPairKeys) {
+  // A boundary edge sharing its pair with an E-marked back edge renders CAPTION-LESS: two labels at one
+  // midpoint is the one collision no spacing or shortening can separate, so the pair carries ONE, and the
+  // sentence under the Edges table says what every thick unlabelled arrow means (see the block above).
+  if (e.boundary) {
+    if (markedPairKeys.has(pairKey(e))) return `  ${e.fromId} ==> ${e.toId}`;
+    return `  ${e.fromId} ==>|"${esc('next item')}"| ${e.toId}`;
+  }
   if (e.back) {
-    const marker = loopIds.get(e);
-    // A non-self back edge (a3 → a2) is drawn in the open span between two ranks, where a real label fits.
+    // ONE marker branch serves both kinds: a marked edge renders identically whether it is a self-loop or
+    // the second edge of a pair — bare marker, the repeat count unparenthesised, no whenLabel and no
+    // budget, because there is no authored text left on the arrow for a budget to bound.
+    const marker = markerIds.get(e);
+    // An UNMARKED back edge (a3 → a2, the only edge between that pair) is drawn in the open span between
+    // two ranks, where a real label fits.
     if (!marker) {
       const suffix = e.repeat > 1 ? ` (×${e.repeat})` : '';
       return `  ${e.fromId} -.->|"${esc(whenLabel(e.whens, WHEN_BUDGET, suffix.length))}${suffix}"| ${e.toId}`;
@@ -669,7 +731,7 @@ function edgeLine(e, terminalIds, loopIds) {
   return `  ${e.fromId} --> ${e.toId}`;
 }
 
-function mermaid(graph, loopIds) {
+function mermaid(graph, markerIds) {
   // Mermaid does no collision avoidance on edge labels, and these graphs fan several labelled edges out
   // of one node into separate terminals — at default spacing their labels land on top of each other and
   // neither is readable. More room per rank is what separates them; the values are TUNED against
@@ -703,7 +765,8 @@ function mermaid(graph, loopIds) {
     else lines.push(`  ${n.id}[/"${nodeText(n)}"/]`);
   }
   const terminalIds = new Set(graph.nodes.filter((n) => n.kind !== 'agent').map((n) => n.id));
-  for (const e of graph.edges) lines.push(edgeLine(e, terminalIds, loopIds));
+  const markedPairKeys = markedPairs(markerIds);
+  for (const e of graph.edges) lines.push(edgeLine(e, terminalIds, markerIds, markedPairKeys));
   return lines.join('\n');
 }
 
@@ -718,9 +781,9 @@ export function generate(spec, graph) {
   out.push('Every node and edge below was *observed*: the scenarios in `tools/flows/` run the real engine');
   out.push('under the test harness with scripted agent returns, so this is what a run does rather than what');
   out.push('it might do. `node tools/gen-flows.mjs --check` fails the gate while this file is stale.', '');
-  const loopIds = selfLoopIds(graph);
+  const markerIds = assignMarkers(graph);
   out.push('```mermaid');
-  out.push(mermaid(graph, loopIds));
+  out.push(mermaid(graph, markerIds));
   out.push('```', '');
 
   out.push('## Phases', '');
@@ -728,15 +791,41 @@ export function generate(spec, graph) {
   for (const p of graph.phases) out.push(`| ${cell(p.title)} | ${cell(p.detail)} |`);
   out.push('');
 
-  // The self-loops' conditions, moved off the arrows (see edgeLine). Indexed by the marker the diagram
-  // shows, so a reader goes from `L1` in the picture to what actually keeps that agent looping.
-  if (loopIds.size) {
+  // The marked edges' conditions, moved off the arrows (see edgeLine). Indexed by the marker the diagram
+  // shows, so a reader goes from `L1`/`E1` in the picture to what actually takes that arrow.
+  //
+  // ONE map, PARTITIONED here by marker prefix — never two maps built separately. The single map is what
+  // guarantees no arrow gets both an L and an E (gauntlet's `improve -> improve` is a self-loop and half
+  // of a boundary+back pair at once); partitioning it is what stops either table absorbing the other's
+  // rows, which a shared `.size` guard or a shared loop would do the moment one kind is absent.
+  const nodeLabel = (id) => graph.nodes.find((n) => n.id === id)?.label ?? id;
+  const marked = (kind) => [...markerIds].filter(([, id]) => id.startsWith(kind));
+
+  const loopRows = marked('L');
+  if (loopRows.length) {
     out.push('## Loops', '');
     out.push('| Loop | Agent | Repeats while |', '|---|---|---|');
-    for (const [e, id] of loopIds) {
-      const node = graph.nodes.find((n) => n.id === e.fromId);
-      out.push(`| ${id} | ${cell(node ? node.label : e.fromId)} | ${cell((e.whens || []).join(' · '))} |`);
+    for (const [e, id] of loopRows) {
+      out.push(`| ${id} | ${cell(nodeLabel(e.fromId))} | ${cell((e.whens || []).join(' · '))} |`);
     }
+    out.push('');
+  }
+
+  // The second edge of a node pair carries `E1` instead of the long condition list that used to land on
+  // top of its partner, and the first — the boundary — gives up its caption so ONE label is left at that
+  // midpoint (see edgeLine). Uncapped here: the whole point of moving text off the arrow is that the
+  // table has room. The sentence below the rows is where the dropped caption went — ONE fixed line for
+  // the whole map rather than a repeated word on each arrow, and it exists only where E rows do, which is
+  // exactly where a bare thick arrow can appear.
+  const edgeRows = marked('E');
+  if (edgeRows.length) {
+    out.push('## Edges', '');
+    out.push('| Edge | From | To | Taken when |', '|---|---|---|---|');
+    for (const [e, id] of edgeRows) {
+      out.push(`| ${id} | ${cell(nodeLabel(e.fromId))} | ${cell(nodeLabel(e.toId))} | ${cell((e.whens || []).join(' · '))} |`);
+    }
+    out.push('');
+    out.push('The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).');
     out.push('');
   }
 

@@ -169,8 +169,10 @@ Roles mirror feature-cycle (the conductor passes only control signals, #1; agent
   prescribes (6a) → fixed + recorded in `AMENDED-<id>.md` (acceptance-only) with a pointer in
   `NEEDS-USER.md`; user-only → `NEEDS-USER.md` (halts on a
   hard blocker).
-- **Quality Reviewer** (run · opus) — **blind**; reviews ONLY the unstaged diff for introduced
-  production-blocking defects. Writes `quality-review-<id>-rN.md`. Must be clean to proceed.
+- **Quality Reviewer** (run · opus) — **blind by placement**: its prompt's only run-state paths point
+  into `runs/<runId>/gate/` (#3). Reviews ONLY the unstaged diff for introduced production-blocking
+  defects; reads `gate/DISMISSED-<id>.md`, never `NEEDS-USER.md`, never prior review files. Writes
+  `gate/quality-review-<id>-rN.md`. Must be clean to proceed.
 - **Acceptance Verifier** (run · opus) — **plan-aware** section gate: criteria (enumerated and evidenced
   with locators), reachability, the section gate, regression vs the staged baseline. Writes
   `acceptance-review-<id>-rN.md`. Only agent that stages, on pass — the baseline advances.
@@ -316,9 +318,10 @@ Use `runOnly:[firstFewIds]` for a cheap first slice before committing to the who
 
 The numbered review files are the inter-agent messages + progress trail; the developer's two file kinds
 are its only non-code output. No `tasks.json`/`progress/`/`LEDGER.md`/`CHANGELOG.md`/`PLAN-REVIEW.md`.
-- `quality-review-<id>-rN.md` — blind findings for section `<id>`, round N.
+- `gate/quality-review-<id>-rN.md` — blind findings for section `<id>`, round N (the `gate/` subdir
+  is the blind reviewer's whole disclosed run-state world — #3).
 - `acceptance-review-<id>-rN.md` — per-criterion table + reachability + regression + gate result.
-- `DISMISSED-<id>.md` — the section's declined findings, one terse line each; **you audit before
+- `gate/DISMISSED-<id>.md` — the section's declined findings, one terse line each; **you audit before
   committing.**
 - `NEEDS-USER.md` — global cumulative user notes; a hard blocker here halted the run, and a parked
   section has a `## Parked section: <id>` entry with its diagnosis + restore command.

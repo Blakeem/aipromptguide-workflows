@@ -180,8 +180,9 @@ Durable progress = git staging + the numbered critique/review trail + the ledger
   dir; the default `<root>/tools/plan-block.mjs` only exists in a checkout.
 - **Run documents inside the target repo** draw a loud ⚠ — the blind gate could read the goal from the
   repo tree. Move them under `<root>/plans/<runId>/`.
-- **The gauntlet FLOW.md has one known overlapping edge label** when rendered (`code-gate → build`
-  pair carries two labels); the structural fix belongs in `tools/gen-flows.mjs`, not here.
+- **A marked node pair carries one label by design.** In FLOW.md, `code-gate → build` shows a bare
+  thick edge + an `E<n>` marker; the conditions and the next-item advance live in the `## Edges`
+  table (mermaid renders both labels of a pair at one midpoint, so a pair carries at most one).
 
 ## 10. State files (`runs/<runId>/`, outside every repo)
 

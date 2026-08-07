@@ -161,8 +161,8 @@ The run leaves a transparent trail under `runs/<runId>/`:
   pass). Read these to plan, and edit decisions in them.
 - `acceptance-review-<batch>-rN.md`: the issue-aware verdict per batch (root-cause check, regression,
   gate result). Read the latest before committing.
-- `quality-review-<batch>-rN.md`: what the blind critic found each round.
-- `DISMISSED-<batch>.md`: every finding the fixer declined, one line each with a reason. Audit this.
+- `gate/quality-review-<batch>-rN.md`: what the blind critic found each round (the `gate/` subdir is the blind reviewer's whole disclosed run-state world).
+- `gate/DISMISSED-<batch>.md`: every finding the fixer declined, one line each with a reason. Audit this.
 - `NEEDS-USER.md`: anything flagged for you, plus every parked batch — what failed, where its patch is,
   and the exact command to restore it. If a run stopped, the reason is here.
 - `parked-<batch>.patch`: the saved work of a batch that couldn't pass (with a `parked-<batch>-newfiles/`
