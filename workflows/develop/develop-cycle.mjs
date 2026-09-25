@@ -395,9 +395,9 @@ const acceptanceSchema = (mode) => {
   const terms = {
     feature: {
       pass: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed',
-      staged: 'true if you ran `git add` on the feature files (only on pass; NEVER commit)',
+      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
       reachable: 'the feature is actually wired in / reachable from the app entry points',
-      criteriaFrom: 'the plan',
+      criteriaFrom: 'THIS block',
       suite: 'observed outcome of running the FULL gates',
     },
     section: {

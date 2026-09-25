@@ -372,7 +372,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on the feature files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
     },
     "reachable": {
       "type": "boolean",
@@ -380,7 +380,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "criteria_total": {
       "type": "integer",
-      "description": "acceptance criteria you enumerated from the plan (0 means you enumerated none — never a legitimate pass)"
+      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
     },
     "criteria_met": {
       "type": "integer",
