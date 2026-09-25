@@ -95,7 +95,7 @@ The **developer's *only* outputs besides code** are two append files:
   `<file:line> — <gist> — SKIPPED: <≤15-word reason>`. This is an inter-agent message (developer →
   reviewers) and the user's end-of-run audit of every judgment call made.
 - **`NEEDS-USER.md`** — user-facing notes: blockers, questions, and decisions only the user can make.
-  These may be **as full as needed** for the user to decide. A *hard blocker* also halts the run
+  These may be **as full as needed** for the user to decide. A *hard blocker* also stops its block
   (#7); a *flag-and-proceed* item is recorded and the developer continues with a defensible default.
 
 A **search-shaped** workflow carries a third ledger, on the same terms: investigate's
@@ -112,8 +112,9 @@ The developer resolves ambiguity **itself**, via a decision matrix, before flagg
 finding it declines is logged tersely to `DISMISSED-<id>.md` (#6) so reviewers don't re-raise it; a
 **contested** dismissal must be **fixed or escalated, never silently re-dismissed** (#5). Only a
 genuine choice **no agent can make** (a real design/business decision, an unresolvable blocker) goes
-to `NEEDS-USER.md`; if the developer cannot proceed without the answer, the run **halts immediately**
-so the user decides before anything continues. Reviewers report to the developer (via their review
+to `NEEDS-USER.md`; if the developer cannot proceed without the answer, its block **stops immediately**
+and is parked. The run halts only when later work depends on that block (an ordered run), and
+independent blocks continue. Reviewers report to the developer (via their review
 files); they never halt the run.
 
 ### 8. Control plane vs data plane
@@ -311,7 +312,8 @@ Use these as yes/no checks when reviewing any workflow against these principles:
 - [ ] Can a reviewer **contest** a wrong dismissal, and must the developer then **fix or escalate**
       (never silently re-dismiss), so no real defect is suppressed and the loop still converges? (#5)
 - [ ] Does the **developer** own ambiguity resolution, log declines tersely, and is it the **only**
-      thing that halts for the user — immediately, on a hard blocker? (#7)
+      thing that stops for the user, stopping its block immediately on a hard blocker and halting the
+      run only when later work depends on that block? (#7)
 - [ ] Are return schemas **decisions only**, with content in files? (#8)
 - [ ] Is there **exactly one** staging step, at the end, on pass, and **never** a commit? (#9)
 - [ ] Does **every** terminal outcome leave the working tree clean, with unfinished work **saved to a
