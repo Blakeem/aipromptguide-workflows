@@ -621,4 +621,56 @@ section('every args failure writes no file, and names what to do');
   ok(/usage:/.test(argsWith(configWith([]), '--expect').err ?? ''), 'no plan is a usage error');
 }
 
+// ---------------------------------------------------------------------------------------------
+// args --pack — small fix blocks share one develop pass
+// ---------------------------------------------------------------------------------------------
+
+/** A one-block fix file whose entries name `files` ({ path, loc }), each ACTIONABLE unless `decision` says. */
+function inventory(dir, name, entries) {
+  const lines = [`## Plan: ${name} - findings`, 'mode: fix', 'gate: green', ''];
+  for (const e of entries) {
+    lines.push(`### [${e.id}] ${e.id}`, `- file: ${e.file}:1`, ...(e.loc ? [`- loc: ${e.loc}`] : []),
+      `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []), '', 'What.', '');
+  }
+  return fixture(lines.join('\n'), `${name}.md`, dir);
+}
+const packed = (config, repo, cap, ...plans) => argsWith(config, ...plans, '--pack', repo, ...(cap ? ['--loc-cap', String(cap)] : []));
+
+section('--pack groups small fix blocks into passes under the line cap, neighbouring files together');
+{
+  const dir = tmpDir();
+  const a = inventory(dir, 'a', [{ id: 'a-1', file: 'src/core/x.js', loc: 1000 }]);
+  const b = inventory(dir, 'b', [{ id: 'b-1', file: 'src/web/y.js', loc: 3000 }]);
+  const c = inventory(dir, 'c', [{ id: 'c-1', file: 'src/core/z.js', loc: 1500 }, { id: 'c-2', file: 'src/core/x.js', loc: 1000 }]);
+  const { out, notes, err } = packed(configWith([]), dir, 3000, a, b, c);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  const plans = JSON.parse(out).plans;
+  eq(plans.map((r) => r.id).join(','), 'a-plus-1,b', 'the two core blocks share a pass that sits where its first member did, the web block stays alone');
+  eq(plans[0].blocks.map((m) => `${m.id}:${m.issues.join('+')}`).join(','), 'a:a-1,c:c-1+c-2', 'each member keeps its own issue ids');
+  ok(plans[0].blocks.every((m) => m.planPath.endsWith(`${m.id}.md`)) && plans[0].mode === 'fix' && plans[0].gate === 'green', 'and its own plan file');
+  ok(/packed a, c into a-plus-1 \(2500 lines\)/.test(notes), `a shared file counts once: ${notes.trim()}`);
+}
+
+section('--pack leaves out what it cannot pack, and reads a file\'s lines when no loc is given');
+{
+  const dir = tmpDir();
+  writeFileSync(join(dir, 'big.js'), 'x\n'.repeat(4000));
+  const big = inventory(dir, 'big', [{ id: 'g-1', file: 'big.js' }]);
+  const small = inventory(dir, 'small', [{ id: 's-1', file: 'small.js', loc: 100 }]);
+  const skipped = inventory(dir, 'skipped', [{ id: 'k-1', file: 'k.js', loc: 10, decision: 'SKIP' }, { id: 'k-2', file: 'k.js', loc: 10, status: 'fixed' }]);
+  const { out, notes } = packed(configWith([]), dir, 4000, big, small, skipped);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'big,small,skipped', 'a block over the cap alone is its own row, and so is one with nothing open and ACTIONABLE');
+  ok(/not packed: skipped has no open ACTIONABLE entry/.test(notes), 'the note names the block with nothing to build');
+}
+
+section('--pack refuses an ordered plan set and a bad cap');
+{
+  const dir = tmpDir();
+  const a = inventory(dir, 'a', [{ id: 'a-1', file: 'x.js', loc: 10 }]);
+  const ordered = fixture(`ordered: true\n\n${read(inventory(dir, 'o', [{ id: 'o-1', file: 'y.js', loc: 10 }]))}`, 'ord.md', dir);
+  ok(/needs a plan set with ordered: false/.test(packed(configWith([]), dir, 0, ordered).err ?? ''), 'an ordered file is refused, since packing regroups blocks');
+  ok(/usage:/.test(argsWith(configWith([]), a, '--pack', dir, '--loc-cap', 'lots').err ?? ''), 'a cap that is not a whole number is a usage error');
+  ok(/usage:/.test(argsWith(configWith([]), a, '--loc-cap', '10').err ?? ''), 'and so is a cap without --pack');
+}
+
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

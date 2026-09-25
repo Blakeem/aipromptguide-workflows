@@ -160,6 +160,31 @@ section('a stopped run still reaches the plan: the blocks it finished are applie
   eq(statuses(argsFrom(config, roadmap)), 'store=done,export=blocked', 'the finished block is done, and the one that died is blocked');
 }
 
+section('a packed pass of two inventories runs as one cycle, and each file gets its own statuses back');
+{
+  const dir = tmpDir();
+  const config = tmpDir();
+  const one = join(dir, 'one.md');
+  const two = join(dir, 'two.md');
+  writeFileSync(one, inventoryFromVerifierPrompt(['f-1']).replace(/## Plan: [^ ]+/, '## Plan: one'));
+  writeFileSync(two, inventoryFromVerifierPrompt(['f-2']).replace(/## Plan: [^ ]+/, '## Plan: two'));
+  const saved = process.env.CLAUDE_CONFIG_DIR;
+  process.env.CLAUDE_CONFIG_DIR = config;
+  let args = null;
+  try {
+    args = JSON.parse(planEdit(['args', one, two, '--pack', dir], () => {}));
+  } finally {
+    if (saved === undefined) delete process.env.CLAUDE_CONFIG_DIR;
+    else process.env.CLAUDE_CONFIG_DIR = saved;
+  }
+  eq(args.plans.map((r) => r.id).join(), 'one-plus-1', 'the two inventories pack into one pass');
+  const { logs, labels } = await launch(args, { develop: DEV_FIX, quality: CLEAN, acceptance: ACC_FIX });
+  eq(labels.filter((l) => l.startsWith('develop')).length, 1, 'one developer builds both');
+  writeRecord(config, 'wf_pass', logs);
+  eq(statuses(argsFrom(config, one, two)), 'one=done,two=done', 'both member blocks are done in their own files');
+  eq(`${issueStatus(one, 'f-1')},${issueStatus(two, 'f-2')}`, 'fixed,stale', 'and each issue status lands in the file that holds it');
+}
+
 section('runOnly scopes a pilot run to the blocks it names, the way resolve\'s resolveOnly did');
 {
   const dir = tmpDir();

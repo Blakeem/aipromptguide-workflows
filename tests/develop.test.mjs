@@ -1253,3 +1253,55 @@ section('park stops only when a NON-empty diff cannot be saved; an empty diff is
   ok(/If the unstaged diff is NOT empty and step 1 cannot\nproduce a non-empty patch, STOP/.test(pk), 'the STOP rule is scoped to a non-empty diff');
   ok(/An already-empty diff is not a stop/.test(pk), 'and an empty tree follows step 1\'s skip');
 }
+
+// ---------------------------------------------------------------------------------------------
+// Passes: several fix blocks built in one develop cycle
+// ---------------------------------------------------------------------------------------------
+
+const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
+  { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
+  { id: 'fix-b', planPath: 'E:/plans/two.md', issues: ['i-3'] },
+] };
+const PASS_ARGS = { ...baseArgs, planPath: undefined, plans: [PASS] };
+const passDev = (results) => ({ ...DEV_OK, produced: undefined, entries_found: results.length, results });
+
+section('a pass hands every agent one command per member block, and edits each status in its own file');
+{
+  const { out, calls } = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }, { issue_id: 'i-3', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-3', actually_fixed: true }] },
+  }, PASS_ARGS);
+  const devPrompt = calls.find((c) => c.label.startsWith('develop')).prompt;
+  ok(devPrompt.includes("'E:/plans/one.md' 'fix-a'") && devPrompt.includes("'E:/plans/two.md' 'fix-b'"), 'the developer gets a plan-block command per member');
+  ok(calls.find((c) => c.label.startsWith('acceptance')).prompt.includes("'E:/plans/two.md' 'fix-b'"), 'and so does acceptance');
+  eq(calls.filter((c) => c.label.startsWith('develop')).length, 1, 'one developer builds the whole pass');
+  eq(out.statusSync.map((e) => `${e.planPath.slice(-6)}:${e.id}=${e.value}`).join(','),
+    'one.md:fix-a=done,two.md:fix-b=done,one.md:i-1=fixed,two.md:i-3=fixed', 'each member and each issue is edited in its own plan file');
+}
+
+section('an issue a pass member does not list gets no status edit, and the log says so');
+{
+  const { out, logs } = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'stray', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'stray', actually_fixed: true }] },
+  }, PASS_ARGS);
+  ok(!out.statusSync.some((e) => e.id === 'stray'), 'no edit names the stray id');
+  ok(logs.some((l) => /issue stray was reported FIXED but belongs to no block in this pass/.test(l)), 'and the log names it');
+}
+
+section('a malformed pass throws before any agent runs');
+{
+  const bad = (blocks, extra = {}) => ({ ...PASS_ARGS, plans: [{ ...PASS, blocks, ...extra }] });
+  for (const [args, what] of [
+    [bad(PASS.blocks, { mode: 'feature' }), 'a pass that is not fix mode'],
+    [bad([PASS.blocks[0]]), 'a pass of one block'],
+    [bad([PASS.blocks[0], { id: 'fix-b', planPath: 'E:/plans/two.md' }]), 'a member with no issue list'],
+    [bad([PASS.blocks[0], { ...PASS.blocks[1], id: 'Fix B' }]), 'a member id that is not a slug'],
+  ]) {
+    ok(/pass entries \[fix-a-plus-1\] are malformed/.test(await throwsWith(ENGINE, { args, respond: {} })), what);
+  }
+  ok(/duplicate plan id\(s\) \[fix-a\]/.test(await throwsWith(ENGINE, { args: { ...PASS_ARGS, plans: [PASS, { id: 'fix-a', mode: 'fix', planPath: 'E:/plans/one.md' }] }, respond: {} })),
+    'a member id that is also another entry\'s id');
+}

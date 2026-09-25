@@ -193,6 +193,18 @@ if (BAD_MODES.length) {
   throw new Error(`plan mode(s) [${BAD_MODES.join(', ')}] are not one of feature | section | fix. A mode picks the developer and acceptance frames, so it is required and never coerces.`);
 }
 
+// A pass is several fix blocks built in ONE develop cycle, so small blocks share one set of agents.
+// `plan-edit.mjs args --pack` writes these entries. Each member keeps its own plan file and statuses, so
+// a member without an id, a plan file or its issue ids would be edited nowhere.
+const BAD_PASSES = RAW.filter((p) => p.blocks !== undefined && !(
+  p.mode === 'fix' && Array.isArray(p.blocks) && p.blocks.length > 1
+  && p.blocks.every((b) => b && KEBAB_ID.test(b.id) && typeof b.planPath === 'string' && b.planPath.trim()
+    && Array.isArray(b.issues) && b.issues.every((i) => typeof i === 'string'))
+)).map((p) => p.id);
+if (BAD_PASSES.length) {
+  throw new Error(`pass entries [${BAD_PASSES.join(', ')}] are malformed: a pass is mode fix with a "blocks" array of two or more { id, planPath, issues: [ids] }. Take them from "plan-edit.mjs args --pack" rather than writing them by hand.`);
+}
+
 // A gate is control input like the ids above, and this file fails loud on every other one. Coercing an
 // unrecognized value to 'green' meant a block typoed `red_baseline` got the gate that DEMANDS the very
 // tests a test-first block intends to leave failing — a guaranteed park after the full round budget. The
@@ -214,16 +226,17 @@ if (BAD_STATUS.length) {
 
 const ALL_PLANS = RAW.map((p) => ({
   id: String(p.id),
-  planPath: p.planPath ? abs(p.planPath) : PLAN_PATH,
+  planPath: p.planPath ? abs(p.planPath) : (p.blocks ? '' : PLAN_PATH),
   mode: p.mode,
   gate: p.gate ?? 'green',
   status: p.status ?? 'todo',
   planContext: p.planContext === 'full' ? 'full' : 'block',
+  blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues })) : null,
 }));
 
 // Every block needs a plan file to be addressed inside. Without one, the block reference would name an
 // empty path and the developer would build against nothing while reporting success.
-const NO_PATH = ALL_PLANS.filter((p) => !p.planPath).map((p) => p.id);
+const NO_PATH = ALL_PLANS.filter((p) => !p.planPath && !p.blocks).map((p) => p.id);
 if (NO_PATH.length) {
   throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath and there is no top-level planPath to default to — the developer would be handed an empty plan reference. Either add planPath to each of those entries, or pass the top-level planPath you ran "plan-block.mjs <planPath> --list" against.`);
 }
@@ -233,9 +246,9 @@ if (NO_PATH.length) {
 // first's trail.
 const SEEN_IDS = new Set();
 const DUPE_IDS = new Set();
-for (const p of ALL_PLANS) {
-  if (SEEN_IDS.has(p.id)) DUPE_IDS.add(p.id);
-  SEEN_IDS.add(p.id);
+for (const id of ALL_PLANS.flatMap((p) => [p.id, ...(p.blocks ?? []).map((b) => b.id)])) {
+  if (SEEN_IDS.has(id)) DUPE_IDS.add(id);
+  SEEN_IDS.add(id);
 }
 if (DUPE_IDS.size) {
   throw new Error(`duplicate plan id(s) [${[...DUPE_IDS].join(', ')}] in args.plans. Every per-block run-state file (reviews, DISMISSED, AMENDED, parked patch) is keyed by the bare id, so duplicates would overwrite each other.`);
@@ -243,21 +256,24 @@ if (DUPE_IDS.size) {
 
 // The same placement check across every entry's OWN plan file, abs()-resolved above (the raw entries are
 // unresolved strings, and ALL_PLANS is in its TDZ up there). The Set has already absorbed PLAN_PATH.
-for (const p of ALL_PLANS) warnPlanPlacement(p.planPath);
-
 // The distinct plan files this run draws from — what the whole-goal sweep is handed to read verbatim.
-const PLAN_FILES = [...new Set(ALL_PLANS.map((p) => p.planPath))];
+const PLAN_FILES = [...new Set(ALL_PLANS.flatMap((p) => (p.blocks ? p.blocks.map((b) => b.planPath) : [p.planPath])))];
+for (const path of PLAN_FILES) warnPlanPlacement(path);
 
 // How an agent gets its ONE block out of the verbatim plan file. Default (`planContext:'block'`): a
 // COMMAND that prints just that block, so a twelve-block file never enters a developer's context and the
 // block's END is decided by a parser — plan bodies use `##` headers, so an agent locating the block by eye
 // can stop at the first `## Feature` and build against a truncated spec that looks complete.
 // `planContext:'full'` hands the file instead, for a block that genuinely needs its neighbours in view.
-const blockRef = (p) => `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
+const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
 Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
 never guess at a plan you could not read. The full plan file is at ${p.planPath} if you need a
-neighbouring block for context; your block is ONLY "${p.id}"`;
-const planRef = (p) => p.planContext === 'full'
+neighbouring block for context; your block is ONLY "${p.id}"`);
+const passRef = (p) => `the output of each command below, one block per command:
+${p.blocks.map((b) => `  node '${BLOCK_TOOL}' '${b.planPath}' '${b.id}'`).join('\n')}
+Run every one. Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and
+STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
+const planRef = (p) => p.planContext === 'full' && !p.blocks
   ? `the block headed "## Plan: ${p.id}" inside the plan file at ${p.planPath} (read THAT block verbatim; the other blocks are CONTEXT only — your block is ONLY "${p.id}")`
   : blockRef(p);
 
@@ -345,7 +361,7 @@ const developSchema = (mode) => ({
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
-        description: 'one entry per `### [<id>]` issue in this block — every id, including the ones you did not touch',
+        description: 'one entry per `### [<id>]` issue in every block you were handed — every id, including the ones you did not touch',
         items: {
           type: 'object',
           required: ['issue_id', 'status'],
@@ -357,7 +373,7 @@ const developSchema = (mode) => ({
           },
         },
       },
-      entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [` issue entries you counted in the block the command printed. 0 HALTS the run before any reviewer spawns. Report -1 on later rounds (the check does not apply).' },
+      entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run before any reviewer spawns. Report -1 on later rounds (the check does not apply).' },
     } : {
       produced:        { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     }),
@@ -623,7 +639,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 // per entry — the engine derives `produced` from those statuses, so an unreported entry is work that
 // silently never happened.
 const fixDevelop = (p, round, { opening, ledgerNote, staging }) => `
-You are the FIXER. Resolve the verified issues in ${planRef(p)}. That block IS the inventory: a
+You are the FIXER. Resolve the verified issues in ${planRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, ${SCOPE_LINE.fix}.
@@ -635,7 +651,7 @@ ${ledgerNote}
 
 PROCEDURE:
 ${round === 1 ? `0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
-   "### [" entries in the block the command printed and report the count as entries_found. If it is 0,
+   "### [" entries across every block printed and report the count as entries_found. If it is 0,
    STOP RIGHT THERE: change nothing and return with that count. A block carrying no entries is nothing to
    fix, and working from memory would be worse than not running.
 ` : `0. Report entries_found=-1 (the inventory count is a round-1 check).
@@ -656,7 +672,7 @@ ${round === 1 ? `0. INVENTORY READABLE — do this FIRST, before reading or edit
    rest.
 4. ${staging}
 5. ${MATRIX(p.id, round, p.mode)}
-RESULTS — return one \`results\` entry per issue id in the block, \`{ issue_id, status }\`: FIXED (you
+RESULTS — return one \`results\` entry per issue id in every block, \`{ issue_id, status }\`: FIXED (you
 changed code that closes it), STALE (it is not in the current code), SKIPPED (its decision is not
 ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
 engine reads these statuses as the record of what this round did.
@@ -732,9 +748,9 @@ WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if neede
 // per issue. The root cause is RE-DERIVED from current code rather than checked off against the entry's
 // own **Fix:** line, because the entry may have under-scoped the defect.
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped }) => `
-You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block. The blind code review
-already passed (or was skipped because the developer changed nothing). Read ${planRef(p)}. That block IS
-the inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
+You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
+blind code review already passed (or was skipped because the developer changed nothing). Read
+${planRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
@@ -759,7 +775,7 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
 PROCEDURE:
 1. ROOT-CAUSE COMPLETENESS. The developer claims these issues FIXED:
 ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fixed)'}
-   For EACH, read its full entry in the block, then INDEPENDENTLY re-derive the defect's root cause from
+   For EACH, read its full entry in its block, then INDEPENDENTLY re-derive the defect's root cause from
    the CURRENT code — do NOT just confirm the literal edit the entry described is present; the entry
    itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
@@ -1090,8 +1106,11 @@ function issueSyncStatus(status, claimedFixed, landed) {
  * A fix block's per-issue record across rounds. The engine never parses a block, so the statuses the
  * developer reports are the only record of which entries were touched.
  */
-function fixTracker() {
+function fixTracker(p) {
   const reported = new Map();     // issue id → the last status reported, across rounds
+  // A pass edits each issue in its own block's plan file. An id no member lists has no file to edit.
+  const owners = new Map((p.blocks ?? []).flatMap((b) => b.issues.map((id) => [id, b.planPath])));
+  const ownerOf = (id) => (p.blocks ? owners.get(id) : p.planPath);
   // Ever claimed FIXED, monotonic. A later round that re-reports an id STALE (its own round-1 fix closed
   // it) must not withdraw that fix from verification while its diff still sits unstaged: an empty claim
   // list makes the root-cause re-derivation vacuous and stages unverified code.
@@ -1138,16 +1157,18 @@ function fixTracker() {
       };
     },
     /**
-     * One `{ id, value }` per entry whose status changes. An entry acceptance's own fix_check judged still
-     * open never syncs `fixed` or `stale`, even in a landed block: either value would drop a live defect
-     * from every later run.
+     * One `{ planPath, id, value }` per entry whose status changes. An entry acceptance's own fix_check
+     * judged still open never syncs `fixed` or `stale`, even in a landed block: either value would drop a
+     * live defect from every later run.
      */
     edits(landed) {
       const out = [];
       for (const [id, status] of reported) {
         const mapped = issueSyncStatus(status, claimedEver.has(id), landed);
         const value = (mapped === 'fixed' || mapped === 'stale') && unclosed.has(id) ? 'needs-attention' : mapped;
-        if (value) out.push({ id, value });
+        if (!value) continue;
+        if (ownerOf(id)) out.push({ planPath: ownerOf(id), id, value });
+        else log(`  ⚠ ${p.id}: issue ${id} was reported ${status} but belongs to no block in this pass — no status edit`);
       }
       return out;
     },
@@ -1169,11 +1190,11 @@ function judgePlanAcceptance(acc) {
   };
 }
 
-/** Records a finished block: its ledger row, its own status edit, and one edit per fix entry that changes. */
+/** Records a finished block or pass: its ledger row, each member block's status, and each changed fix entry's. */
 function finishBlock(p, rec, blockStatus, fix) {
-  const edit = (id, value) => ({ planPath: p.planPath, id, key: 'status', value });
+  const members = p.blocks ?? [{ id: p.id, planPath: p.planPath }];
   const issueEdits = fix ? fix.edits(blockStatus === 'done') : [];
-  const edits = [edit(p.id, blockStatus), ...issueEdits.map((e) => edit(e.id, e.value))];
+  const edits = [...members, ...issueEdits].map((e) => ({ planPath: e.planPath, id: e.id, key: 'status', value: e.value ?? blockStatus }));
   ledger.push(rec);
   statusSync.push(...edits);
   log(STATUS_LOG + JSON.stringify(edits));
@@ -1191,9 +1212,9 @@ for (const p of pending) {
     break;
   }
 
-  log(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]`);
+  log(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
   const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, patch: null, strays: null };
-  const fix = p.mode === 'fix' ? fixTracker() : null;
+  const fix = p.mode === 'fix' ? fixTracker(p) : null;
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';

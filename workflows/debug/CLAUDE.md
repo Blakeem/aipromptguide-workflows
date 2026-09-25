@@ -127,8 +127,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 5. **Clean baseline (#4).** Fold any pre-existing local changes into the staged baseline (`git add -A`) or
    stash them. Ask the user which they want *before* starting. Gates must be GREEN.
 6. **Run develop on the issue files** (`../develop/CLAUDE.md`). Each triaged issue file with findings is
-   one fix-mode block. `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...]` prints one args
-   object for all of them. Clean-marker files are not plans, so leave them out. A file with no
+   one fix-mode block. `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>`
+   prints one args object for all of them, with small blocks packed into shared passes. Clean-marker files are not plans, so leave them out. A file with no
    `- decision: ACTIONABLE` entry after triage is not a plan either: set its block `status: skip` (or
    leave it out). Start with one file, or `runOnly` naming one block, to sanity-check cost and quality.
 7. **Statuses.** The next `plan-edit.mjs args` over the same files writes every block and issue

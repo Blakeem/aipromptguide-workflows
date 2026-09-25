@@ -60,7 +60,8 @@ and acceptance schemas is that signal, and develop halts on an explicit `false`.
 ```bash
 node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
 node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
-node tools/plan-edit.mjs args <plan.md> [<plan.md> ...] [--expect <wf-id>]  # fold finished runs, print develop's args
+node tools/plan-edit.mjs args <plan.md> [<plan.md> ...] [--expect <wf-id>] [--pack <repo> [--loc-cap <n>]]
+                                                                             # fold finished runs, print develop's args
 ```
 
 The write surface, kept out of plan-block.mjs on purpose: the run-time allowlist rule
@@ -82,6 +83,15 @@ applied, so an operator's later edit is never overwritten. The record format is 
 undocumented. A changed develop record fails `args` loudly, `--expect <wf-id>` fails when a known run's
 record is missing, and `tests/plan-bus.test.mjs` checks the newest records on the machine on every
 suite run. Records expire after `cleanupPeriodDays` (30 by default).
+
+`--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
+A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`
+line, else the file in `<repo>`, else 200. Blocks are sorted by the first file they touch and filled up
+to `--loc-cap` (default 5000, scaled from resolve's 3000-line batches of about 150-200k tokens). A block
+over the cap, or one with nothing open and ACTIONABLE, stays its own row. A pass row is
+`{ id: <first>-plus-<n>, mode: fix, blocks: [{ id, planPath, issues }] }`, and develop writes each
+member's status and each issue's into the file that holds it. Packing regroups blocks, so an
+`ordered: true` file is refused.
 
 ## gen-flows.mjs
 

@@ -31,7 +31,10 @@ title or grep pattern, not line number, since earlier blocks shift lines.
    `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread that
    object into the args. Several files make one run, as long as their file keys agree. When you know the
    last launch's Workflow run id (`wf_...`), pass `--expect <id>`: it fails loudly if that run's record is
-   missing, which is the sign Claude Code moved or changed its run records.
+   missing, which is the sign Claude Code moved or changed its run records. For fix-mode files, add
+   `--pack <target.repo>`: it groups the todo fix blocks into passes of at most `--loc-cap` lines (default
+   5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
+   verifier build several small blocks. Each member keeps its own plan file and statuses.
 4. **Clean the unstaged tree, then launch.** The engine builds the `status: todo` blocks in file
    order; `done`/`skip`/`parked`/`blocked` are never selected.
 5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
@@ -128,7 +131,8 @@ the state dir), then relaunch clean. Never `git add -A` it.
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath?, mode, gate, status,
-  planContext? }`; malformed **throws** naming the shape) · a `planPath` per entry or the top-level
+  planContext? }`, or a pass `{ id, mode: fix, gate, status, blocks: [{ id, planPath, issues }] }` from
+  `--pack`; malformed **throws** naming the shape) · a `planPath` per entry or the top-level
   `planPath` default (**throws** naming the id with neither) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).

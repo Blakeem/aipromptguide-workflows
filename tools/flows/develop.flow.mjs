@@ -129,6 +129,7 @@ export default {
     // it would be judged by a rule its frame never applies.
     { name: 'block gate is illegal for its mode', when: 'a feature block asks for gate red-baseline', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
+    { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
     // Every block's body lives in a plan FILE, addressed by id. With no path anywhere the developer would
     // be handed an empty plan reference and build nothing while reporting success.
     { name: 'no plan file for a block', when: 'no entry and no top-level planPath', args: { ...base, planPath: '' } },
@@ -239,6 +240,22 @@ export default {
       when: 'a fix block fixes an issue and accepts',
       args: { ...base, plans: [FIX_BLOCK] },
       respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
+    },
+    {
+      // A pass: two fix blocks from two plan files built by ONE developer, reviewer and verifier. The flow
+      // is the fix block's; what differs is the status edits, one per member in its own file.
+      name: 'a pass of two fix blocks closes its issues',
+      when: 'a packed pass of two fix blocks fixes its issues and accepts',
+      args: { ...base, plans: [{ id: 'block-c-plus-1', mode: 'fix', gate: 'green', blocks: [
+        { id: 'block-c', planPath: 'E:/flow/plans/one.md', issues: ['i-1'] },
+        { id: 'block-d', planPath: 'E:/flow/plans/two.md', issues: ['i-2'] },
+      ] }] },
+      respond: {
+        develop: devFix([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }]),
+        quality: CLEAN,
+        acceptance: { ...ACC_FIX, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-2', actually_fixed: true }] },
+        'final-sweep': SWEEP_OK,
+      },
     },
     {
       // The block IS the inventory, so a block that printed no `### [` entries is a fix round with nothing

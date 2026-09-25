@@ -8,7 +8,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
+//   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>] [--pack <repo> [--loc-cap <n>]]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -41,8 +41,11 @@ const USAGE = `usage:
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
+                            [--pack <repo> [--loc-cap <lines>]]
       fold every finished develop run's status edits into the plan files, then print develop's
       args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
+      --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
+      files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
@@ -412,12 +415,95 @@ function mergeArgs(plans) {
   return { goal: first.goal, ordered: first.ordered, suite: first.suite, sweep: first.sweep, plans: plansRows };
 }
 
+// =============================================================================
+// --pack — several small fix blocks into one develop pass
+// =============================================================================
+
+// Scaled from resolve's old 3000-line batches, which ran each agent at about 150-200k tokens, to the
+// ~350k-token ceiling past which token cost climbs. Recalibrate against real runs' token counts.
+const DEFAULT_LOC_CAP = 5000;
+const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists still costs a read
+
+const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
+
+/** The entries a developer will actually work: ACTIONABLE, and not already closed by an earlier run. */
+const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
+  && !['fixed', 'stale'].includes(keyOf(e, 'status')));
+
+/** The line count of every distinct file a block's open entries name: its `- loc:` line, else the file itself. */
+function blockFiles(block, repo) {
+  const files = new Map();
+  for (const entry of openActionable(block)) {
+    const path = (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
+    if (!path || files.has(path)) continue;
+    const stated = Number(keyOf(entry, 'loc'));
+    if (Number.isInteger(stated) && stated > 0) { files.set(path, stated); continue; }
+    try {
+      files.set(path, readFileSync(join(repo, path), 'utf8').split('\n').length);
+    } catch { files.set(path, UNKNOWN_FILE_LOC); }
+  }
+  return files;
+}
+
+/**
+ * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
+ * lines. Blocks are sorted by the first file they touch, so a pass holds neighbouring code. A block over
+ * the cap alone, or one with nothing ACTIONABLE, stays its own row. A pass sits where its first member did.
+ */
+function packPasses(args, folded, repo, cap, note) {
+  if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
+  const blockOf = new Map(folded.flatMap((p) => p.blocks.map((b) => [`${p.path}\u0000${b.id}`, b])));
+  const candidates = [];
+  for (const [index, row] of args.plans.entries()) {
+    if (row.mode !== 'fix' || row.status !== 'todo') continue;
+    const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
+    const files = blockFiles(block, repo);
+    if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry, so it is not a plan to build\n`); continue; }
+    candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0] });
+  }
+  candidates.sort((a, b) => a.first.localeCompare(b.first) || a.index - b.index);
+
+  const passes = [];
+  let open = null;
+  for (const c of candidates) {
+    const added = [...c.files].filter(([f]) => !open?.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
+    const clash = open && c.issues.some((id) => open.issues.has(id));
+    if (!open || clash || open.loc + added > cap) {
+      open = { members: [], files: new Map(), issues: new Set(), loc: 0 };
+      passes.push(open);
+    }
+    open.members.push(c);
+    for (const [f, loc] of c.files) if (!open.files.has(f)) { open.files.set(f, loc); open.loc += loc; }
+    for (const id of c.issues) open.issues.add(id);
+  }
+
+  const taken = new Set(args.plans.map((r) => r.id));
+  const replaced = new Map();
+  for (const pass of passes.filter((x) => x.members.length > 1)) {
+    const [head] = [...pass.members].sort((a, b) => a.index - b.index);
+    const id = `${head.row.id}-plus-${pass.members.length - 1}`;
+    if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
+    const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues }));
+    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', blocks: members });
+    for (const m of pass.members) if (m !== head) replaced.set(m.index, null);
+    note(`packed ${members.map((m) => m.id).join(', ')} into ${id} (${pass.loc} lines)\n`);
+  }
+  const plans = args.plans.flatMap((row, i) => (replaced.has(i) ? (replaced.get(i) ? [replaced.get(i)] : []) : [row]));
+  return { ...args, plans };
+}
+
 function runArgs(argv, note) {
-  // Input
-  const at = argv.indexOf('--expect');
-  const expect = at === -1 ? null : argv[at + 1];
-  const paths = at === -1 ? argv : argv.filter((_, i) => i !== at && i !== at + 1);
-  if (!paths.length || (at !== -1 && !expect)) throw new Error(USAGE);
+  // Input — each flag takes the argument after it
+  const flags = {};
+  const paths = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (!argv[i].startsWith('--')) { paths.push(argv[i]); continue; }
+    if (!['--expect', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
+    flags[argv[i]] = argv[++i];
+  }
+  const cap = flags['--loc-cap'] === undefined ? DEFAULT_LOC_CAP : Number(flags['--loc-cap']);
+  if (!paths.length || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
+  const expect = flags['--expect'] ?? null;
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
   const plans = paths.map(loadPlan);
@@ -427,7 +513,8 @@ function runArgs(argv, note) {
     throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
   }
   const folded = plans.map((p) => foldRecords(p, records, note));
-  const args = mergeArgs(folded);
+  const merged = mergeArgs(folded);
+  const args = flags['--pack'] ? packPasses(merged, folded, flags['--pack'], cap, note) : merged;
 
   // Output
   for (const [i, f] of folded.entries()) if (f.text !== plans[i].text) writeFileSync(f.path, f.text);
