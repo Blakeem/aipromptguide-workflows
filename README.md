@@ -167,6 +167,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   fails a green gate. A `sweep: goal-coverage` file needs a `goal:` line.
 - **develop carries the failure-path tests of the three engines it replaced**, including dead
   reviewers, the plan amendment protocol and fix-mode agent deaths.
+- **develop's acceptance confirms every STALE claim.** A fix block whose developer calls every entry
+  stale now goes to acceptance, and a refuted claim never syncs `stale`. A block that passed but was
+  left unstaged syncs `done`, so the documented recovery is to stage it, sync, and relaunch.
+- **debug review keeps every finding.** Distinct findings in one file and category all reach the
+  verifier, which folds true duplicates. A dead reviewer or verifier is returned in `failed` and is
+  never counted as a clean unit. Colliding unit ids and an invalid `reviewSeverity` fail at launch.
+- **Agent prompts were tightened from the agents' own reports.** Live runs asked every agent to note
+  workflow problems from its seat. Those notes fixed the blind reviewer's scope and gate commands,
+  refine's grading and one-fix-per-gap rules, and review's dangling marker and context-read rules.
 
 ### 2026-08-29
 

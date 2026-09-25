@@ -14,7 +14,8 @@
 // The two DEAD-AGENT policies are deliberately different, and neither is visible to any other assertion —
 // no new role, and the throw adds no HALT_STATUS value — so each needs its own scenario. A dead CRITIC
 // throws, because zero gaps from an agent that died is byte-identical to convergence. A dead EDITOR halts
-// `agent-dead`, because the round's critique file is already on disk and a relaunch resumes the fold.
+// `agent-dead`, because the round's critique file is already on disk and a resumeFromRunId relaunch
+// replays the cached critic and redoes the fold.
 
 const TARGET = { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' };
 
@@ -80,6 +81,14 @@ export default {
       when: 'the critic raises a question',
       args: base,
       respond: { 'plan-critic': QUESTIONS },
+    },
+    {
+      // A second route into needs-answers that adds no role and no terminal, so coverage cannot see it:
+      // without this scenario the plan-editor -> needs-answers edge is missing from the map.
+      name: 'the editor escalates a contested dismissal',
+      when: 'the editor escalates a contested dismissal',
+      args: base,
+      respond: { 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, needs_user: true } },
     },
     {
       // No maxRounds override, so the back edge's measured repeat shows the engine's real default budget.

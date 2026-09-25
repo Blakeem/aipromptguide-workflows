@@ -249,12 +249,12 @@ export default {
       respond: { develop: devFix([]) },
     },
     {
-      // ALL-STALE: the issues are already closed in the current code. An accepted "done" that spawns NO
-      // reviewer — the only route to a done block with no acceptance verdict behind it.
+      // ALL-STALE: every entry is claimed already closed. The empty diff skips the blind review, and
+      // acceptance confirms each STALE claim before the block counts done.
       name: 'every issue is already fixed',
       when: 'every issue in a fix block is stale',
       args: { ...base, plans: [FIX_BLOCK] },
-      respond: { develop: FIX_STALE, 'final-sweep': SWEEP_OK },
+      respond: { develop: FIX_STALE, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
     },
     {
       // NO-CHANGES, unordered: the same empty diff, a different outcome — every entry was SKIPPED, so the

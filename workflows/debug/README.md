@@ -118,7 +118,8 @@ its severity.
 Each is a fresh, throwaway context that does one job and returns one decision:
 
 - **Reviewer** (review pass): reads one unit's files and reports production defects at or above your
-  severity floor. Returns findings, writes nothing.
+  severity floor. Returns findings. When the unit is clean it writes that unit's clean-marker issue
+  file, otherwise nothing.
 - **Verifier** (review pass): confirms each finding against the real code, corrects inflated
   severity, routes it (actionable, needs-your-decision, defer, or reject), and writes the unit's issue
   file. That file is both the inventory and your triage document.

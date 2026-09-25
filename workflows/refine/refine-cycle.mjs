@@ -1,7 +1,7 @@
 export const meta = {
   name: 'refine-cycle',
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (only what would build wrong or fail counts - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then folds each gap into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
-  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error between blocks, a block too big for one develop pass, or a gap in an already-done block) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
+  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error or a too-big block whose fix splits, merges, adds or reorders blocks, or a gap in an already-done block) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor folds each gap into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
@@ -132,20 +132,21 @@ const CRITIC_SCHEMA = {
   type: 'object',
   required: ['wrote_file', 'gap_count', 'question_count'],
   properties: {
-    wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file. A CLEAN round writes nothing and returns false - that is legitimate. Returning a nonzero count with false HALTS the run, because the findings would exist nowhere' },
+    wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file. A round with FYI items only writes it and returns true with both counts 0. A round with nothing at all writes nothing and returns false - that is legitimate. Returning a nonzero count with false HALTS the run, because the findings would exist nowhere' },
     gap_count:      { type: 'integer', description: 'gaps AT OR ABOVE the severity floor, written to the GAPS section of your critique file. Below-floor findings go to the FYI section and are EXCLUDED from this number. 0 with question_count 0 ends the run: the plan converged' },
-    question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md. Any nonzero value ENDS the run needs-answers: an ordering error, a too-big block, or a gap in an already-done block has no legal edit and needs the operator' },
+    question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md. Any nonzero value ENDS the run needs-answers: an ordering error or too-big block whose fix restructures blocks, or a gap in an already-done block, has no legal edit and needs the operator' },
   },
 };
 
 const EDITOR_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'folded', 'declined', 'plan_parses'],
+  required: ['wrote_file', 'folded', 'declined', 'plan_parses', 'needs_user'],
   properties: {
     wrote_file:  { type: 'boolean', description: 'true if you actually wrote your edits to the plan file. Reporting folded gaps with false HALTS the run - the fold would exist nowhere' },
     folded:      { type: 'integer', description: 'numbered gaps you closed with an edit to the plan file' },
     declined:    { type: 'integer', description: 'gaps you declined, each appended as ONE terse line to DISMISSED-PLAN.md with its reason' },
     plan_parses: { type: 'boolean', description: 'true ONLY if the plan-block --list command you ran AFTER your edits exited 0. False HALTS the run: a plan file that no longer parses poisons every later consumer of it' },
+    needs_user:  { type: 'boolean', description: 'true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal. True ENDS the run needs-answers: the question needs the operator, not another round' },
   },
 };
 
@@ -161,8 +162,10 @@ ${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFER
 // Role prompts
 // =============================================================================
 const criticPrompt = (round) => `
-You are an INDEPENDENT PLAN CRITIC, read-only everywhere. Judge the plan file against the REAL repo and
-find what would BUILD WRONG. An EMPTY result is a GOOD outcome and ends the run.
+You are an INDEPENDENT PLAN CRITIC, read-only everywhere: you never edit a file outside your own
+critique file and ${NEEDS_USER}. You MAY run read-only commands, including a build or test command you
+find in the repo. Judge the plan file against the REAL repo and find what would BUILD WRONG. An EMPTY
+result is a GOOD outcome and ends the run.
 ${ENV}
 This is round ${round} of at most ${MAX_ROUNDS}.
 
@@ -191,14 +194,19 @@ SCOPE RULE 1 - you judge only blocks whose \`status\` is \`todo\` or absent. A b
 parked or blocked is CLOSED. A gap you find in one of those goes to ${NEEDS_USER} as a QUESTION and NEVER
 to the editor, because folding into a done block rewrites the spec that already-staged code was built
 against.
-SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) and a BLOCK TOO BIG (class 5) are reported as
-QUESTIONS, never as gaps. Both change the block STRUCTURE and the operator's derived plans array, and the
-editor has no legal edit for either. They end the run so the operator can restructure.
+SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) or a BLOCK TOO BIG (class 5) whose fix splits,
+merges, adds or reorders blocks is reported as a QUESTION, never as a gap. That fix changes the block
+STRUCTURE and the operator's derived plans array, and the editor has no legal edit for it. It ends the
+run so the operator can restructure.
+SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
 
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap:
   blocking - the block cannot be built correctly from this text at all.
   major    - the block builds, but a named acceptance criterion or wiring point is not met.
   minor    - a real defect whose blast radius is one line a developer would catch in passing.
+Two rules settle the grade the same way every round:
+  - An OMISSION the block's own green gate would catch on its first run is minor.
+  - A WRONG INSTRUCTION the gate would not catch is major or higher.
 Gaps graded ${COUNTED.join(' or ')} COUNT: write them in the numbered GAPS section and include them in
 gap_count. ${BELOW.length
     ? `Gaps graded ${BELOW.join(' or ')} are BELOW the floor: list them in a separate
@@ -211,13 +219,18 @@ confident one of those reasons is WRONG and the gap genuinely clears the defect 
 prefixed "CONTESTS DISMISSAL:", saying why the reason does not hold. Once per gap, for the whole run.
 
 WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed) and put EVERYTHING there VERBATIM: a
-numbered GAPS section (per gap - the block id, which of the five classes it is, its grade, the file:line
-evidence, and the smallest change that would close it), then the FYI section, then a QUESTIONS section.
+numbered GAPS section, then the FYI section, then a QUESTIONS section. Per gap: the block id, which of
+the five classes it is, its grade, the file:line evidence, EXACTLY ONE smallest change that closes it
+(never alternatives), and the number of every other gap whose change touches the same plan lines, so
+the editor folds them together.
 That file is your ONLY channel to the editor: anything you leave out of it reaches nothing.
 QUESTIONS additionally go to ${NEEDS_USER} IN FULL (append; create it if needed) - the operator reads
 that file, never your return.
-A CLEAN round writes NOTHING and returns wrote_file=false with zero counts. That is this run's success
-state, not a failure to find something.
+ONE RULE decides whether you write the file: write it when you have ANY gap, FYI item or question, and
+return wrote_file=true. A round with FYI items and no gaps or questions writes the file with its FYI
+section, returns wrote_file=true with both counts 0, and still converges. A round with nothing at all
+writes NOTHING and returns wrote_file=false with both counts 0. Both are this run's success state, not a
+failure to find something.
 Do NOT modify the plan file, the target repo, or anything else. Do NOT stage or commit.
 RETURN gap_count (at-or-above-floor gaps only), question_count and wrote_file via the schema - counts
 only, no content.`;
@@ -243,8 +256,8 @@ PROCEDURE:
    The critic reads that ledger next round and skips the item for your stated reason, so a vague reason
    buys the same gap again.
 3. A gap prefixed "CONTESTS DISMISSAL:" may NOT be declined a second time. FOLD it, or - if it is
-   genuinely a call only the user can make - append a full self-contained entry to ${NEEDS_USER}. Never
-   silently re-decline it.
+   genuinely a call only the user can make - append a full self-contained entry to ${NEEDS_USER} and set
+   needs_user=true. Never silently re-decline it.
 4. MANDATORY FINAL STEP, after every edit is written: run
      node '${BLOCK_TOOL}' '${PLAN_PATH}' --list
    and report plan_parses = (it exited 0). The plan-bus grammar is strict - a folded \`key: value\` line
@@ -252,7 +265,7 @@ PROCEDURE:
    fold that breaks the file poisons every later consumer of it. Non-zero exit: FIX the file and re-run
    until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
-RETURN wrote_file, folded, declined and plan_parses via the schema.`;
+RETURN wrote_file, folded, declined, plan_parses and needs_user via the schema.`;
 
 // =============================================================================
 // THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds.
@@ -289,8 +302,8 @@ while (round < MAX_ROUNDS) {
   if (wroteCritique) lastCritique = critiqueFile(round);
 
   // Findings with no file to hold them exist NOWHERE: the editor's only input is that file, and the
-  // operator's only copy of a question is that file plus NEEDS-USER.md. A clean round legitimately writes
-  // nothing, so this fires only when a count says there was something to write.
+  // operator's only copy of a question is that file plus NEEDS-USER.md. A clean round with no FYI items
+  // writes nothing, so this fires only when a count says there was something to write.
   if ((openGaps > 0 || questions > 0) && !wroteCritique) {
     haltKind = 'critique-unwritten';
     log(`  ✋ r${round}: critic returned ${openGaps} gap(s) + ${questions} question(s) but did NOT confirm writing ${critiqueFile(round)} - the findings exist nowhere; halting`);
@@ -319,11 +332,11 @@ while (round < MAX_ROUNDS) {
   const fold = await agent(editorPrompt(round, critiqueFile(round)), roleOpts('editor', {
     schema: EDITOR_SCHEMA, phase: 'Fold', label: `plan-editor r${round}`,
   }));
-  // A dead EDITOR halts rather than throws: the critique file is already on disk, so a relaunch resumes
-  // the fold instead of re-critiquing. (A dead CRITIC throws - see above - because nothing survives it.)
+  // A dead EDITOR halts rather than throws: the critique file is on disk, so a resumeFromRunId relaunch
+  // replays the cached critic and redoes only the fold. (A dead CRITIC throws - nothing survives it.)
   if (!fold) {
     haltKind = 'agent-dead';
-    log(`  ✋ r${round}: plan editor returned nothing (skipped or died) - ${critiqueFile(round)} is written, so a relaunch resumes the fold; halting`);
+    log(`  ✋ r${round}: plan editor returned nothing (skipped or died) - it may have partly edited ${PLAN_PATH}, so run node '${BLOCK_TOOL}' '${PLAN_PATH}' --list first; relaunch with resumeFromRunId to replay the cached critic and redo the fold from ${critiqueFile(round)}; halting`);
     break;
   }
   const folded   = Math.max(0, Number(fold.folded) || 0);
@@ -346,6 +359,13 @@ while (round < MAX_ROUNDS) {
     log(`  ✋ r${round}: editor did not confirm ${PLAN_PATH} still parses (node '${BLOCK_TOOL}' '${PLAN_PATH}' --list must exit 0) - halting before another agent builds from it`);
     break;
   }
+  // A contested dismissal the editor escalated is a user-only call. Another round would find the original
+  // DISMISSED line, skip it, and could report converged with the question still unanswered.
+  if (fold.needs_user === true) {
+    haltKind = 'needs-answers';
+    log(`  ✋ r${round}: editor escalated a contested dismissal to the operator (see ${NEEDS_USER}); halting`);
+    break;
+  }
   if (round >= MAX_ROUNDS) {
     log(`  ⚠ r${round}: round budget spent with ${openGaps} gap(s) folded but never re-critiqued (see ${lastCritique})`);
     break;                       // haltKind stays 'rounds'
@@ -358,12 +378,12 @@ while (round < MAX_ROUNDS) {
 // together is how an unconverged plan gets handed to a build engine as a finished one.
 const HALT_STATUS = {
   'converged':          'converged (one clean round: no gaps at or above the floor, no questions)',
-  'needs-answers':      'needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch)',
+  'needs-answers':      'needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
   'rounds':             'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)',
-  'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died; the round\'s critique file is written, so re-invoke to resume the fold)',
-  'critique-unwritten': 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; re-invoke to redo the round)',
-  'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan before resuming)',
-  'plan-broken':        'BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand before resuming)',
+  'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)',
+  'critique-unwritten': 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round)',
+  'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
+  'plan-broken':        'BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
 };
 // No silent fallback string: an unmapped haltKind is an engine bug, and reporting it as a plausible
 // terminal state is precisely the collapse this table exists to prevent.
@@ -381,7 +401,7 @@ return {
   dismissedCount,
   // Named only where a critic CONFIRMED writing it. `round > 0` is the house gate - a field derived from
   // the DEFAULT haltKind must not name a file no agent wrote - and the write attestation is the other
-  // half, since a converged round legitimately writes nothing at all.
+  // half, since a converged round with no FYI items legitimately writes nothing at all.
   lastCritique: round > 0 ? lastCritique : '',
   planPath: PLAN_PATH,
   stateDir: STATE_DIR,

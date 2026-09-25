@@ -35,6 +35,7 @@ const SWEEP_OK = { complete: true, gaps: [], suite_result: 'green' };
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
+const syncOf = (out) => out.statusSync.map((e) => `${e.id}=${e.value}`).join(',');
 
 // ---------------------------------------------------------------------------------------------
 // Round preconditions, in the order the engine checks them
@@ -49,6 +50,12 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   eq(out.parked.length, 0, 'nothing in parked[]');
   ok(/4 file\(s\)/.test(out.haltReason), 'halt reason names the count');
   ok(/add -A/.test(out.haltReason) && /stash/.test(out.haltReason), 'and gives both remedies');
+  // A killed run never parks, so its unreviewed block is also dirt here. `git add -A` on it would fold
+  // code no reviewer passed into the accepted baseline.
+  ok(/add -A` to KEEP it when it is your own pre-existing edits/.test(out.haltReason),
+    'git add -A is limited to the operator\'s own edits');
+  ok(/interrupted develop run's unfinished block, never `git add -A` it/.test(out.haltReason),
+    'and an interrupted run\'s block is named as the case never to keep');
 }
 
 section('the clean-baseline guard reads the VALUE, not what Number() makes of it');
@@ -110,7 +117,7 @@ section('a DEAD developer halts agent-dead, never staging-unconfirmed');
 // operator inspects a staged index nobody wrote to.
 {
   const { out } = await run({ develop: null, park: PARK_OK });
-  eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', 'status');
+  eq(out.status, 'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)', 'status');
   ok(/Developer for block block-a returned nothing/.test(out.haltReason), 'the reason names the death');
   ok(!/stayed UNSTAGED/.test(out.haltReason), 'and not the staging attestation');
   eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died');
@@ -126,7 +133,7 @@ section('a developer that produced nothing skips the blind review, not acceptanc
   eq(out.status, 'done (all blocks staged)', 'a genuine no-op block can still pass');
 }
 {
-  // The other half of `produced || qualityOpen`: `produced` is per-ROUND while the unstaged diff is
+  // The flagged half of `reviewOwed`: `produced` is per-ROUND while the unstaged diff is
   // CUMULATIVE, so a round that DROPs every finding reports produced=false over a diff the critic already
   // rejected. Skipping the gate on that stages actively-flagged code with no re-review.
   const { out, labels } = await run({
@@ -137,6 +144,19 @@ section('a developer that produced nothing skips the blind review, not acceptanc
   eq(labels.filter((l) => l.startsWith('quality')).length, 2,
     'a flagged block is re-reviewed even when the next round produces nothing');
   eq(out.status, 'done (all blocks staged)', 'and accepts once the critic re-clears it');
+}
+{
+  // The never-reviewed half: round 1 produced over a red gate, so the loop continued before any review.
+  // Round 2 only re-ran the gate and reports produced=false, yet round 1's diff is still unreviewed.
+  const { out, labels } = await run({
+    develop: firstRound({ ...DEV_OK, build_passed: false }, { ...DEV_OK, produced: false }),
+    quality: CLEAN,
+    acceptance: ACC_PASS,
+  }, ONE_BLOCK);
+  const qualityAt = labels.indexOf('quality block-a r2');
+  ok(qualityAt >= 0, 'the blind critic reviews round 1\'s work in round 2');
+  ok(qualityAt < labels.indexOf('acceptance block-a r2'), 'before acceptance can stage it');
+  eq(out.status, 'done (all blocks staged)', 'and the block accepts once reviewed');
 }
 
 section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix from acceptance');
@@ -241,18 +261,21 @@ section('the inventory-readable guard reads the VALUE, not what `=== 0` makes of
   }
 }
 
-section('a round-1 fix block where every entry is already STALE is done without any reviewer');
-// The issues ARE closed in current code, so there is no diff to review, stage or park — an accepted
-// outcome, not a failure. This is the branch the no-changes terminal below must never swallow.
+section('a round-1 fix block where every entry is reported STALE goes to acceptance, never the blind review');
+// An all-STALE report is a CLAIM. Closing it unchecked would let a misjudged live defect sync `stale`, so
+// acceptance confirms each id. The empty diff gives the blind reviewer nothing to judge. This is the branch
+// the no-changes terminal below must never swallow.
 {
-  const { out, calls } = await run({
-    develop: fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'STALE' }]),
-  }, FIX_ONE);
-  eq(calls.length, 1, 'only the developer ran — no quality, no acceptance, no park');
-  eq(out.ledger[0].status, 'all-stale', 'the ledger names the terminal');
-  eq(out.plansDone.join(), 'fix-a', 'and the block counts DONE');
+  const ALL_STALE = fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'STALE' }]);
+  const STALE_OK = { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-2', actually_fixed: true }] };
+  const { out, calls, prompt } = await run({ develop: ALL_STALE, acceptance: STALE_OK }, FIX_ONE);
+  eq(calls.map((c) => c.label.split(' ')[0]).join(), 'develop,acceptance', 'developer then acceptance: no quality, no park');
+  ok(/- i-1\n\s*- i-2/.test(prompt('acceptance')), 'acceptance is handed both STALE ids to confirm');
+  eq(out.plansDone.join(), 'fix-a', 'a confirmed all-stale block counts DONE');
   eq(out.status, 'done (all blocks staged)', 'the run status reflects the accepted outcome');
-  ok(out.halted === false, 'nothing halted');
+
+  const refuted = await run({ develop: ALL_STALE, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 1 });
+  eq(refuted.out.plansDone.length, 0, 'a STALE claim acceptance refutes never counts done');
 }
 
 section('a round-1 fix block that closed nothing is NOT done, and `ordered` decides whether the run stops');
@@ -474,7 +497,8 @@ section('a developer escalation parks first, then stops even an unordered run');
   eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
   ok(/The tree is clean/.test(out.followups) && !/still holds/.test(out.followups),
     'followups says the tree is clean, never that it still holds the work');
-  ok(/hit a BLOCKER the developer escalated/.test(prompt('park')), 'park prompt uses the escalation wording');
+  ok(/was halted: the developer escalated a user-only decision \(see .*NEEDS-USER\.md\)/.test(prompt('park')),
+    'park prompt uses the escalation wording');
   // An escalation park has no review path, yet a reviewer may have run: the fallback must claim neither.
   ok(/left no review file to cite; point the user at the run trail in E:\/r\/runs\/t/.test(prompt('park')),
     'with no review file, park points at the run trail');
@@ -491,6 +515,22 @@ section('a developer escalation parks first, then stops even an unordered run');
   eq(out.parked[0]?.patch, null, 'no patch path for an empty park');
   ok(/NO patch was written for: block-a/.test(out.followups), 'and followups says nothing was saved');
   ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
+}
+
+section('park records the halt that actually happened, never an escalation that did not');
+// Only needs-user writes a NEEDS-USER entry. Told every escalated halt was a developer escalation, the
+// park agent invented a blocker for the durable `## Parked block` record.
+{
+  for (const [kind, respond, reason] of [
+    ['staging-unconfirmed', { ...GREEN_RUN, develop: { ...DEV_OK, unstaged_confirmed: false }, park: PARK_OK },
+      /did not confirm its work stayed unstaged; inspect `git -C E:\/repo diff --cached` for self-staged work/],
+    ['agent-dead', { develop: null, park: PARK_OK }, /an agent returned nothing \(skipped or died\)/],
+    ['plan-unreadable', { develop: { ...DEV_OK, plan_obtained: false }, park: PARK_OK }, /an agent could not obtain its plan/],
+  ]) {
+    const p = (await run(respond, ONE_BLOCK)).prompt('park:block-a');
+    ok(reason.test(p), `${kind}: park names the real cause`);
+    ok(!/developer escalated/.test(p), `${kind}: and never blames a developer escalation`);
+  }
 }
 
 section('park never names a review file that was never written');
@@ -541,6 +581,18 @@ section('acceptance that passed without staging halts without parking');
   ok(!labels.some((l) => l.startsWith('park')), 'did NOT park good accepted work');
   ok(!labels.some((l) => l.includes('block-b')), 'did not advance past the broken staging boundary');
   eq(out.status, 'BLOCKED (a block passed but was not staged — stage it, then resume)', 'status');
+  // Acceptance passed, so the plan file says done. Synced as blocked, the documented flip-to-todo rebuilt a
+  // block that had already landed on top of its own staged copy.
+  eq(syncOf(out), 'block-a=done', 'statusSync marks the passed block done');
+  ok(/apply this result's statusSync \(it already marks the block done\), then relaunch: no startAt is needed/.test(out.haltReason),
+    'and the reason says stage, sync, relaunch, with no startAt');
+  ok(/1 block\(s\) halted and are NOT done: block-a - the halt reason above says what each needs/.test(out.followups),
+    'followups defers to the halt reason rather than giving fix-block advice');
+  ok(!/closed NO issue|- decision:/.test(out.followups), 'and never tells a feature block to read decision lines');
+
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN,
+    acceptance: { ...FIX_PASS, staged: false } }, FIX_ONE);
+  eq(syncOf(fix.out), 'fix-a=done,i-1=fixed', 'a passed-unstaged fix block syncs its FIXED entry fixed');
 }
 
 section('a pass resting on assertion rather than evidence is flagged THIN, never failed');
@@ -859,9 +911,12 @@ section('a dead round-loop agent halts and parks, never a gate miss or a clean r
   ];
   for (const [role, respond, names] of DEAD) {
     const { out, labels } = await run(respond);
-    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `a dead ${role} halts`);
+    eq(out.status, 'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)', `a dead ${role} halts`);
     ok(names.test(out.haltReason) && /skipped or died/.test(out.haltReason), `the reason names the ${role}`);
-    ok(/resumeFromRunId/.test(out.haltReason), 'and says how to replay it');
+    // Park clears the tree before the run returns, so a cached replay would build on work no longer there.
+    ok(!/resumeFromRunId|replay/.test(out.haltReason), 'and never advises a cached replay of parked work');
+    ok(/work, if any, is parked/.test(out.haltReason) && /relaunch clean, or apply the patch and finish by hand/.test(out.haltReason),
+      'it names the two recoveries a parked block has');
     ok(labels.includes('park:block-a'), 'its work is PARKED, not abandoned in the tree');
     ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
     eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died, not "round budget"');
@@ -899,7 +954,7 @@ section('a developer that dies in round 2 is reported as a death, not a red gate
       develop: firstRound(first, null), quality: firstRound(FLAGGED, CLEAN), acceptance, park: PARK_OK,
     }, args);
     const id = args.plans[0].id;
-    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `${frame}: status`);
+    eq(out.status, 'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)', `${frame}: status`);
     ok(/returned nothing in round 2/.test(out.haltReason), `${frame}: the reason names the round the agent died in`);
     ok(!logs.some((l) => /not satisfied/.test(l)), `${frame}: no gate-miss line for a gate nobody ran`);
     eq(out.ledger[0].status, 'BLOCKED (agent died)', `${frame}: the ledger says the agent died`);
@@ -1015,7 +1070,6 @@ section('a recorded amendment is logged, summed into the ledger and named in fol
 // ---------------------------------------------------------------------------------------------
 // The sync is also the recovery step after a run dies between staging and sync, so a wrong value here
 // corrupts the selection truth the next launch builds from.
-const syncOf = (out) => out.statusSync.map((e) => `${e.id}=${e.value}`).join(',');
 
 section('statusSync maps every block terminal to done, parked or blocked, and skips blocks never reached');
 {
@@ -1047,11 +1101,24 @@ section('statusSync maps every block terminal to done, parked or blocked, and sk
 
 section('statusSync maps each fix entry by its report AND by whether its block landed');
 {
-  const allStale = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'STALE' }]) }, FIX_ONE);
-  eq(syncOf(allStale.out), 'fix-a=done,i-1=stale,i-2=stale', 'an all-stale block is done and each entry stale');
+  const allStale = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'STALE' }]),
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-2', actually_fixed: true }] },
+  }, FIX_ONE);
+  eq(syncOf(allStale.out), 'fix-a=done,i-1=stale,i-2=stale', 'an all-stale block acceptance confirmed is done and each entry stale');
 
   const noChanges = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }, { issue_id: 'i-2', status: 'STALE' }]) }, FIX_ONE);
-  eq(syncOf(noChanges.out), 'fix-a=blocked,i-2=stale', 'a no-changes block is blocked, its STALE entry stale, its SKIPPED entry untouched');
+  eq(syncOf(noChanges.out), 'fix-a=blocked,i-2=needs-attention',
+    'a no-changes block is blocked, its unchecked STALE entry needs-attention, its SKIPPED entry untouched');
+
+  // Quality never clean at the round budget: the block parks before acceptance, so no reviewer checked the STALE claim.
+  const unchecked = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'STALE' }]),
+    quality: FLAGGED, park: PARK_OK,
+  }, { ...FIX_ONE, maxRounds: 1 });
+  eq(unchecked.byLabel('acceptance').length, 0, 'the park path never reached acceptance');
+  eq(syncOf(unchecked.out), 'fix-a=parked,i-1=needs-attention,i-2=needs-attention',
+    'a STALE entry in a block parked before acceptance is needs-attention, never stale');
 
   const parked = await run({
     develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FAILED' }]),
@@ -1065,6 +1132,16 @@ section('statusSync maps each fix entry by its report AND by whether its block l
     quality: CLEAN, acceptance: FIX_PASS,
   }, FIX_ONE);
   eq(syncOf(accepted.out), 'fix-a=done,i-1=fixed,i-2=stale', 'an accepted block: FIXED is fixed, STALE is stale, SKIPPED has no edit');
+
+  // Acceptance's own fix_check says the root cause is still open. Synced fixed, the residual defect would
+  // drop out of every later selection while the record says it was closed.
+  const unclosed = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]),
+    quality: CLEAN, acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: false }] },
+  }, FIX_ONE);
+  ok(unclosed.out.statusSync.some((e) => e.id === 'i-1' && e.value === 'needs-attention'),
+    'a landed FIXED entry its fix_check calls unclosed is needs-attention, never fixed');
+  eq(syncOf(unclosed.out), 'fix-a=done,i-1=needs-attention', 'while the block itself still lands done');
 }
 
 section('an entry claimed FIXED and re-reported STALE is only closed if its block lands');
@@ -1079,4 +1156,70 @@ section('an entry claimed FIXED and re-reported STALE is only closed if its bloc
   eq(syncOf(parked.out), 'fix-a=parked,i-1=needs-attention', 'parked: needs-attention, never stale');
   const landed = await run({ ...reports, acceptance: FIX_PASS }, FIX_ONE);
   eq(syncOf(landed.out), 'fix-a=done,i-1=fixed', 'landed: fixed, since this run closed it');
+}
+
+section('acceptance is handed STALE and SKIPPED ids beside the FIXED list, and confirms each STALE claim');
+// statusSync closes a STALE entry as `stale`. Unshown to acceptance, a live defect the developer wrongly
+// called STALE would close with no reviewer check.
+{
+  const { prompt } = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'STALE' }, { issue_id: 'i-3', status: 'SKIPPED' }]),
+    quality: CLEAN, acceptance: FIX_PASS,
+  }, FIX_ONE);
+  const acc = prompt('acceptance fix-a');
+  ok(/claims these issues FIXED:\n\s+- i-1\n/.test(acc), 'the FIXED list carries only the fixed id');
+  ok(/reports these issues STALE[^\n]*\n\s+- i-2\n/.test(acc), 'the STALE id is listed for confirmation');
+  ok(/reports these issues SKIPPED:\n\s+- i-3\n/.test(acc), 'the SKIPPED id is listed for the triage check');
+  ok(/STALE\s+claim you cannot confirm is actually_fixed=false and fails acceptance/.test(acc),
+    'an unconfirmed STALE claim fails acceptance like an unclosed FIXED claim');
+}
+{
+  const reports = { develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'STALE' }]), quality: CLEAN };
+  const refuted = [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-2', actually_fixed: false }];
+  const failed = await run({ ...reports, acceptance: { ...FIX_GAP, fix_checks: refuted }, park: PARK_OK }, { ...FIX_ONE, maxRounds: 1 });
+  eq(syncOf(failed.out), 'fix-a=parked,i-1=needs-attention,i-2=needs-attention',
+    'a refuted STALE claim in a block that never lands is needs-attention, never stale');
+  const passed = await run({ ...reports, acceptance: { ...FIX_PASS, fix_checks: refuted } }, FIX_ONE);
+  ok(passed.out.ledger[0].contradicted === true, 'a pass carrying a refuted STALE check contradicts itself');
+  eq(syncOf(passed.out), 'fix-a=done,i-1=fixed,i-2=needs-attention', 'and the refuted entry never syncs stale');
+  const thin = await run({ ...reports, acceptance: FIX_PASS }, FIX_ONE);
+  ok(thin.logs.some((l) => /THIN EVIDENCE \(1 check\(s\) for 1 claimed fix\(es\) and 1 stale claim\(s\)\)/.test(l)),
+    'a pass with no check behind a STALE claim is flagged thin');
+}
+
+section('the block command is role-neutral: acceptance is never told to implement it');
+// planRef hands the same text to the developer and to the verifier, whose prompt forbids modifying source.
+{
+  for (const args of [ONE_BLOCK, { ...baseArgs, plans: [{ ...BLOCKS[0], planContext: 'full' }] }, FIX_ONE]) {
+    const { prompt } = await run({ ...GREEN_RUN, develop: args === FIX_ONE ? fixDev([{ issue_id: 'i-1', status: 'FIXED' }]) : DEV_OK, acceptance: args === FIX_ONE ? FIX_PASS : ACC_PASS }, args);
+    const id = args.plans[0].id;
+    const acc = prompt(`acceptance ${id}`);
+    ok(acc !== '' && !/implement EXACTLY|implement ONLY/.test(acc), `${id} (${args.plans[0].planContext ?? 'block'}): acceptance is not told to implement`);
+    ok(/you never implement it/.test(acc), 'and it is told it judges against the block');
+    ok(/Implement the |Resolve the verified issues in /.test(prompt(`develop ${id}`)), 'while the developer role still builds it');
+  }
+}
+
+section('the blind reviewer is told the gate commands and which porcelain entries are this cycle\'s work');
+{
+  const { prompt } = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS }, ONE_BLOCK);
+  const r1 = prompt('quality block-a r1');
+  const r2 = prompt('quality block-a r2');
+  ok(/build: b\n\s+test:  t\n/.test(r1), 'the build and test commands are named');
+  ok(/READ every untracked file \(`\?\?`\)/.test(r1) && !/`\?\?`\/`A`/.test(r1), 'new files are the untracked ?? entries, not a staged A');
+  ok(/staged half of an `AM` or `MM` file is baseline/.test(r1), 'an AM/MM file\'s staged half is baseline');
+  ok(/diff --stat/.test(r1), 'a large diff starts from --stat');
+  ok(/In round 1 it exists only if the developer already declined something/.test(r1), 'round 1 explains an absent ledger');
+  ok(r2 !== '' && !/In round 1 it exists only/.test(r2), 'round 2 drops the round-1 note');
+  ok(r2.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'and still points at the ledger');
+  eq(stateRefsOutsideGate(r1 + r2).join(', '), '', 'no run-state path outside gate/ in either round');
+}
+
+section('tests_run_count counts what the runner reports, and a section block scopes by its test_selector line');
+{
+  const { calls, prompt } = await run({ ...GREEN_RUN }, { ...baseArgs, plans: [{ id: 'sec', mode: 'section', gate: 'green' }] });
+  const desc = calls.find((c) => c.label.startsWith('develop sec')).opts.schema.properties.tests_run_count.description;
+  ok(/tests, or of assertions/.test(desc) && /0 = nothing ran = a FALSE green/.test(desc), 'the field covers assertion-counting runners and keeps the 0 rule');
+  ok(/use the block's `test_selector:` line when it has one, else the test gate/.test(prompt('develop sec')),
+    'the developer is told where the selector comes from');
 }

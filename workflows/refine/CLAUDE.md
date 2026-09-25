@@ -29,10 +29,11 @@ Four things together — remove any one and the plan grows every round instead o
    - `converged` — hand the final text to the user for approval, then derive develop's args from
      `--list` and build.
    - `needs-answers` — read `NEEDS-USER.md`: the critic raised things only you can settle (a
-     dependency-ordering error, a too-big block, a gap in an already-`done` block). Restructure the
-     plan (new blocks need fresh kebab ids), then relaunch.
+     dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done` block), or the editor
+     escalated a contested dismissal. Restructure the plan (new blocks need fresh kebab ids), then
+     relaunch as a fresh run (no resumeFromRunId).
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified. Read
-     `lastCritique`, decide, relaunch to confirm.
+     `lastCritique`, decide, relaunch as a fresh run (no resumeFromRunId) to confirm.
    - A `BLOCKED (...)` status — the halt reason names the repair.
 3. **Audit `DISMISSED-PLAN.md`** before trusting a converge — a declined gap is a judgment call.
 
@@ -48,8 +49,11 @@ be re-refined without rewriting the spec its staged code was built against.
   agent would be byte-identical to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Folds, declines to
   the ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
-  Halts: dead editor (`agent-dead` — the critique file survives, resume the fold), folded gaps with
-  `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken` — repair by hand).
+  Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited:
+  run the `--list` check first, then relaunch with resumeFromRunId to replay the cached critic and
+  redo the fold, since a relaunch without it restarts at round 1), folded gaps with `wrote_file`
+  false (`fold-unattested`), `plan_parses` false (`plan-broken` — repair by hand), `needs_user` true
+  (`needs-answers` — it escalated a contested dismissal to `NEEDS-USER.md`).
 
 ## 4. State files
 

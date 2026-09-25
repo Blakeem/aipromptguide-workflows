@@ -295,7 +295,7 @@ dropped information is not:
   tracked — the messages are prose full of apostrophes, and one opener leaves the scan unbalanced for the
   rest of the message. Unbalanced input falls back to the depth-blind cut, never to the whole message.
 
-**Solved — all 10 maps render clean. Keep it that way by never putting authored text on a self-loop
+**Solved — every map renders clean (8 as of 2026-09-25). Keep it that way by never putting authored text on a self-loop
 or on either edge of a marked node pair.** Both shapes are markered now: self-loops carry `L<n>`
 (conditions in the Loops table), the back edge of a boundary+back pair carries `E<n>` (conditions in
 the Edges table), and the boundary edge of a marked pair renders caption-less — mermaid places both

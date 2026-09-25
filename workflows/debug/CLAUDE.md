@@ -92,8 +92,8 @@ charter, `categories` the finding enum, the rest the floor wording.
   set with nothing and that unit would get zero reviewers while still counting as processed.
 - **An ARRAY of lenses** reviews each unit once per lens and merges the results into that unit's SINGLE
   issue file behind ONE verifier. Use it to sweep the same code from genuinely different angles in one
-  pass. Dedup is per-lens (`lens:file:category`), so two lenses may both report the same file+category —
-  that's the point, and the verifier folds true duplicates.
+  pass. The engine does not dedup, so two lenses may both report the same file+category — that's the
+  point, and the verifier folds true duplicates.
 - **Fan out by lens instead of file-slice** for a small codebase: pass the same files as N units with
   distinct ids and a different `unit.lens` each → one issue file per lens, reviewed concurrently.
 - Agent ceiling per unit: one reviewer per lens + at most one verifier. It's logged at run start.
@@ -128,7 +128,9 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    stash them. Ask the user which they want *before* starting. Gates must be GREEN.
 6. **Run develop on the issue files** (`../develop/CLAUDE.md`). Each triaged issue file with findings is
    one fix-mode block: run `node <plan-block.mjs> <issueFile> --list` per file and pass one plans entry
-   per file, each with its own `planPath`. Clean-marker files are not plans and are skipped. Start with
+   per file, each with its own `planPath`. Clean-marker files are not plans and are skipped. A file
+   with no `- decision: ACTIONABLE` entry after triage is not a plan either: set its block
+   `status: skip` (or leave it out). Start with
    one file to sanity-check cost and quality, then the rest.
 7. **Sync statuses.** Save develop's returned result to `runs/<runId>/develop-result.json`, then run
    `node tools/plan-edit.mjs sync <that file>`. It writes every block and issue `status:` line develop
@@ -162,8 +164,9 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 
 ## Gotchas
 
-- **The review re-phrases the same concern.** Dedup is by `lens:file:category`, not title — keep it that
-  way, or one lens's findings would silently suppress another's on the same file.
+- **The review re-phrases the same concern.** The engine does not dedup findings: a `file:category` key
+  dropped distinct real defects from a closed inventory. Every finding reaches the verifier, and the
+  verifier folds true duplicates.
 - **Reviewer severity is inflated** — that's why the verifier re-scores it; don't skip verify to save
   tokens (an unverified inventory wastes far more user-triage time than verify costs).
 - **`git diff` omits new files** — when verifying by hand, check `git status --porcelain` too.
@@ -193,7 +196,11 @@ with `units` from `gen-units.mjs`.
   strongly recommended, not enforced — omitted, the reviewer runs on a placeholder rubric; supply it.
   `gates` is informational context for the reviewer here. Missing `runId`, `root`, `target.repo` or
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
-- **Optional tuning:** `reviewSeverity` (inventory floor, default medium) · `lens` (one lens or an ARRAY —
+- **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
+  low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`).
 - **Returns** `issues` (a machine-built index of every finding),
-  `inventory` counts, `hottest` areas, and `needsUserFiles`.
+  `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed` (every dead reviewer
+  `{ unit, stage: 'review', lens }` and every verifier that did not attest its write
+  `{ unit, stage: 'verify' }`). `unitsReviewed` excludes units with a `failed` entry. Re-review those.
+- **Throws** when two unit ids map to one issue file or one plan id, naming both.

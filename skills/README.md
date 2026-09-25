@@ -34,8 +34,9 @@ without the slash form; each description tells Claude to run it only when you ex
 
 Run-state never touches your project or the plugin install dir: runs land in the plugin's persistent
 data dir (`~/.claude/plugins/data/aipg-aipromptguide/runs/<runId>/`; on Windows
-`%USERPROFILE%\.claude\plugins\data\aipg-aipromptguide\`), plan snapshots in `plans/<runId>/` beside
-them whenever the original plan sits somewhere a reviewer could reach. Uninstalling from your last
+`%USERPROFILE%\.claude\plugins\data\aipg-aipromptguide\`), plan files are authored in `plans/<runId>/`
+beside them, outside your project. The engines only warn when a plan sits inside the target repo, and
+do not move it. Uninstalling from your last
 scope **deletes that directory** — run history, parked patches and all — unless you pass
 `--keep-data`.
 

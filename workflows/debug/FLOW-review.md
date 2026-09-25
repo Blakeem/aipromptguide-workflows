@@ -18,13 +18,19 @@ flowchart TD
   x2[/"throw: args must include at least { runId, root, target, conventions, units }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.target.repo is required"/]
-  x5[/"throw: review requires a non-empty args.units array"/]
+  x5[/"throw: reviewSeverity #quot;...#quot; is not one of low#124;medium#124;high#124;critical"/]
+  x6[/"throw: review requires a non-empty args.units array"/]
+  x7[/"throw: Issue file collision"/]
+  x8[/"throw: Plan id collision"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
   S0 --> x3
   S0 --> x4
   S0 --> x5
+  S0 --> x6
+  S0 --> x7
+  S0 --> x8
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
@@ -57,8 +63,11 @@ flowchart TD
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 347) |
+| throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 52) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 371) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 381) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 382) |
 
 ## Coverage
 
-8 scenarios · 2/2 roles · 5/5 throw sites · 0/0 halt statuses · 8 terminal states.
+11 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 11 terminal states.

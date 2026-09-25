@@ -1,7 +1,7 @@
 // debug/review.mjs — the read-only fan-out that builds the inventory.
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
 // returned issues[] index, the triaged inventory a develop fix-mode block is built from.
-import { runEngine, section, ok, eq } from './harness.mjs';
+import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
@@ -44,17 +44,19 @@ section('a lens array spawns one reviewer per lens and exactly ONE verifier');
   eq(calls.length, 3, 'two reviewers + one verifier is the whole run — no organizer, no scribe');
 }
 
-section('dedup is per lens, so two lenses may both report the same file+category');
-// Within one lens, file:category is the right key — a re-phrased concern would slip past a title-based
-// one. Across lenses it must NOT collapse: two briefs can find two different real defects in the same
-// file and category, and folding true overlap is the verifier's job, not the harness's.
+section('no harness dedup: distinct same-file, same-category findings from one lens all reach verify');
+// A file:category key dropped every finding after the first, and the inventory is CLOSED, so a dropped
+// defect was never fixed or shown. Folding true duplicates is the verifier's job, not the harness's.
 {
-  const dupes = { wrote_clean_marker: false, findings: [finding({ category: 'data-loss', title: 'A' }), finding({ category: 'data-loss', title: 'B' })] };
-  const { out } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
-    'review': dupes,
+  const two = { wrote_clean_marker: false, findings: [finding({ category: 'correctness', title: 'A' }), finding({ category: 'correctness', title: 'B' })] };
+  const { out, prompt } = await run({}, {
+    'review': two,
     'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2')] },
   });
-  eq(out.inventory.total, 2, 'one kept per lens; the intra-lens duplicate dropped');
+  const v = prompt('verify');
+  ok(v.includes('u1-1 :: a.js:1 :: correctness/high :: A') && v.includes('u1-2 :: a.js:1 :: correctness/high :: B'), 'both findings are verifier candidates');
+  ok(v.includes('FOLD DUPLICATES FIRST. One reviewer can surface'), 'a single-lens verifier is told to fold duplicates too, since the harness no longer does');
+  eq(out.inventory.total, 2, 'both kept');
 }
 
 section('a single lens object offers the clean marker and skips verify entirely');
@@ -73,6 +75,46 @@ section('only the LAST lens may write the clean marker');
   const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, { 'review': NO_FINDINGS });
   ok(!calls[0].prompt.includes('CLEAN-UNIT MARKER'), 'lens 1 may NOT write the marker');
   ok(calls[1].prompt.includes('CLEAN-UNIT MARKER'), 'lens 2 (the last) may');
+}
+
+section('the write rule names the marker only when the marker section is present');
+// A non-final lens was told to write the marker "described below" with nothing below, so a zero-finding
+// reviewer could not tell whether it must write a file.
+{
+  const NO_MARKER = 'Write no file. Another pass decides the unit\'s marker. Return wrote_clean_marker=false.';
+  const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, { 'review': NO_FINDINGS });
+  ok(calls[0].prompt.includes(NO_MARKER), 'the non-final lens is told to write no file');
+  ok(!calls[0].prompt.includes('described below'), 'and is never pointed at a missing marker section');
+  ok(calls[1].prompt.includes('the ONLY file you may write is the clean-unit marker described below'), 'the final lens keeps the marker clause');
+  ok(!calls[1].prompt.includes(NO_MARKER), 'and is not told to write no file');
+}
+
+section('ALREADY FOUND entries carry the lens id and location, and a set lens is named');
+// Bare titles left a later lens guessing whether a candidate repeats one.
+{
+  const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review:u1/destructive':  { wrote_clean_marker: false, findings: [finding({ category: 'data-loss', line: '12-14', title: 'T1' })] },
+    'review:u1/control-flow': NO_FINDINGS,
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  ok(calls[1].prompt.includes('\n  - [destructive] a.js:12-14 T1'), 'the prior finding is rendered as [lens] file:line title');
+  ok(calls[0].prompt.includes('\nLENS: destructive\n') && calls[1].prompt.includes('\nLENS: control-flow\n'), 'each reviewer is told its lens id');
+  const { prompt } = await run({}, { 'review': NO_FINDINGS });
+  ok(!prompt('review').includes('\nLENS: '), 'an unset lens names no placeholder id');
+}
+
+section('the verifier gets each unit file\'s LOC for the entry loc line');
+// With no source for `- loc:`, verifiers ran wc -l themselves.
+{
+  const TWO = { ...UNIT, files: [{ path: 'a.js', loc: 10 }, { path: 'lib/b.js', loc: 37 }] };
+  const { prompt } = await run({ units: [TWO] }, {
+    'review': { wrote_clean_marker: false, findings: [finding({ file: 'lib/b.js', category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const v = prompt('verify');
+  ok(v.includes('  - a.js (10 LOC)\n  - lib/b.js (37 LOC)'), 'every unit file reaches the verifier with its LOC');
+  ok(v.includes('- loc: <that file\'s LOC from UNIT FILES>'), 'the template points loc at that list');
+  ok(v.includes('write its first line (840)'), 'a range collapses to its first line');
 }
 
 section('an empty lens array reads as unset, never as zero reviewers');
@@ -97,7 +139,7 @@ section('a DEAD lens reviewer is named, not silently counted as a clean lens');
 // items.length > 0, the unit is verified and logged with a ✓, its issue file is written with the unit
 // hash — and hash-based resume then SKIPS a unit one of whose lenses never looked at it.
 {
-  const { out, calls, logs } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+  const { out, calls, logs, prompt } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
     'review:u1/destructive': null,                                  // dead agent
     'review:u1/control-flow': { wrote_clean_marker: false, findings: [finding({ category: 'control-flow', title: 'T2' })] },
     'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
@@ -107,15 +149,34 @@ section('a DEAD lens reviewer is named, not silently counted as a clean lens');
   ok(text.includes('contributed NO coverage'), 'and the log says the coverage is missing, not clean');
   eq(calls.length, 3, 'the surviving lens still verifies — the unit is not dropped');
   eq(out.inventory.total, 1, 'only the live lens\'s finding is in the inventory');
+  ok(!calls[1].prompt.includes('CLEAN-UNIT MARKER'), 'the surviving final lens is not offered the marker');
+  ok(prompt('verify').includes('\nhash: incomplete\n'), 'the inventory is stamped incomplete, so hash resume re-reviews the unit');
+  ok(!prompt('verify').includes(`hash: ${UNIT.hash}\n`), 'and never with the real unit hash');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead lens is in the return');
+  eq(out.unitsReviewed, 0, 'a unit with a dead lens is not counted as reviewed');
+}
+
+section('a dead lens followed by a clean final lens never offers the clean marker');
+// The marker carries the real hash, so writing it after a dead lens would let resume skip a unit that
+// lens never looked at.
+{
+  const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review:u1/destructive': null,
+    'review:u1/control-flow': NO_FINDINGS,
+  });
+  eq(calls.length, 2, 'two reviewers, no verifier');
+  ok(!calls[1].prompt.includes('CLEAN-UNIT MARKER'), 'the final lens may NOT write the marker when a sibling died');
 }
 
 section('a dead SOLE reviewer is not reported as a clean unit');
 // The items.length === 0 path prints "clean but the reviewer did NOT write …", which misdiagnoses a
 // dead agent as a clean unit that merely lost its marker.
 {
-  const { calls, logs } = await run({ lens: DESTRUCT }, { 'review': null });
+  const { out, calls, logs } = await run({ lens: DESTRUCT }, { 'review': null });
   eq(calls.length, 1, 'no verifier — there are no findings to verify');
   ok(/⚠ u1: reviewer returned nothing/.test(logs.join('\n')), 'the death is logged before the clean-unit line');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead reviewer is in the return');
+  eq(out.unitsReviewed, 0, 'and the unit is not counted as reviewed');
 }
 
 section('the verifier\'s required wrote_file attestation is actually read');
@@ -143,7 +204,21 @@ section('a DEAD verifier is named and says how many findings were dropped');
   const text = logs.join('\n');
   ok(/⚠ u1: verifier did NOT confirm writing/.test(text), 'the dead verifier is named');
   ok(text.includes('agent returned nothing — its 2 finding(s) were DROPPED'), `the drop count is stated: ${text}`);
-  eq(out.inventory.total, 0, 'the return shape is unchanged — this guard is log-only');
+  eq(out.inventory.total, 0, 'no verdicts, so nothing is kept');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify' }]), 'the dead verifier is in the return');
+  eq(out.unitsReviewed, 0, 'and its unit is not counted as reviewed');
+}
+
+section('a verifier that did not attest its write never names that file in needsUserFiles');
+// Its per-unit file is null, so the operator is never pointed at an issue file that may not exist.
+{
+  const { out } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { verdicts: [keep('u1-1', { decision: 'NEEDS_USER' })] },   // no wrote_file
+  });
+  eq(out.inventory.needsUser, 1, 'the NEEDS_USER verdict is counted');
+  eq(out.needsUserFiles.length, 0, 'but no unwritten path is handed out');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify' }]), 'the unattested write is in the return');
 }
 
 section('the returned issues[] carries every issue-index field');
@@ -225,6 +300,48 @@ section('a verifier with zero kept verdicts writes the clean-marker bytes, never
   const v = prompt('verify');
   ok(v.includes('write NO `## Plan:` header at all'), 'the verifier is told the zero-verdict file is not a plan');
   ok(v.includes('then `# Review: u1`, then the single line "No issues found."'), 'and is given the clean-marker bytes verbatim');
+}
+
+section('the clean-marker rule is relative to the severity floor');
+// A reviewer returning only sub-floor findings would otherwise write no marker and get no verifier, so
+// every resume re-reviews the unit at full cost.
+{
+  const { prompt } = await run({ reviewSeverity: 'high' }, { 'review': NO_FINDINGS });
+  const r = prompt('review');
+  ok(r.includes('if AND ONLY IF you find ZERO high+ findings'), 'the marker condition names the floor');
+  ok(r.includes('If you report ANY high+ finding, write NOTHING'), 'and so does the write-nothing condition');
+}
+
+section('an unknown reviewSeverity throws instead of disabling the floor');
+{
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, units: [UNIT], reviewSeverity: 'Medium' }, respond: {} });
+  ok(msg.includes('reviewSeverity "Medium" is not one of low|medium|high|critical'), `throws naming the bad value: ${msg}`);
+}
+
+section('long unit ids sharing a 60-char prefix get distinct plan ids; short ids are unchanged');
+{
+  const prefix = 'src/' + 'a'.repeat(60);
+  const units = [
+    { id: `${prefix}#1`, hash: 'h1', files: [{ path: 'a.js', loc: 10 }] },
+    { id: `${prefix}#2`, hash: 'h2', files: [{ path: 'a.js', loc: 10 }] },
+  ];
+  const { byLabel } = await run({ units }, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [] },
+  });
+  const ids = byLabel('verify').map((c) => c.prompt.match(/## Plan: (\S+) - review findings/)?.[1]);
+  eq(ids.length, 2, 'both units verified');
+  ok(ids[0] && ids[1] && ids[0] !== ids[1], `distinct plan ids: ${ids.join(' | ')}`);
+  ok(ids.every((id) => id.length <= 60 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)), 'each stays a legal kebab id of at most 60 chars');
+}
+
+section('two unit ids that map to one issue file throw before any reviewer spawns');
+{
+  const units = [{ ...UNIT, id: 'src/foo-bar' }, { ...UNIT, id: 'src/foo_bar' }];
+  const { terminal, calls } = await runTrace(ENGINE, { args: { ...baseArgs, units }, respond: {} });
+  eq(terminal.kind, 'throw', 'the run throws');
+  ok(terminal.message.includes('"src/foo-bar" and "src/foo_bar" both map to issue file src_foo_bar.md'), `names both ids and the file: ${terminal.message}`);
+  eq(calls.length, 0, 'no agent spawned');
 }
 
 // The 'required args throw rather than silently defaulting' section (runId, root, target.repo, units)

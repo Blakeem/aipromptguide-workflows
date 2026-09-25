@@ -21,8 +21,9 @@
 // Exit 0 on success; exit 1 with the reason on stderr and NOTHING written — every failure the grammar can
 // see is caught before the first byte reaches disk, and each one names the id, key or value at fault: an
 // approved plan is what agents build against, so a half-applied or silently coerced edit is worse than no
-// edit at all. The one fault validation cannot pre-empt is an I/O error BETWEEN move's two writes, and the
-// write order below makes that duplicate an entry rather than delete one. `sync` builds and validates every
+// edit at all. The one fault validation cannot pre-empt is an I/O error BETWEEN a cross-file move's two
+// writes: the write order leaves the entry duplicated rather than deleted, and the error names the manual
+// cut, since a single-file parse never sees a duplicate across two plans. `sync` builds and validates every
 // file's edited text before writing any, and a re-run over an applied result writes nothing.
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
@@ -257,11 +258,15 @@ function runMove(argv) {
   if (!oneFile) validate(parseBlocks(nextDest), dest.path);
 
   // Output — both texts are built and validated first, so a grammar fault leaves both files alone. The
-  // DESTINATION is written before the source, because an I/O fault between the two writes is the one thing
-  // validation cannot pre-empt: this order leaves the entry in BOTH files, and a duplicate id is loud on
-  // the very next parse, where the reverse order deletes the entry from both and says so only on stderr.
+  // DESTINATION is written first so an I/O fault between the two writes duplicates the entry instead of
+  // deleting it. No parse catches a duplicate across two files, so the error names the manual cut.
   if (!oneFile) writeFileSync(dest.path, nextDest);
-  writeFileSync(src.path, nextSrc);
+  try {
+    writeFileSync(src.path, nextSrc);
+  } catch (err) {
+    if (oneFile) throw err;
+    throw new Error(`${dest.path} already holds ${issueId}, but cutting it from ${src.path} failed (${err.message}) — delete the "### [${issueId}]" entry from ${src.path} by hand, or the issue exists in both plans`);
+  }
   return `moved ${issueId} to ${blockId} in ${dest.path}\n`;
 }
 

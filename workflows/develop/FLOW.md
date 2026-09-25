@@ -26,7 +26,7 @@ flowchart TD
   t10(["BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing)"])
   t11(["BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)"])
   t12(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
-  t13(["BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it)"])
+  t13(["BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)"])
   t14(["BLOCKED (working tree was not clean - nothing was built)"])
   t15(["BLOCKED (needs user input)"])
   t16(["BLOCKED (a parked block left the tree unsafe - inspect before resuming)"])
@@ -84,7 +84,6 @@ flowchart TD
   a1 --> a2
   a1 --> a3
   a1 --> a4
-  a1 --> a5
   a1 --> t6
   a1 --> t8
   a1 --> t14
@@ -153,7 +152,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
 | BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming) | the developer will not confirm its work stayed unstaged | derived |
 | BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
-| BLOCKED (an agent returned nothing - it was skipped or died; re-invoke to replay it) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
+| BLOCKED (an agent returned nothing - it was skipped or died; its work is parked) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
 | BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked block left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
@@ -176,11 +175,11 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 212) |
 | throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 228) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 241) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 924) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 942) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 951) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 959) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 969) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 956) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 974) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 983) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 991) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1001) |
 
 ## Coverage
 

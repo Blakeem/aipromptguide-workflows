@@ -29,12 +29,13 @@ const FOLD_OK   = { wrote_file: true, folded: 2, declined: 0, plan_parses: true 
 // Every terminal state is its own fact, so each is asserted verbatim rather than by a substring: folding
 // any pair of them together is how an unconverged plan gets handed to a build engine as a finished one.
 const CONVERGED     = 'converged (one clean round: no gaps at or above the floor, no questions)';
-const NEEDS_ANSWERS = 'needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch)';
+const FRESH         = 'relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)';
+const NEEDS_ANSWERS = `needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then ${FRESH})`;
 const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
-const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died; the round\'s critique file is written, so re-invoke to resume the fold)';
-const NO_CRITIQUE   = 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; re-invoke to redo the round)';
-const NO_FOLD       = 'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan before resuming)';
-const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand before resuming)';
+const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)';
+const NO_CRITIQUE   = `BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; ${FRESH} to redo the round)`;
+const NO_FOLD       = `BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then ${FRESH})`;
+const PLAN_BROKEN   = `BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then ${FRESH})`;
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 
@@ -50,6 +51,37 @@ section('a clean first round converges, and is the one path that spawns no edito
   eq(out.rounds, 1, 'on round 1');
   eq(out.openGaps, 0, 'with no open gaps');
   eq(out.lastCritique, '', 'and no critique file named — a clean round legitimately writes none');
+}
+
+section('an FYI-only round writes its critique file and still converges, naming that file');
+// One rule for the critic: below-floor findings need the file, so an FYI-only round writes it and returns
+// zero counts. The engine must read that as convergence, not as a round with something to fold.
+{
+  const { out, labels, prompt } = await run({ 'plan-critic': { wrote_file: true, gap_count: 0, question_count: 0 } });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  ok(p.includes('A round with FYI items and no gaps or questions writes the file'),
+    'the critic is told an FYI-only round writes the file');
+  ok(p.includes('A round with nothing at all writes NOTHING'),
+    'and that a round with nothing at all writes nothing');
+  eq(out.status, CONVERGED, 'status');
+  ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for below-floor findings');
+  eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the FYI file is named as the last critique');
+}
+
+section('the critic prompt settles gates, grading and one-fix-per-gap');
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  ok(p.includes('You MAY run read-only commands, including a build or test command you find in the repo'),
+    'read-only is defined as never editing, with read-only commands allowed');
+  ok(p.includes('a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class'),
+    'a text edit inside one block is a gap');
+  ok(p.includes('An OMISSION the block\'s own green gate would catch on its first run is minor')
+    && p.includes('A WRONG INSTRUCTION the gate would not catch is major or higher'),
+    'the two grading rules are stated');
+  ok(p.includes('EXACTLY ONE smallest change that closes it (never alternatives)')
+    && p.includes('every other gap whose change touches the same plan lines'),
+    'one fix per gap, with overlapping gaps named');
 }
 
 section('a gapped round then a clean one converges on round 2, with exactly one editor');
@@ -76,6 +108,17 @@ section('questions end the run on any round, and the editor never sees them');
   eq(later.status, NEEDS_ANSWERS, 'a question raised after a fold lands on the same status');
   eq(later.rounds, 2, 'on the round that raised it');
   eq(byLabel('plan-editor').length, 1, 'the round-1 fold ran; the round-2 question spawned no second editor');
+}
+
+section('an editor that escalates a contested dismissal ends the run needs-answers, not converged');
+// The escalated question lives only in NEEDS-USER.md. The next critic would skip the original DISMISSED
+// line, find nothing else, and report converged with a user-only call still open.
+{
+  const { out, byLabel, prompt } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, needs_user: true } });
+  ok(prompt('plan-editor').includes('needs_user=true'), 'the editor is told which field reports the escalation');
+  eq(out.status, NEEDS_ANSWERS, 'status');
+  eq(out.rounds, 1, 'on the round the editor escalated');
+  eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
 }
 
 section('a gap in an already-done block arrives as a question, never as a gap to fold');

@@ -37,12 +37,14 @@ title or grep pattern, not line number, since earlier blocks shift lines.
 5. **Verify ground truth (§6), then sync statuses.** Save the run's returned result as JSON (for
    example `<stateDir>/develop-result.json`) and run `node tools/plan-edit.mjs sync <that file>`. It
    applies the result's `statusSync` edits, all or nothing, and a second run changes nothing. The engine
-   decides every value: an accepted or all-stale block → `done`, a park within the round budget →
-   `parked`, every other halt or a fix block that closed nothing → `blocked`. Fix issues map FIXED →
-   `fixed` only when their block landed, FIXED or FAILED in a block that did not land →
-   `needs-attention`, STALE → `stale`, and SKIPPED keeps `open`. The plan file is the selection truth,
+   decides every value: an accepted, all-stale or passed-but-unstaged block → `done`, a park within
+   the round budget → `parked`, every other halt or a fix block that closed nothing → `blocked`. Fix
+   issues map FIXED → `fixed` and STALE → `stale` only when their block landed (an all-stale block
+   skips the blind review, and acceptance confirms each STALE claim). FIXED, STALE or FAILED in a block that did not land → `needs-attention`,
+   and SKIPPED keeps `open`. Acceptance checks every FIXED and STALE claim. A FIXED or STALE issue whose latest fix_check says actually_fixed=false maps to
+   `needs-attention`, even when its block landed. The plan file is the selection truth,
    git staging is the landed truth, and the sync is also the recovery step if a run dies between staging
-   and sync. Flip `parked`/`blocked` back to `todo` after resolving, then relaunch.
+   and sync. Flip `parked`/`blocked` back to `todo` after resolving, re-derive the args (step 3), then relaunch.
 
 ## 3. Plan-file format
 
@@ -60,11 +62,15 @@ external inventories use the same shape.
 ## 4. Pre-run setup (your job — no setup agent)
 
 - **Clean unstaged tree, engine-enforced** on round 1 (halts before any reviewer spawns). Settle a
-  dirty tree first: `git add -A` to keep as baseline, `git stash -u` to set aside.
+  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline, `git stash -u` to
+  set aside. If the dirt is an interrupted develop run's unfinished block, never `git add -A` it (no
+  reviewer passed it): `git stash -u` it and relaunch, or relaunch that run with `resumeFromRunId`.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool` defaults to
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
   the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
-- **Fresh vs. resume:** clear `runs/<runId>/` for a new run; preserve on resume.
+- **Fresh vs. resume:** for a new run, clear develop's own state files (§8) under the state dir;
+  preserve them on resume. Never clear a plan file or debug's `issues/`, which may share
+  `runs/<runId>/`.
 
 ## 5. Roles
 
@@ -73,9 +79,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
   `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. **Must attest `unstaged_confirmed` — a
   missing or false attestation now HALTS** (the staged index is surface neither reviewer checks).
-- **Quality Reviewer** — blind by placement (`gate/` only). Skipped ONLY when the round produced
-  nothing AND no prior review of the block is still open: a round that drops every finding cannot
-  skip the gate past actively-flagged code (`qualityOpen`).
+- **Quality Reviewer** — blind by placement (`gate/` only). Skipped ONLY when no produced work is
+  still unreviewed: a round that only re-runs a red gate or drops every finding cannot skip the gate
+  past unreviewed or actively-flagged code (`reviewOwed`).
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the staged baseline already satisfies passes without inventing changes). Only agent that
   stages.
@@ -103,10 +109,15 @@ gates, `git diff --cached`, grep integration points, read the latest acceptance 
 ## 7. Resume
 
 Durable state = git staging + the plan file's status lines + the review-file trail. After syncing
-statuses (§2.5), a relaunch with the same derived args rebuilds pending from `todo` — no startAt
+statuses (§2.5), a relaunch with args re-derived by a fresh `plan-block.mjs <planPath> --list` (never
+the previous args object) rebuilds pending from `todo` — no startAt
 needed in the common case (`runOnly`/`startAt` still work as explicit overrides, unknown ids throw).
 A parked block's work is in `parked-<id>.patch`, not the tree; sharpen its block, flip it to `todo`,
 relaunch.
+
+**Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
+unreviewed work. Set it aside with `git stash -u` (or save `git diff --binary` plus untracked files to
+the state dir), then relaunch clean. Never `git add -A` it.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 

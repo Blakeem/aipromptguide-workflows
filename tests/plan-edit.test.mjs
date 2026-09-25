@@ -397,7 +397,7 @@ section('a move whose destination cannot be written leaves the entry in the SOUR
 {
   // The one fault the up-front validation cannot pre-empt is an I/O error between the two writes. Losing
   // the entry from both files is unrecoverable — the plan file is its only copy — so the destination is
-  // written first and a fault duplicates the entry instead, which the next parse rejects loudly.
+  // written first and a fault duplicates the entry instead.
   const src = fixture(PLAN, 'src.md');
   const dest = fixture(DEST, 'dest.md');
   const beforeSrc = read(src);
@@ -416,6 +416,29 @@ section('a move whose destination cannot be written leaves the entry in the SOUR
     ok(true, 'this user can write a read-only file, so the write order is not observable here');
   }
   chmodSync(dest, 0o666);
+}
+
+section('a cross-file move whose SOURCE cannot be written names the duplicate and the manual cut');
+{
+  // No parse sees an id duplicated across two files, so the error is the only signal of the half-applied move.
+  const src = fixture(PLAN, 'src.md');
+  const dest = fixture(DEST, 'dest.md');
+  const beforeSrc = read(src);
+
+  chmodSync(src, 0o444);
+  let enforced = true;
+  try { writeFileSync(src, beforeSrc); enforced = false; } catch { /* read-only is honored here */ }
+
+  if (enforced) {
+    const message = fails('move', src, 'null-deref', dest, 'inbox');
+    ok(message.includes(`${dest} already holds null-deref`), 'the error names the destination that holds the entry');
+    ok(message.includes(`delete the "### [null-deref]" entry from ${src} by hand`), 'and the manual cut from the source');
+    ok(read(dest).includes('### [null-deref]'), 'the destination holds the entry');
+    eq(read(src), beforeSrc, 'and the source still does, unchanged');
+  } else {
+    ok(true, 'this user can write a read-only file, so the source-write failure is not observable here');
+  }
+  chmodSync(src, 0o666);
 }
 
 section('the CLI itself: exit codes, where the message goes, and what reaches disk');

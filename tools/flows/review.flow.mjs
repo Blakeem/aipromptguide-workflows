@@ -82,13 +82,16 @@ export default {
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the five throw sites, in the order the engine checks them -------------------------------
+    // ---- the eight throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow' } },
+    { name: 'unknown severity floor', when: 'args.reviewSeverity is not a known severity', args: { ...base, reviewSeverity: 'Medium', units: [unit('u1')] } },
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
+    { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
+    { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },
   ],
 };

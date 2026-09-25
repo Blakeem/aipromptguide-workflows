@@ -115,8 +115,8 @@
 // independent derivations can disagree, and then the committed diagram contradicts the gate.
 // =================================================================================================
 
-import { readFileSync, writeFileSync, readdirSync, mkdirSync, statSync } from 'node:fs';
-import { join, dirname, resolve } from 'node:path';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, statSync, realpathSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { runTrace, readMeta, readRoles, readThrows, readHaltStatus, INTERP, REPO_ROOT } from '../tests/harness.mjs';
 
@@ -901,8 +901,15 @@ async function main(argv) {
 
 // Guard: importing this module (tests/flows.test.mjs does) must not run the CLI. Errors are reported as
 // the one line they are — a mistyped spec name is not worth a stack trace, and every throw in here
-// already names what to fix.
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// already names what to fix. Node realpaths the main module, so both sides are realpathed: a link in the
+// script path otherwise made the guard false and the CLI a silent no-op at exit 0.
+let invokedDirectly = false;
+try {
+  invokedDirectly = Boolean(process.argv[1])
+    && pathToFileURL(realpathSync(process.argv[1])).href === pathToFileURL(realpathSync(fileURLToPath(import.meta.url))).href;
+} catch { invokedDirectly = false; }
+
+if (invokedDirectly) {
   let code = 0;
   try {
     code = await main(process.argv.slice(2));
