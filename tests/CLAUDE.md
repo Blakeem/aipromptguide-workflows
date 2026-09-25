@@ -165,7 +165,9 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-- **Long WHY comments.** The house style. Prose is terse; explanation is not.
+- **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
+  style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
+  enhance conciseness pass, never to debug.
 - **Missing JSDoc, "this function is long", naming preferences, formatting.**
 - **No prompt-quality tests.** Not testable here by construction — see §6.
 

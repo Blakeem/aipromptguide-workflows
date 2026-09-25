@@ -162,6 +162,15 @@ per sentence — *does the reader need this to act?* No → cut it. Yes → keep
 give each agent concise instructions and don't restate content a linked file already holds; #11 keeps
 that content in one canonical place.)
 
+The same test governs **code comments and guides**. A comment in an engine or tool states only the why
+the code cannot show: a constraint, a workaround, a measured decision, in one or two lines. It never
+narrates what the code does, records history (what a line used to be, which review found it, a date), or
+repeats the workflow's `CLAUDE.md`, which loads for anyone editing a file in that folder. A guide never
+repeats another guide. **Prompts are the one place "the reader already has it" does not reach the
+guides:** run-time agents work in the user's project and never load this repo's `CLAUDE.md` files, so a
+rule an agent needs is stated in its prompt, once, and cutting it there because a guide holds it is
+compression.
+
 ### 14. Evidence-grounded judgment — cite or confess
 Every score, severity, verdict, and finding names the **evidence it rests on** — a `file:line`, a lens
 claim, a test output, a source URL — precisely enough that a checker can verify the citation **exists
@@ -304,7 +313,8 @@ Use these as yes/no checks when reviewing any workflow against these principles:
       stated purpose**? (#11)
 - [ ] Is every prompt, review, and ledger line **laconic by subtraction** — filler, already-known
       context, and irrelevant detail cut, with **nothing the reader needs to act on** compressed away?
-      (#13)
+      Does every code comment state only a why the code cannot show, with no history and nothing the
+      folder's `CLAUDE.md` already says? (#13)
 - [ ] Does every score, severity, verdict, and finding **cite checkable evidence** (file:line, source,
       lens claim) — or explicitly mark itself the judge's **own judgment with a confidence** — with no
       asserted numbers and no fabricated citations? (#14)

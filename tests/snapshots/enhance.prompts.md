@@ -7,8 +7,8 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | find | 1 | 1 | 3932 | two lenses propose |
-| verify | 1 | 1 | 5874 | two lenses propose |
-| verify | 2 | 1 | 5902 | two lenses propose |
+| verify | 1 | 1 | 6270 | two lenses propose |
+| verify | 2 | 1 | 6298 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -222,12 +222,16 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
      REJECT it with a one-line note naming what is broken, so the user can route it to the defect
      workflow. Do NOT smuggle it through as an enhancement.
+  5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
+     A change that would break or weaken something the system needs, or leave ambiguous an instruction
+     or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
+     too_risky=true and REJECT it with a one-line note naming the risk.
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   effort : trivial | small | medium | large
 ROUTING (apply in order; first match wins):
-  - is_real == false OR is_defect == true    -> REJECT (one line why)
+  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line why)
   - impact below the moderate floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
@@ -340,6 +344,10 @@ Set wrote_file=true and return all verdicts via the schema.
             "type": "boolean",
             "description": "true if this is really a BUG in current behavior, not an enhancement — it is out of scope here and belongs in the debug workflow. Always REJECT these, and say so."
           },
+          "too_risky": {
+            "type": "boolean",
+            "description": "true if the risk you verified outweighs the cost removed: the change would break or weaken something the system needs, or leave ambiguous an instruction or contract that must be exact. Always REJECT these, and name the risk."
+          },
           "rationale": {
             "type": "string"
           },
@@ -412,12 +420,16 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
      REJECT it with a one-line note naming what is broken, so the user can route it to the defect
      workflow. Do NOT smuggle it through as an enhancement.
+  5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
+     A change that would break or weaken something the system needs, or leave ambiguous an instruction
+     or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
+     too_risky=true and REJECT it with a one-line note naming the risk.
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   effort : trivial | small | medium | large
 ROUTING (apply in order; first match wins):
-  - is_real == false OR is_defect == true    -> REJECT (one line why)
+  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line why)
   - impact below the moderate floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
@@ -529,6 +541,10 @@ Set wrote_file=true and return all verdicts via the schema.
           "is_defect": {
             "type": "boolean",
             "description": "true if this is really a BUG in current behavior, not an enhancement — it is out of scope here and belongs in the debug workflow. Always REJECT these, and say so."
+          },
+          "too_risky": {
+            "type": "boolean",
+            "description": "true if the risk you verified outweighs the cost removed: the change would break or weaken something the system needs, or leave ambiguous an instruction or contract that must be exact. Always REJECT these, and name the risk."
           },
           "rationale": {
             "type": "string"

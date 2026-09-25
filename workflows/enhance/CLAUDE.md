@@ -104,7 +104,8 @@ noise.
   wins: (1) **the system already does this** — the most common failure of a find pass; (2) the claimed
   cost is not real or cannot be substantiated from the code; (3) it is taste, or below the floor once
   honestly scored; (4) it is a **defect**, not an enhancement — rejected with `is_defect`, so you can
-  route it to debug. Then it re-scores impact/effort (finders over-rate) and **writes**
+  route it to debug; (5) its verified **risk outweighs** the cost removed, such as breaking something the
+  system needs or leaving a required instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/effort (finders over-rate) and **writes**
   `proposals/<lens>.md` verbatim.
 
 ## 6. Contracts (keep intact)
