@@ -27,18 +27,14 @@ export const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/
 // Every Workflow engine. gen-units.mjs is NOT here — it is ordinary Node (real imports, run directly),
 // so it gets a real `node --check` in static.test.mjs instead.
 export const ENGINES = [
-  'workflows/feature/feature-cycle.mjs',
-  'workflows/migrate/migrate-cycle.mjs',
   'workflows/develop/develop-cycle.mjs',
   'workflows/refine/refine-cycle.mjs',
   'workflows/debug/review.mjs',
-  'workflows/debug/resolve-cycle.mjs',
   'workflows/enhance/enhance-cycle.mjs',
   'workflows/decide/decide-cycle.mjs',
   'workflows/docs/docs-cycle.mjs',
   'workflows/brainstorm/brainstorm-cycle.mjs',
   'workflows/investigate/investigate-cycle.mjs',
-  'workflows/gauntlet/gauntlet-cycle.mjs',
 ];
 
 // ---------------------------------------------------------------------------------------------
@@ -183,7 +179,7 @@ async function execute(enginePath, { args, respond = {}, budget } = {}) {
 
 /**
  * Run an engine against scripted agents. Throws whatever the engine throws.
- * @param {string} enginePath  repo-relative, e.g. 'workflows/feature/feature-cycle.mjs'
+ * @param {string} enginePath  repo-relative, e.g. 'workflows/develop/develop-cycle.mjs'
  * @param {object} o
  * @param {object} o.args      the args the engine sees
  * @param {object|function} o.respond  scripted agent returns (see toResponder)
@@ -286,7 +282,7 @@ export const INTERP = '...';
 
 /**
  * Skip the balanced `${ … }` whose `$` sits at `i`; returns the index just past its `}`.
- * A brace counter alone is not enough. feature-cycle interpolates
+ * A brace counter alone is not enough. develop-cycle's runOnly throw interpolates
  * `${unknown.map((id) => `"${id}"`).join(', ')}` — a template nested inside an arrow function inside the
  * interpolation — so the scanner tracks a STACK of contexts (code / each string quote) and re-enters code
  * on a nested `${`. Counting braces alone stops at the inner template's `}` and spills its tail into the

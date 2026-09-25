@@ -24,7 +24,7 @@ A deliberately **lean, loose** workflow built on the shared [Workflow Principles
   staged, or committed in your codebase. You adopt what you like afterward.
 
 To have the AI *conclude* among options with a weighted decision matrix, use the sibling
-[`decide-cycle`](../decide/). To *build* a chosen direction, use [`feature-cycle`](../feature/).
+[`decide-cycle`](../decide/). To *build* a chosen direction, author a plan file for [`develop-cycle`](../develop/).
 
 ---
 
@@ -34,7 +34,7 @@ To have the AI *conclude* among options with a weighted decision matrix, use the
   slideshow designs, product/feature concepts, business-plan angles, naming/branding directions.
 - ❌ **One obvious approach:** just produce it directly.
 - ❌ **You want a decision, not options:** use [`decide-cycle`](../decide/).
-- ❌ **You want it built:** use [`feature-cycle`](../feature/).
+- ❌ **You want it built:** author a plan file for [`develop-cycle`](../develop/).
 
 ---
 
@@ -61,7 +61,7 @@ complex problem, writes a shared brief in plan mode), then runs `brainstorm-cycl
 
 Variations land under `runs/<runId>/variations/<lens>/` — open each entry and compare. There are no
 review or status files (it's divergent; you're the judge). Pick one, combine elements, then either build
-it with [`feature-cycle`](../feature/) or copy it into your repo yourself.
+it from a [`develop-cycle`](../develop/) plan file or copy it into your repo yourself.
 
 ---
 

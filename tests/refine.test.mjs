@@ -197,6 +197,28 @@ section('dismissedCount sums the editor\'s declines across every round, not just
   eq(out.dismissedCount, 7, 'and the total is their sum');
 }
 
+section('run-state and plan files inside the target repo each draw their own warning');
+// Either one inside the repo is a route to the spec for develop-cycle's blind reviewer later. Each guard
+// asserts on a substring the OTHER guard's line lacks: two guards that match one assertion prove nothing.
+const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside the target repo'));
+const stateWarnings = (logs) => logs.filter((l) => l.includes('INSIDE the target repo'));
+{
+  const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, stateDir: 'E:/repo/runs/t-refine' });
+  eq(stateWarnings(logs).length, 1, 'run-state inside the repo warns once');
+  eq(planWarnings(logs).length, 0, 'and does not also fire the plan guard');
+}
+{
+  const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, planPath: 'E:\\repo\\docs\\bus.md' });
+  const warn = planWarnings(logs);
+  eq(warn.length, 1, 'a plan file inside the repo warns once');
+  ok((warn[0] ?? '').includes('E:/repo/docs/bus.md'), `and names the normalized path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+  eq(stateWarnings(logs).length, 0, 'and is not the run-state guard firing');
+}
+{
+  const { logs } = await run({ 'plan-critic': CLEAN });
+  eq(stateWarnings(logs).length + planWarnings(logs).length, 0, 'both outside the repo draw nothing');
+}
+
 // ---------------------------------------------------------------------------------------------
 // Arg validation — every one of these throws BEFORE an opus critic is spawned
 // ---------------------------------------------------------------------------------------------

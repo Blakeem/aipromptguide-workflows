@@ -184,10 +184,10 @@ section('an absent key is appended to the END of its run, or under the header wh
 
   // The empty-preamble twin: markdown's blank line under the header means the run starts nowhere, so the
   // new line has to be placed against the header itself rather than against a run that does not exist.
-  const BARE = '## Plan: bare - no preamble\n\nbody\n\n## Gate\ngreen\n';
+  const BARE = '## Plan: bare - no preamble\n\nbody\n';
   const bare = fixture(BARE, 'bare.md');
   run(['set', bare, 'bare', 'status=done']);
-  eq(read(bare), '## Plan: bare - no preamble\nstatus: done\n\nbody\n\n## Gate\ngreen\n',
+  eq(read(bare), '## Plan: bare - no preamble\nstatus: done\n\nbody\n',
     'an empty block preamble: directly under the header');
 }
 
@@ -443,6 +443,84 @@ section('the CLI itself: exit codes, where the message goes, and what reaches di
   eq(cli('rename', file, 'x').code, 1, 'and on an unknown subcommand');
   eq(read(file), written, 'neither of which wrote anything');
   ok(before !== written, 'the fixture was edited exactly once across this section');
+}
+
+section('sync applies a develop result\'s statusSync across several files, from the object or a bare array');
+{
+  const plan = fixture();
+  const dest = fixture(DEST, 'inbox.md');
+  const [planBefore, destBefore] = [read(plan), read(dest)];
+  const edits = [
+    { planPath: plan, id: 'bus-parser', key: 'status', value: 'done' },
+    { planPath: dest, id: 'inbox', key: 'status', value: 'parked' },
+    { planPath: plan, id: 'null-deref', key: 'status', value: 'fixed' },
+    { planPath: dest, id: 'old-one', key: 'status', value: 'stale' },
+  ];
+  const result = fixture(JSON.stringify({ runId: 'r', status: 'done (all blocks staged)', statusSync: edits }), 'result.json');
+  const out = run(['sync', result]);
+  eq(read(plan), planBefore.replace('gate: build-only', 'gate: build-only\nstatus: done')
+    .replace('- decision: ACTIONABLE', '- decision: ACTIONABLE\n- status: fixed'), 'the first file carries both of its edits, nothing else');
+  eq(read(dest), destBefore.replace('gate: green', 'gate: green\nstatus: parked')
+    .replace('- severity: low', '- severity: low\n- status: stale'), 'and the second file both of its own');
+  ok(out.includes(plan) && out.includes(dest), 'the output names each file it wrote');
+
+  const [planAfter, destAfter] = [read(plan), read(dest)];
+  const again = run(['sync', result]);
+  ok(/nothing to change/.test(again), `a second run is a no-op and says so: ${again.trim()}`);
+  eq(read(plan) + read(dest), planAfter + destAfter, 'and writes no byte');
+
+  const bare = fixture(PLAN, 'bare.md');
+  const bareBefore = read(bare);
+  run(['sync', fixture(JSON.stringify([{ planPath: bare, id: 'triage', key: 'status', value: 'blocked' }]), 'bare.json')]);
+  eq(read(bare), bareBefore.replace('mode: fix\ngate: green\n\n### [flaky-test]', 'mode: fix\ngate: green\nstatus: blocked\n\n### [flaky-test]'),
+    'a bare array of edits works the same');
+  eq(run(['sync', fixture(JSON.stringify({ statusSync: [] }), 'empty.json')]).trim(), 'nothing to change: 0 edit(s) across 0 file(s) already applied',
+    'an empty statusSync changes nothing');
+}
+
+section('sync keeps a BOM, CRLF line endings and a missing trailing newline, exactly as set does');
+{
+  const file = fixture(`${BOM}${PLAN.trimEnd().replace(/\n/g, '\r\n')}`);
+  const before = read(file);
+  run(['sync', fixture(JSON.stringify([{ planPath: file, id: 'bus-parser', key: 'status', value: 'done' }]), 'r.json')]);
+  eq(read(file), before.replace('gate: build-only', 'gate: build-only\r\nstatus: done'), 'only the appended line differs, in the file\'s own ending');
+}
+
+section('one bad edit in any file writes NO file, and the failure names the file, id, key and value');
+{
+  const plan = fixture();
+  const dest = fixture(DEST, 'inbox.md');
+  const [planBefore, destBefore] = [read(plan), read(dest)];
+  const good = { planPath: plan, id: 'bus-parser', key: 'status', value: 'done' };
+  const syncWith = (bad) => fails('sync', fixture(JSON.stringify([good, bad]), 'result.json'));
+  const cases = [
+    [{ planPath: dest, id: 'inbox', key: 'status', value: 'nearly' }, /inbox status=nearly: .*illegal preamble key "status: nearly"/, 'an illegal value in the LAST file'],
+    [{ planPath: dest, id: 'ghost', key: 'status', value: 'done' }, /ghost status=done: no id "ghost"/, 'an unknown id'],
+    [{ planPath: dest, id: 'old-one', key: 'sevrity', value: 'low' }, /old-one sevrity=low: unknown issue key "sevrity"/, 'an unknown key'],
+    [{ planPath: dest, id: 'inbox', key: 'status', value: 'done\nstatus: todo' }, /contains a line break/, 'a value carrying a line break'],
+    [{ planPath: 'plans/inbox.md', id: 'inbox', key: 'status', value: 'done' }, /relative planPath "plans\/inbox\.md"/, 'a relative planPath'],
+    [{ planPath: dest, id: 'inbox', key: 'status' }, /is not \{ planPath, id, key, value \} strings/, 'an edit missing a field'],
+  ];
+  for (const [bad, re, what] of cases) {
+    const msg = syncWith(bad);
+    ok(re.test(msg), `${what}: ${msg.slice(0, 90)}`);
+    eq(read(plan) + read(dest), planBefore + destBefore, `${what} — neither file was written, the good edit included`);
+  }
+  ok(syncWith({ planPath: dest, id: 'inbox', key: 'status', value: 'nearly' }).includes(dest), 'the message names the file at fault');
+  ok(/neither a develop result/.test(fails('sync', fixture('{"status":"done"}', 'no-sync.json'))), 'a result with no statusSync fails');
+  ok(/as JSON/.test(fails('sync', fixture('not json', 'bad.json'))), 'a file that is not JSON fails');
+  ok(/no such result file/.test(fails('sync', join(tmpDir(), 'missing.json'))), 'a missing result file fails');
+  ok(/usage:/.test(fails('sync')), 'and so does a missing argument');
+
+  const cliOut = (() => {
+    try {
+      execFileSync(process.execPath, [CLI, 'sync', fixture(JSON.stringify([good, { planPath: dest, id: 'ghost', key: 'status', value: 'done' }]), 'cli.json')], { stdio: 'pipe' });
+      return { code: 0, stderr: '' };
+    } catch (e) { return { code: e.status ?? 1, stderr: String(e.stderr || '') }; }
+  })();
+  eq(cliOut.code, 1, 'the CLI exits 1');
+  ok(cliOut.stderr.includes('ghost'), 'naming the edit at fault on stderr');
+  eq(read(plan) + read(dest), planBefore + destBefore, 'with every file byte-identical');
 }
 
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

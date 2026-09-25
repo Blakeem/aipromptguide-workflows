@@ -1,7 +1,7 @@
 # Workflow Principles
 
 Design rules for **Claude Code Workflows** (the background `Workflow` engines I author, e.g.
-`feature-cycle.mjs`). Use this to **write** new workflows and to **review** existing ones. The goal
+`develop-cycle.mjs`). Use this to **write** new workflows and to **review** existing ones. The goal
 is always the **simplest, lowest-friction path** to the outcome — *no fluff, no extra agents.* We
 **engineer around** a need rather than spawn a new role for it. An agent earns its place only if no
 other agent, the harness, or the main agent (talking to the user beforehand) can do its job without
@@ -76,17 +76,17 @@ What is forbidden is **narration about the run**: status files, run summaries, p
 did" reports. What is written is exactly three things — the numbered inter-agent messages, the
 **ledgers and user notes** below, and the workflow's **own product output**, the thing the run exists
 to produce: `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
-`options/` + `DETERMINATION.md`, the docs set + `INDEX.md`, migrate's `SWEEP.md`, and a **parked patch**
+`options/` + `DETERMINATION.md`, the docs set + `INDEX.md`, develop's `SWEEP.md`, and a **parked patch**
 (`parked-<id>.patch`, plus a `parked-<id>-newfiles/` dir when needed). The rule bans reports, not
-products. (`DETERMINATION.md` earns its place the way migrate's `SWEEP.md` does: it holds the
+products. (`DETERMINATION.md` earns its place the way develop's `SWEEP.md` does: it holds the
 cross-option comparison and the coverage evidence, which no per-option file contains, and it links to
 `options/<id>.md` rather than restating them.)
 
 The teeth, so "product" can't be stretched to license a status file: a file that **restates numbers
-the harness already has** is narration however it is titled. That is precisely why `resolve-cycle`
-deleted its `SWEEP.md` while `migrate-cycle` keeps its — migrate's re-derives the change surface from
-the goal by grep and produces findings no per-section agent could reach; resolve's only retold the
-harness's own accounting.
+the harness already has** is narration however it is titled. That is precisely why the retired
+`resolve-cycle` deleted its `SWEEP.md` while develop keeps its own. Develop's sweep re-derives the change
+surface from the goal by grep and produces findings no per-block agent could reach. Resolve's only
+retold the harness's own accounting.
 
 The **developer's *only* outputs besides code** are two append files:
 - **`DISMISSED-<id>.md`** — the dismissed-findings ledger, one per plan / section / batch: one
@@ -147,7 +147,7 @@ verbatim when it moves*, this governs *not duplicating it at all unless the copy
 
 ### 12. Right-size before you run
 One **bounded** feature per run. Too small (a one-liner, a rename) → make the edit directly. Too big
-(breadth-spanning migration) → split, or use a different engine. A thing too small to deserve a
+(breadth-spanning migration) → split, or use section-mode blocks. A thing too small to deserve a
 reviewed plan is too small for the workflow.
 
 ### 13. Laconic by subtraction — cut noise, never compress
@@ -201,8 +201,8 @@ close it:
 Principles #1–4, #6, #8, #11–15 are **core** — every workflow honors them. The rest are
 **build-loop** rules and apply only where they fit:
 
-- **Build loops** (produce code — feature/migrate/debug) honor everything, including the staged
-  escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
+- **Build loops** (produce code: develop, plus debug's review that feeds it) honor everything,
+  including the staged escalating review (#5), developer-owned escalation (#7), and one-staging-at-the-end (#9).
 - **Generative & read-only workflows** (creative divergence, information provisioning, read-only
   auditing — e.g. brainstorm, docs, enhance) write **no code**, stage nothing, and **never commit**, so
   #7 and #9 don't apply. The user is the judge; there is no AI review gate unless the workflow genuinely
@@ -211,14 +211,16 @@ Principles #1–4, #6, #8, #11–15 are **core** — every workflow honors them.
 - **An open-ended inventory must never drive an autonomous fixer.** A *closed* inventory (debug's, fixed
   at triage) is what makes its fix loop converge. A proposal list has no such property — there is always
   another enhancement — so a workflow that generates one stops at the inventory and hands it to a human.
-  This is why enhance has no resolve sibling and writes to `proposals/`, never `issues/`.
-- **Convergence workflows** (the AI reaches a conclusion — e.g. decide, investigate) DO run a review loop
+  This is why enhance has no fix-mode output and writes to `proposals/`, never `issues/`.
+- **Convergence workflows** (the AI reaches a conclusion — e.g. decide, investigate, refine) DO run a review loop
   in the spirit of #5, but **non-blind by design**: the reviewer must see the conclusion and the
   requirements it's judged against, because a reviewer blind to the decision can't evaluate it. Blindness
   (#3) guards against *code-regression* anchoring; it is wrong for *evaluating an argument*. There are two
   shapes, and **what converges** differs:
   - **Argument** (decide): the loop converges when reviewer and decider **agree** against a fixed
     requirements rubric, bounded by `maxRounds`. The candidate set is fixed by one up-front fan-out.
+  - **Plan review** (refine): the loop converges on one round in which a read-only critic finds no gap
+    at or above a fixed defect floor. Its editor changes only the plan file, and only what a gap names.
   - **Search** (investigate): the loop converges on **coverage** — an evidenced claim that nothing
     qualifying was left unsearched, which an adversarial critic may contest. Candidates are *found*
     round by round rather than generated up front, and the ledger of what already failed is what makes
@@ -282,7 +284,7 @@ Use these as yes/no checks when reviewing any workflow against these principles:
       `DISMISSED-<id>.md` ledger (or investigate's `DISQUALIFIED.md`), full user-facing `NEEDS-USER.md`,
       and the workflow's **own product** (`issues/`, `proposals/`, `variations/`, `lenses/`, decision
       files, investigate's `options/` + `DETERMINATION.md`, docs set + `INDEX.md`,
-      migrate's `SWEEP.md`, a parked patch)? **Narration about the run** — any status, summary,
+      develop's `SWEEP.md`, a parked patch)? **Narration about the run** — any status, summary,
       progress, or "what I did" file, including one that merely restates numbers the harness already
       has — is a violation. (#6)
 - [ ] Does the **blind** reviewer read the **dismissed ledger** from its own `gate/` dir (#3), the

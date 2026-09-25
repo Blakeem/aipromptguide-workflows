@@ -12,7 +12,7 @@ import { INTERP, REPO_ROOT, readThrows, section, ok, eq } from './harness.mjs';
 // ---------------------------------------------------------------------------------------------
 // Fixtures + tiny helpers
 // ---------------------------------------------------------------------------------------------
-const [brainstorm, feature, investigate, resolve] = await loadSpecs(['brainstorm', 'feature', 'investigate', 'resolve']);
+const [brainstorm, develop, investigate] = await loadSpecs(['brainstorm', 'develop', 'investigate']);
 
 const nodeByLabel = (g, label) => g.nodes.find((n) => n.label === label);
 const edgeBetween = (g, from, to) => {
@@ -37,51 +37,6 @@ const reviewSpec = (units) => ({
     terminal: 'inventory written',
   }],
 });
-
-const DEV = { build_passed: true, test_outcome: 'passed', tests_run_count: 3, full_suite_outcome: 'passed', unstaged_confirmed: true, baseline_dirty_files: 0, needs_user: false };
-const featureScenario = (name, plans) => ({
-  name,
-  when: `${plans.length} plan(s) park`,
-  // planPath is what makes these bodyless entries legal: each is a "## Plan: <id>" block inside it.
-  args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, maxRounds: 1, planPath: 'plans/roadmap.md', plans },
-  respond: {
-    develop: DEV,
-    quality: { clean: true },
-    acceptance: { pass: false, gap_count: 1 },
-    park: { saved: true, cleared: true, gates_green: true, patch_bytes: 900 },
-  },
-});
-const featureSpec = {
-  engine: 'workflows/feature/feature-cycle.mjs',
-  out: 'workflows/feature/NEVER-WRITTEN.md',
-  title: 'feature (in-memory)',
-  scenarios: [
-    featureScenario('one plan parks', [{ id: 'plan-a' }]),
-    featureScenario('two plans park', [{ id: 'plan-a' }, { id: 'plan-b' }]),
-  ],
-};
-
-// ONE scenario in which `acceptance -> develop` happens twice, meaning two different things: plan-a's
-// round-1 gaps send it back for round 2 (a retry), and plan-a's round-2 pass stages it and starts plan-b
-// (an advance). Only a build loop can produce that pair, so it is unreachable from the specs on disk that
-// pre-date feature's.
-const retrySpec = {
-  engine: 'workflows/feature/feature-cycle.mjs',
-  out: 'workflows/feature/NEVER-WRITTEN.md',
-  title: 'feature retry (in-memory)',
-  scenarios: [{
-    name: 'gaps, then a pass, then the next plan',
-    when: 'acceptance finds gaps',
-    args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, planPath: 'plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
-    respond: {
-      develop: DEV,
-      quality: { clean: true },
-      acceptance: (label) => (/plan-a r1$/.test(label)
-        ? { pass: false, gap_count: 1 }
-        : { pass: true, staged: true, reachable: true, criteria_total: 1, criteria_met: 1, evidence_recorded: true }),
-    },
-  }],
-};
 
 // docs-cycle labels its curator `curate:r${rounds}` — the repo's only COLON-separated round marker, and
 // the only engine that puts a fan-out on BOTH sides of a loop. Built in memory so the rule below is
@@ -108,10 +63,10 @@ const docsSpec = {
 
 section('generating twice produces identical bytes');
 // A timestamp, an unordered Set, or a scenario carrying state between runs all pass a single-run smoke
-// test and then make --check fail forever. `resolve` is here because it is the only spec whose budget
-// closes over run state — it has to stop BETWEEN batches, which a constant `remaining` cannot express —
+// test and then make --check fail forever. `develop` is here because it is the only spec whose budget
+// closes over run state — it has to stop BETWEEN blocks, which a constant `remaining` cannot express —
 // and a reference to the previous run's calls left lying around draws a different graph on pass two.
-for (const spec of [brainstorm, investigate, resolve]) {
+for (const spec of [brainstorm, investigate, develop]) {
   const first = generate(spec, await buildGraph(spec));
   const second = generate(spec, await buildGraph(spec));
   ok(first === second, `${spec.name}: byte-identical across two full runs`);
@@ -163,7 +118,7 @@ section('a throw label keeps the static words AFTER an interpolated value');
 // `throw: plan id(s) [` for a message that goes on to say what is wrong with them. `template` is the
 // display form, values elided.
 {
-  const sites = readThrows(readFileSync(join(REPO_ROOT, 'workflows/feature/feature-cycle.mjs'), 'utf8'));
+  const sites = readThrows(readFileSync(join(REPO_ROOT, develop.engine), 'utf8'));
   const kebab = sites.find((s) => s.prefix.startsWith('plan id(s) ['));
   eq(kebab.prefix, 'plan id(s) [', 'prefix still stops at the interpolation — it stays a literal head to key on');
   eq(firstClause(kebab.template), `plan id(s) [${INTERP}] are not kebab slugs`, 'the label carries what follows the value');
@@ -179,7 +134,7 @@ section('a throw label keeps the static words AFTER an interpolated value');
   // `prefix` — `prefix` is a prefix of `template`, so a "label is part of the message" check cannot tell
   // the two apart either. This is what fails if the emitter goes back to keying and labelling off one
   // string, which is the defect that shipped `throw: plan id(s) [` to a published page.
-  const g = await buildGraph(feature);
+  const g = await buildGraph(develop);
   ok(g.terminals.some((t) => t.label === `throw: plan id(s) [${INTERP}] are not kebab slugs`),
     'and the NODE is labelled from the template, not from the key');
 }
@@ -310,73 +265,75 @@ section('a status-less return gets its DECLARED terminal, and different declarat
 }
 
 section('terminals differing only in a number fold into one N-form node');
-// feature-cycle's is the repo's only interpolated status; two scenarios parking different counts are
-// one outcome, and without this they would be two.
+// develop-cycle interpolates the parked count into its status: 'the gate never goes green' parks both
+// blocks and 'a parked block, and the run carries on' parks one. That is one outcome, and without this
+// fold it would be two nodes.
 {
-  const g = await buildGraph(featureSpec);
-  const parked = g.terminals.filter((t) => t.label.includes('roadmap complete'));
+  const g = await buildGraph(develop);
+  const parked = g.terminals.filter((t) => t.label.includes('block(s) parked'));
   eq(parked.length, 1, 'one terminal, not one per count');
-  eq(parked[0].label, 'roadmap complete with N plan(s) parked', 'digits normalized for identity and display');
-  eq(parked[0].scenarios.length, 2, 'both scenarios reached it');
+  eq(parked[0].label, 'run complete with N block(s) parked', 'digits normalized for identity and display');
+  eq(parked[0].scenarios.join(', '), 'the gate never goes green, a parked block, and the run carries on',
+    'both scenarios reached it');
 }
 
 section('advancing to the NEXT item is a boundary edge, not a loop');
-// Without it, "loop again on the same plan" and "advance to the next plan" fold into one edge meaning
+// Without it, "loop again on the same block" and "advance to the next block" fold into one edge meaning
 // two different things.
 {
-  const g = await buildGraph(featureSpec);
+  const g = await buildGraph(develop);
   const e = edgeBetween(g, 'park', 'develop');
-  ok(!!e && e.boundary, 'park:plan-a → develop plan-b is a boundary edge');
+  ok(!!e && e.boundary, 'park:block-a → develop block-b is a boundary edge');
   ok(e && !e.back, 'and NOT a back-edge — nothing looped');
 }
 
 section('one node pair carrying BOTH shapes stays TWO edges, marked and captionless, and ONE label');
 // Keying an edge on its node pair alone re-folds exactly what the boundary rule exists to split: the two
 // collapse into one edge whose boundary flag wins in edgeLine, so the diagram claims every acceptance
-// advances to the next plan and the retry loop — the engine's whole inner cycle — vanishes.
+// advances to the next block and the retry loop — the engine's whole inner cycle — vanishes.
 // Drawing both with labels is the other half of the problem: Mermaid puts both labels of a multi-edge at
 // the SAME path midpoint, so the smaller sits inside the larger and no spacing or shortening separates
 // them (measured: 39x22px at every spacing swept). Only ONE label in that band closes it, so the back
 // edge carries a bounded MARKER and the boundary goes BARE, its words restated once under the table.
 {
-  const g = await buildGraph(retrySpec);
+  const g = await buildGraph(develop);
   const from = nodeByLabel(g, 'acceptance').id;
   const to = nodeByLabel(g, 'develop').id;
   const pair = g.edges.filter((e) => e.fromId === from && e.toId === to);
   eq(pair.length, 2, 'acceptance → develop is drawn twice');
-  ok(pair.some((e) => e.boundary && !e.back), 'once as the advance to the NEXT plan');
-  ok(pair.some((e) => e.back && !e.boundary), 'once as the SAME plan going round again');
+  ok(pair.some((e) => e.boundary && !e.back), 'once as the advance to the NEXT block');
+  ok(pair.some((e) => e.back && !e.boundary), 'once as the SAME block going round again');
 
-  const md = generate(retrySpec, g);
+  const md = generate(develop, g);
   ok(md.includes(`\n  ${from} ==> ${to}\n`), 'the advance renders thick');
   ok(!md.includes(`${from} ==>|`), 'and CAPTION-LESS — nothing left to stack on the marker');
   // Bounded BY CONSTRUCTION: the marker plus the measured repeat count, no authored text and no budget.
-  // plan-a goes round once, so the target is entered twice — the ×N form the self-loops already use,
-  // unparenthesised.
-  ok(md.includes(`${from} -.->|"E1 ×2"| ${to}`), 'the retry renders dotted, marked and bounded');
+  // A block that never accepts enters develop its full maxRounds of 4 times — the ×N form the self-loops
+  // already use, unparenthesised.
+  ok(md.includes(`${from} -.->|"E1 ×4"| ${to}`), 'the retry renders dotted, marked and bounded');
   ok(!md.includes('-.->|"acceptance finds gaps'), 'with no authored text left on the arrow to collide');
 
   // Moving text off an arrow is only half the fix — assert the destination, or it lands nowhere. Both
   // arrows of this pair moved their text here: the marker's conditions into a row, the boundary's caption
   // into the sentence that tells a reader what the bare thick arrow above means.
   const table = md.split('\n## Edges\n')[1]?.split('\n## ')[0] ?? '';
-  ok(table.includes('| E1 | acceptance | develop | acceptance finds gaps |'),
+  ok(table.includes('| E1 | acceptance | develop | acceptance finds gaps · '),
     'and the Edges table is where its condition now lives, in full');
   ok(table.includes('The thick unlabelled edge of each pair above is the next-item advance (the unit boundary).'),
     'and the dropped caption lives in one fixed sentence under that table');
 }
 
 section('an UNMARKED boundary edge KEEPS its caption — the captionless rule cannot silently widen');
-// The rule is "this pair holds two labels", not "boundary edges are bare". featureSpec's park → develop is
+// The rule is "this pair holds two labels", not "boundary edges are bare". develop's park → develop is
 // the only edge between that pair, so its label is alone in the band and there is nothing to collide with:
 // dropping it here would delete the one word that distinguishes an advance from a retry for no gain.
 {
-  const g = await buildGraph(featureSpec);
+  const g = await buildGraph(develop);
   const from = nodeByLabel(g, 'park').id;
   const to = nodeByLabel(g, 'develop').id;
   const pair = g.edges.filter((e) => e.fromId === from && e.toId === to);
   eq(pair.length, 1, 'park → develop is the pair\'s ONLY edge');
-  const md = generate(featureSpec, g);
+  const md = generate(develop, g);
   ok(md.includes(`${from} ==>|"next item"| ${to}`), 'so the advance keeps its words on the arrow');
 }
 
@@ -418,7 +375,7 @@ section('edge labels stay inside a length budget — Mermaid will not stop them 
       if (m[1].length > longest.length) longest = m[1];
     }
   }
-  ok(longest.length <= 90, `longest edge label across all 10 maps is ${longest.length} chars: "${longest}"`);
+  ok(longest.length <= 90, `longest edge label across all ${specs.length} maps is ${longest.length} chars: "${longest}"`);
 }
 
 section('a phase is a box only when it groups 2+ agents, and rides on the node otherwise');
@@ -443,23 +400,23 @@ section('the round count is per LANE — fan-out width and roadmap length never 
 // is wrong. Both inflations below shipped in the first cut: the count was visits to the target node
 // across the whole trace, so a wider fan-out or a longer roadmap silently raised it.
 {
-  const [review, feature] = await loadSpecs(['review', 'feature']);
+  const [review] = await loadSpecs(['review']);
 
   const rg = await buildGraph(review);
   const lens = edgeBetween(rg, 'review', 'review');
   ok(lens?.back, 'review has a lens self-loop');
   eq(lens.repeat, 2, 'it reports 2 LENSES, not the 4 review calls 2 units x 2 lenses make');
 
-  const fg = await buildGraph(feature);
-  eq(edgeBetween(fg, 'quality', 'develop').repeat, 2,
-    'feature retries a plan twice — not 3, which is what summing BOTH plans\' traversals gives');
-  // acceptance -> develop exists TWICE by design (the thick advance to the next plan, and the dotted
+  const dg = await buildGraph(develop);
+  eq(edgeBetween(dg, 'quality', 'develop').repeat, 2,
+    'develop retries a block twice — not 3, which is what summing BOTH blocks\' traversals gives');
+  // acceptance -> develop exists TWICE by design (the thick advance to the next block, and the dotted
   // retry of this one), so the count has to be read off the back-edge specifically.
-  const acc = nodeByLabel(fg, 'acceptance');
-  const dev = nodeByLabel(fg, 'develop');
-  const retry = fg.edges.filter((e) => e.fromId === acc.id && e.toId === dev.id && e.back);
+  const acc = nodeByLabel(dg, 'acceptance');
+  const dev = nodeByLabel(dg, 'develop');
+  const retry = dg.edges.filter((e) => e.fromId === acc.id && e.toId === dev.id && e.back);
   eq(retry.length, 1, 'exactly one of the two acceptance -> develop edges is the retry');
-  eq(retry[0].repeat, 4, 'and a plan that never accepts still measures its full maxRounds of 4');
+  eq(retry[0].repeat, 4, 'and a block that never accepts still measures its full maxRounds of 4');
 }
 
 section('a label matching no known role is a hard error naming the label');

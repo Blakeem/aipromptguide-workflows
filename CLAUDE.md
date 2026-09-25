@@ -6,12 +6,9 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 
 | Want to… | Read & follow |
 |----------|---------------|
-| Build **one bounded feature** — or an ordered **roadmap** of them (one approved plan each): new MCP tool, endpoint, page, form, contained enhancement, design-needing bugfix | `workflows/feature/CLAUDE.md` |
-| **Develop** — build the todo blocks of one approved **plan-bus** file, each block's `mode` (feature/section) picking the frame; statuses synced back by tool. The merged successor to feature's build and migrate's run | `workflows/develop/CLAUDE.md` |
-| **Refine** — converge a plan file before develop builds it: a read-only critic under a fixed defect bar + a minimal-fold editor, one clean round to finish. Replaces feature's `phase:"refine"` | `workflows/refine/CLAUDE.md` |
-| **Gauntlet** — build to a working **MVP**, then **climb** it toward an inspectable quality bar (exemplar A/B, critic-led waves, flagship/AAA standard) — or point the climb at an existing product | `workflows/gauntlet/CLAUDE.md` |
-| **Debug** — find production defects and/or fix a verified issue inventory (bring your own from manual testing) — triage → batched fixes | `workflows/debug/CLAUDE.md` |
-| Drive **one plan across many call sites** — migration/upgrade/port/refactor, in ordered sections | `workflows/migrate/CLAUDE.md` |
+| **Build** from an approved plan file: one bounded feature, an ordered roadmap of them, a migration across many call sites, or a triaged issue inventory. Each `## Plan:` block's `mode` (`feature`, `section`, `fix`) picks the frame | `workflows/develop/CLAUDE.md` |
+| **Refine** a plan file before develop builds it: a read-only critic under a fixed defect bar and a minimal-fold editor, until one clean round | `workflows/refine/CLAUDE.md` |
+| **Debug**: find production defects in a repo or change. Its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way | `workflows/debug/CLAUDE.md` |
 | **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
 | **Brainstorm** several fully-committed variations (one per lens) for a human to pick/combine — creative, no AI verdict | `workflows/brainstorm/CLAUDE.md` |
 | **Decide** among approaches — lensed analysis → weighted matrix → a justified conclusion, adversarially reviewed | `workflows/decide/CLAUDE.md` |
@@ -20,10 +17,9 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | Audit a workflow engine against the design rules | `principles/WORKFLOW-PRINCIPLES.md` — e.g. as a lens in a debug run |
 | Run several engine runs **in parallel** — one batch, one worktree per chain, landed into an integration branch | `docs/worktree-batches.md` (`tools/wt.mjs`) |
 
-Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent — **build** one
-bounded change → feature (several features → feature's `plans` array); one goal spanning many files →
-migrate; build to an MVP then **climb** it toward an exemplar quality bar (or climb an existing
-product) → gauntlet; find production defects → debug.
+Right-size first: trivial one-liner/rename → just edit, no workflow. Then by intent. **Build** → author a
+plan file (one `feature` block per bounded change, `section` blocks for one goal spanning many files),
+refine it, approve it, develop it. Find production defects → debug, then develop its fix-mode files.
 **Audit** (what a working system could do better; human triages) → enhance; **diverge** (creative options,
 human judges) → brainstorm; **converge** (AI concludes among options it generates) → decide; **search**
 (the answer already exists; find it and prove it meets fixed criteria) → investigate; **provision** (copy +
@@ -50,12 +46,6 @@ conclusion, and investigate's determination feed a plan's design section — con
 Authored blocks then flow refine → your approval → develop, and debug's review writes fix-mode blocks
 develop consumes directly.
 
-**Gauntlet sits between build and audit.** feature converges on an enumerable spec and stops; enhance
-stops at proposals a human triages; gauntlet keeps changing a working product toward an exemplar bar —
-comparative quality, the user's `cycles` as the brake, judgment calls self-settled to a ledger instead
-of escalated. The tell: "done" is a checklist → feature; a human should triage the list → enhance; "a
-blind critic prefers ours to the exemplar" → gauntlet.
-
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
 workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.
 
@@ -72,7 +62,7 @@ at the plugin's persistent data dir instead of a checkout. Rename an engine, gui
 paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
-(`workflows/<x>/FLOW.md`; debug has `FLOW-review.md` + `FLOW-resolve.md`) — every agent, gate, loop and
+(`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and
 terminal state, drawn from real traced runs. Read one before driving a workflow you have not run before.
 Change an engine's control flow and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
 The generator and the rest of the repo's own machinery are catalogued in [`tools/CLAUDE.md`](tools/CLAUDE.md).

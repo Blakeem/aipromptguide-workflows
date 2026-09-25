@@ -8,11 +8,10 @@ together.
 
 | Skill               | Workflow guide it loads              | Use for |
 |---------------------|--------------------------------------|---------|
-| `/aipg:feature`     | `workflows/feature/CLAUDE.md`        | One bounded feature (new tool/endpoint/page/form) — or an ordered roadmap of them. |
-| `/aipg:gauntlet`    | `workflows/gauntlet/CLAUDE.md`       | Build to a working MVP, then climb it toward an exemplar quality bar in critic-led waves — or refine an existing product. |
-| `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects and/or fix a verified issue inventory (triage → batched fixes). |
+| `/aipg:develop`     | `workflows/develop/CLAUDE.md`        | Build the todo blocks of one approved plan file. Each block's mode is `feature`, `section` or `fix`. |
+| `/aipg:refine`      | `workflows/refine/CLAUDE.md`         | Converge a plan file before develop builds it: a read-only critic and a minimal-fold editor. |
+| `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects. Its triaged issue files are fix-mode plan files develop builds. |
 | `/aipg:enhance`     | `workflows/enhance/CLAUDE.md`        | Audit a working system for enhancements (read-only) — proposals you triage; nothing is applied. |
-| `/aipg:migrate`     | `workflows/migrate/CLAUDE.md`        | Breadth-spanning migration/upgrade across many call sites. |
 | `/aipg:brainstorm`  | `workflows/brainstorm/CLAUDE.md`     | Diverge: one fully-committed variation per lens for a human to pick/combine. |
 | `/aipg:decide`      | `workflows/decide/CLAUDE.md`         | Converge: lensed analysis → weighted matrix → a justified conclusion. |
 | `/aipg:investigate` | `workflows/investigate/CLAUDE.md`    | Search: find an answer that already exists and qualify it against fixed pass/fail criteria. |
@@ -26,10 +25,10 @@ together.
 /reload-plugins
 ```
 
-Then run one from any project — e.g. `/aipg:feature add a search_docs MCP tool. Plan it first.`
+Then run one from any project — e.g. `/aipg:develop add a search_docs MCP tool. Plan it first.`
 Claude reads the matching `workflows/<x>/CLAUDE.md` from the installed plugin and drives the workflow
-(plan mode → approval → engine — or the autonomous path when you hand it a finished plan). All nine
-skills are visible to Claude, so naming one in prose ("use the aipg migrate workflow on X") works
+(for a build, plan mode, then refine, then your approval, then develop). All eight
+skills are visible to Claude, so naming one in prose ("use the aipg develop workflow on X") works
 without the slash form; each description tells Claude to run it only when you explicitly ask. Note
 `/debug` and `/docs` un-namespaced are Claude Code's own bundled skills — use the `/aipg:` forms.
 

@@ -79,11 +79,11 @@ including one that dies halfway. On top of `runEngine`'s shape:
   `status` is `''`, but every call made **before** the throw is still in `calls`.
 
 Four readers answer questions about an engine from its **source text**, no run needed, alongside
-`ENGINES` (the ten engine paths):
+`ENGINES` (the eight engine paths):
 
 - `readMeta(src)` — the evaluated `meta` object.
 - `readRoles(src)` — the static label prefixes (an engine's roles) in source order, deduped;
-  `feature-cycle` → `['plan-critic','develop','quality','acceptance','park']`.
+  `develop-cycle` → `['develop','quality','acceptance','park','final-sweep']`.
 - `readThrows(src)` — `[{ line, prefix }]` per `throw new Error(` site. A message that starts with an
   interpolation yields `prefix: ''` and is still returned — a dropped site would read as covered.
 - `readHaltStatus(src)` — the evaluated `HALT_STATUS` map, or `{}` for an engine without one.

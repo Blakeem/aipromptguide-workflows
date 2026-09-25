@@ -13,8 +13,10 @@ block** before the next. Built to
 Right-size per block, same bars as the engines it replaces: a `feature` block is one bounded feature
 (~10–100+ lines plus tests); a `section` block is one coherent slice of one goal, roughly
 feature-sized. Too small → just edit. A block too big for one develop pass → split it before running.
-Documentation stays out of blocks (no defect class for the blind reviewer; write docs directly after
-the run and verify with a debug doc-accuracy pass).
+Hand-written documentation stays out of blocks (no defect class for the blind reviewer; write docs
+directly after the run and verify with a debug doc-accuracy pass). Generated files, such as a flow map
+regenerated from an engine a block changes, belong to that block. Locate code in a block body by section
+title or grep pattern, not line number, since earlier blocks shift lines.
 
 ## 2. The flow
 
@@ -32,16 +34,15 @@ the run and verify with a debug doc-accuracy pass).
    drawing from other files with their own. Pasting the `--list` object as `plans` throws.
 4. **Clean the unstaged tree, then launch.** The engine builds the `status: todo` blocks in file
    order; `done`/`skip`/`parked`/`blocked` are never selected.
-5. **Verify ground truth (§6), then sync statuses:** for each ledger terminal run
-   `node tools/plan-edit.mjs set <planPath> <id> status=<value>` — acceptance pass → `done`, a park
-   within the round budget → `parked`, every other halt → `blocked`. Fix mode adds two ledger
-   terminals: `all-stale` (every entry already resolved — the block is `done`) and `no-changes`
-   (all skipped or an empty result — the block is `blocked`, and an ordered run stops there). A fix
-   block's ledger record also carries per-issue `results`; sync each entry's `- status:` line:
-   FIXED → `fixed`, STALE → `stale`, FAILED → `needs-attention`, SKIPPED stays `open`. The plan file
-   is the selection truth; git staging is the landed truth; the sync is also the recovery step if a
-   run dies between staging and sync. Flip `parked`/`blocked` back to `todo` after resolving, then
-   relaunch.
+5. **Verify ground truth (§6), then sync statuses.** Save the run's returned result as JSON (for
+   example `<stateDir>/develop-result.json`) and run `node tools/plan-edit.mjs sync <that file>`. It
+   applies the result's `statusSync` edits, all or nothing, and a second run changes nothing. The engine
+   decides every value: an accepted or all-stale block → `done`, a park within the round budget →
+   `parked`, every other halt or a fix block that closed nothing → `blocked`. Fix issues map FIXED →
+   `fixed` only when their block landed, FIXED or FAILED in a block that did not land →
+   `needs-attention`, STALE → `stale`, and SKIPPED keeps `open`. The plan file is the selection truth,
+   git staging is the landed truth, and the sync is also the recovery step if a run dies between staging
+   and sync. Flip `parked`/`blocked` back to `todo` after resolving, then relaunch.
 
 ## 3. Plan-file format
 
@@ -50,7 +51,8 @@ The grammar lives with the tool (`tools/CLAUDE.md`): optional frontmatter, file 
 (`mode`/`gate`/`status`, plus informational `test_selector`/`depends_on`), bodies read verbatim.
 Gates per mode: `feature` takes `green | build-only`; `section` takes
 `green | red-baseline | build-only`; `fix` takes `green` only. A file holding any section-mode block
-defaults to `ordered: true` and `sweep: goal-coverage`. A fix block IS an issue inventory: its
+defaults to `ordered: true`, `suite: scoped` and `sweep: goal-coverage`. A file whose sweep is
+`goal-coverage` needs a `goal:` line, and `--list` fails without one. A fix block IS an issue inventory: its
 `### [<id>]` entries are what the fix worker verifies and fixes (ACTIONABLE decisions only,
 verify-first, vanished issues marked stale). debug's review.mjs writes these files; hand-authored
 external inventories use the same shape.
@@ -120,7 +122,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
-  `goal` (string). Typed illegal values **throw** — copy what `--list` prints.
+  `goal` (string). Typed illegal values **throw** — copy what `--list` prints. `sweep: goal-coverage`
+  with an empty `goal` **throws**.
+- **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
+  per-issue `results` in fix mode) · `statusSync` (the plan-file edits for §2 step 5) · `sweep` /
+  `sweepFailed` · `followups`.
 - **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`

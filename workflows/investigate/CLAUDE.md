@@ -23,7 +23,7 @@ through the criteria file.
   argument*; investigate converges on *coverage* — the claim that nothing qualifying was left unsearched.
 - **Creative variations for a human to pick between** (no AI verdict) → `brainstorm-cycle`.
 - **Provisioning the docs** to build against → `docs-cycle`.
-- **Building what the determination names** → `feature-cycle`.
+- **Building what the determination names** → a `develop-cycle` plan file.
 - Too small (you already know the answer, or one search settles it) → just look it up.
 
 **Pass/fail, not weighted.** Every criterion is a gate. A candidate that misses one is disqualified however

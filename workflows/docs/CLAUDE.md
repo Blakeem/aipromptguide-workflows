@@ -21,7 +21,7 @@ Right size: a task worth a **curated local doc set** — an API integration (the
 upgrade (release notes + migration guide + current docs), a complex feature touching several documented
 systems. Too small (one doc page answers it) → just read/fetch it. Want a synthesized **answer** to a
 question → the `deep-research` **skill**. Want to **decide** among options → `decide-cycle`. The output
-folder here is the ideal input to a `feature-cycle`/`migrate-cycle` plan — the implementer reads the
+folder here is the ideal input to a `develop-cycle` plan file. The implementer reads the
 official docs verbatim instead of a rewritten spec.
 
 ## 2. The flow

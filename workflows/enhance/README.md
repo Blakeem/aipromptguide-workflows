@@ -7,8 +7,8 @@ bigger changes worth writing up, not nits. It reports; you decide. Nothing is ap
 
 You name the scope and the angles to audit from. Claude runs one finder per angle across the *whole*
 scope, a verifier per angle throws out everything the system already does, then each surviving proposal
-lands scored by impact and effort in a file you triage. Adopted proposals go to
-[`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) to actually get built.
+lands scored by impact and effort in a file you triage. Adopted proposals become
+blocks in a [`develop-cycle`](../develop/) plan file to get built.
 
 ### What sets it apart
 
@@ -43,8 +43,8 @@ A **read-only audit** built on the shared [Workflow Principles](../../principles
   verifier here rejects defects on sight and tells you to route them there.
 - ❌ **You want creative options a human picks:** use [`brainstorm-cycle`](../brainstorm/).
 - ❌ **You want the AI to conclude among competing approaches:** use [`decide-cycle`](../decide/).
-- ➡️ **Then build:** adopted proposals go to [`feature-cycle`](../feature/) (several become its roadmap)
-  or [`migrate-cycle`](../migrate/) for one goal spanning many call sites.
+- ➡️ **Then build:** adopted proposals become `feature` blocks in a [`develop-cycle`](../develop/) plan file
+  (one block each), or `section` blocks for one goal spanning many call sites.
 
 ---
 

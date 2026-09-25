@@ -24,8 +24,8 @@ for (const rel of ENGINES) {
 }
 
 section('the ordinary-Node scripts pass node --check (the harness contract does not apply to them)');
-// gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during feature and
-// migrate runs, so its syntax is a run-time dependency of two engines, not just dev machinery. wt.mjs
+// gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during develop and
+// refine runs, so its syntax is a run-time dependency of two engines, not just dev machinery. wt.mjs
 // is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
 // plan-edit.mjs is the operator's only write path into an approved plan file.
 for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs']) {
@@ -93,18 +93,7 @@ section('no engine sniffs control flow out of a prose status/haltReason string')
   // than quietly widening the sweep over whatever lands on that line next. Suppression is per SITE, not per
   // line: the pattern text is cut out and the remainder re-scanned, so a genuine sniff appended to an
   // allowlisted line (the likeliest place for the next one) is still caught.
-  const ALLOW = [
-    {
-      engine: 'workflows/feature/feature-cycle.mjs',
-      pattern: "typeof r.status === 'string' && r.status.startsWith('parked')",
-      reason: 'parked[] reads back the per-plan status LABEL the engine itself assigned — an enum, not free prose',
-    },
-    {
-      engine: 'workflows/migrate/migrate-cycle.mjs',
-      pattern: "typeof r.status === 'string' && r.status.startsWith('parked')",
-      reason: 'parked[] reads back the per-section status LABEL the engine itself assigned — an enum, not free prose',
-    },
-  ];
+  const ALLOW = [];
 
   const suppressed = new Map(ALLOW.map((a) => [a, 0]));
   for (const rel of ENGINES) {
@@ -298,8 +287,8 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   // A name is a usable receiver only if it means ONE thing in the file. `r` was bound five times in
   // review.mjs — the agent return plus four callback parameters — and a scoped scan against a name that
   // means five things proves nothing, so ambiguity is an ERROR a local rename fixes, never a quiet pass.
-  // `function`-declaration parameters are deliberately NOT counted: feature and migrate each route the
-  // develop return straight into `gateOk(gate, dev)`, whose parameter is also named `dev`, so the reads
+  // `function`-declaration parameters are deliberately NOT counted: develop routes its develop return
+  // straight into `gateOk(gate, dev)`, whose parameter is also named `dev`, so the reads
   // inside it ARE reads of that receiver — and calling that a collision would strand `tests_run_count`,
   // the one DEVELOP_SCHEMA field only that helper reads. Arrow parameters ARE counted: `.map((r) => …)`
   // is the callback idiom, and it is where every collision measured here came from.
@@ -483,8 +472,7 @@ section('every engine with a round loop REJECTS a garbage bound instead of absor
 // on. Whatever else is missing throws later and with a different message, which the assertion excludes.
 // `plans` is a VALID non-empty array, not a placeholder: develop-cycle throws on a missing or malformed
 // one BEFORE it reaches num(), so a payload without it would trip that guard instead and the sweep would
-// pass on the wrong message. Harmless to the siblings — feature ignores planPath once plans is a
-// non-empty array, and no other engine reads plans at all.
+// pass on the wrong message. Harmless to the siblings: no other engine reads plans at all.
 const NUM_ARGS = {
   runId: 'num', root: 'E:/r', target: { repo: 'E:/repo' },
   plans: [{ id: 'x', planPath: 'p.md', mode: 'feature', gate: 'build-only' }],

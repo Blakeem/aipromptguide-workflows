@@ -8,7 +8,8 @@
 // Deliberately NOT duplicated here, because each is a CROSS-ENGINE table a per-engine copy would drift
 // from: the missing-arg sweep and the miscopied-enum values (required-args.test.mjs), the per-role
 // dead-agent sweep (dead-agent.test.mjs), and role/throw/terminal coverage (flow-coverage.test.mjs).
-// The one dead-agent case kept below is an ORDERING fact none of those tables can see.
+// The dead-agent cases kept below assert what that sweep cannot see: guard ordering, the next round
+// never spawning, and a round-2 death.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/develop/develop-cycle.mjs';
@@ -47,6 +48,7 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   eq(out.status, 'BLOCKED (working tree was not clean — nothing was built)', 'status');
   eq(out.parked.length, 0, 'nothing in parked[]');
   ok(/4 file\(s\)/.test(out.haltReason), 'halt reason names the count');
+  ok(/add -A/.test(out.haltReason) && /stash/.test(out.haltReason), 'and gives both remedies');
 }
 
 section('the clean-baseline guard reads the VALUE, not what Number() makes of it');
@@ -213,6 +215,32 @@ section('a fix block whose inventory printed no entries halts before any reviewe
   eq(later.out.status, 'done (all blocks staged)', 'and the block still reaches acceptance');
 }
 
+section('a fix block that halts on escalation or staging still records the results it reported');
+// The ledger is where the operator syncs each entry's status line from. Recording after the halts left a
+// block that escalated with results:null, although its developer had reported every id.
+{
+  const reported = [{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }];
+  for (const [why, extra] of [['needs_user', { needs_user: true }], ['staging unconfirmed', { unstaged_confirmed: false }]]) {
+    const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, FIX_ONE);
+    ok(out.halted === true, `${why}: the run halted`);
+    eq(JSON.stringify(out.ledger[0]?.results), JSON.stringify(reported), `${why}: the ledger carries the reported results`);
+  }
+}
+
+section('the inventory-readable guard reads the VALUE, not what `=== 0` makes of it');
+// `false`, `''` and `[]` all compare `=== 0` as false, so a malformed return would read as a readable
+// inventory silently. Each must log that the precondition went unverified.
+{
+  for (const bad of [null, false, '', []]) {
+    const { logs } = await run({
+      develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { entries_found: bad }),
+      quality: CLEAN, acceptance: FIX_PASS,
+    }, FIX_ONE);
+    ok(logs.some((l) => /entries_found — the inventory-readable precondition was NOT verified/.test(l)),
+      `${JSON.stringify(bad)} is not silently a readable inventory`);
+  }
+}
+
 section('a round-1 fix block where every entry is already STALE is done without any reviewer');
 // The issues ARE closed in current code, so there is no diff to review, stage or park — an accepted
 // outcome, not a failure. This is the branch the no-changes terminal below must never swallow.
@@ -347,6 +375,27 @@ section('suite:green fails a green gate on a reddened suite; suite:scoped allows
   eq(scoped.out.status, 'done (all blocks staged)', 'suite:scoped judges the block on its own selector alone');
 }
 
+section('an omitted gate takes the green default, never a throw');
+// Only a gate that was typed and is wrong throws. An absent one is the documented default.
+{
+  const { out } = await run(GREEN_RUN, { ...baseArgs, plans: [{ id: 'block-a', mode: 'section' }] });
+  eq(out.ledger[0].gate, 'green', 'the ledger records the green default');
+  eq(out.status, 'done (all blocks staged)', 'and the block builds under it');
+}
+
+section('a gate that never goes green surfaces the developer\'s own diagnostics');
+// The developer re-runs the gate live, so once the round budget is gone the run log holds the only copy of
+// why it was red. Without these the operator has to re-run the gate to find out.
+{
+  const DEV_RED = { ...DEV_OK, build_passed: false, verification_method: 'node tests/run.mjs x', gate_output: 'E   assert 1 == 2\n1 failed' };
+  const { logs } = await run({ develop: DEV_RED, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 2 });
+  ok(logs.some((l) => /another develop round/.test(l) && /via=node tests\/run\.mjs x/.test(l)),
+    'the retry line names what was actually run');
+  const budget = logs.find((l) => /not satisfied at round budget/.test(l));
+  ok(!!budget && /via=node tests\/run\.mjs x/.test(budget) && /last gate output: E   assert 1 == 2/.test(budget),
+    `the round-budget line carries the failing output: ${budget}`);
+}
+
 // ---------------------------------------------------------------------------------------------
 // Park — save strictly before clear, and `ordered` deciding what happens after
 // ---------------------------------------------------------------------------------------------
@@ -398,6 +447,8 @@ section('the `ordered` file key decides whether a parked block stops the run');
   eq(carry.out.plansDone.join(), 'block-b', 'block-b is the only one done');
   ok(carry.out.parked[0].patch?.endsWith('parked-block-a.patch'), 'the patch path reaches the operator');
   eq(carry.out.status, 'run complete with 1 block(s) parked', 'status counts the parked block');
+  ok(/PARKED: block-a/.test(carry.out.followups) && /git apply --3way/.test(carry.out.followups),
+    'followups names the parked block and the restore command');
 
   const stop = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true });
   ok(stop.labels.includes('park:block-a'), 'the SAME park still runs, so nothing is discarded');
@@ -405,6 +456,41 @@ section('the `ordered` file key decides whether a parked block stops the run');
   eq(stop.out.status, 'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)', 'ordered status');
   ok(/is SAVED to/.test(stop.out.haltReason) && /tree is CLEAN/.test(stop.out.haltReason),
     'halt reason states saved + clean');
+}
+
+section('a developer escalation parks first, then stops even an unordered run');
+// Only the user can unblock it, so `ordered` does not decide here. parked[] is keyed on the patch and the
+// `parked` flag, never the status prose: an escalated block keeps BLOCKED and would otherwise have its
+// patch path reported nowhere in the return.
+{
+  const { out, labels, prompt } = await run({
+    develop: { ...DEV_OK, needs_user: true },
+    park: { ...PARK_OK, strays_saved: 2 },
+  });
+  ok(labels.includes('park:block-a'), 'PARK ran on the halt path');
+  eq(out.status, 'BLOCKED (needs user input)', 'status');
+  ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
+  ok(out.parked[0]?.strays?.endsWith('parked-block-a-newfiles'), `strays dir surfaced: ${out.parked[0]?.strays}`);
+  eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
+  ok(/The tree is clean/.test(out.followups) && !/still holds/.test(out.followups),
+    'followups says the tree is clean, never that it still holds the work');
+  ok(/hit a BLOCKER the developer escalated/.test(prompt('park')), 'park prompt uses the escalation wording');
+  // An escalation park has no review path, yet a reviewer may have run: the fallback must claim neither.
+  ok(/left no review file to cite; point the user at the run trail in E:\/r\/runs\/t/.test(prompt('park')),
+    'with no review file, park points at the run trail');
+  ok(!/neither reviewer ever ran|gate never went green/.test(prompt('park')),
+    'and never claims no reviewer ran');
+}
+{
+  // Escalated before editing anything: park saves nothing, so naming parked-<id>.patch would send the
+  // operator to a file that does not exist.
+  const { out } = await run({
+    develop: { ...DEV_OK, needs_user: true },
+    park: { ...PARK_OK, saved: false, patch_bytes: 0 },
+  });
+  eq(out.parked[0]?.patch, null, 'no patch path for an empty park');
+  ok(/NO patch was written for: block-a/.test(out.followups), 'and followups says nothing was saved');
+  ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
 }
 
 section('park never names a review file that was never written');
@@ -416,7 +502,7 @@ section('park never names a review file that was never written');
   const p = prompt('park:block-a');
   ok(p !== '', 'park still ran');
   ok(!/acceptance-review-block-a-r\d+\.md/.test(p), 'no fabricated acceptance-review path in the prompt');
-  ok(/produced NO review file/.test(p), 'the prompt says outright that no review file exists');
+  ok(/left no review file to cite/.test(p), 'the prompt says outright that no review file exists');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -573,6 +659,38 @@ section('the sweep runs on the pre-done + this-run union, with skips excluded');
   eq(open.out.sweep, null, 'and no sweep result is fabricated');
 }
 
+section('a healthy sweep is surfaced, sweep:none spawns none, and a halted run is never swept');
+{
+  const SWEPT = { ...baseArgs, sweep: 'goal-coverage', goal: 'g' };
+  const healthy = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, SWEPT);
+  eq(healthy.out.status, 'done (all blocks staged)', 'status');
+  eq(healthy.out.sweep?.suite, 'green', 'the sweep result is surfaced');
+  ok(/status --porcelain/.test(healthy.out.followups), 'followups carries the unstaged-tree check');
+
+  const none = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...baseArgs, sweep: 'none' });
+  ok(!none.labels.includes('final-sweep'), 'sweep:none spawns no sweep agent');
+  eq(none.out.sweep, null, 'and fabricates no result');
+
+  // Every block is DONE here (the regression was staged), so only the halt keeps the sweep from judging
+  // a baseline the run just refused to build on.
+  const halted = await run({ ...GREEN_RUN, 'acceptance block-b': { ...ACC_PASS, regression: true }, 'final-sweep': SWEEP_OK }, SWEPT);
+  eq(halted.out.plansDone.join(), 'block-a,block-b', 'both blocks count done');
+  ok(halted.out.halted === true, 'the run halted on the regression');
+  ok(!halted.labels.includes('final-sweep'), 'and ran no sweep');
+}
+
+section('a goal-coverage sweep with no goal throws at launch, naming the goal: file key');
+// The sweep re-derives its surface from the goal; without one it runs with nothing to cover.
+{
+  for (const goal of [undefined, '', '  ']) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, sweep: 'goal-coverage', goal } });
+    ok(/args\.sweep is goal-coverage but args\.goal is empty/.test(msg) && /"goal:" file key/.test(msg),
+      `goal ${JSON.stringify(goal)} throws naming the file key: ${msg.slice(0, 60)}`);
+  }
+  const none = await run(GREEN_RUN, { ...baseArgs, sweep: 'none' });
+  eq(none.out.status, 'done (all blocks staged)', 'sweep:none with no goal still runs');
+}
+
 section('a dead final sweep is reported as NOT RUN, never as zero gaps');
 // `(sweep?.gaps || []).length` logged "0 potential gap(s)" for a check that never ran, citing a file
 // nothing wrote. It must NOT halt: every block is already staged, so failing a complete run over a
@@ -590,6 +708,17 @@ section('a dead final sweep is reported as NOT RUN, never as zero gaps');
 // ---------------------------------------------------------------------------------------------
 // The control array itself
 // ---------------------------------------------------------------------------------------------
+section('a plans value that is not a non-empty array throws, pointing at the --list blocks array');
+// There is no single-plan fallback, so every one of these must stop before any agent. The message has to
+// name the fix, not merely exist: `plan-block.mjs --list` prints an object whose `blocks` array is the input.
+{
+  for (const bad of ['block-a', 42, true, [], null]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: bad } });
+    ok(/args\.plans must be a NON-EMPTY array/.test(msg) && /"blocks" array/.test(msg),
+      `plans ${JSON.stringify(bad)} throws naming the "blocks" array: ${msg.slice(0, 45)}`);
+  }
+}
+
 section('duplicate ids and a mode this engine does not build both throw');
 // Every per-block run-state file is keyed by the bare id, so duplicates overwrite each other's reviews,
 // ledger and patch, and the second block is judged against the first's trail.
@@ -631,6 +760,26 @@ section('a block reaches developer and acceptance as a plan-block COMMAND, never
   ok(!/plan-block|bus\.md/.test(prompt('quality block-a')), 'the BLIND reviewer gets no route to any plan (#3)');
 }
 
+section('args.blockTool points the block command at an installed plugin\'s own tools/ copy');
+// An installed plugin splits ROOT (the persistent data dir) from the versioned cache dir that ships
+// tools/plan-block.mjs. Without the override the command names a file ROOT does not hold and every agent
+// halts the run on plan_obtained=false.
+{
+  const { prompt } = await run(GREEN_RUN, { ...ONE_BLOCK, blockTool: 'C:\\plug\\cache\\aipg\\1.0.0\\tools\\plan-block.mjs' });
+  const dev = prompt('develop block-a');
+  ok(/node 'C:\/plug\/cache\/aipg\/1\.0\.0\/tools\/plan-block\.mjs' 'E:\/plans\/bus\.md' 'block-a'/.test(dev),
+    'the command uses the passed path, backslashes normalized');
+  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
+}
+
+section('planContext:"full" hands the file instead, for a block that needs its neighbours');
+{
+  const { prompt } = await run(GREEN_RUN, { ...baseArgs, plans: [{ ...BLOCKS[0], planContext: 'full' }] });
+  const dev = prompt('develop block-a');
+  ok(/"## Plan: block-a" inside the plan file at E:\/plans\/bus\.md/.test(dev), 'the block is named inside the file');
+  ok(!/plan-block\.mjs/.test(dev), 'and no extraction command is issued');
+}
+
 const STATE = 'E:/r/runs/t';
 /**
  * Every run-state path the BLIND quality reviewer's prompt discloses must sit under `runs/<runId>/gate/`.
@@ -652,6 +801,9 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
   ok(!q.includes('NEEDS-USER.md'),
     'but NOT NEEDS-USER: its amendment pointer line names the AMENDED file, which quotes the plan verbatim');
   eq(stateRefsOutsideGate(q).join(', '), '', 'and no run-state path outside gate/');
+  // Blindness is placement AND instruction: a fix block's plan file IS an issue inventory.
+  ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
+    'and it is told never to open a plan file, an inventory or run-state outside gate/');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/NEEDS-USER.md`),
     'while the plan-aware verifier still reads both settled-decision files');
@@ -681,5 +833,250 @@ const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside th
   ok((warn[0] ?? '').includes('E:/repo/plans/a.md'), 'the path it names is the entry\'s');
 }
 {
+  // The repo ROOT itself, through backslashes and a trailing slash: the check runs on the abs()-normalized
+  // path, so neither separator style nor a trailing slash can dodge the equality branch.
+  const { logs } = await run(GREEN_RUN, { ...baseArgs, planPath: 'E:\\repo\\' });
+  const warn = planWarnings(logs);
+  eq(warn.length, 1, 'a plan path equal to the repo root warns exactly once');
+  ok((warn[0] ?? '').includes('(E:/repo)'), `and names the normalized path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
+  ok(!logs.some((l) => l.includes('INSIDE the target repo')), 'and it is not the run-state guard firing');
+}
+{
   eq(planWarnings((await run(GREEN_RUN)).logs).length, 0, 'a plan file outside the repo draws nothing');
+}
+
+// ---------------------------------------------------------------------------------------------
+// Dead round-loop agents
+// ---------------------------------------------------------------------------------------------
+section('a dead round-loop agent halts and parks, never a gate miss or a clean review');
+// A dead developer used to read as an ordinary gate miss and burn the round budget into a park; a dead
+// reviewer pointed the NEXT developer at a review file nobody wrote.
+{
+  const DEAD = [
+    ['developer', { develop: null, park: PARK_OK }, /Developer for block block-a/],
+    ['quality reviewer', { ...GREEN_RUN, quality: null, park: PARK_OK }, /Quality reviewer for block block-a/],
+    ['acceptance verifier', { ...GREEN_RUN, acceptance: null, park: PARK_OK }, /Acceptance verifier for block block-a/],
+  ];
+  for (const [role, respond, names] of DEAD) {
+    const { out, labels } = await run(respond);
+    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `a dead ${role} halts`);
+    ok(names.test(out.haltReason) && /skipped or died/.test(out.haltReason), `the reason names the ${role}`);
+    ok(/resumeFromRunId/.test(out.haltReason), 'and says how to replay it');
+    ok(labels.includes('park:block-a'), 'its work is PARKED, not abandoned in the tree');
+    ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
+    eq(out.ledger[0].status, 'BLOCKED (agent died)', 'the ledger says the agent died, not "round budget"');
+  }
+}
+
+section('a dead reviewer never sends a next round or the park to a review file nobody wrote');
+{
+  for (const [role, respond, file] of [
+    ['quality reviewer', { ...GREEN_RUN, quality: null, park: PARK_OK }, /quality-review-block-a-r\d+\.md/],
+    ['acceptance verifier', { ...GREEN_RUN, acceptance: null, park: PARK_OK }, /acceptance-review-block-a-r\d+\.md/],
+  ]) {
+    const { labels, prompt } = await run(respond, ONE_BLOCK);
+    ok(!labels.includes('develop block-a r2'), `no second develop round after a dead ${role}`);
+    ok(!file.test(prompt('park:block-a')), `and park names no ${role} file`);
+  }
+  // A round-1 review WAS written, so park may cite it, but never the round-2 file the dead agent owed.
+  const { prompt } = await run({
+    develop: DEV_OK, quality: firstRound(FLAGGED, null), acceptance: ACC_PASS, park: PARK_OK,
+  }, ONE_BLOCK);
+  const p = prompt('park:block-a');
+  ok(p.includes('quality-review-block-a-r1.md'), 'park cites the review file round 1 did write');
+  ok(!p.includes('quality-review-block-a-r2.md'), 'and not the one the dead round-2 reviewer never wrote');
+}
+
+section('a developer that dies in round 2 is reported as a death, not a red gate');
+// From round 2 no round-1 precondition runs, so an unguarded null falls through to the gate check and
+// reads `build=undefined` as a build failure that never happened.
+{
+  for (const [frame, args, first, acceptance] of [
+    ['feature', ONE_BLOCK, DEV_OK, ACC_PASS],
+    ['fix', FIX_ONE, fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), FIX_PASS],
+  ]) {
+    const { out, logs, labels } = await run({
+      develop: firstRound(first, null), quality: firstRound(FLAGGED, CLEAN), acceptance, park: PARK_OK,
+    }, args);
+    const id = args.plans[0].id;
+    eq(out.status, 'BLOCKED (an agent returned nothing — it was skipped or died; re-invoke to replay it)', `${frame}: status`);
+    ok(/returned nothing in round 2/.test(out.haltReason), `${frame}: the reason names the round the agent died in`);
+    ok(!logs.some((l) => /not satisfied/.test(l)), `${frame}: no gate-miss line for a gate nobody ran`);
+    eq(out.ledger[0].status, 'BLOCKED (agent died)', `${frame}: the ledger says the agent died`);
+    ok(labels.includes(`park:${id}`), `${frame}: round 1's work is parked`);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// MATRIX 6a/6b and the amendment protocol, in every mode's frame
+// ---------------------------------------------------------------------------------------------
+const bus = await run(GREEN_RUN);
+const fixBus = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+const FRAMES = [['feature', 'block-a', bus], ['section', 'block-b', bus], ['fix', 'fix-a', fixBus]];
+const flat = (s) => s.replace(/\s+/g, ' ');
+
+section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 6b keeps the drop');
+// The plan-defect wedge: a finding that indicts the plan's own prescription routed to a DROP, the
+// reviewer re-raised it as CONTESTS DISMISSAL, and the round budget burned with neither side converging.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const dev = r.prompt(`develop ${id}`);
+    ok(/6a\. Conflicts with the plan AND you VERIFIED/.test(dev), `${mode}: 6a exists and is gated on verification`);
+    ok(/the verified defect outranks the\s+prescription/.test(dev), `${mode}: the verified defect outranks the prescription`);
+    const quoted = dev.match(/that verified defect also outranks the "([^"]+)"\s+instruction above and the CONVENTIONS rubric/)?.[1] ?? '';
+    ok(quoted !== '', `${mode}: the PRECEDENCE clause names a scope line and the CONVENTIONS rubric`);
+    ok(quoted !== '' && flat(dev.slice(0, dev.indexOf('PRECEDENCE —'))).includes(flat(quoted)),
+      `${mode}: and the frame carries that scope line above it: "${quoted}"`);
+    ok(/Everywhere else the plan and the conventions\s+still bind/.test(dev), `${mode}: the override is confined to that clause`);
+    ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), `${mode}: 6b keeps the unverified case a DROP`);
+    ok(dev.includes(`DROP (1 or 6b): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
+      `${mode}: LOGGING routes the DROP at 6b, not the whole of 6`);
+    ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
+  }
+}
+
+section('an amendment is RECORDED in a per-block AMENDED file, with a pointer line for the user');
+{
+  for (const [mode, id, r] of FRAMES) {
+    const dev = r.prompt(`develop ${id}`);
+    ok(dev.includes(`AMEND (6a): append ONE entry to ${STATE}/AMENDED-${id}.md`), `${mode}: the record is the per-block AMENDED file`);
+    ok(dev.includes(`## Plan amendment: ${id} r1`), `${mode}: the entry heading carries the round`);
+    ok(/QUOTED verbatim/.test(dev) && /file:line \+ one line on why it is\s+real/.test(dev) && /what you built instead/.test(dev),
+      `${mode}: the entry demands the overridden clause, the defect evidence and what was built`);
+    ok(dev.includes(`ONE POINTER line to ${STATE}/NEEDS-USER.md`) && /NO plan text/.test(dev),
+      `${mode}: NEEDS-USER gets a pointer line only, no plan text`);
+    ok(/Count every entry you wrote in plan_amendments/.test(dev), `${mode}: the count is reported through the schema`);
+  }
+}
+
+section('case 7 proceeding also writes an ESCALATED: line to the ledger the blind reviewer reads');
+// The blind reviewer is not handed NEEDS-USER.md, so without this line it flags the developer's default
+// every round and a block that should accept parks.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const dev = r.prompt(`develop ${id}`);
+    const esc = dev.slice(dev.indexOf('ESCALATE (7):'));
+    ok(esc.includes(`append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`), `${mode}: case 7 writes the gate-scoped ledger`);
+    ok(/ESCALATED: <the default you took/.test(esc), `${mode}: the line states the default taken`);
+    ok(esc.includes(`the blind reviewer is NOT shown ${STATE}/NEEDS-USER.md`), `${mode}: with the reason attached`);
+  }
+}
+
+section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');
+// An amendment quotes the plan verbatim (#3). The acceptance schema has no contest field, so a contest
+// paragraph there would ask for a report nothing reads.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const q = r.prompt(`quality ${id}`);
+    ok(q !== '' && !/AMENDED/.test(q) && !/amendment/i.test(q), `${mode}: the blind prompt names no AMENDED file and no amendment`);
+    ok(/CONTESTS DISMISSAL/.test(q), `${mode}: the blind reviewer, whose schema carries a contest count, keeps the paragraph`);
+    ok(!/CONTESTS DISMISSAL/.test(r.prompt(`acceptance ${id}`)), `${mode}: acceptance does not`);
+  }
+}
+
+section('acceptance judges an amended criterion against the AMENDED behavior, with evidence or not at all');
+{
+  for (const [mode, id, r] of FRAMES) {
+    const a = r.prompt(`acceptance ${id}`);
+    const [unit, superseded, unmet] = mode === 'fix'
+      ? ['issue', 'one', /stays actually_fixed=false/]
+      : ['criterion', 'clause', /stays UNMET/];
+    ok(a.includes(`READ ${STATE}/AMENDED-${id}.md if it exists`), `${mode}: acceptance is told to read the record`);
+    ok(a.includes(`against the AMENDED behavior, not the superseded ${superseded}`), `${mode}: and to judge against what was built`);
+    ok(new RegExp(`NAME every ${unit} you\\s+judged under an amendment in your review file`).test(a), `${mode}: each such ${unit} is named`);
+    ok(/states NO defect evidence excuses\s+NOTHING/.test(a) && unmet.test(a), `${mode}: an evidence-free amendment excuses nothing`);
+  }
+}
+
+section('a recorded amendment is logged, summed into the ledger and named in followups; zero is silent');
+// `plan_amendments` is REQUIRED so "none" is an explicit claim, which only means something if the engine
+// reads it (tests/CLAUDE.md §3).
+{
+  const one = await run({ ...GREEN_RUN, develop: { ...DEV_OK, plan_amendments: 1 } });
+  ok(one.logs.some((l) => /⚠ block-a r1: 1 plan amendment\(s\) recorded — see E:\/r\/runs\/t\/AMENDED-block-a\.md/.test(l)),
+    'the amendment is logged with the file that holds it');
+  eq(one.out.ledger[0].planAmendments, 1, 'counted into the block\'s ledger record');
+  ok(/PLAN AMENDED for: block-a, block-b/.test(one.out.followups), 'and followups names every amended block');
+
+  const summed = await run({
+    develop: firstRound({ ...DEV_OK, plan_amendments: 1 }, { ...DEV_OK, plan_amendments: 2 }),
+    quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS,
+  }, ONE_BLOCK);
+  eq(summed.out.ledger[0].planAmendments, 3, 'rounds SUM into the ledger, never last-write-wins');
+
+  const none = await run(GREEN_RUN);
+  ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing');
+  eq(none.out.ledger[0].planAmendments, 0, 'the ledger record still carries the field');
+  ok(!/PLAN AMENDED/.test(none.out.followups), 'and followups says nothing about amendments');
+}
+
+// ---------------------------------------------------------------------------------------------
+// statusSync — the plan-file edits a run returns for `tools/plan-edit.mjs sync` to apply
+// ---------------------------------------------------------------------------------------------
+// The sync is also the recovery step after a run dies between staging and sync, so a wrong value here
+// corrupts the selection truth the next launch builds from.
+const syncOf = (out) => out.statusSync.map((e) => `${e.id}=${e.value}`).join(',');
+
+section('statusSync maps every block terminal to done, parked or blocked, and skips blocks never reached');
+{
+  const accepted = await run(GREEN_RUN, ONE_BLOCK);
+  eq(JSON.stringify(accepted.out.statusSync), JSON.stringify([{ planPath: 'E:/plans/bus.md', id: 'block-a', key: 'status', value: 'done' }]),
+    'an accepted block is done, with its absolute planPath and the status key');
+
+  const parked = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+  eq(syncOf(parked.out), 'block-a=parked', 'a park over the round budget is parked');
+
+  const halted = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK });
+  eq(syncOf(halted.out), 'block-a=blocked', 'a needs-user halt is blocked, and block-b, never reached, has no edit');
+
+  const ordered = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true, maxRounds: 1 });
+  eq(syncOf(ordered.out), 'block-a=parked', 'an ordered park stops the run, and the block after it has no edit');
+
+  const regressed = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, regression: true } });
+  eq(syncOf(regressed.out), 'block-a=blocked', 'staged with a self-reported regression is blocked, never done');
+
+  const unsafe = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, cleared: false } }, { ...ONE_BLOCK, maxRounds: 1 });
+  eq(syncOf(unsafe.out), 'block-a=blocked', 'a park that left the tree unsafe is blocked, not parked');
+
+  const dirty = await run({ develop: { ...DEV_OK, baseline_dirty_files: 2 } });
+  eq(syncOf(dirty.out), 'block-a=blocked', 'a dirty baseline changed nothing and is still blocked, so the operator sees it');
+
+  const none = await run({}, { ...baseArgs, plans: BLOCKS.map((b) => ({ ...b, status: 'done' })) });
+  eq(JSON.stringify(none.out.statusSync), '[]', 'a run with nothing to build returns no edits');
+}
+
+section('statusSync maps each fix entry by its report AND by whether its block landed');
+{
+  const allStale = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'STALE' }]) }, FIX_ONE);
+  eq(syncOf(allStale.out), 'fix-a=done,i-1=stale,i-2=stale', 'an all-stale block is done and each entry stale');
+
+  const noChanges = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }, { issue_id: 'i-2', status: 'STALE' }]) }, FIX_ONE);
+  eq(syncOf(noChanges.out), 'fix-a=blocked,i-2=stale', 'a no-changes block is blocked, its STALE entry stale, its SKIPPED entry untouched');
+
+  const parked = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FAILED' }]),
+    quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK,
+  }, { ...FIX_ONE, maxRounds: 1 });
+  eq(syncOf(parked.out), 'fix-a=parked,i-1=needs-attention,i-2=needs-attention',
+    'a parked block\'s FIXED entry is needs-attention: its fix sits in a patch, never landed');
+
+  const accepted = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'STALE' }, { issue_id: 'i-3', status: 'SKIPPED' }]),
+    quality: CLEAN, acceptance: FIX_PASS,
+  }, FIX_ONE);
+  eq(syncOf(accepted.out), 'fix-a=done,i-1=fixed,i-2=stale', 'an accepted block: FIXED is fixed, STALE is stale, SKIPPED has no edit');
+}
+
+section('an entry claimed FIXED and re-reported STALE is only closed if its block lands');
+// Round 2 reads round 1's own unstaged fix and honestly reports STALE. Synced as stale, a parked block
+// would drop the entry from the inventory while its fix sits in a patch nobody applied.
+{
+  const reports = {
+    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }], { entries_found: -1 })),
+    quality: firstRound(FLAGGED, CLEAN),
+  };
+  const parked = await run({ ...reports, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 2 });
+  eq(syncOf(parked.out), 'fix-a=parked,i-1=needs-attention', 'parked: needs-attention, never stale');
+  const landed = await run({ ...reports, acceptance: FIX_PASS }, FIX_ONE);
+  eq(syncOf(landed.out), 'fix-a=done,i-1=fixed', 'landed: fixed, since this run closed it');
 }

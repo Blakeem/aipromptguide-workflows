@@ -42,7 +42,7 @@ section('a dead run-phase critic throws — its options are unverified, not uphe
 
 section('a dead refine-phase criteria critic throws rather than passing the criteria');
 // The one phase whose entire job is finding what is missing: "no gaps" and "no critic" must never look
-// the same to the caller (feature-cycle's `critique?.verdict ?? 'ready'` shape is what NOT to copy).
+// the same to the caller (a `critique?.verdict ?? 'ready'` fallback is what NOT to copy).
 {
   const msg = await throwsWith(ENGINE, { args: { ...baseArgs, phase: 'refine' }, respond: { 'criteria-critic': null } });
   ok(/Criteria critic returned nothing/.test(msg) && /NOT a clean bill of health/.test(msg),

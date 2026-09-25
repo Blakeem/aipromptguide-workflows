@@ -12,7 +12,7 @@ apply (no code, no staging, no commit).
 Right size: one creative problem worth exploring from **several genuinely different angles** (≥2 lenses).
 Too small (one obvious approach) → just produce it directly. Need the AI to *conclude* among options
 (weighted decision matrix, a single answer) → that's **`decide-cycle`**, not this. Need to *build* a
-chosen direction → **`feature-cycle`**. Brainstorm only diverges; the human judges.
+chosen direction → a plan file built by **`develop-cycle`**. Brainstorm only diverges; the human judges.
 
 ## 2. The flow
 
@@ -32,8 +32,8 @@ everything with the user first:
 3. **Run** the engine (one shot). It fans out one generator per lens into
    `runs/<runId>/variations/<lens>/` and returns each entry path + a one-line differentiator.
 4. **Present** the variations: open each entry (or relay the summaries), walk the user through each
-   distinct take. Help them pick / hybridize / cherry-pick. To build the chosen direction, hand it to
-   `feature-cycle`; to have the AI conclude among them, hand the brief to `decide-cycle`.
+   distinct take. Help them pick / hybridize / cherry-pick. To build the chosen direction, author a
+   plan file from it for `develop-cycle`. To have the AI conclude among them, hand the brief to `decide-cycle`.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -64,7 +64,7 @@ One role. The JS conductor only fans out and passes paths (#1); each generator i
   yourself wanting an AI verdict, you want `decide-cycle`.
 - **Output is read-state, not the repo.** Variations live under `runs/<runId>/variations/` (gitignored);
   the engine never writes to, stages, or commits the target repo. To adopt one, you copy it into the
-  repo afterward (or build it via `feature-cycle`).
+  repo afterward (or build it via a `develop-cycle` plan file).
 - **Brief verbatim, single source (#2/#11).** Every generator reads the same brief from one place — a
   `planPath` file or the inline `brief`. References are handed as paths, never pasted.
 - **Thin return (#8).** Each generator returns only the entry path + one-line differentiator; the

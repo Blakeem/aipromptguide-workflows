@@ -1,7 +1,7 @@
 export const meta = {
   name: 'refine-cycle',
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (only what would build wrong or fail counts - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then folds each gap into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
-  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It replaces feature-cycle phase:"refine", which does not converge - run five times on one plan it keeps adding code and detail and never stops. Questions (a dependency-ordering error between blocks, a block too big for one develop pass, or a gap in an already-done block) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
+  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error between blocks, a block too big for one develop pass, or a gap in an already-done block) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor folds each gap into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
@@ -14,7 +14,7 @@ export const meta = {
 // built, staged or committed, and there are no gates args. It is the non-blind review-loop family's third
 // member (decide-cycle and investigate-cycle are the siblings): the critic MUST see the plan and the repo
 // to judge them, so #3's blindness does not apply here.
-// What makes THIS loop converge, where feature-cycle's refine phase did not, is four things together: the
+// What makes THIS loop converge is four things together: the
 // DEFECT BAR (only what would build wrong counts), the severity FLOOR (below-floor findings are recorded,
 // not folded), the DISMISSAL ledger (a declined gap stays declined), and the minimal-fold EDITOR (it may
 // change only what a gap names). Remove any one and the plan grows every round instead of settling.

@@ -95,12 +95,9 @@ section('--list derives the control object, so nothing about the roadmap is hand
   }), 'the file keys, then one row per block, every default already applied');
 }
 
-section('a gate reads from either shape, and a trailing comment is not part of it');
+section('a gate reads from the block preamble');
 {
-  eq(readGate('\n## Gate\ngreen\n'), 'green', 'feature\'s "## Gate" heading');
-  eq(readGate('\ngate: build-only\n', 'section'), 'build-only', 'migrate\'s inline "gate:" line');
-  eq(readGate('\ngate: build-only\n'), 'build-only', 'a plan states its gate in its preamble too, and that wins');
-  eq(readGate('\n## Gate\ngreen   # build + the required verification\n'), 'green', 'comment stripped');
+  eq(readGate('\ngate: build-only\n'), 'build-only', 'a plan states its gate in its preamble');
   eq(readGate('\n## Feature\nno gate here\n'), null, 'absent reads as null, never as a default');
 }
 
@@ -112,8 +109,10 @@ section('every structural fault throws, naming the plan — none may resolve to 
   ok(/twice/.test(failsWith0('## Plan: a — t\n\nbody\n\n## Plan: a — t2\n\nbody\n')), 'a duplicate id throws');
   ok(/kebab/.test(failsWith0('## Plan: Not A Slug\n\nbody\n')), 'a non-kebab id throws');
   ok(/no "## Plan/.test(failsWith0('# just a plan\n\n## Feature\nx\n')), 'a file with no blocks throws');
-  ok(/no gate for: a/.test(gateFails(nogate)), 'a missing gate throws rather than defaulting to green');
-  ok(/invalid gate/.test(gateFails('## Plan: a — t\n\n## Gate\nred-baseline\n')),
+  ok(/no gate for: a/.test(planFails(nogate)), 'a missing gate throws rather than defaulting to green');
+  ok(/no gate for: a \(mode feature\)/.test(planFails('## Plan: a — t\n\n## Gate\ngreen\n')),
+    'a "## Gate" heading with no preamble gate is body text, so the gate is missing');
+  ok(/mode feature does not allow/.test(planFails('## Plan: a — t\ngate: red-baseline\n\nbody\n')),
     'a gate outside green|build-only throws — the engine would silently fall back to green');
 }
 
@@ -125,22 +124,14 @@ function failsWith0(text) {
   } catch (e) { return e.message; }
 }
 
-/** As above, but through the real emitList — where gates are checked. */
-function gateFails(text, kind = 'plan') {
-  try {
-    emitList(validate(parseBlocks(text, kind), 'test', kind), 'test', kind);
-    return '';
-  } catch (e) { return e.message; }
-}
-
 // ---------------------------------------------------------------------------------------------------
-// The default kind's metadata grammar: three runs of `key: value` lines and nowhere else. Every case
+// The metadata grammar: three runs of `key: value` lines and nowhere else. Every case
 // here is either a DEFAULT nobody may re-derive, or a typo that must not silently take one.
 // ---------------------------------------------------------------------------------------------------
 
-/** --list for arbitrary plan text, through the whole default-kind path the CLI uses. */
+/** --list for arbitrary plan text, through the whole path the CLI uses. */
 function listOf(text) {
-  return JSON.parse(emitList(validate(parseBlocks(text), 'test'), 'test', 'plan', parseFileKeys(text)));
+  return JSON.parse(emitList(validate(parseBlocks(text), 'test'), 'test', parseFileKeys(text)));
 }
 
 /** The message from a listOf() that should fail, or '' if it wrongly succeeded. */
@@ -151,7 +142,7 @@ function planFails(text) {
   } catch (e) { return e.message; }
 }
 
-const ONE = (preamble = '', body = '\n## Gate\ngreen\n') => `## Plan: a - t\n${preamble}\nbody\n${body}`;
+const ONE = (preamble = 'gate: green\n', body = '') => `## Plan: a - t\n${preamble}\nbody\n${body}`;
 
 section('the file keys open the file, and every default is applied in the output');
 {
@@ -179,7 +170,7 @@ section('the file keys open the file, and every default is applied in the output
   const gapped = listOf(`---\ntitle: x\n---\n\ngoal: ship it\nordered: true\n\n${ONE()}`);
   eq(gapped.goal, 'ship it', 'the file keys are found across the blank line under the fence');
   eq(gapped.ordered, true, 'so a declared ordered is not replaced by its default');
-  eq(listOf(`\nsweep: goal-coverage\n\n${ONE()}`).sweep, 'goal-coverage',
+  eq(listOf(`\ngoal: g\nsweep: goal-coverage\n\n${ONE()}`).sweep, 'goal-coverage',
     'and across a blank line that opens the file');
 
   // The gap above the run is crossed; a gap INSIDE it still ends it, which is what keeps prose out.
@@ -189,14 +180,28 @@ section('the file keys open the file, and every default is applied in the output
 
 section('a section-mode block flips the FILE defaults, and an explicit key still wins');
 {
-  const flipped = listOf(ONE('mode: section\ngate: red-baseline\n', ''));
+  const flipped = listOf(`goal: g\n\n${ONE('mode: section\ngate: red-baseline\n', '')}`);
   eq(flipped.ordered, true, 'ordered flips to true — sections run in order');
   eq(flipped.sweep, 'goal-coverage', 'and sweep flips to goal-coverage');
-  eq(flipped.suite, 'green', 'suite is untouched by the flip');
+  // migrate never demanded a green whole suite, so a test-first migration must not park on its own red.
+  eq(flipped.suite, 'scoped', 'and suite flips to scoped');
 
-  const explicit = listOf(`ordered: false\n\n${ONE('mode: section\ngate: green\n', '')}`);
+  const explicit = listOf(`goal: g\nordered: false\n\n${ONE('mode: section\ngate: green\n', '')}`);
   eq(explicit.ordered, false, 'an explicit ordered outranks the flip');
-  eq(explicit.sweep, 'goal-coverage', 'and the other default still flips');
+  eq(explicit.sweep, 'goal-coverage', 'and the other defaults still flip');
+  eq(explicit.suite, 'scoped', 'suite among them');
+  eq(listOf(`goal: g\nsuite: green\n\n${ONE('mode: section\ngate: green\n', '')}`).suite, 'green',
+    'an explicit suite outranks the flip');
+}
+
+section('a goal-coverage sweep with no goal exits 1 naming the goal: file key');
+{
+  const GOALLESS = /sweep is goal-coverage but no goal is set.*"goal:" file key/;
+  ok(GOALLESS.test(planFails(ONE('mode: section\ngate: green\n', ''))),
+    'a section file with no goal fails on the flipped default');
+  ok(GOALLESS.test(planFails(`sweep: goal-coverage\n\n${ONE()}`)), 'an explicit sweep with no goal fails too');
+  eq(listOf(`sweep: none\n\n${ONE('mode: section\ngate: green\n', '')}`).sweep, 'none',
+    'sweep: none is the way out, and passes with no goal');
 }
 
 section('block metadata is read from the preamble run and NOWHERE else');
@@ -214,41 +219,26 @@ section('block metadata is read from the preamble run and NOWHERE else');
   // The live case: a plan body's ## Test Strategy section is `kind:` / `unit:` / `method:` / `details:`
   // at column 0. Below the first blank line those are prose — reading them would fail on an unknown key.
   const [sample] = parseBlocks(sampleText);
-  eq(JSON.stringify(sample.preamble.values), '{}', 'the sample roadmap\'s blocks carry no preamble at all');
+  eq(JSON.stringify(sample.preamble.values), '{"gate":"green"}', 'the sample roadmap\'s blocks carry a gate-only preamble');
   eq(sample.mode, 'feature', 'so mode falls to its default');
-  eq(listOf(ONE('', '\n## Test Strategy\nkind: tests-after\ndetails: node --test\n\n## Gate\ngreen\n')).blocks[0].mode,
+  eq(listOf(ONE('gate: green\n', '\n## Test Strategy\nkind: tests-after\ndetails: node --test\n')).blocks[0].mode,
     'feature', 'a Test Strategy body section does not register as metadata');
-  eq(listOf(ONE('', '\nmode: fix\n\n## Gate\ngreen\n')).blocks[0].mode, 'feature',
+  eq(listOf(ONE('gate: green\n', '\nmode: fix\n')).blocks[0].mode, 'feature',
     'and neither does a bare "mode:" line in prose — the preamble is the only place it may be written');
 
-  // The blank line under `## Plan: <id>` is what the shipped template writes (workflows/feature/CLAUDE.md
-  // §4, tests/fixtures/roadmap-sample.md). It used to end the run before it started, so every declared key
-  // took its default and the gate fell back to the ## Gate heading — three wrong values at exit 0.
-  const gapBlock = listOf(ONE('\nmode: section\ngate: red-baseline\nstatus: done\n', ''));
+  // The blank line under `## Plan: <id>` is what the shipped template writes (tests/fixtures/roadmap-sample.md).
+  // It used to end the run before it started, so every declared key took its default at exit 0.
+  const gapBlock = listOf('goal: g\n\n' + ONE('\nmode: section\ngate: red-baseline\nstatus: done\n', ''));
   eq(gapBlock.blocks[0].mode, 'section', 'a blank line under the header does not void the preamble');
-  eq(gapBlock.blocks[0].gate, 'red-baseline', 'the declared gate still outranks every fallback');
+  eq(gapBlock.blocks[0].gate, 'red-baseline', 'the declared gate is still read');
   eq(gapBlock.blocks[0].status, 'done', 'and the declared status is still read');
   eq(gapBlock.ordered, true, 'the file defaults flip on the mode that gap nearly hid');
-  eq(readGate('\n\nmode: section\n\n## Gate\ngreen\n'), null,
-    'readGate crosses the same gap, so it cannot disagree with the block about the mode');
+  eq(readGate('\n\ngate: red-baseline\n'), 'red-baseline',
+    'readGate crosses the same gap, so it cannot disagree with the block about the gate');
 
   // Crossed to FIND a run, never to continue one — a blank INSIDE the run still ends it.
   ok(/no gate for: a \(mode fix\)/.test(planFails(ONE('\nmode: fix\n\ngate: green\n', ''))),
     'a blank line inside the run ends it, and the line below is body prose again');
-}
-
-section('the gate: preamble first, then the ## Gate heading, and only for a feature-mode block');
-{
-  eq(listOf(ONE('gate: build-only\n')).blocks[0].gate, 'build-only',
-    'the preamble line outranks the ## Gate heading below it');
-  eq(listOf(ONE()).blocks[0].gate, 'green', 'a feature block with no preamble gate falls back to the heading');
-  eq(readGate('\nmode: section\n\n## Gate\ngreen\n'), null, 'a section-mode block does NOT fall back');
-  eq(readGate('\nmode: fix\n\n## Gate\ngreen\n'), null, 'nor does a fix-mode one');
-  ok(/no gate for: a \(mode fix\)/.test(planFails(ONE('mode: fix\n'))),
-    'so a fix block with only a heading is a missing gate, named with its mode');
-  // The fence guard covers the preamble path too: an example gate is not this block's gate.
-  eq(listOf(ONE('', '\n```\n## Gate\nbuild-only\n```\n\n## Gate\ngreen\n')).blocks[0].gate, 'green',
-    'a fenced ## Gate example is still ignored');
 }
 
 section('issue entries live under a fix-mode block, and carry their own `- key:` run');
@@ -349,78 +339,17 @@ section('every scanner reports positions into the RAW bytes — a splice cannot 
   eq(parseIssues(PLAN, 0, PLAN.length).map((e) => e.id).join(','), 'x-y', 'parseIssues scans a range');
 }
 
-section('--kind section reads migrate\'s blocks, gates and titles');
+section('--kind is retired: any form of it exits 1 naming the one remaining grammar, never ignored');
 {
-  const MIGRATION = join(REPO_ROOT, 'tests/fixtures/migration-sample.md');
-  const listed = JSON.parse(run([MIGRATION, '--list', '--kind', 'section']));
-  eq(JSON.stringify(listed), JSON.stringify([
-    { id: 'date-shim', title: 'a Temporal-backed replacement for the moment helpers', gate: 'green' },
-    { id: 'report-callsites', title: 'convert the 14 report builders', gate: 'green' },
-    { id: 'drop-moment', title: 'remove the dependency', gate: 'build-only' },
-  ]), 'sections carry a title too — migrate\'s control array is { id, title, gate }');
-
-  const block = run([MIGRATION, 'report-callsites', '--kind=section']);
-  ok(block.startsWith('## Section: report-callsites'), '--kind=name form works as well as --kind name');
-  ok(block.includes('### Test Strategy'), 'the whole section, not truncated');
-  ok(!block.includes('drop-moment'), 'and it stops at the next section');
-
-  // red-baseline is legal in a migration and NOT in a feature roadmap — the kind decides.
-  ok(gateFails('## Section: a — t\n\ngate: red-baseline\n\nbody\n', 'section') === '',
-    'red-baseline passes under --kind section');
-  ok(/invalid gate/.test(gateFails('## Plan: a — t\n\n## Gate\nred-baseline\n')),
-    'and still fails under the default plan kind');
-
-  // The kinds must not see each other's blocks, or a mixed file would parse as one giant unit.
-  eq(parseBlocks(readFileSync(MIGRATION, 'utf8'), 'plan').length, 0, 'plan kind finds no Section blocks');
-  eq(parseBlocks(sampleText, 'section').length, 0, 'section kind finds no Plan blocks');
-}
-
-section('--kind component reads gauntlet\'s blocks, gates and titles');
-{
-  const COMPONENTS = join(REPO_ROOT, 'tests/fixtures/components-sample.md');
-  const componentsText = readFileSync(COMPONENTS, 'utf8');
-  const listed = JSON.parse(run([COMPONENTS, '--list', '--kind', 'component']));
-  eq(JSON.stringify(listed), JSON.stringify([
-    { id: 'trail-store', title: 'the offline trail cache', gate: 'green' },
-    { id: 'trail-list', title: 'the browse screen', gate: 'green' },
-    { id: 'about-panel', title: 'the static about panel', gate: 'build-only' },
-  ]), 'components carry a title too — gauntlet\'s control array is derived from this, minus the title');
-
-  const block = run([COMPONENTS, 'trail-list', '--kind=component']);
-  ok(block.startsWith('## Component: trail-list'), '--kind=name form works as well as --kind name');
-  // The body's own `## Component` header is the truncation trap this tool exists for: only a header WITH
-  // an id ends a block, so a builder reading the printed block cannot stop one paragraph in.
-  ok(block.includes('## Test Strategy'), 'the whole block, not truncated at its own "## Component" body header');
-  ok(block.includes('## Gate'), 'including the gate');
-  ok(!block.includes('about-panel'), 'and it stops at the next component');
-
-  ok(/no gate for: a/.test(gateFails('## Component: a — t\n\n## Feature\nx\n', 'component')),
-    'a missing gate throws rather than defaulting to green');
-  // red-baseline is legal in a migration and NOT in a gauntlet component: gauntlet builds forward, so
-  // there is no intentionally-red step, and a coerced fallback would accept an untested component.
-  ok(/invalid gate/.test(gateFails('## Component: a — t\n\n## Gate\nred-baseline\n', 'component')),
-    'a gate outside green|build-only throws under --kind component');
-  ok(/twice/.test(componentFails('## Component: a — t\n\nbody\n\n## Component: a — t2\n\nbody\n')),
-    'a duplicate id throws — two components would share one DISMISSED file and one code review');
-
-  // The kinds must not see each other's blocks, or a mixed file would parse as one giant unit.
-  eq(parseBlocks(componentsText, 'plan').length, 0, 'plan kind finds no Component blocks');
-  eq(parseBlocks(sampleText, 'component').length, 0, 'component kind finds no Plan blocks');
-}
-
-/** Validate arbitrary component text through the same path the CLI uses. */
-function componentFails(text) {
-  try {
-    validate(parseBlocks(text, 'component'), 'test', 'component');
-    return '';
-  } catch (e) { return e.message; }
-}
-
-section('an unknown --kind throws rather than falling back to plan');
-{
-  ok(/unknown --kind "chapter"/.test(failsWith(SAMPLE, 'session-store', '--kind', 'chapter')), 'named in the message');
-  ok(/--kind needs a value/.test(failsWith(SAMPLE, 'session-store', '--kind')), 'a bare --kind throws');
-  ok(/plan, section or component/.test(failsWith(SAMPLE, 'session-store', '--kind')), 'and names every kind');
+  const forms = [[SAMPLE, '--list', '--kind', 'section'], [SAMPLE, 'session-store', '--kind=component'],
+    [SAMPLE, 'session-store', '--kind']];
+  for (const argv of forms) {
+    const res = cli(...argv);
+    eq(res.code, 1, `${argv.slice(1).join(' ')}: exit 1`);
+    ok(res.stdout === '', `${argv.slice(1).join(' ')}: nothing on stdout`);
+    ok(/--kind is retired/.test(res.stderr) && /"## Plan: <id>" with a preamble "gate:" line/.test(res.stderr),
+      `${argv.slice(1).join(' ')}: the reason names the retirement and what replaces it`);
+  }
 }
 
 section('a bare name resolves to the plan-mode directory; a path is left alone');
@@ -468,7 +397,7 @@ section('a header inside a fenced code block is an example, not a boundary');
   // Before the fix this minted a PHANTOM plan from the example (which would get a full build loop) and
   // truncated the real block at the opening fence, losing its remaining steps AND its gate — exit 0.
   const text = [
-    '## Plan: real-one — the actual feature', '',
+    '## Plan: real-one — the actual feature', 'gate: green', '',
     '## Implementation Steps',
     '1. The roadmap format looks like:', '',
     '```markdown',
@@ -496,14 +425,6 @@ section('an UNCLOSED fence throws — it used to delete every block after it, at
   const plan = ['## Plan: session-store — a', '', '## Implementation Steps', '```js',
     'const a = 1;', '', '## Plan: login-endpoint — b', '', '## Gate', 'build-only', ''].join('\n');
   ok(/unclosed "```" code fence/.test(failsWith0(plan)), 'the open fence is named and refused');
-
-  // migrate's kind takes the same path: two of three sections vanished from the control array.
-  const sections = ['## Section: date-shim — Shim Date', 'gate: green', '', '```js', 'code', '',
-    '## Section: report-callsites — Report', '', '## Section: drop-moment — Drop', ''].join('\n');
-  let msg = '';
-  try { parseBlocks(sections, 'section'); } catch (e) { msg = e.message; }
-  ok(/unclosed "```" code fence/.test(msg) && /section header after it/.test(msg),
-    'and --kind section names the noun it would have swallowed');
 }
 
 section('a column-0 header that misses the shape throws — it must never merge into its neighbour');
@@ -526,12 +447,6 @@ section('a column-0 header that misses the shape throws — it must never merge 
   const deepHeader = '## Plan: alpha — a\n\nbody a\n\n## Gate\ngreen\n\n### Plan: beta — b\n\nbody b\n\n## Gate\nbuild-only\n';
   ok(/malformed "## Plan:"/.test(failsWith0(deepHeader)), 'a "###" header throws rather than merging');
 
-  // Every kind shares the code path, so the throw must name its own noun.
-  let deepSection = '';
-  try { parseBlocks('## Section: a — t\n\nbody\n\n### Section: b — t\n\nbody\n', 'section'); } catch (e) { deepSection = e.message; }
-  ok(/malformed "## Section:"/.test(deepSection) && /a section header must be/.test(deepSection),
-    'and --kind section takes the same throw with the right noun');
-
   // The kebab-token requirement is what keeps ordinary prose headings out of that throw.
   eq(parseBlocks('## Plan: alpha — a\n\n## Plan Rationale\n\nwhy\n\n## Gate\ngreen\n').length, 1,
     'a prose heading such as "## Plan Rationale" is still just body text');
@@ -552,25 +467,6 @@ section('a BOM does not swallow the first block');
   // "text before the first block is ignored" — one plan silently missing from --list.
   const blocks = parseBlocks('\uFEFF## Plan: first — a\n\n## Gate\ngreen\n\n## Plan: second — b\n\n## Gate\ngreen\n');
   eq(blocks.map((b) => b.id).join(','), 'first,second', 'both blocks survive');
-}
-
-section('the gate is read ONLY from the place its kind documents');
-{
-  // A `gate:` line mentioned in prose used to outrank the real `## Gate`. That is not a loud failure:
-  // build-only makes the engine accept the feature the moment the build passes, nothing tested.
-  const prose = ['## Plan: docs-tool — a linter', '',
-    '## Feature', 'Each block needs a line like', 'gate: build-only', 'under its `## Gate` header.', '',
-    '## Gate', 'green', ''].join('\n');
-  eq(readGate(parseBlocks(prose)[0].body), 'green', 'prose mentioning a gate does not win');
-
-  // An earlier `## Gate` (quoted in a criterion) must not outrank the real trailing one either.
-  const twice = '## Plan: a — t\n\n## Acceptance Criteria\n- The template shows:\n\n## Gate\nbuild-only\n\n## Gate\ngreen\n';
-  eq(readGate(parseBlocks(twice)[0].body), 'green', 'the LAST ## Gate is the real one');
-
-  // migrate's gate lives in the preamble, above the first "###" — not anywhere in the body.
-  const late = '## Section: a — t\n\n### Implementation Steps\n1. Write:\n\ngate: build-only\n';
-  eq(readGate(parseBlocks(late, 'section')[0].body, 'section'), null, 'a gate: below the first ### is not the gate');
-  eq(readGate('\ngate: red-baseline\n\n### Acceptance Criteria\n- x\n', 'section'), 'red-baseline', 'the preamble one is');
 }
 
 section('the CLI still prints when its own path goes through a symlink or junction');

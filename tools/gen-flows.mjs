@@ -38,9 +38,9 @@
 // and a counter that survives a run silently changes the diagram on the second pass.
 //
 // TERMINAL IDENTITY — three sources, in priority order:
-//   1. DERIVED   `out.status`, whenever it is non-empty (feature, migrate, investigate, decide).
-//   2. DECLARED  the scenario's `terminal`, used when `out.status` is empty, and REQUIRED there. Five
-//      engines return no `status` at all (brainstorm, review, enhance, docs, resolve); without a
+//   1. DERIVED   `out.status`, whenever it is non-empty (develop, refine, investigate, decide).
+//   2. DECLARED  the scenario's `terminal`, used when `out.status` is empty, and REQUIRED there. Four
+//      engines return no `status` at all (brainstorm, review, enhance, docs); without a
 //      declared label every non-throwing scenario of theirs collapses into one blank end node. A
 //      declared `terminal` that CONTRADICTS a non-empty `out.status` is an error — authored text never
 //      overrides derived truth.
@@ -49,9 +49,9 @@
 //      throw messages interpolate the round number, so a scenario dying in round 1 and another in
 //      round 3 would otherwise mint two nodes for one site — and break byte-stability.
 // Digits in a terminal label are normalized to `N` for identity AND display
-// (`roadmap complete with 1 plan(s) parked` -> `... with N plan(s) parked`). feature-cycle's is the
-// repo's only interpolated status; without this, two scenarios parking different counts mint two
-// terminals for one outcome. The FLOW.md terminal table marks each terminal derived or declared.
+// (`run complete with 1 block(s) parked` -> `... with N block(s) parked`). develop-cycle interpolates
+// its parked and blocked counts into its status; without this, two scenarios parking different counts
+// mint two terminals for one outcome. The FLOW.md terminal table marks each terminal derived or declared.
 //
 // GRAPH DERIVATION:
 //   • NODE IDENTITY IS DERIVED. An observed label maps to a node by longest-prefix match against
@@ -73,14 +73,14 @@
 //     ids make a BOUNDARY edge, drawn thick and captioned as advancing to the next item — or drawn thick
 //     and BARE where its ordered pair also holds an E-marked back edge, the caption being restated once
 //     under the Edges table for the whole map (edgeLine). That is what
-//     separates "loop again on the same plan" from "advance to the next plan" in
-//     feature/migrate/resolve, which would otherwise fold into one
+//     separates "loop again on the same block" from "advance to the next block" in
+//     develop, which would otherwise fold into one
 //     `acceptance -> develop` edge meaning two different things. It is derived from labels alone;
 //     nothing parses a label's internals for meaning. INSIDE one fan-out lane the boundary rule is off:
 //     `group.item` is authoritative there, so review's `review:u1/x -> review:u1/y` is the sequential
 //     repeat it really is, not an advance to a new unit. A boundary edge is a SEPARATE edge from a
-//     same-item one between the same pair — feature-cycle observes both `acceptance -> develop` shapes
-//     (retry this plan / advance to the next), and merging them on the node pair alone would re-fold the
+//     same-item one between the same pair — develop-cycle observes both `acceptance -> develop` shapes
+//     (retry this block / advance to the next), and merging them on the node pair alone would re-fold the
 //     exact pair this rule exists to split, printing only the boundary advance and losing the retry.
 //   • LOOPS: an edge into a role already seen earlier in the same trace, that is not a boundary edge,
 //     is a BACK-EDGE — dotted, labelled with that scenario's `when`, annotated with the MEASURED max
@@ -171,9 +171,9 @@ const CLOSER = { '(': ')', '[': ']', '{': '}' };
 
 /**
  * The first clause separator that is not inside something, or -1. Three spans are ATOMIC to the scan:
- *   • BRACKETS. feature-cycle's arg list is
- *     `{ runId, planPath | plan (markdown string) | plans:[{…}], target, gates }; got typeof=`, whose
- *     first ` (` sits inside the braces — cutting there produced `args must include at least { runId,
+ *   • BRACKETS. An arg list such as
+ *     `{ runId, planPath | plan (markdown string) | plans:[{…}], target, gates }; got typeof=` has its
+ *     first ` (` inside the braces — cutting there produced `args must include at least { runId,
  *     planPath | plan`: an unbalanced brace ending on a dangling `|`.
  *   • DOUBLE QUOTES. `holding their "## Plan: <id>" blocks — …` has a `: ` inside the quotes, and
  *     cutting there ended a node mid-quote at `their "## Plan`. Single quotes are NOT tracked: these
@@ -429,7 +429,7 @@ export async function buildGraph(spec) {
   };
 
   // `boundary` is part of the KEY, not merely a flag on a shared edge. One node pair legitimately carries
-  // BOTH shapes — feature-cycle's `acceptance -> develop` is a retry of the SAME plan, and after a staging
+  // BOTH shapes — develop-cycle's `acceptance -> develop` is a retry of the SAME block, and after a staging
   // the advance to the NEXT one — and a single merged edge can only render as one of them (edgeLine gives
   // boundary priority), which silently re-folds the very pair the boundary rule exists to split.
   const addEdge = (from, to, when, { back = false, boundary = false, repeat = 0, labelled = false } = {}) => {
@@ -467,8 +467,8 @@ export async function buildGraph(spec) {
 
     // Traversal tally for this scenario: how many times each edge has been walked within one lane.
     // A LANE IS ONE ITEM'S PASS through the graph — a fan-out item where there is a group, else the
-    // label's own item id (feature/migrate/resolve have no groups at all, and a roadmap of 2 plans
-    // that each retry once must read ×2, not the ×3 that summing both plans' traversals gives).
+    // label's own item id (develop has no groups at all, and a run of 2 blocks that each retry once must
+    // read ×2, not the ×3 that summing both blocks' traversals gives).
     // `laneOf` reads the SOURCE call, so an edge crossing back into a fan-out from ungrouped code
     // counts once for the round rather than once per item.
     const laneOf = (call, role) => (call.group ? `g${call.group.id}:${call.group.item}` : itemIdOf(call.label, role));
@@ -660,7 +660,7 @@ function nodeText(n) {
 // is what every build loop draws between its last agent and its first — Mermaid places both labels at the
 // SAME path midpoint, not merely in the same band, so the smaller box sits INSIDE the larger one whatever
 // either says. READ THIS BEFORE RE-TUNING ANYTHING FOR IT: no amount of shortening closes that, and a
-// marker alone does not either. Measured in Chrome on gauntlet's `code-gate -> build`, the overlap was
+// marker alone does not either. Measured in Chrome on a build loop's closing pair, the overlap was
 // 70x24px with the old ~200px condition list and 39x22px once the back edge carried the 39px marker — and
 // it is 39x22px at every spacing setting swept (node 80/140/240 x rank 120/200/320/340), the map merely
 // getting wider. Only ONE label in that band closes it.
@@ -668,16 +668,15 @@ function nodeText(n) {
 // So the pair keeps ONE, and the marker is the side that keeps it: a back edge's conditions are a long,
 // open-ended list, while the boundary's caption is three fixed words that one sentence under the `## Edges`
 // table restates for every pair in the map at once. The USER TOOK that trade — a boundary edge whose
-// ordered pair holds an E-marked back edge renders as a bare thick arrow, the Edges-table sentence carries
-// the advance, and migrate and resolve deliberately give up their ONLY on-arrow boundary caption for it.
-// Detection is by KIND — the pair holds an E marker — never by position, pixels, or which map it is. Every
-// other boundary edge keeps its words (feature's `park -> develop`, gauntlet's six others).
+// ordered pair holds an E-marked back edge renders as a bare thick arrow, and the Edges-table sentence
+// carries the advance. Detection is by KIND — the pair holds an E marker — never by position, pixels, or
+// which map it is. Every other boundary edge keeps its words (develop's `park -> develop`).
 //
 // What the marker buys on top is the property that made the self-loop fix worth it: the one label left in
 // that band is bounded BY CONSTRUCTION, so it cannot grow with the scenario table, and the conditions it
 // replaced are readable in a table instead of truncated to `+N more` on an arrow nothing could read anyway.
 //
-// ONE MERGED MAP, self-loops first. `improve -> improve` in gauntlet is a self-loop AND half of a
+// ONE MERGED MAP, self-loops first. `develop -> develop` in develop is a self-loop AND half of a
 // boundary+back pair; two maps would give it an L and an E, and the diagram would name one arrow twice.
 // Detection is by KIND — the pair's `boundary`-keyed edge exists and its `plain`-keyed edge is a back
 // edge (addEdge's key scheme allows at most those two, and the two flags are mutually exclusive because
@@ -701,7 +700,7 @@ const assignMarkers = (graph) => {
 // The ordered pairs whose two labels Mermaid would stack at one midpoint — read back off the SAME merged
 // marker map the diagram is drawn from, so the caption-less boundary and the `E<n>` back edge can never
 // disagree about which pairs those are. E only: a self-loop's `L` marker names one arrow, not a pair, and
-// gauntlet's `improve -> improve` is both at once (a self-loop AND half of a boundary pair) — it takes the
+// develop's `develop -> develop` is both at once (a self-loop AND half of a boundary pair) — it takes the
 // L and keeps its boundary caption, because a self-loop's label goes to a side gutter, not to the midpoint.
 const markedPairs = (markerIds) =>
   new Set([...markerIds].filter(([, id]) => id.startsWith('E')).map(([e]) => pairKey(e)));
@@ -795,7 +794,7 @@ export function generate(spec, graph) {
   // shows, so a reader goes from `L1`/`E1` in the picture to what actually takes that arrow.
   //
   // ONE map, PARTITIONED here by marker prefix — never two maps built separately. The single map is what
-  // guarantees no arrow gets both an L and an E (gauntlet's `improve -> improve` is a self-loop and half
+  // guarantees no arrow gets both an L and an E (develop's `develop -> develop` is a self-loop and half
   // of a boundary+back pair at once); partitioning it is what stops either table absorbing the other's
   // rows, which a shared `.size` guard or a shared loop would do the moment one kind is absent.
   const nodeLabel = (id) => graph.nodes.find((n) => n.id === id)?.label ?? id;

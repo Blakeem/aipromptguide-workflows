@@ -148,6 +148,10 @@ if (A.goal != null && typeof A.goal !== 'string') {
   throw new Error(`Invalid goal key: args.goal must be a string; got ${JSON.stringify(A.goal)}. It is the goal line every agent is framed with and the sweep's re-grep seed — copy the value "plan-block.mjs <planPath> --list" prints.`);
 }
 const GOAL = A.goal ?? '';
+// The sweep re-derives its surface from the goal, so a goalless sweep would run with nothing to cover.
+if (SWEEP_MODE === 'goal-coverage' && !GOAL.trim()) {
+  throw new Error('Missing goal key: args.sweep is goal-coverage but args.goal is empty, so the sweep would re-derive its surface from nothing. Add a "goal:" file key to the plan file (or "sweep: none"), then copy the value "plan-block.mjs <planPath> --list" prints.');
+}
 
 // =============================================================================
 // Plans — the block list the main agent supplies (array order = build order). Each entry is a THIN
@@ -500,7 +504,14 @@ const ACC_SUITE_LINE = SUITE === 'green'
 // the gate-scoped DISMISSED ledger, the reviewer flags that default, the developer re-routes it to case 7
 // (still a user-only call), nothing changes, and the pair spins to maxRounds and PARKS a block that used
 // to accept. The anti-spin channel (#5) has to reach the reviewer through the ONE file it is still handed.
-const MATRIX = (id, round) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+// PRECEDENCE quotes each frame's own scope line, so one table serves all three modes; a line the frame
+// does not carry would leave 6a outranking nothing.
+const SCOPE_LINE = {
+  feature: 'NO scope creep beyond the plan',
+  section: 'NO scope creep beyond it',
+  fix: 'NO scope creep beyond what each fix requires',
+};
+const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
   2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
   3. Stops the build/tests/verification ............... FIX (always).
@@ -510,9 +521,9 @@ const MATRIX = (id, round) => `DECISION MATRIX — for each ambiguity or review 
       you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
         .............................................. FIX it: the verified defect outranks the
       prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond
-      the plan" instruction above and the CONVENTIONS rubric. Everywhere else the plan and the
-      conventions still bind, exactly as written.
+      PRECEDENCE — for THIS clause only, that verified defect also outranks the "${SCOPE_LINE[mode]}"
+      instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
+      still bind, exactly as written.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
         .............................................. DROP — LOG it (see LOGGING).
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
@@ -586,7 +597,7 @@ as \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add t
 You are the FIXER. Resolve the verified issues in ${planRef(p)}. That block IS the inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
-refactors, NO scope creep beyond what each fix requires.
+refactors, ${SCOPE_LINE.fix}.
 ${ENV}
 BLOCK: ${p.id}
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
@@ -615,7 +626,7 @@ ${round === 1 ? `0. INVENTORY READABLE — do this FIRST, before reading or edit
    fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
    rest.
 4. ${staging}
-5. ${MATRIX(p.id, round)}
+5. ${MATRIX(p.id, round, p.mode)}
 RESULTS — return one \`results\` entry per issue id in the block, \`{ issue_id, status }\`: FIXED (you
 changed code that closes it), STALE (it is not in the current code), SKIPPED (its decision is not
 ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
@@ -631,7 +642,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block.';
     return `
 You are the DEVELOPER. Implement ${planRef(p)}. Build ONLY this block minimally and surgically; match
-conventions; NO scope creep beyond it.
+conventions; ${SCOPE_LINE.section}.
 ${ENV}
 BLOCK: ${p.id}
 GATE EXPECTATION: ${gateExpectation}
@@ -649,13 +660,13 @@ PROCEDURE:
    when in doubt run one file per invocation or use the runner's --filter.
 3. ${SUITE_LINE} Build/lint must always pass.
 4. ${staging}
-5. ${MATRIX(p.id, round)}
+5. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
   }
 
   return `
 You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+${SCOPE_LINE.feature}.
 ${ENV}
 BLOCK: ${p.id}
 ${opening}
@@ -670,7 +681,7 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
    (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
 3. ${staging}
-4. ${MATRIX(p.id, round)}
+4. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
 };
 
@@ -679,6 +690,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 const qualityPrompt = (p, round) => `
 You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
 plan, spec or goal — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
+Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 TARGET REPO: ${REPO}
 
 ${SETTLED(p.id)}
@@ -866,7 +878,7 @@ PROCEDURE:
     ? ', and that the blocks after it were NOT attempted, because they depend on this one'
     : '; the remaining blocks continued without it'}
    - one line on why it was parked (${escalated ? 'the blocker the developer escalated' : 'what acceptance was still failing'})
-   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block produced NO review file — its gate never went green, so neither reviewer ever ran; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
+   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - the saved work: \`${parkedPatch(p.id)}\`
    - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`
    - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
@@ -978,6 +990,7 @@ if (!pending.length) {
     sweepFailed: false,
     parked: [],
     ledger: [],
+    statusSync: [],
     reviewTrail,
     followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.`,
   };
@@ -996,12 +1009,39 @@ log(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ?
 // review files + git staging are the only state + progress trail (#6/#10).
 // =============================================================================
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
+// The plan-file `status:` edits this run's outcomes imply, applied by `tools/plan-edit.mjs sync`. The
+// mapping lives HERE rather than in operator prose because the sync is also the recovery step after a
+// run dies between staging and sync, and a hand-mapping error there corrupts the selection truth.
+const statusSync = [];
 let halted = false;
 let haltReason = '';
 // WHY the run halted, as a value rather than prose. The status line used to sniff substrings out of
 // haltReason, so a new halt reason silently reported the wrong status; every halt site now sets this.
 let haltKind = '';
 const doneIds = [];
+
+/**
+ * One fix entry's synced status, or '' for no edit. An id this run claimed FIXED maps as FIXED even when a
+ * later round re-reported it STALE: that STALE is its own unstaged fix, so it closes only if the block lands.
+ */
+function issueSyncStatus(status, claimedFixed, landed) {
+  if (status === 'FIXED' || (status === 'STALE' && claimedFixed)) return landed ? 'fixed' : 'needs-attention';
+  if (status === 'STALE') return 'stale';
+  if (status === 'FAILED') return 'needs-attention';
+  return '';   // SKIPPED: the entry stays open, and its decision line already says why
+}
+
+/** Records a finished block: its ledger row, its own status edit, and one edit per fix entry that changes. */
+function finishBlock(p, rec, blockStatus, claimedEver) {
+  const edit = (id, value) => ({ planPath: p.planPath, id, key: 'status', value });
+  const landed = blockStatus === 'done';
+  ledger.push(rec);
+  statusSync.push(edit(p.id, blockStatus));
+  for (const { issue_id, status } of rec.results || []) {
+    const value = issueSyncStatus(status, claimedEver.has(issue_id), landed);
+    if (value) statusSync.push(edit(issue_id, value));
+  }
+}
 
 for (const p of pending) {
   if (halted) break;
@@ -1018,8 +1058,8 @@ for (const p of pending) {
   log(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]`);
   const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, patch: null, strays: null };
   // FIX mode only: the per-issue outcome, id → last status reported across rounds. The engine never parses
-  // the block, so this is the ONLY record of which entries were touched — it rides out in the ledger so the
-  // operator can sync each `- status:` line with plan-edit between runs.
+  // the block, so this is the ONLY record of which entries were touched — it rides out in the ledger and
+  // feeds each entry's `- status:` edit in statusSync.
   const fixResults = new Map();
   // Ever-claimed FIXED, monotonic — the acceptance verifier's checklist, kept SEPARATE from the ledger Map
   // above. A later round that re-reports an id as STALE (its own round-1 fix closed it) must not withdraw
@@ -1123,6 +1163,22 @@ for (const p of pending) {
         }
       }
     }
+    // ---- FIX MODE: the per-issue results ARE the round's record ------------------------------------
+    // `produced` is derived from them rather than reported: a round that only SKIPPED or found STALE
+    // entries changed nothing, and a `produced` flag would let it claim otherwise and pull the blind
+    // reviewer onto an empty diff. Statuses accumulate across rounds (last write wins), so the ledger
+    // carries every id the developer ever reported, not just the final round's. Recorded BEFORE the
+    // needs_user and staging halts: a block that escalates still reaches the ledger with what it reported.
+    const results = p.mode === 'fix' && Array.isArray(dev.results) ? dev.results : [];
+    if (p.mode === 'fix') {
+      for (const r of results) {
+        if (r && typeof r.issue_id === 'string' && typeof r.status === 'string') {
+          fixResults.set(r.issue_id, r.status);
+          if (r.status === 'FIXED') claimedEver.add(r.issue_id);
+        }
+      }
+      rec.results = [...fixResults].map(([issue_id, status]) => ({ issue_id, status }));
+    }
     if (dev?.needs_user === true) {
       halted = true;
       escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
@@ -1160,21 +1216,6 @@ for (const p of pending) {
       rec.planAmendments += amendments;
       log(`  ⚠ ${p.id} r${round}: ${amendments} plan amendment(s) recorded — see ${amendedFile(p.id)}`);
     }
-    // ---- FIX MODE: the per-issue results ARE the round's record ------------------------------------
-    // `produced` is derived from them rather than reported: a round that only SKIPPED or found STALE
-    // entries changed nothing, and a `produced` flag would let it claim otherwise and pull the blind
-    // reviewer onto an empty diff. Statuses accumulate across rounds (last write wins), so the ledger
-    // carries every id the developer ever reported, not just the final round's.
-    const results = p.mode === 'fix' && Array.isArray(dev.results) ? dev.results : [];
-    if (p.mode === 'fix') {
-      for (const r of results) {
-        if (r && typeof r.issue_id === 'string' && typeof r.status === 'string') {
-          fixResults.set(r.issue_id, r.status);
-          if (r.status === 'FIXED') claimedEver.add(r.issue_id);
-        }
-      }
-      rec.results = [...fixResults].map(([issue_id, status]) => ({ issue_id, status }));
-    }
     const claimedIds = [...claimedEver];
     const produced = p.mode === 'fix'
       ? results.some((r) => r?.status === 'FIXED' || r?.status === 'FAILED')
@@ -1197,11 +1238,11 @@ for (const p of pending) {
     // STALE means the issues are already closed in current code — a real, accepted "done" that needs no
     // reviewer. Anything else (all SKIPPED, a SKIPPED/STALE mix, or an empty array) closed nothing: the
     // entries stay open, so it must never count done.
-    // ROUND 1 ONLY, exactly as resolve-cycle scopes it: `produced` is per-round while the working tree is
-    // CUMULATIVE, so from round 2 a developer may legitimately return results:[] after fixing a blind
-    // review finding that has no issue id — taking the shortcut then would break out past quality,
-    // acceptance AND park, stranding round 1's real edits unstaged, unreviewed and attributed to the next
-    // block. Only round 1 is provably free of accumulated tree state.
+    // ROUND 1 ONLY: `produced` is per-round while the working tree is CUMULATIVE, so from round 2 a
+    // developer may legitimately return results:[] after fixing a blind review finding that has no issue
+    // id — taking the shortcut then would break out past quality, acceptance AND park, stranding round 1's
+    // real edits unstaged, unreviewed and attributed to the next block.
+    // Only round 1 is provably free of accumulated tree state.
     if (p.mode === 'fix' && !produced && round === 1) {
       const onlyStale = results.length > 0 && results.every((r) => r?.status === 'STALE');
       fixTerminal = onlyStale ? 'all-stale' : 'no-changes';
@@ -1354,7 +1395,9 @@ for (const p of pending) {
     // is unambiguously a staged "done".
     rec.status = 'done (staged)';
     doneIds.push(p.id);
-    ledger.push(rec);
+    // Staged while self-reporting a regression: the work IS in the baseline, but the operator must inspect
+    // it before anything builds on it, so the plan file says blocked, never done.
+    finishBlock(p, rec, haltKind === 'acceptance-regression' ? 'blocked' : 'done', claimedEver);
     continue;
   }
 
@@ -1363,7 +1406,7 @@ for (const p of pending) {
   // closed in current code; `no-changes` never does, and in an ORDERED run it has already halted above.
   if (fixTerminal) {
     if (fixTerminal === 'all-stale') doneIds.push(p.id);
-    ledger.push(rec);
+    finishBlock(p, rec, fixTerminal === 'all-stale' ? 'done' : 'blocked', claimedEver);
     if (halted) break;
     continue;
   }
@@ -1440,18 +1483,21 @@ for (const p of pending) {
   // future exit that forgets. It must name itself an ENGINE BUG rather than leak the initial 'pending',
   // which in a finished run's ledger reads as "still working".
   if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: block finished with no status set)';
-  ledger.push(rec);
+  // Only a park over the round budget is `parked`. An escalation, an unsafe park and every halt that never
+  // parked need the operator before the block may run again.
+  const budgetPark = rec.parked && !escalated && haltKind !== 'park-unsafe';
+  finishBlock(p, rec, budgetPark ? 'parked' : 'blocked', claimedEver);
   if (halted) break;      // escalation / ordered park / unsafe tree stops the run; an unordered park carries on
 }
 
 // =============================================================================
 // Final completeness sweep — only when the PLAN FILE asked for one (sweep: goal-coverage), the run did
 // not halt, and every block that is not `skip` is now done (either it was already `done` at launch or
-// this run staged it). That last clause replaces migrate's is-this-a-full-run guard, which a todo-derived
-// pending would falsify on every relaunch. An independent agent re-derives the change surface from the
-// GOAL (grep, full gates, staged-diff spot-check) and reports anything the plan missed to SWEEP.md. This
-// is the "did we actually finish?" check the per-block loop — which never looks beyond its own diff —
-// cannot do.
+// this run staged it). That last clause, not a full-run test, decides it: a relaunch derives pending from
+// the todo blocks, so a full-run test would read false on every relaunch. An independent agent re-derives
+// the change surface from the GOAL (grep, full gates, staged-diff spot-check) and reports anything the
+// plan missed to SWEEP.md. This is the "did we actually finish?" check the per-block loop — which never
+// looks beyond its own diff — cannot do.
 // =============================================================================
 let sweep = null;
 let sweepFailed = false;   // the sweep RAN and DIED — distinct from the legitimate did-not-run cases
@@ -1544,6 +1590,9 @@ return {
   // step when it is set.
   parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
+  // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
+  // changes. A block the run never reached has none.
+  statusSync,
   reviewTrail,
   followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then re-invoke with the same args + startAt (or runOnly) for the blocks still to do. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished. `
@@ -1554,10 +1603,10 @@ return {
       ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
       : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone with runOnly after sharpening its block in the plan file, or drop it. `
     : ''}${blockedPlans.length
-    ? `${blockedPlans.length} block(s) closed NO issue and are NOT done: ${blockedPlans.map((r) => r.id).join(', ')}. Sync each to status=blocked, read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
+    ? `${blockedPlans.length} block(s) closed NO issue and are NOT done: ${blockedPlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
     : ''}${amendedIds.length
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — read ${SWEEP_FILE}. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Nothing is committed — you commit.`,
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then save this result as JSON and apply its statusSync: \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' sync <result.json>\`. Nothing is committed — you commit.`,
 };

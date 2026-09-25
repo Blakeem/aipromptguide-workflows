@@ -2,14 +2,12 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs develop`; `--check` fails the gate while FLOW.md is stale.
 //
-// READ THIS BESIDE tools/flows/feature.flow.mjs AND tools/flows/migrate.flow.mjs — this engine merges
-// both, and its park exit is the merge point. feature's park is a BOUNDARY edge back into develop (the
-// roadmap carries on); migrate's park is a TERMINAL (section N+1 depends on N). Here the `ordered` file
-// key picks between them at run time, so BOTH shapes are drawn from one engine and each needs its own
+// The park exit has TWO shapes: a BOUNDARY edge back into develop (the run carries on) and a TERMINAL
+// (block N+1 depends on N). The `ordered` file key picks between them at run time, so each needs its own
 // scenario: 'a parked block, and the run carries on' (ordered omitted) and 'an ordered run stops at a
 // parked block' (ordered true). Nothing else in the map tells them apart.
 //
-// The tail is migrate's: a `final-sweep` re-greps the whole surface from the goal, and it runs only when
+// The tail is a `final-sweep` that re-greps the whole surface from the goal, and it runs only when
 // the plan file asked for it AND every non-skip block is done. Three of the four end-of-run shapes are
 // invisible to `out.status` — the dead sweep and the switched-off sweep both still say
 // `done (all blocks staged)`, and a partial slice says `partial slice complete` whether a sweep was
@@ -69,6 +67,29 @@ const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'fina
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 
+// The floor has to stop BETWEEN blocks, not before the first one: "block-a landed, block-b waits for a
+// resume" is the branch, and a constant `remaining` only ever draws "nothing ran". The one per-run state a
+// budget can see is the live `calls` array a respond function is handed, and a reference to it goes STALE
+// the moment the run ends: read at the next run's FIRST check, it would stop that run before block-a and
+// draw a different graph on the second pass. So the stop CONSUMES it, and every run starts clean. The
+// engine reads the floor twice at the stop (the check, then the halt reason), so the low value is held for
+// that one extra read. tests/flows.test.mjs generates this spec twice and compares bytes, which is what
+// holds both invariants.
+let live = null;
+let stopReadsLeft = 0;
+const budgetFloor = {
+  total: 400_000,
+  spent: () => 0,
+  remaining: () => {
+    if (stopReadsLeft > 0) { stopReadsLeft -= 1; return 40_000; }
+    if (!live?.length) return 400_000;   // nothing has run yet in THIS run: block-a always starts
+    live = null;
+    stopReadsLeft = 1;
+    return 40_000;
+  },
+};
+const watch = (resp) => (label, prompt, calls) => { live = calls; return resp; };
+
 export default {
   engine: 'workflows/develop/develop-cycle.mjs',
   out: 'workflows/develop/FLOW.md',
@@ -95,6 +116,8 @@ export default {
     { name: 'suite is not a known value', when: 'suite is outside green | scoped', args: { ...base, suite: 'all' } },
     { name: 'sweep is not a known value', when: 'sweep is outside goal-coverage | none', args: { ...base, sweep: 'always' } },
     { name: 'goal is not a string', when: 'goal is a number', args: { ...base, goal: 7 } },
+    // The sweep re-derives its surface from the goal, so a goalless one would run with nothing to cover.
+    { name: 'goal-coverage sweep with no goal', when: 'sweep is goal-coverage and goal is empty', args: { ...base, goal: '' } },
 
     // The per-entry validators, in engine order. Sibling engines FILTERED an id-less entry out silently,
     // so a mistyped key built a shorter roadmap than the operator asked for and reported success on it.
@@ -192,7 +215,7 @@ export default {
 
     // ---- park: the ONE exit whose shape the `ordered` file key decides ----------------------------
     {
-      // Park-and-CONTINUE (feature's shape): block-a burns its rounds and parks; block-b then builds
+      // Park-and-CONTINUE: block-a burns its rounds and parks; block-b then builds
       // against a tree the park cleared, and the run ends without halting.
       name: 'a parked block, and the run carries on',
       when: 'a block parks and ordered is false',
@@ -200,7 +223,7 @@ export default {
       respond: { ...GREEN_RUN, 'acceptance block-a': ACC_FAIL, acceptance: ACC_PASS, park: PARK_OK },
     },
     {
-      // Park-and-STOP (migrate's shape): the SAME park node reaches a terminal instead, because block-b
+      // Park-and-STOP: the SAME park node reaches a terminal instead, because block-b
       // routinely needs block-a to have landed. Only `ordered` differs from the scenario above.
       name: 'an ordered run stops at a parked block',
       when: 'a block parks and ordered is true',
@@ -346,12 +369,13 @@ export default {
     },
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
-      // terminal unreachable. Stateless on purpose: the scenario is run more than once.
+      // terminal unreachable. Stops cleanly BETWEEN blocks: block-a is accepted and staged, block-b is left
+      // for a resume with startAt.
       name: 'token budget floor',
-      when: 'too few tokens left to start a block',
+      when: 'too few tokens left to start the next block',
       args: base,
-      budget: { total: 400_000, spent: () => 0, remaining: () => 40_000 },
-      respond: {},
+      budget: budgetFloor,
+      respond: { ...GREEN_RUN, acceptance: watch(ACC_PASS) },
     },
   ],
 };

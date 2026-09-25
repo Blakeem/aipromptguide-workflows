@@ -778,7 +778,7 @@ function commitAccepted(worktree, batch, key) {
   if (ita.length) {
     throw unsafe(`"${key}" has ${ita.length} residual intent-to-add entr${ita.length === 1 ? 'y' : 'ies'} in ${worktree} (${fileList(ita)}) — "git add -N" reserved those names but staged no content, so landing now would commit them EMPTY; "git add" them for real (or "git reset" them) and land again`);
   }
-  throw unsafe(`"${key}" has an EMPTY index but a DIRTY worktree in ${worktree} (${fileList(lines)}) — the likely cause is feature-cycle's passed-but-unstaged halt, where the work is good and one "git add" fixes it; refusing to report nothing-to-land, because that would let a later "clean --key" force-remove the only copy of it`);
+  throw unsafe(`"${key}" has an EMPTY index but a DIRTY worktree in ${worktree} (${fileList(lines)}) — the likely cause is develop-cycle's passed-but-unstaged halt, where the work is good and one "git add" fixes it; refusing to report nothing-to-land, because that would let a later "clean --key" force-remove the only copy of it`);
 }
 
 /**

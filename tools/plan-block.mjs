@@ -1,13 +1,11 @@
 // tools/plan-block.mjs — print ONE unit's block out of a multi-unit plan file, byte-exact.
 //
-// Why this exists. feature-cycle's roadmap, migrate-cycle's decomposition and gauntlet-cycle's component
-// list all live in ONE approved file, carrying one block per unit — `## Plan: <id>` for a feature,
-// `## Section: <id>` for a migration section, `## Component: <id>` for a gauntlet MVP component.
-// Agents are handed a COMMAND that prints their own block
+// Why this exists. A plan-bus file carries every unit of one approved plan, one `## Plan: <id>` block per
+// unit. Agents are handed a COMMAND that prints their own block
 // instead of a path to the whole file, which buys two things:
 //
 //   1. A five-unit plan does not enter every developer's and every acceptance verifier's context.
-//   2. The end of a block is decided by a parser, not by an agent's judgment. feature's plan bodies use
+//   2. The end of a block is decided by a parser, not by an agent's judgment. A plan body may use
 //      `##` headers (`## Feature`, `## Acceptance Criteria`, ...), so an agent told to "read the block
 //      headed ## Plan: auth" can legitimately stop at the next `##` — one paragraph in — and build
 //      against a truncated spec that looks complete. Here, only the unit header ends a block.
@@ -17,15 +15,13 @@
 //
 //   node tools/plan-block.mjs <plan.md|plan-name> <id>              # that block, verbatim, on stdout
 //   node tools/plan-block.mjs <plan.md|plan-name> --list            # the file's control OBJECT as JSON
-//   node tools/plan-block.mjs <plan.md|plan-name> <id> --kind section    # migrate's blocks + gates
-//   node tools/plan-block.mjs <plan.md|plan-name> <id> --kind component  # gauntlet's blocks + gates
 //
-// The default kind carries a metadata grammar, read from THREE contiguous runs of `key: value` lines and
+// The file carries a metadata grammar, read from THREE contiguous runs of `key: value` lines and
 // nowhere else — the file keys that open the file, the preamble under each `## Plan:` header, and the
 // `- key:` run under each `### [<id>]` issue entry. A line that misses the run shape ends the run, which
 // is what keeps a plan body's own prose (`kind:` and `details:` under `## Test Strategy`) out of the
 // metadata. The blank line markdown puts above a run — under a heading, under a `---` fence — is crossed
-// to FIND that run, never to continue one. `--kind section` and `--kind component` see none of it.
+// to FIND that run, never to continue one.
 //
 // A bare <plan-name> (no path separator, no .md) resolves to
 // <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md — where plan mode puts its files.
@@ -41,42 +37,9 @@ import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-// The three engines that decompose one plan file into id-addressed units. `gates` mirrors each engine's
-// own VALID_GATES: a value outside the set falls back to `green` inside the engine, silently.
-// `gateStyle` is the ONE place that kind's gate may be written — deliberately not "either shape
-// anywhere in the body", which let a `gate:` line in prose outrank the real one and emit a confident
-// `build-only` (the engine then accepts a feature on a green build with nothing tested).
-// `metadata` marks the kind that parses the grammar in the header comment. It carries no `gates` or
-// `withTitle` of its own: its gate set is per BLOCK (MODE_GATES, keyed by the block's mode), and its
-// `--list` object always carries a title. Both of those belong to the alias kinds' array emitter.
-export const KINDS = {
-  plan: {
-    noun: 'plan', keyword: 'Plan', metadata: true,
-    gateStyle: 'preamble-then-heading',   // the preamble `gate:` line, else the LAST "## Gate" heading
-  },
-  section: {
-    noun: 'section', keyword: 'Section', withTitle: true,
-    gates: ['green', 'red-baseline', 'build-only'],
-    gateStyle: 'preamble',  // migrate's template: a "gate:" line above the first "###" subheading
-  },
-  component: {
-    noun: 'component', keyword: 'Component', withTitle: true,
-    // No red-baseline: gauntlet builds an MVP forward, so there is no intentionally-red step to declare.
-    gates: ['green', 'build-only'],
-    gateStyle: 'heading',   // gauntlet's COMPONENTS.md: the LAST "## Gate" heading, value on the next line
-  },
-};
-
 // `id — title`: the separator needs surrounding space, so a kebab id keeps its own hyphens.
 const TITLE_SPLIT_RE = /[ \t]+[—–-][ \t]+/;
 const KEBAB_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-
-/** The kind's rules, or a loud failure — never a silent fallback to `plan`. */
-export function kindOf(name = 'plan') {
-  const kind = KINDS[name];
-  if (!kind) throw new Error(`unknown --kind "${name}" — it is one of: ${Object.keys(KINDS).join(', ')}`);
-  return kind;
-}
 
 // =============================================================================
 // Parsing — pure functions over the file's text. Exported for the test suite.
@@ -92,19 +55,8 @@ function fenceState(line, fence) {
   return hit[1][0] === fence[0] && hit[1].length >= fence.length ? '' : fence;   // closed, or noise
 }
 
-/** Blank out fenced regions, preserving line count — for scans that must ignore examples. */
-function stripFences(text) {
-  let fence = '';
-  return text.split('\n').map((raw) => {
-    const line = raw.endsWith('\r') ? raw.slice(0, -1) : raw;
-    const was = fence;
-    fence = fenceState(line, fence);
-    return (was || fence) ? '' : raw;   // drop the fence markers themselves and everything between
-  }).join('\n');
-}
-
 // =============================================================================
-// The default kind's metadata grammar — file keys, block preamble, issue entries
+// The metadata grammar — file keys, block preamble, issue entries
 // =============================================================================
 
 // One table per run, so an unrecognized key can name the run it was found in. `null` is free text; an
@@ -149,9 +101,10 @@ const MODE_GATES = {
   fix: ['green'],
 };
 const FILE_DEFAULTS = { goal: '', ordered: false, suite: 'green', sweep: 'none' };
-// A file carrying a section-mode block is a migration: its units run in order and the goal is swept at
-// the end. Only the DEFAULTS flip — an explicit file key still wins.
-const SECTION_FILE_DEFAULTS = { ordered: true, sweep: 'goal-coverage' };
+// A file carrying a section-mode block is a migration: its units run in order, the goal is swept at the
+// end, and a test-first unit may leave the rest of the suite red. Only the DEFAULTS flip — an explicit
+// file key still wins.
+const SECTION_FILE_DEFAULTS = { ordered: true, suite: 'scoped', sweep: 'goal-coverage' };
 
 const KEY_LINE_RE = /^([a-z_]+):[ \t]/;
 const ISSUE_KEY_LINE_RE = /^- ([a-z_]+):[ \t]/;
@@ -332,24 +285,23 @@ function bodyRunStart(body) {
 
 /**
  * Locate every unit block. Returns them in file order, bodies sliced verbatim.
- * A block runs from its own header to the next header of the SAME kind, or to end of file.
+ * A block runs from its own header to the next `## Plan:` header, or to end of file.
  *
  * Scanned line by line rather than by one /gm regex, because a header must be ignored inside a fenced
  * code block. A plan that shows the roadmap format in its own Implementation Steps would otherwise mint
  * a PHANTOM unit from the example AND truncate the real block at the opening fence — at exit 0, which
  * is the exact failure this tool exists to prevent.
  */
-export function parseBlocks(rawText, kindName = 'plan') {
-  const { keyword, noun, metadata } = kindOf(kindName);
+export function parseBlocks(rawText) {
   // A BOM sits before the first `^`, so header 1 would not match and its whole block would be swallowed
   // as "text before the first block" — one unit silently missing, exit 0. Stripped here rather than at
   // the file read, so every caller of the parser is covered. `shift` puts the reported positions back on
   // the raw bytes the caller read, which is what a write tool splices against.
   const { text, shift } = stripBom(rawText);
-  const headerRe = new RegExp(`^##[ \\t]+${keyword}:[ \\t]*(.+?)[ \\t]*$`);
+  const headerRe = /^##[ \t]+Plan:[ \t]*(.+?)[ \t]*$/;
   // 1-3 leading spaces still renders as a heading in most markdown, but is not a block boundary here.
   // Silently dropping it would delete a whole unit the human can see, so it is a hard error.
-  const indentedRe = new RegExp(`^[ \\t]{1,3}##[ \\t]+${keyword}:`);
+  const indentedRe = /^[ \t]{1,3}##[ \t]+Plan:/;
   // A header that misses the shape any OTHER way (colon forgotten, a colon with no id, a space before the
   // colon, or written as `###`) is today neither a boundary nor an error — it is scanned as ordinary body
   // text, so its block MERGES into the previous one: the unit vanishes from the roadmap array AND the
@@ -359,11 +311,11 @@ export function parseBlocks(rawText, kindName = 'plan') {
   // "## Plan Rationale" from throwing. The other three need no such guard — `## Plan :` and a bare
   // `## Plan:` have no legitimate reading as prose, and a `#{3,6}` header is the same class as the 1-3
   // space indent below: a heading the human reads as a boundary that the parser does not. All three were
-  // scanned against every `.md`/`.mjs` in the repo for all three keywords: zero matches.
-  const emptyIdRe = new RegExp(`^##[ \\t]+${keyword}:[ \\t]*$`);
-  const noColonRe = new RegExp(`^##[ \\t]+${keyword}[ \\t]+[a-z0-9]+(?:-[a-z0-9]+)*[ \\t]*(?:$|[—–-][ \\t])`);
-  const spacedColonRe = new RegExp(`^##[ \\t]+${keyword}[ \\t]+:`);
-  const deepHeaderRe = new RegExp(`^#{3,6}[ \\t]+${keyword}:`);
+  // scanned against every `.md`/`.mjs` in the repo: zero matches.
+  const emptyIdRe = /^##[ \t]+Plan:[ \t]*$/;
+  const noColonRe = /^##[ \t]+Plan[ \t]+[a-z0-9]+(?:-[a-z0-9]+)*[ \t]*(?:$|[—–-][ \t])/;
+  const spacedColonRe = /^##[ \t]+Plan[ \t]+:/;
+  const deepHeaderRe = /^#{3,6}[ \t]+Plan:/;
   const nearMissRes = [emptyIdRe, noColonRe, spacedColonRe, deepHeaderRe];
   const headers = [];
   const indented = [];
@@ -396,15 +348,15 @@ export function parseBlocks(rawText, kindName = 'plan') {
   // every remaining unit silently deleted from the control array at exit 0. An open fence at end of file is
   // always malformed markdown, so there is no false-positive surface here.
   if (fence) {
-    throw new Error(`unclosed "${fence}" code fence in this file — it swallows every ${noun} header after it; close the fence`);
+    throw new Error(`unclosed "${fence}" code fence in this file — it swallows every plan header after it; close the fence`);
   }
 
   if (indented.length) {
-    throw new Error(`indented "## ${keyword}:" header(s) in this file: ${indented.join(' | ')} — a ${noun} header must start at column 0 to be a block boundary; un-indent it, or fence it if it is an example`);
+    throw new Error(`indented "## Plan:" header(s) in this file: ${indented.join(' | ')} — a plan header must start at column 0 to be a block boundary; un-indent it, or fence it if it is an example`);
   }
 
   if (malformed.length) {
-    throw new Error(`malformed "## ${keyword}:" header(s) in this file: ${malformed.join(' | ')} — a ${noun} header must be "## ${keyword}: <id>"; fix the header, or fence it if it is an example`);
+    throw new Error(`malformed "## Plan:" header(s) in this file: ${malformed.join(' | ')} — a plan header must be "## Plan: <id>"; fix the header, or fence it if it is an example`);
   }
 
   return headers.map((header, i) => {
@@ -419,8 +371,6 @@ export function parseBlocks(rawText, kindName = 'plan') {
       end: end + shift,
       preambleStart: header.nextLine + shift,     // where this block's metadata run begins
     };
-    if (!metadata) return block;                  // the alias kinds carry no metadata grammar at all
-
     const preamble = parsePreamble(rawText, block.preambleStart);
     return {
       ...block,
@@ -433,89 +383,60 @@ export function parseBlocks(rawText, kindName = 'plan') {
 }
 
 /**
- * The block's gate, read ONLY from the one place its kind documents (KINDS.gateStyle), with fenced
- * examples ignored. Anywhere-in-the-body matching let a `gate:` mentioned in prose, or a `## Gate` in a
- * quoted example, outrank the real one — and a wrong `build-only` is not a loud failure: the engine
- * accepts the feature the moment the build passes, with no test ever consulted.
+ * The block's gate: its preamble `gate:` line and nowhere else. A gate mentioned in prose or a quoted
+ * example must never outrank it, because a wrong `build-only` is not a loud failure: the engine accepts
+ * the unit the moment the build passes, with no test ever consulted.
  */
-export function readGate(body, kindName = 'plan') {
-  const { gateStyle } = kindOf(kindName);
-  const clean = stripFences(body);
-
-  // migrate: `gate: <x>` in the block's preamble, above the first "###" subheading.
-  if (gateStyle === 'preamble') {
-    const hit = clean.split(/^#{3,}[ \t]/m)[0].match(/^gate:[ \t]*([^\s#]+)/m);
-    return hit ? hit[1] : null;
-  }
-
-  // plan: the preamble run's `gate:` line. Only a feature-mode block falls through to the heading below,
-  // which is how every plan written before this grammar states its gate; section and fix declare it or
-  // fail loudly, because their bodies have no `## Gate` convention to fall back on.
-  if (gateStyle === 'preamble-then-heading') {
-    const { values } = parsePreamble(body, bodyRunStart(body));
-    if (values.gate !== undefined) return values.gate;
-    if ((values.mode ?? 'feature') !== 'feature') return null;
-  }
-
-  // feature: the LAST "## Gate" heading in the block (its template puts it last), value on the next
-  // non-empty line. Last, not first, so an earlier mention in an acceptance criterion cannot win.
-  const headingRe = /^#{2,4}[ \t]+Gate[ \t]*\r?$/gm;
-  let after = -1;
-  let m = null;
-  while ((m = headingRe.exec(clean)) !== null) after = m.index + m[0].length;
-  if (after < 0) return null;
-
-  const value = clean.slice(after).split(/\r?\n/).find((l) => l.trim() !== '');
-  return value ? value.trim().split(/[ \t#]/)[0] || null : null;
+export function readGate(body) {
+  return parsePreamble(body, bodyRunStart(body)).values.gate ?? null;
 }
 
 /** Structural faults that must stop the run rather than reach an agent. */
-export function validate(blocks, source, kindName = 'plan') {
-  const { noun, keyword, metadata } = kindOf(kindName);
+export function validate(blocks, source) {
   const seen = new Map();   // id -> what claimed it, so a collision names both sides
 
   if (!blocks.length) {
-    throw new Error(`no "## ${keyword}: <id>" blocks in ${source} — it needs one block per ${noun}`);
+    throw new Error(`no "## Plan: <id>" blocks in ${source} — it needs one block per plan`);
   }
   for (const block of blocks) {
     if (!KEBAB_RE.test(block.id)) {
-      throw new Error(`${noun} id "${block.id}" in ${source} is not a kebab slug (a-z, 0-9, single hyphens) — it routes file names, so it cannot contain spaces or punctuation`);
+      throw new Error(`plan id "${block.id}" in ${source} is not a kebab slug (a-z, 0-9, single hyphens) — it routes file names, so it cannot contain spaces or punctuation`);
     }
     if (seen.has(block.id)) {
-      throw new Error(`${noun} id "${block.id}" appears twice in ${source} — two ${noun}s would share one DISMISSED-${block.id}.md and one review file`);
+      throw new Error(`plan id "${block.id}" appears twice in ${source} — two plans would share one DISMISSED-${block.id}.md and one review file`);
     }
     if (!block.body.trim()) {
-      throw new Error(`${noun} "${block.id}" in ${source} has an empty body — the developer would be handed a header and nothing else`);
+      throw new Error(`plan "${block.id}" in ${source} has an empty body — the developer would be handed a header and nothing else`);
     }
-    seen.set(block.id, `${noun} "${block.id}"`);
-    if (metadata) validateMetadata(block, source, noun, seen);
+    seen.set(block.id, `plan "${block.id}"`);
+    validateMetadata(block, source, seen);
   }
   return blocks;
 }
 
 /**
- * The default kind's per-block rules: the gate against the block's OWN mode, and the issue entries a
- * fix-mode block may carry. Block ids and issue ids share `seen`, because both route file names.
+ * The per-block metadata rules: the gate against the block's OWN mode, and the issue entries a fix-mode
+ * block may carry. Block ids and issue ids share `seen`, because both route file names.
  */
-function validateMetadata(block, source, noun, seen) {
+function validateMetadata(block, source, seen) {
   const gates = MODE_GATES[block.mode];
   const gate = block.preamble.values.gate;
 
   if (gate !== undefined && !gates.includes(gate)) {
-    throw new Error(`${noun} "${block.id}" in ${source} declares "gate: ${gate}", which mode ${block.mode} does not allow — a ${block.mode}-mode ${noun} takes ${gates.join(' | ')}`);
+    throw new Error(`plan "${block.id}" in ${source} declares "gate: ${gate}", which mode ${block.mode} does not allow — a ${block.mode}-mode plan takes ${gates.join(' | ')}`);
   }
   if (block.mode !== 'fix' && block.issues.length) {
-    throw new Error(`${noun} "${block.id}" in ${source} is mode ${block.mode} but carries issue entries (${block.issues.map((e) => `[${e.id}]`).join(', ')}) — a "### [<id>]" entry is legal only under a fix-mode ${noun}`);
+    throw new Error(`plan "${block.id}" in ${source} is mode ${block.mode} but carries issue entries (${block.issues.map((e) => `[${e.id}]`).join(', ')}) — a "### [<id>]" entry is legal only under a fix-mode plan`);
   }
   for (const entry of block.issues) {
     if (!KEBAB_RE.test(entry.id)) {
-      throw new Error(`issue id "${entry.id}" in ${noun} "${block.id}" of ${source} is not a kebab slug (a-z, 0-9, single hyphens) — it routes file names, so it cannot contain spaces or punctuation`);
+      throw new Error(`issue id "${entry.id}" in plan "${block.id}" of ${source} is not a kebab slug (a-z, 0-9, single hyphens) — it routes file names, so it cannot contain spaces or punctuation`);
     }
     if (entry.values.id !== undefined && entry.values.id !== entry.id) {
       throw new Error(`issue "${entry.id}" in ${source} carries "- id: ${entry.values.id}" — the heading id and the id key disagree, and there is no rule for which one wins`);
     }
     if (seen.has(entry.id)) {
-      throw new Error(`id "${entry.id}" in ${source} is claimed twice (${seen.get(entry.id)} and an issue entry) — ${noun} ids and issue ids are one namespace, so the two would share one file name`);
+      throw new Error(`id "${entry.id}" in ${source} is claimed twice (${seen.get(entry.id)} and an issue entry) — plan ids and issue ids are one namespace, so the two would share one file name`);
     }
     seen.set(entry.id, `issue "${entry.id}"`);
   }
@@ -543,15 +464,14 @@ function readPlanFile(path) {
 }
 
 // =============================================================================
-// Output — one block verbatim, or the plan's control array
+// Output — one block verbatim, or the plan's control object
 // =============================================================================
 
-export function emitBlock(blocks, id, source, kindName = 'plan') {
-  const { noun } = kindOf(kindName);
+export function emitBlock(blocks, id, source) {
   const block = blocks.find((b) => b.id === id);
 
   if (!block) {
-    throw new Error(`no ${noun} "${id}" in ${source} — it has: ${blocks.map((b) => b.id).join(', ')}`);
+    throw new Error(`no plan "${id}" in ${source} — it has: ${blocks.map((b) => b.id).join(', ')}`);
   }
   return block.text;
 }
@@ -560,15 +480,14 @@ export function emitBlock(blocks, id, source, kindName = 'plan') {
  * The plan file's control object: the file keys with their defaults applied, then one row per block.
  * `fileKeys` is optional — a caller with only the blocks (the test suite) gets the documented defaults.
  */
-function emitObjectList(blocks, source, kindName, fileKeys) {
-  const { noun } = kindOf(kindName);
+export function emitList(blocks, source, fileKeys = null) {
   const sets = Object.entries(MODE_GATES).map(([mode, legal]) => `${mode}: ${legal.join(' | ')}`).join(', ');
   const missing = [];
   const bad = [];
 
   const rows = blocks.map((block) => {
     const gates = MODE_GATES[block.mode];
-    const gate = readGate(block.body, kindName);
+    const gate = readGate(block.body);
     if (!gate) missing.push(`${block.id} (mode ${block.mode})`);
     else if (!gates.includes(gate)) bad.push(`${block.id} (${gate}, mode ${block.mode})`);
     return `    { "id": ${JSON.stringify(block.id)}, "title": ${JSON.stringify(block.title || block.id)}`
@@ -577,10 +496,10 @@ function emitObjectList(blocks, source, kindName, fileKeys) {
   });
 
   if (missing.length) {
-    throw new Error(`no gate for: ${missing.join(', ')} in ${source} — add a "gate:" line to the ${noun}'s preamble (${sets}), or a "## Gate" heading to a feature-mode ${noun}; there is deliberately no default`);
+    throw new Error(`no gate for: ${missing.join(', ')} in ${source} — add a "gate:" line to the plan's preamble (${sets}); there is deliberately no default`);
   }
   if (bad.length) {
-    throw new Error(`invalid gate for: ${bad.join(', ')} in ${source} — a ${noun} takes the set its own mode allows (${sets})`);
+    throw new Error(`invalid gate for: ${bad.join(', ')} in ${source} — a plan takes the set its own mode allows (${sets})`);
   }
 
   // A section-mode block anywhere in the file moves the DEFAULTS only; an explicit file key still wins.
@@ -592,35 +511,14 @@ function emitObjectList(blocks, source, kindName, fileKeys) {
     suite: values.suite ?? defaults.suite,
     sweep: values.sweep ?? defaults.sweep,
   };
+  // The sweep re-derives the surface from the goal, so a goalless sweep would audit nothing it can name.
+  if (head.sweep === 'goal-coverage' && !head.goal.trim()) {
+    throw new Error(`sweep is goal-coverage but no goal is set in ${source} — add a "goal:" file key, or "sweep: none" to skip the sweep`);
+  }
 
   return `{\n  "goal": ${JSON.stringify(head.goal)}, "ordered": ${head.ordered}`
     + `, "suite": ${JSON.stringify(head.suite)}, "sweep": ${JSON.stringify(head.sweep)},\n`
     + `  "blocks": [\n${rows.join(',\n')}\n  ]\n}\n`;
-}
-
-export function emitList(blocks, source, kindName = 'plan', fileKeys = null) {
-  const { noun, gates, withTitle, metadata } = kindOf(kindName);
-  if (metadata) return emitObjectList(blocks, source, kindName, fileKeys);
-
-  // The alias kinds keep the array shape, byte for byte: their engines parse it as it stands today.
-  const missing = [];
-  const bad = [];
-
-  const entries = blocks.map((block) => {
-    const gate = readGate(block.body, kindName);
-    if (!gate) missing.push(block.id);
-    else if (!gates.includes(gate)) bad.push(`${block.id} (${gate})`);
-    const title = withTitle ? ` "title": ${JSON.stringify(block.title || block.id)},` : '';
-    return `  { "id": ${JSON.stringify(block.id)},${title} "gate": ${JSON.stringify(gate)} }`;
-  });
-
-  if (missing.length) {
-    throw new Error(`no gate for: ${missing.join(', ')} in ${source} — add a gate line (${gates.join(' | ')}) to each ${noun}; there is deliberately no default`);
-  }
-  if (bad.length) {
-    throw new Error(`invalid gate for: ${bad.join(', ')} in ${source} — a ${noun} takes ${gates.join(' | ')}`);
-  }
-  return `[\n${entries.join(',\n')}\n]\n`;
 }
 
 // =============================================================================
@@ -631,51 +529,33 @@ const USAGE = `usage:
   node tools/plan-block.mjs <plan.md|plan-name> <id>       print that block, verbatim
   node tools/plan-block.mjs <plan.md|plan-name> --list     print the control object as JSON
 
-  --kind plan (default) | section | component
-      plan: "## Plan:" blocks, with file keys (goal, ordered, suite, sweep), a block preamble
-      (mode, gate, status, test_selector, depends_on) and, under a fix-mode block,
-      "### [<id>]" issue entries. --list emits { goal, ordered, suite, sweep, blocks: [...] }.
-      section and component: migrate's "## Section:" and gauntlet's "## Component:" blocks,
-      no metadata grammar, --list emits the array those engines read today.
+  Blocks are "## Plan: <id>", with file keys (goal, ordered, suite, sweep), a block preamble
+  (mode, gate, status, test_selector, depends_on) and, under a fix-mode block, "### [<id>]" issue
+  entries. --list emits { goal, ordered, suite, sweep, blocks: [...] }.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
 
-/** Split `--kind <name>` out of argv, leaving the positionals. */
-export function parseArgv(argv) {
-  const positional = [];
-  let kind = 'plan';
-
-  for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--kind') {
-      kind = argv[++i];
-      if (kind === undefined) throw new Error('--kind needs a value (plan, section or component)');
-    } else if (argv[i].startsWith('--kind=')) {
-      kind = argv[i].slice('--kind='.length);
-    } else {
-      positional.push(argv[i]);
-    }
-  }
-  return { positional, kind };
-}
+// Refused rather than ignored, so a caller still passing it learns the aliases are gone.
+const RETIRED_KIND = '--kind is retired: the section and component aliases are gone, and every block is now "## Plan: <id>" with a preamble "gate:" line';
 
 export function run(argv) {
   // Input
-  const { positional, kind } = parseArgv(argv);
-  const [rawPath, selector] = positional;
+  if (argv.some((a) => a === '--kind' || a.startsWith('--kind='))) throw new Error(RETIRED_KIND);
+  const [rawPath, selector] = argv;
   if (!rawPath || !selector) throw new Error(USAGE);
 
   // Process
   const path = resolveRoadmap(rawPath);
   const text = readPlanFile(path);
-  const blocks = validate(parseBlocks(text, kind), path, kind);
+  const blocks = validate(parseBlocks(text), path);
   // Parsed on every selector, not just --list: an unknown file key is a fault in the plan file itself,
   // and a developer fetching one block must not be the only caller that never sees it.
-  const fileKeys = kindOf(kind).metadata ? parseFileKeys(text) : null;
+  const fileKeys = parseFileKeys(text);
 
   // Output
   return selector === '--list'
-    ? emitList(blocks, path, kind, fileKeys)
-    : emitBlock(blocks, selector, path, kind);
+    ? emitList(blocks, path, fileKeys)
+    : emitBlock(blocks, selector, path);
 }
 
 // Node resolves the MAIN module through realpath by default (`--preserve-symlinks-main` off), so

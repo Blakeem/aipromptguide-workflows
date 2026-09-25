@@ -14,19 +14,19 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 
 | Workflow | Trigger | Flow | Use it for |
 |----------|---------|------|------------|
-| **[feature](workflows/feature/)** | `/aipg:feature` | [map](workflows/feature/FLOW.md) | Build **one bounded feature** (new MCP tool, endpoint, page, form) from a plan you approve, or an ordered **roadmap** of them with one approved plan each. |
-| **[debug](workflows/debug/)** | `/aipg:debug` | [review](workflows/debug/FLOW-review.md) · [resolve](workflows/debug/FLOW-resolve.md) | Find **production defects** in a repo or change → triaged issues → batched fixes. The fix loop also accepts an external inventory: findings from live/manual testing or bug reports. |
-| **[migrate](workflows/migrate/)** | `/aipg:migrate` | [map](workflows/migrate/FLOW.md) | A **breadth-spanning migration/upgrade** decomposed into ordered, section-gated changes across many call sites. |
-| **[gauntlet](workflows/gauntlet/)** | `/aipg:gauntlet` | [map](workflows/gauntlet/FLOW.md) | **Build-then-climb**: get a working MVP down, then climb it toward an inspectable **quality bar** (exemplar A/B, critic-led waves) — or point the climb at an existing product. You set the wave budget. |
+| **[develop](workflows/develop/)** | `/aipg:develop` | [map](workflows/develop/FLOW.md) | **Build** the blocks of an approved plan file. Each block is one bounded feature, one slice of a migration across many call sites, or one triaged issue inventory. Each accepted block is staged. |
+| **[refine](workflows/refine/)** | `/aipg:refine` | [map](workflows/refine/FLOW.md) | **Review** a plan file before develop builds it. A critic checks each block against the code for defects only, and an editor folds each gap into the plan. It stops after one clean round. |
+| **[debug](workflows/debug/)** | `/aipg:debug` | [map](workflows/debug/FLOW-review.md) | **Find production defects** in a repo or change. Each unit's issues are written as a fix-mode plan file that develop builds once you triage it. An inventory from manual testing or bug reports works the same way. |
 | **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
 | **[brainstorm](workflows/brainstorm/)** | `/aipg:brainstorm` | [map](workflows/brainstorm/FLOW.md) | **Diverge**: one fully-committed variation per lens (designs, ideas) for you to pick or combine. No AI verdict. |
 | **[decide](workflows/decide/)** | `/aipg:decide` | [map](workflows/decide/FLOW.md) | **Converge**: lensed analysis → a weighted decision matrix → a justified conclusion, adversarially reviewed. |
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-The first four are **build** workflows (code, reviewed and staged). The last five are
-**generative/read-only**: proposals, creative options, a decision, a determination, or a curated doc set,
-with no code and nothing staged or committed.
+develop is the one **build** workflow. It writes the code, reviews it and stages it. refine and debug
+produce the plan files develop builds. The last five are **generative** and read only. They produce
+proposals, creative options, a decision, a determination, or a curated doc set, with no code and nothing
+staged or committed.
 
 Two pairs are worth keeping straight. `debug` and `enhance`: something the system gets **wrong** is a
 defect, which debug fixes; something it could do **better** is an enhancement, which enhance proposes and
@@ -35,7 +35,7 @@ trade-offs**, that's decide; when the answer is already out there and the work i
 it fits**, that's investigate. The tell is whether missing a requirement is a trade-off or simply
 disqualifying.
 
-All nine share the design rules in **[principles/](principles/)**:
+All eight share the design rules in **[principles/](principles/)**:
 the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents).
 
@@ -63,9 +63,9 @@ This repo is a **Claude Code plugin** (`aipg`), and its skills are **thin and st
   one plugin version — nothing to copy, nothing to drift.
 
 ```
-You run /aipg:feature  →  Claude reads the plugin's workflows/feature/CLAUDE.md  →  plan mode + your
-approval (or the autonomous path when you hand it a finished plan)  →  runs feature-cycle.mjs by path
-→  staged result you review & commit
+You run /aipg:develop  →  Claude reads the plugin's workflows/develop/CLAUDE.md  →  plan mode, the
+refine review, then your approval  →  runs develop-cycle.mjs by path  →  staged result you review
+and commit
 ```
 
 ## Install (plugin)
@@ -77,7 +77,7 @@ approval (or the autonomous path when you hand it a finished plan)  →  runs fe
 
 That's it — the workflows land in the plugin cache and run-state goes to the plugin's persistent
 data dir (`~/.claude/plugins/data/…`), outside every project. Run one:
-`/aipg:feature add a search_docs MCP tool. Plan it first.`
+`/aipg:develop add a search_docs MCP tool. Plan it first.`
 
 ## Install (checkout — for development, or driving workflows by path)
 
@@ -111,7 +111,7 @@ E:/myproject/          ← target.repo   the project itself, the folder holding 
 
 Keeping them apart is what makes the blind review work: the issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
-The build and debug engines warn if you point run-state inside the target repo, and the build engines (feature, migrate, gauntlet) warn when a plan file — or gauntlet's run documents (canon/bar/components/aspects) — resolves inside it.
+The develop, refine and debug engines warn if you point run-state inside the target repo. develop and refine also warn when a plan file resolves inside it.
 
 It also means **one checkout can drive any number of projects**. Point `target.repo` at each in turn and
 give each its own `runId`. The run-state stacks up under `root`, so you can queue work across several
@@ -149,6 +149,24 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ## Changelog
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
+
+### 2026-09-25
+
+- **`feature`, `migrate` and debug's `resolve` are retired, and [develop](workflows/develop/) replaces
+  all three.** A block's `mode` picks the job. `feature` builds one bounded change, `section` converts
+  one slice of a migration, and `fix` works a triaged issue inventory. [refine](workflows/refine/)
+  replaces feature's refine phase. A plan written for feature or migrate needs `## Plan:` headers with
+  a preamble `gate:` line.
+- **`gauntlet` is retired** with no successor.
+- **`plan-block.mjs` has one keyword.** `--kind` now fails with a message, and a `## Gate` heading is
+  body text. Every block is `## Plan:` with its gate in the preamble.
+- **develop returns `statusSync`, and `plan-edit.mjs sync <result.json>` applies it.** One command now
+  writes every block and issue status a run decided, all or nothing. A fix block that did not land
+  marks its fixed issues `needs-attention`, never `fixed`.
+- **Section files default to `suite: scoped`**, so a migration's intentionally red suite no longer
+  fails a green gate. A `sweep: goal-coverage` file needs a `goal:` line.
+- **develop carries the failure-path tests of the three engines it replaced**, including dead
+  reviewers, the plan amendment protocol and fix-mode agent deaths.
 
 ### 2026-08-29
 

@@ -46,7 +46,7 @@ A **gather → curate** loop built on the shared [Workflow Principles](../../pri
 - ❌ **One doc page answers it:** just read/fetch it.
 - ❌ **You want an answer, not docs:** a synthesized, fact-checked report is the `deep-research` skill;
   deciding among options is [`decide-cycle`](../decide/).
-- ➡️ **Then build:** point a [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) plan at the
+- ➡️ **Then build:** point a [`develop-cycle`](../develop/) plan file at the
   folder + `INDEX.md` — the implementer reads the official docs verbatim instead of a rewritten spec.
 
 ---

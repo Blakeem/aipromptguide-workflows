@@ -4,14 +4,14 @@ Plain Node, run directly, **zero dependencies**. These are NOT Workflow engines:
 `node --check` works on them, and they are judged as ordinary code (`../tests/CLAUDE.md` §2).
 
 Most of them build and verify this repo's own artifacts. **`plan-block.mjs` is the exception: it runs
-DURING a workflow**, invoked by agents that feature-cycle and migrate-cycle hand a command. Its argv
+DURING a workflow**, invoked by agents that develop-cycle and refine-cycle hand a command. Its argv
 shape, its stdout bytes and its exit codes are a run-time contract two engines depend on — change them
 and you change what a developer agent receives, so treat it as engine surface, not dev machinery.
 
 | File | What it does |
 |---|---|
-| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` / `## Component: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. The default kind reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
-| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy). **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
+| `plan-block.mjs` | Prints ONE `## Plan: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. It reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
+| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `sync` applies the `statusSync` edits a develop result returns. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
 | `wt.mjs` | The batch-worktree lifecycle (`init`/`prep`/`land`/`clean`) for running several engine runs in **parallel**, each in its own git worktree. **Operator-invoked around the runs** — no agent ever calls it, no engine knows it exists. Its header comment is the contract (hook bytes, lock liveness, exit codes — all measured decisions); the operator playbook is [`../docs/worktree-batches.md`](../docs/worktree-batches.md). |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
@@ -26,19 +26,15 @@ part of that workflow rather than to maintain this repo.
 ```bash
 node tools/plan-block.mjs <plan.md|plan-name> <id>            # that block, verbatim, on stdout
 node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered, suite, sweep, blocks: [...] }
-node tools/plan-block.mjs <plan.md> <id> --kind section       # migrate's blocks + old array --list
-node tools/plan-block.mjs <plan.md> <id> --kind component     # gauntlet's blocks + old array --list
 ```
 
-The default kind parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`,
+It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, plus informational
 `test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `--list` emits the
 file keys plus a `blocks` array of `{ id, title, mode, gate, status }`, defaults applied. Each
 metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
 blank line above a run is crossed to find it, never to continue one, and body prose never registers
-as metadata. A feature-mode block with no preamble gate falls back to its `## Gate` heading (a
-transition behavior). `--kind section` and `--kind component` are transition aliases keeping
-migrate's and gauntlet's old keyword, gate style, and array `--list`. A bare plan-name resolves
+as metadata. Every block's gate is its preamble `gate:` line. A bare plan-name resolves
 against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
 
 **Every failure is loud** — unknown id, duplicate id (across the block AND issue namespaces), empty
@@ -48,20 +44,22 @@ header, a **malformed** header (colon forgotten, a colon with no id, a space bef
 level), an **unclosed code fence**, no blocks at all. Nothing may resolve to a plausible default, because
 the consumer is an agent that would build against it. Two silent-wrong-answer classes are guarded and
 have tests: a header inside a **fenced code block** is an example (it used to mint a phantom unit and
-truncate the real one), and the gate is read only from the **one place its kind documents** (a `gate:` in
+truncate the real one), and the gate is read only from the **block preamble** (a `gate:` in
 prose used to outrank the real one and yield `build-only`, which makes the engine accept a feature with
 nothing tested).
 The last two loud failures share one shape: a block that merges into its predecessor deletes a unit from
 the control array AND flips the survivor's gate to the merged tail's, in one exit-0 answer.
 
-The engines cannot verify the command ran — the harness has no tools. `plan_obtained` on the developer
-and acceptance schemas is that signal, and both engines halt on an explicit `false`.
+The engines cannot verify the command ran — the harness has no tools. `plan_obtained` on develop's developer
+and acceptance schemas is that signal, and develop halts on an explicit `false`. The refine editor's
+`plan_parses` is the same signal for its re-validation run, and refine halts on `false`.
 
 ## plan-edit.mjs
 
 ```bash
 node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
 node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
+node tools/plan-edit.mjs sync <result.json>                                  # apply develop's statusSync edits
 ```
 
 The write surface, kept out of plan-block.mjs on purpose: the run-time allowlist rule
@@ -72,15 +70,16 @@ into another fix-mode block, same file or another. Failures are loud and leave e
 unknown id, unrecognized key, illegal value, a gate the target's mode forbids, a duplicate id at the
 destination, a non-fix destination block. Paths resolve through the same `resolveRoadmap` as
 plan-block, so a bare name addresses the same file in both tools. BOM'd and CRLF files round-trip
-byte-identically, and an appended line inherits the file's dominant line ending.
+byte-identically, and an appended line inherits the file's dominant line ending. `sync` reads the result
+develop returned and applies its `statusSync` edits.
 
 ## gen-flows.mjs
 
 ```bash
 node tools/gen-flows.mjs              # regenerate every map
-node tools/gen-flows.mjs migrate      # one
+node tools/gen-flows.mjs develop      # one
 node tools/gen-flows.mjs --check      # write nothing; exit 1 naming stale files (what the suite runs)
-node tools/gen-flows.mjs migrate --json   # the intermediate graph, for rendering elsewhere
+node tools/gen-flows.mjs develop --json   # the intermediate graph, for rendering elsewhere
 ```
 
 **Its header comment is the contract** — spec shape, terminal identity, and every graph-derivation rule.

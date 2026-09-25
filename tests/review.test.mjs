@@ -1,6 +1,6 @@
 // debug/review.mjs — the read-only fan-out that builds the inventory.
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
-// returned issues[] index, which is the contract resolve-cycle's args.issues is built from.
+// returned issues[] index, the triaged inventory a develop fix-mode block is built from.
 import { runEngine, section, ok, eq } from './harness.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
@@ -133,8 +133,8 @@ section('the verifier\'s required wrote_file attestation is actually read');
 section('a DEAD verifier is named and says how many findings were dropped');
 // `verify?.verdicts || []` yields no kept issues, so all four counts are 0 and the ✓ line reads as a
 // normal clean-ish unit — while the unit's real findings vanish from the returned issues[] the operator
-// builds resolve-cycle's args.issues from. Nothing downstream can notice: those issues never enter a
-// batch, so resolve's issue_entries_found precondition never fires.
+// builds a fix-mode block from. Nothing downstream can notice: those issues never reach the block, so
+// develop's no-issue-entries halt never fires for them.
 {
   const { out, logs } = await run({}, {
     'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness', title: 'A' }), finding({ category: 'security', title: 'B' })] },
@@ -146,7 +146,7 @@ section('a DEAD verifier is named and says how many findings were dropped');
   eq(out.inventory.total, 0, 'the return shape is unchanged — this guard is log-only');
 }
 
-section('the returned issues[] is resolve-cycle\'s args.issues shape');
+section('the returned issues[] carries every issue-index field');
 // Discarding this index forced the operator to hand-grep it back out of the issue files — which is how
 // a `file:224-276` range once became the number 224276.
 {
@@ -158,7 +158,7 @@ section('the returned issues[] is resolve-cycle\'s args.issues shape');
   const got = out.issues?.[0] || {};
   const missing = need.filter((k) => !(k in got));
   eq(out.issues?.length, 1, 'one issue in the index');
-  ok(missing.length === 0, `carries every field resolve-cycle requires${missing.length ? ` — missing ${missing.join(', ')}` : ''}`);
+  ok(missing.length === 0, `carries every issue-index field${missing.length ? ` — missing ${missing.join(', ')}` : ''}`);
   eq(got.line, '10-20', 'the line RANGE stayed a string');
   eq(got.severity, 'medium', 'severity is the VERIFIER\'s, not the reviewer\'s');
   eq(got.effort, 'trivial', 'effort comes from the verifier\'s matrix');
@@ -201,7 +201,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   ok(!unfilled.length, `every templated key has a fixture value${unfilled.length ? ` — ${unfilled.join(' | ')}` : ''}`);
 
   const blocks = validate(parseBlocks(fixture), 'verifier template');
-  const list = JSON.parse(emitList(blocks, 'verifier template', 'plan', parseFileKeys(fixture)));
+  const list = JSON.parse(emitList(blocks, 'verifier template', parseFileKeys(fixture)));
   eq(list.blocks.length, 1, 'one block — the frontmatter above it is skipped, not read as file keys');
   eq(list.blocks[0].id, 'workflows-debug-p1', 'listed under the slug id');
   eq(list.blocks[0].mode, 'fix', 'mode fix');

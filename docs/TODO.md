@@ -4,7 +4,7 @@ Programmatic hardening items not yet built (all test/engine-side, no new agent c
 judgment-only gotchas that stay manual. Context: the 2026-08-01 hardening-sweeps roadmap shipped the
 args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required-args sweep.
 
-## Buildable (feature-cycle candidates)
+## Buildable (develop candidates)
 
 3. **Write-confirmation asymmetry heuristic** — a prompt that instructs writing a file should carry a
    consumed `wrote_*`/marker boolean in its schema. Only approximately formalizable (detecting "this

@@ -677,7 +677,7 @@ await withFixture(({ root, repo }) => {
   eq(nothing.code, 10, 'an untouched chain exits 10 nothing-to-land');
   ok(/nothing to land/.test(nothing.stderr), `...saying so: ${firstLine(nothing.stderr)}`);
 
-  // feature-cycle's passed-but-unstaged halt: the work is GOOD and one `git add` fixes it. Reporting 10
+  // develop-cycle's passed-but-unstaged halt: the work is GOOD and one `git add` fixes it. Reporting 10
   // here would let a later `clean --key` force-remove the only copy of it.
   writeFileSync(at(chains.c2, 'a.txt'), 'accepted but never staged\n');
   const dirty = land(repo, 'c2', gate);

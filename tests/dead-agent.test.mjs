@@ -22,10 +22,10 @@
 //   KILL-FIRST, VIA A WRAPPER, not `respond[role] = null`. Killing EVERY call of a role manufactures a
 //   "visible difference" out of MAX_ROUNDS plus a park on engines that have no death policy at all —
 //   the round loop simply runs out — so a laundering engine passes. Merging a key into the scenario's
-//   own `respond` object also destroys its longest-prefix matching: feature scripts `acceptance plan-a`
+//   own `respond` object also destroys its longest-prefix matching: develop scripts `acceptance block-a`
 //   separately from `acceptance`, and a merged `acceptance: null` kills the wrong call.
 //
-//   PARK_OK IS MERGED INTO KILL RUNS on the three park engines. A park label the scenario never scripted
+//   PARK_OK IS MERGED INTO KILL RUNS on every park engine. A park label the scenario never scripted
 //   returns `{}` from the harness, `pk?.cleared !== true` then rewrites the halt to `park-unsafe`, and
 //   the terminal differs from baseline for a reason that has nothing to do with the death — the sweep
 //   would stay green with the engine's death guards deleted. The merge FILLS IN only where the scenario
@@ -62,8 +62,6 @@ const EXPECTED = {
   'decide x decide':                { signal: 'terminal', expect: /Decider returned nothing/ },
   'decide x review':                { signal: 'terminal', expect: /Reviewer returned nothing/ },
   'docs x curate':                  { signal: 'terminal', expect: /Curator returned nothing/ },
-  'feature x plan-critic':          { signal: 'terminal', expect: /Plan critic returned nothing/ },
-  'migrate x plan-critic':          { signal: 'terminal', expect: /Plan critic returned nothing/ },
   'investigate x criteria-critic':  { signal: 'terminal', expect: /Criteria critic returned nothing/ },
   'investigate x investigate':      { signal: 'terminal', expect: /Investigator returned nothing/ },
   'investigate x critique':         { signal: 'terminal', expect: /Acceptance critic returned nothing/ },
@@ -73,36 +71,16 @@ const EXPECTED = {
   'refine x plan-critic':           { signal: 'terminal', expect: /Plan critic returned nothing/ },
 
   // inside a build loop -> halts and parks through the ordinary park path
-  'feature x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'feature x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'feature x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'migrate x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'migrate x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'migrate x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'develop x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'develop x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'develop x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'gauntlet x build':               { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'gauntlet x code-gate':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  // refine's two roles halt the same way. The critic's is the sharper one: its verdict CLOSES an aspect
-  // for the whole run, so a null read as "not behind" would retire an aspect nobody looked at — a
-  // finished climb, manufactured out of a dead agent.
-  'gauntlet x critic':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
-  'gauntlet x improve':             { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   // refine-cycle halts WITHOUT parking, alone among the loop engines: it writes no repo code, so there is
   // no tree to save. Its editor halts rather than throws because the round's critique file is already on
   // disk and a relaunch resumes the fold.
   'refine x plan-editor':           { signal: 'terminal', expect: /BLOCKED \(the plan editor returned nothing/ },
-  'resolve x fix':                  { signal: 'log', expect: /round-1 fixer returned nothing/ },
-  'resolve x quality':              { signal: 'log', expect: /blind quality reviewer returned nothing/ },
-  'resolve x accept':               { signal: 'log', expect: /acceptance verifier returned nothing/ },
 
   // the park agent itself: its death IS the unsafe tree, and that is the terminal it must reach
-  'feature x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked plan left the tree unsafe/ },
-  'migrate x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked section left the tree unsafe/ },
   'develop x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked block left the tree unsafe/ },
-  'gauntlet x park':                { signal: 'terminal', expect: /BLOCKED \(a parked component left the tree unsafe/ },
-  'resolve x park':                 { signal: 'field', field: 'halted' },
 
   // auxiliary -> the death is logged and recorded; the run legitimately carries on
   'brainstorm x generate':          { signal: 'log', expect: /no output from/ },
@@ -110,7 +88,6 @@ const EXPECTED = {
   'docs x scrub':                   { signal: 'log', expect: /scrub:\S+ returned nothing/ },
   'enhance x find':                 { signal: 'log', expect: /the finder DIED/ },
   'enhance x verify':               { signal: 'log', expect: /the verifier DIED/ },
-  'migrate x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
   'develop x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
   'review x review':                { signal: 'log', expect: /reviewer returned nothing/ },
   'review x verify':                { signal: 'log', expect: /agent returned nothing/ },
@@ -126,7 +103,7 @@ const ALLOW = [];
 // Machinery
 // ---------------------------------------------------------------------------------------------
 const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const PARK_ENGINES = new Set(['feature', 'migrate', 'develop', 'resolve', 'gauntlet']);
+const PARK_ENGINES = new Set(['develop']);
 
 /** Longest-prefix match of a label against the engine's static roles; '' when nothing matches. */
 const roleOf = (label, roles) => {
@@ -139,6 +116,20 @@ const roleOf = (label, roles) => {
 // different rules: the BASELINE goes through `execute` -> `toResponder`, and the KILL wraps this same
 // function. A private copy drifting would make every comparison below measure script divergence rather
 // than the death — silently green.
+/** Nulls the FIRST call whose role is `role` and delegates every other call; `applied`/`label` record the hit. */
+function killFirst(spec, roles, role, respond) {
+  const killer = { applied: false, label: '' };
+  const delegate = toResponder(respond ?? {});
+  killer.responder = (label, prompt, calls) => {
+    const r = roleOf(label, roles);
+    if (!killer.applied && r === role) { killer.applied = true; killer.label = label; return null; }
+    const v = delegate(label, prompt, calls);
+    // Fill in an unscripted park ONLY — the scenario's own park script always wins.
+    if (v === undefined && PARK_ENGINES.has(spec.name) && r === 'park') return PARK_OK;
+    return v;
+  };
+  return killer;
+}
 const j = (v) => JSON.stringify(v ?? null);
 const termOf = (t) => `${t.kind} | ${t.status} | ${t.message}`;
 /** What `expect` is matched against: the status of a return, the message of a throw. */
@@ -153,9 +144,8 @@ const results = [];
 for (const spec of specs) {
   const src = readFileSync(join(REPO_ROOT, spec.engine), 'utf8');
   const roles = readRoles(src);
-  // EVERY unsafe terminal, not just the `park-unsafe` key: gauntlet has two (`park-unsafe` for a component,
-  // `wave-park-unsafe` for a wave), and its whole refine phase can only ever reach the WAVE one — so a
-  // single-key lookup printed a PASS for a case it could not see.
+  // EVERY unsafe terminal, not just the `park-unsafe` key: an engine may carry several, and a scenario that
+  // can reach only one of them would print a PASS from a single-key lookup for a case it could not see.
   const unsafeStatuses = new Set(Object.entries(readHaltStatus(src))
     .filter(([k]) => /unsafe/.test(k))
     .map(([, v]) => v));
@@ -178,17 +168,8 @@ for (const spec of specs) {
     if (!hit) { results.push({ key, spec, role, unspawned: true }); continue; }
     const { sc, baseline } = hit;
 
-    let killApplied = false;
-    const delegate = toResponder(sc.respond ?? {});
-    const responder = (label, prompt, calls) => {
-      const r = roleOf(label, roles);
-      if (!killApplied && r === role) { killApplied = true; return null; }
-      const v = delegate(label, prompt, calls);
-      // Fill in an unscripted park ONLY — the scenario's own park script always wins.
-      if (v === undefined && PARK_ENGINES.has(spec.name) && r === 'park') return PARK_OK;
-      return v;
-    };
-    const kill = await runTrace(spec.engine, { args: sc.args, respond: responder, budget: sc.budget });
+    const killer = killFirst(spec, roles, role, sc.respond);
+    const kill = await runTrace(spec.engine, { args: sc.args, respond: killer.responder, budget: sc.budget });
 
     const newLogs = kill.logs.filter((l) => !baseline.logs.includes(l));
     results.push({
@@ -196,7 +177,7 @@ for (const spec of specs) {
       spec,
       role,
       scenario: sc.name,
-      killApplied,
+      killApplied: killer.applied,
       unsafeStatuses,
       killStatus: kill.terminal.status,
       terminalDiffers: termOf(baseline.terminal) !== termOf(kill.terminal),
@@ -272,6 +253,39 @@ for (const r of results.filter((x) => !x.unspawned && x.killApplied)) {
   ok(got, got
     ? `${r.key}: ${entry.signal} signal — ${entry.signal === 'field' ? `out.${entry.field} changed` : `"${(entry.signal === 'log' ? r.deathLogs.find((l) => entry.expect.test(l)) : r.terminalText).trim().slice(0, 80)}"`}`
     : `${r.key}: killing ${r.role} inside "${r.scenario}" left ${want} unproduced — the dead path is laundered into a healthy one (WORKFLOW-PRINCIPLES.md #15). Terminal ${r.terminalDiffers ? 'differed' : 'was IDENTICAL'}; ${r.deathLogs.length} new death-vocabulary log line(s)`);
+}
+
+section('develop: a dead developer, quality reviewer or acceptance verifier inside a FIX block');
+// The sweep kills each role in the FIRST scenario that spawns it, which is always a feature block. The fix
+// frame reaches the same three roles through its own branches (derived `produced`, the round-1 terminals),
+// so each is killed again inside a fix block, and each death must name its own role.
+{
+  const FIX_SCENARIO = 'a fix block closes its issues';
+  const REASONS = { develop: 'Developer', quality: 'Quality reviewer', acceptance: 'Acceptance verifier' };
+  const spec = specs.find((s) => s.name === 'develop');
+  const sc = spec?.scenarios.find((s) => s.name === FIX_SCENARIO);
+  const fixId = sc?.args.plans.find((b) => b.mode === 'fix')?.id ?? '';
+  ok(fixId !== '', fixId
+    ? `develop.flow.mjs "${FIX_SCENARIO}" runs fix block ${fixId}`
+    : `develop.flow.mjs has no "${FIX_SCENARIO}" scenario with a fix block — the three kills below cannot run`);
+  if (fixId) {
+    const roles = readRoles(readFileSync(join(REPO_ROOT, spec.engine), 'utf8'));
+    const baseline = await runTrace(spec.engine, { args: sc.args, respond: sc.respond });
+    const reasons = new Set();
+    for (const [role, who] of Object.entries(REASONS)) {
+      const killer = killFirst(spec, roles, role, sc.respond);
+      const kill = await runTrace(spec.engine, { args: sc.args, respond: killer.responder });
+      const reason = kill.out?.haltReason ?? '';
+      reasons.add(reason);
+      ok(killer.applied && killer.label.includes(fixId), `${role}: the null landed on "${killer.label}", inside the fix block`);
+      ok(termOf(kill.terminal) !== termOf(baseline.terminal), `${role}: the run ended differently from the healthy fix run`);
+      ok(/BLOCKED \(an agent returned nothing/.test(kill.terminal.status), `${role}: on the agent-dead terminal: ${kill.terminal.status}`);
+      ok(reason.startsWith(`${who} for block ${fixId} returned nothing`), `${role}: the halt reason names the ${who.toLowerCase()}`);
+      ok(kill.out?.ledger?.[0]?.status === 'BLOCKED (agent died)', `${role}: the ledger says the agent died`);
+      ok(kill.calls.some((c) => c.label === `park:${fixId}`), `${role}: the fix block's work is parked`);
+    }
+    ok(reasons.size === Object.keys(REASONS).length, 'each of the three deaths reads differently, so the operator knows which agent to replay');
+  }
 }
 
 section('no non-park kill is disguised as an unsafe park');

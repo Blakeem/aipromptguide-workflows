@@ -2,9 +2,8 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs review`; `--check` fails the gate while FLOW-review.md is stale.
 //
-// FLOW-review.md, not FLOW.md: review.mjs and resolve-cycle.mjs share workflows/debug/, and they are two
-// engines with two runs and two sets of terminal states, with a deliberately non-automatic triage
-// conversation between them. resolve gets its own FLOW-resolve.md.
+// FLOW-review.md, not FLOW.md: debug's fix loop is develop's fix mode, drawn in workflows/develop/FLOW.md.
+// This map covers the review pass alone, and the debug docs link to it by this name.
 //
 // The shape this table exists to draw: a CLEAN unit NEVER reaches the verifier — its reviewer writes the
 // marker itself and stage 1 returns without spawning anything. So "clean unit" and "unit with findings"

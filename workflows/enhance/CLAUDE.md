@@ -8,7 +8,7 @@ system already does, scores impact × effort, routes each survivor, and writes o
 *generative* workflow honoring the core (#1–4, #6, #8, #11–14); it writes no code, stages nothing, and
 never commits.
 
-**There is deliberately NO resolve sibling.** Nothing here is ever applied automatically. That is not an
+**There is deliberately NO fix-mode output.** Nothing here is ever applied automatically. That is not an
 omission — see §6.
 
 ## 1. Scope (check FIRST)
@@ -21,8 +21,8 @@ capable.
   **debug** workflow. Not this one; the verifier rejects defects on sight and tells you to route them.
 - **Open-ended creative variations** for a human to pick → `brainstorm-cycle`.
 - **Concluding among competing approaches** → `decide-cycle`.
-- **Building** an adopted proposal → `feature-cycle` (several adopted items become its `plans` roadmap)
-  or `migrate-cycle` for one goal spanning many call sites.
+- **Building** an adopted proposal → a `feature` block in a `develop-cycle` plan file (several adopted
+  items become several blocks), or `section` blocks for one goal spanning many call sites.
 - Too small (you already know the change) → just make it.
 
 **Enhancement, not improvement — the floor is deliberately high.** A typo IS an improvement, but nobody
@@ -46,8 +46,9 @@ One phase, no mid-run questions — settle everything with the user first:
 4. **PRESENT the proposals** (§7): ADOPT items first by impact, then ROADMAP, then every NEEDS_USER with
    its options + recommendation. **Call out any change two or more lenses landed on independently** —
    that convergence is the strongest signal in the run.
-5. **Triage with the user**, then route: ADOPT → `feature-cycle`; ROADMAP → `migrate-cycle` or a feature
-   plan of its own; anything flagged `DEFECT` → the debug workflow.
+5. **Triage with the user**, then route. ADOPT → a `feature` block. ROADMAP → `section` blocks or a
+   `feature` block of its own. Both go in a `develop-cycle` plan file. Anything flagged `DEFECT` → the
+   debug workflow.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -108,9 +109,9 @@ noise.
 
 ## 6. Contracts (keep intact)
 
-- **Nothing is auto-applied, and there is no resolve sibling.** This is the load-bearing design decision.
-  Debug's inventory feeds `resolve-cycle`'s autonomous fixer; enhancements must never enter that path —
-  they would be auto-applied behind a two-round gate, which is the exact scope creep debug exists to
+- **Nothing is auto-applied, and there is no fix-mode output.** This is the load-bearing design decision.
+  Debug's inventory feeds develop's fix mode, an autonomous fixer. Enhancements must never enter that path.
+  They would be auto-applied behind a two-round gate, which is the exact scope creep debug exists to
   prevent. So this engine writes to `proposals/`, **never `issues/`**, and stops at the inventory.
 - **An enhancement list does not converge.** There is always another enhancement. Debug's *closed*
   inventory is what makes its fix loop terminate; an open-ended proposal list has no such property, which
@@ -137,8 +138,8 @@ The proposal files are the output; the return is an index into them. Read them a
 - **Convergence** — any change two or more lenses found independently.
 - **Anything flagged DEFECT** — route to the debug workflow, and say so.
 
-Then decide scope together. Adopted items become `feature-cycle` plans (several = its `plans` roadmap);
-a ROADMAP item spanning many call sites is a `migrate-cycle` goal.
+Then decide scope together. Adopted items become `feature` blocks in a `develop-cycle` plan file.
+A ROADMAP item spanning many call sites becomes `section` blocks.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 

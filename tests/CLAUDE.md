@@ -29,15 +29,19 @@ Real examples, all from one week:
 
 **The families** — a fix in one member almost always belongs in the others:
 
-- **Build loops:** `feature-cycle` · `migrate-cycle` · `debug/resolve-cycle`
-  (develop → blind quality → acceptance, park, staging, `DISMISSED-<id>.md`, `NEEDS-USER.md`)
+- **Build loop:** `develop-cycle` alone. Its `feature`, `section` and `fix` modes share one loop
+  (develop → blind quality → acceptance, park, staging, `DISMISSED-<id>.md`, `NEEDS-USER.md`), so the
+  loop twins across the retired feature, migrate and resolve engines no longer exist. A defect in one
+  mode's frame can still recur in the other two modes' frames in the same file.
 - **Read-only fan-outs:** `debug/review` · `enhance-cycle`
   (finder → verifier, one output file per unit/lens, clean-marker written by the finder)
 - **Lensed generative:** `brainstorm` · `decide` · `docs` · `enhance`
   (an id-keyed array fanned out to one file each)
-- **Non-blind review loops:** `decide` · `investigate`
+- **Non-blind review loops:** `decide` · `investigate` · `refine`
   (producer ⇄ adversarial critic against a fixed rubric, bounded by `maxRounds`, solo critical agents
-  that **throw** on a null return rather than defaulting to a clean verdict)
+  that **throw** on a null return rather than defaulting to a clean verdict). `refine` pairs a read-only
+  critic with a minimal-fold editor under a fixed defect bar. Its dead critic throws, because zero gaps
+  from a dead agent would read as convergence.
 
 `investigate` is the family's odd member: its candidates are *found* round by round rather than fanned
 out once, so its loop state lives in a ledger (`DISQUALIFIED.md`) instead of an up-front id array. When
@@ -84,7 +88,7 @@ const verdicts = v?.verdicts || [];                           // dead verifier =
 
 Ask of every `?.` on an agent return: **does the failure case look identical to a success case?** If yes,
 guard it. The house pattern is a `throw` for a solo critical agent (decide, docs curator) and an explicit
-halt for one inside a loop (resolve's fixer).
+halt for one inside a loop (develop's round roles).
 
 **Sentinel collisions.** Any `?? -1` / `?? 0` / `|| []` meaning "not applicable" must not be reachable by
 a *missing* value. Check the null path separately, before the sentinel logic.
@@ -153,7 +157,7 @@ against (halt); an unreachable feature does not (flag).
   `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into
   `runs/<runId>/` outside `gate/` — NEEDS-USER, AMENDED, critiques and issue files all live there.
 - **debug hunts defects only.** Its inventory feeds an autonomous fixer, and an improvement list never
-  converges. Improvements are `enhance`, which deliberately has no resolve sibling.
+  converges. Improvements are `enhance`, which deliberately has no fix-mode output.
 
 ---
 
@@ -202,7 +206,7 @@ Change an engine's control flow and you must regenerate, or the suite goes red:
 
 ```bash
 node tools/gen-flows.mjs            # regenerate all
-node tools/gen-flows.mjs migrate    # just one
+node tools/gen-flows.mjs develop    # just one
 node tools/gen-flows.mjs --check    # what the gate runs; exit 1 lists the stale files
 ```
 
@@ -240,7 +244,7 @@ human squinting at screenshots.
 
 ```bash
 node tools/render-flows.mjs            # lay every map out in real Mermaid, report overlapping labels
-node tools/render-flows.mjs feature    # one
+node tools/render-flows.mjs develop    # one
 node tools/render-flows.mjs --png      # also write PNGs to tools/.cache/render/ (gitignored)
 ```
 

@@ -37,7 +37,7 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
   nothing qualifies, those are usually the most useful thing the run found — they are exactly what
   relaxing a criterion would put back on the table.
 - **A determination, not code.** Nothing is staged or committed. It feeds
-  [`feature-cycle`](../feature/) next.
+  a [`develop-cycle`](../develop/) plan file next.
 
 ### investigate or decide?
 

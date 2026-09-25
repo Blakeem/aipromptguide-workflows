@@ -1,7 +1,7 @@
 export const meta = {
   name: 'enhance-cycle',
-  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), then a verifier per lens that confirms each candidate against the real code, kills anything the system ALREADY does, scores impact x effort, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no resolve sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Audit a system you already have for ENHANCEMENTS — bigger changes worth writing up, not nits: make it more efficient, simpler, cheaper, more robust, less work to operate, or smaller (removing a role/file/arg/code path is a first-class enhancement). The main agent settles the scope + the lenses with the user, then runs this engine. Each lens gets the whole scope and returns a verified, impact-scored, human-triage-ready proposal file. It then STOPS: YOU triage, and adopted proposals go to feature-cycle (as plans[]) or migrate-cycle. NOT for defects/bugs/typos — those are the debug workflow, whose inventory feeds an autonomous fixer. NOT for open-ended creative variations (brainstorm-cycle) or for concluding among competing approaches (decide-cycle).',
+  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), then a verifier per lens that confirms each candidate against the real code, kills anything the system ALREADY does, scores impact x effort, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no fix sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  whenToUse: 'Audit a system you already have for ENHANCEMENTS — bigger changes worth writing up, not nits: make it more efficient, simpler, cheaper, more robust, less work to operate, or smaller (removing a role/file/arg/code path is a first-class enhancement). The main agent settles the scope + the lenses with the user, then runs this engine. Each lens gets the whole scope and returns a verified, impact-scored, human-triage-ready proposal file. It then STOPS: YOU triage, and adopted proposals become plan-file blocks that refine-cycle converges and develop-cycle builds (feature mode, or section mode for a goal spanning many call sites). NOT for defects/bugs/typos — those are the debug workflow, whose inventory feeds an autonomous fixer. NOT for open-ended creative variations (brainstorm-cycle) or for concluding among competing approaches (decide-cycle).',
   phases: [
     { title: 'Find', detail: 'One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
     { title: 'Verify', detail: 'Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x effort, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim.' },
@@ -12,11 +12,11 @@ export const meta = {
 // Config — everything project-specific arrives via args so the engine stays general.
 //
 // WHY THIS IS NOT THE DEBUG WORKFLOW. debug/review.mjs hunts DEFECTS and its inventory feeds
-// resolve-cycle's autonomous fixer. Enhancements must never enter that path: they would be auto-applied
+// develop-cycle's autonomous fix mode. Enhancements must never enter that path: they would be auto-applied
 // behind a two-round gate (the exact scope creep debug exists to prevent), and an enhancement list does
 // not converge the way a closed defect inventory does — there is always another enhancement. So this
-// engine writes to proposals/ (never issues/), has NO resolve sibling, and STOPS at the inventory. A
-// human triages; adopted items become feature-cycle plans[] or a migrate goal.
+// engine writes to proposals/ (never issues/), has NO fix sibling, and STOPS at the inventory. A
+// human triages; adopted items become feature-mode or section-mode blocks of a plan file for develop.
 //
 // ENHANCEMENT, not improvement. The floor is deliberately high: a typo or a nit IS an improvement but
 // nobody would write it up as an enhancement — and debug catches it anyway. Ask "would this be worth an
@@ -92,7 +92,7 @@ const PROPOSALS_DIR = `${STATE_DIR}/proposals`;
 
 const slug     = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
-// NOT issues/<unit>.md — that path is resolve-cycle's input and nothing here may be auto-applied.
+// NOT issues/<unit>.md — that path is develop's fix-mode input and nothing here may be auto-applied.
 const proposalFile = (lensId) => `${PROPOSALS_DIR}/${fileSafe(lensId)}.md`;
 // And deliberately NO shared NEEDS-USER.md. Every lens verifies concurrently, and an agent "append" is a
 // read-modify-write, so two of them would silently clobber each other's entries in an unattended run. A
@@ -437,5 +437,5 @@ return {
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
   lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
   failed,
-  nextStep: `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items go to feature-cycle (several become its plans[] roadmap), ROADMAP items to migrate-cycle or a feature plan of their own, and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no resolve step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}`,
+  nextStep: `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}`,
 };

@@ -6,6 +6,8 @@ header is new, and it is the only thing that ends the previous block.
 
 ## Plan: session-store — redis-backed session table
 
+gate: green
+
 ## Feature
 A `SessionStore` that persists sessions in redis with a TTL, replacing the in-process Map that loses
 every session on restart. Read/write/delete only; no login logic here.
@@ -43,6 +45,8 @@ invocation so the runner cannot silently skip a selector.
 green
 
 ## Plan: login-endpoint — POST /session
+
+gate: green
 
 ## Feature
 A login endpoint that verifies credentials and mints a session through the store from the previous
@@ -84,6 +88,8 @@ details: node --test test/routes/session.test.js
 green
 
 ## Plan: logout-endpoint — DELETE /session
+
+gate: build-only
 
 ## Feature
 Logout: delete the session server-side and expire the cookie. Deliberately no test beyond the build,

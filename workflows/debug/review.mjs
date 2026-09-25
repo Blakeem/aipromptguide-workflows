@@ -1,7 +1,7 @@
 export const meta = {
   name: 'review',
-  description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; the sibling resolve-cycle.mjs then batches the approved issues and fixes each behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. The return carries an `issues` array in resolve-cycle\'s exact args.issues shape (pre-triage), so the operator applies their triage edits to it rather than re-grepping the files by hand. Then run the sibling resolve-cycle.mjs (SAME runId), which batches by area/LOC and fixes each batch behind a two-stage review, staging accepted work. Nothing is ever committed.',
+  description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; develop-cycle.mjs in fix mode then builds each triaged issue file as a fix-mode block behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. The return carries a pre-triage `issues` index of every kept finding, so the operator presents the inventory without re-grepping the files by hand. Then run develop-cycle.mjs in fix mode, one plans entry per triaged issue file with findings, which fixes each file behind a two-stage review, staging accepted work. Nothing is ever committed.',
   phases: [
     { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
     { title: 'Verify', detail: 'Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
@@ -13,7 +13,7 @@ export const meta = {
 // The harness reads NO files: the main agent runs gen-units.mjs and passes args.units. Verifiers write
 // the per-unit issue files; those files ARE the inventory and the triage doc (no issues.json, no
 // organizer — see WORKFLOW-PRINCIPLES.md #2/#4/#6). This engine is READ-ONLY and STOPS after writing the
-// inventory; the sibling resolve-cycle.mjs fixes the approved issues (reuse the same runId + root).
+// inventory; develop-cycle.mjs's fix mode builds the triaged issue files.
 // =============================================================================
 // args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
 // payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
@@ -32,10 +32,10 @@ if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
 // `target.repo` is REQUIRED and has NO default. This pass is read-only, so a wrong repo destroys
-// nothing — but it produces a bogus inventory that then feeds resolve-cycle's autonomous fixer, and the
+// nothing — but it produces a bogus inventory that then feeds develop's autonomous fix mode, and the
 // run-state-inside-repo guard below is computed from the same value, so it would mis-fire too.
 if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
-  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the git repo under review. There is no default — every path the reviewers read, and the inventory that feeds resolve-cycle, resolves against it.');
+  throw new Error('args.target.repo is required: pass the ABSOLUTE path to the git repo under review. There is no default — every path the reviewers read, and the inventory that feeds develop\'s fix mode, resolves against it.');
 }
 
 const RUN_ID      = A.runId;
@@ -43,8 +43,8 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup } — informational context for reviewers
 
-// Severity floor. This pass reports >= reviewSeverity into the CLOSED inventory that resolve-cycle.mjs
-// then fixes (because the inventory is closed here, fixing mediums downstream converges — no fresh
+// Severity floor. This pass reports >= reviewSeverity into the CLOSED inventory that develop's fix
+// mode then fixes (because the inventory is closed here, fixing mediums downstream converges — no fresh
 // review surfaces a new batch each round).
 const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
 const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
@@ -58,7 +58,7 @@ const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
 //
 // A lens NEVER licenses proposing new capability. "Report DEFECTS, not redesigns" and the verifier's
 // `scope-creep -> REJECT` are UNCONDITIONAL and must stay that way: this inventory feeds
-// resolve-cycle's autonomous fixer, so an improvement list here would be auto-applied behind a
+// develop's autonomous fix mode, so an improvement list here would be auto-applied behind a
 // two-round gate — exactly the scope creep the workflow exists to prevent. It also would not converge
 // (there is always another improvement), which is what the CLOSED-inventory contract depends on.
 // Improvement/feature hunting is a DIFFERENT workflow.
@@ -114,7 +114,7 @@ const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target
-// repo so the blind quality reviewer (in resolve-cycle.mjs) cannot wander into it. Warn loudly if root was set wrong.
+// repo so the blind quality reviewer (in develop's fix mode) cannot wander into it. Warn loudly if root was set wrong.
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
@@ -122,11 +122,8 @@ if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 
-// CONTRACT with resolve-cycle.mjs — change both together. The issue-file path scheme
-// runs/<runId>/issues/<fileSafe(unit)>.md is the interface between the two engines AND the user's triage
-// surface; resolve-cycle.mjs recomputes the IDENTICAL path from runId + root (+ stateDir if overridden).
-// Use the SAME values for all three across both engines — a mismatch silently points the fixer at
-// missing issue files.
+// The issue-file path scheme runs/<runId>/issues/<fileSafe(unit)>.md is the user's triage surface and
+// the planPath each develop fix-mode entry is handed, so a moved scheme points the fixer at missing files.
 const issueFile      = (unitId) => `${ISSUES_DIR}/${fileSafe(unitId)}.md`;
 
 // =============================================================================
@@ -253,12 +250,11 @@ Do NOT write issues.json, any shared doc, or a source file.
 ` : ''}
 Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
 
-// CONTRACT with resolve-cycle.mjs — change both together. The issue-file BLOCK FORMAT the verifier writes
+// CONTRACT with develop's fix mode — change both together. The issue-file BLOCK FORMAT the verifier writes
 // below (frontmatter unit/hash/reviewed; a `## Plan: <slug(unit.id)>` header with its mode/gate/status
 // preamble; `### [<id>]` blocks; `- ` header lines, `- status: open` among them; the decision values; the
-// `**Fix:**` line) is exactly what resolve-cycle.mjs's fixer + acceptance parse, AND is a plan-bus
-// fix-mode plan file the develop engine consumes through tools/plan-block.mjs. Same runId + root
-// (+ stateDir if overridden) ⇒ same runs/<runId> across both engines.
+// `**Fix:**` line) is a plan-bus fix-mode plan file that develop's fixer + acceptance read through
+// tools/plan-block.mjs and tools/plan-edit.mjs sync writes statuses back into.
 const verifyPrompt = (unit, items) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
 You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
 each candidate finding below, inspect the ACTUAL code in the repo to confirm it is real, correct its
@@ -301,7 +297,7 @@ ROUTING (apply in order; first match wins):
 Also set a short \`theme\` keyword per verdict so related issues can be batched together.
 
 WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). Use EXACTLY this format
-so the user can triage it, the resolve phase can parse it, and it stands as a fix-mode plan file:
+so the user can triage it and it stands as a fix-mode plan file develop can build:
 -----
 ---
 unit: ${unit.id}
@@ -348,7 +344,7 @@ Do NOT write issues.json, any shared doc, or modify source. Set wrote_file=true 
 // =============================================================================
 const units = A.units;
 if (!Array.isArray(units) || !units.length) {
-  throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed. Reuse this runId when you run the sibling resolve-cycle.mjs — both engines key runs/<runId> off it.');
+  throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed. Reuse this runId on a resume — gen-units.mjs --issues-dir joins units against runs/<runId>/issues.');
 }
 const totalReviewers = units.reduce((s, u) => s + lensesOf(u).length, 0);
 const lensedUnits = units.filter((u) => u && u.lens).length;
@@ -419,7 +415,7 @@ const results = await pipeline(
     // both log as a normal ✓: a verifier that returned verdicts without writing issues/<unit>.md (the
     // ✓ line points at a file that does not exist), and a DEAD verifier, where `verify?.verdicts || []`
     // yields no kept issues at all and this unit's real findings vanish from the returned `issues` array
-    // the operator builds resolve-cycle's args.issues from. Same guard as enhance-cycle.mjs's verifier.
+    // the operator triages from. Same guard as enhance-cycle.mjs's verifier.
     if (verify?.wrote_file !== true) log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
     const byId = new Map(items.map((x) => [x.id, x]));
     const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
@@ -470,13 +466,13 @@ return {
   hottest,
   // Which files hold items that need a triage decision (open these to present options).
   needsUserFiles: processed.filter((r) => r.counts.needs_user > 0).map((r) => r.file),
-  // The machine-built index of every kept finding, in EXACTLY resolve-cycle's args.issues shape. The
-  // engine already had to build this to compute the counts above; discarding it forced the operator to
-  // re-derive the same array by hand-grepping the issue files, which is error-prone busywork (a hand
-  // rebuild is how a `file.py:224-276` range once became the number 224276).
+  // The machine-built index of every kept finding. The engine already had to build this to compute the
+  // counts above; discarding it forced the operator to re-derive the same array by hand-grepping the issue
+  // files, which is error-prone busywork (a hand rebuild is how a `file.py:224-276` range once became the
+  // number 224276).
   // It is PRE-TRIAGE — the verifier's decisions, not the user's. Apply the triage on top: drop the ones
   // the user set to SKIP, and flip approved NEEDS_USER items to ACTIONABLE (re-reading their rewritten
   // Fix lines). The issue FILES remain the source of truth for WHAT to fix; this is only the index.
   issues: all,
-  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then run the sibling resolve-cycle.mjs with the SAME runId (start scoped with resolveOnly), passing args.issues — start from the \`issues\` array in THIS return rather than re-grepping the files, and apply the triage edits you just made on top of it.`,
+  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode: one plans entry per issue file with findings, each with its own planPath (start with one file to sanity-check cost and quality), and sync statuses back with tools/plan-edit.mjs sync — see develop's CLAUDE.md.`,
 };

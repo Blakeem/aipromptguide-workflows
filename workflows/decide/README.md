@@ -32,7 +32,7 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   (the rubric is under-specified) — and the final review ends with a **WHERE NEXT**: the requirement
   axis the rubric does not settle, and the change that would let a decision converge.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
-  [`feature-cycle`](../feature/) or [`migrate-cycle`](../migrate/) next.
+  a plan file that [`develop-cycle`](../develop/) builds next.
 
 For open-ended creative options a *human* picks (no AI verdict), use [`brainstorm-cycle`](../brainstorm/).
 When the answer probably **already exists** and the work is finding it and proving it meets fixed
@@ -49,7 +49,7 @@ them, investigate *searches* for one and qualifies it.
 - ❌ **You want options, not a verdict:** use [`brainstorm-cycle`](../brainstorm/).
 - ❌ **You already believe an answer exists and want it found and qualified:** use
   [`investigate-cycle`](../investigate/).
-- ❌ **You want it built:** use [`feature-cycle`](../feature/).
+- ❌ **You want it built:** author a plan file for [`develop-cycle`](../develop/).
 
 ---
 
@@ -79,7 +79,7 @@ lenses, then runs `decide-cycle.mjs` **by path**.
 Under `runs/<runId>/`: the per-lens analyses (`lenses/<lens>.md`), the decider's matrix and conclusion
 (`decision-rN.md`), and the reviewer's objections each round (`decision-review-rN.md`). Read the latest
 decision file and skim the lens files to see the trade-offs that shaped it. Then build the chosen
-approach with [`feature-cycle`](../feature/).
+approach from a [`develop-cycle`](../develop/) plan file.
 
 ---
 

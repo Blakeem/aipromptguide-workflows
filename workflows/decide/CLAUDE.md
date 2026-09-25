@@ -15,7 +15,7 @@ Right size: one real decision with **genuine trade-offs** worth weighing from se
 (≥2 lenses) — an architecture/pattern choice, a build-vs-buy, a data-model or algorithm selection. Too
 small (one obvious answer, or a reversible coin-flip) → just decide and move on. Want open-ended creative
 options for a *human* to pick with no AI verdict → **`brainstorm-cycle`**. Want to *build* the chosen
-approach → **`feature-cycle`**.
+approach → a plan file built by **`develop-cycle`**.
 
 **Believe the answer already EXISTS and just needs finding → `investigate-cycle`.** That is the adjacent
 workflow most often reached for by mistake. Decide *generates* options through lenses and weighs them;
@@ -48,10 +48,10 @@ No mid-run questions — settle the rubric with the user first:
 4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses`). It diverges
    (analysts) then converges (decider ⇄ reviewer) and returns the chosen conclusion + the file trail.
 5. **Present** the conclusion: relay the latest `decision-rN.md` (matrix + rationale + why-not-others)
-   and let the user read each `lenses/<lens>.md` to see the source perspectives. To build it, hand the
-   chosen approach to `feature-cycle`. In `ranked` mode there is deliberately **no winner**: relay the
+   and let the user read each `lenses/<lens>.md` to see the source perspectives. To build it, author a
+   plan file from the chosen approach for `develop-cycle`. In `ranked` mode there is deliberately **no winner**: relay the
    shortlist (what each option buys/costs + the combine-vs-exclusive section) and let the user pick or
-   combine — several picks become `feature-cycle`'s `plans[]` roadmap.
+   combine. Several picks become several `feature` blocks in one plan file.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -139,7 +139,7 @@ the decider that one file's path next round; the decider revises rather than res
   carries explicit `combines_with` / `excludes` notes, because a shortlist the user can't safely mix is
   a trap. Both modes run the same matrix, citation rule, and review loop.
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
-  `feature-cycle`/`migrate-cycle` next.
+  a plan file's design section, which `develop-cycle` builds next.
 - **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts, a
   `wrote_file` write confirmation per role (unconfirmed ⇒ a `⚠` in the log, never a halt — open that
   file before relaying it) — plus, in `ranked` mode, the shortlist **index** (rank + title +
