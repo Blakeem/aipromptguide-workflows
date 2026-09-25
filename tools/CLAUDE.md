@@ -108,8 +108,9 @@ Read it before writing or changing a scenario table. The short version: node ide
 loops, loop bounds and unit boundaries are all *derived* from a trace; only each scenario's `when` string
 is authored.
 
-Output is byte-stable (no timestamps), so `--check` is a meaningful gate. Change an engine's control flow
-and you must regenerate, or `node tests/run.mjs` goes red.
+Output is byte-stable (no timestamps), so `--check` is a meaningful gate. Edit an engine
+and you must regenerate, or `node tests/run.mjs` goes red. A map cites each throw site's line number, so an
+edit that only moves lines stales it too.
 
 It is also **dash-free**: `dedash` flattens the finished document to ASCII hyphens (em, en and horizontal
 bar) because the maps are published on a user-facing site. Presentation only, applied once at the end of

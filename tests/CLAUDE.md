@@ -204,7 +204,7 @@ against (halt); an unreachable feature does not (flag).
 
 `workflows/<x>/FLOW.md` is **generated**: `tools/gen-flows.mjs` runs each engine through
 `tests/harness.mjs` against a scenario table in `tools/flows/<name>.flow.mjs` and draws what it watched.
-Change an engine's control flow and you must regenerate, or the suite goes red:
+Edit an engine and you must regenerate, or the suite goes red:
 
 ```bash
 node tools/gen-flows.mjs            # regenerate all
@@ -336,6 +336,6 @@ The Loops table also carries the **full** condition list, where the arrow had be
 - [ ] `meta` still a pure literal, still LF-only (the suite checks both)
 - [ ] Prompt text changed? `node tools/gen-prompts.mjs` re-run, and its snapshot diff read for variants
       the change was not meant to reach
-- [ ] Control flow changed? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
+- [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice
