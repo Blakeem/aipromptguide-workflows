@@ -59,13 +59,14 @@ function fenceState(line, fence) {
 // The metadata grammar — file keys, block preamble, issue entries
 // =============================================================================
 
-// One table per run, so an unrecognized key can name the run it was found in. `null` is free text; an
-// array is the key's legal enum.
+// One table per run, so an unrecognized key can name the run it was found in. `null` is free text, an
+// array is the key's legal enum, and a RegExp is the shape its value must match.
 const FILE_KEYS = {
   goal: null,
   ordered: ['true', 'false'],
   suite: ['green', 'scoped'],
   sweep: ['goal-coverage', 'none'],
+  synced: /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/,   // the newest run record plan-edit applied
 };
 const PREAMBLE_KEYS = {
   mode: ['feature', 'section', 'fix'],
@@ -91,6 +92,7 @@ const ISSUE_KEYS = {
 // that ENDS the run instead of joining it, so a round-trip parse afterwards never sees it and the edit is
 // written as junk prose at exit 0. One copy of the grammar, read here and by tools/plan-edit.mjs.
 export const RUN_KEYS = {
+  file: { keys: FILE_KEYS, what: 'file key' },
   preamble: { keys: PREAMBLE_KEYS, what: 'preamble key' },
   issue: { keys: ISSUE_KEYS, what: 'issue key' },
 };
@@ -194,8 +196,10 @@ function scanRun(text, from, schema, lineRe, what) {
     }
     const { value, valueStart, valueEnd } = valueSpan(line, line.text.indexOf(':'));
     const allowed = schema[key];
-    if (allowed && !allowed.includes(value)) {
-      throw new Error(`illegal ${what} "${key}: ${value}" — ${key} takes ${allowed.join(' | ')}`);
+    const legal = !allowed || (allowed instanceof RegExp ? allowed.test(value) : allowed.includes(value));
+    if (!legal) {
+      const takes = allowed instanceof RegExp ? `a value matching ${allowed}` : allowed.join(' | ');
+      throw new Error(`illegal ${what} "${key}: ${value}" — ${key} takes ${takes}`);
     }
     values[key] = value;
     keys.push({ key, value, start: line.start, end: line.end, valueStart, valueEnd });
@@ -480,7 +484,7 @@ export function emitBlock(blocks, id, source) {
  * The plan file's control object: the file keys with their defaults applied, then one row per block.
  * `fileKeys` is optional — a caller with only the blocks (the test suite) gets the documented defaults.
  */
-export function emitList(blocks, source, fileKeys = null) {
+export function listObject(blocks, source, fileKeys = null) {
   const sets = Object.entries(MODE_GATES).map(([mode, legal]) => `${mode}: ${legal.join(' | ')}`).join(', ');
   const missing = [];
   const bad = [];
@@ -490,9 +494,7 @@ export function emitList(blocks, source, fileKeys = null) {
     const gate = readGate(block.body);
     if (!gate) missing.push(`${block.id} (mode ${block.mode})`);
     else if (!gates.includes(gate)) bad.push(`${block.id} (${gate}, mode ${block.mode})`);
-    return `    { "id": ${JSON.stringify(block.id)}, "title": ${JSON.stringify(block.title || block.id)}`
-      + `, "mode": ${JSON.stringify(block.mode)}, "gate": ${JSON.stringify(gate)}`
-      + `, "status": ${JSON.stringify(block.preamble.values.status ?? 'todo')} }`;
+    return { id: block.id, title: block.title || block.id, mode: block.mode, gate, status: block.preamble.values.status ?? 'todo' };
   });
 
   if (missing.length) {
@@ -515,10 +517,16 @@ export function emitList(blocks, source, fileKeys = null) {
   if (head.sweep === 'goal-coverage' && !head.goal.trim()) {
     throw new Error(`sweep is goal-coverage but no goal is set in ${source} — add a "goal:" file key, or "sweep: none" to skip the sweep`);
   }
+  return { ...head, blocks: rows };
+}
 
+export function emitList(blocks, source, fileKeys = null) {
+  const { blocks: rows, ...head } = listObject(blocks, source, fileKeys);
+  const row = (r) => `    { "id": ${JSON.stringify(r.id)}, "title": ${JSON.stringify(r.title)}`
+    + `, "mode": ${JSON.stringify(r.mode)}, "gate": ${JSON.stringify(r.gate)}, "status": ${JSON.stringify(r.status)} }`;
   return `{\n  "goal": ${JSON.stringify(head.goal)}, "ordered": ${head.ordered}`
     + `, "suite": ${JSON.stringify(head.suite)}, "sweep": ${JSON.stringify(head.sweep)},\n`
-    + `  "blocks": [\n${rows.join(',\n')}\n  ]\n}\n`;
+    + `  "blocks": [\n${rows.map(row).join(',\n')}\n  ]\n}\n`;
 }
 
 // =============================================================================
@@ -529,7 +537,7 @@ const USAGE = `usage:
   node tools/plan-block.mjs <plan.md|plan-name> <id>       print that block, verbatim
   node tools/plan-block.mjs <plan.md|plan-name> --list     print the control object as JSON
 
-  Blocks are "## Plan: <id>", with file keys (goal, ordered, suite, sweep), a block preamble
+  Blocks are "## Plan: <id>", with file keys (goal, ordered, suite, sweep, synced), a block preamble
   (mode, gate, status, test_selector, depends_on) and, under a fix-mode block, "### [<id>]" issue
   entries. --list emits { goal, ordered, suite, sweep, blocks: [...] }.
 

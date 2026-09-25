@@ -468,82 +468,157 @@ section('the CLI itself: exit codes, where the message goes, and what reaches di
   ok(before !== written, 'the fixture was edited exactly once across this section');
 }
 
-section('sync applies a develop result\'s statusSync across several files, from the object or a bare array');
-{
-  const plan = fixture();
-  const dest = fixture(DEST, 'inbox.md');
-  const [planBefore, destBefore] = [read(plan), read(dest)];
-  const edits = [
-    { planPath: plan, id: 'bus-parser', key: 'status', value: 'done' },
-    { planPath: dest, id: 'inbox', key: 'status', value: 'parked' },
-    { planPath: plan, id: 'null-deref', key: 'status', value: 'fixed' },
-    { planPath: dest, id: 'old-one', key: 'status', value: 'stale' },
-  ];
-  const result = fixture(JSON.stringify({ runId: 'r', status: 'done (all blocks staged)', statusSync: edits }), 'result.json');
-  const out = run(['sync', result]);
-  eq(read(plan), planBefore.replace('gate: build-only', 'gate: build-only\nstatus: done')
-    .replace('- decision: ACTIONABLE', '- decision: ACTIONABLE\n- status: fixed'), 'the first file carries both of its edits, nothing else');
-  eq(read(dest), destBefore.replace('gate: green', 'gate: green\nstatus: parked')
-    .replace('- severity: low', '- severity: low\n- status: stale'), 'and the second file both of its own');
-  ok(out.includes(plan) && out.includes(dest), 'the output names each file it wrote');
+// ---------------------------------------------------------------------------------------------
+// args — the run records Claude Code writes, folded into the plans before every launch
+// ---------------------------------------------------------------------------------------------
 
-  const [planAfter, destAfter] = [read(plan), read(dest)];
-  const again = run(['sync', result]);
-  ok(/nothing to change/.test(again), `a second run is a no-op and says so: ${again.trim()}`);
-  eq(read(plan) + read(dest), planAfter + destAfter, 'and writes no byte');
-
-  const bare = fixture(PLAN, 'bare.md');
-  const bareBefore = read(bare);
-  run(['sync', fixture(JSON.stringify([{ planPath: bare, id: 'triage', key: 'status', value: 'blocked' }]), 'bare.json')]);
-  eq(read(bare), bareBefore.replace('mode: fix\ngate: green\n\n### [flaky-test]', 'mode: fix\ngate: green\nstatus: blocked\n\n### [flaky-test]'),
-    'a bare array of edits works the same');
-  eq(run(['sync', fixture(JSON.stringify({ statusSync: [] }), 'empty.json')]).trim(), 'nothing to change: 0 edit(s) across 0 file(s) already applied',
-    'an empty statusSync changes nothing');
+/** A run record shaped like the runtime's own, carrying one STATUS_LOG line per finished block. */
+function record({ runId = 'wf_1', status = 'completed', timestamp = '2026-09-25T10:00:00.000Z', blocks = [], workflowName = 'develop-cycle' } = {}) {
+  const logs = ['develop: 1/1 block(s) to build', ...blocks.map((edits) => `status-sync ${JSON.stringify(edits)}`)];
+  return { runId, timestamp, workflowName, status, logs, args: {}, result: null };
 }
 
-section('sync keeps a BOM, CRLF line endings and a missing trailing newline, exactly as set does');
-{
-  const file = fixture(`${BOM}${PLAN.trimEnd().replace(/\n/g, '\r\n')}`);
-  const before = read(file);
-  run(['sync', fixture(JSON.stringify([{ planPath: file, id: 'bus-parser', key: 'status', value: 'done' }]), 'r.json')]);
-  eq(read(file), before.replace('gate: build-only', 'gate: build-only\r\nstatus: done'), 'only the appended line differs, in the file\'s own ending');
+/** A config dir holding each record where the runtime puts it: projects/<project>/<session>/workflows/. */
+function configWith(records) {
+  const dir = tmpDir();
+  records.forEach((r, i) => {
+    const runs = join(dir, 'projects', `proj-${i % 2}`, `session-${i}`, 'workflows');
+    mkdirSync(runs, { recursive: true });
+    writeFileSync(join(runs, `${r.runId ?? `wf_${i}`}.json`), JSON.stringify(r));
+  });
+  return dir;
 }
 
-section('one bad edit in any file writes NO file, and the failure names the file, id, key and value');
-{
-  const plan = fixture();
-  const dest = fixture(DEST, 'inbox.md');
-  const [planBefore, destBefore] = [read(plan), read(dest)];
-  const good = { planPath: plan, id: 'bus-parser', key: 'status', value: 'done' };
-  const syncWith = (bad) => fails('sync', fixture(JSON.stringify([good, bad]), 'result.json'));
-  const cases = [
-    [{ planPath: dest, id: 'inbox', key: 'status', value: 'nearly' }, /inbox status=nearly: .*illegal preamble key "status: nearly"/, 'an illegal value in the LAST file'],
-    [{ planPath: dest, id: 'ghost', key: 'status', value: 'done' }, /ghost status=done: no id "ghost"/, 'an unknown id'],
-    [{ planPath: dest, id: 'old-one', key: 'sevrity', value: 'low' }, /old-one sevrity=low: unknown issue key "sevrity"/, 'an unknown key'],
-    [{ planPath: dest, id: 'inbox', key: 'status', value: 'done\nstatus: todo' }, /contains a line break/, 'a value carrying a line break'],
-    [{ planPath: 'plans/inbox.md', id: 'inbox', key: 'status', value: 'done' }, /relative planPath "plans\/inbox\.md"/, 'a relative planPath'],
-    [{ planPath: dest, id: 'inbox', key: 'status' }, /is not \{ planPath, id, key, value \} strings/, 'an edit missing a field'],
-  ];
-  for (const [bad, re, what] of cases) {
-    const msg = syncWith(bad);
-    ok(re.test(msg), `${what}: ${msg.slice(0, 90)}`);
-    eq(read(plan) + read(dest), planBefore + destBefore, `${what} — neither file was written, the good edit included`);
+/** plan-edit args under a config dir: { out, notes } on success, { err } on failure. */
+function argsWith(configDir, ...argv) {
+  const saved = process.env.CLAUDE_CONFIG_DIR;
+  const notes = [];
+  process.env.CLAUDE_CONFIG_DIR = configDir;
+  try {
+    return { out: run(['args', ...argv], (l) => notes.push(l)), notes: notes.join('') };
+  } catch (e) {
+    return { err: e.message };
+  } finally {
+    if (saved === undefined) delete process.env.CLAUDE_CONFIG_DIR;
+    else process.env.CLAUDE_CONFIG_DIR = saved;
   }
-  ok(syncWith({ planPath: dest, id: 'inbox', key: 'status', value: 'nearly' }).includes(dest), 'the message names the file at fault');
-  ok(/neither a develop result/.test(fails('sync', fixture('{"status":"done"}', 'no-sync.json'))), 'a result with no statusSync fails');
-  ok(/as JSON/.test(fails('sync', fixture('not json', 'bad.json'))), 'a file that is not JSON fails');
-  ok(/no such result file/.test(fails('sync', join(tmpDir(), 'missing.json'))), 'a missing result file fails');
-  ok(/usage:/.test(fails('sync')), 'and so does a missing argument');
+}
 
-  const cliOut = (() => {
-    try {
-      execFileSync(process.execPath, [CLI, 'sync', fixture(JSON.stringify([good, { planPath: dest, id: 'ghost', key: 'status', value: 'done' }]), 'cli.json')], { stdio: 'pipe' });
-      return { code: 0, stderr: '' };
-    } catch (e) { return { code: e.status ?? 1, stderr: String(e.stderr || '') }; }
-  })();
-  eq(cliOut.code, 1, 'the CLI exits 1');
-  ok(cliOut.stderr.includes('ghost'), 'naming the edit at fault on stderr');
-  eq(read(plan) + read(dest), planBefore + destBefore, 'with every file byte-identical');
+const status = (id, value, planPath) => ({ planPath, id, key: 'status', value });
+
+section('args folds a finished run into every plan it names, then prints develop\'s args');
+{
+  const plan = fixture();
+  const dest = fixture(DEST, 'inbox.md');
+  const config = configWith([record({ blocks: [
+    [status('bus-parser', 'done', plan)],
+    [status('inventory', 'done', plan), status('null-deref', 'fixed', plan)],
+    [status('inbox', 'parked', dest), status('old-one', 'needs-attention', dest)],
+  ] })]);
+  const [planBefore, destBefore] = [read(plan), read(dest)];
+
+  const { out, notes, err } = argsWith(config, plan);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(read(plan), planBefore.replace('goal: ship the bus', 'goal: ship the bus\nsynced: 2026-09-25T10:00:00.000Z')
+    .replace('gate: build-only', 'gate: build-only\nstatus: done')
+    .replace('mode: fix\ngate: green\n\n### [null-deref]', 'mode: fix\ngate: green\nstatus: done\n\n### [null-deref]')
+    .replace('- decision: ACTIONABLE', '- decision: ACTIONABLE\n- status: fixed'), 'the plan carries its three edits and the synced marker, nothing else');
+  eq(read(dest), destBefore, 'a plan the command was not given is left alone');
+  ok(/applied 3 status edit\(s\) from run wf_1 \(completed\)/.test(notes), `the note names the run and the count: ${notes.trim()}`);
+
+  const args = JSON.parse(out);
+  eq(args.goal, 'ship the bus', 'the file keys come through with defaults applied');
+  eq(args.plans.map((r) => `${r.id}=${r.status}`).join(','), 'bus-parser=done,inventory=done,triage=todo', 'and the rows carry the folded statuses');
+  ok(args.plans.every((r) => r.planPath === plan), 'every row names its plan file');
+
+  const after = read(plan);
+  const again = argsWith(config, plan);
+  eq(read(plan), after, 'a second call writes no byte: the synced marker covers the run');
+  eq(again.notes, '', 'and applies nothing');
+}
+
+section('a failed or stopped run folds too, and runs apply oldest first, each exactly once');
+// The runtime keeps a run's logs when it fails or is stopped, and that is the case a relaunch needs most.
+{
+  const plan = fixture();
+  const older = record({ runId: 'wf_old', status: 'killed', timestamp: '2026-09-25T09:00:00.000Z', blocks: [[status('bus-parser', 'parked', plan)]] });
+  const newer = record({ runId: 'wf_new', status: 'failed', timestamp: '2026-09-25T11:00:00.000Z', blocks: [[status('bus-parser', 'done', plan)]] });
+  const config = configWith([newer, older]);
+
+  const { notes } = argsWith(config, plan);
+  ok(read(plan).includes('status: done') && !read(plan).includes('status: parked'), 'the newer run wins');
+  ok(notes.indexOf('wf_old') < notes.indexOf('wf_new'), 'because the older applied first');
+  ok(read(plan).includes('synced: 2026-09-25T11:00:00.000Z'), 'and the marker is the newest applied run');
+
+  // The operator's own edit after a fold must survive every later launch.
+  run(['set', plan, 'bus-parser', 'status=todo']);
+  argsWith(config, plan);
+  ok(read(plan).includes('status: todo'), 'a block flipped back to todo stays todo');
+}
+
+section('args reads only develop records, and only the edits that name the plans it was given');
+{
+  const plan = fixture();
+  const other = fixture(DEST, 'inbox.md');
+  const config = configWith([
+    { runId: 'wf_review', workflowName: 'review', timestamp: 'not a date' },
+    record({ runId: 'wf_dev', blocks: [[status('inbox', 'done', other)]] }),
+  ]);
+  const before = read(plan);
+  const { err, notes } = argsWith(config, plan);
+  ok(!err, `another workflow's record is skipped without reading its fields: ${err ?? ''}`);
+  eq(read(plan), before, 'and an edit for another plan changes nothing here');
+  eq(notes, '', 'so nothing is reported applied');
+  const empty = argsWith(tmpDir(), plan);
+  ok(!empty.err && JSON.parse(empty.out).plans.length === 3, `a config dir with no projects folder is a plain launch: ${empty.err ?? ''}`);
+}
+
+section('args writes the synced key under frontmatter, and keeps a BOM and CRLF endings');
+{
+  const bare = fixture(`---\ntitle: x\n---\n\n${DEST}`, 'fm.md');
+  argsWith(configWith([record({ blocks: [[status('inbox', 'done', bare)]] })]), bare);
+  ok(read(bare).startsWith('---\ntitle: x\n---\n\nsynced: 2026-09-25T10:00:00.000Z\n\n## Plan: inbox'), 'a file with no file keys gains its own run, set off by a blank line');
+
+  const crlf = fixture(`${BOM}${PLAN.trimEnd().replace(/\n/g, '\r\n')}`);
+  const before = read(crlf);
+  argsWith(configWith([record({ blocks: [[status('bus-parser', 'done', crlf)]] })]), crlf);
+  eq(read(crlf), before.replace('goal: ship the bus', 'goal: ship the bus\r\nsynced: 2026-09-25T10:00:00.000Z')
+    .replace('gate: build-only', 'gate: build-only\r\nstatus: done'), 'only the two appended lines differ, in the file\'s own ending');
+}
+
+section('several plans make one args object, and plans that disagree on a file key fail');
+{
+  const a = fixture(DEST, 'a.md');
+  const b = fixture(DEST.replace(/inbox/g, 'inbox-2').replace(/later/g, 'later-2').replace(/old-one/g, 'old-two'), 'b.md');
+  const { out } = argsWith(configWith([]), a, b);
+  eq(JSON.parse(out).plans.map((r) => `${r.id}@${r.planPath === a ? 'a' : 'b'}`).join(','), 'inbox@a,later@a,inbox-2@b,later-2@b', 'rows from both files, each naming its own');
+
+  const odd = fixture(`ordered: true\n\n${DEST.replace(/inbox/g, 'x').replace(/later/g, 'y').replace(/old-one/g, 'z')}`, 'odd.md');
+  ok(/disagree on ordered/.test(argsWith(configWith([]), a, odd).err), 'a mismatched file key names the key');
+}
+
+section('every args failure writes no file, and names what to do');
+{
+  const plan = fixture();
+  const dest = fixture(DEST, 'inbox.md');
+  const [planBefore, destBefore] = [read(plan), read(dest)];
+  const good = [status('bus-parser', 'done', plan)];
+  const cases = [
+    [[record({ blocks: [good, [status('ghost', 'done', dest)]] })], /run wf_1 .* sets ghost status=done in .*no id "ghost".*set its "synced:" file key/, 'an unknown id in the LAST file'],
+    [[record({ blocks: [good, [status('inbox', 'nearly', dest)]] })], /illegal preamble key "status: nearly"/, 'an illegal value'],
+    [[record({ blocks: [[status('bus-parser', 'done', 'plans/x.md')]] })], /is not \{ planPath \(absolute\)/, 'a relative planPath'],
+    [[{ runId: 'wf_x', timestamp: '2026-09-25T10:00:00.000Z' }], /has no workflowName — the Claude Code run-record format changed/, 'a record with no workflowName'],
+    [[{ ...record(), logs: undefined }], /has no valid logs — the Claude Code run-record format changed/, 'a develop record with no logs'],
+    [[{ ...record(), status: 'done', timestamp: 'soon' }], /has no valid status, timestamp/, 'a develop record with an unknown status and date'],
+  ];
+  for (const [records, re, what] of cases) {
+    const { err } = argsWith(configWith(records), plan, dest);
+    ok(re.test(err ?? ''), `${what}: ${(err ?? 'no error').slice(0, 110)}`);
+    eq(read(plan) + read(dest), planBefore + destBefore, `${what}: neither file was written`);
+  }
+  ok(/no develop run record for wf_missing .*moved its run records/.test(argsWith(configWith([]), plan, '--expect', 'wf_missing').err), '--expect names a run it cannot find');
+  ok(!argsWith(configWith([record()]), plan, '--expect', 'wf_1').err, 'and passes when the record exists');
+  ok(/usage:/.test(argsWith(configWith([]), '--expect').err ?? ''), 'no plan is a usage error');
 }
 
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

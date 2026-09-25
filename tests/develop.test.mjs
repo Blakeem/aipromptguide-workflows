@@ -584,8 +584,8 @@ section('acceptance that passed without staging halts without parking');
   // Acceptance passed, so the plan file says done. Synced as blocked, the documented flip-to-todo rebuilt a
   // block that had already landed on top of its own staged copy.
   eq(syncOf(out), 'block-a=done', 'statusSync marks the passed block done');
-  ok(/apply this result's statusSync \(it already marks the block done\), then relaunch: no startAt is needed/.test(out.haltReason),
-    'and the reason says stage, sync, relaunch, with no startAt');
+  ok(/then relaunch: the next `plan-edit\.mjs args` marks the block done: no startAt is needed/.test(out.haltReason),
+    'and the reason says stage, relaunch, with no startAt, and that args marks the block done');
   ok(/1 block\(s\) halted and are NOT done: block-a - the halt reason above says what each needs/.test(out.followups),
     'followups defers to the halt reason rather than giving fix-block advice');
   ok(!/closed NO issue|- decision:/.test(out.followups), 'and never tells a feature block to read decision lines');

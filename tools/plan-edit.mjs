@@ -1,5 +1,5 @@
 // tools/plan-edit.mjs — the ONE tool that WRITES a plan file: upsert one metadata line, move one issue
-// entry between blocks, or apply the status edits a develop run returned.
+// entry between blocks, or fold finished develop runs into the plans and print the next launch's args.
 //
 // Why this is a separate file from plan-block.mjs rather than two more subcommands of it. The run-time
 // permission rule allowlists every subcommand of the file it names, so a write subcommand sharing that file
@@ -8,7 +8,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs sync <result.json>
+//   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -23,15 +23,16 @@
 // approved plan is what agents build against, so a half-applied or silently coerced edit is worse than no
 // edit at all. The one fault validation cannot pre-empt is an I/O error BETWEEN a cross-file move's two
 // writes: the write order leaves the entry duplicated rather than deleted, and the error names the manual
-// cut, since a single-file parse never sees a duplicate across two plans. `sync` builds and validates every
-// file's edited text before writing any, and a re-run over an applied result writes nothing.
+// cut, since a single-file parse never sees a duplicate across two plans. `args` builds and validates every
+// file's edited text before writing any, and the `synced:` file key keeps a run from applying twice.
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
-import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
+import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RUN_KEYS, parseBlocks, resolveRoadmap, validate } from './plan-block.mjs';
+import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
 const USAGE = `usage:
   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
@@ -39,9 +40,10 @@ const USAGE = `usage:
       test_selector, depends_on); an issue id targets that entry's "- key:" run.
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
-  node tools/plan-edit.mjs sync <result.json>
-      apply every { planPath, id, key, value } edit in a develop result's statusSync (or a bare
-      array of them). All-or-nothing: one bad edit in any file writes no file at all.
+  node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
+      fold every finished develop run's status edits into the plan files, then print develop's
+      args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
+      All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
 
@@ -271,84 +273,176 @@ function runMove(argv) {
 }
 
 // =============================================================================
-// sync — every status edit a develop run returned, validated as one set before any file is written
+// Run records — what the Claude Code runtime writes when a Workflow run ends
 // =============================================================================
 
-/** The edits a result file holds: a develop return object's statusSync, or a bare array of edits. */
-function readSyncEdits(path) {
+// The line prefix develop-cycle.mjs logs each finished block's status edits under (its STATUS_LOG).
+const STATUS_LOG = 'status-sync ';
+const RECORD_STATUSES = ['completed', 'failed', 'killed'];
+const FORMAT_CHANGED = 'the Claude Code run-record format changed: update readRunRecord in tools/plan-edit.mjs';
+
+/** Every run record on this machine: <config>/projects/<project>/<session>/workflows/wf_*.json. */
+export function findRunRecords(configDir) {
+  const found = [];
+  const subdirs = (path) => {
+    try {
+      return readdirSync(path, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => join(path, d.name));
+    } catch (err) {
+      if (err.code === 'ENOENT') return [];
+      throw err;
+    }
+  };
+  for (const session of subdirs(join(configDir, 'projects')).flatMap(subdirs)) {
+    for (const dir of subdirs(session).filter((d) => d === join(session, 'workflows'))) {
+      for (const name of readdirSync(dir)) if (/^wf_.*\.json$/.test(name)) found.push(join(dir, name));
+    }
+  }
+  return found;
+}
+
+/**
+ * The runtime fields the fold depends on, as the names of those that are missing or malformed. Exported so
+ * the suite can check every real record on the machine and flag a Claude Code format change early.
+ */
+export function envelopeFaults(data) {
+  return [
+    typeof data?.workflowName !== 'string' && 'workflowName',
+    typeof data?.runId !== 'string' && 'runId',
+    !RECORD_STATUSES.includes(data?.status) && 'status',
+    Number.isNaN(Date.parse(data?.timestamp)) && 'timestamp',
+    !(Array.isArray(data?.logs) && data.logs.every((l) => typeof l === 'string')) && 'logs',
+  ].filter(Boolean);
+}
+
+/** A develop run's record as { path, runId, status, time, edits }, or null for any other workflow. */
+export function readRunRecord(path) {
   let data = null;
   try {
     data = JSON.parse(readFileSync(path, 'utf8'));
   } catch (err) {
-    if (err.code === 'ENOENT') throw new Error(`no such result file: ${path}`);
-    throw new Error(`cannot read ${path} as JSON: ${err.message}`);
+    throw new Error(`cannot read run record ${path}: ${err.message}`);
   }
-  const edits = Array.isArray(data) ? data : data?.statusSync;
-  if (!Array.isArray(edits)) {
-    throw new Error(`${path} holds neither a develop result with a statusSync array nor a bare array of edits`);
-  }
+  if (typeof data?.workflowName !== 'string') throw new Error(`${path} has no workflowName — ${FORMAT_CHANGED}`);
+  if (data.workflowName !== 'develop-cycle') return null;
+  const faults = envelopeFaults(data);
+  if (faults.length) throw new Error(`${path} has no valid ${faults.join(', ')} — ${FORMAT_CHANGED}`);
+
+  const edits = data.logs.filter((l) => l.startsWith(STATUS_LOG)).flatMap((l) => JSON.parse(l.slice(STATUS_LOG.length)));
   edits.forEach((e, i) => {
     const typed = e && ['planPath', 'id', 'key', 'value'].every((k) => typeof e[k] === 'string');
-    if (!typed) throw new Error(`edit [${i}] in ${path} is not { planPath, id, key, value } strings: ${JSON.stringify(e)}`);
-    // A relative path would resolve against wherever the operator happens to stand, or read as a plan-name.
-    if (!isAbsolute(e.planPath)) throw new Error(`edit [${i}] in ${path} has a relative planPath "${e.planPath}" — develop emits absolute paths`);
+    if (!typed || !isAbsolute(e.planPath)) {
+      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value }: ${JSON.stringify(e)}`);
+    }
   });
-  return edits;
+  return { path, runId: data.runId, status: data.status, time: Date.parse(data.timestamp), edits };
 }
 
-/** Two spellings of one file must share one group, or the second write would clobber the first's edits. */
+// =============================================================================
+// args — fold finished runs into the plan files, then print develop's args
+// =============================================================================
+
+/** Two spellings of one file must compare equal, or a record's edits would miss the plan they name. */
 function fileKey(path) {
   try {
     return realpathSync.native(path);
   } catch { return path; }   // a missing file — loadPlan reports that
 }
 
-/** One file's edited text, each edit re-validated before the next so every splice reads fresh positions. */
-function withEditsApplied(path, edits) {
-  const original = loadPlan(path);
-  let plan = original;
+/** The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. */
+function applyEdits(plan, edits, source) {
+  let next = plan;
   for (const { id, key, value } of edits) {
     try {
       checkOneLine(key, value);
-      const text = withKeySet(plan, id, key, value);
-      plan = { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
+      const text = withKeySet(next, id, key, value);
+      next = { path: next.path, text, blocks: validate(parseBlocks(text), next.path) };
     } catch (err) {
-      throw new Error(`${path}: ${id} ${key}=${value}: ${err.message}`);
+      throw new Error(`${source} sets ${id} ${key}=${value} in ${plan.path}, which fails: ${err.message}. Fix the plan, or set its "synced:" file key to that run's timestamp to skip the run`);
     }
   }
-  return { path: plan.path, text: plan.text, changed: plan.text !== original.text };
+  return next;
 }
 
-function runSync(argv) {
-  // Input
-  if (argv.length !== 1) throw new Error(USAGE);
-  const edits = readSyncEdits(argv[0]);
+/** The file's bytes with its `synced:` file key upserted. */
+function withSyncedSet(plan, iso) {
+  const { keys, start } = parseFileKeys(plan.text);
+  const present = keys.find((k) => k.key === 'synced');
+  if (present) return splice(plan.text, present.valueStart, present.valueEnd, iso);
 
-  // Process — every file is edited in memory first, so a fault in the LAST file still writes none.
-  const groups = new Map();
-  for (const e of edits) {
-    const key = fileKey(e.planPath);
-    if (!groups.has(key)) groups.set(key, { path: e.planPath, edits: [] });
-    groups.get(key).edits.push(e);
+  const eol = dominantEol(plan.text);
+  const last = keys[keys.length - 1];
+  if (last) return splice(plan.text, last.end, last.end, `${eol}synced: ${iso}`);
+  // No file keys yet: the new run needs a blank line under it, or the heading below reads as its prose.
+  const gap = plan.text.startsWith(eol, start) ? '' : eol;
+  return splice(plan.text, start, start, `synced: ${iso}${eol}${gap}`);
+}
+
+/** One plan with every run record newer than its `synced:` key applied, oldest first. */
+function foldRecords(plan, records, note) {
+  const marker = Date.parse(parseFileKeys(plan.text).values.synced ?? '') || 0;
+  const key = fileKey(plan.path);
+  const fresh = records
+    .filter((r) => r.time > marker)
+    .map((r) => ({ ...r, edits: r.edits.filter((e) => fileKey(e.planPath) === key) }))
+    .filter((r) => r.edits.length)
+    .sort((a, b) => a.time - b.time);
+
+  let next = plan;
+  for (const r of fresh) {
+    next = applyEdits(next, r.edits, `run ${r.runId} (${r.path})`);
+    note(`applied ${r.edits.length} status edit(s) from run ${r.runId} (${r.status}) to ${plan.path}\n`);
   }
-  const files = [...groups.values()].map((g) => ({ ...withEditsApplied(g.path, g.edits), count: g.edits.length }));
-  const changed = files.filter((f) => f.changed);
+  if (!fresh.length) return next;
+  const text = withSyncedSet(next, new Date(fresh[fresh.length - 1].time).toISOString());
+  return { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
+}
+
+/** develop's args: one set of file keys, which every plan must agree on, and every block as a row. */
+function mergeArgs(plans) {
+  const heads = plans.map((p) => ({ path: p.path, ...listObject(p.blocks, p.path, parseFileKeys(p.text)) }));
+  const [first] = heads;
+  for (const h of heads) {
+    for (const k of ['goal', 'ordered', 'suite', 'sweep']) {
+      if (h[k] !== first[k]) {
+        throw new Error(`${first.path} and ${h.path} disagree on ${k} (${JSON.stringify(first[k])} vs ${JSON.stringify(h[k])}) — one run takes one value`);
+      }
+    }
+  }
+  const plansRows = heads.flatMap((h) => h.blocks.map((b) => ({ ...b, planPath: h.path })));
+  return { goal: first.goal, ordered: first.ordered, suite: first.suite, sweep: first.sweep, plans: plansRows };
+}
+
+function runArgs(argv, note) {
+  // Input
+  const at = argv.indexOf('--expect');
+  const expect = at === -1 ? null : argv[at + 1];
+  const paths = at === -1 ? argv : argv.filter((_, i) => i !== at && i !== at + 1);
+  if (!paths.length || (at !== -1 && !expect)) throw new Error(USAGE);
+  const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+  const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
+  const plans = paths.map(loadPlan);
+
+  // Process — every file is folded in memory first, so a fault in the LAST file still writes none.
+  if (expect && !records.some((r) => r.runId === expect)) {
+    throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
+  }
+  const folded = plans.map((p) => foldRecords(p, records, note));
+  const args = mergeArgs(folded);
 
   // Output
-  for (const f of changed) writeFileSync(f.path, f.text);
-  if (!changed.length) return `nothing to change: ${edits.length} edit(s) across ${files.length} file(s) already applied\n`;
-  return changed.map((f) => `synced ${f.count} edit(s) in ${f.path}\n`).join('');
+  for (const [i, f] of folded.entries()) if (f.text !== plans[i].text) writeFileSync(f.path, f.text);
+  return `${JSON.stringify(args, null, 2)}\n`;
 }
 
 // =============================================================================
 // CLI
 // =============================================================================
 
-export function run(argv) {
+export function run(argv, note = (line) => process.stderr.write(line)) {
   const [command, ...rest] = argv;
   if (command === 'set') return runSet(rest);
   if (command === 'move') return runMove(rest);
-  if (command === 'sync') return runSync(rest);
+  if (command === 'args') return runArgs(rest, note);
   throw new Error(USAGE);
 }
 

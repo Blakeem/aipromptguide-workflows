@@ -45,8 +45,8 @@ Claude reads `workflows/develop/CLAUDE.md` and follows it.
 2. The [refine](../refine/) workflow reviews the plan until it has no defects left.
 3. You approve the final plan text.
 4. develop builds the blocks.
-5. Claude copies each block's result back into the plan file's `status:` lines with
-   `tools/plan-edit.mjs`. A relaunch then builds only what is still `todo`.
+5. Before each launch, `tools/plan-edit.mjs args` writes the results of every finished run into the
+   plan file's `status:` lines. A relaunch then builds only what is still `todo`.
 
 For a debug inventory, triage the issue files first. Each one is a fix-mode plan file develop builds
 directly.

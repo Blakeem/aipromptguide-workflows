@@ -11,7 +11,7 @@ and you change what a developer agent receives, so treat it as engine surface, n
 | File | What it does |
 |---|---|
 | `plan-block.mjs` | Prints ONE `## Plan: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. It reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
-| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `sync` applies the `statusSync` edits a develop result returns. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
+| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `args` folds finished develop runs' statuses into the plans and prints the next launch's args. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
 | `wt.mjs` | The batch-worktree lifecycle (`init`/`prep`/`land`/`clean`) for running several engine runs in **parallel**, each in its own git worktree. **Operator-invoked around the runs** — no agent ever calls it, no engine knows it exists. Its header comment is the contract (hook bytes, lock liveness, exit codes — all measured decisions); the operator playbook is [`../docs/worktree-batches.md`](../docs/worktree-batches.md). |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
@@ -28,7 +28,7 @@ node tools/plan-block.mjs <plan.md|plan-name> <id>            # that block, verb
 node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered, suite, sweep, blocks: [...] }
 ```
 
-It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`,
+It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, plus informational
 `test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `--list` emits the
 file keys plus a `blocks` array of `{ id, title, mode, gate, status }`, defaults applied. Each
@@ -59,7 +59,7 @@ and acceptance schemas is that signal, and develop halts on an explicit `false`.
 ```bash
 node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
 node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
-node tools/plan-edit.mjs sync <result.json>                                  # apply develop's statusSync edits
+node tools/plan-edit.mjs args <plan.md> [<plan.md> ...] [--expect <wf-id>]  # fold finished runs, print develop's args
 ```
 
 The write surface, kept out of plan-block.mjs on purpose: the run-time allowlist rule
@@ -70,8 +70,17 @@ into another fix-mode block, same file or another. Failures are loud and leave e
 unknown id, unrecognized key, illegal value, a gate the target's mode forbids, a duplicate id at the
 destination, a non-fix destination block. Paths resolve through the same `resolveRoadmap` as
 plan-block, so a bare name addresses the same file in both tools. BOM'd and CRLF files round-trip
-byte-identically, and an appended line inherits the file's dominant line ending. `sync` reads the result
-develop returned and applies its `statusSync` edits.
+byte-identically, and an appended line inherits the file's dominant line ending.
+
+`args` is the step before every develop launch, so status bookkeeping cannot be skipped. develop logs
+each finished block's status edits as one `status-sync <json>` line. Claude Code writes every Workflow
+run to `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a
+completed, failed or stopped run alike. `args` reads every develop record newer than the plan's
+`synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest run
+applied, so an operator's later edit is never overwritten. The record format is Claude Code's and
+undocumented. A changed develop record fails `args` loudly, `--expect <wf-id>` fails when a known run's
+record is missing, and `tests/plan-bus.test.mjs` checks the newest records on the machine on every
+suite run. Records expire after `cleanupPeriodDays` (30 by default).
 
 ## gen-flows.mjs
 

@@ -1049,10 +1049,11 @@ log(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ?
 // review files + git staging are the only state + progress trail (#6/#10).
 // =============================================================================
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
-// The plan-file `status:` edits this run's outcomes imply, applied by `tools/plan-edit.mjs sync`. The
-// mapping lives HERE rather than in operator prose because the sync is also the recovery step after a
-// run dies between staging and sync, and a hand-mapping error there corrupts the selection truth.
+// The plan-file `status:` edits this run's outcomes imply. Each block's edits are also logged as one
+// STATUS_LOG line, because the runtime keeps a run's logs even when the run fails or is stopped, and
+// `tools/plan-edit.mjs args` folds them into the plan file before the next launch.
 const statusSync = [];
+const STATUS_LOG = 'status-sync ';
 let halted = false;
 let haltReason = '';
 // WHY the run halted, as a value rather than prose. The status line used to sniff substrings out of
@@ -1061,7 +1062,7 @@ let haltKind = '';
 const doneIds = [];
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
 // tree. The only honest recoveries are a clean relaunch or finishing the parked patch by hand.
-const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. After syncing statuses, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
+const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. Once `plan-edit.mjs args` has applied the statuses of this run, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
 
 /**
  * One fix entry's synced status, or '' for no edit. An id this run claimed FIXED maps as FIXED even when a
@@ -1084,13 +1085,15 @@ function issueSyncStatus(status, claimedFixed, landed) {
 function finishBlock(p, rec, blockStatus, claimedEver, unclosedIds) {
   const edit = (id, value) => ({ planPath: p.planPath, id, key: 'status', value });
   const landed = blockStatus === 'done';
-  ledger.push(rec);
-  statusSync.push(edit(p.id, blockStatus));
+  const edits = [edit(p.id, blockStatus)];
   for (const { issue_id, status } of rec.results || []) {
     const mapped = issueSyncStatus(status, claimedEver.has(issue_id), landed);
     const value = (mapped === 'fixed' || mapped === 'stale') && unclosedIds.has(issue_id) ? 'needs-attention' : mapped;
-    if (value) statusSync.push(edit(issue_id, value));
+    if (value) edits.push(edit(issue_id, value));
   }
+  ledger.push(rec);
+  statusSync.push(...edits);
+  log(STATUS_LOG + JSON.stringify(edits));
 }
 
 for (const p of pending) {
@@ -1447,7 +1450,7 @@ for (const p of pending) {
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
       haltKind = 'passed-unstaged';
-      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, apply this result's statusSync (it already marks the block done), then relaunch: no startAt is needed.`;
+      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done: no startAt is needed.`;
       log(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
     }
@@ -1680,5 +1683,5 @@ return {
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — read ${SWEEP_FILE}. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then save this result as JSON and apply its statusSync: \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' sync <result.json>\`. Nothing is committed — you commit.`,
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };
