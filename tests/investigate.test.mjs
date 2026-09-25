@@ -499,7 +499,7 @@ section('a coverage contest costs a citation — an uncited one is not a contest
   ok(/the source plus the exact locator/.test(crit), 'the citation must carry a source AND a locator');
   ok(/which criterion or search-space bound/.test(crit),
     'and connect to the criterion or search-space bound it puts back in play');
-  ok(/unfalsifiable/.test(crit), 'the reason is stated, not just the rule');
+  ok(/contests_exhaustion=true only\s+with that citation/.test(crit), 'and the contest flag is gated on that citation');
 }
 
 section('saturation is a standing instruction from round 2 — round 1 has nothing to compare against');

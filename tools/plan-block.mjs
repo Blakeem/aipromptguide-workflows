@@ -1,36 +1,9 @@
-// tools/plan-block.mjs — print ONE unit's block out of a multi-unit plan file, byte-exact.
-//
-// Why this exists. A plan-bus file carries every unit of one approved plan, one `## Plan: <id>` block per
-// unit. Agents are handed a COMMAND that prints their own block
-// instead of a path to the whole file, which buys two things:
-//
-//   1. A five-unit plan does not enter every developer's and every acceptance verifier's context.
-//   2. The end of a block is decided by a parser, not by an agent's judgment. A plan body may use
-//      `##` headers (`## Feature`, `## Acceptance Criteria`, ...), so an agent told to "read the block
-//      headed ## Plan: auth" can legitimately stop at the next `##` — one paragraph in — and build
-//      against a truncated spec that looks complete. Here, only the unit header ends a block.
-//
-// Nothing is ever written. The plan file stays the single source of truth (#11) and what is printed is
-// a slice of it, unmodified (#2) — no second copy of a plan body exists anywhere.
+// tools/plan-block.mjs: print ONE unit's block out of a multi-unit plan file, byte-exact.
 //
 //   node tools/plan-block.mjs <plan.md|plan-name> <id>              # that block, verbatim, on stdout
 //   node tools/plan-block.mjs <plan.md|plan-name> --list            # the file's control OBJECT as JSON
 //
-// The file carries a metadata grammar, read from THREE contiguous runs of `key: value` lines and
-// nowhere else — the file keys that open the file, the preamble under each `## Plan:` header, and the
-// `- key:` run under each `### [<id>]` issue entry. A line that misses the run shape ends the run, which
-// is what keeps a plan body's own prose (`kind:` and `details:` under `## Test Strategy`) out of the
-// metadata. The blank line markdown puts above a run — under a heading, under a `---` fence — is crossed
-// to FIND that run, never to continue one.
-//
-// A bare <plan-name> (no path separator, no .md) resolves to
-// <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md — where plan mode puts its files.
-//
-// Exit 0 on success; exit 1 with the reason on stderr. Every failure is loud and names the id: an
-// unknown id, a duplicate id, an empty body or a missing gate must never resolve to a plausible-looking
-// default, because the consumer is an agent that would build against it.
-//
-// Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
+// tools/CLAUDE.md holds the metadata grammar, bare plan-name resolution and the loud-failure list.
 
 import { readFileSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -187,7 +160,7 @@ function scanRun(text, from, schema, lineRe, what) {
     const quoted = line.text.trim();
 
     // OWN properties on both, never `in`: `in` walks Object.prototype, so `constructor` and `__proto__`
-    // passed the unknown-key guard and were then reported as set twice — a key nobody set.
+    // would pass the unknown-key guard and then read as set twice, a key nobody set.
     if (!Object.hasOwn(schema, key)) {
       throw new Error(`unknown ${what} "${key}" in "${quoted}" — the ${what}s are: ${Object.keys(schema).join(', ')}`);
     }
@@ -287,15 +260,7 @@ function bodyRunStart(body) {
   return body.startsWith('\n') ? 1 : 0;
 }
 
-/**
- * Locate every unit block. Returns them in file order, bodies sliced verbatim.
- * A block runs from its own header to the next `## Plan:` header, or to end of file.
- *
- * Scanned line by line rather than by one /gm regex, because a header must be ignored inside a fenced
- * code block. A plan that shows the roadmap format in its own Implementation Steps would otherwise mint
- * a PHANTOM unit from the example AND truncate the real block at the opening fence — at exit 0, which
- * is the exact failure this tool exists to prevent.
- */
+/** Scanned line by line, not by one /gm regex: a fenced header is an example, not a unit. */
 export function parseBlocks(rawText) {
   // A BOM sits before the first `^`, so header 1 would not match and its whole block would be swallowed
   // as "text before the first block" — one unit silently missing, exit 0. Stripped here rather than at
@@ -307,10 +272,8 @@ export function parseBlocks(rawText) {
   // Silently dropping it would delete a whole unit the human can see, so it is a hard error.
   const indentedRe = /^[ \t]{1,3}##[ \t]+Plan:/;
   // A header that misses the shape any OTHER way (colon forgotten, a colon with no id, a space before the
-  // colon, or written as `###`) is today neither a boundary nor an error — it is scanned as ordinary body
-  // text, so its block MERGES into the previous one: the unit vanishes from the roadmap array AND the
-  // survivor's gate flips to the merged tail's gate, at exit 0. Same silent-wrong-answer class as the
-  // indent, so it gets the same hard error.
+  // colon, or written as `###`) is a hard error. Read as body text, its block would merge into the
+  // previous one at exit 0.
   // The kebab-token requirement in `noColonRe` is load-bearing: it is what keeps a prose heading such as
   // "## Plan Rationale" from throwing. The other three need no such guard — `## Plan :` and a bare
   // `## Plan:` have no legitimate reading as prose, and a `#{3,6}` header is the same class as the 1-3
@@ -386,11 +349,7 @@ export function parseBlocks(rawText) {
   });
 }
 
-/**
- * The block's gate: its preamble `gate:` line and nowhere else. A gate mentioned in prose or a quoted
- * example must never outrank it, because a wrong `build-only` is not a loud failure: the engine accepts
- * the unit the moment the build passes, with no test ever consulted.
- */
+/** Gate from the preamble only: a prose build-only would skip every test. */
 export function readGate(body) {
   return parsePreamble(body, bodyRunStart(body)).values.gate ?? null;
 }
@@ -566,11 +525,8 @@ export function run(argv) {
     : emitBlock(blocks, selector, path);
 }
 
-// Node resolves the MAIN module through realpath by default (`--preserve-symlinks-main` off), so
-// `import.meta.url` is canonical while argv[1] is whatever the caller typed. A symlink or Windows junction
-// anywhere in the script path made the two differ, `invokedDirectly` false, and the process wrote NOTHING
-// at exit 0 — every loud failure above bypassed, which is the plausible-looking default this file forbids.
-// Realpath BOTH sides, so it holds under `--preserve-symlinks-main` too.
+// Realpath BOTH sides: a symlink or junction in the script path makes argv[1] differ from import.meta.url,
+// and a false `invokedDirectly` prints nothing at exit 0. Holds under `--preserve-symlinks-main` too.
 let invokedDirectly = false;
 try {
   invokedDirectly = Boolean(process.argv[1])

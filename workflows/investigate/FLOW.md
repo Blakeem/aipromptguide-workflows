@@ -78,14 +78,14 @@ flowchart TD
 | stalled (a round added nothing new and claimed nothing - stopped unverified) | a round adds nothing at all | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 34) |
-| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 37) |
-| throw: args.root is required | args.root is missing | throw (line 40) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 61) |
-| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 103) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 431) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 497) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 538) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 22) |
+| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 25) |
+| throw: args.root is required | args.root is missing | throw (line 28) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 41) |
+| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 78) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 388) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 446) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 483) |
 
 ## Coverage
 

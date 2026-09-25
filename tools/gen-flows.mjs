@@ -89,8 +89,7 @@
 //     critique` also targets a role seen in round 1, and a plain "seen at all" test would draw the
 //     loop body's forward edges as loop-backs — every multi-node loop would come out dotted end to end.
 //   • PHASES come from each call's `opts.phase` (the runtime's per-agent assignment), NOT from fired
-//     `phase()` calls — 2 of 9 engines never call `phase()` and carry the phase entirely on
-//     `opts.phase`. The phases TABLE comes from `meta.phases`, which is authored prose.
+//     `phase()` calls (tests/CLAUDE.md §7). The phases TABLE comes from `meta.phases`, which is authored prose.
 //     A phase is drawn as a `subgraph` ONLY when it holds 2+ agents. No engine does that today, so none
 //     is emitted — deliberately. A box around a single node labels it twice (`Investigate` wrapping
 //     `investigate`) and forces Mermaid to route every crossing edge AROUND the boundary, which is what
@@ -100,10 +99,7 @@
 //
 // OUTPUT is byte-stable: no timestamps (a timestamp makes `--check` always fail), every collection in a
 // fixed order (source order for roles, phases and throw sites; spec order for scenarios and terminals).
-// It is also DASH-FREE: the finished document is flattened to ASCII hyphens (`dedash`), because the maps
-// are published on a user-facing site whose house style takes no em dash. That is the last step before
-// the bytes are returned, so it covers authored engine prose, spec `when` strings and this generator's
-// own headings alike — and nothing upstream needs to know about it.
+// It is also DASH-FREE, flattened by `dedash` as the last step (tests/CLAUDE.md §7).
 // All Mermaid node and edge text is quoted, which is what lets a terminal such as
 // `exhaustive (search closed, critic agreed)` render — unescaped parentheses break the parser. Inside
 // the quotes only the two characters that still delimit the syntax being emitted are escaped: `"` (ends
@@ -137,52 +133,25 @@ const esc = (s) => String(s).replace(/\s+/g, ' ').trim().replace(/"/g, '#quot;')
 const cell = (s) => String(s).replace(/\s+/g, ' ').trim().replace(/\|/g, '\\|').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * House style for the published maps takes no em dash, so the finished document is flattened to ASCII
- * hyphens — em, en and horizontal bar alike (`2–4` -> `2-4`). It runs ONCE over the whole text rather
- * than inside `esc`/`cell`, so the generator's own headings are covered too and a later literal cannot
- * slip a dash past it. PRESENTATION ONLY: the graph, and every engine string it carries, is untouched —
- * `--json` still prints a halt status byte-exact, and the terminal-identity rules above still compare
- * the engine's real text. Substitution is 1:1 in characters, so no label changes width and the tuned
- * layout constants keep meaning what they measured.
+ * Presentation only (tests/CLAUDE.md §7). It runs once over the finished document so the generator's own
+ * headings are covered too, and 1:1 in characters so no label changes width.
  */
 const dedash = (s) => s.replace(/[\u2013\u2014\u2015]/g, '-');
 
 /**
- * A throw node is keyed to its SITE; its LABEL is the first clause of that site's static prefix —
- * three of investigate's messages continue into a paragraph of resume instructions, and several end in
- * `; got typeof=` + an interpolation, so the whole prefix (up to 289 characters) belongs in no box.
- * The clause cut is the ONLY reduction; what survives it is emitted WHOLE.
+ * A throw node is keyed to its SITE. Its LABEL is the first clause of that site's message, because
+ * messages run on into resume instructions. The clause cut is the ONLY reduction.
+ * No length cap: widen spacing or wrap with <br/>, never drop characters (tests/CLAUDE.md §7).
  *
- * The separators are matched against ENGINE SOURCE, which keeps its em dashes — `dedash` runs on the
+ * The separators are matched against ENGINE SOURCE, which keeps its em dashes. `dedash` runs on the
  * finished document, long after this. Do not "tidy" the ` — ` entry away.
- *
- * There used to be a further 52-character ellipsis cap here. It is gone, and should not come back:
- *   • Its reason was that a throw box is wide and a neighbouring SELF-LOOP's label lands on top of one.
- *     Self-loops have carried a bounded marker (`L1 ×4`) instead of authored text since, so the
- *     collision it guarded against can no longer happen (tests/CLAUDE.md §7).
- *   • It was not even the binding constraint. The longest clause in the repo is 78 characters, while the
- *     widest box on these maps is already a 104-character TERMINAL, which nothing caps. Capping throws
- *     alone shortened the diagram by nothing and cost a published page its text.
- * §7: room is free, dropped information is not. If a map is ever genuinely too wide, raise the spacing
- * constants or wrap the label with `<br/>` — do not silently drop characters.
  */
 const CLAUSE_SEPS = [' — ', ': ', ' (', '; ', '. '];
 const CLOSER = { '(': ')', '[': ']', '{': '}' };
 
 /**
- * The first clause separator that is not inside something, or -1. Three spans are ATOMIC to the scan:
- *   • BRACKETS. An arg list such as
- *     `{ runId, planPath | plan (markdown string) | plans:[{…}], target, gates }; got typeof=` has its
- *     first ` (` inside the braces — cutting there produced `args must include at least { runId,
- *     planPath | plan`: an unbalanced brace ending on a dangling `|`.
- *   • DOUBLE QUOTES. `holding their "## Plan: <id>" blocks — …` has a `: ` inside the quotes, and
- *     cutting there ended a node mid-quote at `their "## Plan`. Single quotes are NOT tracked: these
- *     messages are English prose full of apostrophes ("this section's review files"), and treating one
- *     as an opener leaves the scan unbalanced for the rest of the message.
- *   • THE ELIDED VALUE. `INTERP` is `...`, whose last character plus the following space IS the `. `
- *     sentence separator — `args.runOnly ${…} matches no plan id` cut down to `args.runOnly ..`.
- * An unbalanced message (a stray bracket, an unpaired quote) leaves the scan open and returns -1 rather
- * than the whole 289-character message; the caller falls back to the depth-blind cut.
+ * The first clause separator outside brackets, double quotes and the elided value, or -1 when the scan
+ * ends unbalanced. Why each span is atomic, and why single quotes are not: tests/CLAUDE.md §7.
  */
 function clauseEnd(s) {
   const stack = [];
@@ -208,21 +177,12 @@ export function firstClause(message) {
   return s.slice(0, cuts.length ? Math.min(...cuts) : s.length);
 }
 
-/** The scenario conditions on an edge, capped so one shared terminal cannot produce an unreadable label. */
-// Edge labels are budgeted by LENGTH, not by a fixed count. Mermaid does no collision avoidance on edge
-// labels, so two long ones leaving the same node render on top of each other and neither can be read —
-// and conditions vary from ~20 to ~55 characters, so "always show 2" produced 117-character labels.
-// Greedy fill to WHEN_BUDGET, always at least one: short pairs still both show (which some specs rely on
-// to keep a branch visible), long ones collapse to one plus a count. The terminal table below the
-// diagram lists every scenario reaching each terminal, so nothing is lost, only moved.
+// Edge labels are budgeted by LENGTH, always at least one condition: some specs rely on a short pair
+// both showing to keep a branch visible (tests/CLAUDE.md §7).
 const WHEN_BUDGET = 70;
 
-// Layout spacing, tuned against tools/render-flows.mjs (real Mermaid, measured boxes). Raise these
-// before shortening labels further: room is free, dropped information is not.
-// Swept with render-flows.mjs: 60/90 left 8 of 9 maps with colliding labels, 80/200 left 1. That last one
-// was not a spacing problem and was closed structurally instead (edgeLine's caption-less pairs); all 10
-// maps now measure 0 overlaps at 80/200. Past 200 the diagrams just get taller with nothing gained. The
-// env overrides exist so the sweep is repeatable.
+// Tuned against tools/render-flows.mjs. Raise these before shortening labels (tests/CLAUDE.md §7).
+// The env overrides make the sweep repeatable.
 const NODE_SPACING = Number(process.env.FLOW_NODE_SPACING ?? 80);
 const RANK_SPACING = Number(process.env.FLOW_RANK_SPACING ?? 200);
 // A non-finite override is NOT caught downstream: it interpolates `NaN` into the Mermaid init directive
@@ -231,25 +191,14 @@ const RANK_SPACING = Number(process.env.FLOW_RANK_SPACING ?? 200);
 for (const [name, value] of [['FLOW_NODE_SPACING', NODE_SPACING], ['FLOW_RANK_SPACING', RANK_SPACING]]) {
   if (!Number.isFinite(value)) throw new Error(`${name}=${process.env[name]} is not a finite number`);
 }
-// (There is deliberately no self-loop character budget. Tightening one was tried and measured: it moved
-// the collision to a third map rather than removing it, because the gutter Mermaid parks those labels in
-// is fixed and its width has nothing to do with the text. Self-loops carry a marker instead — edgeLine.)
-// The budget bounds the FINAL RENDERED label, so both suffixes are charged against it: the " · +N more"
-// tail this function adds when it truncates, and the caller's "(×N)" repeat count via `reserve`. Charging
-// only the conditions let a self-loop budgeted at 34 emit 50 characters into a gutter sized for 34 — which
-// is exactly how a label came to sit on top of its neighbouring node in two maps. Shrink from the whole
-// list rather than filling up to it, so the tail is priced the moment it appears.
+// The budget bounds the FINAL label: the " · +N more" tail and the caller's "(×N)" `reserve` are charged
+// against it. Shrink from the whole list, so the tail is priced the moment it appears (tests/CLAUDE.md §7).
 export const whenLabel = (whens, budget = WHEN_BUDGET, reserve = 0) => {
   const room = Math.max(8, budget - reserve);
   const render = (n) => whens.slice(0, n).join(' · ') + (whens.length - n > 0 ? ` · +${whens.length - n} more` : '');
   let n = whens.length;
   while (n > 1 && render(n).length > room) n--;
-  // A single condition over budget is returned WHOLE, never ellipsised. Truncating it is pure loss: a
-  // back-edge label is not a terminal, so the Terminal-states table does not carry it — its `Reached when`
-  // column is empty in every generated map — and nothing else in the document does either. The budget's
-  // job is to decide HOW MANY conditions to show, not to shave characters off the last survivor; an
-  // ellipsis here cost three non-colliding maps their final words to save one character each, and ate the
-  // "+N more" tail that told the reader other conditions existed. §7: room is free, dropped text is not.
+  // A single condition over budget is returned WHOLE: no table carries a back edge's text (tests/CLAUDE.md §7).
   return render(n);
 };
 
@@ -629,59 +578,21 @@ export async function buildGraph(spec) {
 function nodeText(n) {
   if (n.kind !== 'agent') return esc(n.label);
   const head = esc(n.model ? `${n.label} · ${n.model}` : n.label);
-  // The phase rides on the node ONLY when it adds something the role name does not already say. Every
-  // engine names most agents after their phase (investigate/Investigate, develop/Develop), so printing
-  // both is noise; the ones that differ (criteria-critic in Refine, analyst in Diverge) are worth it.
   const phase = n.phase && n.phase.toLowerCase() !== n.label.toLowerCase() ? `<br/>${esc(n.phase)}` : '';
   return `${head}${phase}${n.concurrency > 1 ? `<br/>×${n.concurrency} concurrent` : ''}`;
 }
 
-// Edges INTO a terminal are drawn unlabelled, and their conditions live in the Terminal states table.
-// One agent commonly fans out to five or six different endings, and Mermaid places every one of those
-// labels in the same band between the two ranks with no collision avoidance — measured with
-// tools/render-flows.mjs, that was 8 of 9 maps rendering with text piled on text. The table is the
-// better home anyway: it is indexed by TERMINAL, which is the question a reader actually asks ("how do I
-// end up BLOCKED?"), and it is complete rather than truncated to fit on an arrow.
-// Loop and boundary edges KEEP their labels wherever they are alone in the band — they are few, they
-// never fan out, and they carry the structural story (which way round the loop goes, where the next item
-// starts) that no table replaces. The one exception is a boundary edge sharing its pair with a marked
-// back edge, below: two labels at one midpoint, so that one goes bare.
-// A SELF-loop carries a MARKER (`L1 ×4`), never its conditions — same treatment, and for the same reason,
-// as an edge into a terminal. Mermaid parks a self-loop's label in a FIXED-WIDTH gutter beside the node
-// and never feeds the label's width into layout, so text long enough to matter lands on whatever box sits
-// next to it. That gutter does not scale with nodeSpacing/rankSpacing, and shrinking the text just moves
-// the collision elsewhere — both measured (tests/CLAUDE.md §7). A marker is bounded BY CONSTRUCTION, so
-// this cannot come back when a diagram grows a node or a renderer retunes its gutter again. The repeat
-// count stays on the arrow because it is the loop's bound, which is the structural fact a reader wants
-// from the picture; the conditions move to the Loops table, indexed by the loop.
+// Terminal edges go unlabelled, a self-loop carries `L<n>`, and the back edge of a boundary+back pair
+// carries `E<n>` while its boundary edge goes caption-less, because Mermaid stacks a pair's two labels at
+// one midpoint at every spacing. Their conditions live in the tables below the diagram (tests/CLAUDE.md §7).
+// READ §7 BEFORE RE-TUNING: no spacing and no shortening separates that pair.
+// Every other loop and boundary edge keeps its label, since it shows which way the loop runs and where the
+// next item starts. A marker keeps the repeat count because that count is the loop's bound.
 //
-// The SECOND edge of a node PAIR carries a marker too (`E1 ×2`), and the FIRST renders CAPTION-LESS.
-// When one ordered pair holds BOTH shapes — the thick "next item" boundary and a dotted back edge, which
-// is what every build loop draws between its last agent and its first — Mermaid places both labels at the
-// SAME path midpoint, not merely in the same band, so the smaller box sits INSIDE the larger one whatever
-// either says. READ THIS BEFORE RE-TUNING ANYTHING FOR IT: no amount of shortening closes that, and a
-// marker alone does not either. Measured in Chrome on a build loop's closing pair, the overlap was
-// 70x24px with the old ~200px condition list and 39x22px once the back edge carried the 39px marker — and
-// it is 39x22px at every spacing setting swept (node 80/140/240 x rank 120/200/320/340), the map merely
-// getting wider. Only ONE label in that band closes it.
-//
-// So the pair keeps ONE, and the marker is the side that keeps it: a back edge's conditions are a long,
-// open-ended list, while the boundary's caption is three fixed words that one sentence under the `## Edges`
-// table restates for every pair in the map at once. The USER TOOK that trade — a boundary edge whose
-// ordered pair holds an E-marked back edge renders as a bare thick arrow, and the Edges-table sentence
-// carries the advance. Detection is by KIND — the pair holds an E marker — never by position, pixels, or
-// which map it is. Every other boundary edge keeps its words (develop's `park -> develop`).
-//
-// What the marker buys on top is the property that made the self-loop fix worth it: the one label left in
-// that band is bounded BY CONSTRUCTION, so it cannot grow with the scenario table, and the conditions it
-// replaced are readable in a table instead of truncated to `+N more` on an arrow nothing could read anyway.
-//
-// ONE MERGED MAP, self-loops first. `develop -> develop` in develop is a self-loop AND half of a
-// boundary+back pair; two maps would give it an L and an E, and the diagram would name one arrow twice.
-// Detection is by KIND — the pair's `boundary`-keyed edge exists and its `plain`-keyed edge is a back
-// edge (addEdge's key scheme allows at most those two, and the two flags are mutually exclusive because
-// `back` is only computed where `boundary` is false). NOT by declaration order: the edge list is sorted
-// by node rank, so which of a pair comes first is an accident of that ordering and swaps between pairs.
+// ONE MERGED MAP, self-loops first. `develop -> develop` is a self-loop AND half of a boundary+back pair,
+// and two maps would name that one arrow twice. A pair is detected by KIND: its `boundary`-keyed edge
+// exists and its `plain`-keyed edge is a back edge (addEdge allows only those two keys per pair, and `back`
+// is computed only where `boundary` is false). Never by edge order, which follows node rank.
 const pairKey = (e) => e.fromId + '->' + e.toId;
 
 const assignMarkers = (graph) => {
@@ -741,12 +652,6 @@ function mermaid(graph, markerIds) {
     `  ${START_ID}(["${esc('args')}"])`,
   ];
   const placed = new Set();
-  // A phase box is drawn ONLY when it actually groups something — i.e. holds 2+ agents. Today no engine
-  // puts two agents in one phase, so this emits nothing; that is the point. A subgraph around a single
-  // node adds a box whose label just repeats the node inside it, and Mermaid has to route every edge
-  // that crosses it AROUND the boundary, which is what sent back-edges disappearing behind neighbouring
-  // boxes. The phase itself is not lost: it rides on the node when it differs from the role name, and
-  // the Phases table below the diagram carries meta.phases in full.
   for (const p of graph.phases) {
     if (p.nodes.length < 2) continue;
     lines.push(`  subgraph ${p.id}["${esc(p.title)}"]`);
@@ -790,13 +695,8 @@ export function generate(spec, graph) {
   for (const p of graph.phases) out.push(`| ${cell(p.title)} | ${cell(p.detail)} |`);
   out.push('');
 
-  // The marked edges' conditions, moved off the arrows (see edgeLine). Indexed by the marker the diagram
-  // shows, so a reader goes from `L1`/`E1` in the picture to what actually takes that arrow.
-  //
-  // ONE map, PARTITIONED here by marker prefix — never two maps built separately. The single map is what
-  // guarantees no arrow gets both an L and an E (develop's `develop -> develop` is a self-loop and half
-  // of a boundary+back pair at once); partitioning it is what stops either table absorbing the other's
-  // rows, which a shared `.size` guard or a shared loop would do the moment one kind is absent.
+  // ONE marker map, PARTITIONED by prefix. Partitioning stops either table absorbing the other's rows,
+  // which a shared `.size` guard or a shared loop would do the moment one kind is absent.
   const nodeLabel = (id) => graph.nodes.find((n) => n.id === id)?.label ?? id;
   const marked = (kind) => [...markerIds].filter(([, id]) => id.startsWith(kind));
 
@@ -810,12 +710,8 @@ export function generate(spec, graph) {
     out.push('');
   }
 
-  // The second edge of a node pair carries `E1` instead of the long condition list that used to land on
-  // top of its partner, and the first — the boundary — gives up its caption so ONE label is left at that
-  // midpoint (see edgeLine). Uncapped here: the whole point of moving text off the arrow is that the
-  // table has room. The sentence below the rows is where the dropped caption went — ONE fixed line for
-  // the whole map rather than a repeated word on each arrow, and it exists only where E rows do, which is
-  // exactly where a bare thick arrow can appear.
+  // Uncapped, because the table has the room the arrow lacked. The sentence below the rows carries the
+  // caption each marked pair's boundary edge dropped, so it exists only where E rows do (tests/CLAUDE.md §7).
   const edgeRows = marked('E');
   if (edgeRows.length) {
     out.push('## Edges', '');

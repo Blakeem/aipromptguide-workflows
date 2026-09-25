@@ -70,9 +70,9 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 36) |
 | throw: args.planPath is required | args.planPath is missing | throw (line 42) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 48) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 67) |
-| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 78) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 298) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 61) |
+| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 72) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 285) |
 
 ## Coverage
 

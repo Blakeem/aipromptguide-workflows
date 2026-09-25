@@ -159,30 +159,30 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (needs user input) | the developer hits a user-only blocker | derived |
 | BLOCKED (a parked block left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start the next block | derived |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 30) |
-| throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the --list object is pasted in whole | throw (line 37) |
-| throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 40) |
-| throw: args.root is required | args.root is missing | throw (line 45) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 51) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 71) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 134) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 139) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 144) |
-| throw: Invalid goal key | goal is a number | throw (line 148) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 153) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 174) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 184) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 193) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 205) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 216) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 224) |
-| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 241) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 254) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 990) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1008) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1017) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 1025) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1035) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
+| throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the --list object is pasted in whole | throw (line 28) |
+| throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
+| throw: args.root is required | args.root is missing | throw (line 35) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 39) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 97) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 102) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 107) |
+| throw: Invalid goal key | goal is a number | throw (line 111) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 116) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 134) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 142) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 149) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 160) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 168) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 176) |
+| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 192) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 203) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 884) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 896) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 903) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 910) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 919) |
 
 ## Coverage
 

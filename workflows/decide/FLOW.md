@@ -65,14 +65,14 @@ flowchart TD
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
 | throw: args must include at least { runId, root, lenses, requirements\|planPath } | args carry no runId | throw (line 30) |
 | throw: args.root is required | args.root is missing | throw (line 33) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
-| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 70) |
-| throw: Provide the requirements | neither requirements nor planPath | throw (line 100) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 111) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 115) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 302) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 333) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 356) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 45) |
+| throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 63) |
+| throw: Provide the requirements | neither requirements nor planPath | throw (line 93) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 295) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 326) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 349) |
 
 ## Coverage
 

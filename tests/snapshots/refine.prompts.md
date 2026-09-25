@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 5791 | a clean first round |
-| plan-editor | 1 | 1 | 2502 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 5283 | a clean first round |
+| plan-editor | 1 | 1 | 2187 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -33,10 +33,8 @@ THE DEFECT BAR - a gap must name something that would build wrong or fail. Exact
   3. An ACCEPTANCE CRITERION WITH NO IMPLEMENTING STEP: the block promises a behavior no step builds.
   4. A DEPENDENCY-ORDERING ERROR between blocks: a block needs something a later block creates.
   5. A BLOCK TOO BIG for one develop pass: more than roughly one coherent artifact plus its tests.
-IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, UNCONDITIONALLY - a better design, a nicer name,
-an extra safeguard you would have added, a different approach. That exclusion has no exceptions and no
-"but this one is important" case: an improvement list has no end, and this bar is the only reason this
-loop converges instead of growing the plan every round.
+IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
+an extra safeguard you would have added, a different approach.
 EVERY gap carries file:line evidence - the plan line it is about, and the repo line that contradicts it.
 NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
@@ -48,12 +46,10 @@ green). File keys `goal` / `ordered` / `suite` / `sweep` sit above the first blo
 
 SCOPE RULE 1 - you judge only blocks whose `status` is `todo` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to E:/flow/runs/flow-refine/NEEDS-USER.md as a QUESTION and NEVER
-to the editor, because folding into a done block rewrites the spec that already-staged code was built
-against.
+to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) or a BLOCK TOO BIG (class 5) whose fix splits,
-merges, adds or reorders blocks is reported as a QUESTION, never as a gap. That fix changes the block
-STRUCTURE and the operator's derived plans array, and the editor has no legal edit for it. It ends the
-run so the operator can restructure.
+merges, adds or reorders blocks is reported as a QUESTION, never as a gap. It ends the run so the
+operator can restructure.
 SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
 
 THE SEVERITY FLOOR is major. Grade every gap:
@@ -86,8 +82,7 @@ section, returns wrote_file=true with both counts 0, and still converges. A roun
 writes NOTHING and returns wrote_file=false with both counts 0. Both are this run's success state, not a
 failure to find something.
 Do NOT modify the plan file, the target repo, or anything else. Do NOT stage or commit.
-RETURN gap_count (at-or-above-floor gaps only), question_count and wrote_file via the schema - counts
-only, no content.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -101,7 +96,7 @@ only, no content.
   "properties": {
     "wrote_file": {
       "type": "boolean",
-      "description": "true if you wrote this round's critique file. A round with FYI items only writes it and returns true with both counts 0. A round with nothing at all writes nothing and returns false - that is legitimate. Returning a nonzero count with false HALTS the run, because the findings would exist nowhere"
+      "description": "true if you wrote this round's critique file"
     },
     "gap_count": {
       "type": "integer",
@@ -109,7 +104,7 @@ only, no content.
     },
     "question_count": {
       "type": "integer",
-      "description": "questions written to your critique file AND in full to NEEDS-USER.md. Any nonzero value ENDS the run needs-answers: an ordering error or too-big block whose fix restructures blocks, or a gap in an already-done block, has no legal edit and needs the operator"
+      "description": "questions written to your critique file AND in full to NEEDS-USER.md"
     }
   }
 }
@@ -132,8 +127,7 @@ This is round 1 of at most 4.
 
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, not a criterion you would have phrased differently, and not
-the FYI section - those findings are recorded, not folded. An editor that also improves is exactly how a
-refine loop stops converging: it grows the plan every round and never runs out of things to add.
+the FYI section.
 
 PROCEDURE:
 1. For each numbered gap, make the smallest edit to E:/flow/plans/bus.md that closes it - usually one line, one
@@ -148,12 +142,11 @@ PROCEDURE:
    needs_user=true. Never silently re-decline it.
 4. MANDATORY FINAL STEP, after every edit is written: run
      node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' --list
-   and report plan_parses = (it exited 0). The plan-bus grammar is strict - a folded `key: value` line
-   landing at the top of a block BODY joins the preamble run and throws as an unrecognized key - and a
-   fold that breaks the file poisons every later consumer of it. Non-zero exit: FIX the file and re-run
-   until it exits 0. Report plan_parses=false only if you could not.
+   and report plan_parses = (it exited 0). The plan-bus grammar is strict: a folded `key: value` line
+   landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
+   exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
-RETURN wrote_file, folded, declined, plan_parses and needs_user via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -181,11 +174,11 @@ RETURN wrote_file, folded, declined, plan_parses and needs_user via the schema.
     },
     "plan_parses": {
       "type": "boolean",
-      "description": "true ONLY if the plan-block --list command you ran AFTER your edits exited 0. False HALTS the run: a plan file that no longer parses poisons every later consumer of it"
+      "description": "true ONLY if the plan-block --list command you ran AFTER your edits exited 0"
     },
     "needs_user": {
       "type": "boolean",
-      "description": "true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal. True ENDS the run needs-answers: the question needs the operator, not another round"
+      "description": "true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal"
     }
   }
 }

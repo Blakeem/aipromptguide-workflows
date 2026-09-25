@@ -12,26 +12,17 @@ export const meta = {
 };
 
 // =============================================================================
-// Config — everything app/goal-specific arrives via args so the engine stays general.
-// Each BLOCK is produced OUTSIDE this engine, in PLAN MODE, and read VERBATIM out of its plan file by the
-// developer + acceptance verifier (never parsed-and-rebuilt — see WORKFLOW-PRINCIPLES.md #2). The blind
-// quality reviewer is never given any plan path (#3). The ONLY thing that travels as control is the
-// `plans` list of thin {id, planPath, mode, gate, status, planContext} knobs (routing, not content —
-// #1/#8) plus the round number. Every one of those knobs is DATA the operator copies off
-// `plan-block.mjs --list`, never a judgment call made here. The main agent ensures a clean unstaged
-// working tree before the run (#4) — there is no baseline/loader/scribe agent.
+// Config. Developer and acceptance read each block verbatim from its plan file (#2). Only the thin
+// `plans` routing knobs, copied off `plan-block.mjs --list`, and the round number travel as control (#1/#8).
 // =============================================================================
-// args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
-// payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
+// A bare parse error names the runtime, not the payload the operator must fix.
 let A;
 try {
   A = typeof args === 'string' ? JSON.parse(args) : args;
 } catch (e) {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
-// `plans` is REQUIRED and there is NO single-plan back-compat and no inline plan: a block's body always
-// lives in a plan file, addressed by id. A present-but-not-a-non-empty-array value must THROW naming the
-// shape received — `plan-block.mjs --list` prints an OBJECT, so pasting that straight in is the live case.
+// Name the shape received: `--list` prints an object, so pasting it in whole is the likely mistake.
 if (!A || !Array.isArray(A.plans) || !A.plans.length) {
   const shape = !A ? 'no args at all' : A.plans === undefined ? 'nothing' : Array.isArray(A.plans) ? 'an empty array' : A.plans === null ? 'null' : `a ${typeof A.plans}`;
   throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-block.mjs <planPath> --list" prints an object: pass its "blocks" array (decorated with a planPath, or with the top-level planPath you ran --list against), not the object itself. There is no single-plan or inline-plan fallback.`);
@@ -39,14 +30,11 @@ if (!A || !Array.isArray(A.plans) || !A.plans.length) {
 if (!A.runId) {
   throw new Error('args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
 }
-// `root` is REQUIRED setup the main agent supplies (#4 — no in-engine "find my cwd" agent). It is the
-// absolute path the run-state dir hangs off, normally the workflow tool's own directory.
+// The main agent supplies root (#4). No in-engine agent detects it.
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory). The engine no longer spawns an agent to auto-detect it.');
 }
-// `target.repo` is REQUIRED and has NO default. It used to fall back to `.`, i.e. ROOT — so an omitted
-// repo pointed every `git -C`, the park procedure's `checkout --` + file deletion, and the gate commands
-// at the workflow TOOL's own working tree instead of failing loud.
+// No default: '.' would aim every git -C, park and gate command at ROOT.
 if (typeof A.target?.repo !== 'string' || !A.target.repo.trim()) {
   throw new Error('args.target.repo is required: pass the ABSOLUTE path to the TARGET git repo. There is no default — an omitted repo would silently run every git command (including park\'s checkout/delete) against this workflow tool\'s own directory.');
 }
@@ -56,15 +44,8 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const REFERENCE   = A.reference ?? '';                      // optional: a completed example to mirror
 const CONVENTIONS = A.conventions ?? '(none supplied — infer from the surrounding code)';
 const GATES       = A.gates ?? {};                          // { build, test, testSetup }
-// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
-// per-block loop would never run: every block would park having never spawned a developer, and the run
-// would report that as an ordinary "could not accept" outcome. A documented default is not a licence to
-// accept garbage — same reasoning as the `target.repo` guard above.
-// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
-// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
-// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
-// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
-// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+// Static lead clause: gen-flows labels the throw node from it. No coercion: Number('') is a finite 0.
+// The upper bound stops a fat-fingered maxRounds from spawning agents until something dies.
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
@@ -75,18 +56,13 @@ const num = (v, name, min, dflt, max = 1_000_000) => {
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // develop→quality→acceptance rounds per block
 const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // token floor to start another block
 
-// Per-role model tiers + OPTIONAL custom subagent types. By default no agentType is passed, so every role
-// runs as the harness's standard workflow subagent (always available). Only set an agentType that exists
-// in YOUR registry. Acceptance is opus (spec + regression, high stakes); the blind quality critic is opus
-// too — measured 2026-08-01 (wt-tooling): the fast tier surfaced ONE deep-verified defect per round on
-// large diffs, serializing discovery across rounds. Sweep stays fast — it searches, it doesn't review.
+// Set an agentType only when it exists in your registry. The blind critic is opus because the fast tier
+// surfaced one deep defect per round on large diffs. Sweep searches rather than reviews, so it stays fast.
 const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
 const AT = { ...(A.agentTypes ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
-// ROOT is the ABSOLUTE base that run-state hangs off (supplied by the main agent — see the required check
-// above), so every agent + `git -C` call is cwd-independent. Run-state lands in `<ROOT>/runs/<runId>`
-// unless args.stateDir overrides it.
+// Absolute, so every agent and git -C call is cwd-independent.
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
@@ -94,20 +70,14 @@ const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').r
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
-// The DEFAULT plan file for every entry that carries none of its own. `--list` rows have no planPath, so
-// this is what keeps them usable undecorated in the common one-file case; one run may still draw blocks
-// from several files by giving those entries their own planPath.
+// The default for entries with no planPath, so undecorated `--list` rows work in the one-file case.
 const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
-// Blind-reviewer placement guard (#3): run-state must live OUTSIDE the target repo so the blind quality
-// reviewer cannot reach the review/ledger files through the repo tree. Warn loudly if root was set wrong.
+// Run-state inside the target repo puts the review and ledger files in the blind reviewer's reach (#3).
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
-// The PLAN FILE has the same exposure, one door over (#3): a plan file inside the target repo puts the
-// SPEC where the blind quality reviewer can reach it through the repo tree, and where the diff/park
-// machinery could sweep it. WARN rather than throw, matching the run-state guard's precedent — a
-// mid-flight throw strands a run the operator may still want, and the loud line names the correction.
-// Deduped on the resolved path, since a one-file roadmap repeats the same planPath on every entry.
+// The plan file has the same exposure (#3). Warn, not throw: a throw strands a run the operator may still
+// want. Deduped because a one-file roadmap repeats one planPath on every entry.
 const PLAN_PLACEMENT_WARNED = new Set();
 const warnPlanPlacement = (p) => {
   if (!p || !REPO || PLAN_PLACEMENT_WARNED.has(p)) return;
@@ -116,19 +86,12 @@ const warnPlanPlacement = (p) => {
   log(`⚠ plan file (${p}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
 };
 warnPlanPlacement(PLAN_PATH);
-// Where the plan-block tool lives. The default hangs it off ROOT because a checkout keeps engine, tools
-// and run-state under one folder — but an INSTALLED plugin splits them: run-state (ROOT) goes to the
-// persistent plugin data dir while tools/ ships in the versioned plugin cache. args.blockTool carries the
-// installed tool's absolute path in that case; without it every agent gets a command that exits non-zero
-// and the run halts on plan_obtained=false.
+// An installed plugin keeps tools/ in its cache and ROOT in its data dir, so args.blockTool names the tool.
+// Without it every block command exits non-zero and the run halts on plan_obtained=false.
 const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
 
 // =============================================================================
-// File-level keys — the four values the operator copies off the plan file's own header via `--list`.
-// They arrive as DATA, never as judgment: `ordered` decides whether a parked block stops the run, `suite`
-// decides whether reddening the existing suite fails a green gate, `sweep` decides whether the run ends
-// with a goal-coverage check, and `goal` seeds that check's re-grep. A typed value outside the set must
-// THROW rather than coerce — the string "false" is truthy, and coercing it silently flips park semantics.
+// File-level keys, copied off `--list`. A typed value outside the set throws: the string "false" is truthy.
 // =============================================================================
 if (A.ordered != null && typeof A.ordered !== 'boolean') {
   throw new Error(`Invalid ordered key: args.ordered must be a boolean; got ${JSON.stringify(A.ordered)}. It decides whether a PARKED block stops the run, and the string "false" is truthy — copy the value "plan-block.mjs <planPath> --list" prints.`);
@@ -154,9 +117,7 @@ if (SWEEP_MODE === 'goal-coverage' && !GOAL.trim()) {
 }
 
 // =============================================================================
-// Plans — the block list the main agent supplies (array order = build order). Each entry is a THIN
-// control object (routing knobs, NOT content — the block body lives in its plan file, read verbatim).
-// runOnly / startAt scope a cheaper partial slice by id without editing the plan file.
+// Plans: thin routing entries in build order. The block body lives in its plan file.
 // =============================================================================
 const RAW = A.plans;
 const VALID_MODES  = new Set(['feature', 'section', 'fix']);
@@ -165,8 +126,7 @@ const VALID_MODES  = new Set(['feature', 'section', 'fix']);
 const MODE_GATES   = { feature: new Set(['green', 'build-only']), section: new Set(['green', 'red-baseline', 'build-only']), fix: new Set(['green']) };
 const VALID_STATUS = new Set(['todo', 'done', 'skip', 'parked', 'blocked']);
 
-// An entry with no id addresses nothing. Sibling engines FILTERED these out silently, so a mistyped key
-// built a shorter roadmap than the operator asked for and reported success on it.
+// Throw, not filter: dropping an entry with no id builds a shorter roadmap and reports success.
 const NO_ID = RAW.map((p, i) => [p, i])
   .filter(([p]) => !p || typeof p !== 'object' || typeof p.id !== 'string' || !p.id.trim())
   .map(([, i]) => i);
@@ -174,28 +134,23 @@ if (NO_ID.length) {
   throw new Error(`plans entries at index [${NO_ID.join(', ')}] are not objects carrying a string id. Every entry is a "blocks" row from "plan-block.mjs <planPath> --list" — { id, mode, gate, status } — optionally decorated with its own planPath and planContext.`);
 }
 
-// An id routes review/ledger file names AND is interpolated into the block command, so anything but a
-// kebab slug is either a file-name collision (two ids that `slug()` folds together silently share one
-// DISMISSED file) or a shell metacharacter in a command an agent runs. The plan-block tool enforces this
-// on the file's headers; the engine must enforce the same rule on the control array.
+// An id names run-state files and enters the block command, so a non-slug is a slug() file collision or a
+// shell metacharacter. plan-block.mjs holds the file's headers to the same rule.
 const KEBAB_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const BAD_IDS = RAW.filter((p) => !KEBAB_ID.test(p.id)).map((p) => p.id);
 if (BAD_IDS.length) {
   throw new Error(`plan id(s) [${BAD_IDS.join(', ')}] are not kebab slugs (a-z, 0-9, single hyphens). An id names this block's review + ledger files and is passed to the plan-block command, so it must carry no spaces, punctuation or shell characters.`);
 }
 
-// `mode` selects the developer + acceptance FRAME this engine holds, so it is REQUIRED and never
-// defaulted: an omitted mode would build a migration section against the feature frame ("wire it in",
-// reachable from entry points) and judge it by that instead of by call-site coverage.
+// Never defaulted: an omitted mode would judge a migration section by the feature frame's reachability.
 const BAD_MODES = RAW.filter((p) => !VALID_MODES.has(p.mode))
   .map((p) => `${p.id}: ${p.mode === undefined ? '(omitted)' : JSON.stringify(p.mode)}`);
 if (BAD_MODES.length) {
   throw new Error(`plan mode(s) [${BAD_MODES.join(', ')}] are not one of feature | section | fix. A mode picks the developer and acceptance frames, so it is required and never coerces.`);
 }
 
-// A pass is several fix blocks built in ONE develop cycle, so small blocks share one set of agents.
-// `plan-edit.mjs args --pack` writes these entries. Each member keeps its own plan file and statuses, so
-// a member without an id, a plan file or its issue ids would be edited nowhere.
+// A pass is several fix blocks built in one develop cycle (`plan-edit.mjs args --pack`). A member
+// without an id, a plan file or its issue ids would be edited nowhere.
 const BAD_PASSES = RAW.filter((p) => p.blocks !== undefined && !(
   p.mode === 'fix' && Array.isArray(p.blocks) && p.blocks.length > 1
   && p.blocks.every((b) => b && KEBAB_ID.test(b.id) && typeof b.planPath === 'string' && b.planPath.trim()
@@ -205,11 +160,8 @@ if (BAD_PASSES.length) {
   throw new Error(`pass entries [${BAD_PASSES.join(', ')}] are malformed: a pass is mode fix with a "blocks" array of two or more { id, planPath, issues: [ids] }. Take them from "plan-edit.mjs args --pack" rather than writing them by hand.`);
 }
 
-// A gate is control input like the ids above, and this file fails loud on every other one. Coercing an
-// unrecognized value to 'green' meant a block typoed `red_baseline` got the gate that DEMANDS the very
-// tests a test-first block intends to leave failing — a guaranteed park after the full round budget. The
-// legal set is the block's OWN mode's; an OMITTED gate keeps the 'green' default, so only a value that
-// was typed and is wrong throws.
+// Only a typed illegal value throws. Coercing `red_baseline` to 'green' would demand passing tests from a
+// red step and park it after the full round budget.
 const BAD_GATES = RAW.filter((p) => p.gate != null && !MODE_GATES[p.mode].has(p.gate))
   .map((p) => `${p.id}: ${JSON.stringify(p.gate)} (mode ${p.mode} takes ${[...MODE_GATES[p.mode]].join(' | ')})`);
 if (BAD_GATES.length) {
@@ -234,16 +186,13 @@ const ALL_PLANS = RAW.map((p) => ({
   blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues })) : null,
 }));
 
-// Every block needs a plan file to be addressed inside. Without one, the block reference would name an
-// empty path and the developer would build against nothing while reporting success.
+// An empty plan path would have the developer build against nothing and report success.
 const NO_PATH = ALL_PLANS.filter((p) => !p.planPath && !p.blocks).map((p) => p.id);
 if (NO_PATH.length) {
   throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath and there is no top-level planPath to default to — the developer would be handed an empty plan reference. Either add planPath to each of those entries, or pass the top-level planPath you ran "plan-block.mjs <planPath> --list" against.`);
 }
 
-// Every per-block run-state file is keyed by the bare id, so two entries sharing one would overwrite each
-// other's review files, DISMISSED ledger and parked patch — and the second would be judged against the
-// first's trail.
+// Pass members count too: every run-state file is keyed by the bare id.
 const SEEN_IDS = new Set();
 const DUPE_IDS = new Set();
 for (const id of ALL_PLANS.flatMap((p) => [p.id, ...(p.blocks ?? []).map((b) => b.id)])) {
@@ -254,17 +203,12 @@ if (DUPE_IDS.size) {
   throw new Error(`duplicate plan id(s) [${[...DUPE_IDS].join(', ')}] in args.plans. Every per-block run-state file (reviews, DISMISSED, AMENDED, parked patch) is keyed by the bare id, so duplicates would overwrite each other.`);
 }
 
-// The same placement check across every entry's OWN plan file, abs()-resolved above (the raw entries are
-// unresolved strings, and ALL_PLANS is in its TDZ up there). The Set has already absorbed PLAN_PATH.
-// The distinct plan files this run draws from — what the whole-goal sweep is handed to read verbatim.
+// Checked here, not beside PLAN_PATH, because only ALL_PLANS holds resolved paths. The sweep reads these.
 const PLAN_FILES = [...new Set(ALL_PLANS.flatMap((p) => (p.blocks ? p.blocks.map((b) => b.planPath) : [p.planPath])))];
 for (const path of PLAN_FILES) warnPlanPlacement(path);
 
-// How an agent gets its ONE block out of the verbatim plan file. Default (`planContext:'block'`): a
-// COMMAND that prints just that block, so a twelve-block file never enters a developer's context and the
-// block's END is decided by a parser — plan bodies use `##` headers, so an agent locating the block by eye
-// can stop at the first `## Feature` and build against a truncated spec that looks complete.
-// `planContext:'full'` hands the file instead, for a block that genuinely needs its neighbours in view.
+// 'block' lets a parser decide where the block ends: plan bodies use `##` headers, so an agent reading by
+// eye can stop at the first `## Feature` and build a truncated spec. 'full' hands the whole file.
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
 Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
 never guess at a plan you could not read. The full plan file is at ${p.planPath} if you need a
@@ -277,36 +221,21 @@ const planRef = (p) => p.planContext === 'full' && !p.blocks
   ? `the block headed "## Plan: ${p.id}" inside the plan file at ${p.planPath} (read THAT block verbatim; the other blocks are CONTEXT only — your block is ONLY "${p.id}")`
   : blockRef(p);
 
-// The blind quality reviewer's OWN directory, and the whole of what it is handed (#3). Blindness is a
-// property of PLACEMENT, not of a polite instruction: STATE_DIR holds `acceptance-review-<id>-rN.md` —
-// the block's acceptance criteria enumerated one by one — `AMENDED-<id>.md`, which quotes the overridden
-// plan clause VERBATIM, and NEEDS-USER.md, whose amendment pointer line names that file. Disclosing
-// STATE_DIR to the reviewer (as its output path and its "create the dir if needed") put all three one
-// `ls` away from this engine's only unbiased code reviewer. So the two files it legitimately needs live
-// down here, and no path outside this directory is ever interpolated into its prompt.
+// Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files and
+// NEEDS-USER, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
 const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
 const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
 const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
-// Plan clauses the developer OVERRODE under MATRIX 6a, having verified the clause prescribes a real
-// defect — PER BLOCK. Read by the ACCEPTANCE verifier only: it quotes the superseded clause verbatim, so
-// it stays at the STATE_DIR root, OUTSIDE the reviewer's GATE_DIR — out of reach by placement, not by an
-// instruction not to read it (#3). The NEEDS-USER pointer line that names it is out of reach the same way.
+// MATRIX 6a overrides, read by acceptance only. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
 const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 
-// The settled-decisions both reviewers read so they don't re-raise closed findings (but NOT prior review
-// files — that would anchor them; see WORKFLOW-PRINCIPLES.md #5). Scoped per block.
-// canContest=true is the BLIND reviewer, and the flag carries both halves of that role: it gets the
-// contest channel (its schema reports contested_dismissals) and the gate-scoped DISMISSED ledger ALONE —
-// NEEDS-USER lives at the STATE_DIR root and its amendment pointer line names the AMENDED file, i.e. a
-// route to verbatim plan text (#3). The acceptance verifier passes false: it is plan-aware, so NEEDS-USER
-// is legitimate context, and it does not contest via this token — it has the stronger plan-aware OVERRIDE
-// channel below, and its schema carries no contest field.
-// `round` 1 notes why the ledger may be absent: it holds only what the developer has already declined.
+// Settled decisions, never prior reviews, which would anchor them (#5). canContest=true is the blind
+// reviewer: the contest channel and DISMISSED alone (see GATE_DIR). Acceptance overrides instead.
 const SETTLED = (id, canContest = true, round = 0) => `Before reviewing, READ ${canContest ? 'this if it exists — it is' : 'these if they exist — they are'} the settled decisions, so you do
 NOT re-raise what is already closed:
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.${round === 1 ? `
@@ -318,23 +247,12 @@ diff FRESH (so you also catch new or similar nearby issues, and independently re
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ''}`;
 
-// Per-block gate semantics, merged from both source engines:
-//   green        -> build passes AND this block's tests RAN and PASSED
-//   red-baseline -> build passes AND the authored tests FAIL for the expected reason (TDD red step)
-//   build-only   -> build passes; no test pass/fail requirement (mechanical/testless blocks)
-// Build (lint/compile) must ALWAYS pass — a broken build is never acceptable.
-// The FILE key `suite` decides the one thing layered on top of `green`: with suite=green a reddened
-// EXISTING suite fails the gate (breaking existing tests is a regression); with suite=scoped the whole
-// suite may be intentionally RED mid-run, so the block is judged on its own selector alone and the
-// developer reports full_suite_outcome="scoped-skip".
 function gateOk(gate, dev) {
   if (!dev) return false;
   if (GATES.build && dev.build_passed !== true) return false;   // build/lint must always pass
   if (gate === 'build-only') return true;
-  // A red baseline needs the same false-red guard green gets below: a mistyped selector collects NOTHING
-  // and exits non-zero, and a developer that EXPECTS failure at the red step reports `failed-expected`
-  // with a count of 0 — a gate passed on a test that never ran, staged as a phantom TDD baseline.
-  // `!== 0` not `> 0`: -1 is the schema's N/A (manual/MCP verification) and stays legal.
+  // A mistyped selector runs nothing and fails, which a red step reports as failed-expected with count 0.
+  // `!== 0`, not `> 0`: -1 is the schema's N/A.
   if (gate === 'red-baseline') return dev.test_outcome === 'failed-expected' && dev.tests_run_count !== 0;
   // green:
   if (SUITE === 'green' && dev.full_suite_outcome === 'failed') return false;   // reddening the suite is a regression
@@ -346,10 +264,8 @@ function gateOk(gate, dev) {
 // =============================================================================
 // Structured-output schemas — DECISIONS ONLY (control plane). All prose/content lives in files.
 // =============================================================================
-// Built PER MODE, the way the acceptance schema below already is. A fix block's worker returns a
-// per-issue `results` array instead of a `produced` flag — the engine derives produced from it, so a
-// round that only SKIPPED entries cannot claim work it never did — plus the round-1 inventory count the
-// entries_found halt reads. feature and section keep their shape unchanged.
+// A fix worker returns per-issue `results`, not `produced`: the engine derives produced from them, so a
+// round that only SKIPPED entries cannot claim work it never did.
 const developSchema = (mode) => ({
   type: 'object',
   required: mode === 'fix'
@@ -385,9 +301,7 @@ const developSchema = (mode) => ({
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline.' },
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
-    // REQUIRED, unlike its optional twin dismissed_count: the DISMISSED file is its own standing record,
-    // while an amendment's ABSENCE has to be an explicit claim of zero — an omitted field must not be
-    // indistinguishable from "none this round".
+    // Required, unlike dismissed_count: an omitted field must not read as "none this round".
     plan_amendments:   { type: 'integer', description: 'how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block\'s AMENDED file. Report 0 when there were none; this field is required, so "none" must be stated, never omitted.' },
     gate_output:       { type: 'string', description: 'tail of failing gate/verification output, or "" if green' },
   },
@@ -404,9 +318,7 @@ const QUALITY_SCHEMA = {
 };
 
 const acceptanceSchema = (mode) => {
-  // Per mode, because half the field descriptions are the acceptance CONTRACT: the feature frame judges
-  // reachability from real entry points, the section frame call-site coverage, the fix frame root-cause
-  // closure per issue. A fix block enumerates no criteria and claims no reachability, so it carries neither.
+  // Per mode, because the descriptions are each frame's acceptance contract.
   // `|| {}` lets tests/static.test.mjs evaluate the schema with no mode to read its field names.
   const terms = {
     feature: {
@@ -465,9 +377,8 @@ const acceptanceSchema = (mode) => {
   };
 };
 
-// PARK — the terminal outcome for a block that did not accept, and for one the developer escalated. Its
-// work is SAVED to a patch and then CLEARED from the tree, so EVERY exit leaves a clean unstaged tree —
-// which is what lets the round-1 clean-baseline precondition be unconditional, including on resume.
+// Park saves then clears, so every exit leaves a clean tree and the round-1 clean-baseline check holds
+// unconditionally, resume included.
 const PARK_SCHEMA = {
   type: 'object',
   required: ['saved', 'cleared', 'gates_green'],
@@ -514,9 +425,7 @@ BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC re
 need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
 over broad reads. Don't restate large files back; act on them.`;
 
-// The whole-suite clause is a FILE key, not a mode: `suite:green` demands the existing suite stays green
-// (breaking existing tests is a regression), `suite:scoped` allows the mid-run red a test-first migration
-// expects and judges each block on its own selector.
+// A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
 const SUITE_LINE = SUITE === 'green'
   ? 'Also run the FULL suite to confirm you did not redden it (report full_suite_outcome).'
   : 'Do NOT chase whole-suite green — only THIS block\'s scoped tests matter; the rest of the suite may be intentionally red mid-run. Report full_suite_outcome="scoped-skip".';
@@ -524,14 +433,9 @@ const ACC_SUITE_LINE = SUITE === 'green'
   ? 'The EXISTING suite must still be green — reddening it is a regression, not an accepted block.'
   : 'Do NOT treat the intentionally-red rest of the suite as a failure: judge THIS block on its own selector.';
 
-// Case 7's proceeding branch (needs_user=false) writes to BOTH ledgers, and the second write is what the
-// gate/ placement made load-bearing: NEEDS-USER.md sits at the STATE_DIR root, so the blind reviewer no
-// longer reads it, while the escalated call's defensible default is sitting in the diff. Without a line in
-// the gate-scoped DISMISSED ledger, the reviewer flags that default, the developer re-routes it to case 7
-// (still a user-only call), nothing changes, and the pair spins to maxRounds and PARKS a block that used
-// to accept. The anti-spin channel (#5) has to reach the reviewer through the ONE file it is still handed.
-// PRECEDENCE quotes each frame's own scope line, so one table serves all three modes; a line the frame
-// does not carry would leave 6a outranking nothing.
+// Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees NEEDS-USER (see
+// GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
+// PRECEDENCE must quote the frame's own scope line, or 6a outranks nothing.
 const SCOPE_LINE = {
   feature: 'NO scope creep beyond the plan',
   section: 'NO scope creep beyond it',
@@ -579,9 +483,7 @@ THIS block correct, testable, and production-safe; leave the lines you TOUCH a l
 nothing else.`;
 
 // =============================================================================
-// Role prompts — each agent gets ONE document link for its task. The DEVELOPER and ACCEPTANCE frames
-// switch on the block's mode through DEVELOP_FRAME and ACCEPTANCE_FRAME. The BLIND critic has one frame:
-// it is handed no plan, so a mode has nothing to change.
+// Role prompts. DEVELOP_FRAME and ACCEPTANCE_FRAME switch on mode. The blind critic sees no plan.
 // =============================================================================
 const featureDevelop = (p, round, { opening, ledgerNote, staging }) => `
 You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
@@ -634,10 +536,8 @@ PROCEDURE:
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
 };
 
-// FIX frame: the block IS the inventory. Verify-first (the entries were written from a past snapshot),
-// ACTIONABLE-only (the `- decision:` line is the USER's triage, not the developer's), and one result
-// per entry — the engine derives `produced` from those statuses, so an unreported entry is work that
-// silently never happened.
+// Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
+// the user's triage.
 const fixDevelop = (p, round, { opening, ledgerNote, staging }) => `
 You are the FIXER. Resolve the verified issues in ${planRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
@@ -699,8 +599,7 @@ already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
 Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
 unstaged tree now holds YOUR work).`;
-  // Shown in EVERY round, round 1 included: the ledger PERSISTS across resumes, so a resumed round-1
-  // developer has one to read and must not re-litigate what it already declined.
+  // Every round, round 1 included: the ledger persists across resumes.
   const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings for
 THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
 entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
@@ -712,8 +611,7 @@ as \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add t
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
-// BLIND. No plan, no spec, no goal, no acceptance criteria — judges the code purely as code. ONE frame
-// across both modes: a mode is a property of the spec, and this reviewer is never shown one.
+// BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
 const qualityPrompt = (p, round) => `
 You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
 plan, spec or goal — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
@@ -744,9 +642,8 @@ WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if neede
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests)
 + issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 
-// FIX frame: there are no criteria to enumerate — the block's entries ARE the spec, and the verdict is
-// per issue. The root cause is RE-DERIVED from current code rather than checked off against the entry's
-// own **Fix:** line, because the entry may have under-scoped the defect.
+// The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
+// the entry may have under-scoped the defect.
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
@@ -892,8 +789,7 @@ const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix
 const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = []) =>
   ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped });
 
-// Only needs-user writes a NEEDS-USER entry, so each escalated halt names its own cause. Without this the
-// park agent was told to cite a developer escalation that never happened and invented one.
+// Only needs-user writes a NEEDS-USER entry, so every other halt names its own cause for park to cite.
 const parkReason = (haltKind) => ({
   'needs-user': `the developer escalated a user-only decision (see ${NEEDS_USER})`,
   'agent-dead': 'an agent returned nothing (skipped or died)',
@@ -983,26 +879,18 @@ Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues
 // =============================================================================
 // Launch guards — the gate commands are what "it works" MEANS here.
 // =============================================================================
-// gateOk() only enforces the build when GATES.build is set, so an omitted command turns the build gate
-// into a no-op and a build-only block passes with nothing ever compiled. Required, and required to fail
-// loud.
+// gateOk() skips the build check without GATES.build, so omitting it passes blocks nothing compiled.
 if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
   throw new Error('args.gates.build is required: the shell command that defines a GREEN build (non-zero exit = fail). Without it the build gate silently no-ops and a block can pass with nothing compiled.');
 }
 
 // =============================================================================
-// Pending selection — the todo filter first, then the optional slice.
 //   status:'todo'   — the only status this engine builds. done/skip/parked/blocked are never selected.
 //   runOnly: [ids]  — build exactly these blocks (in array order).
 //   startAt: id     — build from this block to the end (skip already-accepted earlier ones).
-// Resume is reconstructed by the orchestrator from git staging + the review-file trail + the plan file's
-// own status keys — there is no progress file by design (#6/#10).
 // =============================================================================
 const TODO = ALL_PLANS.filter((p) => p.status === 'todo');
-// SHAPE first, ids second. `runOnly: "block-a"` instead of `["block-a"]` is the likeliest typo here, and
-// a shape test folded into the id check would swallow it: a non-array falls to null and the run silently
-// builds and STAGES every remaining todo block — the outcome the unknown-id throw below exists to stop,
-// reached without an error and without runOnly appearing in any log line.
+// Shape before ids: a string runOnly would fall to null and silently build and stage every todo block.
 if (A.runOnly !== undefined && A.runOnly !== null
     && (!Array.isArray(A.runOnly) || A.runOnly.some((id) => typeof id !== 'string' || !id.trim()))) {
   throw new Error(`Invalid slice arg: args.runOnly must be an ARRAY of block id strings; got ${JSON.stringify(A.runOnly)}. It is not coerced — a non-array drops the scope silently and builds every todo block in the roadmap.`);
@@ -1010,9 +898,7 @@ if (A.runOnly !== undefined && A.runOnly !== null
 const runOnly = Array.isArray(A.runOnly) && A.runOnly.length ? A.runOnly : null;
 let pending = TODO;
 if (runOnly) {
-  // An unknown id must FAIL FAST, exactly as startAt does below: a silently dropped id builds fewer
-  // blocks than the operator asked for — and if every id is a typo, nothing at all, reported as a benign
-  // "partial slice complete" with no error.
+  // A dropped id builds fewer blocks than asked, and an all-typo list builds nothing and reports success.
   const unknown = runOnly.filter((id) => !ALL_PLANS.some((p) => p.id === id));
   if (unknown.length) throw new Error(`args.runOnly ${unknown.map((id) => `"${id}"`).join(', ')} matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
   pending = TODO.filter((p) => runOnly.includes(p.id));
@@ -1020,26 +906,22 @@ if (runOnly) {
   // Resolved against the WHOLE array, not the todo slice: startAt is normally the first not-yet-accepted
   // id, and naming an already-done one must scope the run rather than throw.
   const i = ALL_PLANS.findIndex((p) => p.id === A.startAt);
-  // An unknown id must FAIL FAST — silently falling back to the full array would re-build already
-  // accepted blocks (their work is the staged baseline) and burn the whole run.
+  // Falling back to the full array would rebuild accepted blocks.
   if (i < 0) throw new Error(`args.startAt "${A.startAt}" matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
   const fromHere = new Set(ALL_PLANS.slice(i).map((p) => p.id));
   pending = TODO.filter((p) => fromHere.has(p.id));
 }
 const isFullRun = !runOnly && !A.startAt;
 
-// Scoped to PENDING, deliberately unlike the sibling engines' all-blocks rule: with the todo filter, an
-// all-done relaunch would otherwise throw over a test command this run will never execute instead of
-// reaching the nothing-to-run terminal below.
+// Scoped to pending, so an all-done relaunch reaches the nothing-to-run terminal instead of throwing over
+// a test command it will never run.
 if (pending.some((p) => p.gate === 'green') && (typeof A.gates?.test !== 'string' || !A.gates.test.trim())) {
   throw new Error('args.gates.test is required when any block being built has gate:"green": the shell command that runs the verification (non-zero exit = fail). A block that legitimately has none takes gate:"build-only" instead.');
 }
 
 const reviewTrail = `Numbered review files show every iteration: quality-review-<id>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<id>-rN.md in ${STATE_DIR}/; git staging marks each accepted block.`;
 
-// An all-done relaunch is a legitimate operator state, not an error: the plan file's statuses say the
-// work landed. A distinct TERMINAL rather than a throw, so the caller can tell "nothing left" apart from
-// "you passed something wrong".
+// A terminal, not a throw: an all-done relaunch is legitimate, and the caller must tell it from bad args.
 if (!pending.length) {
   log(`develop: no todo blocks selected out of ${ALL_PLANS.length} — nothing to run`);
   return {
@@ -1064,26 +946,14 @@ if (!pending.length) {
 
 log(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : A.startAt ? ` (startAt: ${A.startAt})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}]`);
 
-// =============================================================================
-// The per-block loop: develop → BLIND quality (must pass) → acceptance + regression (stages on pass; the
-// accepted baseline advances block by block). A block that does NOT accept is PARKED — its work saved to
-// a patch and CLEARED from the tree. Clearing is what restores the staging boundary the next block's
-// blind diff needs. `ordered` then decides what happens next: an UNORDERED run carries on (independent
-// features have no coupling), an ORDERED one STOPS (block N+1 depends on N having landed).
-// PRECONDITION (orchestrator's job, #4): the target repo has a CLEAN unstaged working tree; any
-// already-accepted blocks are STAGED. The engine spawns NO baseline/loader/scribe agent — the numbered
-// review files + git staging are the only state + progress trail (#6/#10).
-// =============================================================================
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
-// The plan-file `status:` edits this run's outcomes imply. Each block's edits are also logged as one
-// STATUS_LOG line, because the runtime keeps a run's logs even when the run fails or is stopped, and
-// `tools/plan-edit.mjs args` folds them into the plan file before the next launch.
+// Also logged per block as one STATUS_LOG line: run logs survive a failed or stopped run, and
+// `plan-edit.mjs args` folds them into the plan file.
 const statusSync = [];
 const STATUS_LOG = 'status-sync ';
 let halted = false;
 let haltReason = '';
-// WHY the run halted, as a value rather than prose. The status line used to sniff substrings out of
-// haltReason, so a new halt reason silently reported the wrong status; every halt site now sets this.
+// A value, so the status line never parses haltReason prose. Every halt site sets it.
 let haltKind = '';
 const doneIds = [];
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
@@ -1218,11 +1088,11 @@ for (const p of pending) {
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
-  let reviewPath = '';           // the latest review file the developer must address (control: a path only)
-  // Produced work the blind reviewer has not yet cleared: set by any producing round and by a flag, cleared
-  // only by a clean review. Needed because the unstaged tree is CUMULATIVE while `produced` is per-round.
-  // A round that only re-runs a red gate, or DROPs every finding (MATRIX 1/6b), reports produced=false over
-  // a diff no reviewer has passed, and skipping the gate on that would stage it.
+  // The latest review file the developer must address. Empty until a reviewer writes one, and never
+  // replaced by a path nobody wrote: the halt reason and parkPrompt each say so instead.
+  let reviewPath = '';
+  // Produced work no clean review has passed. The tree is CUMULATIVE while `produced` is per-round, so a
+  // round that only re-runs a red gate or DROPs every finding reports produced=false over unreviewed code.
   let reviewOwed = false;
   let accepted = false;
   // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1
@@ -1241,11 +1111,8 @@ for (const p of pending) {
     }));
 
     // ---- PRECONDITION: the developer AGENT itself came back -----------------------------------------
-    // A dead agent is not a failed round: nothing is known about the tree either way. Unguarded it fell
-    // into `gateOk(!dev) === false` and read as an ordinary gate miss, so the block burned its whole
-    // round budget and was reported `parked (not accepted within round budget)` — telling the operator to
-    // sharpen the plan when the real action is a clean relaunch. A HALT, not a throw: a throw inside the
-    // block loop exits with the developer's work still unstaged and unparked.
+    // A dead developer is agent-dead, not a gate miss that burns the round budget. Halt, not throw, so
+    // park still runs.
     if (!dev) {
       halted = true;
       escalated = true;   // it may have touched the tree before dying → park rather than abandon
@@ -1257,11 +1124,8 @@ for (const p of pending) {
     }
 
     // ---- PRECONDITION: the developer actually HAS its block -----------------------------------------
-    // The block command runs in the AGENT's shell, so the harness cannot verify it (no tools). This
-    // attestation is the only signal that the block ever arrived — without a consumer it would be pure
-    // theater, and an agent whose command was denied, or whose id matches no block, would otherwise build
-    // something plausible and the run would report `done (staged)`. `=== false` so a dead agent (null) is
-    // caught by the halt directly above rather than being laundered into this one.
+    // The block command runs in the agent's shell, so this attestation is the only proof the block
+    // arrived. `=== false` leaves a null return to the agent-dead halt above.
     if (dev?.plan_obtained === false) {
       halted = true;
       escalated = true;   // it may have touched the tree before giving up → park rather than abandon
@@ -1273,16 +1137,10 @@ for (const p of pending) {
     }
 
     // ---- PRECONDITION (round 1 of every block): the unstaged tree must have been CLEAN --------------
-    // The reviewers scope on the unstaged diff, so stray pre-existing work would be reviewed as this
-    // block's and burn the whole round budget on code nobody in this run touched. Halt HERE — before any
-    // quality/acceptance agent spawns. The developer did no work, so there is nothing to unwind.
+    // Reviewers scope on the unstaged diff, so pre-existing work would be judged as this block's.
     if (round === 1) {
-      // Guard the VALUE, never its coercion. `Number(undefined)` is NaN and takes the warn branch, but
-      // `Number(null)`, `Number(false)`, `Number('')` and `Number([])` are all 0 and all FINITE — so a
-      // coercing check reads every one of them as "0 = clean" and waves this precondition through
-      // silently, after which the blind reviewer judges the operator's pre-existing work as this block's
-      // and acceptance stages it into the accepted baseline. Same reasoning the numeric-arg validators
-      // above state, applied to an AGENT-supplied value.
+      // Guard the value, never its coercion: Number(null), Number(false) and Number('') are a finite 0,
+      // which reads as clean.
       const dirty = dev?.baseline_dirty_files;
       if (typeof dirty !== 'number' || !Number.isFinite(dirty)) {
         log(`  ⚠ ${p.id} r1: developer did not report baseline_dirty_files — the clean-baseline precondition was NOT verified`);
@@ -1294,11 +1152,8 @@ for (const p of pending) {
         log(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A only your own edits, or git stash -u, then re-run)`);
         break;
       }
-      // FIX blocks only: the block IS the inventory, so a block that printed no `### [` entries is a fix
-      // round with nothing to fix. Unguarded, the developer reports an empty results array, the no-changes
-      // terminal below fires, and the run ends reporting a clean outcome over an inventory nobody read.
-      // The VALUE is guarded, never coerced — `-1` (the round-2+ n/a) is a number and just falls through,
-      // while `false`/`''`/`[]` would all compare `=== 0` as false and wave the precondition past.
+      // Zero `### [` entries would reach the no-changes terminal and report a clean outcome over an
+      // inventory nobody read. The value is guarded, never coerced, as above.
       if (fix) {
         const entries = dev.entries_found;
         if (typeof entries !== 'number' || !Number.isFinite(entries)) {
@@ -1314,11 +1169,8 @@ for (const p of pending) {
       }
     }
     // ---- FIX MODE: the per-issue results ARE the round's record ------------------------------------
-    // `produced` is derived from them rather than reported: a round that only SKIPPED or found STALE
-    // entries changed nothing, and a `produced` flag would let it claim otherwise and pull the blind
-    // reviewer onto an empty diff. Statuses accumulate across rounds (last write wins), so the ledger
-    // carries every id the developer ever reported, not just the final round's. Recorded BEFORE the
-    // needs_user and staging halts: a block that escalates still reaches the ledger with what it reported.
+    // Derived, so a round that only SKIPPED or found STALE entries cannot pull the blind reviewer onto an
+    // empty diff. Recorded before the halts below so an escalated block still reaches the ledger.
     const results = fix ? fix.record(dev) : [];
     if (fix) rec.results = fix.ledger();
     if (dev?.needs_user === true) {
@@ -1331,10 +1183,7 @@ for (const p of pending) {
       break;
     }
     // ---- PRECONDITION: the work is still UNSTAGED ---------------------------------------------------
-    // The staged index is the one surface NEITHER reviewer looks at: the blind critic scopes on
-    // `git diff` and acceptance treats `git diff --staged` as the ACCEPTED baseline. So work the
-    // developer staged itself is reviewed by nobody and then inherited as known-good. This used to be a
-    // warn-only line, which is attestation theater with a log message attached.
+    // Self-staged work would skip both reviewers and be inherited as the accepted baseline.
     // POSITION IS LOAD-BEARING: it sits AFTER the dead-agent, plan_obtained, dirty-baseline and
     // needs_user checks, because a null return also fails `!== true` — a dead developer must report
     // agent-dead, and a dirty baseline dirty-baseline, never this.
@@ -1350,9 +1199,7 @@ for (const p of pending) {
     if (dev?.dismissed_count) {
       log(`  ${p.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(p.id)} (audit these at the end)`);
     }
-    // MATRIX 6a: the developer overrode a plan clause it verified defective. The COUNT is control plane
-    // (#1/#8) — the amendment text stays in AMENDED-<id>.md, which only acceptance is handed. Coerced and
-    // floored so a garbage value cannot poison the ledger total; 0/absent logs nothing at all.
+    // MATRIX 6a: only the count travels (#1/#8). Coerced so garbage cannot poison the ledger total.
     const amendments = Number(dev?.plan_amendments) || 0;
     if (amendments > 0) {
       rec.planAmendments += amendments;
@@ -1363,30 +1210,17 @@ for (const p of pending) {
       : dev.produced === true;
     if (produced) reviewOwed = true;
     if (!gateOk(p.gate, dev)) {
-      // Gate not satisfied and no user escalation: give the developer another fresh round to fix it (it
-      // re-runs the gate and sees the failure live). RETAIN reviewPath — if a prior review is still open
-      // (e.g. a quality CONTEST not yet re-confirmed clean), the developer must keep addressing it while
-      // also fixing the gate; only a clean quality review advances the pointer. On round 1 it is '' anyway.
-      // The developer re-runs the gate live each round, so the engine holds the only copy of WHY it was
-      // red once the round budget is gone — surface its diagnostics here rather than collecting them into
-      // a schema nothing reads. Prose stays out of the control plane: log only.
+      // Retain reviewPath: a still-open review, such as a quality CONTEST, must keep being addressed. At
+      // the budget the engine holds the only copy of why the gate was red, so log it.
       if (round >= MAX_ROUNDS) { log(`  ⚠ ${p.id} r${round}: gate(${p.gate}) not satisfied at round budget (via=${dev?.verification_method || 'n/a'})${dev?.gate_output ? ` — last gate output: ${String(dev.gate_output).slice(-500)}` : ''}`); break; }
       log(`  ↻ ${p.id} r${round}: gate(${p.gate}) not satisfied (build=${dev?.build_passed}, test=${dev?.test_outcome}, count=${dev?.tests_run_count}, suite=${dev?.full_suite_outcome}, via=${dev?.verification_method || 'n/a'}) → another develop round`);
       continue;
     }
 
     // ---- FIX MODE, ROUND 1 ONLY: nothing produced over a green gate --------------------------------
-    // There is no diff to review, stage or park, and the two outcomes are NOT the same block. Every entry
-    // STALE is a CLAIM that the issues are already closed: it falls through to acceptance, which confirms
-    // each STALE id against current code (the blind review has no diff to judge, so it is skipped). An
-    // unverified all-STALE shortcut would close a live defect a developer misjudged. Anything else (all
-    // SKIPPED, a SKIPPED/STALE mix, or an empty array) closed nothing: the entries stay open, so it must
-    // never count done.
-    // ROUND 1 ONLY: `produced` is per-round while the working tree is CUMULATIVE, so from round 2 a
-    // developer may legitimately return results:[] after fixing a blind review finding that has no issue
-    // id — taking the shortcut then would break out past quality, acceptance AND park, stranding round 1's
-    // real edits unstaged, unreviewed and attributed to the next block.
-    // Only round 1 is provably free of accumulated tree state.
+    // All STALE is a claim acceptance must confirm, so it falls through. Anything else closed nothing and
+    // never counts done. Round 1 only (see reviewOwed): later, results:[] can follow a real fix, and this
+    // exit would strand that work past quality, acceptance and park.
     if (fix && !produced && round === 1) {
       const onlyStale = results.length > 0 && results.every((r) => r?.status === 'STALE');
       if (onlyStale) {
@@ -1405,22 +1239,15 @@ for (const p of pending) {
     }
 
     // ---- QUALITY REVIEW (blind, must pass before acceptance) ----------------
-    // Skipped only when no produced work is still unreviewed. `produced` alone is not that test: it is
-    // per-ROUND while the unstaged diff is CUMULATIVE, so a round that only re-runs a red gate, or DROPs
-    // every finding, reports produced=false over a diff no reviewer has cleared. Skipping on that stages
-    // unreviewed or actively-flagged code, with the blind critic never re-run to CONTEST the dismissals.
-    // On a genuine no-op block acceptance still runs and judges the claim: the staged baseline already
-    // satisfying it passes, a block that SHOULD have changed files fails for unmet criteria. The harness
-    // never declares "done" itself.
+    // reviewOwed, not produced: see its declaration. A no-op block still reaches acceptance, which judges
+    // the claim.
     if (reviewOwed) {
       phase('Quality');
       rec.qualityRounds++;
       const quality = await agent(qualityPrompt(p, round), roleOpts('quality', {
         schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
       }));
-      // A dead blind reviewer is NOT a clean review. Left unguarded, `quality?.clean !== true` sent the
-      // developer to a quality-review file that was never written ("READ <path> and resolve exactly
-      // those"), so the next round either stalls on a missing file or invents fixes and churns the tree.
+      // A dead reviewer is not a clean review, and the next round would read a review file nobody wrote.
       if (!quality) {
         halted = true;
         escalated = true;
@@ -1452,8 +1279,7 @@ for (const p of pending) {
     const acc = await agent(acceptancePrompt(p, round, fix?.claimed(), fix?.stale(), fix?.skipped()), roleOpts('acceptance', {
       schema: acceptanceSchema(p.mode), phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
-    // Same shape as the guards above: a dead verifier is not a gap verdict. Unguarded it fell to the
-    // bottom of the loop and pointed the next developer at an acceptance-review file nobody wrote.
+    // A dead verifier is not a gap verdict, and the next round would read a review file nobody wrote.
     if (!acc) {
       halted = true;
       escalated = true;
@@ -1463,9 +1289,7 @@ for (const p of pending) {
       log(`  ✋ ${p.id} r${round}: acceptance verifier returned nothing (agent skipped or died) → halting`);
       break;
     }
-    // The verifier's sibling of the developer's check. An acceptance verifier without the block has no
-    // criteria to judge — its `pass:false` would otherwise read as an ordinary gap and park the block,
-    // hiding "the spec never arrived" behind a routine round-budget failure.
+    // Without the block, the verifier's pass:false would park the block as a routine gap.
     if (acc?.plan_obtained === false) {
       halted = true;
       escalated = true;
@@ -1476,20 +1300,14 @@ for (const p of pending) {
       break;
     }
     if (acc?.regression === true) rec.regression = true;
-    // Read PER MODE: a fix block's schema carries no criteria and no reachability claim, so deriving
-    // either from it would log THIN EVIDENCE and CONTRADICTS ITS OWN PASS on every fix pass. Its evidence
-    // is the per-issue root-cause re-derivation instead.
+    // Per mode: a fix schema has no criteria or reachability, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
     rec.criteria = verdict.criteria;
     if (acc?.pass === true) {
       rec.reachable = verdict.reachable;
-      // A pass is only as good as the evidence behind it (#14): no criteria, an incomplete count, missing
-      // locators, or a claimed fix with no fix_check. Detection only — acceptance already staged, so flag
-      // it for the operator's audit rather than failing the block.
+      // A thin pass (#14) is flagged for audit, not failed: acceptance already staged.
       rec.thinEvidence = verdict.thin;
-      // `pass` MEANS "reachable and nothing regressed" (the acceptance schema), and a fix pass carrying a
-      // fix_check that says a root cause is still open contradicts itself the same way. Flag both; HALT
-      // only on the regression, whose harm compounds: staged work becomes every later block's baseline.
+      // Flag both contradictions. Halt only on the regression: staged work becomes every later baseline.
       rec.contradicted = acc?.regression === true || verdict.open;
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${verdict.evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
       const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}) — audit ${acceptanceFile(p.id, round)}` : '';
@@ -1497,10 +1315,8 @@ for (const p of pending) {
         accepted = true;
         rec.staged = true;
         log(`  ✓ ${p.id}: acceptance PASSED — ${verdict.score} — STAGED (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
-        // Staged WITH a self-reported regression: stop here. Not another review round (the verifier
-        // already ran `git add`, so a re-round would leave staged-but-unaccepted work the next blind
-        // reviewer cannot see) and not a park (the work is staged; park must never touch the baseline).
-        // The block stays "done (staged)" — what halts is everything AFTER it.
+        // Halt, not re-round (the next blind diff cannot see staged work) and not park (park never
+        // touches the baseline). The block stays "done (staged)".
         if (acc?.regression === true) {
           halted = true;
           haltKind = 'acceptance-regression';
@@ -1524,8 +1340,7 @@ for (const p of pending) {
   }
 
   if (accepted) {
-    // accepted is only ever true together with staged (the pass-but-unstaged case halts above), so this
-    // is unambiguously a staged "done".
+    // accepted implies staged: the passed-but-unstaged case halts above.
     rec.status = 'done (staged)';
     doneIds.push(p.id);
     // Staged while self-reporting a regression: the work IS in the baseline, but the operator must inspect
@@ -1543,45 +1358,32 @@ for (const p of pending) {
   }
 
   // ---- PARK: save this block's work, then clear the tree ------------------------------------------
-  // Reached on either terminal outcome — round budget exhausted, or a developer escalation. Parking is
-  // what removes the old staging boundary: this block's work no longer sits unstaged, so the NEXT block's
-  // blind reviewer sees a diff that is purely its own. `ordered` decides whether there IS a next block.
-  // NOT reached on a dirty-baseline halt: that broke out before the developer changed anything, and the
-  // work in the tree belongs to the operator — parking it would be taking their changes hostage.
+  // Clearing gives the next block's blind reviewer a diff of its own. Skipped on a dirty-baseline halt,
+  // whose tree holds the operator's work.
   if (!(halted && !escalated)) {
-    // An ORDERED run stops at a park: its blocks are a dependency-sequenced decomposition of one goal, so
-    // block N+1 routinely needs N to have landed. An UNORDERED run carries on — independent features have
-    // no such coupling, and the cleared tree is exactly what the next one's blind diff needs.
+    // Ordered blocks depend on their predecessors landing.
     if (ORDERED && !halted) {
       halted = true;
       haltKind = 'parked';
-      // `reviewPath` is EMPTY when the block never produced a review file (its gate never went green, so
-      // neither reviewer ever ran). Naming an acceptance-review path that was never written points the
-      // operator — days later, in the one cumulative record — at a file that does not exist.
+      // reviewPath may be empty: see its declaration.
       haltReason = `Block ${p.id} did not reach acceptance within ${MAX_ROUNDS} rounds (${reviewPath ? `see ${reviewPath}` : `it produced no review file — its gate never went green; see the run trail in ${STATE_DIR}`}).`;
       log(`  ✋ ${p.id}: not accepted within ${MAX_ROUNDS} rounds → parking its work, then halting (ordered run)`);
     }
     phase('Park');
-    // Pass `reviewPath` THROUGH, empty or not. Substituting a concrete acceptance-review path here would
-    // make parkPrompt's own "no review file yet" fallback unreachable, writing a path to a file that does
-    // not exist into the one record the operator reads days later.
+    // reviewPath passes through empty or not: see its declaration.
     const pk = await agent(parkPrompt(p, reviewPath, escalated, haltKind), roleOpts('develop', {
       schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     const strays = pk?.strays_saved ?? 0;
-    // Patch bytes written but `saved` false — an internally inconsistent report. The tree may already be
-    // cleared, so telling the user "nothing was saved" would be actively wrong: name the patch and stop.
+    // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
+    // Null when park wrote nothing. Every later patch mention keys on this, never naming a missing file.
     rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(p.id) : null;
-    // A VALUE, set here at the one park site, so the return's parked[] never has to sniff status prose:
-    // an escalated block keeps its "BLOCKED (needs user)" status but was still parked.
+    // A value, so parked[] never parses status prose: an escalated block keeps its BLOCKED status.
     rec.parked = true;
     if (strays > 0) rec.strays = parkedNewDir(p.id);
     if (!escalated) rec.status = 'parked (not accepted within round budget)';
-    // Park's `notes` is the only place the "nothing to park" case can explain itself: step 1 tells the
-    // agent to skip ahead with saved=false, patch_bytes=0 "and a note saying so", and without surfacing it
-    // the line reads `work saved to nothing to save` with no reason given. Prose stays out of the control
-    // plane — log only.
+    // Park's notes are the only place an empty park explains itself. Logged, not returned.
     log(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(p.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     // A tree we could not clear (or a broken build) is unsafe for whatever comes next, so those DO halt
     // even in an unordered run, where a plain park does not.
@@ -1594,25 +1396,18 @@ for (const p of pending) {
       haltKind = 'park-unsafe';
       haltReason = `Block ${p.id} could not be cleared from the working tree${pk?.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next.`;
     } else if (pk?.gates_green === false) {
-      // A cleared tree is not a SAFE tree: `gates_green` is required by PARK_SCHEMA and demanded by the
-      // prompt, and a park that left the build RED must not report a tree the operator can resume into.
+      // A cleared tree with a red build is not safe to resume into.
       halted = true;
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next.`;
     } else if (halted) {
-      // An ordered park, or an escalation: the run is stopping, so say where the work went. Gated on
-      // `rec.patch`, NOT written unconditionally: park is told to skip ahead with saved=false when the
-      // diff is already empty, which every escalation that halts the developer before it edits anything
-      // hits (plan-unreadable, staging-unconfirmed, needs-user, agent-dead). Naming a patch nobody wrote
-      // contradicts this same return's `parked[].patch: null` and hands the user a `git apply` that fails.
+      // The run is stopping, so say where the work went (see rec.patch).
       haltReason += rec.patch
         ? ` Its work is SAVED to ${rec.patch} and the tree is CLEAN; resolve with the user, then resume from this block.`
         : ` It had NOTHING to save (its working tree was already empty) and the tree is CLEAN; resolve with the user, then resume from this block.`;
     }
   }
-  // Unreachable today (every exit sets a status, or parks — which sets one), and kept as a guard for a
-  // future exit that forgets. It must name itself an ENGINE BUG rather than leak the initial 'pending',
-  // which in a finished run's ledger reads as "still working".
+  // Guards a future exit that sets no status: a leaked 'pending' reads as "still working".
   if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: block finished with no status set)';
   // Only a park over the round budget is `parked`. An escalation, an unsafe park and every halt that never
   // parked need the operator before the block may run again. A passed-but-unstaged block is `done`:
@@ -1625,13 +1420,8 @@ for (const p of pending) {
 }
 
 // =============================================================================
-// Final completeness sweep — only when the PLAN FILE asked for one (sweep: goal-coverage), the run did
-// not halt, and every block that is not `skip` is now done (either it was already `done` at launch or
-// this run staged it). That last clause, not a full-run test, decides it: a relaunch derives pending from
-// the todo blocks, so a full-run test would read false on every relaunch. An independent agent re-derives
-// the change surface from the GOAL (grep, full gates, staged-diff spot-check) and reports anything the
-// plan missed to SWEEP.md. This is the "did we actually finish?" check the per-block loop — which never
-// looks beyond its own diff — cannot do.
+// Final completeness sweep. Gated on every non-skip block being done, not on a full run: a relaunch
+// derives pending from the todo blocks, so a full-run test would read false on every relaunch.
 // =============================================================================
 let sweep = null;
 let sweepFailed = false;   // the sweep RAN and DIED — distinct from the legitimate did-not-run cases
@@ -1643,10 +1433,7 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered) {
   sweep = await agent(sweepPrompt(doneIds), roleOpts('sweep', {
     schema: SWEEP_SCHEMA, phase: 'Sweep', label: 'final-sweep',
   }));
-  // A dead sweep is NOT a clean sweep. `(sweep?.gaps || []).length` reported "0 potential gap(s)" for a
-  // check that never ran, citing a SWEEP_FILE nothing wrote — turning the run's final "did we actually
-  // finish?" signal into a false all-clear. It does NOT halt: every block is already staged and accepted,
-  // so failing a complete run over a missing advisory check would be worse than reporting it as missing.
+  // A dead sweep is not a clean sweep. It does not halt: every block is staged, and the sweep is advisory.
   sweepFailed = !sweep;
   log(sweepFailed
     ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: re-run the sweep, or check coverage against the goal yourself.`
@@ -1665,14 +1452,9 @@ const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
 // Blocks whose developer overrode a plan clause under MATRIX 6a. Named here because AMENDED-<id>.md is
 // reachable by acceptance alone — without this the user would have to already know the file exists.
 const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
-// Anything with saved work the user must be told about. Keyed on the PATCH and on the explicit `parked`
-// flag, never on the status string: an escalated block keeps its "BLOCKED (needs user)" status but was
-// still parked, and dropping it here would leave its patch path unreported anywhere in the return.
+// Keyed on the patch and rec.parked, never the status string.
 const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
-// Split on whether park actually WROTE a patch. A block escalated before it edited anything parks an
-// empty tree (park is told to return saved=false, patch_bytes=0), and telling the user to restore
-// `parked-<id>.patch` would point them at a file that does not exist — the same failure the halt reason
-// guards against above. Both lists still belong in the return: an empty park is still a block not done.
+// Split on rec.patch. An empty park is still a block not done.
 const patchedPlans = parkedPlans.filter((r) => r.patch);
 const emptyParkPlans = parkedPlans.filter((r) => !r.patch);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
@@ -1721,10 +1503,7 @@ return {
   // true ONLY when the sweep ran and died. `sweep: null` on its own cannot say whether the check was
   // deliberately skipped (sweep:none, an incomplete goal) or lost — and those need different actions.
   sweepFailed,
-  // Parked blocks: NOT done. `patch` is the path when park wrote one and NULL when there was nothing to
-  // save (an escalation that halted the developer before it edited anything) — the prose above says which
-  // is which, so neither reading promises a file that was never written. `strays` needs a second restore
-  // step when it is set.
+  // Parked blocks: NOT done. patch follows rec.patch. A set strays needs a second restore step.
   parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
   ledger,
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
