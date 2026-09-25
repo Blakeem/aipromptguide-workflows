@@ -36,7 +36,7 @@ it fits**, that's investigate. The tell is whether missing a requirement is a tr
 disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**:
-the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
+the sixteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents).
 
 **The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal

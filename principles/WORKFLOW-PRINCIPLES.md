@@ -203,11 +203,20 @@ close it:
   + numbered files + ledgers), with nothing lost. If a failure would need bespoke cleanup to resume,
   the exit path is wrong, not the resume.
 
+### 16. Operator steps ride a required tool
+Anything carried between runs, such as a status, a pending decision or a launch condition, lives in
+durable state that an already-required step reads or writes. Never make it a step someone must
+remember. develop's statuses reach the plan file through `plan-edit.mjs args`, which every launch
+needs. A block waiting on the user stays `blocked`, so `args` never selects it until someone flips
+it. The launch waits on that same command's notification. When a new need appears, fold it into the
+required step, or make it a required argument so it is a decision and cannot be skipped. Never add
+an agent for it (#4) or a checklist line someone must honor.
+
 ---
 
 ## Scope — which principles apply to which workflow kind
 
-Principles #1–4, #6, #8, #11–15 are **core** — every workflow honors them. The rest are
+Principles #1–4, #6, #8, #11–16 are **core** — every workflow honors them. The rest are
 **build-loop** rules and apply only where they fit:
 
 - **Build loops** (produce code: develop, plus debug's review that feeds it) honor everything,
@@ -324,3 +333,5 @@ Use these as yes/no checks when reviewing any workflow against these principles:
       is every write-attestation field actually **read** by the harness? (#15)
 - [ ] Can a run that lost an agent at **any** stage resume through the **same** mechanism as a normal
       resume (clean tree + durable trail), with no bespoke recovery step and nothing lost? (#15)
+- [ ] Does everything carried between runs ride a step the operator must run anyway, with nothing
+      left for someone to remember? (#16)
