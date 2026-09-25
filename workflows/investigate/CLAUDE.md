@@ -157,20 +157,16 @@ agents per run, so a fast tier buys nothing.
   "relax one criterion". The **comparison tables the axes the
   qualifiers actually differ on** — what each buys and costs — never the criteria, since every qualifier
   passes all of those and a criteria table compares nothing. "Which to pick when" is a discriminator, not
-  a ranking. Loosen this and a multi-option run degrades into a bag of files, which is what it did before
-  the shape was specified.
-- **It is written on the LAST round too, not only a terminating one.** A search that merely ran out of
-  rounds still owes its comparison and its near misses, and the investigator that just ran is the only
-  agent left to write them — so the final round is told to write it and to label it a **partial result**.
-  This is also why the critic gate opens on that round: the determination is the file the user reads, and
-  nothing unvetted may reach them.
+  a ranking. Loosen this and a multi-option run degrades into a bag of files. The last round writes it
+  too, labelled a **partial result**, since a search that ran out of rounds still owes its comparison and
+  near misses.
 - **Near misses are first-class.** A candidate failing **exactly one** criterion gets a `NEAR-MISS:` ledger
   line with the shortfall in numbers, its own determination section, and a count in the return. On a
   no-solution or round-budget run it is often the only actionable thing the search produced, and one line
   among hundreds in the ledger is where it would otherwise die. The marker is a **fact** — two failed
   criteria is not a near miss.
-  **Both writers mark and count**, so an option the critic itself knocks out on one criterion counts too
-  (that is the most interesting kind: it got far enough to look like an answer). The critic also re-checks
+  **Both writers mark and count**, so an option the critic itself knocks out on one criterion counts too.
+  The critic also re-checks
   the investigator's markers, but its corrections land in the **review file and the ledger, not in the
   count** — `nearMisses` is a tally of ledger markers, not a critic-verified figure. Read the latest
   `acceptance-review-rN.md` before quoting the number. It counts **this invocation's** markers, while
@@ -185,13 +181,12 @@ agents per run, so a fast tier buys nothing.
   | `exhaustive (search closed, critic agreed)` | The answer set is complete as far as the criteria reach. |
   | `not exhaustive (round budget spent)` | Options may be valid, but **nothing was proved complete**. |
   | `no qualifying option exists (verified)` | Critic-verified: nothing can meet these criteria. |
-  | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid; the search is **open**. |
+  | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid, but the search is **open**. A critic agreed to it as one agrees to exhaustion, so it is the state most easily mistaken for a finished search. |
   | `stalled (a round added nothing new and claimed nothing — stopped unverified)` | A round produced nothing at all. Unverified, no determination. |
   | `stopped on token budget (resume where it left off)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
 
-  Only the first is a *finished* search. `saturated` is the one most easily mistaken for it — a critic
-  agreed to it, exactly as one agrees to exhaustion — so it is the one to state plainly.
+  Only the first is a *finished* search.
 
 - **Nothing unvetted reaches you.** The return carries the critic's **upheld ids only**, never a listing of
   `options/`. An escalation raised alongside new options still gets those options critiqued *before* the
