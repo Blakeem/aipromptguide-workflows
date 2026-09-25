@@ -302,7 +302,7 @@ const developSchema = (mode) => ({
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
     // Required, unlike dismissed_count: an omitted field must not read as "none this round".
-    plan_amendments:   { type: 'integer', description: 'how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block\'s AMENDED file. Report 0 when there were none; this field is required, so "none" must be stated, never omitted.' },
+    plan_amendments:   { type: 'integer', description: 'entries you appended to this block\'s AMENDED file this round (MATRIX 6a). Report 0 when there were none.' },
     gate_output:       { type: 'string', description: 'tail of failing gate/verification output, or "" if green' },
   },
 });
@@ -499,8 +499,7 @@ PROCEDURE:
    Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
 2. RUN THE GATE until it is ${p.gate === 'build-only' ? 'GREEN (build-only: the build must pass; this block has no verification to run)' : 'GREEN'} — build: ${GATES.build ?? '(none)'} ; verification: per
    the plan's Test Strategy (${GATES.test ?? 'no test gate configured'}). ${SUITE_LINE} Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. ${staging}
 4. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
@@ -527,9 +526,8 @@ PROCEDURE:
 2. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
    scoped to this block (its \`test_selector:\` line when it has one, else the test gate):
    ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
+   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
+   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
 3. ${SUITE_LINE} Build/lint must always pass.
 4. ${staging}
 5. ${MATRIX(p.id, round, p.mode)}
@@ -566,16 +564,12 @@ ${round === 1 ? `0. INVENTORY READABLE — do this FIRST, before reading or edit
    surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
    to make the gate pass; never disable lint rules.
 3. RUN THE GATE until it is GREEN — build: ${GATES.build ?? '(none)'} ; verification: ${GATES.test ?? '(no test gate configured)'}.
-   ${SUITE_LINE} SANITY-CHECK the runner really executed the tests (tests_run_count = 0 means it matched
-   NOTHING = a false green; -1 if N/A). If a fix breaks the gate and you cannot resolve it within THAT
+   ${SUITE_LINE} SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
+   cannot resolve it within THAT
    fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
    rest.
 4. ${staging}
 5. ${MATRIX(p.id, round, p.mode)}
-RESULTS — return one \`results\` entry per issue id in every block, \`{ issue_id, status }\`: FIXED (you
-changed code that closes it), STALE (it is not in the current code), SKIPPED (its decision is not
-ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
-engine reads these statuses as the record of what this round did.
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
@@ -597,13 +591,10 @@ fold or stash that work. If it IS 0, implement this block from scratch on top of
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
       : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).`;
+Report baseline_dirty_files=-1.`;
   // Every round, round 1 included: the ledger persists across resumes.
-  const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).`;
+  const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on

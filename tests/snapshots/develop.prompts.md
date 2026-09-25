@@ -6,26 +6,26 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 7003 | every block accepts first time |
+| develop | 1 | 1 | 6646 | every block accepts first time |
 | quality | 1 | 1 | 2751 | every block accepts first time |
 | acceptance | 1 | 1 | 5454 | every block accepts first time |
-| develop | 2 | 1 | 7474 | every block accepts first time |
+| develop | 2 | 1 | 7136 | every block accepts first time |
 | acceptance | 2 | 2 | 5705 | every block accepts first time |
 | final-sweep | 1 | 1 | 1942 | every block accepts first time |
-| develop | 3 | 1 | 6480 | quality flags the first round |
+| develop | 3 | 1 | 6017 | quality flags the first round |
 | quality | 2 | 1 | 2564 | quality flags the first round |
-| develop | 4 | 1 | 6951 | quality flags the first round |
-| develop | 5 | 1 | 6478 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6949 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 6464 | the gate never goes green |
+| develop | 4 | 1 | 6507 | quality flags the first round |
+| develop | 5 | 1 | 6015 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6505 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 6001 | the gate never goes green |
 | park | 1 | 1 | 5006 | the gate never goes green |
-| develop | 8 | 1 | 6935 | the gate never goes green |
+| develop | 8 | 1 | 6491 | the gate never goes green |
 | park | 2 | 1 | 4950 | a parked block, and the run carries on |
 | park | 3 | 1 | 4994 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8868 | a fix block closes its issues |
+| develop | 9 | 2 | 8162 | a fix block closes its issues |
 | acceptance | 3 | 3 | 6653 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1933 | a fix block closes its issues |
-| develop | 10 | 2 | 8960 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 8254 | a pass of two fix blocks closes its issues |
 | acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
 | acceptance | 5 | 3 | 6652 | every issue is already fixed |
@@ -64,10 +64,8 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
 write nothing, do no work, and return immediately with that count — the run halts so the operator can
 fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
-If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
@@ -75,8 +73,7 @@ PROCEDURE:
    Test Strategy.
 2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
@@ -198,7 +195,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -440,10 +437,8 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
 write nothing, do no work, and return immediately with that count — the run halts so the operator can
 fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
-If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
@@ -452,9 +447,8 @@ PROCEDURE:
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (its `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
+   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
+   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
@@ -577,7 +571,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -822,12 +816,9 @@ over broad reads. Don't restate large files back; act on them.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
@@ -835,8 +826,7 @@ PROCEDURE:
    Test Strategy.
 2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
@@ -958,7 +948,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -1058,12 +1048,9 @@ BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
@@ -1072,9 +1059,8 @@ PROCEDURE:
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (its `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
+   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
+   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
@@ -1197,7 +1183,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -1230,12 +1216,9 @@ over broad reads. Don't restate large files back; act on them.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-a-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
@@ -1243,8 +1226,7 @@ PROCEDURE:
    Test Strategy.
 2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
@@ -1366,7 +1348,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -1400,12 +1382,9 @@ BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-b-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
@@ -1414,9 +1393,8 @@ PROCEDURE:
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (its `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
+   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
+   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
@@ -1539,7 +1517,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -1572,12 +1550,9 @@ over broad reads. Don't restate large files back; act on them.
 BLOCK: block-a
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
@@ -1585,8 +1560,7 @@ PROCEDURE:
    Test Strategy.
 2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
@@ -1708,7 +1682,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -1844,12 +1818,9 @@ BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).
-If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+Report baseline_dirty_files=-1.
+If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
@@ -1858,9 +1829,8 @@ PROCEDURE:
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (its `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
+   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
+   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
@@ -1983,7 +1953,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -2229,10 +2199,8 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
 write nothing, do no work, and return immediately with that count — the run halts so the operator can
 fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
-If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
@@ -2250,8 +2218,8 @@ PROCEDURE:
    surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
    to make the gate pass; never disable lint rules.
 3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests (tests_run_count = 0 means it matched
-   NOTHING = a false green; -1 if N/A). If a fix breaks the gate and you cannot resolve it within THAT
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
+   cannot resolve it within THAT
    fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
    rest.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
@@ -2298,10 +2266,6 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
 This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
 THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
 nothing else.
-RESULTS — return one `results` entry per issue id in every block, `{ issue_id, status }`: FIXED (you
-changed code that closes it), STALE (it is not in the current code), SKIPPED (its decision is not
-ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
-engine reads these statuses as the record of what this round did.
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).
 ~~~~
 
@@ -2415,7 +2379,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
@@ -2690,10 +2654,8 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
 write nothing, do no work, and return immediately with that count — the run halts so the operator can
 fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
-If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as `CONTESTS DISMISSAL:`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).
+If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
 0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
@@ -2711,8 +2673,8 @@ PROCEDURE:
    surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
    to make the gate pass; never disable lint rules.
 3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests (tests_run_count = 0 means it matched
-   NOTHING = a false green; -1 if N/A). If a fix breaks the gate and you cannot resolve it within THAT
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
+   cannot resolve it within THAT
    fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
    rest.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
@@ -2759,10 +2721,6 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
 This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
 THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
 nothing else.
-RESULTS — return one `results` entry per issue id in every block, `{ issue_id, status }`: FIXED (you
-changed code that closes it), STALE (it is not in the current code), SKIPPED (its decision is not
-ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
-engine reads these statuses as the record of what this round did.
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).
 ~~~~
 
@@ -2876,7 +2834,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "plan_amendments": {
       "type": "integer",
-      "description": "how many PLAN CLAUSES you overrode under MATRIX 6a this round — each one a defect you VERIFIED in what the plan prescribes, recorded as an entry in this block's AMENDED file. Report 0 when there were none; this field is required, so \"none\" must be stated, never omitted."
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
     "gate_output": {
       "type": "string",
