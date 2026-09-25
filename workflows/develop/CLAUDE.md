@@ -2,10 +2,10 @@
 
 `develop-cycle.mjs` builds the **todo blocks of ONE approved plan file** in one target git repo. Each
 `## Plan: <id>` block carries its own `mode`, which picks the frames the engine holds: `feature` (one
-bounded feature, wired in and reachable) or `section` (one slice of a breadth-spanning goal, every call
-site converted). Per block: `develop → blind quality → plan-aware acceptance`, **staging each accepted
-block** before the next. It replaces feature-cycle's build phase and migrate-cycle's run phase; during
-the transition the root router says which engine to use. Built to
+bounded feature, wired in and reachable), `section` (one slice of a breadth-spanning goal, every call
+site converted) or `fix` (one issue inventory from debug's review or your own testing, ACTIONABLE
+entries only). Per block: `develop → blind quality → plan-aware acceptance`, **staging each accepted
+block** before the next. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md`; follow those before changing the engine.
 
 ## 1. Scope (check FIRST)
@@ -19,9 +19,11 @@ the run and verify with a debug doc-accuracy pass).
 ## 2. The flow
 
 1. **Author the plan file** in the plan-bus format (§3), at `<root>/plans/<runId>/` — never inside
-   `target.repo`, never under `runs/<runId>/`. Plan mode or direct authoring, the user approves.
-2. **Refine it.** Until the refine workflow lands, run feature-cycle `phase:"refine"` on the file and
-   fold the gaps.
+   `target.repo`, never under `runs/<runId>/`. Plan mode or direct authoring. A fix-mode file from
+   debug's review skips to its triage (debug guide), then step 3.
+2. **Refine it, then get approval.** Run the refine workflow on the file (`workflows/refine/CLAUDE.md`)
+   until it converges, then the user approves the FINAL text. Approval comes after refine so the user
+   signs off on what develop builds.
 3. **Derive the args — never hand-type them:**
    `node <plan-block.mjs> <planPath> --list` prints
    `{ goal, ordered, suite, sweep, blocks: [{ id, title, mode, gate, status }] }`.

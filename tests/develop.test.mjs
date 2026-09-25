@@ -254,6 +254,8 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
   }, TWO);
   ok(carry.out.halted === false, 'an unordered run carries on');
   eq(carry.out.plansDone.join(), 'block-a', 'building the next block, which alone is done');
+  eq(carry.out.status, 'run complete with 1 block(s) blocked', 'the status counts the blocked block, never "partial slice"');
+  ok(/closed NO issue and are NOT done: fix-a/.test(carry.out.followups), 'and followups name it');
 }
 
 section('a round-2 empty results array takes NO shortcut — the run still reaches acceptance and park');
@@ -395,7 +397,7 @@ section('the `ordered` file key decides whether a parked block stops the run');
   ok(carry.out.halted === false, 'the run did not halt');
   eq(carry.out.plansDone.join(), 'block-b', 'block-b is the only one done');
   ok(carry.out.parked[0].patch?.endsWith('parked-block-a.patch'), 'the patch path reaches the operator');
-  eq(carry.out.status, 'roadmap complete with 1 plan(s) parked', 'status counts the parked block');
+  eq(carry.out.status, 'run complete with 1 block(s) parked', 'status counts the parked block');
 
   const stop = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true });
   ok(stop.labels.includes('park:block-a'), 'the SAME park still runs, so nothing is discarded');

@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG develop-cycle dynamic workflow — build the todo blocks of one approved plan-bus file (feature and section modes, staged per accepted block). Use only when the user explicitly asks for the AIPG develop workflow."
+description: "Run the AIPG develop-cycle dynamic workflow — build the todo blocks of one approved plan-bus file (feature, section and fix modes, staged per accepted block). Use only when the user explicitly asks for the AIPG develop workflow."
 argument-hint: "[plan file or blocks to build]"
 ---
 

@@ -131,21 +131,21 @@ const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.m
 // THROW rather than coerce — the string "false" is truthy, and coercing it silently flips park semantics.
 // =============================================================================
 if (A.ordered != null && typeof A.ordered !== 'boolean') {
-  throw new Error(`Invalid file key: args.ordered must be a boolean; got ${JSON.stringify(A.ordered)}. It decides whether a PARKED block stops the run, and the string "false" is truthy — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid ordered key: args.ordered must be a boolean; got ${JSON.stringify(A.ordered)}. It decides whether a PARKED block stops the run, and the string "false" is truthy — copy the value "plan-block.mjs <planPath> --list" prints.`);
 }
 const ORDERED = A.ordered === true;
 const VALID_SUITE = new Set(['green', 'scoped']);
 if (A.suite != null && !VALID_SUITE.has(A.suite)) {
-  throw new Error(`Invalid file key: args.suite must be green | scoped; got ${JSON.stringify(A.suite)}. It decides whether a reddened EXISTING suite fails a green gate, so it must never coerce — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid suite key: args.suite must be green | scoped; got ${JSON.stringify(A.suite)}. It decides whether a reddened EXISTING suite fails a green gate, so it must never coerce — copy the value "plan-block.mjs <planPath> --list" prints.`);
 }
 const SUITE = A.suite ?? 'green';
 const VALID_SWEEP = new Set(['goal-coverage', 'none']);
 if (A.sweep != null && !VALID_SWEEP.has(A.sweep)) {
-  throw new Error(`Invalid file key: args.sweep must be goal-coverage | none; got ${JSON.stringify(A.sweep)}. It decides whether the run ends with a whole-goal coverage check — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid sweep key: args.sweep must be goal-coverage | none; got ${JSON.stringify(A.sweep)}. It decides whether the run ends with a whole-goal coverage check — copy the value "plan-block.mjs <planPath> --list" prints.`);
 }
 const SWEEP_MODE = A.sweep ?? 'none';
 if (A.goal != null && typeof A.goal !== 'string') {
-  throw new Error(`Invalid file key: args.goal must be a string; got ${JSON.stringify(A.goal)}. It is the goal line every agent is framed with and the sweep's re-grep seed — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid goal key: args.goal must be a string; got ${JSON.stringify(A.goal)}. It is the goal line every agent is framed with and the sweep's re-grep seed — copy the value "plan-block.mjs <planPath> --list" prints.`);
 }
 const GOAL = A.goal ?? '';
 
@@ -1495,6 +1495,8 @@ const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
 // guards against above. Both lists still belong in the return: an empty park is still a block not done.
 const patchedPlans = parkedPlans.filter((r) => r.patch);
 const emptyParkPlans = parkedPlans.filter((r) => !r.patch);
+// Selected blocks that ended neither done nor parked: an unordered run's no-changes fix block.
+const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
@@ -1513,8 +1515,11 @@ const status = halted
   ? (HALT_STATUS[haltKind] || 'halted (a block needs attention)')
   : allDone
     ? 'done (all blocks staged)'
-    : parkedPlans.length
-      ? `roadmap complete with ${parkedPlans.length} plan(s) parked`
+    : parkedPlans.length || blockedPlans.length
+      ? `run complete with ${[
+        parkedPlans.length ? `${parkedPlans.length} block(s) parked` : '',
+        blockedPlans.length ? `${blockedPlans.length} block(s) blocked` : '',
+      ].filter(Boolean).join(' and ')}`
       : 'partial slice complete';
 
 log(`develop: ${status} — ${doneIds.length}/${pending.length} block(s) done [${ledger.reduce((s, r) => s + r.qualityRounds, 0)} quality pass(es)]`);
@@ -1548,6 +1553,8 @@ return {
       : ''}${emptyParkPlans.length
       ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
       : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone with runOnly after sharpening its block in the plan file, or drop it. `
+    : ''}${blockedPlans.length
+    ? `${blockedPlans.length} block(s) closed NO issue and are NOT done: ${blockedPlans.map((r) => r.id).join(', ')}. Sync each to status=blocked, read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
     : ''}${amendedIds.length
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
