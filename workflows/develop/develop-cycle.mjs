@@ -6,7 +6,7 @@ export const meta = {
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues; implements minimally, runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags production-blocking defects, writes quality-review-<id>-rN.md. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression. Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add, never commit) — the accepted baseline advances.' },
-    { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. An UNORDERED run then continues; an ORDERED one stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
+    { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
     { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory — a dead sweep never halts.' },
   ],
 };
@@ -57,8 +57,9 @@ const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // develop→qua
 const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // token floor to start another block
 
 // Set an agentType only when it exists in your registry. The blind critic is opus because the fast tier
-// surfaced one deep defect per round on large diffs. Sweep searches rather than reviews, so it stays fast.
-const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'sonnet', ...(A.models ?? {}) };
+// surfaced one deep defect per round on large diffs. Sweep is opus too: the runtime relays the launching
+// user message to every agent, and a sonnet agent may follow it over its task.
+const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'opus', ...(A.models ?? {}) };
 const AT = { ...(A.agentTypes ?? {}) };
 const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
@@ -788,11 +789,11 @@ const parkReason = (haltKind) => ({
   'staging-unconfirmed': `the developer did not confirm its work stayed unstaged; inspect \`git -C ${REPO} diff --cached\` for self-staged work`,
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
 
-const parkPrompt = (p, lastReviewPath, escalated, haltKind) => `
+const parkPrompt = (p, lastReviewPath, escalated, haltKind, stopsRun) => `
 You are PARKING the plan block "${p.id}", which ${escalated
     ? `was halted: ${parkReason(haltKind)}`
     : 'did NOT reach acceptance within its round budget'}. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree${escalated || ORDERED
+in the working tree: you SAVE it to a patch, then clear it from the tree${stopsRun
     ? `. The run stops after you — ${escalated ? 'only the user can unblock it' : 'the blocks after this one depend on it'} — but the repo is left in a known,
 buildable state the user can come back to (or run something else against) before resuming`
     : ` so the REST OF THE RUN can continue — the
@@ -827,8 +828,8 @@ PROCEDURE:
    ${parkedNewDir(p.id)}/. If step 2 did not copy a stray, do NOT delete it.
    Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${ORDERED
-    ? ', and that the blocks after it were NOT attempted, because they depend on this one'
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${stopsRun
+    ? `, and that the blocks after it were NOT attempted${ORDERED ? ', because they depend on this one' : ''}`
     : '; the remaining blocks continued without it'}
    - one line on why it was parked (${escalated ? parkReason(haltKind) : 'what acceptance was still failing'})
    - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
@@ -1090,6 +1091,8 @@ for (const p of pending) {
   // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1
   // dirty-baseline halt, which changed nothing — that work is the OPERATOR's and must never be parked.
   let escalated = false;
+  // The escalation's kind when it parks without halting the run (needs-user in an unordered run).
+  let parkKind = '';
   let round = 0;
 
   while (round < MAX_ROUNDS) {
@@ -1166,12 +1169,17 @@ for (const p of pending) {
     const results = fix ? fix.record(dev) : [];
     if (fix) rec.results = fix.ledger();
     if (dev?.needs_user === true) {
-      halted = true;
       escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
-      haltKind = 'needs-user';
-      haltReason = `Developer halted for a user-only decision in block ${p.id} round ${round} (see ${NEEDS_USER}).`;
       rec.status = 'BLOCKED (needs user)';
-      log(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → halting (see ${NEEDS_USER})`);
+      // No later block depends on this one in an unordered run, so only an ordered run stops.
+      if (ORDERED) {
+        halted = true;
+        haltKind = 'needs-user';
+        haltReason = `Developer halted for a user-only decision in block ${p.id} round ${round} (see ${NEEDS_USER}).`;
+      } else {
+        parkKind = 'needs-user';
+      }
+      log(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → ${ORDERED ? 'halting' : 'parking it, the unordered run continues'} (see ${NEEDS_USER})`);
       break;
     }
     // ---- PRECONDITION: the work is still UNSTAGED ---------------------------------------------------
@@ -1363,7 +1371,7 @@ for (const p of pending) {
     }
     phase('Park');
     // reviewPath passes through empty or not: see its declaration.
-    const pk = await agent(parkPrompt(p, reviewPath, escalated, haltKind), roleOpts('develop', {
+    const pk = await agent(parkPrompt(p, reviewPath, escalated, parkKind || haltKind, halted), roleOpts('develop', {
       schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     const strays = pk?.strays_saved ?? 0;
@@ -1502,7 +1510,7 @@ return {
   // changes. A block the run never reached has none.
   statusSync,
   reviewTrail,
-  followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then re-invoke with the same args + startAt (or runOnly) for the blocks still to do. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
+  followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished. `
     : ''}${parkedPlans.length
     ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${patchedPlans.length

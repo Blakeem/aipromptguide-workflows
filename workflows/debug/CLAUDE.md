@@ -113,7 +113,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
    `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
-3. **Run `review.mjs`** (`scriptPath` = its absolute path). It writes `issues/<unit>.md` per unit and
+3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
+   "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. Then PRESENT the inventory: read the issue
    files, walk the user through totals by severity/decision, the hot areas, and every NEEDS_USER item
    with its options + recommendation. This is a scoping conversation.

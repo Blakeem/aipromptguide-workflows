@@ -26,6 +26,7 @@ official docs verbatim instead of a rewritten spec.
 
 ## 2. The flow
 
+Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `docs-cycle.mjs` + args.
 No mid-run questions — frame it with the user first:
 

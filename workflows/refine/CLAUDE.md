@@ -25,9 +25,10 @@ Four things together — remove any one and the plan grows every round instead o
 
 1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo), the user
    approves it.
-2. Launch refine with `planPath` = that file. Read the result:
-   - `converged` — hand the final text to the user for approval, then derive develop's args from
-     `--list` and build.
+2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
+   a notification turn"). Read the result:
+   - `converged` — hand the final text to the user for approval, then build it with develop, whose
+     args come from `plan-edit.mjs args`.
    - `needs-answers` — read `NEEDS-USER.md`: the critic raised things only you can settle (a
      dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done` block), or the editor
      escalated a contested dismissal. Restructure the plan (new blocks need fresh kebab ids), then

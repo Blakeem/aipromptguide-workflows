@@ -29,10 +29,11 @@ this file is stale.
 | acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
 | acceptance | 5 | 3 | 6652 | every issue is already fixed |
-| park | 4 | 1 | 5306 | the developer staged its own work |
-| park | 5 | 1 | 5144 | developer never got its block |
-| park | 6 | 1 | 5162 | the developer dies |
-| park | 7 | 1 | 5240 | developer escalates |
+| park | 4 | 1 | 5312 | the developer staged its own work |
+| park | 5 | 1 | 5150 | developer never got its block |
+| park | 6 | 1 | 5168 | the developer dies |
+| park | 7 | 1 | 5245 | developer escalates |
+| park | 8 | 1 | 5279 | developer escalates in an ordered run |
 
 ## develop · variant 1 · schema 1
 
@@ -3280,7 +3281,7 @@ PROCEDURE:
    E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
@@ -3382,7 +3383,7 @@ PROCEDURE:
    E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent could not obtain its plan)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
@@ -3484,7 +3485,7 @@ PROCEDURE:
    E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent returned nothing (skipped or died))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
@@ -3547,6 +3548,109 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 ~~~~text
 
 You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). Its work is NOT thrown away and NOT left lying
+in the working tree: you SAVE it to a patch, then clear it from the tree so the REST OF THE RUN can continue — the
+next block's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that
+block and fail it for this one's problems. Accepted blocks are STAGED and must survive untouched.
+GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
+over broad reads. Don't restate large files back; act on them.
+STAGING CONTRACT:
+  • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
+  • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
+  • Nothing is EVER committed.
+
+SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+An already-empty diff is not a stop: step 1 says what to do.
+
+PROCEDURE:
+1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
+   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
+   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+     `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
+   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
+   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
+2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
+   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
+   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
+   strays_saved: it matters, because step 4 must tell the user those files exist.
+3. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
+   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
+   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
+   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
+4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
+   - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
+   - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
+   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
+     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
+     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
+     there were no strays — do not leave a dangling reference to an empty directory.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
+     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
+     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
+     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
+     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
+     invisible to the blind reviewer.
+Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "saved",
+    "cleared",
+    "gates_green"
+  ],
+  "properties": {
+    "saved": {
+      "type": "boolean",
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
+    },
+    "cleared": {
+      "type": "boolean",
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+    },
+    "gates_green": {
+      "type": "boolean",
+      "description": "true if the BUILD gate passes again after clearing (the tree is safe for what comes next)"
+    },
+    "patch_bytes": {
+      "type": "integer",
+      "description": "size of the written patch file — 0 means nothing was saved"
+    },
+    "strays_saved": {
+      "type": "integer",
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
+~~~~
+
+## park · variant 8 · schema 1
+
+`park:block-a` in "developer escalates in an ordered run"
+
+~~~~text
+
+You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). Its work is NOT thrown away and NOT left lying
 in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — only the user can unblock it — but the repo is left in a known,
 buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
 GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
@@ -3586,7 +3690,7 @@ PROCEDURE:
    E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:

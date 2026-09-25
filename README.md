@@ -164,6 +164,13 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   sends, so a prompt change shows in the diff under every mode and round it reaches.
 - **`tools/freeze-notes.mjs`** copies an engine for a live test in which every agent reports what in
   the workflow was unclear or wasteful. It now reaches every agent, including brainstorm's.
+- **A question for the user no longer stops an unordered develop run.** The block is parked and marked
+  `blocked`, and the remaining blocks continue. An ordered run still stops there.
+- **Launch every workflow from a notification turn.** Claude Code copies the launching turn's user
+  message into every agent's prompt, so a run is now launched in the turn a background pre-launch
+  command's notification starts. develop's sweep runs on opus for the same reason.
+- **refine flags a block that relies on text outside itself**, since develop hands each agent only
+  its own block.
 
 ### 2026-09-25
 

@@ -241,7 +241,7 @@ section('a fix block that halts on escalation or staging still records the resul
 {
   const reported = [{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }];
   for (const [why, extra] of [['needs_user', { needs_user: true }], ['staging unconfirmed', { unstaged_confirmed: false }]]) {
-    const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, FIX_ONE);
+    const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, { ...FIX_ONE, ordered: true });
     ok(out.halted === true, `${why}: the run halted`);
     eq(JSON.stringify(out.ledger[0]?.results), JSON.stringify(reported), `${why}: the ledger carries the reported results`);
   }
@@ -481,15 +481,14 @@ section('the `ordered` file key decides whether a parked block stops the run');
     'halt reason states saved + clean');
 }
 
-section('a developer escalation parks first, then stops even an unordered run');
-// Only the user can unblock it, so `ordered` does not decide here. parked[] is keyed on the patch and the
-// `parked` flag, never the status prose: an escalated block keeps BLOCKED and would otherwise have its
-// patch path reported nowhere in the return.
+section('a developer escalation parks first, then stops an ordered run');
+// parked[] is keyed on the patch and the `parked` flag, never the status prose: an escalated block keeps
+// BLOCKED and would otherwise have its patch path reported nowhere in the return.
 {
   const { out, labels, prompt } = await run({
     develop: { ...DEV_OK, needs_user: true },
     park: { ...PARK_OK, strays_saved: 2 },
-  });
+  }, { ...baseArgs, ordered: true });
   ok(labels.includes('park:block-a'), 'PARK ran on the halt path');
   eq(out.status, 'BLOCKED (needs user input)', 'status');
   ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
@@ -515,6 +514,33 @@ section('a developer escalation parks first, then stops even an unordered run');
   eq(out.parked[0]?.patch, null, 'no patch path for an empty park');
   ok(/NO patch was written for: block-a/.test(out.followups), 'and followups says nothing was saved');
   ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
+}
+
+section('an unordered run parks a needs-user block and continues');
+// No later block depends on it, so only the user's answer waits. The block stays blocked, never parked:
+// a relaunch must not rebuild it before that answer.
+{
+  const { out, labels, prompt } = await run({
+    ...GREEN_RUN,
+    develop: (label) => (/block-a/.test(label) ? { ...DEV_OK, needs_user: true } : DEV_OK),
+    park: PARK_OK,
+  });
+  ok(out.halted === false, 'the run did not halt');
+  ok(labels.includes('park:block-a'), 'block-a was parked');
+  ok(labels.some((l) => /block-b/.test(l)), 'block-b ran');
+  eq(syncOf(out), 'block-a=blocked,block-b=done', 'block-a is blocked and block-b is done');
+  eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
+  eq(out.status, 'run complete with 1 block(s) parked', 'status');
+  ok(/REST OF THE RUN can continue/.test(prompt('park')) && /the remaining blocks continued without it/.test(prompt('park')),
+    'park is told the run continues');
+  ok(/was halted: the developer escalated a user-only decision/.test(prompt('park')), 'with the needs-user reason');
+}
+{
+  // Every other escalation still stops an unordered run, and park must be told so.
+  const { out, prompt } = await run({ develop: null, park: PARK_OK });
+  ok(out.halted === true, 'agent-dead halts the unordered run');
+  ok(/The run stops after you/.test(prompt('park')) && /the blocks after it were NOT attempted\n/.test(prompt('park')),
+    'park is told the run stops, with no ordered-dependency claim');
 }
 
 section('park records the halt that actually happened, never an escalation that did not');
@@ -1079,8 +1105,8 @@ section('statusSync maps every block terminal to done, parked or blocked, and sk
   const parked = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   eq(syncOf(parked.out), 'block-a=parked', 'a park over the round budget is parked');
 
-  const halted = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK });
-  eq(syncOf(halted.out), 'block-a=blocked', 'a needs-user halt is blocked, and block-b, never reached, has no edit');
+  const halted = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, { ...baseArgs, ordered: true });
+  eq(syncOf(halted.out), 'block-a=blocked', 'an ordered needs-user halt is blocked, and block-b, never reached, has no edit');
 
   const ordered = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true, maxRounds: 1 });
   eq(syncOf(ordered.out), 'block-a=parked', 'an ordered park stops the run, and the block after it has no edit');

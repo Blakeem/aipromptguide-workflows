@@ -359,8 +359,14 @@ export default {
     },
     {
       name: 'developer escalates',
-      when: 'the developer hits a user-only blocker',
+      when: 'the developer hits a user-only blocker in an unordered run',
       args: base,
+      respond: { develop: { ...DEV_OK, needs_user: true }, park: PARK_OK },
+    },
+    {
+      name: 'developer escalates in an ordered run',
+      when: 'the developer hits a user-only blocker in an ordered run',
+      args: { ...base, ordered: true },
       respond: { develop: { ...DEV_OK, needs_user: true }, park: PARK_OK },
     },
     {

@@ -37,8 +37,10 @@ preamble or another block never reaches it.
    `--pack <target.repo>`: it groups the todo fix blocks into passes of at most `--loc-cap` lines (default
    5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
    verifier build several small blocks. Each member keeps its own plan file and statuses.
-4. **Clean the unstaged tree, then launch.** The engine builds the `status: todo` blocks in file
-   order; `done`/`skip`/`parked`/`blocked` are never selected.
+4. **Clean the unstaged tree, then launch.** Clean it before step 3, run step 3 with
+   `run_in_background`, and launch in the turn its notification starts (root `CLAUDE.md`, "Launch from
+   a notification turn"). The engine builds the `status: todo` blocks in file order;
+   `done`/`skip`/`parked`/`blocked` are never selected.
 5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
    step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
@@ -91,8 +93,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   block the staged baseline already satisfies passes without inventing changes). Only agent that
   stages.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
-  parked block; `ordered: true` → the run STOPS there (later blocks depend on it).
-- **Sweep** (sonnet) — runs only when `sweep: goal-coverage` AND every non-skip block is done
+  parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
+  escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
+- **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep sets `sweepFailed`, never halts.
 
@@ -148,5 +151,5 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (develop/quality/acceptance opus, sweep sonnet) · `stateDir` · `runOnly`/`startAt`.
+  (every role opus) · `stateDir` · `runOnly`/`startAt`.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

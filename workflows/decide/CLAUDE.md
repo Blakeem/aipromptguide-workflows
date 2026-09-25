@@ -33,6 +33,7 @@ fuses the best of several lenses is already in scope there, and is not what `ran
 
 ## 2. The flow
 
+Launch every run from a notification turn (root `CLAUDE.md`, "Launch from a notification turn").
 Pick a `runId`. `Workflow` loads by path: `scriptPath` = absolute path to `decide-cycle.mjs` + args.
 No mid-run questions — settle the rubric with the user first:
 
