@@ -16,7 +16,9 @@ feature-sized. Too small → just edit. A block too big for one develop pass →
 Hand-written documentation stays out of blocks (no defect class for the blind reviewer; write docs
 directly after the run and verify with a debug doc-accuracy pass). Generated files, such as a flow map
 regenerated from an engine a block changes, belong to that block. Locate code in a block body by section
-title or grep pattern, not line number, since earlier blocks shift lines.
+title or grep pattern, not line number, since earlier blocks shift lines. Make each block
+self-contained. Every agent reads only its own block, so a path or instruction stated only in the file
+preamble or another block never reaches it.
 
 ## 2. The flow
 

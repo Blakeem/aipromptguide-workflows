@@ -269,7 +269,7 @@ Return findings via the schema. An empty findings array means this unit is clean
 // below (frontmatter unit/hash/reviewed; a `## Plan: <slug(unit.id)>` header with its mode/gate/status
 // preamble; `### [<id>]` blocks; `- ` header lines, `- status: open` among them; the decision values; the
 // `**Fix:**` line) is a plan-bus fix-mode plan file that develop's fixer + acceptance read through
-// tools/plan-block.mjs and tools/plan-edit.mjs sync writes statuses back into.
+// tools/plan-block.mjs and tools/plan-edit.mjs args writes statuses back into.
 // `lensDied` stamps `hash: incomplete`, which gen-units reads as `changed`, so resume re-runs the dead lens.
 const verifyPrompt = (unit, items, lensDied) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
 You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
@@ -515,5 +515,5 @@ return {
   // the user set to SKIP, and flip approved NEEDS_USER items to ACTIONABLE (re-reading their rewritten
   // Fix lines). The issue FILES remain the source of truth for WHAT to fix; this is only the index.
   issues: all,
-  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode: one plans entry per issue file with findings, each with its own planPath (start with one file to sanity-check cost and quality), and sync statuses back with tools/plan-edit.mjs sync — see develop's CLAUDE.md.`,
+  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
 };

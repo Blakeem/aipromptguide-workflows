@@ -1066,10 +1066,9 @@ section('a recorded amendment is logged, summed into the ledger and named in fol
 }
 
 // ---------------------------------------------------------------------------------------------
-// statusSync — the plan-file edits a run returns for `tools/plan-edit.mjs sync` to apply
+// statusSync — the plan-file edits a run logs for `tools/plan-edit.mjs args` to apply
 // ---------------------------------------------------------------------------------------------
-// The sync is also the recovery step after a run dies between staging and sync, so a wrong value here
-// corrupts the selection truth the next launch builds from.
+// A wrong value here corrupts the selection truth the next launch builds from.
 
 section('statusSync maps every block terminal to done, parked or blocked, and skips blocks never reached');
 {

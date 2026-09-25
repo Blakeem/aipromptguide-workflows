@@ -12,7 +12,7 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 Four things together — remove any one and the plan grows every round instead of settling:
 - **The defect bar.** A gap must name something that would build wrong or fail: a missing wiring
   point, a wrong or absent file, a criterion with no implementing step, a dependency-ordering error,
-  a block too big for one develop pass. Improvements, alternatives, and style are excluded
+  a block too big for one develop pass, a reference the block states only outside itself. Improvements, alternatives, and style are excluded
   unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   Below-floor findings land in the critique file's FYI section and count for nothing.

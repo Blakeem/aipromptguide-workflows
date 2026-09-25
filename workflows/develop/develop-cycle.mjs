@@ -383,8 +383,8 @@ const PARK_SCHEMA = {
   type: 'object',
   required: ['saved', 'cleared', 'gates_green'],
   properties: {
-    saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree.' },
-    cleared:     { type: 'boolean', description: 'true if the block\'s work was then removed from the working tree and `git diff` is empty' },
+    saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree.' },
+    cleared:     { type: 'boolean', description: 'true if `git diff` is empty after step 3, including a diff that was already empty' },
     gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing (the tree is safe for what comes next)' },
     patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
     strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so.' },
@@ -832,8 +832,9 @@ PROCEDURE:
     : '; the remaining blocks continued without it'}
    - one line on why it was parked (${escalated ? parkReason(haltKind) : 'what acceptance was still failing'})
    - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
-   - the saved work: \`${parkedPatch(p.id)}\`
-   - restore command, verbatim: \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`
+   - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
+     \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the \`git apply\`. Omit this line entirely when

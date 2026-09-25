@@ -18,10 +18,10 @@ this file is stale.
 | develop | 5 | 1 | 6015 | acceptance finds gaps, then passes |
 | develop | 6 | 1 | 6505 | acceptance finds gaps, then passes |
 | develop | 7 | 1 | 6001 | the gate never goes green |
-| park | 1 | 1 | 5006 | the gate never goes green |
+| park | 1 | 1 | 5150 | the gate never goes green |
 | develop | 8 | 1 | 6491 | the gate never goes green |
-| park | 2 | 1 | 4950 | a parked block, and the run carries on |
-| park | 3 | 1 | 4994 | an ordered run stops at a parked block |
+| park | 2 | 1 | 5094 | a parked block, and the run carries on |
+| park | 3 | 1 | 5138 | an ordered run stops at a parked block |
 | develop | 9 | 2 | 8162 | a fix block closes its issues |
 | acceptance | 3 | 3 | 6653 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1933 | a fix block closes its issues |
@@ -29,10 +29,10 @@ this file is stale.
 | acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
 | acceptance | 5 | 3 | 6652 | every issue is already fixed |
-| park | 4 | 1 | 5162 | the developer staged its own work |
-| park | 5 | 1 | 5000 | developer never got its block |
-| park | 6 | 1 | 5018 | the developer dies |
-| park | 7 | 1 | 5096 | developer escalates |
+| park | 4 | 1 | 5306 | the developer staged its own work |
+| park | 5 | 1 | 5144 | developer never got its block |
+| park | 6 | 1 | 5162 | the developer dies |
+| park | 7 | 1 | 5240 | developer escalates |
 
 ## develop · variant 1 · schema 1
 
@@ -1742,8 +1742,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -1769,11 +1770,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -2013,8 +2014,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -2040,11 +2042,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -2114,8 +2116,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -2141,11 +2144,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3280,8 +3283,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -3307,11 +3311,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3381,8 +3385,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (an agent could not obtain its plan)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -3408,11 +3413,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3482,8 +3487,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (an agent returned nothing (skipped or died))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -3509,11 +3515,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3583,8 +3589,9 @@ PROCEDURE:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
-   - the saved work: `E:/flow/runs/flow/parked-block-a.patch`
-   - restore command, verbatim: `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
+     "Saved work: none (the tree held no changes)" in their place.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
      (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
@@ -3610,11 +3617,11 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
   "properties": {
     "saved": {
       "type": "boolean",
-      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false, you must NOT have cleared the tree."
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if the block's work was then removed from the working tree and `git diff` is empty"
+      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",

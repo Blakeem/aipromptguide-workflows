@@ -6,7 +6,7 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 5283 | a clean first round |
+| plan-critic | 1 | 1 | 5495 | a clean first round |
 | plan-editor | 1 | 1 | 2187 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
@@ -25,7 +25,7 @@ CONVENTIONS the plan must fit: (none supplied - infer from the surrounding code)
 
 This is round 1 of at most 4.
 
-THE DEFECT BAR - a gap must name something that would build wrong or fail. Exactly five classes qualify:
+THE DEFECT BAR - a gap must name something that would build wrong or fail. Exactly six classes qualify:
   1. A missing WIRING POINT: the block never says where the work is registered, exported, routed, bound
      or flagged so it is reachable from a real entry point.
   2. A WRONG or ABSENT FILE: a path in the Files list that does not exist, sits elsewhere, or is not the
@@ -33,6 +33,8 @@ THE DEFECT BAR - a gap must name something that would build wrong or fail. Exact
   3. An ACCEPTANCE CRITERION WITH NO IMPLEMENTING STEP: the block promises a behavior no step builds.
   4. A DEPENDENCY-ORDERING ERROR between blocks: a block needs something a later block creates.
   5. A BLOCK TOO BIG for one develop pass: more than roughly one coherent artifact plus its tests.
+  6. A REFERENCE OUTSIDE THE BLOCK: develop hands each agent only its own block by default, so a path, term or
+     instruction the block relies on but states only in the file preamble or another block is missing.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries file:line evidence - the plan line it is about, and the repo line that contradicts it.
@@ -70,7 +72,7 @@ prefixed "CONTESTS DISMISSAL:", saying why the reason does not hold. Once per ga
 
 WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed) and put EVERYTHING there VERBATIM: a
 numbered GAPS section, then the FYI section, then a QUESTIONS section. Per gap: the block id, which of
-the five classes it is, its grade, the file:line evidence, EXACTLY ONE smallest change that closes it
+the six classes it is, its grade, the file:line evidence, EXACTLY ONE smallest change that closes it
 (never alternatives), and the number of every other gap whose change touches the same plan lines, so
 the editor folds them together.
 That file is your ONLY channel to the editor: anything you leave out of it reaches nothing.
