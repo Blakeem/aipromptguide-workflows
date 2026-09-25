@@ -28,19 +28,20 @@ flowchart TD
   t12(["stopped on token budget (resume where it left off)"])
   t13(["partial slice complete"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, planPath #124; plan (markdown string) #124; plans:[{id,planPath#124;plan,gate}], target, gates }"/]
-  x3[/"throw: args.root is required"/]
-  x4[/"throw: args.target.repo is required"/]
-  x5[/"throw: Invalid numeric arg"/]
-  x6[/"throw: plan id(s) [...] are not kebab slugs"/]
-  x7[/"throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their #quot;## Plan: <id>#quot; blocks"/]
-  x8[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
-  x9[/"throw: Plan critic returned nothing"/]
-  x10[/"throw: args needs a plan for phase:#quot;build#quot;"/]
-  x11[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
-  x12[/"throw: args.gates.test is required when any plan has gate:#quot;green#quot;"/]
-  x13[/"throw: args.runOnly ... matches no plan id"/]
-  x14[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
+  x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath#124;plan, gate } entries"/]
+  x3[/"throw: args must include at least { runId, planPath #124; plan (markdown string) #124; plans:[{id,planPath#124;plan,gate}], target, gates }"/]
+  x4[/"throw: args.root is required"/]
+  x5[/"throw: args.target.repo is required"/]
+  x6[/"throw: Invalid numeric arg"/]
+  x7[/"throw: plan id(s) [...] are not kebab slugs"/]
+  x8[/"throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their #quot;## Plan: <id>#quot; blocks"/]
+  x9[/"throw: phase:#quot;refine#quot; needs the SINGLE top-level planPath"/]
+  x10[/"throw: Plan critic returned nothing"/]
+  x11[/"throw: args needs a plan for phase:#quot;build#quot;"/]
+  x12[/"throw: args.gates.build is required for phase:#quot;build#quot;"/]
+  x13[/"throw: args.gates.test is required when any plan has gate:#quot;green#quot;"/]
+  x14[/"throw: args.runOnly ... matches no plan id"/]
+  x15[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
   S0 --> a1
   S0 --> a2
   S0 --> t12
@@ -52,13 +53,14 @@ flowchart TD
   S0 --> x6
   S0 --> x7
   S0 --> x8
-  S0 --> x10
+  S0 --> x9
   S0 --> x11
   S0 --> x12
   S0 --> x13
   S0 --> x14
+  S0 --> x15
   a1 --> t1
-  a1 --> x9
+  a1 --> x10
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> a5
@@ -125,20 +127,21 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | stopped on token budget (resume where it left off) | too few tokens left to start a plan | derived |
 | partial slice complete | runOnly builds a subset of the roadmap | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 30) |
-| throw: args must include at least { runId, planPath \| plan (markdown string) \| plans:[{id,planPath\|plan,gate}], target, gates } | args carry neither runId nor a plan | throw (line 33) |
-| throw: args.root is required | args.root is missing | throw (line 38) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 44) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 172) |
-| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 181) |
-| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 582) |
-| throw: Plan critic returned nothing | the plan critic dies | throw (line 594) |
-| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 626) |
-| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 632) |
-| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 635) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 650) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 655) |
+| throw: args.plans must be a NON-EMPTY array of { id, planPath\|plan, gate } entries | plans is set to something other than a non-empty array | throw (line 39) |
+| throw: args must include at least { runId, planPath \| plan (markdown string) \| plans:[{id,planPath\|plan,gate}], target, gates } | args carry neither runId nor a plan | throw (line 42) |
+| throw: args.root is required | args.root is missing | throw (line 47) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 53) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 74) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 181) |
+| throw: plans [...] carry neither planPath nor an inline plan, and there is no top-level planPath holding their "## Plan: &lt;id&gt;" blocks | plans entries carry no body and there is no top-level planPath | throw (line 190) |
+| throw: phase:"refine" needs the SINGLE top-level planPath | phase:"refine" with only the plans array | throw (line 591) |
+| throw: Plan critic returned nothing | the plan critic dies | throw (line 603) |
+| throw: args needs a plan for phase:"build" | every plans entry is missing its id | throw (line 635) |
+| throw: args.gates.build is required for phase:"build" | args.gates.build is missing | throw (line 641) |
+| throw: args.gates.test is required when any plan has gate:"green" | a plan asks for gate:"green" with no test command | throw (line 644) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown plan id | throw (line 659) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown plan id | throw (line 664) |
 
 ## Coverage
 
-35 scenarios · 5/5 roles · 14/14 throw sites · 8/8 halt statuses · 27 terminal states.
+36 scenarios · 5/5 roles · 15/15 throw sites · 8/8 halt statuses · 28 terminal states.

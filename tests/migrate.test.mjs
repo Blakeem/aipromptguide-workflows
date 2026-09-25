@@ -210,6 +210,24 @@ section('a developer that produced nothing skips the blind review, not acceptanc
   eq(out.status, 'done (all sections staged)', 'a genuine no-op section can still pass');
 }
 
+section('a flagged section is re-reviewed even when the next round produces nothing');
+// `produced` is per-ROUND while the unstaged diff is CUMULATIVE: a round that DROPs every finding
+// reports produced=false over a diff the critic already rejected, and skipping the gate on that staged
+// actively-flagged code with the critic never re-run to CONTEST the dismissals. Twin of develop-cycle's
+// qualityOpen case; verified red against the pre-flag guard.
+{
+  const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
+  const { out, labels } = await run({
+    'develop': firstRound(DEV, { ...DEV, produced: false }),
+    'quality': firstRound({ clean: false, issue_count: 4 }, CLEAN),
+    'acceptance': ACC_PASS,
+    'final-sweep': SWEEP_OK,
+  }, { ...baseArgs, sections: [{ id: 'sec-a', title: 'A' }], plan: '## Section: sec-a\nA\n' });
+  eq(labels.filter((l) => l.startsWith('quality')).length, 2,
+    'a flagged section is re-reviewed even when the next round produces nothing');
+  eq(out.status, 'done (all sections staged)', 'and accepts once the critic re-clears it');
+}
+
 section('a section id matching nothing throws instead of running a smaller list');
 {
   for (const scope of [{ runOnly: ['nope'] }, { startAt: 'nope' }]) {

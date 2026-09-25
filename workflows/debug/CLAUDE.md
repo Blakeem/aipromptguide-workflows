@@ -80,7 +80,13 @@ sweep did cover that the harness cannot — *did acceptance leave anything unsta
 - **The inventory is CLOSED after `review.mjs`.** `resolve-cycle` never re-reviews — it only works the
   issues you approved. This is what makes medium-severity fixing converge; don't add a re-review step
   into resolve.
-- **The issue file is the contract between the two engines.** `review.mjs` writes it; `resolve-cycle`'s
+- **The issue file is now a plan-bus fix block.** The verifier writes each unit's inventory as a
+  `## Plan: <slug(unit.id)>` block (preamble `mode: fix`, `gate: green`, `status: todo`) holding the
+  `### [<id>]` entries, each with a `- status: open` line — so `issues/<unit>.md` parses under
+  `tools/plan-block.mjs` and `develop-cycle` can build it directly. The clean marker keeps its old
+  format (a clean unit is not a plan). Frontmatter (`unit:`/`hash:`/`reviewed:`) is unchanged, so
+  gen-units' hash resume still joins.
+- **The issue file is the contract between the engines.** `review.mjs` writes it; `resolve-cycle`'s
   fixer + acceptance read it byte-for-byte and parse the `- ` header lines. Both engines compute the same
   `runs/<runId>/issues/<unit>.md` path from `runId` + `root` (+ `stateDir` if overridden) — reuse the
   SAME values across both (see the `CONTRACT` comments in each engine); a mismatch silently points the
@@ -170,7 +176,15 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      line to encode that option precisely
    - a DEFER the user still wants → ACTIONABLE only if genuinely batchable; large cross-cutting work
      belongs in the migrate workflow as a goal.
-5. **Build `args.issues` from `review.mjs`'s returned `issues` array** — it is already in resolve's exact
+5. **Fix path A — develop (the plan-bus path).** Each triaged `issues/<unit>.md` IS a fix-mode plan
+   file: derive develop's entry from `node <plan-block.mjs> <issueFile> --list` (`mode: fix`,
+   `gate: green`), pass one plans entry per unit file (each with its own `planPath`), and run
+   `develop-cycle` — its fix worker fixes ACTIONABLE entries only, verify-first, and its ledger
+   returns per-issue results. After the run, sync each issue's `- status:` line with
+   `plan-edit.mjs set`: FIXED → `fixed`, STALE → `stale`, FAILED → `needs-attention`, SKIPPED stays
+   `open`. Block statuses sync as in the develop guide. Steps 6 and 8 below apply unchanged.
+   **Fix path B — resolve-cycle** (retiring; still fully supported):
+   **build `args.issues` from `review.mjs`'s returned `issues` array** — it is already in resolve's exact
    shape (`{ id, unit, file, line, loc, severity, category, decision, effort, title, theme }`). Apply your
    triage on top: drop what the user set to SKIP, flip approved NEEDS_USER items to ACTIONABLE (re-reading
    their rewritten `**Fix:**` lines). **Do not hand-rebuild it by grepping** — that's error-prone busywork
@@ -195,11 +209,13 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 ## External inventory (skip `review.mjs`)
 
 When findings come from somewhere other than the code review — live/manual testing, a bug bash, user
-reports, or a symptom YOU diagnosed first (Bug Hunt & Repro) — `resolve-cycle` works unchanged: it has NO
-dependency on `review.mjs` beyond the issue files + `args.issues`. You act as the verifier: hand-author
-`runs/<runId>/issues/<unit>.md` in the exact verifier format (frontmatter + `### [<id>]` blocks with the
-`- ` header lines and a precise `**Fix:**`), anchoring each behavior-level finding to `file:line`
-yourself, and record skipped findings with `- decision: SKIP` so the triage is on file. Then playbook
+reports, or a symptom YOU diagnosed first (Bug Hunt & Repro) — `resolve-cycle` and `develop`'s fix mode both work
+unchanged: neither depends on `review.mjs` beyond the issue files. You act as the verifier:
+hand-author the inventory in the exact verifier format — the `## Plan: <id>` fix-block header with
+its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`) and a
+precise `**Fix:**` — anchoring each behavior-level finding to `file:line` yourself, and record
+skipped findings with `- decision: SKIP` so the triage is on file. Check it parses:
+`node <plan-block.mjs> <file> --list`. Then playbook
 steps 6–8 (build `args.issues` by hand here — there's no `review.mjs` return to start from).
 
 **The `### [<id>]` heading is a contract, not a style choice.** The round-1 `issue_entries_found`

@@ -29,6 +29,15 @@ try {
 } catch (e) {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
+// `plans` is checked BEFORE the general guard so a malformed roadmap is named for what it is rather
+// than reported as a missing plan. A present-but-not-a-non-empty-array value must THROW: it falls
+// through to the single-plan back-compat synthesis below, which builds the WHOLE roadmap file as one
+// plan named `feature` and exits 0. `plan-block.mjs --list` prints an OBJECT now, so pasting that
+// straight in is the live case.
+if (A && A.plans !== undefined && !(Array.isArray(A.plans) && A.plans.length)) {
+  const shape = Array.isArray(A.plans) ? 'an empty array' : A.plans === null ? 'null' : `a ${typeof A.plans}`;
+  throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath|plan, gate } entries; got ${shape}. It is not coerced — any other value falls through to the single-plan back-compat path, which builds the entire roadmap file as ONE plan and reports success. "plan-block.mjs <planPath> --list" prints an object: pass its "blocks" array, not the object itself. Omit plans entirely for a single-plan run.`);
+}
 if (!A || !A.runId || !(A.planPath || (A.plan && typeof A.plan !== 'object') || (Array.isArray(A.plans) && A.plans.length))) {
   throw new Error('args must include at least { runId, planPath | plan (markdown string) | plans:[{id,planPath|plan,gate}], target, gates }; got typeof=' + (typeof args));
 }

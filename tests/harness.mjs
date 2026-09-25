@@ -29,6 +29,8 @@ export const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/
 export const ENGINES = [
   'workflows/feature/feature-cycle.mjs',
   'workflows/migrate/migrate-cycle.mjs',
+  'workflows/develop/develop-cycle.mjs',
+  'workflows/refine/refine-cycle.mjs',
   'workflows/debug/review.mjs',
   'workflows/debug/resolve-cycle.mjs',
   'workflows/enhance/enhance-cycle.mjs',

@@ -57,7 +57,7 @@ flowchart TD
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 338) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 351) |
 
 ## Coverage
 

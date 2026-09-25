@@ -341,6 +341,25 @@ section('a bodyless roadmap with no plan file THROWS before any agent is spawned
   ok(/top-level planPath/.test(msg), 'and says how to fix it');
 }
 
+section('a plans value that is not a non-empty array THROWS instead of building the roadmap as one plan');
+// Every case here carries a top-level planPath, which is what makes it the real trap: the general args
+// guard is satisfied, so the old gate fell through to the single-plan back-compat synthesis — ONE plan
+// named `feature` built against the ENTIRE roadmap file, at exit 0. `plan-block.mjs --list` prints an
+// object now, so the first case is what pasting that output straight into `plans` does.
+{
+  const LIST_OBJECT = { goal: 'g', ordered: true, blocks: [{ id: 'plan-a', gate: 'green' }] };
+  for (const bad of [LIST_OBJECT, 'plan-a', 42, true, [], null]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, planPath: 'E:/plans/roadmap.md', plans: bad } });
+    ok(/args\.plans must be a NON-EMPTY array/.test(msg) && /"blocks" array/.test(msg),
+      `plans ${JSON.stringify(bad)} throws and points at the --list object's blocks array: ${msg.slice(0, 45)}`);
+  }
+  // The other direction: ABSENT still takes the back-compat path, or an over-strict guard would throw on
+  // every single-plan run while this section stayed green.
+  const { out } = await run({ 'develop': DEV_OK, 'quality': CLEAN, 'acceptance': ACC_PASS },
+    { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, planPath: 'E:/plans/one.md', gate: 'build-only' });
+  eq(out.plansTotal, 1, 'no `plans` key at all still synthesizes the single top-level plan');
+}
+
 section('an agent that never got its plan halts the run — the attestation has a consumer');
 // The block command runs in the AGENT's shell; the harness has no tools, so it cannot verify it. This
 // field is the only signal the plan ever arrived. Without the halt, a denied command or an id matching

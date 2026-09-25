@@ -254,8 +254,10 @@ Do NOT write issues.json, any shared doc, or a source file.
 Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
 
 // CONTRACT with resolve-cycle.mjs — change both together. The issue-file BLOCK FORMAT the verifier writes
-// below (frontmatter unit/hash/reviewed; `### [<id>]` blocks; `- ` header lines; the decision values;
-// the `**Fix:**` line) is exactly what resolve-cycle.mjs's fixer + acceptance parse. Same runId + root
+// below (frontmatter unit/hash/reviewed; a `## Plan: <slug(unit.id)>` header with its mode/gate/status
+// preamble; `### [<id>]` blocks; `- ` header lines, `- status: open` among them; the decision values; the
+// `**Fix:**` line) is exactly what resolve-cycle.mjs's fixer + acceptance parse, AND is a plan-bus
+// fix-mode plan file the develop engine consumes through tools/plan-block.mjs. Same runId + root
 // (+ stateDir if overridden) ⇒ same runs/<runId> across both engines.
 const verifyPrompt = (unit, items) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
 You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
@@ -299,18 +301,25 @@ ROUTING (apply in order; first match wins):
 Also set a short \`theme\` keyword per verdict so related issues can be batched together.
 
 WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). Use EXACTLY this format
-so the user can triage it and the resolve phase can parse it:
+so the user can triage it, the resolve phase can parse it, and it stands as a fix-mode plan file:
 -----
 ---
 unit: ${unit.id}
 hash: ${unit.hash}
 reviewed: true
 ---
-# Review: ${unit.id}
 
-(for EACH kept verdict — ACTIONABLE, NEEDS_USER, or DEFER, in that order — one block:)
+## Plan: ${slug(unit.id)} - review findings
+
+mode: fix
+gate: green
+status: todo
+
+(for EACH kept verdict — ACTIONABLE, NEEDS_USER, or DEFER, in that order — one entry:)
 ### [<finding_id>] <title>
+
 - id: <finding_id>
+- status: open
 - file: <file>:<line>
 - loc: <the LOC of that file>
 - severity: <your confirmed severity>
@@ -324,7 +333,11 @@ reviewed: true
 **Options:** <options>                (NEEDS_USER only)
 **Recommendation:** <recommendation>  (NEEDS_USER only)
 -----
-If there are NO kept verdicts, write the frontmatter + heading + the single line "No issues found."
+The \`## Plan:\` line, the three preamble lines under it, and every entry's \`- status: open\` are
+load-bearing — without them the file is not a plan the fixer can be handed. Write the header id exactly
+as shown; it is the slug of the unit id, not the unit id.
+If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
+the frontmatter above, then \`# Review: ${unit.id}\`, then the single line "No issues found."
 Do NOT write issues.json, any shared doc, or modify source. Set wrote_file=true and return all verdicts via the schema.`; };
 
 // =============================================================================

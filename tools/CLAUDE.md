@@ -10,7 +10,8 @@ and you change what a developer agent receives, so treat it as engine surface, n
 
 | File | What it does |
 |---|---|
-| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` / `## Component: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the control array. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
+| `plan-block.mjs` | Prints ONE `## Plan: <id>` / `## Section: <id>` / `## Component: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. The default kind reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
+| `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy). **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
 | `wt.mjs` | The batch-worktree lifecycle (`init`/`prep`/`land`/`clean`) for running several engine runs in **parallel**, each in its own git worktree. **Operator-invoked around the runs** — no agent ever calls it, no engine knows it exists. Its header comment is the contract (hook bytes, lock liveness, exit codes — all measured decisions); the operator playbook is [`../docs/worktree-batches.md`](../docs/worktree-batches.md). |
 | `gen-flows.mjs` | Generates `workflows/<x>/FLOW.md` — the Mermaid flow map of an engine's complete agent flow. Runs each engine through `tests/harness.mjs` against a scenario table and draws what it **watched**, so a diagram can only ever show a path that really executes. |
 | `render-flows.mjs` | Lays every generated map out in **real Mermaid** (headless Chrome) and reports labels that overlap. Answers "is the picture legible", which `gen-flows.mjs` cannot. |
@@ -24,15 +25,25 @@ part of that workflow rather than to maintain this repo.
 
 ```bash
 node tools/plan-block.mjs <plan.md|plan-name> <id>            # that block, verbatim, on stdout
-node tools/plan-block.mjs <plan.md|plan-name> --list          # [{ id, gate }] as JSON
-node tools/plan-block.mjs <plan.md> <id> --kind section       # migrate's blocks + its gate set
-node tools/plan-block.mjs <plan.md> <id> --kind component     # gauntlet's blocks + its gate set
+node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered, suite, sweep, blocks: [...] }
+node tools/plan-block.mjs <plan.md> <id> --kind section       # migrate's blocks + old array --list
+node tools/plan-block.mjs <plan.md> <id> --kind component     # gauntlet's blocks + old array --list
 ```
 
-`--kind` picks the header keyword, the legal gate set, and whether `--list` carries `title`. A bare
-plan-name resolves against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
+The default kind parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`,
+`sweep`), a block preamble (`mode`, `gate`, `status`, plus informational
+`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `--list` emits the
+file keys plus a `blocks` array of `{ id, title, mode, gate, status }`, defaults applied. Each
+metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
+blank line above a run is crossed to find it, never to continue one, and body prose never registers
+as metadata. A feature-mode block with no preamble gate falls back to its `## Gate` heading (a
+transition behavior). `--kind section` and `--kind component` are transition aliases keeping
+migrate's and gauntlet's old keyword, gate style, and array `--list`. A bare plan-name resolves
+against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
 
-**Every failure is loud** — unknown id, duplicate id, empty body, missing or invalid gate, an indented
+**Every failure is loud** — unknown id, duplicate id (across the block AND issue namespaces), empty
+body, missing or invalid gate, a gate outside its mode's set, an unknown or illegal metadata key or
+value, an indented
 header, a **malformed** header (colon forgotten, a colon with no id, a space before the colon, or a `###`
 level), an **unclosed code fence**, no blocks at all. Nothing may resolve to a plausible default, because
 the consumer is an agent that would build against it. Two silent-wrong-answer classes are guarded and
@@ -45,6 +56,23 @@ the control array AND flips the survivor's gate to the merged tail's, in one exi
 
 The engines cannot verify the command ran — the harness has no tools. `plan_obtained` on the developer
 and acceptance schemas is that signal, and both engines halt on an explicit `false`.
+
+## plan-edit.mjs
+
+```bash
+node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
+node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
+```
+
+The write surface, kept out of plan-block.mjs on purpose: the run-time allowlist rule
+(`Bash(node '<blockTool>':*)`) covers every subcommand of the file it names, and an agent must never
+hold a write path to a plan. `set` addresses a block or an issue through the file's single id space
+and rewrites exactly one line, or appends it to the right run. `move` cuts an entry's bytes verbatim
+into another fix-mode block, same file or another. Failures are loud and leave every file untouched:
+unknown id, unrecognized key, illegal value, a gate the target's mode forbids, a duplicate id at the
+destination, a non-fix destination block. Paths resolve through the same `resolveRoadmap` as
+plan-block, so a bare name addresses the same file in both tools. BOM'd and CRLF files round-trip
+byte-identically, and an appended line inherits the file's dominant line ending.
 
 ## gen-flows.mjs
 

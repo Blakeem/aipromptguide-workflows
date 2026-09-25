@@ -310,8 +310,11 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
 // =============================================================================
 // Resolve-phase prompts
 // CONTRACT with review.mjs — change both together. The fixer + acceptance below read each unit's issue
-// file VERBATIM and depend on its block format (frontmatter + `### [<id>]` blocks + `- ` header lines +
-// the `**Fix:**` line), authored by review.mjs's verifier. Keep the two engines in lockstep.
+// file VERBATIM and depend on its block format (frontmatter + a `## Plan: <slug(unit)>` fix-mode header
+// with its mode/gate/status preamble + `### [<id>]` blocks + `- ` header lines, `- status: open` among
+// them, + the `**Fix:**` line), authored by review.mjs's verifier. This engine reads only the
+// `### [<id>]` count and the `- ` lines, so the plan header passes through it untouched — that header is
+// what makes the same file a fix-mode plan for the develop engine. Keep the two engines in lockstep.
 // =============================================================================
 const fixPrompt = (batch, round, reviewPath, issuePaths) => `
 You are the FIXER. Resolve the verified issues in this batch — exactly as instructed, minimally and

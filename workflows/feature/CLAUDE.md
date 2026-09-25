@@ -73,8 +73,10 @@ Then ONCE, for the whole roadmap:
 5. **Prep, then build** (§3): clean the tree, then **`phase:"build"`** (same `runId`) with the **`plans`**
    array in build order (§11). One plan file of blocks → keep the top-level `planPath` and pass
    `[{ id, gate }]`; derive it rather than typing it:
-   `node <plan-block.mjs> <planPath> --list` (`<root>/tools/plan-block.mjs` in a checkout; from the
-   installed plugin, the plugin's own copy — the same path you pass as `blockTool`). Per-feature
+   `node <plan-block.mjs> <planPath> --list` prints `{ goal, ordered, suite, sweep, blocks: [...] }`.
+   Map `blocks` to `[{ id, gate }]`. Pasting the whole object throws at launch.
+   (`<root>/tools/plan-block.mjs` in a checkout; from the
+   installed plugin, the plugin's own copy — the same path you pass as `blockTool`.) Per-feature
    files → `[{ id, planPath, gate }]`.
    One feature? A single top-level `planPath` + `gate` (back-compat). The develop → blind-quality →
    acceptance loop runs each plan in order, **staging each accepted feature** before the next starts; a
@@ -390,7 +392,8 @@ inline to `Workflow`.
   `[{ id, planPath|plan, gate }]` with a body per entry; array order = build order; `id` is a stable
   kebab slug + the only routing key, the body is read verbatim, `gate` is `green`|`build-only`; an
   entry with no body **and** no top-level `planPath` **throws** — that combination used to hand the
-  developer an empty plan and build nothing while reporting success) **or** a
+  developer an empty plan and build nothing while reporting success. A `plans` present but not a
+  non-empty array also **throws**, so map the `--list` object's `blocks`, never paste the object) **or** a
   single top-level `planPath` (absolute) / `plan` (inline markdown) for one feature (back-compat;
   synthesized as one plan `id:"feature"`) · `target.repo` (absolute path to the git repo — **throws** if
   missing; there is no default, so a typo can't silently retarget the tool's own repo) · `gates.build`

@@ -57,6 +57,18 @@ const FEATURE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   gates: { build: 'b' }, plans: PLANS };
 const MIGRATE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   gates: { build: 'b', test: 't' }, plan: '## Section: sec-a\nA\n## Section: sec-b\nB\n', sections: SECTIONS };
+// Both blocks are build-only, so this baseline deliberately carries NO test command: it is the
+// condition-FALSE payload, and the baseline assertion below is what proves gates.test is optional there.
+// The top-level planPath is what makes bodyless entries legal — every block is a "## Plan: <id>" block
+// inside it, and an entry with no path anywhere throws.
+const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' },
+  planPath: 'plans/bus.md',
+  plans: [{ id: 'block-a', mode: 'feature', gate: 'build-only' },
+    { id: 'block-b', mode: 'section', gate: 'build-only' }] };
+// refine converges a plan FILE and builds nothing, so it takes no gates at all. `planPath` carries the
+// whole subject of the run: there is no inline plan and no default, and an omitted one would spawn a
+// critic against nothing and report a clean round for a plan it never saw.
+const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md' };
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
 // Both components are build-only, so this baseline deliberately carries NO test command: it is the
@@ -112,6 +124,25 @@ const SWEEP = [
       // Same documented condition as feature's, but it is already true in the baseline: a section that
       // omits `gate` takes the 'green' default, so no variant args are needed.
       { path: 'gates.test', when: 'a section has gate:"green" — the default the baseline sections take' }],
+  },
+  {
+    engine: 'workflows/develop/develop-cycle.mjs',
+    baseArgs: DEVELOP_ARGS,
+    respond: {},
+    required: ['runId', 'root', 'target.repo', 'gates.build', 'plans',
+      // Both baseline blocks are gate:"build-only", which needs no test command — so this one needs a
+      // variant whose block actually asks for verification, and that block must be TODO: the guard is
+      // scoped to the PENDING slice, so a done/skip block asking for green must NOT demand the command.
+      { path: 'gates.test', when: 'a todo block has gate:"green"',
+        args: { ...DEVELOP_ARGS, gates: { build: 'b', test: 't' },
+          plans: [{ id: 'block-a', mode: 'feature', gate: 'green', status: 'todo' }] } }],
+  },
+  {
+    engine: 'workflows/refine/refine-cycle.mjs',
+    baseArgs: REFINE_ARGS,
+    respond: {},
+    // No gates row: refine stages nothing and runs no build, so it never reads args.gates.
+    required: ['runId', 'root', 'planPath', 'target.repo'],
   },
   {
     engine: 'workflows/gauntlet/gauntlet-cycle.mjs',
@@ -218,4 +249,41 @@ for (const { engine, baseArgs, respond, required, phase } of SWEEP) {
     const msg = await throwsWith(engine, { args: without(from, path), respond });
     ok(msg !== '', `missing ${path}${when ? ` (required when ${when})` : ''} throws: ${msg.slice(0, 50)}`);
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// develop-cycle's control VALUES. The sweep above only deletes an arg, and develop's whole control array
+// is data the operator copies off `plan-block.mjs --list` by hand — so the live failure is a value that
+// is PRESENT and wrong, not one that is missing. Every one of these used to coerce somewhere in the
+// family: a miscopied gate got the green default that demands the very tests a test-first block leaves
+// failing, and a typoed status silently dropped its block from the run.
+// ---------------------------------------------------------------------------------------------
+{
+  const engine = 'workflows/develop/develop-cycle.mjs';
+  section('develop-cycle.mjs — a malformed plans array and every miscopied enum value throws');
+  const VALUES = [
+    ['plans', 'the --list object pasted in whole', { ...DEVELOP_ARGS, plans: { blocks: DEVELOP_ARGS.plans } }],
+    ['plans[].mode', 'mode:"bogus", which names no frame this engine holds', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'bogus' }] }],
+    ['plans[].gate', 'gate:"red-baseline" on a FEATURE block (a section gate)', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] }],
+    ['plans[].status', 'status:"wip"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] }],
+    ['suite', 'suite:"all"', { ...DEVELOP_ARGS, suite: 'all' }],
+    ['sweep', 'sweep:"always"', { ...DEVELOP_ARGS, sweep: 'always' }],
+  ];
+  for (const [path, what, args] of VALUES) {
+    const msg = await throwsWith(engine, { args, respond: {} });
+    ok(msg !== '', `${path} = ${what} throws: ${msg.slice(0, 50)}`);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// refine-cycle's severity FLOOR is a control VALUE, not a missing arg, so the deletion sweep above cannot
+// reach it: `critiqueSeverity` has a documented default, and OMITTING it is legal. A typo that coerced
+// would silently redefine what a clean plan is — the floor decides which gaps count as gaps and which are
+// demoted to the critique file's FYI section, and the loop ends on one round with no counted gaps.
+// ---------------------------------------------------------------------------------------------
+{
+  const engine = 'workflows/refine/refine-cycle.mjs';
+  section('refine-cycle.mjs — an illegal severity floor throws instead of coercing');
+  const msg = await throwsWith(engine, { args: { ...REFINE_ARGS, critiqueSeverity: 'nit' }, respond: {} });
+  ok(msg !== '', `critiqueSeverity = "nit" throws: ${msg.slice(0, 50)}`);
 }

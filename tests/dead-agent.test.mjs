@@ -67,6 +67,10 @@ const EXPECTED = {
   'investigate x criteria-critic':  { signal: 'terminal', expect: /Criteria critic returned nothing/ },
   'investigate x investigate':      { signal: 'terminal', expect: /Investigator returned nothing/ },
   'investigate x critique':         { signal: 'terminal', expect: /Acceptance critic returned nothing/ },
+  // refine's critic is solo-critical for the sharpest reason in the family: zero gaps from an agent that
+  // DIED is byte-identical to the one signal this loop converges on, so a null would report a plan nobody
+  // read as converged. Its editor is the exception below — the critique file survives it.
+  'refine x plan-critic':           { signal: 'terminal', expect: /Plan critic returned nothing/ },
 
   // inside a build loop -> halts and parks through the ordinary park path
   'feature x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
@@ -75,6 +79,9 @@ const EXPECTED = {
   'migrate x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'migrate x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'migrate x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'develop x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'develop x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'develop x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'gauntlet x build':               { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'gauntlet x code-gate':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   // refine's two roles halt the same way. The critic's is the sharper one: its verdict CLOSES an aspect
@@ -82,6 +89,10 @@ const EXPECTED = {
   // finished climb, manufactured out of a dead agent.
   'gauntlet x critic':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'gauntlet x improve':             { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  // refine-cycle halts WITHOUT parking, alone among the loop engines: it writes no repo code, so there is
+  // no tree to save. Its editor halts rather than throws because the round's critique file is already on
+  // disk and a relaunch resumes the fold.
+  'refine x plan-editor':           { signal: 'terminal', expect: /BLOCKED \(the plan editor returned nothing/ },
   'resolve x fix':                  { signal: 'log', expect: /round-1 fixer returned nothing/ },
   'resolve x quality':              { signal: 'log', expect: /blind quality reviewer returned nothing/ },
   'resolve x accept':               { signal: 'log', expect: /acceptance verifier returned nothing/ },
@@ -89,6 +100,7 @@ const EXPECTED = {
   // the park agent itself: its death IS the unsafe tree, and that is the terminal it must reach
   'feature x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked plan left the tree unsafe/ },
   'migrate x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked section left the tree unsafe/ },
+  'develop x park':                 { signal: 'terminal', expect: /BLOCKED \(a parked block left the tree unsafe/ },
   'gauntlet x park':                { signal: 'terminal', expect: /BLOCKED \(a parked component left the tree unsafe/ },
   'resolve x park':                 { signal: 'field', field: 'halted' },
 
@@ -99,6 +111,7 @@ const EXPECTED = {
   'enhance x find':                 { signal: 'log', expect: /the finder DIED/ },
   'enhance x verify':               { signal: 'log', expect: /the verifier DIED/ },
   'migrate x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
+  'develop x final-sweep':          { signal: 'log', expect: /completeness check DIED/ },
   'review x review':                { signal: 'log', expect: /reviewer returned nothing/ },
   'review x verify':                { signal: 'log', expect: /agent returned nothing/ },
   // decide drops the dead analyst's lens from convergence and says so; the fact reaches the caller in
@@ -113,7 +126,7 @@ const ALLOW = [];
 // Machinery
 // ---------------------------------------------------------------------------------------------
 const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const PARK_ENGINES = new Set(['feature', 'migrate', 'resolve', 'gauntlet']);
+const PARK_ENGINES = new Set(['feature', 'migrate', 'develop', 'resolve', 'gauntlet']);
 
 /** Longest-prefix match of a label against the engine's static roles; '' when nothing matches. */
 const roleOf = (label, roles) => {

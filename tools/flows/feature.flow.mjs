@@ -54,6 +54,10 @@ export default {
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-plan round loop never runs, and every plan parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
+    // Checked BEFORE the general args guard: with a top-level planPath set, a malformed `plans` used to
+    // satisfy that guard and fall through to the back-compat synthesis — the whole roadmap file built as
+    // one plan. The `--list` output is an object now, so pasting it in is the live shape.
+    { name: 'malformed plans', when: 'plans is set to something other than a non-empty array', args: { ...base, planPath: 'plans/roadmap.md', plans: { blocks: [{ id: 'plan-a', gate: 'green' }] } } },
     { name: 'no plan reference', when: 'args carry neither runId nor a plan', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow', planPath: 'plans/one.md' } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow', planPath: 'plans/one.md' } },

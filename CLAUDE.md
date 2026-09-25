@@ -7,6 +7,8 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | Want to… | Read & follow |
 |----------|---------------|
 | Build **one bounded feature** — or an ordered **roadmap** of them (one approved plan each): new MCP tool, endpoint, page, form, contained enhancement, design-needing bugfix | `workflows/feature/CLAUDE.md` |
+| **Develop** — build the todo blocks of one approved **plan-bus** file, each block's `mode` (feature/section) picking the frame; statuses synced back by tool. The merged successor to feature's build and migrate's run | `workflows/develop/CLAUDE.md` |
+| **Refine** — converge a plan file before develop builds it: a read-only critic under a fixed defect bar + a minimal-fold editor, one clean round to finish. Replaces feature's `phase:"refine"` | `workflows/refine/CLAUDE.md` |
 | **Gauntlet** — build to a working **MVP**, then **climb** it toward an inspectable quality bar (exemplar A/B, critic-led waves, flagship/AAA standard) — or point the climb at an existing product | `workflows/gauntlet/CLAUDE.md` |
 | **Debug** — find production defects and/or fix a verified issue inventory (bring your own from manual testing) — triage → batched fixes | `workflows/debug/CLAUDE.md` |
 | Drive **one plan across many call sites** — migration/upgrade/port/refactor, in ordered sections | `workflows/migrate/CLAUDE.md` |
@@ -39,6 +41,14 @@ answer is already out there, and the work is *finding it and proving it fits* �
 converges on evidenced coverage. The tell: if you want to trade requirement A off against requirement B,
 that is decide's weighted matrix; if missing A is simply disqualifying, that is investigate's pass/fail
 gate.
+
+**Into the plan bus.** The generative workflows feed develop through plan files you author from their
+outputs. enhance's approved proposals map by class: ADOPT → a feature-mode block, a ROADMAP proposal
+spanning many call sites → a section-mode block, a proposal the verifier flagged `is_defect` → a
+hand-authored fix-mode block in debug's verifier format. brainstorm's picked variation, decide's
+conclusion, and investigate's determination feed a plan's design section — convention, not tooling.
+Authored blocks then flow refine → your approval → develop, and debug's review writes fix-mode blocks
+develop consumes directly.
 
 **Gauntlet sits between build and audit.** feature converges on an enumerable spec and stops; enhance
 stops at proposals a human triages; gauntlet keeps changing a working product toward an exemplar bar —

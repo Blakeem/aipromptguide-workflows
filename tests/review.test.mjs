@@ -2,6 +2,7 @@
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
 // returned issues[] index, which is the contract resolve-cycle's args.issues is built from.
 import { runEngine, section, ok, eq } from './harness.mjs';
+import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
 
@@ -163,6 +164,67 @@ section('the returned issues[] is resolve-cycle\'s args.issues shape');
   eq(got.effort, 'trivial', 'effort comes from the verifier\'s matrix');
   eq(got.loc, 10, 'loc is joined from the unit\'s file list');
   eq(out.inventory.actionable, 1, 'counted actionable');
+}
+
+section('the verifier writes a fix-mode PLAN block, and its own template parses as one');
+// The issue file IS the plan file develop consumes through tools/plan-block.mjs, so the `## Plan:`
+// header, its mode/gate/status preamble and every entry's `- status: open` are contract. The unit id is
+// PATH-SHAPED on purpose: gen-units mints `workflows/debug#p1`, which plan-block rejects as a block id —
+// only slug(unit.id) is legal there, and an already-kebab unit id would sidestep the whole question.
+{
+  const PATH_UNIT = { id: 'workflows/debug#p1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
+  const { prompt } = await run({ units: [PATH_UNIT] }, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('workflows-debug-p1-1')] },
+  });
+  const v = prompt('verify');
+  ok(v.includes('## Plan: workflows-debug-p1 - review findings'), 'the block id is slug(unit.id), not the path-shaped unit id');
+  ok(v.includes('\nmode: fix\ngate: green\nstatus: todo\n'), 'the preamble declares the fix mode, its only legal gate, and todo');
+  ok(v.includes('\n- status: open\n'), 'every entry carries the status the fix bus reads');
+  ok(v.includes(`unit: ${PATH_UNIT.id}\nhash: h\nreviewed: true`), 'the frontmatter stamp gen-units resumes on is unchanged');
+
+  // A fixture assembled from the prompt's OWN template: the parenthetical instruction dropped, every
+  // <placeholder> filled. Asserting the template's lines proves the words; parsing it proves the format.
+  const FILL = {
+    id: 'workflows-debug-p1-1', status: 'open', file: 'a.js:1', loc: '10',
+    severity: 'high', category: 'correctness', effort: 'small', decision: 'ACTIONABLE', theme: 'x',
+  };
+  const fixture = v.split('\n-----\n')[1].split('\n')
+    .filter((l) => !l.startsWith('(for EACH'))
+    .map((l) => {
+      const hit = l.match(/^- ([a-z_]+): /);
+      if (hit) return `- ${hit[1]}: ${FILL[hit[1]]}`;
+      return l.replace('### [<finding_id>] <title>', '### [workflows-debug-p1-1] T');
+    })
+    .join('\n');
+  const unfilled = fixture.split('\n').filter((l) => l.includes('undefined'));
+  ok(!unfilled.length, `every templated key has a fixture value${unfilled.length ? ` — ${unfilled.join(' | ')}` : ''}`);
+
+  const blocks = validate(parseBlocks(fixture), 'verifier template');
+  const list = JSON.parse(emitList(blocks, 'verifier template', 'plan', parseFileKeys(fixture)));
+  eq(list.blocks.length, 1, 'one block — the frontmatter above it is skipped, not read as file keys');
+  eq(list.blocks[0].id, 'workflows-debug-p1', 'listed under the slug id');
+  eq(list.blocks[0].mode, 'fix', 'mode fix');
+  eq(list.blocks[0].gate, 'green', 'gate green, read from the preamble');
+  eq(list.blocks[0].status, 'todo', 'status todo');
+  eq(blocks[0].issues.length, 1, 'the entry parses as a fix-mode issue');
+  eq(blocks[0].issues[0].values.status, 'open', 'and carries status open');
+  eq(blocks[0].issues[0].values.file, 'a.js:1', 'the file:line value survives its own colon');
+}
+
+section('a verifier with zero kept verdicts writes the clean-marker bytes, never a plan header');
+// A `## Plan:` block with no entries halts develop's fix worker at entries_found 0, and a file with no
+// gate throws in plan-block — so the all-REJECTED case must land on the clean marker instead.
+{
+  const CLEAN_MARKER = '---\nunit: u1\nhash: h\nreviewed: true\n---\n# Review: u1\n\nNo issues found.\n-----';
+  const { prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1', { is_real: false, decision: 'REJECT' })] },
+  });
+  ok(prompt('review').includes(CLEAN_MARKER), 'the reviewer\'s clean-marker instruction is byte-for-byte unchanged');
+  const v = prompt('verify');
+  ok(v.includes('write NO `## Plan:` header at all'), 'the verifier is told the zero-verdict file is not a plan');
+  ok(v.includes('then `# Review: u1`, then the single line "No issues found."'), 'and is given the clean-marker bytes verbatim');
 }
 
 // The 'required args throw rather than silently defaulting' section (runId, root, target.repo, units)

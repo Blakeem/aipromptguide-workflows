@@ -742,6 +742,11 @@ for (const section of pending) {
   log(`▶ section ${section.id} — ${section.title} [gate=${section.gate}]`);
   const rec = { id: section.id, title: section.title, gate: section.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, thinEvidence: false, contradicted: false };
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
+  // The blind reviewer flagged this section and has not re-cleared it. Needed because the unstaged tree
+  // is CUMULATIVE while `produced` is per-round: a developer that DROPs every finding (MATRIX 1/6b)
+  // reports produced=false over a diff the critic already rejected, and skipping the gate on that would
+  // stage it. Twin of develop-cycle's flag.
+  let qualityOpen = false;
   let accepted = false;
   // An escalation leaves real work in the tree (park it); a dirty-baseline halt changed nothing
   // and that work is the OPERATOR's (never park it).
@@ -850,11 +855,14 @@ for (const section of pending) {
       continue;
     }
     // ---- QUALITY REVIEW (blind, must pass before acceptance) ----------------
-    // Run the blind review ONLY when the developer produced changes (an empty diff has nothing to
-    // review). Either way, acceptance still runs and judges the section against its criteria: a genuine
-    // no-op section (the staged baseline already satisfies it) passes there, and a section that SHOULD
-    // have changed files fails acceptance for unmet criteria. The harness never declares "done" itself.
-    if (dev?.produced) {
+    // Run the blind review when the developer produced changes, OR when a prior review of this section
+    // is still open (an empty ROUND is not an empty DIFF — a round that DROPs every finding exits with
+    // produced=false over code the critic already rejected, and skipping the gate on that stages it with
+    // the critic never re-run to CONTEST the dismissals). Either way, acceptance still runs and judges
+    // the section against its criteria: a genuine no-op section (the staged baseline already satisfies
+    // it) passes there, and a section that SHOULD have changed files fails acceptance for unmet
+    // criteria. The harness never declares "done" itself.
+    if (dev?.produced || qualityOpen) {
       phase('Quality');
       rec.qualityRounds++;
       const quality = await agent(qualityPrompt(section, round), roleOpts('quality', {
@@ -877,11 +885,13 @@ for (const section of pending) {
         log(`  ⚠ ${section.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss`);
       }
       if (quality?.clean !== true) {
+        qualityOpen = true;
         reviewPath = qualityFile(section.id, round);
         if (round >= MAX_ROUNDS) { log(`  ⚠ ${section.id} r${round}: ${quality?.issue_count ?? '?'} quality issue(s) open at round budget (see ${reviewPath})`); break; }
         log(`  ↻ ${section.id} r${round}: quality found ${quality?.issue_count ?? '?'} issue(s) → develop addresses ${reviewPath}`);
         continue;
       }
+      qualityOpen = false;
       log(`  ✓ ${section.id} r${round}: quality review clean`);
     } else {
       log(`  ${section.id} r${round}: developer produced no changes — skipping blind review; acceptance will judge the section against its criteria`);

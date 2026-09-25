@@ -27,7 +27,8 @@ section('the ordinary-Node scripts pass node --check (the harness contract does 
 // gen-units.mjs is run by hand as part of debug; plan-block.mjs is run BY AGENTS during feature and
 // migrate runs, so its syntax is a run-time dependency of two engines, not just dev machinery. wt.mjs
 // is run by the operator around a batch of runs, and a syntax error there strands live worktrees.
-for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs']) {
+// plan-edit.mjs is the operator's only write path into an approved plan file.
+for (const rel of ['workflows/debug/gen-units.mjs', 'tools/plan-block.mjs', 'tools/plan-edit.mjs', 'tools/gen-flows.mjs', 'tools/wt.mjs']) {
   let err = '';
   try {
     execFileSync(process.execPath, ['--check', join(REPO_ROOT, rel)], { stdio: 'pipe' });
@@ -480,8 +481,13 @@ section('every engine with a round loop REJECTS a garbage bound instead of absor
 // are the values that silently disable a floor rather than shorten a loop.
 // A superset of every engine's required args, so the numeric guard is the FIRST thing each run can trip
 // on. Whatever else is missing throws later and with a different message, which the assertion excludes.
+// `plans` is a VALID non-empty array, not a placeholder: develop-cycle throws on a missing or malformed
+// one BEFORE it reaches num(), so a payload without it would trip that guard instead and the sweep would
+// pass on the wrong message. Harmless to the siblings — feature ignores planPath once plans is a
+// non-empty array, and no other engine reads plans at all.
 const NUM_ARGS = {
   runId: 'num', root: 'E:/r', target: { repo: 'E:/repo' },
+  plans: [{ id: 'x', planPath: 'p.md', mode: 'feature', gate: 'build-only' }],
   planPath: 'p.md', criteria: 'c', requirements: 'r', brief: 'b', conventions: 'c',
   lenses: ['alpha', 'beta'], sources: ['s'], scope: ['x'],
   units: [{ id: 'u', files: ['f'] }],

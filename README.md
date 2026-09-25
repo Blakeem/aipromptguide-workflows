@@ -150,6 +150,43 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-08-29
+
+- **`develop` gained fix mode, and `debug`'s verifier writes plan-bus fix blocks.** Each
+  `issues/<unit>.md` is now a `## Plan:` fix-mode block develop builds directly: its fix worker
+  verifies each `### [<id>]` entry still exists (vanished = stale), fixes ACTIONABLE decisions only,
+  and returns per-issue results the operator syncs back into the file's `- status:` lines with
+  `plan-edit.mjs`. Two new round-1 terminals: an all-stale block is done without reviewers, and an
+  all-skipped block is blocked, never silently done. `resolve-cycle` still works unchanged during
+  the transition.
+- **New engine: [refine](workflows/refine/)** — converging plan review, replacing `feature`'s
+  `phase:"refine"` (which never converged: five runs on one plan kept adding detail). A read-only
+  critic judges every todo block under a fixed defect bar and severity floor, writing findings to a
+  critique file. A minimal-fold editor changes nothing a gap does not name, declines to a ledger,
+  and re-validates the plan through `plan-block.mjs` after every fold. One clean round ends the
+  loop. Structural findings (block order, an oversized block, a gap in an already-built block)
+  come back as questions instead of edits.
+- **New engine: [develop](workflows/develop/)** — the merged successor to `feature`'s build phase and
+  `migrate`'s run phase. It builds the `status: todo` blocks of one approved plan file, each block's
+  `mode` picking the engine-held frame (feature or section), with the file keys (`ordered`, `suite`,
+  `sweep`, `goal`) deciding park semantics, suite strictness, and the whole-goal sweep. New hardening
+  over its parents: a missing unstaged attestation now halts, and a flagged block is re-reviewed even
+  when a later round produces no changes (`migrate` received the same fix). `feature` and `migrate`
+  stay runnable during the transition.
+- **`plan-block.mjs` reads the plan-bus metadata grammar.** First step of the plan-bus rework (one
+  develop engine consuming plans every workflow produces). The default kind now parses file keys
+  (`goal`, `ordered`, `suite`, `sweep`), a block preamble (`mode`, `gate`, `status`), and `### [<id>]`
+  issue entries in fix-mode blocks. `--list` emits one object, the file keys plus a `blocks` array,
+  instead of the old array. `--kind section` and `--kind component` are unchanged transition aliases.
+  Unknown keys, illegal values, and duplicate ids across the block and issue namespaces all fail
+  loudly.
+- **New `tools/plan-edit.mjs`, the one tool that writes plan files.** `set` upserts one block or
+  issue metadata line. `move` relocates an issue entry between blocks or files (a cut, never a
+  copy). A separate file from the read-only tool agents run, so the run-time allowlist rule never
+  covers a write.
+- **`feature` throws on a malformed `plans` arg.** A `plans` present but not a non-empty array used
+  to fall through to the single-plan path and build the whole roadmap as one plan at exit 0.
+
 ### 2026-08-06
 
 - **Every blind reviewer is now blind by placement** (feature, migrate, debug's resolve — following
