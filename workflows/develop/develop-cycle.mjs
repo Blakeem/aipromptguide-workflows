@@ -466,6 +466,8 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to ${dismissedFile(id)} so reviewers won't re-raise it —
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to ${amendedFile(id)} —
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -628,6 +630,11 @@ Report ONLY production-blocking defects INTRODUCED by this diff: real correctnes
 data-integrity/error-handling/resource/concurrency/api-contract bugs, or anything that breaks the
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
+
+A diff that changes ONLY comments or string text has three checkable defects: a change to executable
+code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact tokens), a path, command, identifier or
+file the new text names that does not exist, and a sentence the change removed that other text still
+refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
@@ -1171,6 +1178,7 @@ for (const p of pending) {
     if (dev?.needs_user === true) {
       escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
       rec.status = 'BLOCKED (needs user)';
+      rec.needsUser = true;
       // No later block depends on this one in an unordered run, so only an ordered run stops.
       if (ORDERED) {
         halted = true;
@@ -1462,6 +1470,8 @@ const emptyParkPlans = parkedPlans.filter((r) => !r.patch);
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 const noChangePlans = blockedPlans.filter((r) => r.status === 'no-changes');
 const haltedPlans = blockedPlans.filter((r) => r.status !== 'no-changes');
+// An ordered needs-user halt already says this in its halt text.
+const needsUserParks = haltKind === 'needs-user' ? [] : ledger.filter((r) => r.needsUser);
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
@@ -1512,6 +1522,8 @@ return {
   reviewTrail,
   followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished. `
+    : ''}${needsUserParks.length
+    ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
     : ''}${parkedPlans.length
     ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${patchedPlans.length
       ? `Work SAVED and cleared from the tree — nothing discarded — for: ${patchedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply --3way\` restore command). `

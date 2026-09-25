@@ -6,26 +6,26 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6663 | every block accepts first time |
-| quality | 1 | 1 | 2751 | every block accepts first time |
+| develop | 1 | 1 | 6822 | every block accepts first time |
+| quality | 1 | 1 | 3117 | every block accepts first time |
 | acceptance | 1 | 1 | 5454 | every block accepts first time |
-| develop | 2 | 1 | 7153 | every block accepts first time |
+| develop | 2 | 1 | 7312 | every block accepts first time |
 | acceptance | 2 | 2 | 5705 | every block accepts first time |
 | final-sweep | 1 | 1 | 1942 | every block accepts first time |
-| develop | 3 | 1 | 6034 | quality flags the first round |
-| quality | 2 | 1 | 2564 | quality flags the first round |
-| develop | 4 | 1 | 6524 | quality flags the first round |
-| develop | 5 | 1 | 6032 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6522 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 6018 | the gate never goes green |
+| develop | 3 | 1 | 6193 | quality flags the first round |
+| quality | 2 | 1 | 2930 | quality flags the first round |
+| develop | 4 | 1 | 6683 | quality flags the first round |
+| develop | 5 | 1 | 6191 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6681 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 6177 | the gate never goes green |
 | park | 1 | 1 | 5150 | the gate never goes green |
-| develop | 8 | 1 | 6508 | the gate never goes green |
+| develop | 8 | 1 | 6667 | the gate never goes green |
 | park | 2 | 1 | 5094 | a parked block, and the run carries on |
 | park | 3 | 1 | 5138 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8179 | a fix block closes its issues |
+| develop | 9 | 2 | 8338 | a fix block closes its issues |
 | acceptance | 3 | 3 | 6653 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1933 | a fix block closes its issues |
-| develop | 10 | 2 | 8271 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 8430 | a pass of two fix blocks closes its issues |
 | acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
 | acceptance | 5 | 3 | 6652 | every issue is already fixed |
@@ -103,6 +103,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -243,6 +245,11 @@ Report ONLY production-blocking defects INTRODUCED by this diff: real correctnes
 data-integrity/error-handling/resource/concurrency/api-contract bugs, or anything that breaks the
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
+
+A diff that changes ONLY comments or string text has three checkable defects: a change to executable
+code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command, identifier or
+file the new text names that does not exist, and a sentence the change removed that other text still
+refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
@@ -479,6 +486,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -856,6 +865,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -995,6 +1006,11 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
+A diff that changes ONLY comments or string text has three checkable defects: a change to executable
+code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command, identifier or
+file the new text names that does not exist, and a sentence the change removed that other text still
+refers to. Whether the wording reads well is out of scope.
+
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (create E:/flow/runs/flow/gate/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests)
@@ -1091,6 +1107,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1256,6 +1274,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1425,6 +1445,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1590,6 +1612,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1862,6 +1886,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2254,6 +2280,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md —
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2709,6 +2737,8 @@ PROCEDURE:
 LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md so reviewers won't re-raise it —
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md —
       `## Plan amendment: block-c-plus-1 r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is

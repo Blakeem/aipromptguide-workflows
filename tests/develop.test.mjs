@@ -534,6 +534,9 @@ section('an unordered run parks a needs-user block and continues');
   ok(/REST OF THE RUN can continue/.test(prompt('park')) && /the remaining blocks continued without it/.test(prompt('park')),
     'park is told the run continues');
   ok(/was halted: the developer escalated a user-only decision/.test(prompt('park')), 'with the needs-user reason');
+  // The parked-block followup offers only restore, re-run or drop, so the escalated question needs its own line.
+  ok(/1 block\(s\) escalated a user-only decision: block-a\. .*resolve with the user.*relaunch it with runOnly/.test(out.followups),
+    'followups name the block and say to resolve it with the user');
 }
 {
   // Every other escalation still stops an unordered run, and park must be told so.
@@ -1041,6 +1044,20 @@ section('case 7 proceeding also writes an ESCALATED: line to the ledger the blin
     ok(/ESCALATED: <the default you took/.test(esc), `${mode}: the line states the default taken`);
     ok(esc.includes(`the blind reviewer is NOT shown ${STATE}/NEEDS-USER.md`), `${mode}: with the reason attached`);
   }
+}
+
+section('a dismissal reason and a prose-only diff are both judged from the code alone');
+// The blind reviewer reads the DISMISSED ledger but never the plan, so a reason citing a plan id is opaque.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const drop = r.prompt(`develop ${id}`).split('• DROP (1 or 6b):')[1]?.split('• AMEND (6a)')[0] ?? '';
+    ok(/decidable from the code alone: never\s+cite a plan id, block id, issue id or plan clause/.test(drop),
+      `${mode}: a DROP reason never cites the plan`);
+  }
+  const q = (await run(GREEN_RUN)).prompt('quality block-a');
+  ok(/A diff that changes ONLY comments or string text has three checkable defects/.test(q)
+    && q.includes('git -C E:/repo diff --word-diff') && /Whether the wording reads well is out of scope/.test(q),
+    'the blind reviewer has a bar for a comment- or string-only diff');
 }
 
 section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');
