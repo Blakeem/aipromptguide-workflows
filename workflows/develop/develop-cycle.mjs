@@ -387,31 +387,42 @@ const QUALITY_SCHEMA = {
   },
 };
 
-// Built PER MODE rather than shipped as one const: half the field descriptions are the acceptance
-// CONTRACT (what "reachable" means, what the gate proves), and a single wording would be wrong for one of
-// the three modes every time it is used — the feature frame judges reachability from real entry points,
-// the section frame judges call-site coverage, the fix frame judges root-cause closure per issue.
-// A fix block enumerates no criteria and claims no reachability: its evidence IS the per-issue
-// re-derivation, so those four fields are dropped rather than left required over nothing.
 const acceptanceSchema = (mode) => {
-  const isSection = mode === 'section';
-  const isFix = mode === 'fix';
+  // Per mode, because half the field descriptions are the acceptance CONTRACT: the feature frame judges
+  // reachability from real entry points, the section frame call-site coverage, the fix frame root-cause
+  // closure per issue. A fix block enumerates no criteria and claims no reachability, so it carries neither.
+  // `|| {}` lets tests/static.test.mjs evaluate the schema with no mode to read its field names.
+  const terms = {
+    feature: {
+      pass: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed',
+      staged: 'true if you ran `git add` on the feature files (only on pass; NEVER commit)',
+      reachable: 'the feature is actually wired in / reachable from the app entry points',
+      criteriaFrom: 'the plan',
+      suite: 'observed outcome of running the FULL gates',
+    },
+    section: {
+      pass: 'true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, and nothing regressed',
+      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
+      reachable: 'this block\'s change is actually wired in / reachable — every call site converted, route mounted, symbol exported',
+      criteriaFrom: 'THIS block',
+      suite: 'observed outcome of running the block gate (and, where the goal expects it, the full gates)',
+    },
+    fix: {
+      pass: 'true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, the gate is green, and nothing regressed',
+      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
+      suite: 'observed outcome of running the FULL gates',
+    },
+  }[mode] || {};
   return {
     type: 'object',
-    required: isFix
+    required: mode === 'fix'
       ? ['plan_obtained', 'pass', 'staged', 'fix_checks']
       : ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
       plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless.' },
-      pass:        { type: 'boolean', description: isFix
-        ? 'true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, the gate is green, and nothing regressed'
-        : isSection
-          ? 'true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, and nothing regressed'
-          : 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed' },
-      staged:      { type: 'boolean', description: isSection || isFix
-        ? 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)'
-        : 'true if you ran `git add` on the feature files (only on pass; NEVER commit)' },
-      ...(isFix ? {
+      pass:        { type: 'boolean', description: terms.pass },
+      staged:      { type: 'boolean', description: terms.staged },
+      ...(mode === 'fix' ? {
         fix_checks: {
           type: 'array',
           description: 'one entry per issue the developer claimed FIXED or reported STALE',
@@ -426,18 +437,14 @@ const acceptanceSchema = (mode) => {
           },
         },
       } : {
-        reachable:   { type: 'boolean', description: isSection
-          ? 'this block\'s change is actually wired in / reachable — every call site converted, route mounted, symbol exported'
-          : 'the feature is actually wired in / reachable from the app entry points' },
-        criteria_total: { type: 'integer', description: `acceptance criteria you enumerated from ${isSection ? 'THIS block' : 'the plan'} (0 means you enumerated none — never a legitimate pass)` },
+        reachable:   { type: 'boolean', description: terms.reachable },
+        criteria_total: { type: 'integer', description: `acceptance criteria you enumerated from ${terms.criteriaFrom} (0 means you enumerated none — never a legitimate pass)` },
         criteria_met:   { type: 'integer', description: 'of those, how many you found concrete evidence for' },
         evidence_recorded: { type: 'boolean', description: 'true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file' },
       }),
       regression:  { type: 'boolean', description: 'true if the unstaged diff regressed previously-staged/accepted behavior' },
       gap_count:   { type: 'integer', description: 'number of unmet criteria / gaps written to the review file (0 on pass)' },
-      suite_result:{ type: 'string', description: isSection
-        ? 'observed outcome of running the block gate (and, where the goal expects it, the full gates)'
-        : 'observed outcome of running the FULL gates' },
+      suite_result:{ type: 'string', description: terms.suite },
     },
   };
 };
@@ -556,47 +563,66 @@ THIS block correct, testable, and production-safe; leave the lines you TOUCH a l
 nothing else.`;
 
 // =============================================================================
-// Role prompts — succinct; each agent gets ONE document link for its task. The DEVELOPER and ACCEPTANCE
-// frames switch on the block's mode (feature = one bounded feature wired in; section = one slice of a
-// breadth-spanning goal, every call site converted). The BLIND critic has ONE frame across both modes:
-// it is handed no plan and no goal, so there is nothing for a mode to change.
+// Role prompts — each agent gets ONE document link for its task. The DEVELOPER and ACCEPTANCE frames
+// switch on the block's mode through DEVELOP_FRAME and ACCEPTANCE_FRAME. The BLIND critic has one frame:
+// it is handed no plan, so a mode has nothing to change.
 // =============================================================================
-const developPrompt = (p, round, reviewPath) => {
-  // Identical in both frames — only the task lines below switch on mode.
-  const opening = round === 1
-    ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  \`git -C ${REPO} diff --name-only\`                        — unstaged tracked edits
-  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` — untracked files (\`git diff\` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.`
-    : `${reviewPath
-      ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
-      : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
-tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
-Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
-unstaged tree now holds YOUR work).`;
-  // Shown in EVERY round, round 1 included: the ledger PERSISTS across resumes, so a resumed round-1
-  // developer has one to read and must not re-litigate what it already declined.
-  const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings for
-THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
-entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
-as \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).`;
-  const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
-   you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.`;
+const featureDevelop = (p, round, { opening, ledgerNote, staging }) => `
+You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
+${SCOPE_LINE.feature}.
+${ENV}
+BLOCK: ${p.id}
+${opening}
+${ledgerNote}
 
-  // FIX frame: the block IS the inventory. Verify-first (the entries were written from a past snapshot),
-  // ACTIONABLE-only (the `- decision:` line is the USER's triage, not the developer's), and one result
-  // per entry — the engine derives `produced` from those statuses, so an unreported entry is work that
-  // silently never happened.
-  if (p.mode === 'fix') {
-    return `
+PROCEDURE:
+1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+   routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
+   Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
+2. RUN THE GATE until it is ${p.gate === 'build-only' ? 'GREEN (build-only: the build must pass; this block has no verification to run)' : 'GREEN'} — build: ${GATES.build ?? '(none)'} ; verification: per
+   the plan's Test Strategy (${GATES.test ?? 'no test gate configured'}). ${SUITE_LINE} Never
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
+   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
+3. ${staging}
+4. ${MATRIX(p.id, round, p.mode)}
+Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+
+const sectionDevelop = (p, round, { opening, ledgerNote, staging }) => {
+  const gateExpectation = p.gate === 'red-baseline'
+    ? 'red-baseline — AUTHOR this block\'s tests; they MUST FAIL because the code is not converted yet. Report test_outcome="failed-expected" once they run and fail for the RIGHT reason (asserting the not-yet-built target behavior), or "failed-unexpected" if they fail for a wrong reason (parse error, missing fixture).'
+    : p.gate === 'build-only'
+      ? 'build-only — no test pass/fail requirement; just keep the build green.'
+      : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block\'s `test_selector:` line when it has one, else the test gate.';
+  return `
+You are the DEVELOPER. Implement ${planRef(p)}. Build ONLY this block minimally and surgically; match
+conventions; ${SCOPE_LINE.section}.
+${ENV}
+BLOCK: ${p.id}
+GATE EXPECTATION: ${gateExpectation}
+${opening}
+${ledgerNote}
+
+PROCEDURE:
+1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+   site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
+   is NOT done. Author/extend tests per the block's Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
+2. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
+   scoped to this block (its \`test_selector:\` line when it has one, else the test gate):
+   ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete
+   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
+   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
+   when in doubt run one file per invocation or use the runner's --filter.
+3. ${SUITE_LINE} Build/lint must always pass.
+4. ${staging}
+5. ${MATRIX(p.id, round, p.mode)}
+Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+};
+
+// FIX frame: the block IS the inventory. Verify-first (the entries were written from a past snapshot),
+// ACTIONABLE-only (the `- decision:` line is the USER's triage, not the developer's), and one result
+// per entry — the engine derives `produced` from those statuses, so an unreported entry is work that
+// silently never happened.
+const fixDevelop = (p, round, { opening, ledgerNote, staging }) => `
 You are the FIXER. Resolve the verified issues in ${planRef(p)}. That block IS the inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
@@ -635,58 +661,39 @@ changed code that closes it), STALE (it is not in the current code), SKIPPED (it
 ACTIONABLE), FAILED (you tried and could not). Report EVERY id, including the ones you left alone — the
 engine reads these statuses as the record of what this round did.
 Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
-  }
 
-  if (p.mode === 'section') {
-    const gateExpectation = p.gate === 'red-baseline'
-      ? 'red-baseline — AUTHOR this block\'s tests; they MUST FAIL because the code is not converted yet. Report test_outcome="failed-expected" once they run and fail for the RIGHT reason (asserting the not-yet-built target behavior), or "failed-unexpected" if they fail for a wrong reason (parse error, missing fixture).'
-      : p.gate === 'build-only'
-        ? 'build-only — no test pass/fail requirement; just keep the build green.'
-        : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block\'s `test_selector:` line when it has one, else the test gate.';
-    return `
-You are the DEVELOPER. Implement ${planRef(p)}. Build ONLY this block minimally and surgically; match
-conventions; ${SCOPE_LINE.section}.
-${ENV}
-BLOCK: ${p.id}
-GATE EXPECTATION: ${gateExpectation}
-${opening}
-${ledgerNote}
+const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
 
-PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
-   site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
-   is NOT done. Author/extend tests per the block's Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
-2. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
-   scoped to this block (its \`test_selector:\` line when it has one, else the test gate):
-   ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests (tests_run_count = 0
-   means it matched NOTHING = a false green; -1 if N/A). Some runners silently ignore extra path args —
-   when in doubt run one file per invocation or use the runner's --filter.
-3. ${SUITE_LINE} Build/lint must always pass.
-4. ${staging}
-5. ${MATRIX(p.id, round, p.mode)}
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
-  }
-
-  return `
-You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
-${SCOPE_LINE.feature}.
-${ENV}
-BLOCK: ${p.id}
-${opening}
-${ledgerNote}
-
-PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
-   routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
-   Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
-2. RUN THE GATE until it is ${p.gate === 'build-only' ? 'GREEN (build-only: the build must pass; this block has no verification to run)' : 'GREEN'} — build: ${GATES.build ?? '(none)'} ; verification: per
-   the plan's Test Strategy (${GATES.test ?? 'no test gate configured'}). ${SUITE_LINE} Never
-   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests
-   (tests_run_count = 0 means it matched NOTHING = a false green; -1 if N/A, e.g. manual/MCP).
-3. ${staging}
-4. ${MATRIX(p.id, round, p.mode)}
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+const developPrompt = (p, round, reviewPath) => {
+  // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
+  const opening = round === 1
+    ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
+ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is reviewed and judged as YOUR work.
+  \`git -C ${REPO} diff --name-only\`                        — unstaged tracked edits
+  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` — untracked files (\`git diff\` OMITS these)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
+staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
+write nothing, do no work, and return immediately with that count — the run halts so the operator can
+fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.`
+    : `${reviewPath
+      ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
+already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
+      : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
+tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
+Report baseline_dirty_files=-1 (the round-1 clean-baseline check does not apply from round 2 on — the
+unstaged tree now holds YOUR work).`;
+  // Shown in EVERY round, round 1 included: the ledger PERSISTS across resumes, so a resumed round-1
+  // developer has one to read and must not re-litigate what it already declined.
+  const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first — it is YOUR running ledger of declined findings for
+THIS block, and it PERSISTS across resumes (so a resumed round-1 still has it): do not duplicate an
+entry, and do not re-litigate what you already declined. If the review you are addressing RE-RAISES one
+as \`CONTESTS DISMISSAL:\`, you MUST FIX or ESCALATE it (never silently re-add the same dismissal).`;
+  const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
+   you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
+   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
+   accept — anything YOU stage is reviewed by nobody and HALTS the run.`;
+  return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
 // BLIND. No plan, no spec, no goal, no acceptance criteria — judges the code purely as code. ONE frame
@@ -721,12 +728,10 @@ WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if neede
 "No production-blocking defects found." Then return clean (true if NO findings, including no contests)
 + issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 
-const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = []) => {
-  // FIX frame: there are no criteria to enumerate — the block's entries ARE the spec, and the verdict is
-  // per issue. The root cause is RE-DERIVED from current code rather than checked off against the entry's
-  // own **Fix:** line, because the entry may have under-scoped the defect.
-  if (p.mode === 'fix') {
-    return `
+// FIX frame: there are no criteria to enumerate — the block's entries ARE the spec, and the verdict is
+// per issue. The root cause is RE-DERIVED from current code rather than checked off against the entry's
+// own **Fix:** line, because the entry may have under-scoped the defect.
+const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block. The blind code review
 already passed (or was skipped because the developer changed nothing). Read ${planRef(p)}. That block IS
 the inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
@@ -795,8 +800,8 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
-  }
 
+const planAcceptance = (p, round) => {
   const isSection = p.mode === 'section';
   const reachStep = isSection
     ? `REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -865,6 +870,11 @@ PROCEDURE:
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
 };
+
+const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix: fixAcceptance };
+
+const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = []) =>
+  ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped });
 
 // Only needs-user writes a NEEDS-USER entry, so each escalated halt names its own cause. Without this the
 // park agent was told to cite a developer escalation that never happened and invented one.
@@ -1077,20 +1087,93 @@ function issueSyncStatus(status, claimedFixed, landed) {
 }
 
 /**
- * Records a finished block: its ledger row, its own status edit, and one edit per fix entry that changes.
- * An entry acceptance's own fix_check judged still open never syncs `fixed` or `stale`, even in a landed
- * block: the plan file is the selection truth, and either value would drop the live defect from every
- * later run.
+ * A fix block's per-issue record across rounds. The engine never parses a block, so the statuses the
+ * developer reports are the only record of which entries were touched.
  */
-function finishBlock(p, rec, blockStatus, claimedEver, unclosedIds) {
+function fixTracker() {
+  const reported = new Map();     // issue id → the last status reported, across rounds
+  // Ever claimed FIXED, monotonic. A later round that re-reports an id STALE (its own round-1 fix closed
+  // it) must not withdraw that fix from verification while its diff still sits unstaged: an empty claim
+  // list makes the root-cause re-derivation vacuous and stages unverified code.
+  const claimedEver = new Set();
+  const unclosed = new Set();     // ids the latest fix_check reported actually_fixed=false
+  // A STALE report closes its entry once the block lands, so acceptance confirms it too. One still in
+  // claimedEver is this block's own fix and is already on the FIXED list.
+  const stale = () => [...reported].filter(([id, s]) => s === 'STALE' && !claimedEver.has(id)).map(([id]) => id);
+  return {
+    /** This round's results, recorded before any halt so an escalated block still reaches the ledger. */
+    record(dev) {
+      const results = Array.isArray(dev.results) ? dev.results : [];
+      for (const r of results) {
+        if (r && typeof r.issue_id === 'string' && typeof r.status === 'string') {
+          reported.set(r.issue_id, r.status);
+          if (r.status === 'FIXED') claimedEver.add(r.issue_id);
+        }
+      }
+      return results;
+    },
+    ledger: () => [...reported].map(([issue_id, status]) => ({ issue_id, status })),
+    claimed: () => [...claimedEver],
+    stale,
+    skipped: () => [...reported].filter(([, s]) => s === 'SKIPPED').map(([id]) => id),
+    /** The verdict's fix checks. Every verdict counts, not just a pass: the latest check per id wins. */
+    judge(acc) {
+      const checks = acc?.fix_checks || [];
+      for (const c of checks) {
+        if (typeof c?.issue_id !== 'string') continue;
+        if (c.actually_fixed === false) unclosed.add(c.issue_id);
+        else if (c.actually_fixed === true) unclosed.delete(c.issue_id);
+      }
+      const openChecks = checks.filter((c) => c?.actually_fixed === false).length;
+      const staleIds = stale();
+      return {
+        criteria: null,
+        reachable: null,
+        thin: checks.length < claimedEver.size + staleIds.length,
+        open: openChecks > 0,
+        evidence: `${checks.length} check(s) for ${claimedEver.size} claimed fix(es)${staleIds.length ? ` and ${staleIds.length} stale claim(s)` : ''}`,
+        contraDetail: `unclosed=${openChecks}`,
+        score: `${checks.length} fix check(s)`,
+        reachNote: '',
+      };
+    },
+    /**
+     * One `{ id, value }` per entry whose status changes. An entry acceptance's own fix_check judged still
+     * open never syncs `fixed` or `stale`, even in a landed block: either value would drop a live defect
+     * from every later run.
+     */
+    edits(landed) {
+      const out = [];
+      for (const [id, status] of reported) {
+        const mapped = issueSyncStatus(status, claimedEver.has(id), landed);
+        const value = (mapped === 'fixed' || mapped === 'stale') && unclosed.has(id) ? 'needs-attention' : mapped;
+        if (value) out.push({ id, value });
+      }
+      return out;
+    },
+  };
+}
+
+/** A feature or section verdict: its criteria, reachability, and what makes a pass thin or self-contradicting. */
+function judgePlanAcceptance(acc) {
+  const criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
+  return {
+    criteria,
+    reachable: acc?.reachable === true,
+    thin: criteria.total === 0 || criteria.met < criteria.total || acc?.evidence_recorded !== true,
+    open: acc?.reachable !== true,
+    evidence: `evidence_recorded=${acc?.evidence_recorded}`,
+    contraDetail: `reachable=${acc?.reachable}`,
+    score: `${criteria.met}/${criteria.total} criteria`,
+    reachNote: `reachable=${acc?.reachable}, `,
+  };
+}
+
+/** Records a finished block: its ledger row, its own status edit, and one edit per fix entry that changes. */
+function finishBlock(p, rec, blockStatus, fix) {
   const edit = (id, value) => ({ planPath: p.planPath, id, key: 'status', value });
-  const landed = blockStatus === 'done';
-  const edits = [edit(p.id, blockStatus)];
-  for (const { issue_id, status } of rec.results || []) {
-    const mapped = issueSyncStatus(status, claimedEver.has(issue_id), landed);
-    const value = (mapped === 'fixed' || mapped === 'stale') && unclosedIds.has(issue_id) ? 'needs-attention' : mapped;
-    if (value) edits.push(edit(issue_id, value));
-  }
+  const issueEdits = fix ? fix.edits(blockStatus === 'done') : [];
+  const edits = [edit(p.id, blockStatus), ...issueEdits.map((e) => edit(e.id, e.value))];
   ledger.push(rec);
   statusSync.push(...edits);
   log(STATUS_LOG + JSON.stringify(edits));
@@ -1110,17 +1193,7 @@ for (const p of pending) {
 
   log(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]`);
   const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, patch: null, strays: null };
-  // FIX mode only: the per-issue outcome, id → last status reported across rounds. The engine never parses
-  // the block, so this is the ONLY record of which entries were touched — it rides out in the ledger and
-  // feeds each entry's `- status:` edit in statusSync.
-  const fixResults = new Map();
-  // Ever-claimed FIXED, monotonic — the acceptance verifier's checklist, kept SEPARATE from the ledger Map
-  // above. A later round that re-reports an id as STALE (its own round-1 fix closed it) must not withdraw
-  // that fix from verification while the diff is still sitting in the unstaged tree: an empty claim list
-  // makes the root-cause re-derivation vacuous and stages unverified code.
-  const claimedEver = new Set();
-  // Ids the latest acceptance fix_check reported actually_fixed=false. statusSync maps them needs-attention.
-  const unclosedIds = new Set();
+  const fix = p.mode === 'fix' ? fixTracker() : null;
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
@@ -1205,7 +1278,7 @@ for (const p of pending) {
       // terminal below fires, and the run ends reporting a clean outcome over an inventory nobody read.
       // The VALUE is guarded, never coerced — `-1` (the round-2+ n/a) is a number and just falls through,
       // while `false`/`''`/`[]` would all compare `=== 0` as false and wave the precondition past.
-      if (p.mode === 'fix') {
+      if (fix) {
         const entries = dev.entries_found;
         if (typeof entries !== 'number' || !Number.isFinite(entries)) {
           log(`  ⚠ ${p.id} r1: developer did not report entries_found — the inventory-readable precondition was NOT verified`);
@@ -1225,16 +1298,8 @@ for (const p of pending) {
     // reviewer onto an empty diff. Statuses accumulate across rounds (last write wins), so the ledger
     // carries every id the developer ever reported, not just the final round's. Recorded BEFORE the
     // needs_user and staging halts: a block that escalates still reaches the ledger with what it reported.
-    const results = p.mode === 'fix' && Array.isArray(dev.results) ? dev.results : [];
-    if (p.mode === 'fix') {
-      for (const r of results) {
-        if (r && typeof r.issue_id === 'string' && typeof r.status === 'string') {
-          fixResults.set(r.issue_id, r.status);
-          if (r.status === 'FIXED') claimedEver.add(r.issue_id);
-        }
-      }
-      rec.results = [...fixResults].map(([issue_id, status]) => ({ issue_id, status }));
-    }
+    const results = fix ? fix.record(dev) : [];
+    if (fix) rec.results = fix.ledger();
     if (dev?.needs_user === true) {
       halted = true;
       escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
@@ -1272,12 +1337,7 @@ for (const p of pending) {
       rec.planAmendments += amendments;
       log(`  ⚠ ${p.id} r${round}: ${amendments} plan amendment(s) recorded — see ${amendedFile(p.id)}`);
     }
-    const claimedIds = [...claimedEver];
-    // A STALE report closes its entry at sync time, so acceptance confirms it too; one still in claimedEver
-    // is this block's own fix and is already on the FIXED list.
-    const staleIds = [...fixResults].filter(([id, s]) => s === 'STALE' && !claimedEver.has(id)).map(([id]) => id);
-    const skippedIds = [...fixResults].filter(([, s]) => s === 'SKIPPED').map(([id]) => id);
-    const produced = p.mode === 'fix'
+    const produced = fix
       ? results.some((r) => r?.status === 'FIXED' || r?.status === 'FAILED')
       : dev.produced === true;
     if (produced) reviewOwed = true;
@@ -1306,7 +1366,7 @@ for (const p of pending) {
     // id — taking the shortcut then would break out past quality, acceptance AND park, stranding round 1's
     // real edits unstaged, unreviewed and attributed to the next block.
     // Only round 1 is provably free of accumulated tree state.
-    if (p.mode === 'fix' && !produced && round === 1) {
+    if (fix && !produced && round === 1) {
       const onlyStale = results.length > 0 && results.every((r) => r?.status === 'STALE');
       if (onlyStale) {
         log(`  ${p.id}: every issue reported already resolved (all ${results.length} STALE) — no diff, so acceptance confirms each claim without a blind review`);
@@ -1368,7 +1428,7 @@ for (const p of pending) {
 
     // ---- ACCEPTANCE REVIEW (plan-aware; stages on pass; baseline advances) ---
     phase('Acceptance');
-    const acc = await agent(acceptancePrompt(p, round, claimedIds, staleIds, skippedIds), roleOpts('acceptance', {
+    const acc = await agent(acceptancePrompt(p, round, fix?.claimed(), fix?.stale(), fix?.skipped()), roleOpts('acceptance', {
       schema: acceptanceSchema(p.mode), phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
     // Same shape as the guards above: a dead verifier is not a gap verdict. Unguarded it fell to the
@@ -1396,43 +1456,26 @@ for (const p of pending) {
     }
     if (acc?.regression === true) rec.regression = true;
     // Read PER MODE: a fix block's schema carries no criteria and no reachability claim, so deriving
-    // either from it would log THIN EVIDENCE and CONTRADICTS ITS OWN PASS on every fix pass, over fields
-    // that were never asked for. Its evidence is the per-issue root-cause re-derivation instead.
-    const isFixMode = p.mode === 'fix';
-    const checks = isFixMode ? (acc?.fix_checks || []) : [];
-    // Every verdict, not just a pass: a refuted STALE claim in a block that never lands must not sync
-    // `stale`. The latest check per id wins, so a later round's confirmation clears an earlier refusal.
-    for (const c of checks) {
-      if (typeof c?.issue_id !== 'string') continue;
-      if (c.actually_fixed === false) unclosedIds.add(c.issue_id);
-      else if (c.actually_fixed === true) unclosedIds.delete(c.issue_id);
-    }
-    rec.criteria = isFixMode ? null : { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
+    // either from it would log THIN EVIDENCE and CONTRADICTS ITS OWN PASS on every fix pass. Its evidence
+    // is the per-issue root-cause re-derivation instead.
+    const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
+    rec.criteria = verdict.criteria;
     if (acc?.pass === true) {
-      rec.reachable = isFixMode ? null : acc?.reachable === true;
-      // A pass is only as good as the enumeration behind it: no criteria, an incomplete count, or missing
-      // locators means the verdict rests on assertion, not evidence (#14) — and in fix mode, a claimed fix
-      // with no fix_check behind it is the same defect. Detection only — acceptance already staged, so
-      // flag it for the operator's audit rather than failing the block.
-      rec.thinEvidence = isFixMode
-        ? checks.length < claimedIds.length + staleIds.length
-        : rec.criteria.total === 0 || rec.criteria.met < rec.criteria.total || acc?.evidence_recorded !== true;
-      // `pass` MEANS "reachable and nothing regressed" (the acceptance schema), and both fields are
-      // REQUIRED — so a pass alongside either one contradicts the verdict's own definition and cannot be
-      // a missing-field artifact. In fix mode the same contradiction is a pass carrying a fix_check that
-      // says the root cause is still open. Flag both; HALT only on the regression, whose harm compounds:
-      // staged work becomes the baseline every later block is judged against. An unreachable block is bad
-      // but inert, and the operator guide already says to grep the integration point.
-      const openChecks = checks.filter((c) => c?.actually_fixed === false).length;
-      rec.contradicted = acc?.regression === true || (isFixMode ? openChecks > 0 : acc?.reachable !== true);
-      const evidence = isFixMode ? `${checks.length} check(s) for ${claimedIds.length} claimed fix(es)${staleIds.length ? ` and ${staleIds.length} stale claim(s)` : ''}` : `evidence_recorded=${acc?.evidence_recorded}`;
-      const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
-      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${isFixMode ? `unclosed=${openChecks}` : `reachable=${acc?.reachable}`}) — audit ${acceptanceFile(p.id, round)}` : '';
-      const scoreNote = isFixMode ? `${checks.length} fix check(s)` : `${rec.criteria.met}/${rec.criteria.total} criteria`;
+      rec.reachable = verdict.reachable;
+      // A pass is only as good as the evidence behind it (#14): no criteria, an incomplete count, missing
+      // locators, or a claimed fix with no fix_check. Detection only — acceptance already staged, so flag
+      // it for the operator's audit rather than failing the block.
+      rec.thinEvidence = verdict.thin;
+      // `pass` MEANS "reachable and nothing regressed" (the acceptance schema), and a fix pass carrying a
+      // fix_check that says a root cause is still open contradicts itself the same way. Flag both; HALT
+      // only on the regression, whose harm compounds: staged work becomes every later block's baseline.
+      rec.contradicted = acc?.regression === true || verdict.open;
+      const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${verdict.evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
+      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}) — audit ${acceptanceFile(p.id, round)}` : '';
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        log(`  ✓ ${p.id}: acceptance PASSED — ${scoreNote} — STAGED (${isFixMode ? '' : `reachable=${acc?.reachable}, `}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
+        log(`  ✓ ${p.id}: acceptance PASSED — ${verdict.score} — STAGED (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
         // Staged WITH a self-reported regression: stop here. Not another review round (the verifier
         // already ran `git add`, so a re-round would leave staged-but-unaccepted work the next blind
         // reviewer cannot see) and not a park (the work is staged; park must never touch the baseline).
@@ -1466,14 +1509,14 @@ for (const p of pending) {
     doneIds.push(p.id);
     // Staged while self-reporting a regression: the work IS in the baseline, but the operator must inspect
     // it before anything builds on it, so the plan file says blocked, never done.
-    finishBlock(p, rec, haltKind === 'acceptance-regression' ? 'blocked' : 'done', claimedEver, unclosedIds);
+    finishBlock(p, rec, haltKind === 'acceptance-regression' ? 'blocked' : 'done', fix);
     continue;
   }
 
   // The fix-mode round-1 no-changes terminal does NOT park: the developer changed nothing, so there is no
   // work to save and nothing to clear. It never counts done, and in an ORDERED run it has already halted.
   if (fixTerminal) {
-    finishBlock(p, rec, 'blocked', claimedEver, unclosedIds);
+    finishBlock(p, rec, 'blocked', fix);
     if (halted) break;
     continue;
   }
@@ -1556,7 +1599,7 @@ for (const p of pending) {
   const budgetPark = rec.parked && !escalated && haltKind !== 'park-unsafe';
   let blockStatus = budgetPark ? 'parked' : 'blocked';
   if (haltKind === 'passed-unstaged') blockStatus = 'done';
-  finishBlock(p, rec, blockStatus, claimedEver, unclosedIds);
+  finishBlock(p, rec, blockStatus, fix);
   if (halted) break;      // escalation / ordered park / unsafe tree stops the run; an unordered park carries on
 }
 
