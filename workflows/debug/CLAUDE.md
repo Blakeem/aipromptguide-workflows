@@ -46,7 +46,7 @@ triaged files to develop, and verify ground truth at the end.
   to the verifier. With a lens ARRAY the unit gets one reviewer per lens, and only the LAST may write the
   marker (the unit is clean only if every lens found nothing).
 - **Verifier** (opus) — spawned ONLY for units with findings; **ONE per unit regardless of lens count**.
-  Confirms each against the real code, corrects inflated severity, folds cross-lens duplicates, routes via
+  Confirms each against the real code, corrects inflated severity, folds duplicates (across lenses or within one), routes via
   the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
   units never reach it — the reviewer already wrote their marker.
 

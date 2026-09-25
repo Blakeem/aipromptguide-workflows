@@ -280,8 +280,8 @@ section('a round-1 fix block where every entry is reported STALE goes to accepta
 
 section('a round-1 fix block that closed nothing is NOT done, and `ordered` decides whether the run stops');
 // All-SKIPPED, a SKIPPED/STALE mix and an EMPTY array all closed zero issues, so the entries stay open and
-// the block must never count done. Only the all-stale branch above may. Neither terminal parks: the
-// developer changed nothing, so there is nothing to save and nothing to clear.
+// the block must never count done. Only an all-stale block that acceptance confirms may. The no-changes
+// terminal does not park: the developer changed nothing, so there is nothing to save and nothing to clear.
 {
   const skipped = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, FIX_ONE);
   eq(skipped.calls.length, 1, 'no reviewer and no park on an empty diff');
@@ -1222,4 +1222,34 @@ section('tests_run_count counts what the runner reports, and a section block sco
   ok(/tests, or of assertions/.test(desc) && /0 = nothing ran = a FALSE green/.test(desc), 'the field covers assertion-counting runners and keeps the 0 rule');
   ok(/use the block's `test_selector:` line when it has one, else the test gate/.test(prompt('develop sec')),
     'the developer is told where the selector comes from');
+}
+
+section('an ESCALATED dismissal is held by acceptance in every mode, and the hold wins over OVERRIDE');
+// Case 7 applies to all three frames. Without the hold in one frame, acceptance fails the escalated
+// default, the developer re-escalates, and the rounds spin to a park.
+{
+  const feat = await run(GREEN_RUN);
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  for (const [name, p] of [['feature', feat.prompt('acceptance')], ['fix', fix.prompt('acceptance')]]) {
+    ok(/`ESCALATED:` line is a decision\nrouted to the user: hold it unless its stated reason is false\. The hold wins over this OVERRIDE/.test(p),
+      `the ${name} acceptance frame holds an ESCALATED line`);
+  }
+}
+
+section('a fix round with no FIXED claim must leave an empty diff, since no blind reviewer judged it');
+{
+  const { prompt } = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'STALE' }]),
+    acceptance: FIX_PASS,
+  }, FIX_ONE);
+  ok(/NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the\n\s+tree, so the unstaged diff MUST be empty/.test(prompt('acceptance')),
+    'acceptance fails a STALE-only round that left changes');
+}
+
+section('park stops only when a NON-empty diff cannot be saved; an empty diff is not a stop');
+{
+  const { prompt } = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, pass: false, staged: false, gap_count: 1 }, park: PARK_OK }, { ...baseArgs, maxRounds: 1 });
+  const pk = prompt('park');
+  ok(/If the unstaged diff is NOT empty and step 1 cannot\nproduce a non-empty patch, STOP/.test(pk), 'the STOP rule is scoped to a non-empty diff');
+  ok(/An already-empty diff is not a stop/.test(pk), 'and an empty tree follows step 1\'s skip');
 }

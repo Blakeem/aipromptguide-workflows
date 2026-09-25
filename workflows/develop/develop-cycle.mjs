@@ -738,7 +738,8 @@ ${SETTLED(p.id, false)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are issue-aware — if a
 dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
 dismissal: fail acceptance for it and record it in your review file. An \`ESCALATED:\` line is a decision
-routed to the user: hold it unless its stated reason is false.
+routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
+held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ ${amendedFile(p.id)} if it exists. It records **Fix:** instructions the developer
 OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
@@ -789,6 +790,9 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
      a valid pass — return pass=true AND staged=true (there is simply nothing to add). Say so explicitly
      in your file. Do NOT invent changes to justify it.
+   • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the
+     tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
+     file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
   }
@@ -824,6 +828,9 @@ ${SETTLED(p.id, false)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are plan-aware — if a
 dismissed item ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes
 a regression, that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+An \`ESCALATED:\` line is a decision
+routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
+held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ ${amendedFile(p.id)} if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect (MATRIX 6a). Judge a criterion whose prescribing
@@ -884,8 +891,9 @@ STAGING CONTRACT:
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If step 1 does not produce a non-empty patch, STOP:
-leave the tree exactly as it is and return saved=false, cleared=false.
+SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
@@ -1110,8 +1118,8 @@ for (const p of pending) {
   const claimedEver = new Set();
   // Ids the latest acceptance fix_check reported actually_fixed=false. statusSync maps them needs-attention.
   const unclosedIds = new Set();
-  // Which round-1 shortcut this fix block ended on ('' = none). Neither parks: the tree is clean, so park
-  // would have nothing to save and would clear a baseline it must not touch.
+  // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
+  // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
   let reviewPath = '';           // the latest review file the developer must address (control: a path only)
   // Produced work the blind reviewer has not yet cleared: set by any producing round and by a flag, cleared
