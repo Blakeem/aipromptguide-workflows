@@ -332,6 +332,8 @@ The Loops table also carries the **full** condition list, where the arrow had be
 - [ ] The workflow's `CLAUDE.md` updated — a new required arg, return field, written file, or halt
       condition is a documented behavior change; its `README.md` too if a human-visible behavior changed
 - [ ] `meta` still a pure literal, still LF-only (the suite checks both)
+- [ ] Prompt text changed? `node tools/gen-prompts.mjs` re-run, and its snapshot diff read for variants
+      the change was not meant to reach
 - [ ] Control flow changed? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice
