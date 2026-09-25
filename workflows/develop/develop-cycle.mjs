@@ -474,7 +474,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path ${amendedFile(id)} — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to ${dismissedFile(id)} in the DROP shape above, its reason
     \`ESCALATED: <the default you took, ≤15 words>\` — the blind reviewer is NOT shown ${NEEDS_USER},

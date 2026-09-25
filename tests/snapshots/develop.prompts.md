@@ -6,26 +6,26 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6646 | every block accepts first time |
+| develop | 1 | 1 | 6663 | every block accepts first time |
 | quality | 1 | 1 | 2751 | every block accepts first time |
 | acceptance | 1 | 1 | 5454 | every block accepts first time |
-| develop | 2 | 1 | 7136 | every block accepts first time |
+| develop | 2 | 1 | 7153 | every block accepts first time |
 | acceptance | 2 | 2 | 5705 | every block accepts first time |
 | final-sweep | 1 | 1 | 1942 | every block accepts first time |
-| develop | 3 | 1 | 6017 | quality flags the first round |
+| develop | 3 | 1 | 6034 | quality flags the first round |
 | quality | 2 | 1 | 2564 | quality flags the first round |
-| develop | 4 | 1 | 6507 | quality flags the first round |
-| develop | 5 | 1 | 6015 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6505 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 6001 | the gate never goes green |
+| develop | 4 | 1 | 6524 | quality flags the first round |
+| develop | 5 | 1 | 6032 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6522 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 6018 | the gate never goes green |
 | park | 1 | 1 | 5150 | the gate never goes green |
-| develop | 8 | 1 | 6491 | the gate never goes green |
+| develop | 8 | 1 | 6508 | the gate never goes green |
 | park | 2 | 1 | 5094 | a parked block, and the run carries on |
 | park | 3 | 1 | 5138 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8162 | a fix block closes its issues |
+| develop | 9 | 2 | 8179 | a fix block closes its issues |
 | acceptance | 3 | 3 | 6653 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1933 | a fix block closes its issues |
-| develop | 10 | 2 | 8254 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 8271 | a pass of two fix blocks closes its issues |
 | acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
 | acceptance | 5 | 3 | 6652 | every issue is already fixed |
@@ -111,7 +111,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -487,7 +487,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -864,7 +864,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -1099,7 +1099,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -1264,7 +1264,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -1433,7 +1433,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -1598,7 +1598,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -1870,7 +1870,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -2262,7 +2262,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-c.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
@@ -2717,7 +2717,7 @@ LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unamb
     the path E:/flow/runs/flow/AMENDED-block-c-plus-1.md — and NO plan text, so the amendment reaches the user where they already
     look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
   • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (the run HALTS).
+    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
     `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
