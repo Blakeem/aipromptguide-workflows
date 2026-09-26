@@ -1266,6 +1266,15 @@ section('tests_run_count counts what the runner reports, and a section block sco
     'the developer is told where the selector comes from');
 }
 
+section('a fix-mode results item declares only the fields the engine reads');
+// The ledger and statusSync read issue_id and status. Any other field is effort the fixer spends for nothing.
+{
+  const { calls } = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  const item = calls.find((c) => c.label.startsWith('develop fix-a')).opts.schema.properties.results.items;
+  eq(Object.keys(item.properties).join(), 'issue_id,status', 'exactly issue_id and status');
+  eq(item.required.join(), 'issue_id,status', 'both still required');
+}
+
 section('an ESCALATED dismissal is held by acceptance in every mode, and the hold wins over OVERRIDE');
 // Case 7 applies to all three frames. Without the hold in one frame, acceptance fails the escalated
 // default, the developer re-escalates, and the rounds spin to a park.

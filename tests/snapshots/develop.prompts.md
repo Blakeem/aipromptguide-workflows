@@ -2348,15 +2348,6 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
               "FAILED"
             ],
             "description": "FIXED = you changed code that closes it. STALE = it no longer exists in current code. SKIPPED = its `- decision:` is not ACTIONABLE. FAILED = you tried and could not."
-          },
-          "files_changed": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "summary": {
-            "type": "string"
           }
         }
       }
@@ -2805,15 +2796,6 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
               "FAILED"
             ],
             "description": "FIXED = you changed code that closes it. STALE = it no longer exists in current code. SKIPPED = its `- decision:` is not ACTIONABLE. FAILED = you tried and could not."
-          },
-          "files_changed": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "summary": {
-            "type": "string"
           }
         }
       }

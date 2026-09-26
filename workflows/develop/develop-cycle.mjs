@@ -285,8 +285,6 @@ const developSchema = (mode) => ({
           properties: {
             issue_id: { type: 'string' },
             status:   { type: 'string', enum: ['FIXED', 'STALE', 'SKIPPED', 'FAILED'], description: 'FIXED = you changed code that closes it. STALE = it no longer exists in current code. SKIPPED = its `- decision:` is not ACTIONABLE. FAILED = you tried and could not.' },
-            files_changed: { type: 'array', items: { type: 'string' } },
-            summary:  { type: 'string' },
           },
         },
       },
