@@ -49,3 +49,23 @@ section('a dead finder does the same — the two guards stay symmetric');
   eq(out.failed.join(), 'efficiency', 'the dead finder\'s lens is reported failed');
   eq(out.summary.lenses, 1, 'and is not counted as audited');
 }
+
+section('a candidate the verifier judges too risky is rejected, counted, and kept out of the proposals');
+// The operator's one filter for "this would regress something the workflow needs" is this count and the
+// rejection line in the lens file. A too_risky verdict routed anywhere but REJECT would reach triage.
+{
+  const verdict = (id, extra) => ({ candidate_id: id, is_real: true, impact: 'high', effort: 'small', decision: 'REJECT', ...extra });
+  const { out } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: {
+      find: { wrote_clean_marker: false, candidates: [CANDIDATE, { ...CANDIDATE, title: 'second' }] },
+      verify: (label) => ({ wrote_file: true, verdicts: [
+        verdict(`${label.replace(/^verify:/, '')}-1`, { too_risky: true }),
+        verdict(`${label.replace(/^verify:/, '')}-2`, { decision: 'ADOPT' }),
+      ] }),
+    },
+  });
+  eq(out.summary.tooRisky, 1, 'the summary counts it');
+  eq(out.lenses[0]?.kept.length, 1, 'and only the safe candidate is kept');
+  ok(!out.lenses[0]?.kept.some((k) => k.id.endsWith('-1')), 'the risky one is not among them');
+}

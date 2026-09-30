@@ -49,6 +49,13 @@ develop consumes directly.
 Each engine loads **by path** (no global registry): pass `scriptPath` = the absolute path to the
 workflow's `.mjs`. Its `CLAUDE.md` covers the full flow, args, and contracts.
 
+**Launch from a notification turn.** The Workflow runtime copies the user message of the launching turn
+into every agent's prompt, ahead of its task. That breaks blind placement, and a sonnet agent may follow
+the message over its task. A turn started by a background task's notification carries no user message.
+So run the workflow's pre-launch command with `run_in_background`, and call the Workflow tool in the turn
+its notification starts. The pre-launch command is `plan-edit.mjs args` for develop,
+`plan-block.mjs <planPath> --list` for refine, and `git -C <target.repo> status --short` for the rest.
+
 **Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
 its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping
 them apart is what keeps the issue files out of reach of the blind reviewer, and is what lets one
@@ -64,7 +71,7 @@ paths must move with it.
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and
 terminal state, drawn from real traced runs. Read one before driving a workflow you have not run before.
-Change an engine's control flow and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
+Edit an engine and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
 The generator and the rest of the repo's own machinery are catalogued in [`tools/CLAUDE.md`](tools/CLAUDE.md).
 
 **Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas

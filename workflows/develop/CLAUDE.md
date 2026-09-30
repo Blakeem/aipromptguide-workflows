@@ -16,7 +16,9 @@ feature-sized. Too small → just edit. A block too big for one develop pass →
 Hand-written documentation stays out of blocks (no defect class for the blind reviewer; write docs
 directly after the run and verify with a debug doc-accuracy pass). Generated files, such as a flow map
 regenerated from an engine a block changes, belong to that block. Locate code in a block body by section
-title or grep pattern, not line number, since earlier blocks shift lines.
+title or grep pattern, not line number, since earlier blocks shift lines. Make each block
+self-contained. Every agent reads only its own block, so a path or instruction stated only in the file
+preamble or another block never reaches it.
 
 ## 2. The flow
 
@@ -26,25 +28,30 @@ title or grep pattern, not line number, since earlier blocks shift lines.
 2. **Refine it, then get approval.** Run the refine workflow on the file (`workflows/refine/CLAUDE.md`)
    until it converges, then the user approves the FINAL text. Approval comes after refine so the user
    signs off on what develop builds.
-3. **Derive the args — never hand-type them:**
-   `node <plan-block.mjs> <planPath> --list` prints
-   `{ goal, ordered, suite, sweep, blocks: [{ id, title, mode, gate, status }] }`.
-   Pass `goal`/`ordered`/`suite`/`sweep` through verbatim, and `plans` = the `blocks` rows. Rows carry
-   no planPath: pass the file as the top-level `planPath` (the per-entry default), or decorate entries
-   drawing from other files with their own. Pasting the `--list` object as `plans` throws.
-4. **Clean the unstaged tree, then launch.** The engine builds the `status: todo` blocks in file
-   order; `done`/`skip`/`parked`/`blocked` are never selected.
-5. **Verify ground truth (§6), then sync statuses.** Save the run's returned result as JSON (for
-   example `<stateDir>/develop-result.json`) and run `node tools/plan-edit.mjs sync <that file>`. It
-   applies the result's `statusSync` edits, all or nothing, and a second run changes nothing. The engine
-   decides every value: an accepted, all-stale or passed-but-unstaged block → `done`, a park within
-   the round budget → `parked`, every other halt or a fix block that closed nothing → `blocked`. Fix
-   issues map FIXED → `fixed` and STALE → `stale` only when their block landed (an all-stale block
-   skips the blind review, and acceptance confirms each STALE claim). FIXED, STALE or FAILED in a block that did not land → `needs-attention`,
-   and SKIPPED keeps `open`. Acceptance checks every FIXED and STALE claim. A FIXED or STALE issue whose latest fix_check says actually_fixed=false maps to
-   `needs-attention`, even when its block landed. The plan file is the selection truth,
-   git staging is the landed truth, and the sync is also the recovery step if a run dies between staging
-   and sync. Flip `parked`/`blocked` back to `todo` after resolving, re-derive the args (step 3), then relaunch.
+3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
+   It first folds every finished develop run's statuses into the plan files (below), then prints
+   `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread that
+   object into the args. Several files make one run, as long as their file keys agree. When you know the
+   last launch's Workflow run id (`wf_...`), pass `--expect <id>`: it fails loudly if that run's record is
+   missing, which is the sign Claude Code moved or changed its run records. For fix-mode files, add
+   `--pack <target.repo>`: it groups the todo fix blocks into passes of at most `--loc-cap` lines (default
+   5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
+   verifier build several small blocks. Each member keeps its own plan file and statuses.
+4. **Clean the unstaged tree, then launch.** Clean it before step 3, run step 3 with
+   `run_in_background`, and launch in the turn its notification starts (root `CLAUDE.md`, "Launch from
+   a notification turn"). The engine builds the `status: todo` blocks in file order;
+   `done`/`skip`/`parked`/`blocked` are never selected.
+5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
+   step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
+   its run record even when the run fails or is stopped, and `args` applies every record newer than the
+   file's `synced:` key, oldest first, all or nothing. The engine decides every value: an accepted,
+   all-stale or passed-but-unstaged block → `done`, a park within the round budget → `parked`, every
+   other halt or a fix block that closed nothing → `blocked`. Fix issues map FIXED → `fixed` and STALE →
+   `stale` only when their block landed and acceptance confirmed the claim. FIXED, STALE or FAILED in a
+   block that did not land, or a claim acceptance refuted → `needs-attention`. SKIPPED keeps `open`. The
+   plan file is the selection truth and git staging is the landed truth. Flip `parked`/`blocked` back to
+   `todo` after resolving, then relaunch from step 3. Records are deleted after `cleanupPeriodDays` (30
+   by default), so run step 3 within that window or the statuses of a finished run are lost.
 
 ## 3. Plan-file format
 
@@ -86,8 +93,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   block the staged baseline already satisfies passes without inventing changes). Only agent that
   stages.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
-  parked block; `ordered: true` → the run STOPS there (later blocks depend on it).
-- **Sweep** (sonnet) — runs only when `sweep: goal-coverage` AND every non-skip block is done
+  parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
+  escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
+- **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep sets `sweepFailed`, never halts.
 
@@ -108,9 +116,9 @@ gates, `git diff --cached`, grep integration points, read the latest acceptance 
 
 ## 7. Resume
 
-Durable state = git staging + the plan file's status lines + the review-file trail. After syncing
-statuses (§2.5), a relaunch with args re-derived by a fresh `plan-block.mjs <planPath> --list` (never
-the previous args object) rebuilds pending from `todo` — no startAt
+Durable state = git staging + the plan file's status lines + the review-file trail. A relaunch with
+args from a fresh `plan-edit.mjs args` (never the previous args object) rebuilds pending from `todo`,
+with the finished runs already applied — no startAt
 needed in the common case (`runOnly`/`startAt` still work as explicit overrides, unknown ids throw).
 A parked block's work is in `parked-<id>.patch`, not the tree; sharpen its block, flip it to `todo`,
 relaunch.
@@ -128,18 +136,20 @@ the state dir), then relaunch clean. Never `git add -A` it.
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath?, mode, gate, status,
-  planContext? }`; malformed **throws** naming the shape) · a `planPath` per entry or the top-level
+  planContext? }`, or a pass `{ id, mode: fix, gate, status, blocks: [{ id, planPath, issues }] }` from
+  `--pack`; malformed **throws** naming the shape) · a `planPath` per entry or the top-level
   `planPath` default (**throws** naming the id with neither) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
-  `goal` (string). Typed illegal values **throw** — copy what `--list` prints. `sweep: goal-coverage`
+  `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
 - **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
-  per-issue `results` in fix mode) · `statusSync` (the plan-file edits for §2 step 5) · `sweep` /
+  per-issue `results` in fix mode) · `statusSync` (the plan-file edits, also logged per block for §2
+  step 5) · `sweep` /
   `sweepFailed` · `followups`.
 - **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (develop/quality/acceptance opus, sweep sonnet) · `stateDir` · `runOnly`/`startAt`.
+  (every role opus) · `stateDir` · `runOnly`/`startAt`.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

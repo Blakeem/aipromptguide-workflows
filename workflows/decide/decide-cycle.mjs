@@ -37,15 +37,8 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL read-only context
 const CONTEXT     = A.context ?? '';                       // short extra framing (domain facts the agents won't know)
 const TESTBED     = A.testbed ?? '';                       // OPTIONAL: how agents may empirically test claims (e.g. a read-only sqlite db + how to query it)
-// A non-numeric bound must THROW, never coerce. `Math.max(1, 'three')` is NaN, `round < NaN` is false on
-// the first test, and the loop then never runs — handing back a zero-agent run dressed as an ordinary
-// round-budget exit, with a nextStep naming decision-r0.md that nothing wrote. A documented default is
-// not a licence to accept garbage.
-// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
-// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
-// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
-// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
-// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+// Static lead clause: gen-flows labels the throw node from it. No coercion: Number('') is a finite 0.
+// The upper bound stops a fat-fingered maxRounds from spawning agents until something dies.
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {

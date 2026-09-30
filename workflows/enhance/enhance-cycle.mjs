@@ -170,6 +170,7 @@ const VERIFY_SCHEMA = {
           effort:       { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
           decision:     { type: 'string', enum: ['ADOPT', 'ROADMAP', 'NEEDS_USER', 'REJECT'] },
           is_defect:    { type: 'boolean', description: 'true if this is really a BUG in current behavior, not an enhancement — it is out of scope here and belongs in the debug workflow. Always REJECT these, and say so.' },
+          too_risky:    { type: 'boolean', description: 'true if the risk you verified outweighs the cost removed: the change would break or weaken something the system needs, or leave ambiguous an instruction or contract that must be exact. Always REJECT these, and name the risk.' },
           rationale:    { type: 'string' },
           options:      { type: 'string', description: 'NEEDS_USER only: the distinct choices + tradeoffs' },
           recommendation: { type: 'string', description: 'NEEDS_USER only: your suggested direction' },
@@ -274,12 +275,16 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
      REJECT it with a one-line note naming what is broken, so the user can route it to the defect
      workflow. Do NOT smuggle it through as an enhancement.
+  5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
+     A change that would break or weaken something the system needs, or leave ambiguous an instruction
+     or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
+     too_risky=true and REJECT it with a one-line note naming the risk.
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   effort : trivial | small | medium | large
 ROUTING (apply in order; first match wins):
-  - is_real == false OR is_defect == true    -> REJECT (one line why)
+  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line why)
   - impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
@@ -402,10 +407,11 @@ const results = await pipeline(
       needs_user: by('NEEDS_USER'),
       rejected: by('REJECT'),
       defects: verdicts.filter((x) => x.is_defect === true).length,
+      tooRisky: verdicts.filter((x) => x.too_risky === true).length,
       belowFloor,
     };
     if (v?.wrote_file !== true) log(`  ⚠ ${lens.id}: verifier did NOT confirm writing ${proposalFile(lens.id)} — check it before triaging`);
-    log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}`);
+    log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
     return {
       lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts,
       kept: verdicts.filter((x) => x.decision !== 'REJECT')
@@ -431,7 +437,7 @@ return {
   // `belowFloor` counts candidates cut on the FINDER's own unverified score, before any verifier saw
   // them — so they are in no proposal file at all. It is the only signal that the floor, not the system,
   // is why a lens came back thin.
-  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, belowFloor },
+  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), belowFloor },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).

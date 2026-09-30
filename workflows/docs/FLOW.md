@@ -58,12 +58,12 @@ flowchart TD
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 41) |
 | throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 44) |
 | throw: args.root is required | args.root is missing | throw (line 47) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 65) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 95) |
-| throw: args.sources is required | args.sources is empty | throw (line 108) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 112) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 308) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 321) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 57) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 87) |
+| throw: args.sources is required | args.sources is empty | throw (line 100) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 104) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 300) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 313) |
 
 ## Coverage
 

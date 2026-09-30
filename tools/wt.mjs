@@ -199,13 +199,24 @@ function fileList(lines, cap = 8) {
 // Discovery — every path in this tool comes from here, never from stored state
 // =============================================================================
 
+// A concurrent `worktree add` holds a `locked` file while it initializes. `worktree list` can see it
+// exist, lose it to the add's unlink, and die reading it (M26), so that one failure is retried.
+const WORKTREE_LIST_RACE = /failed to read .*locked/;
+const WORKTREE_LIST_ATTEMPTS = 5;
+
 /** `[{ path, branch }]` for every worktree of the repo; `branch` is '' for a detached entry. */
 function listWorktrees(repo) {
-  const out = mustGit(repo, ['worktree', 'list', '--porcelain'], 'listing the worktrees');
+  const listArgs = ['worktree', 'list', '--porcelain'];
+  let listed = git(repo, listArgs);
   const entries = [];
   let current = null;
 
-  for (const raw of out.split('\n')) {
+  for (let attempt = 1; attempt < WORKTREE_LIST_ATTEMPTS && listed.code !== 0 && WORKTREE_LIST_RACE.test(listed.stderr); attempt++) {
+    listed = git(repo, listArgs);
+  }
+  if (listed.code !== 0) throw unsafe(`listing the worktrees failed: ${firstLine(listed.stderr) || `git exited ${listed.code}`}`);
+
+  for (const raw of listed.stdout.split('\n')) {
     const line = raw.endsWith('\r') ? raw.slice(0, -1) : raw;
     if (line.startsWith('worktree ')) {
       current = { path: line.slice('worktree '.length).trim(), branch: '' };

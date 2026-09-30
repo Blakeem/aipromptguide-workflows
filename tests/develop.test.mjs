@@ -241,7 +241,7 @@ section('a fix block that halts on escalation or staging still records the resul
 {
   const reported = [{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }];
   for (const [why, extra] of [['needs_user', { needs_user: true }], ['staging unconfirmed', { unstaged_confirmed: false }]]) {
-    const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, FIX_ONE);
+    const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, { ...FIX_ONE, ordered: true });
     ok(out.halted === true, `${why}: the run halted`);
     eq(JSON.stringify(out.ledger[0]?.results), JSON.stringify(reported), `${why}: the ledger carries the reported results`);
   }
@@ -481,15 +481,14 @@ section('the `ordered` file key decides whether a parked block stops the run');
     'halt reason states saved + clean');
 }
 
-section('a developer escalation parks first, then stops even an unordered run');
-// Only the user can unblock it, so `ordered` does not decide here. parked[] is keyed on the patch and the
-// `parked` flag, never the status prose: an escalated block keeps BLOCKED and would otherwise have its
-// patch path reported nowhere in the return.
+section('a developer escalation parks first, then stops an ordered run');
+// parked[] is keyed on the patch and the `parked` flag, never the status prose: an escalated block keeps
+// BLOCKED and would otherwise have its patch path reported nowhere in the return.
 {
   const { out, labels, prompt } = await run({
     develop: { ...DEV_OK, needs_user: true },
     park: { ...PARK_OK, strays_saved: 2 },
-  });
+  }, { ...baseArgs, ordered: true });
   ok(labels.includes('park:block-a'), 'PARK ran on the halt path');
   eq(out.status, 'BLOCKED (needs user input)', 'status');
   ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
@@ -515,6 +514,36 @@ section('a developer escalation parks first, then stops even an unordered run');
   eq(out.parked[0]?.patch, null, 'no patch path for an empty park');
   ok(/NO patch was written for: block-a/.test(out.followups), 'and followups says nothing was saved');
   ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
+}
+
+section('an unordered run parks a needs-user block and continues');
+// No later block depends on it, so only the user's answer waits. The block stays blocked, never parked:
+// a relaunch must not rebuild it before that answer.
+{
+  const { out, labels, prompt } = await run({
+    ...GREEN_RUN,
+    develop: (label) => (/block-a/.test(label) ? { ...DEV_OK, needs_user: true } : DEV_OK),
+    park: PARK_OK,
+  });
+  ok(out.halted === false, 'the run did not halt');
+  ok(labels.includes('park:block-a'), 'block-a was parked');
+  ok(labels.some((l) => /block-b/.test(l)), 'block-b ran');
+  eq(syncOf(out), 'block-a=blocked,block-b=done', 'block-a is blocked and block-b is done');
+  eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
+  eq(out.status, 'run complete with 1 block(s) parked', 'status');
+  ok(/REST OF THE RUN can continue/.test(prompt('park')) && /the remaining blocks continued without it/.test(prompt('park')),
+    'park is told the run continues');
+  ok(/was halted: the developer escalated a user-only decision/.test(prompt('park')), 'with the needs-user reason');
+  // The parked-block followup offers only restore, re-run or drop, so the escalated question needs its own line.
+  ok(/1 block\(s\) escalated a user-only decision: block-a\. .*resolve with the user.*relaunch it with runOnly/.test(out.followups),
+    'followups name the block and say to resolve it with the user');
+}
+{
+  // Every other escalation still stops an unordered run, and park must be told so.
+  const { out, prompt } = await run({ develop: null, park: PARK_OK });
+  ok(out.halted === true, 'agent-dead halts the unordered run');
+  ok(/The run stops after you/.test(prompt('park')) && /the blocks after it were NOT attempted\n/.test(prompt('park')),
+    'park is told the run stops, with no ordered-dependency claim');
 }
 
 section('park records the halt that actually happened, never an escalation that did not');
@@ -584,8 +613,8 @@ section('acceptance that passed without staging halts without parking');
   // Acceptance passed, so the plan file says done. Synced as blocked, the documented flip-to-todo rebuilt a
   // block that had already landed on top of its own staged copy.
   eq(syncOf(out), 'block-a=done', 'statusSync marks the passed block done');
-  ok(/apply this result's statusSync \(it already marks the block done\), then relaunch: no startAt is needed/.test(out.haltReason),
-    'and the reason says stage, sync, relaunch, with no startAt');
+  ok(/then relaunch: the next `plan-edit\.mjs args` marks the block done: no startAt is needed/.test(out.haltReason),
+    'and the reason says stage, relaunch, with no startAt, and that args marks the block done');
   ok(/1 block\(s\) halted and are NOT done: block-a - the halt reason above says what each needs/.test(out.followups),
     'followups defers to the halt reason rather than giving fix-block advice');
   ok(!/closed NO issue|- decision:/.test(out.followups), 'and never tells a feature block to read decision lines');
@@ -1017,6 +1046,20 @@ section('case 7 proceeding also writes an ESCALATED: line to the ledger the blin
   }
 }
 
+section('a dismissal reason and a prose-only diff are both judged from the code alone');
+// The blind reviewer reads the DISMISSED ledger but never the plan, so a reason citing a plan id is opaque.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const drop = r.prompt(`develop ${id}`).split('• DROP (1 or 6b):')[1]?.split('• AMEND (6a)')[0] ?? '';
+    ok(/decidable from the code alone: never\s+cite a plan id, block id, issue id or plan clause/.test(drop),
+      `${mode}: a DROP reason never cites the plan`);
+  }
+  const q = (await run(GREEN_RUN)).prompt('quality block-a');
+  ok(/A diff that changes ONLY comments or string text has three checkable defects/.test(q)
+    && q.includes('git -C E:/repo diff --word-diff') && /Whether the wording reads well is out of scope/.test(q),
+    'the blind reviewer has a bar for a comment- or string-only diff');
+}
+
 section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');
 // An amendment quotes the plan verbatim (#3). The acceptance schema has no contest field, so a contest
 // paragraph there would ask for a report nothing reads.
@@ -1066,10 +1109,9 @@ section('a recorded amendment is logged, summed into the ledger and named in fol
 }
 
 // ---------------------------------------------------------------------------------------------
-// statusSync — the plan-file edits a run returns for `tools/plan-edit.mjs sync` to apply
+// statusSync — the plan-file edits a run logs for `tools/plan-edit.mjs args` to apply
 // ---------------------------------------------------------------------------------------------
-// The sync is also the recovery step after a run dies between staging and sync, so a wrong value here
-// corrupts the selection truth the next launch builds from.
+// A wrong value here corrupts the selection truth the next launch builds from.
 
 section('statusSync maps every block terminal to done, parked or blocked, and skips blocks never reached');
 {
@@ -1080,8 +1122,8 @@ section('statusSync maps every block terminal to done, parked or blocked, and sk
   const parked = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   eq(syncOf(parked.out), 'block-a=parked', 'a park over the round budget is parked');
 
-  const halted = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK });
-  eq(syncOf(halted.out), 'block-a=blocked', 'a needs-user halt is blocked, and block-b, never reached, has no edit');
+  const halted = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, { ...baseArgs, ordered: true });
+  eq(syncOf(halted.out), 'block-a=blocked', 'an ordered needs-user halt is blocked, and block-b, never reached, has no edit');
 
   const ordered = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true, maxRounds: 1 });
   eq(syncOf(ordered.out), 'block-a=parked', 'an ordered park stops the run, and the block after it has no edit');
@@ -1224,6 +1266,15 @@ section('tests_run_count counts what the runner reports, and a section block sco
     'the developer is told where the selector comes from');
 }
 
+section('a fix-mode results item declares only the fields the engine reads');
+// The ledger and statusSync read issue_id and status. Any other field is effort the fixer spends for nothing.
+{
+  const { calls } = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  const item = calls.find((c) => c.label.startsWith('develop fix-a')).opts.schema.properties.results.items;
+  eq(Object.keys(item.properties).join(), 'issue_id,status', 'exactly issue_id and status');
+  eq(item.required.join(), 'issue_id,status', 'both still required');
+}
+
 section('an ESCALATED dismissal is held by acceptance in every mode, and the hold wins over OVERRIDE');
 // Case 7 applies to all three frames. Without the hold in one frame, acceptance fails the escalated
 // default, the developer re-escalates, and the rounds spin to a park.
@@ -1252,4 +1303,56 @@ section('park stops only when a NON-empty diff cannot be saved; an empty diff is
   const pk = prompt('park');
   ok(/If the unstaged diff is NOT empty and step 1 cannot\nproduce a non-empty patch, STOP/.test(pk), 'the STOP rule is scoped to a non-empty diff');
   ok(/An already-empty diff is not a stop/.test(pk), 'and an empty tree follows step 1\'s skip');
+}
+
+// ---------------------------------------------------------------------------------------------
+// Passes: several fix blocks built in one develop cycle
+// ---------------------------------------------------------------------------------------------
+
+const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
+  { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
+  { id: 'fix-b', planPath: 'E:/plans/two.md', issues: ['i-3'] },
+] };
+const PASS_ARGS = { ...baseArgs, planPath: undefined, plans: [PASS] };
+const passDev = (results) => ({ ...DEV_OK, produced: undefined, entries_found: results.length, results });
+
+section('a pass hands every agent one command per member block, and edits each status in its own file');
+{
+  const { out, calls } = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }, { issue_id: 'i-3', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-3', actually_fixed: true }] },
+  }, PASS_ARGS);
+  const devPrompt = calls.find((c) => c.label.startsWith('develop')).prompt;
+  ok(devPrompt.includes("'E:/plans/one.md' 'fix-a'") && devPrompt.includes("'E:/plans/two.md' 'fix-b'"), 'the developer gets a plan-block command per member');
+  ok(calls.find((c) => c.label.startsWith('acceptance')).prompt.includes("'E:/plans/two.md' 'fix-b'"), 'and so does acceptance');
+  eq(calls.filter((c) => c.label.startsWith('develop')).length, 1, 'one developer builds the whole pass');
+  eq(out.statusSync.map((e) => `${e.planPath.slice(-6)}:${e.id}=${e.value}`).join(','),
+    'one.md:fix-a=done,two.md:fix-b=done,one.md:i-1=fixed,two.md:i-3=fixed', 'each member and each issue is edited in its own plan file');
+}
+
+section('an issue a pass member does not list gets no status edit, and the log says so');
+{
+  const { out, logs } = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'stray', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'stray', actually_fixed: true }] },
+  }, PASS_ARGS);
+  ok(!out.statusSync.some((e) => e.id === 'stray'), 'no edit names the stray id');
+  ok(logs.some((l) => /issue stray was reported FIXED but belongs to no block in this pass/.test(l)), 'and the log names it');
+}
+
+section('a malformed pass throws before any agent runs');
+{
+  const bad = (blocks, extra = {}) => ({ ...PASS_ARGS, plans: [{ ...PASS, blocks, ...extra }] });
+  for (const [args, what] of [
+    [bad(PASS.blocks, { mode: 'feature' }), 'a pass that is not fix mode'],
+    [bad([PASS.blocks[0]]), 'a pass of one block'],
+    [bad([PASS.blocks[0], { id: 'fix-b', planPath: 'E:/plans/two.md' }]), 'a member with no issue list'],
+    [bad([PASS.blocks[0], { ...PASS.blocks[1], id: 'Fix B' }]), 'a member id that is not a slug'],
+  ]) {
+    ok(/pass entries \[fix-a-plus-1\] are malformed/.test(await throwsWith(ENGINE, { args, respond: {} })), what);
+  }
+  ok(/duplicate plan id\(s\) \[fix-a\]/.test(await throwsWith(ENGINE, { args: { ...PASS_ARGS, plans: [PASS, { id: 'fix-a', mode: 'fix', planPath: 'E:/plans/one.md' }] }, respond: {} })),
+    'a member id that is also another entry\'s id');
 }

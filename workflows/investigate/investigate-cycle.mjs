@@ -10,20 +10,8 @@ export const meta = {
 };
 
 // =============================================================================
-// Config — everything investigation-specific arrives via args so the engine stays general.
-// Investigate is a CONVERGENCE workflow of the SEARCH shape: it finds an answer that already exists and
-// qualifies it against FIXED pass/fail criteria. It does not weigh trade-offs among options it invents
-// (that is decide-cycle, which converges on reviewer agreement about an argument). What converges here
-// is COVERAGE — the claim that nothing qualifying was left unsearched — which is why the loop ends on
-// evidenced exhaustion rather than on the first answer that works.
-// The DISQUALIFIED.md ledger is the mechanism: every round's investigator reads why each earlier
-// candidate died, so it diverges from what is already closed. ONE investigator per round, strictly
-// sequential (investigator, then critic), which is the only reason a single append-only file shared by
-// two writers is safe here.
-// It produces a determination, NOT code: nothing is staged or committed. The review loop honors the
-// SPIRIT of WORKFLOW-PRINCIPLES.md #5 but is NON-BLIND by design — a critic that cannot see the option
-// or the criteria cannot verify either. The main agent authors the criteria with the user BEFOREHAND
-// (#4); the engine spawns no setup/loader agent.
+// Config: everything investigation-specific arrives via args so the engine stays general.
+// One investigator per round, then the critic, never in parallel: that alone keeps the shared ledger safe.
 // =============================================================================
 // args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
 // payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
@@ -45,16 +33,8 @@ const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL read-only context
 const CONTEXT     = A.context ?? '';                        // short extra framing (domain facts the agents won't know)
 const TESTBED     = A.testbed ?? '';                        // OPTIONAL: how agents may empirically test a candidate
-// A non-numeric bound must THROW, never coerce. `Math.max(1, 'three')` is NaN, `round < NaN` is false on
-// the first test, and the loop then never runs — handing back a zero-agent run dressed as an ordinary
-// round-budget exit, which is the most dangerous shape a bad arg can take here: a search that never
-// happened, reported as one that ran out of rounds. Same reasoning as the `target.repo` guard in the
-// build engines — a documented default is not a licence to accept garbage.
-// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
-// coercing check waves through exactly the garbage that silently disables a floor. The upper bound is not
-// decoration either — a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
-// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
-// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+// Static lead clause: gen-flows labels the throw node from it. No coercion: Number('') is a finite 0.
+// The upper bound stops a fat-fingered maxRounds from spawning agents until something dies.
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
@@ -83,11 +63,6 @@ const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const OPTIONS_DIR = `${STATE_DIR}/options`;                 // one file per QUALIFYING option
 const LEDGER      = `${STATE_DIR}/DISQUALIFIED.md`;         // append-only search memory (both roles write it)
-// The SECOND memory file, and the one that closes GROUND rather than candidates. The ledger says which
-// candidates died; without this, which AVENUES were already walked survives only in the TERMINATING
-// round's DETERMINATION — so every non-terminating round re-runs the last round's searches with the same
-// terms and calls the same candidates new. Append-only, same discipline as the ledger, investigator-owned
-// (the critic reads it: it is the record its coverage attack is against).
 const SEARCHED    = `${STATE_DIR}/SEARCHED.md`;             // append-only avenue log: swept ground + what is next
 const DETERMINATION = `${STATE_DIR}/DETERMINATION.md`;      // the cross-option comparison + coverage evidence
 const reviewFile  = (r) => `${STATE_DIR}/acceptance-review-r${r}.md`;
@@ -124,15 +99,15 @@ const INVESTIGATE_SCHEMA = {
   type: 'object',
   required: ['wrote_files', 'new_options', 'disqualified_added', 'near_misses', 'rediscovered', 'next_avenue_confidence', 'exhausted', 'no_solution', 'saturated', 'needs_user'],
   properties: {
-    wrote_files:        { type: 'boolean', description: 'true if you wrote everything this round claims: an options/<id>.md per qualifier, a ledger line per reject, and DETERMINATION.md if you are terminating OR this is the last round' },
+    wrote_files:        { type: 'boolean', description: 'true if you wrote every file steps 4 to 8 call for this round' },
     new_options:        { type: 'integer', description: 'QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round — the search continues)' },
     disqualified_added: { type: 'integer', description: 'candidates you appended to the DISQUALIFIED ledger this round' },
     near_misses:        { type: 'integer', description: 'of those, how many you marked NEAR-MISS: — failed EXACTLY ONE criterion. A subset of disqualified_added, never larger than it' },
-    rediscovered:       { type: 'integer', description: 'candidates you encountered this round that the ledger had ALREADY closed — seen again, NOT re-appended. A round that is mostly rediscovery is a search running out of new ground' },
-    next_avenue_confidence: { type: 'string', enum: CONFIDENCE, description: 'your confidence that the most promising UNSWEPT avenue — the one r<N> NEXT: names in SEARCHED.md — could still hold a qualifier. "none" means no unswept avenue remains' },
-    exhausted:          { type: 'boolean', description: 'true ONLY if you can EVIDENCE the search space is closed: which avenues you swept, what remains untried and why it cannot hold a qualifier. A bare claim will be contested' },
-    no_solution:        { type: 'boolean', description: 'true ONLY if you can evidence that NO candidate can meet the criteria — a different fact from "I found none yet"' },
-    saturated:          { type: 'boolean', description: 'true when this round hit DIMINISHING RETURNS against the r<N> trajectory in SEARCHED.md: it added nothing genuinely new, OR its yield collapsed to well under half the best round so far while the best unswept avenue is at most medium confidence. The WEAKEST claim — it says another round is not worth its cost, NOT that the search is closed. The critic checks the collapse against SEARCHED.md and the ledger. Leave false whenever you can evidence exhausted or no_solution instead; never claim both' },
+    rediscovered:       { type: 'integer', description: 'closed candidates you met again this round, not re-appended (step 5)' },
+    next_avenue_confidence: { type: 'string', enum: CONFIDENCE, description: 'the confidence on this round\'s r<N> NEXT: line (step 6)' },
+    exhausted:          { type: 'boolean', description: 'true if you claim the search space is closed (step 7)' },
+    no_solution:        { type: 'boolean', description: 'true if you claim no candidate can meet the criteria (step 7)' },
+    saturated:          { type: 'boolean', description: 'leave false unless you claim saturation (step 7)' },
     needs_user:         { type: 'boolean', description: 'true ONLY if a criteria contradiction or a user-only call blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     option_ids:         { type: 'array', items: { type: 'string' }, description: 'the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these' },
   },
@@ -146,9 +121,9 @@ const CRITIQUE_SCHEMA = {
     upheld:              { type: 'array', items: { type: 'string' }, description: 'ids of THIS round\'s new options that survive your verification — every criterion met, every citation checked out' },
     disqualified:        { type: 'array', items: { type: 'string' }, description: 'ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it' },
     near_misses:         { type: 'integer', description: 'of the lines YOU appended, how many you marked NEAR-MISS: — failed EXACTLY ONE criterion. Your appends count the same as the investigator\'s; 0 if you appended none' },
-    contests_exhaustion: { type: 'boolean', description: 'true if the investigator claimed exhaustion / no-solution and the coverage evidence does not hold — name the avenue it missed in your review file' },
-    contests_saturation: { type: 'boolean', description: 'true if the investigator claimed SATURATION and the diminishing-returns evidence does not hold — SEARCHED.md and the ledger do not show the collapse, or an unswept avenue is still plainly worth a round. CITE that avenue in your review file; it buys one more round' },
-    agree:               { type: 'boolean', description: 'true ONLY alongside a termination claim you accept: the coverage evidence holds and the search is genuinely closed — or, on a saturation claim, the collapse is real and another round is not worth its cost' },
+    contests_exhaustion: { type: 'boolean', description: 'true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)' },
+    contests_saturation: { type: 'boolean', description: 'true if you contest the saturation claim with a cited avenue (step 5)' },
+    agree:               { type: 'boolean', description: 'true if you accept this round\'s termination claim (step 5)' },
     needs_user:          { type: 'boolean', description: 'true ONLY if you found a criteria contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
   },
 };
@@ -219,10 +194,9 @@ anything you could invent here.
 ${ENV}
 SEARCH MEMORY — read ALL THREE before you look anywhere:
   • ${LEDGER} — every candidate already disqualified, and why. Do NOT re-propose any of them and do not
-    re-walk an avenue it already closes. This file is the entire reason round ${round} is not round 1 again.
-  • ${SEARCHED} — every AVENUE already swept, with the terms used and what it yielded. The ledger closes
-    CANDIDATES; this closes GROUND. Re-running a search recorded here with the same terms costs a whole
-    round and returns the same candidates — so pick up from its last \`NEXT:\` line, or say what you are
+    re-walk an avenue it already closes.
+  • ${SEARCHED} — every AVENUE already swept, with the terms used and what it yielded. Do not re-run a
+    search recorded here with the same terms. Pick up from its last \`NEXT:\` line, or say what you are
     doing differently.
   • ${OPTIONS_DIR}/ — the options that already qualified, one file each.
 ${round === 1
@@ -246,24 +220,18 @@ PROCEDURE:
 5. REJECTS: APPEND one terse line each to ${LEDGER} —
    \`<candidate> — FAILS <criterion> — <≤15-word why> — <source>\`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line \`NEAR-MISS: \` and put the
-   shortfall in NUMBERS wherever the criterion has any. These are what a user relaxes a criterion for, so
-   burying them among the outright misses costs real answers. The marker is a FACT, not sympathy: two
-   failed criteria is not a near miss, and the critic re-checks every one you mark.
-   Append only: never rewrite, reorder or prune it. It is the search's memory, the critic appends after
-   you, and a rejected candidate that vanishes from it will be re-proposed next round.
+   shortfall in NUMBERS wherever the criterion has any. Two failed criteria is not a near miss.
+   Append only: never rewrite, reorder or prune it.
    REDISCOVERED candidates — ones this ledger ALREADY closed that your searches turned up again — are NOT
-   re-appended. Count them and return the count (rediscovered): a round that is mostly rediscovery is the
-   signal that this ground is worked out, and it is invisible if you silently skip them.
+   re-appended. Count them and return the count (rediscovered).
 6. AVENUES — APPEND to ${SEARCHED}, one line per avenue you actually SWEPT this round:
    \`r${round} SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>\`
-   Record the TERMS, not just the avenue: "npm" swept with two phrasings is not the same ground as "npm"
-   swept with six, and the next round cannot tell them apart from the avenue name alone.
+   Record the TERMS, not just the avenue.
    Then EXACTLY ONE line saying where you would look next:
    \`r${round} NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>\`
    \`confidence: none\` means NO unswept avenue remains — which is the exhaustion claim in step 7, so write
    it only alongside the evidence that step demands. Return the same value as next_avenue_confidence.
-   Append only: never rewrite, reorder or prune it — the same discipline as the ledger, for the same
-   reason. Ground that vanishes from this file gets swept again next round with the same terms.
+   Append only: never rewrite, reorder or prune it.
 7. TERMINATION — claim it only when you can EVIDENCE it, because the critic will attack the evidence:
    • exhausted = the search space is closed. State which avenues you swept, what remains untried, and why
      what remains cannot hold a qualifier. "I did not find more" is not exhaustion.
@@ -278,8 +246,7 @@ PROCEDURE:
      the search is OPEN, not closed", give it the WHERE NEXT section step 8 requires, and return
      saturated=true. This is the WEAKEST of the three claims and says only that another round is not worth
      its cost — never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution
-     instead, claim that stronger fact and leave saturated false: never both, since the harness gives the
-     stronger one precedence and logs the contradiction.`
+     instead, claim that stronger fact and leave saturated false: never both.`
       : ''}
 8. THE DETERMINATION — write ${DETERMINATION} on a terminating round${round >= MAX_ROUNDS
       ? `, AND on this one: round ${round} is this run's LAST, so it gets written whatever you conclude`
@@ -298,19 +265,17 @@ PROCEDURE:
    • WHERE NEXT — REQUIRED whenever this determination is a STOPPED result rather than a finished one: a
      saturation round, a no_solution, or a partial last round. One line per UNSWEPT avenue with its own
      \`confidence: high|medium|low|none\`, then the ONE change to the premise or the criteria that would
-     open search space this run could not reach. Omit the section only on an evidenced exhaustion, where
-     by definition there is nothing left to name. It is what makes a stop resumable instead of terminal.
+     open search space this run could not reach. Omit the section only on an evidenced exhaustion.
    For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
    that — that criterion IS this determination's WHERE NEXT premise change (append it to ${NEEDS_USER}
    as well).${round >= MAX_ROUNDS
       ? `\n   If you are NOT claiming termination, OPEN the file stating the search is NOT exhaustive and this
    is a PARTIAL result. Say what actually stopped it — the round budget, or the escalation you are about to
    write to ${NEEDS_USER} — and never that nothing more is there, which is the one thing you did not show.
-   WHERE NEXT is REQUIRED here: a partial result without it cannot be resumed by anyone but you.`
+   WHERE NEXT is REQUIRED here.`
       : ''}
 If a criteria contradiction, or a call only the user can make, blocks you: append a full entry to
-${NEEDS_USER} and set needs_user=true (the run HALTS — any options you wrote this round are still
-verified by the critic first, so nothing unchecked reaches the user).
+${NEEDS_USER} and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
 Return wrote_files + new_options + disqualified_added + near_misses + rediscovered +
 next_avenue_confidence + exhausted + no_solution + saturated + needs_user + option_ids via the schema (the
@@ -339,8 +304,7 @@ CHECK:
    ${LEDGER} (\`<candidate> — FAILS <criterion> — <≤15-word why> — <source>\`) and list its id in
    disqualified. Only ids you could not break go in upheld. YOUR appends follow the same rule as the
    investigator's: one that fails EXACTLY ONE criterion is a NEAR MISS — prefix it \`NEAR-MISS: \`, give the
-   shortfall in numbers, and count it in near_misses. An option you personally knock out on a single
-   criterion is the most interesting near miss in the run, since it got far enough to look like an answer.
+   shortfall in numbers, and count it in near_misses.
 2. VERIFY every citation (#14): open the cited source and confirm the passage exists AND actually supports
    the claim made from it. A citation that does not check out fails the criterion it was offered for —
    an option standing on one is disqualified, not merely flagged.
@@ -355,12 +319,9 @@ ${claimKind === 'coverage'
    closed; ${SEARCHED} is its own record of the ground it swept, so check the claim against that first.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep and that could plausibly hold a
    qualifier — and CITE it: the source plus the exact locator, and which criterion or search-space bound
-   that source puts back in play. An UNCITED contest is not a contest. It costs a whole round, and a bare
-   "you missed something" can be said about any search that ever ended, so it is unfalsifiable and settles
-   nothing. Set contests_exhaustion=true only with that citation written into your review file. Set
-   agree=true ONLY when you have genuinely tried and cannot: agreeing here is what turns "I stopped
-   looking" into "nothing else is there", and it is the one verdict this workflow exists to make
-   trustworthy.`
+   that source puts back in play. An UNCITED contest is not a contest. Set contests_exhaustion=true only
+   with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
+   and cannot: agreeing asserts nothing else is there.`
     : claimKind === 'saturation'
       ? `5. ATTACK THE SATURATION CLAIM — read what it actually says first. It is NOT that the search is CLOSED;
    it is that another round is not worth its cost, because this one added nothing genuinely new or its
@@ -370,11 +331,9 @@ ${claimKind === 'coverage'
    obvious phrasing never tried, the r<N> NEXT: avenue it named last round never swept at all?
    Contest it exactly ONE way: name an unswept avenue that is CITED — the source plus the exact locator —
    CONNECTED to a criterion or a search-space bound, and plausibly fruitful enough to be worth a whole
-   round. An UNCITED contest is not a contest. "You missed something" fits every search that ever stopped,
-   so it settles nothing and still costs a round. Set contests_saturation=true only with that citation
-   written into your review file. Set agree=true to accept the stop — the run then reports an OPEN search
-   that was STOPPED, never an exhaustive one, so agreeing here concedes nothing that agreeing to a coverage
-   claim would.`
+   round. An UNCITED contest is not a contest. Set contests_saturation=true only with that citation
+   written into your review file. Set agree=true to accept the stop: the run reports an OPEN, STOPPED
+   search, never an exhaustive one.`
       : `5. No termination was claimed this round, so agree / contests_exhaustion / contests_saturation do not
    apply — leave all three false.`}
 ${det
@@ -383,9 +342,8 @@ ${det
    (which compares nothing); its WHICH TO PICK WHEN smuggles in a ranking, when qualification is pass/fail
    and the options are unranked; its NEAR MISSES do not match the marked ledger lines, or read as answers
    rather than as things that failed a criterion; and — on any STOPPED result (a saturation, a no_solution,
-   or a partial last round) — its WHERE NEXT is missing or empty, which is what turns a resumable stop into
-   a file that reads like a finished search. Name any of these in your review file. This does NOT
-   change agree — a malformed determination is not an open search — but the operator reads your file.`
+   or a partial last round) — its WHERE NEXT is missing or empty. Name any of these in your review file.
+   This does NOT change agree.`
     : `6. No determination was DUE this round (no termination claim, and rounds remain) so none is expected of
    the investigator — do not judge the run on one. An earlier round that claimed termination and was
    contested may have left a stale ${DETERMINATION} on disk; ignore it, it is not this round's output.`}
@@ -410,8 +368,7 @@ PROCEDURE — three distinct failure modes, and only these:
    claim over it could ever be evidenced.
 2. UNFALSIFIABLE: a criterion no evidence could settle either way as written ("must be maintainable",
    "should be popular"), or one that CONTRADICTS another so nothing could satisfy both. Say what evidence
-   would be needed and why none can exist as written. This is your distinctive job: a criterion nothing
-   can decide keeps every candidate arguable forever and the loop never converges.
+   would be needed and why none can exist as written.
 3. QUESTIONS: only what genuinely BLOCKS the search and only the USER can answer.
 Do NOT write any file. Do NOT modify any repo, stage, or commit. The orchestrating agent folds your
 findings back into the criteria itself. Return gaps + questions + unfalsifiable via the schema.`;
@@ -449,12 +406,7 @@ if (PHASE === 'refine') {
 }
 
 // =============================================================================
-// PHASE: run — [investigate → (critique, when there is something to check)] × maxRounds.
-// The loop STARTS and ENDS with the investigator: the critic only ever judges what a round produced.
-// Its terminal states are kept strictly distinct (see HALT_STATUS): "ran out of rounds", "ran out of
-// tokens" and "nothing can qualify" are three different facts, and folding any pair of them together
-// would let fatigue masquerade as a proof — which is the exact failure this workflow exists to avoid.
-// haltKind is set at EVERY terminal site and mapped once; nothing sniffs prose (tests/CLAUDE.md §3).
+// PHASE: run
 // =============================================================================
 log(`investigate: searching for an answer that meets the criteria → ${OPTIONS_DIR} [maxRounds=${MAX_ROUNDS}]`);
 
@@ -464,13 +416,10 @@ let haltReason = '';
 let reviewPath = '';            // the ONE review-path variable: set the moment a critic call returns, so
                                 // it can never name a file no critic wrote. Feeds the next investigator
                                 // prompt AND the return.
-let nearMisses = 0;             // ledger lines marked NEAR-MISS: — failed EXACTLY ONE criterion. The
-                                // actionable residue of a search that qualifies nothing, and the thing a
-                                // user relaxes a criterion for; surfaced so it cannot die in the ledger.
-// One entry per investigator round: counts and the confidence enum, nothing else (#8). A single round
-// cannot tell a search that is still finding ground from one grinding over closed ground — 0 new options
-// looks the same either way — so the SHAPE across rounds is its own signal, and it is lost the moment
-// only the last round is visible.
+let nearMisses = 0;             // NEAR-MISS: ledger lines (failed EXACTLY ONE criterion), surfaced so the
+                                // candidates a user could relax a criterion for cannot die in the ledger.
+// One entry per investigator round, counts and the confidence enum only (#8). A round with 0 new options
+// looks the same opening ground or grinding over closed ground. Only the shape across rounds differs.
 const trajectory = [];
 const upheldIds = [];           // critic-UPHELD option ids only — the return never surfaces an unvetted one
 const knockedEver = new Set();  // every id any critic has disqualified. Kept for the WHOLE run: an option
@@ -518,10 +467,6 @@ while (round < MAX_ROUNDS) {
   if (invNear > invDisq) {
     log(`  ⚠ r${round}: investigator reported ${invNear} near-miss(es) but only ${invDisq} reject(s) — a near miss IS a reject, so one of those numbers is wrong; check ${LEDGER}`);
   }
-  // A determination is due on a terminating round AND on the last round the budget allows — a search that
-  // merely ran out of rounds still owes the user its comparison and its near misses, and the investigator
-  // that just ran is the only agent left to write them. `claim` is deliberately folded in here rather than
-  // repeated in the gate below: one definition of "a determination exists", not two that can drift.
   const det = claim || round >= MAX_ROUNDS;
 
   // ---- CRITIQUE (adversarial, non-blind) -----------------------------------
@@ -570,11 +515,7 @@ while (round < MAX_ROUNDS) {
       }
     }
   }
-  // Both writers append to the ledger, so both writers' near misses count. Summing only the investigator's
-  // would silently drop the ones the critic found — which are the most interesting, since those candidates
-  // got far enough to look like answers. The critic's count gets the SAME contradiction check as the
-  // investigator's: it appends one line per id it disqualified, so more near misses than disqualifications
-  // is the identical nonsense, and this is the number the operator is told to lead with on a dead end.
+  // Both writers append to the ledger, so both counts are summed, each under the same contradiction check.
   const critNear = Math.max(0, Number(crit?.near_misses) || 0);
   if (crit && critNear > (Array.isArray(crit.disqualified) ? crit.disqualified.length : 0)) {
     log(`  ⚠ r${round}: critic reported ${critNear} near-miss(es) but disqualified only ${Array.isArray(crit.disqualified) ? crit.disqualified.length : 0} — a near miss IS a disqualification, so one of those numbers is wrong; check ${LEDGER}`);
@@ -638,8 +579,6 @@ while (round < MAX_ROUNDS) {
       break;
     }
     const kind = claimKind === 'saturation' ? 'saturation' : 'termination';
-    // Only when a next round actually exists: on the last round this used to promise "another
-    // investigator round" one line above the round-budget warning saying there is none.
     if (round < MAX_ROUNDS) log(`  ↻ r${round}: ${kind} claim ${contested ? 'CONTESTED' : 'not agreed'} → another investigator round (addresses ${reviewPath})`);
     else log(`  ✗ r${round}: ${kind} claim ${contested ? 'CONTESTED' : 'not agreed'} on the LAST round — the search ends unproven (see ${reviewPath})`);
   }
@@ -650,9 +589,7 @@ while (round < MAX_ROUNDS) {
   if (!claim) log(`  ↻ r${round}: search continues → next investigator reads ${reviewPath || LEDGER}`);
 }
 
-// Each terminal state gets its OWN string. "Ran out of rounds", "ran out of tokens" and "nothing can
-// qualify" are three different facts; collapsing any pair of them is how a stopped search gets reported
-// as a finished one.
+// One string per terminal state: collapsing any pair reports a stopped search as a finished one.
 const HALT_STATUS = {
   'exhausted':   'exhaustive (search closed, critic agreed)',
   'rounds':      'not exhaustive (round budget spent)',
@@ -669,15 +606,9 @@ const HALT_STATUS = {
 const status = HALT_STATUS[haltKind] || `halted (unmapped terminal state "${haltKind}" — engine bug)`;
 const halted = haltKind === 'needs-user' || haltKind === 'budget';
 const concluded = haltKind === 'exhausted' || haltKind === 'no-solution';
-// The determination is due on a terminating round AND on the last round the budget allowed, so 'rounds'
-// names it too — a search that merely ran out of rounds still owes its comparison and its near misses.
-// The other two halts deliberately name nothing: 'budget' stops BEFORE any agent runs that round, and
-// 'needs-user' means the investigator escalated instead of concluding. Naming a file nobody wrote is the
-// defect this stays narrow to avoid — hence `round > 0`, which is the PROOF an investigator actually ran
-// and got the write-it instruction. 'rounds' is the initial value of haltKind, so without that guard any
-// future path that exits before the loop body would inherit it and name a file nothing wrote.
-// 'saturated' names it too — that round was ordered to write the file and the critic verified it. 'stalled'
-// deliberately does not: nothing was claimed, no critic ran, and no determination was ever asked for.
+// Owed on a terminating round and on the last round: a search that ran out of rounds still owes its
+// comparison and near misses. 'budget', 'needs-user' and 'stalled' name none, never a file nothing wrote.
+// `round > 0` proves an investigator ran, since 'rounds' is haltKind's initial value.
 const determined = concluded || haltKind === 'saturated' || (haltKind === 'rounds' && round > 0);
 log(`investigate: ${status} after ${round} round(s) — ${upheldIds.length} qualifying option(s), ${nearMisses} near-miss(es)`);
 
@@ -688,25 +619,15 @@ return {
   halted,
   exhaustive: haltKind === 'exhausted',
   noSolution: haltKind === 'no-solution',
-  // A STOPPED search, never a closed one — `exhaustive` stays false here, which is the whole point of
-  // giving saturation its own field rather than folding it into either of the two above.
   saturated: haltKind === 'saturated',
   haltReason: halted ? haltReason : '',
   rounds: round,
   stateDir: STATE_DIR,
-  // Critic-upheld ids ONLY — never a listing of options/. An option the critic knocked out (or never
-  // saw) reaching the caller as an answer is the one outcome this loop exists to prevent.
   options: upheldIds,
   optionFiles: upheldIds.map((id) => `${OPTIONS_DIR}/${id}.md`),
   ledgerFile: LEDGER,
-  // Due on a terminating round AND on the last round the budget allowed — named only where an
-  // investigator actually ran and was told to write it (see `determined`).
   determination: determined ? DETERMINATION : '',
-  // Candidates that failed EXACTLY ONE criterion. On a no-solution or round-budget run this is often the
-  // only actionable thing the search produced, so it is surfaced rather than left to die in the ledger.
   nearMisses,
-  // The search's shape round by round — counts and the confidence enum only. What a single round cannot
-  // show: whether each round is still opening ground or grinding over what the ledger already closed.
   trajectory,
   reviewFile: reviewPath,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',

@@ -165,7 +165,9 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-- **Long WHY comments.** The house style. Prose is terse; explanation is not.
+- **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
+  style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
+  enhance conciseness pass, never to debug.
 - **Missing JSDoc, "this function is long", naming preferences, formatting.**
 - **No prompt-quality tests.** Not testable here by construction — see §6.
 
@@ -202,7 +204,7 @@ against (halt); an unreachable feature does not (flag).
 
 `workflows/<x>/FLOW.md` is **generated**: `tools/gen-flows.mjs` runs each engine through
 `tests/harness.mjs` against a scenario table in `tools/flows/<name>.flow.mjs` and draws what it watched.
-Change an engine's control flow and you must regenerate, or the suite goes red:
+Edit an engine and you must regenerate, or the suite goes red:
 
 ```bash
 node tools/gen-flows.mjs            # regenerate all
@@ -332,6 +334,8 @@ The Loops table also carries the **full** condition list, where the arrow had be
 - [ ] The workflow's `CLAUDE.md` updated — a new required arg, return field, written file, or halt
       condition is a documented behavior change; its `README.md` too if a human-visible behavior changed
 - [ ] `meta` still a pure literal, still LF-only (the suite checks both)
-- [ ] Control flow changed? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
+- [ ] Prompt text changed? `node tools/gen-prompts.mjs` re-run, and its snapshot diff read for variants
+      the change was not meant to reach
+- [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice

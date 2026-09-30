@@ -12,7 +12,7 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 Four things together — remove any one and the plan grows every round instead of settling:
 - **The defect bar.** A gap must name something that would build wrong or fail: a missing wiring
   point, a wrong or absent file, a criterion with no implementing step, a dependency-ordering error,
-  a block too big for one develop pass. Improvements, alternatives, and style are excluded
+  a block too big for one develop pass, a reference the block states only outside itself. Improvements, alternatives, and style are excluded
   unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   Below-floor findings land in the critique file's FYI section and count for nothing.
@@ -25,9 +25,10 @@ Four things together — remove any one and the plan grows every round instead o
 
 1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo), the user
    approves it.
-2. Launch refine with `planPath` = that file. Read the result:
-   - `converged` — hand the final text to the user for approval, then derive develop's args from
-     `--list` and build.
+2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
+   a notification turn"). Read the result:
+   - `converged` — hand the final text to the user for approval, then build it with develop, whose
+     args come from `plan-edit.mjs args`.
    - `needs-answers` — read `NEEDS-USER.md`: the critic raised things only you can settle (a
      dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done` block), or the editor
      escalated a contested dismissal. Restructure the plan (new blocks need fresh kebab ids), then

@@ -53,14 +53,8 @@ const TARGET      = A.target ?? {};                         // { repo, lang, fra
 const REFERENCE   = A.reference ?? '';                      // optional: a completed example the plan should mirror
 const CONVENTIONS = A.conventions ?? '(none supplied - infer from the surrounding code)';
 
-// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the loop
-// would never run: the engine would report `converged` on a plan no critic ever read, which is the single
-// worst thing this file can say. A documented default is not a licence to accept garbage.
-// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite, so a
-// coercing check waves through exactly the garbage that silently disables a bound. The upper bound is not
-// decoration either - a fat-fingered `maxRounds: 100000` otherwise spawns agents until something dies.
-// The message leads with a STATIC clause because tools/gen-flows.mjs labels a throw node with the first
-// clause of its static prefix; starting with `args.${name}` rendered the node as "throw: args.".
+// Static lead clause: gen-flows labels the throw node from it. No coercion: Number('') is a finite 0.
+// The upper bound stops a fat-fingered maxRounds from spawning agents until something dies.
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {
@@ -132,9 +126,9 @@ const CRITIC_SCHEMA = {
   type: 'object',
   required: ['wrote_file', 'gap_count', 'question_count'],
   properties: {
-    wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file. A round with FYI items only writes it and returns true with both counts 0. A round with nothing at all writes nothing and returns false - that is legitimate. Returning a nonzero count with false HALTS the run, because the findings would exist nowhere' },
+    wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file' },
     gap_count:      { type: 'integer', description: 'gaps AT OR ABOVE the severity floor, written to the GAPS section of your critique file. Below-floor findings go to the FYI section and are EXCLUDED from this number. 0 with question_count 0 ends the run: the plan converged' },
-    question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md. Any nonzero value ENDS the run needs-answers: an ordering error or too-big block whose fix restructures blocks, or a gap in an already-done block, has no legal edit and needs the operator' },
+    question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md' },
   },
 };
 
@@ -145,8 +139,8 @@ const EDITOR_SCHEMA = {
     wrote_file:  { type: 'boolean', description: 'true if you actually wrote your edits to the plan file. Reporting folded gaps with false HALTS the run - the fold would exist nowhere' },
     folded:      { type: 'integer', description: 'numbered gaps you closed with an edit to the plan file' },
     declined:    { type: 'integer', description: 'gaps you declined, each appended as ONE terse line to DISMISSED-PLAN.md with its reason' },
-    plan_parses: { type: 'boolean', description: 'true ONLY if the plan-block --list command you ran AFTER your edits exited 0. False HALTS the run: a plan file that no longer parses poisons every later consumer of it' },
-    needs_user:  { type: 'boolean', description: 'true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal. True ENDS the run needs-answers: the question needs the operator, not another round' },
+    plan_parses: { type: 'boolean', description: 'true ONLY if the plan-block --list command you ran AFTER your edits exited 0' },
+    needs_user:  { type: 'boolean', description: 'true ONLY if you appended an entry to NEEDS-USER.md for a contested dismissal' },
   },
 };
 
@@ -169,7 +163,7 @@ result is a GOOD outcome and ends the run.
 ${ENV}
 This is round ${round} of at most ${MAX_ROUNDS}.
 
-THE DEFECT BAR - a gap must name something that would build wrong or fail. Exactly five classes qualify:
+THE DEFECT BAR - a gap must name something that would build wrong or fail. Exactly six classes qualify:
   1. A missing WIRING POINT: the block never says where the work is registered, exported, routed, bound
      or flagged so it is reachable from a real entry point.
   2. A WRONG or ABSENT FILE: a path in the Files list that does not exist, sits elsewhere, or is not the
@@ -177,10 +171,10 @@ THE DEFECT BAR - a gap must name something that would build wrong or fail. Exact
   3. An ACCEPTANCE CRITERION WITH NO IMPLEMENTING STEP: the block promises a behavior no step builds.
   4. A DEPENDENCY-ORDERING ERROR between blocks: a block needs something a later block creates.
   5. A BLOCK TOO BIG for one develop pass: more than roughly one coherent artifact plus its tests.
-IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, UNCONDITIONALLY - a better design, a nicer name,
-an extra safeguard you would have added, a different approach. That exclusion has no exceptions and no
-"but this one is important" case: an improvement list has no end, and this bar is the only reason this
-loop converges instead of growing the plan every round.
+  6. A REFERENCE OUTSIDE THE BLOCK: develop hands each agent only its own block by default, so a path, term or
+     instruction the block relies on but states only in the file preamble or another block is missing.
+IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
+an extra safeguard you would have added, a different approach.
 EVERY gap carries file:line evidence - the plan line it is about, and the repo line that contradicts it.
 NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
@@ -192,12 +186,10 @@ green). File keys \`goal\` / \`ordered\` / \`suite\` / \`sweep\` sit above the f
 
 SCOPE RULE 1 - you judge only blocks whose \`status\` is \`todo\` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to ${NEEDS_USER} as a QUESTION and NEVER
-to the editor, because folding into a done block rewrites the spec that already-staged code was built
-against.
+to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) or a BLOCK TOO BIG (class 5) whose fix splits,
-merges, adds or reorders blocks is reported as a QUESTION, never as a gap. That fix changes the block
-STRUCTURE and the operator's derived plans array, and the editor has no legal edit for it. It ends the
-run so the operator can restructure.
+merges, adds or reorders blocks is reported as a QUESTION, never as a gap. It ends the run so the
+operator can restructure.
 SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
 
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap:
@@ -220,7 +212,7 @@ prefixed "CONTESTS DISMISSAL:", saying why the reason does not hold. Once per ga
 
 WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed) and put EVERYTHING there VERBATIM: a
 numbered GAPS section, then the FYI section, then a QUESTIONS section. Per gap: the block id, which of
-the five classes it is, its grade, the file:line evidence, EXACTLY ONE smallest change that closes it
+the six classes it is, its grade, the file:line evidence, EXACTLY ONE smallest change that closes it
 (never alternatives), and the number of every other gap whose change touches the same plan lines, so
 the editor folds them together.
 That file is your ONLY channel to the editor: anything you leave out of it reaches nothing.
@@ -232,8 +224,7 @@ section, returns wrote_file=true with both counts 0, and still converges. A roun
 writes NOTHING and returns wrote_file=false with both counts 0. Both are this run's success state, not a
 failure to find something.
 Do NOT modify the plan file, the target repo, or anything else. Do NOT stage or commit.
-RETURN gap_count (at-or-above-floor gaps only), question_count and wrote_file via the schema - counts
-only, no content.`;
+Return via the schema.`;
 
 const editorPrompt = (round, critiquePath) => `
 You are the PLAN EDITOR. Fold this round's gaps into the plan file with the SMALLEST edit that closes
@@ -244,8 +235,7 @@ This is round ${round} of at most ${MAX_ROUNDS}.
 
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, not a criterion you would have phrased differently, and not
-the FYI section - those findings are recorded, not folded. An editor that also improves is exactly how a
-refine loop stops converging: it grows the plan every round and never runs out of things to add.
+the FYI section.
 
 PROCEDURE:
 1. For each numbered gap, make the smallest edit to ${PLAN_PATH} that closes it - usually one line, one
@@ -260,12 +250,11 @@ PROCEDURE:
    needs_user=true. Never silently re-decline it.
 4. MANDATORY FINAL STEP, after every edit is written: run
      node '${BLOCK_TOOL}' '${PLAN_PATH}' --list
-   and report plan_parses = (it exited 0). The plan-bus grammar is strict - a folded \`key: value\` line
-   landing at the top of a block BODY joins the preamble run and throws as an unrecognized key - and a
-   fold that breaks the file poisons every later consumer of it. Non-zero exit: FIX the file and re-run
-   until it exits 0. Report plan_parses=false only if you could not.
+   and report plan_parses = (it exited 0). The plan-bus grammar is strict: a folded \`key: value\` line
+   landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
+   exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
-RETURN wrote_file, folded, declined, plan_parses and needs_user via the schema.`;
+Return via the schema.`;
 
 // =============================================================================
 // THE LOOP - [critique -> (fold, when there are gaps and no questions)] x maxRounds.

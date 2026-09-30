@@ -1,5 +1,5 @@
 // tools/plan-edit.mjs — the ONE tool that WRITES a plan file: upsert one metadata line, move one issue
-// entry between blocks, or apply the status edits a develop run returned.
+// entry between blocks, or fold finished develop runs into the plans and print the next launch's args.
 //
 // Why this is a separate file from plan-block.mjs rather than two more subcommands of it. The run-time
 // permission rule allowlists every subcommand of the file it names, so a write subcommand sharing that file
@@ -8,7 +8,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs sync <result.json>
+//   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>] [--pack <repo> [--loc-cap <n>]]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -23,15 +23,16 @@
 // approved plan is what agents build against, so a half-applied or silently coerced edit is worse than no
 // edit at all. The one fault validation cannot pre-empt is an I/O error BETWEEN a cross-file move's two
 // writes: the write order leaves the entry duplicated rather than deleted, and the error names the manual
-// cut, since a single-file parse never sees a duplicate across two plans. `sync` builds and validates every
-// file's edited text before writing any, and a re-run over an applied result writes nothing.
+// cut, since a single-file parse never sees a duplicate across two plans. `args` builds and validates every
+// file's edited text before writing any, and the `synced:` file key keeps a run from applying twice.
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
-import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
-import { isAbsolute } from 'node:path';
+import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { RUN_KEYS, parseBlocks, resolveRoadmap, validate } from './plan-block.mjs';
+import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
 const USAGE = `usage:
   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
@@ -39,9 +40,13 @@ const USAGE = `usage:
       test_selector, depends_on); an issue id targets that entry's "- key:" run.
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
-  node tools/plan-edit.mjs sync <result.json>
-      apply every { planPath, id, key, value } edit in a develop result's statusSync (or a bare
-      array of them). All-or-nothing: one bad edit in any file writes no file at all.
+  node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
+                            [--pack <repo> [--loc-cap <lines>]]
+      fold every finished develop run's status edits into the plan files, then print develop's
+      args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
+      --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
+      files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
+      All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
 
@@ -271,84 +276,260 @@ function runMove(argv) {
 }
 
 // =============================================================================
-// sync — every status edit a develop run returned, validated as one set before any file is written
+// Run records — what the Claude Code runtime writes when a Workflow run ends
 // =============================================================================
 
-/** The edits a result file holds: a develop return object's statusSync, or a bare array of edits. */
-function readSyncEdits(path) {
+// The line prefix develop-cycle.mjs logs each finished block's status edits under (its STATUS_LOG).
+const STATUS_LOG = 'status-sync ';
+const RECORD_STATUSES = ['completed', 'failed', 'killed'];
+const FORMAT_CHANGED = 'the Claude Code run-record format changed: update readRunRecord in tools/plan-edit.mjs';
+
+/** Every run record on this machine: <config>/projects/<project>/<session>/workflows/wf_*.json. */
+export function findRunRecords(configDir) {
+  const found = [];
+  const subdirs = (path) => {
+    try {
+      return readdirSync(path, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => join(path, d.name));
+    } catch (err) {
+      if (err.code === 'ENOENT') return [];
+      throw err;
+    }
+  };
+  for (const session of subdirs(join(configDir, 'projects')).flatMap(subdirs)) {
+    for (const dir of subdirs(session).filter((d) => d === join(session, 'workflows'))) {
+      for (const name of readdirSync(dir)) if (/^wf_.*\.json$/.test(name)) found.push(join(dir, name));
+    }
+  }
+  return found;
+}
+
+/**
+ * The runtime fields the fold depends on, as the names of those that are missing or malformed. Exported so
+ * the suite can check every real record on the machine and flag a Claude Code format change early.
+ */
+export function envelopeFaults(data) {
+  return [
+    typeof data?.workflowName !== 'string' && 'workflowName',
+    typeof data?.runId !== 'string' && 'runId',
+    !RECORD_STATUSES.includes(data?.status) && 'status',
+    Number.isNaN(Date.parse(data?.timestamp)) && 'timestamp',
+    !(Array.isArray(data?.logs) && data.logs.every((l) => typeof l === 'string')) && 'logs',
+  ].filter(Boolean);
+}
+
+/** A develop run's record as { path, runId, status, time, edits }, or null for any other workflow. */
+export function readRunRecord(path) {
   let data = null;
   try {
     data = JSON.parse(readFileSync(path, 'utf8'));
   } catch (err) {
-    if (err.code === 'ENOENT') throw new Error(`no such result file: ${path}`);
-    throw new Error(`cannot read ${path} as JSON: ${err.message}`);
+    throw new Error(`cannot read run record ${path}: ${err.message}`);
   }
-  const edits = Array.isArray(data) ? data : data?.statusSync;
-  if (!Array.isArray(edits)) {
-    throw new Error(`${path} holds neither a develop result with a statusSync array nor a bare array of edits`);
-  }
+  if (typeof data?.workflowName !== 'string') throw new Error(`${path} has no workflowName — ${FORMAT_CHANGED}`);
+  if (data.workflowName !== 'develop-cycle') return null;
+  const faults = envelopeFaults(data);
+  if (faults.length) throw new Error(`${path} has no valid ${faults.join(', ')} — ${FORMAT_CHANGED}`);
+
+  const edits = data.logs.filter((l) => l.startsWith(STATUS_LOG)).flatMap((l) => JSON.parse(l.slice(STATUS_LOG.length)));
   edits.forEach((e, i) => {
     const typed = e && ['planPath', 'id', 'key', 'value'].every((k) => typeof e[k] === 'string');
-    if (!typed) throw new Error(`edit [${i}] in ${path} is not { planPath, id, key, value } strings: ${JSON.stringify(e)}`);
-    // A relative path would resolve against wherever the operator happens to stand, or read as a plan-name.
-    if (!isAbsolute(e.planPath)) throw new Error(`edit [${i}] in ${path} has a relative planPath "${e.planPath}" — develop emits absolute paths`);
+    if (!typed || !isAbsolute(e.planPath)) {
+      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value }: ${JSON.stringify(e)}`);
+    }
   });
-  return edits;
+  return { path, runId: data.runId, status: data.status, time: Date.parse(data.timestamp), edits };
 }
 
-/** Two spellings of one file must share one group, or the second write would clobber the first's edits. */
+// =============================================================================
+// args — fold finished runs into the plan files, then print develop's args
+// =============================================================================
+
+/** Two spellings of one file must compare equal, or a record's edits would miss the plan they name. */
 function fileKey(path) {
   try {
     return realpathSync.native(path);
   } catch { return path; }   // a missing file — loadPlan reports that
 }
 
-/** One file's edited text, each edit re-validated before the next so every splice reads fresh positions. */
-function withEditsApplied(path, edits) {
-  const original = loadPlan(path);
-  let plan = original;
+/** The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. */
+function applyEdits(plan, edits, source) {
+  let next = plan;
   for (const { id, key, value } of edits) {
     try {
       checkOneLine(key, value);
-      const text = withKeySet(plan, id, key, value);
-      plan = { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
+      const text = withKeySet(next, id, key, value);
+      next = { path: next.path, text, blocks: validate(parseBlocks(text), next.path) };
     } catch (err) {
-      throw new Error(`${path}: ${id} ${key}=${value}: ${err.message}`);
+      throw new Error(`${source} sets ${id} ${key}=${value} in ${plan.path}, which fails: ${err.message}. Fix the plan, or set its "synced:" file key to that run's timestamp to skip the run`);
     }
   }
-  return { path: plan.path, text: plan.text, changed: plan.text !== original.text };
+  return next;
 }
 
-function runSync(argv) {
-  // Input
-  if (argv.length !== 1) throw new Error(USAGE);
-  const edits = readSyncEdits(argv[0]);
+/** The file's bytes with its `synced:` file key upserted. */
+function withSyncedSet(plan, iso) {
+  const { keys, start } = parseFileKeys(plan.text);
+  const present = keys.find((k) => k.key === 'synced');
+  if (present) return splice(plan.text, present.valueStart, present.valueEnd, iso);
 
-  // Process — every file is edited in memory first, so a fault in the LAST file still writes none.
-  const groups = new Map();
-  for (const e of edits) {
-    const key = fileKey(e.planPath);
-    if (!groups.has(key)) groups.set(key, { path: e.planPath, edits: [] });
-    groups.get(key).edits.push(e);
+  const eol = dominantEol(plan.text);
+  const last = keys[keys.length - 1];
+  if (last) return splice(plan.text, last.end, last.end, `${eol}synced: ${iso}`);
+  // No file keys yet: the new run needs a blank line under it, or the heading below reads as its prose.
+  const gap = plan.text.startsWith(eol, start) ? '' : eol;
+  return splice(plan.text, start, start, `synced: ${iso}${eol}${gap}`);
+}
+
+/** One plan with every run record newer than its `synced:` key applied, oldest first. */
+function foldRecords(plan, records, note) {
+  const marker = Date.parse(parseFileKeys(plan.text).values.synced ?? '') || 0;
+  const key = fileKey(plan.path);
+  const fresh = records
+    .filter((r) => r.time > marker)
+    .map((r) => ({ ...r, edits: r.edits.filter((e) => fileKey(e.planPath) === key) }))
+    .filter((r) => r.edits.length)
+    .sort((a, b) => a.time - b.time);
+
+  let next = plan;
+  for (const r of fresh) {
+    next = applyEdits(next, r.edits, `run ${r.runId} (${r.path})`);
+    note(`applied ${r.edits.length} status edit(s) from run ${r.runId} (${r.status}) to ${plan.path}\n`);
   }
-  const files = [...groups.values()].map((g) => ({ ...withEditsApplied(g.path, g.edits), count: g.edits.length }));
-  const changed = files.filter((f) => f.changed);
+  if (!fresh.length) return next;
+  const text = withSyncedSet(next, new Date(fresh[fresh.length - 1].time).toISOString());
+  return { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
+}
+
+/** develop's args: one set of file keys, which every plan must agree on, and every block as a row. */
+function mergeArgs(plans) {
+  const heads = plans.map((p) => ({ path: p.path, ...listObject(p.blocks, p.path, parseFileKeys(p.text)) }));
+  const [first] = heads;
+  for (const h of heads) {
+    for (const k of ['goal', 'ordered', 'suite', 'sweep']) {
+      if (h[k] !== first[k]) {
+        throw new Error(`${first.path} and ${h.path} disagree on ${k} (${JSON.stringify(first[k])} vs ${JSON.stringify(h[k])}) — one run takes one value`);
+      }
+    }
+  }
+  const plansRows = heads.flatMap((h) => h.blocks.map((b) => ({ ...b, planPath: h.path })));
+  return { goal: first.goal, ordered: first.ordered, suite: first.suite, sweep: first.sweep, plans: plansRows };
+}
+
+// =============================================================================
+// --pack — several small fix blocks into one develop pass
+// =============================================================================
+
+// Scaled from resolve's old 3000-line batches, which ran each agent at about 150-200k tokens, to the
+// ~350k-token ceiling past which token cost climbs. Recalibrate against real runs' token counts.
+const DEFAULT_LOC_CAP = 5000;
+const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists still costs a read
+
+const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
+
+/** The entries a developer will actually work: ACTIONABLE, and not already closed by an earlier run. */
+const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
+  && !['fixed', 'stale'].includes(keyOf(e, 'status')));
+
+/** The line count of every distinct file a block's open entries name: its `- loc:` line, else the file itself. */
+function blockFiles(block, repo) {
+  const files = new Map();
+  for (const entry of openActionable(block)) {
+    const path = (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
+    if (!path || files.has(path)) continue;
+    const stated = Number(keyOf(entry, 'loc'));
+    if (Number.isInteger(stated) && stated > 0) { files.set(path, stated); continue; }
+    try {
+      files.set(path, readFileSync(join(repo, path), 'utf8').split('\n').length);
+    } catch { files.set(path, UNKNOWN_FILE_LOC); }
+  }
+  return files;
+}
+
+/**
+ * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
+ * lines. Blocks are sorted by the first file they touch, so a pass holds neighbouring code. A block over
+ * the cap alone, or one with nothing ACTIONABLE, stays its own row. A pass sits where its first member did.
+ */
+function packPasses(args, folded, repo, cap, note) {
+  if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
+  const blockOf = new Map(folded.flatMap((p) => p.blocks.map((b) => [`${p.path}\u0000${b.id}`, b])));
+  const candidates = [];
+  for (const [index, row] of args.plans.entries()) {
+    if (row.mode !== 'fix' || row.status !== 'todo') continue;
+    const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
+    const files = blockFiles(block, repo);
+    if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry, so it is not a plan to build\n`); continue; }
+    candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0] });
+  }
+  candidates.sort((a, b) => a.first.localeCompare(b.first) || a.index - b.index);
+
+  const passes = [];
+  let open = null;
+  for (const c of candidates) {
+    const added = [...c.files].filter(([f]) => !open?.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
+    const clash = open && c.issues.some((id) => open.issues.has(id));
+    if (!open || clash || open.loc + added > cap) {
+      open = { members: [], files: new Map(), issues: new Set(), loc: 0 };
+      passes.push(open);
+    }
+    open.members.push(c);
+    for (const [f, loc] of c.files) if (!open.files.has(f)) { open.files.set(f, loc); open.loc += loc; }
+    for (const id of c.issues) open.issues.add(id);
+  }
+
+  const taken = new Set(args.plans.map((r) => r.id));
+  const replaced = new Map();
+  for (const pass of passes.filter((x) => x.members.length > 1)) {
+    const [head] = [...pass.members].sort((a, b) => a.index - b.index);
+    const id = `${head.row.id}-plus-${pass.members.length - 1}`;
+    if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
+    const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues }));
+    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', blocks: members });
+    for (const m of pass.members) if (m !== head) replaced.set(m.index, null);
+    note(`packed ${members.map((m) => m.id).join(', ')} into ${id} (${pass.loc} lines)\n`);
+  }
+  const plans = args.plans.flatMap((row, i) => (replaced.has(i) ? (replaced.get(i) ? [replaced.get(i)] : []) : [row]));
+  return { ...args, plans };
+}
+
+function runArgs(argv, note) {
+  // Input — each flag takes the argument after it
+  const flags = {};
+  const paths = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (!argv[i].startsWith('--')) { paths.push(argv[i]); continue; }
+    if (!['--expect', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
+    flags[argv[i]] = argv[++i];
+  }
+  const cap = flags['--loc-cap'] === undefined ? DEFAULT_LOC_CAP : Number(flags['--loc-cap']);
+  if (!paths.length || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
+  const expect = flags['--expect'] ?? null;
+  const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+  const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
+  const plans = paths.map(loadPlan);
+
+  // Process — every file is folded in memory first, so a fault in the LAST file still writes none.
+  if (expect && !records.some((r) => r.runId === expect)) {
+    throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
+  }
+  const folded = plans.map((p) => foldRecords(p, records, note));
+  const merged = mergeArgs(folded);
+  const args = flags['--pack'] ? packPasses(merged, folded, flags['--pack'], cap, note) : merged;
 
   // Output
-  for (const f of changed) writeFileSync(f.path, f.text);
-  if (!changed.length) return `nothing to change: ${edits.length} edit(s) across ${files.length} file(s) already applied\n`;
-  return changed.map((f) => `synced ${f.count} edit(s) in ${f.path}\n`).join('');
+  for (const [i, f] of folded.entries()) if (f.text !== plans[i].text) writeFileSync(f.path, f.text);
+  return `${JSON.stringify(args, null, 2)}\n`;
 }
 
 // =============================================================================
 // CLI
 // =============================================================================
 
-export function run(argv) {
+export function run(argv, note = (line) => process.stderr.write(line)) {
   const [command, ...rest] = argv;
   if (command === 'set') return runSet(rest);
   if (command === 'move') return runMove(rest);
-  if (command === 'sync') return runSync(rest);
+  if (command === 'args') return runArgs(rest, note);
   throw new Error(USAGE);
 }
 

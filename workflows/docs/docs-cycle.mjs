@@ -49,16 +49,8 @@ if (!A.root) {
 
 const RUN_ID      = A.runId;
 const TARGET      = A.target ?? {};                         // { repo, lang, framework } — OPTIONAL (for repo sources)
-// A non-numeric bound must THROW, never coerce. `round < 'three'` is false on the first test, so the
-// round loop would never run and the engine would hand back a zero-agent run as an ordinary result. The
-// same coercion silently turned a bad `fidelitySample` into 0 — which reads as "spot-check disabled" and
-// leaves the verbatim promise asserted but never tested. A documented default is not a licence to accept
-// garbage.
-// Nothing is COERCED: `Number(false)`, `Number('')` and `Number([])` are all 0 and all finite. That
-// matters most for `fidelitySample`, where 0 is a LEGAL value meaning "spot-check disabled" — so a
-// coercing check turned `fidelitySample: ''` into a silently untested verbatim promise, which is the
-// exact failure this guard exists to stop. The message leads with a STATIC clause because
-// tools/gen-flows.mjs labels a throw node with the first clause of its static prefix.
+// Static lead clause: gen-flows labels the throw node from it. No coercion: Number('') is a finite 0,
+// and fidelitySample: 0 is legal (spot-check off), so a coerced '' would silently skip the spot-check.
 const num = (v, name, min, dflt, max = 1_000_000) => {
   if (v === undefined || v === null) return dflt;
   if (typeof v !== 'number' || !Number.isFinite(v) || v < min || v > max) {

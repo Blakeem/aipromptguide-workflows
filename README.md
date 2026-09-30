@@ -36,7 +36,7 @@ it fits**, that's investigate. The tell is whether missing a requirement is a tr
 disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**:
-the fifteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
+the sixteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
 agents).
 
 **The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal
@@ -150,6 +150,28 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-09-26
+
+- **Statuses reach the plan file on their own.** `plan-edit.mjs args <plan>` is the step before every
+  develop launch. It applies the statuses of every finished develop run from the run records Claude
+  Code keeps, then prints develop's args. This works for a run that failed or was stopped too, and the
+  `sync` command is gone.
+- **Small fix blocks share one pass.** `plan-edit.mjs args --pack <repo>` groups triaged issue files
+  into passes of up to 5000 lines of touched code, so one developer, one reviewer and one verifier build
+  several small blocks. Each block keeps its own file and statuses.
+- **enhance rejects a proposal whose risk outweighs it**, and counts them in `summary.tooRisky`.
+- **Prompt snapshots.** `tests/snapshots/<engine>.prompts.md` holds every distinct prompt each engine
+  sends, so a prompt change shows in the diff under every mode and round it reaches.
+- **`tools/freeze-notes.mjs`** copies an engine for a live test in which every agent reports what in
+  the workflow was unclear or wasteful. It now reaches every agent, including brainstorm's.
+- **A question for the user no longer stops an unordered develop run.** The block is parked and marked
+  `blocked`, and the remaining blocks continue. An ordered run still stops there.
+- **Launch every workflow from a notification turn.** Claude Code copies the launching turn's user
+  message into every agent's prompt, so a run is now launched in the turn a background pre-launch
+  command's notification starts. develop's sweep runs on opus for the same reason.
+- **refine flags a block that relies on text outside itself**, since develop hands each agent only
+  its own block.
+
 ### 2026-09-25
 
 - **`feature`, `migrate` and debug's `resolve` are retired, and [develop](workflows/develop/) replaces
@@ -160,16 +182,15 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **`gauntlet` is retired** with no successor.
 - **`plan-block.mjs` has one keyword.** `--kind` now fails with a message, and a `## Gate` heading is
   body text. Every block is `## Plan:` with its gate in the preamble.
-- **develop returns `statusSync`, and `plan-edit.mjs sync <result.json>` applies it.** One command now
-  writes every block and issue status a run decided, all or nothing. A fix block that did not land
-  marks its fixed issues `needs-attention`, never `fixed`.
+- **develop returns `statusSync`**, every block and issue status a run decided. A fix block that did
+  not land marks its fixed issues `needs-attention`, never `fixed`.
 - **Section files default to `suite: scoped`**, so a migration's intentionally red suite no longer
   fails a green gate. A `sweep: goal-coverage` file needs a `goal:` line.
 - **develop carries the failure-path tests of the three engines it replaced**, including dead
   reviewers, the plan amendment protocol and fix-mode agent deaths.
 - **develop's acceptance confirms every STALE claim.** A fix block whose developer calls every entry
   stale now goes to acceptance, and a refuted claim never syncs `stale`. A block that passed but was
-  left unstaged syncs `done`, so the documented recovery is to stage it, sync, and relaunch.
+  left unstaged syncs `done`, so the documented recovery is to stage it and relaunch.
 - **debug review keeps every finding.** Distinct findings in one file and category all reach the
   verifier, which folds true duplicates. A dead reviewer or verifier is returned in `failed` and is
   never counted as a clean unit. Colliding unit ids and an invalid `reviewSeverity` fail at launch.

@@ -113,7 +113,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
    `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
-3. **Run `review.mjs`** (`scriptPath` = its absolute path). It writes `issues/<unit>.md` per unit and
+3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
+   "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. Then PRESENT the inventory: read the issue
    files, walk the user through totals by severity/decision, the hot areas, and every NEEDS_USER item
    with its options + recommendation. This is a scoping conversation.
@@ -127,14 +128,13 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 5. **Clean baseline (#4).** Fold any pre-existing local changes into the staged baseline (`git add -A`) or
    stash them. Ask the user which they want *before* starting. Gates must be GREEN.
 6. **Run develop on the issue files** (`../develop/CLAUDE.md`). Each triaged issue file with findings is
-   one fix-mode block: run `node <plan-block.mjs> <issueFile> --list` per file and pass one plans entry
-   per file, each with its own `planPath`. Clean-marker files are not plans and are skipped. A file
-   with no `- decision: ACTIONABLE` entry after triage is not a plan either: set its block
-   `status: skip` (or leave it out). Start with
-   one file to sanity-check cost and quality, then the rest.
-7. **Sync statuses.** Save develop's returned result to `runs/<runId>/develop-result.json`, then run
-   `node tools/plan-edit.mjs sync <that file>`. It writes every block and issue `status:` line develop
-   decided (fixed, stale, needs-attention, or blocked). A SKIPPED issue stays `open`.
+   one fix-mode block. `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>`
+   prints one args object for all of them, with small blocks packed into shared passes. Clean-marker files are not plans, so leave them out. A file with no
+   `- decision: ACTIONABLE` entry after triage is not a plan either: set its block `status: skip` (or
+   leave it out). Start with one file, or `runOnly` naming one block, to sanity-check cost and quality.
+7. **Statuses.** The next `plan-edit.mjs args` over the same files writes every block and issue
+   `status:` line develop decided (fixed, stale, needs-attention, or blocked). A SKIPPED issue stays
+   `open`.
 8. **Verify ground truth yourself:** run the full gates for real, `git diff --cached --stat`, and
    `git status --porcelain` to confirm nothing was left unstaged. Spot-read the riskiest fixes.
 9. **Resume.** `review.mjs`: re-run `gen-units.mjs` with `--issues-dir runs/<runId>/issues` — it joins each
@@ -174,7 +174,7 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
   into `runs/<runId>/gate/`; the issue files live at the run-state root, off every path it is handed,
   and the prompt still forbids reading any inventory/issue file as defense-in-depth.
 - **The issue files are the source of truth for WHAT to fix.** The engines never write them. Only
-  you do, at triage and through `plan-edit.mjs sync` after a develop run.
+  you do, at triage and through `plan-edit.mjs args` before each develop launch.
 
 ## State files (`runs/<runId>/`, outside every repo)
 
