@@ -57,6 +57,14 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   ok(/interrupted develop run's unfinished block, never `git add -A` it/.test(out.haltReason),
     'and an interrupted run\'s block is named as the case never to keep');
 }
+{
+  // A developer that stops on a dirty tree never runs its block command, so it honestly reports
+  // plan_obtained=false. Read first, that halt parks and clears the operator's work.
+  const { out, labels } = await run({ develop: { ...DEV_OK, plan_obtained: false, baseline_dirty_files: 3 }, park: PARK_OK });
+  eq(out.status, 'BLOCKED (working tree was not clean — nothing was built)', 'dirty-baseline outranks plan_obtained=false');
+  ok(!labels.some((l) => l.startsWith('park')), 'did NOT park the operator\'s changes');
+  eq(out.parked.length, 0, 'nothing in parked[]');
+}
 
 section('the clean-baseline guard reads the VALUE, not what Number() makes of it');
 // `Number(undefined)` is NaN and warns, but `Number(null)`, `Number(false)`, `Number('')` and
@@ -472,8 +480,10 @@ section('the `ordered` file key decides whether a parked block stops the run');
   eq(carry.out.status, 'run complete with 1 block(s) parked', 'status counts the parked block');
   ok(/PARKED: block-a/.test(carry.out.followups) && /git apply --3way/.test(carry.out.followups),
     'followups names the parked block and the restore command');
+  ok(/flip it to todo once `plan-edit\.mjs args` has applied this run's statuses, and relaunch it with runOnly/.test(carry.out.followups),
+    'followups says to flip a parked block to todo before a runOnly relaunch, since runOnly selects only todo blocks');
 
-  const stop = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true });
+  const stop =await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...baseArgs, ordered: true });
   ok(stop.labels.includes('park:block-a'), 'the SAME park still runs, so nothing is discarded');
   ok(!stop.labels.some((l) => l.includes('block-b')), 'but block-b never starts');
   eq(stop.out.status, 'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)', 'ordered status');
@@ -514,6 +524,18 @@ section('a developer escalation parks first, then stops an ordered run');
   eq(out.parked[0]?.patch, null, 'no patch path for an empty park');
   ok(/NO patch was written for: block-a/.test(out.followups), 'and followups says nothing was saved');
   ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
+}
+{
+  // An empty diff can still hide `??` files the developer never registered: park copies them, so
+  // "nothing to save" would send the operator past real work.
+  const { out } = await run({
+    develop: { ...DEV_OK, needs_user: true },
+    park: { ...PARK_OK, saved: false, patch_bytes: 0, strays_saved: 2 },
+  }, { ...baseArgs, ordered: true });
+  eq(out.parked[0]?.patch, null, 'no patch path');
+  ok(/new files are SAVED to .*parked-block-a-newfiles\//.test(out.haltReason), `halt reason names the strays dir: ${out.haltReason}`);
+  ok(!/NOTHING to save/.test(out.haltReason), 'and never says there was nothing to save');
+  ok(!/NO patch was written for: block-a/.test(out.followups), 'followups does not list it as an empty park');
 }
 
 section('an unordered run parks a needs-user block and continues');

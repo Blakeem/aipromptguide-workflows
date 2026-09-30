@@ -81,8 +81,10 @@ No mid-run questions — frame it with the user first:
 - **`fidelitySample` (optional, default 3; `0` disables):** after the index is written, the curator
   spot-checks up to N captured files against the source cited in each file's own header (§6). Leave it
   on unless the sources are unreachable — at `0` the verbatim promise is asserted and never tested.
-- **Fresh vs. resume.** A re-run with the same `runId` gathers into and re-curates the same folder; use
-  a new `runId` (or clear the folder) for a genuinely fresh set.
+- **Fresh vs. resume.** A run into a folder that already holds a set (the same `runId` without
+  `outDir`, or the same `outDir` under any `runId`) gathers into and re-curates that set. For a
+  genuinely fresh set, point `outDir` at a new directory or clear the folder. Without `outDir`, a new
+  `runId` also gives a fresh folder.
 
 ## 4. Sources — the doc sets to pull
 

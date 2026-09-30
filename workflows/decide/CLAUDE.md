@@ -152,9 +152,10 @@ Halts only when the decider or reviewer writes a user-only call to `NEEDS-USER.m
 resolve with the user (usually by editing the requirements file), preserve `runs/<runId>/`, re-invoke
 with the same args.
 
-The run can also stop by **throwing**: no analyst produced a lens file, or the decider/reviewer returned
-nothing (agent skipped or died). Re-invoke with the same args/`runId` and pass the `Workflow` tool's
-`resumeFromRunId` to replay completed agents from cache, as the thrown message says.
+The run can also stop by **throwing**. If no analyst produced a lens file, check the requirements and
+lenses and re-run without `resumeFromRunId`. If the decider or reviewer returned nothing (agent skipped
+or died), re-invoke with the same args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to
+replay completed agents from cache, as the thrown message says.
 
 ## 8. Args reference
 

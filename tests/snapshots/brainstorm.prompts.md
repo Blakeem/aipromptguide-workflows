@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| generate | 1 | 1 | 1332 | three lenses |
-| generate | 2 | 1 | 1344 | three lenses |
+| generate | 1 | 1 | 1164 | three lenses |
+| generate | 2 | 1 | 1176 | three lenses |
 
 ## generate · variant 1 · schema 1
 
@@ -15,11 +15,10 @@ this file is stale.
 
 ~~~~text
 
-You are a CREATIVE GENERATOR producing ONE complete variation optimized for a SINGLE lens. This is
-DIVERGENT ideation: commit FULLY to your lens. Do NOT hedge, do NOT compare to other approaches, do NOT
-water it down toward a safe compromise. Other generators are exploring other lenses in parallel and the
-user will compare and combine — so push your lens as far as it sensibly goes. There is no single right
-answer; a bold, coherent take is the goal.
+You are a CREATIVE GENERATOR producing ONE complete variation through a SINGLE lens. This is DIVERGENT
+ideation: commit FULLY to your lens. Do NOT hedge, compare to other approaches, or water it down toward a
+safe compromise. Other generators take other lenses in parallel and the user will compare and combine,
+so push your lens as far as it sensibly goes. A bold, coherent take is the goal.
 
 YOUR LENS: minimalist
 THE BRIEF: read the brief below:
@@ -29,14 +28,14 @@ Design a landing page for a developer tool
 OUTPUT FORMAT: a single self-contained Markdown document.
 
 PROCEDURE:
-1. Produce your COMPLETE variation through your lens — fully realized, not an outline (unless the format
-   IS an outline). Make the lens's influence obvious and concrete in the result.
-2. WRITE it into the folder E:/flow/runs/flow/variations/minimalist/ (create it). Put the main artifact at
-   E:/flow/runs/flow/variations/minimalist/index.<ext> (pick the extension the format implies, e.g. .md/.html); put any
-   supporting files alongside it.
-3. Do NOT review or critique your work, do NOT modify the target repo, do NOT stage or commit. The
-   file(s) in your folder are your ONLY output.
-Return the entry path + a ONE-LINE differentiator via the schema (the full content stays in the file).
+1. Produce the COMPLETE variation, fully realized, not an outline (unless the format IS an outline). Make
+   the lens's influence obvious and concrete.
+2. WRITE it into E:/flow/runs/flow/variations/minimalist/ (create it): the main artifact at
+   E:/flow/runs/flow/variations/minimalist/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
+   files alongside it.
+3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
+   folder are your ONLY output.
+Return the entry path + a ONE-LINE differentiator via the schema.
 ~~~~
 
 ~~~~json
@@ -60,7 +59,7 @@ Return the entry path + a ONE-LINE differentiator via the schema (the full conte
     },
     "summary": {
       "type": "string",
-      "description": "ONE line: what makes THIS variation distinct (for the user's comparison index — NOT the content, which is in the file)"
+      "description": "ONE line: what makes THIS variation distinct (for the user's comparison index, NOT the content)"
     }
   }
 }
@@ -72,11 +71,10 @@ Return the entry path + a ONE-LINE differentiator via the schema (the full conte
 
 ~~~~text
 
-You are a CREATIVE GENERATOR producing ONE complete variation optimized for a SINGLE lens. This is
-DIVERGENT ideation: commit FULLY to your lens. Do NOT hedge, do NOT compare to other approaches, do NOT
-water it down toward a safe compromise. Other generators are exploring other lenses in parallel and the
-user will compare and combine — so push your lens as far as it sensibly goes. There is no single right
-answer; a bold, coherent take is the goal.
+You are a CREATIVE GENERATOR producing ONE complete variation through a SINGLE lens. This is DIVERGENT
+ideation: commit FULLY to your lens. Do NOT hedge, compare to other approaches, or water it down toward a
+safe compromise. Other generators take other lenses in parallel and the user will compare and combine,
+so push your lens as far as it sensibly goes. A bold, coherent take is the goal.
 
 YOUR LENS: bold editorial
 THE BRIEF: read the brief below:
@@ -86,14 +84,14 @@ Design a landing page for a developer tool
 OUTPUT FORMAT: a single self-contained Markdown document.
 
 PROCEDURE:
-1. Produce your COMPLETE variation through your lens — fully realized, not an outline (unless the format
-   IS an outline). Make the lens's influence obvious and concrete in the result.
-2. WRITE it into the folder E:/flow/runs/flow/variations/bold-editorial/ (create it). Put the main artifact at
-   E:/flow/runs/flow/variations/bold-editorial/index.<ext> (pick the extension the format implies, e.g. .md/.html); put any
-   supporting files alongside it.
-3. Do NOT review or critique your work, do NOT modify the target repo, do NOT stage or commit. The
-   file(s) in your folder are your ONLY output.
-Return the entry path + a ONE-LINE differentiator via the schema (the full content stays in the file).
+1. Produce the COMPLETE variation, fully realized, not an outline (unless the format IS an outline). Make
+   the lens's influence obvious and concrete.
+2. WRITE it into E:/flow/runs/flow/variations/bold-editorial/ (create it): the main artifact at
+   E:/flow/runs/flow/variations/bold-editorial/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
+   files alongside it.
+3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
+   folder are your ONLY output.
+Return the entry path + a ONE-LINE differentiator via the schema.
 ~~~~
 
 ~~~~json
@@ -117,7 +115,7 @@ Return the entry path + a ONE-LINE differentiator via the schema (the full conte
     },
     "summary": {
       "type": "string",
-      "description": "ONE line: what makes THIS variation distinct (for the user's comparison index — NOT the content, which is in the file)"
+      "description": "ONE line: what makes THIS variation distinct (for the user's comparison index, NOT the content)"
     }
   }
 }

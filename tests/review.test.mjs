@@ -19,6 +19,16 @@ const finding = (extra) => ({ file: 'a.js', line: '1', severity: 'high', title: 
 const NO_FINDINGS = { wrote_clean_marker: false, findings: [] };
 const catsOf  = (call) => call.opts.schema?.properties?.findings?.items?.properties?.category?.enum;
 
+section('only a lens whose categories include convention is told to file convention findings');
+// A lens enum without 'convention' would make the reviewer emit a category its schema rejects.
+{
+  const MAP = "File deviations from CONVENTIONS as 'convention' findings.";
+  const { calls } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, { id: 'base' }] }] }, { 'review': NO_FINDINGS });
+  ok(!calls[0].prompt.includes(MAP), 'a lens enum without convention carries no convention mapping');
+  ok(calls[1].prompt.includes(MAP), 'the base enum keeps it');
+  ok(calls.every((c) => c.prompt.includes('CONVENTIONS (judge against these):')), 'the shared rubric line names no category');
+}
+
 section('a lens array spawns one reviewer per lens and exactly ONE verifier');
 {
   const { out, calls, logs, byLabel, prompt } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {

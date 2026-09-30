@@ -6,12 +6,12 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| gather | 1 | 1 | 1515 | two sources, one round |
-| gather | 2 | 1 | 1515 | two sources, one round |
-| scrub | 1 | 1 | 1347 | two sources, one round |
-| curate | 1 | 1 | 3961 | two sources, one round |
-| gather | 3 | 1 | 1522 | gap-fill round |
-| curate | 2 | 1 | 4143 | gap-fill round |
+| gather | 1 | 1 | 1391 | two sources, one round |
+| gather | 2 | 1 | 1391 | two sources, one round |
+| scrub | 1 | 1 | 1285 | two sources, one round |
+| curate | 1 | 1 | 3422 | two sources, one round |
+| gather | 3 | 1 | 1398 | gap-fill round |
+| curate | 2 | 1 | 3891 | gap-fill round |
 
 ## gather · variant 1 · schema 1
 
@@ -19,27 +19,27 @@ this file is stale.
 
 ~~~~text
 
-You are a DOC GATHERER building a local documentation set for a coding LLM. You capture; you do not
-author. Cover YOUR source thoroughly; other gatherers cover the others.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are a DOC GATHERER building a local documentation set for a coding LLM. Cover YOUR source
+thoroughly; other gatherers cover the others.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 YOUR SOURCE: the official payments API reference (v2)
-KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (primary sources over blogs/forums; an external API means its official reference). One file per page/topic.
+KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.
 
 PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
-2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/api-reference/ (create it) — one kebab-case .md file per
-   page/topic, each with its source header, code examples whole.
-Return files_written + skipped via the schema (the docs themselves are the files).
+2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/api-reference/ (create it): one kebab-case .md file per
+   page/topic, each with its source header.
+Return files_written + skipped via the schema.
 ~~~~
 
 ~~~~json
@@ -55,7 +55,7 @@ Return files_written + skipped via the schema (the docs themselves are the files
     },
     "skipped": {
       "type": "integer",
-      "description": "pages/sections judged irrelevant to the brief and not captured (0 if none)"
+      "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
     }
   }
 }
@@ -67,27 +67,27 @@ Return files_written + skipped via the schema (the docs themselves are the files
 
 ~~~~text
 
-You are a DOC GATHERER building a local documentation set for a coding LLM. You capture; you do not
-author. Cover YOUR source thoroughly; other gatherers cover the others.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are a DOC GATHERER building a local documentation set for a coding LLM. Cover YOUR source
+thoroughly; other gatherers cover the others.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 YOUR SOURCE: the v2 release notes and migration guide
-KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (primary sources over blogs/forums; an external API means its official reference). One file per page/topic.
+KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.
 
 PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
-2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/release-notes/ (create it) — one kebab-case .md file per
-   page/topic, each with its source header, code examples whole.
-Return files_written + skipped via the schema (the docs themselves are the files).
+2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/release-notes/ (create it): one kebab-case .md file per
+   page/topic, each with its source header.
+Return files_written + skipped via the schema.
 ~~~~
 
 ~~~~json
@@ -103,7 +103,7 @@ Return files_written + skipped via the schema (the docs themselves are the files
     },
     "skipped": {
       "type": "integer",
-      "description": "pages/sections judged irrelevant to the brief and not captured (0 if none)"
+      "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
     }
   }
 }
@@ -115,17 +115,17 @@ Return files_written + skipped via the schema (the docs themselves are the files
 
 ~~~~text
 
-You are a DOC SCRUBBER making freshly captured docs clean reading for a coding LLM. Edit every .md file
-in E:/flow/runs/flow/docs/api-reference/ IN PLACE — remove junk, change no words.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are a DOC SCRUBBER cleaning freshly captured docs for a coding LLM. Edit every .md file in
+E:/flow/runs/flow/docs/api-reference/ IN PLACE.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 DELETE ONLY capture junk: leftover navigation/menu/breadcrumb fragments, cookie/consent banners,
 feedback/share/"was this helpful" widgets, marketing blocks, broken image/link remnants, stray HTML tags,
@@ -156,53 +156,49 @@ Return files_cleaned via the schema.
 
 ~~~~text
 
-You are the CURATOR of the documentation set at E:/flow/runs/flow/docs — its librarian, not its author. Read every
-file, then make the folder the best working set for a coding LLM on this brief.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are the CURATOR of the documentation set at E:/flow/runs/flow/docs. Read every file, then make the folder the
+best working set for a coding LLM on this brief.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 
-YOUR FOLDER: E:/flow/runs/flow/docs is a dedicated, engine-owned directory for THIS doc set. Everything in it is
-either a capture this run's gatherers made from its sources, or a file you yourself wrote. Inside it you
-have FULL delete authority — delete freely to serve the brief; whole-set judgment is what makes
-cross-source dedup and re-curation work.
-SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER of those two
-things — no source header and unrelated to any source, hand-authored notes, an unrelated project's docs
-— then the operator pointed the engine at a folder that is not dedicated to this set. Do NOT delete,
-move, split, or rewrite that content: leave it exactly as it is, list its paths under Coverage notes,
-and return foreign_content=true with foreign_paths. Everything else stays under your full authority.
+YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a capture this run's
+gatherers made from its sources, or a file you yourself wrote. Inside it you have FULL delete authority:
+delete freely to serve the brief.
+SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER (no source header
+and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
+dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
+list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
+stays under your full authority.
 
 JOBS (in order):
-1. ORGANIZE — consistent kebab-case names, grouped by topic; SPLIT any file too big for one focused read
-   at heading boundaries (move the text verbatim; carry the source header into every part); DELETE files
-   and sections the brief does not need, and exact duplicates (keep the more authoritative source).
+1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+   at heading boundaries, carrying the source header into every part. DELETE files and sections the
+   brief does not need, and exact duplicates (keep the more authoritative source).
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write E:/flow/runs/flow/docs/INDEX.md: one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
-4. FIDELITY SPOT-CHECK — LAST, after the index is written (the curated set must already be safe on
-   disk). The whole set's value is that it is the source's OWN WORDS; nothing has tested that yet, so
-   test it on a sample instead of asserting it. Pick up to 3 captured file(s), preferring in
-   this order: any file that read as paraphrase/summary or lacks a source header; files captured from a
-   repo/local path (the cited path is a local read — exact and nearly free); then the largest and least
-   official web files. For each, open the source cited in its OWN header and compare ONE substantive
-   passage word for word — a code block, or a parameter/field table.
-   A passage that has been reworded, condensed, or reordered is a FAILURE: name the file + the source in
-   Coverage notes and return it as a { kind, focus } recapture gap.
-   If a source cannot be reached (no web access, path gone) do NOT guess and do NOT fail: skip it, leave
-   it out of the count, and say so in Coverage notes — fidelity_checked: 0 is a valid, honest answer.
-   Return fidelity_checked + fidelity_failures.
+4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   source's OWN WORDS. Pick up to 3 captured file(s), preferring first any file that reads as
+   paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
+   nearly free local read), then the largest and least official web files. For each, open the source
+   cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
+   table) word for word.
+   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
+   notes and return it as a { kind, focus } recapture gap.
+   If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
+   it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
 Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps — ONLY gaps a fresh gather could actually
-fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
+fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).
 ~~~~
 
 ~~~~json
@@ -234,15 +230,15 @@ fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
     },
     "fidelity_checked": {
       "type": "integer",
-      "description": "files you compared against their cited source — 0 is a valid answer (source unreachable / nothing checkable); say so in Coverage notes"
+      "description": "files you compared against their cited source (0 is valid)"
     },
     "fidelity_failures": {
       "type": "integer",
-      "description": "of those, how many were paraphrase/summary rather than a verbatim copy (0 if none) — each also returned as a recapture gap"
+      "description": "of those, how many were not a verbatim copy (0 if none), each also returned as a recapture gap"
     },
     "foreign_content": {
       "type": "boolean",
-      "description": "true ONLY if the out dir holds content that is neither a capture from this run's sources nor a file you wrote — i.e. it is not a dedicated directory for this doc set. You must NOT delete that content"
+      "description": "true ONLY if the out dir holds content that is neither a capture from this run's sources nor a file you wrote. You must NOT delete that content"
     },
     "foreign_paths": {
       "type": "array",
@@ -250,7 +246,7 @@ fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
       "items": {
         "type": "string"
       },
-      "description": "paths of that content, so the operator can move it; [] when foreign_content is false"
+      "description": "paths of that content ([] when foreign_content is false)"
     },
     "gaps": {
       "type": "array",
@@ -288,27 +284,27 @@ fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
 
 ~~~~text
 
-You are a DOC GATHERER building a local documentation set for a coding LLM. You capture; you do not
-author. Cover YOUR source thoroughly; other gatherers cover the others.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are a DOC GATHERER building a local documentation set for a coding LLM. Cover YOUR source
+thoroughly; other gatherers cover the others.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 YOUR SOURCE: webhook signature verification
-KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (primary sources over blogs/forums; an external API means its official reference). One file per page/topic.
+KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.
 
 PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
-2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/webhook-signature-verification/ (create it) — one kebab-case .md file per
-   page/topic, each with its source header, code examples whole.
-Return files_written + skipped via the schema (the docs themselves are the files).
+2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/webhook-signature-verification/ (create it): one kebab-case .md file per
+   page/topic, each with its source header.
+Return files_written + skipped via the schema.
 ~~~~
 
 ~~~~json
@@ -324,7 +320,7 @@ Return files_written + skipped via the schema (the docs themselves are the files
     },
     "skipped": {
       "type": "integer",
-      "description": "pages/sections judged irrelevant to the brief and not captured (0 if none)"
+      "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
     }
   }
 }
@@ -336,55 +332,54 @@ Return files_written + skipped via the schema (the docs themselves are the files
 
 ~~~~text
 
-You are the CURATOR of the documentation set at E:/flow/runs/flow/docs — its librarian, not its author. Read every
-file, then make the folder the best working set for a coding LLM on this brief.
-PROJECT BRIEF (what the docs are FOR — it decides what is relevant): the brief below:
+You are the CURATOR of the documentation set at E:/flow/runs/flow/docs. Read every file, then make the folder the
+best working set for a coding LLM on this brief.
+PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
 -----
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
-This is curate round 2: the set was already curated + indexed once, then gap-fill
-gathers added files. Re-read the whole set, integrate the new files, and rewrite the index in full.
+This is curate round 2: gap-fill gathers added files to the already curated +
+indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. Before you
+rewrite it, READ the previous E:/flow/runs/flow/docs/INDEX.md: its Coverage notes name each file an earlier round returned
+as a recapture gap (a failed fidelity check or a wrong version). Once a gap-fill file recaptures that
+source, DELETE the superseded file and drop it from the index.
 
-YOUR FOLDER: E:/flow/runs/flow/docs is a dedicated, engine-owned directory for THIS doc set. Everything in it is
-either a capture this run's gatherers made from its sources, or a file you yourself wrote. Inside it you
-have FULL delete authority — delete freely to serve the brief; whole-set judgment is what makes
-cross-source dedup and re-curation work.
-SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER of those two
-things — no source header and unrelated to any source, hand-authored notes, an unrelated project's docs
-— then the operator pointed the engine at a folder that is not dedicated to this set. Do NOT delete,
-move, split, or rewrite that content: leave it exactly as it is, list its paths under Coverage notes,
-and return foreign_content=true with foreign_paths. Everything else stays under your full authority.
+YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a capture this run's
+gatherers made from its sources, or a file you yourself wrote. Inside it you have FULL delete authority:
+delete freely to serve the brief.
+SAFETY CATCH: if you nonetheless find content under E:/flow/runs/flow/docs that is clearly NEITHER (no source header
+and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
+dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
+list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
+stays under your full authority.
 
 JOBS (in order):
-1. ORGANIZE — consistent kebab-case names, grouped by topic; SPLIT any file too big for one focused read
-   at heading boundaries (move the text verbatim; carry the source header into every part); DELETE files
-   and sections the brief does not need, and exact duplicates (keep the more authoritative source).
+1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+   at heading boundaries, carrying the source header into every part. DELETE files and sections the
+   brief does not need, and exact duplicates (keep the more authoritative source).
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write E:/flow/runs/flow/docs/INDEX.md: one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
-4. FIDELITY SPOT-CHECK — LAST, after the index is written (the curated set must already be safe on
-   disk). The whole set's value is that it is the source's OWN WORDS; nothing has tested that yet, so
-   test it on a sample instead of asserting it. Pick up to 3 captured file(s), preferring in
-   this order: any file that read as paraphrase/summary or lacks a source header; files captured from a
-   repo/local path (the cited path is a local read — exact and nearly free); then the largest and least
-   official web files. For each, open the source cited in its OWN header and compare ONE substantive
-   passage word for word — a code block, or a parameter/field table.
-   A passage that has been reworded, condensed, or reordered is a FAILURE: name the file + the source in
-   Coverage notes and return it as a { kind, focus } recapture gap.
-   If a source cannot be reached (no web access, path gone) do NOT guess and do NOT fail: skip it, leave
-   it out of the count, and say so in Coverage notes — fidelity_checked: 0 is a valid, honest answer.
-   Return fidelity_checked + fidelity_failures.
+4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   source's OWN WORDS. Pick up to 3 captured file(s), preferring first any file that reads as
+   paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
+   nearly free local read), then the largest and least official web files. For each, open the source
+   cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
+   table) word for word.
+   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
+   notes and return it as a { kind, focus } recapture gap.
+   If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
+   it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
 Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps — ONLY gaps a fresh gather could actually
-fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
+fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).
 ~~~~
 
 ~~~~json
@@ -416,15 +411,15 @@ fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
     },
     "fidelity_checked": {
       "type": "integer",
-      "description": "files you compared against their cited source — 0 is a valid answer (source unreachable / nothing checkable); say so in Coverage notes"
+      "description": "files you compared against their cited source (0 is valid)"
     },
     "fidelity_failures": {
       "type": "integer",
-      "description": "of those, how many were paraphrase/summary rather than a verbatim copy (0 if none) — each also returned as a recapture gap"
+      "description": "of those, how many were not a verbatim copy (0 if none), each also returned as a recapture gap"
     },
     "foreign_content": {
       "type": "boolean",
-      "description": "true ONLY if the out dir holds content that is neither a capture from this run's sources nor a file you wrote — i.e. it is not a dedicated directory for this doc set. You must NOT delete that content"
+      "description": "true ONLY if the out dir holds content that is neither a capture from this run's sources nor a file you wrote. You must NOT delete that content"
     },
     "foreign_paths": {
       "type": "array",
@@ -432,7 +427,7 @@ fix, each { kind, focus } actionable on its own ([] when coverage is adequate).
       "items": {
         "type": "string"
       },
-      "description": "paths of that content, so the operator can move it; [] when foreign_content is false"
+      "description": "paths of that content ([] when foreign_content is false)"
     },
     "gaps": {
       "type": "array",

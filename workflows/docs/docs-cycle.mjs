@@ -110,8 +110,8 @@ const usedIds = new Set(SOURCES.map((s) => s.id));
 
 // Per-kind how-to-capture guidance handed to the gatherer (the only thing that varies by kind).
 const KIND_GUIDE = {
-  web:   'Fetch the OFFICIAL documentation pages for the version in scope (primary sources over blogs/forums; an external API means its official reference). One file per page/topic.',
-  repo:  `Copy the relevant docs/READMEs/reference material from the repo at ${REPO || '(no repo configured — this source needs target.repo)'} — READ-ONLY; cite the file path (and line range for extracts) in each header.`,
+  web:   'Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.',
+  repo:  `Copy the relevant docs/READMEs/reference material from the repo at ${REPO || '(no repo configured — this source needs target.repo)'}, READ-ONLY. Cite the file path (and line range for extracts) in each header.`,
   files: 'Copy from the local doc set the focus names; cite each source file path in the header.',
 };
 
@@ -124,7 +124,7 @@ const GATHER_SCHEMA = {
   required: ['files_written'],
   properties: {
     files_written: { type: 'integer', description: 'doc files you created under your source directory' },
-    skipped:       { type: 'integer', description: 'pages/sections judged irrelevant to the brief and not captured (0 if none)' },
+    skipped:       { type: 'integer', description: 'pages/sections skipped as irrelevant to the brief (0 if none)' },
   },
 };
 
@@ -144,10 +144,10 @@ const CURATE_SCHEMA = {
     files:           { type: 'integer', description: 'doc files in the final set (excluding INDEX.md)' },
     deleted:         { type: 'integer', description: 'files/sections removed as irrelevant or duplicate (0 if none)' },
     inconsistencies: { type: 'integer', description: 'cross-source conflicts recorded in Coverage notes' },
-    fidelity_checked:  { type: 'integer', description: 'files you compared against their cited source — 0 is a valid answer (source unreachable / nothing checkable); say so in Coverage notes' },
-    fidelity_failures: { type: 'integer', description: 'of those, how many were paraphrase/summary rather than a verbatim copy (0 if none) — each also returned as a recapture gap' },
-    foreign_content:   { type: 'boolean', description: 'true ONLY if the out dir holds content that is neither a capture from this run\'s sources nor a file you wrote — i.e. it is not a dedicated directory for this doc set. You must NOT delete that content' },
-    foreign_paths:     { type: 'array', maxItems: 20, items: { type: 'string' }, description: 'paths of that content, so the operator can move it; [] when foreign_content is false' },
+    fidelity_checked:  { type: 'integer', description: 'files you compared against their cited source (0 is valid)' },
+    fidelity_failures: { type: 'integer', description: 'of those, how many were not a verbatim copy (0 if none), each also returned as a recapture gap' },
+    foreign_content:   { type: 'boolean', description: 'true ONLY if the out dir holds content that is neither a capture from this run\'s sources nor a file you wrote. You must NOT delete that content' },
+    foreign_paths:     { type: 'array', maxItems: 20, items: { type: 'string' }, description: 'paths of that content ([] when foreign_content is false)' },
     gaps: {
       type: 'array',
       maxItems: 6,
@@ -167,12 +167,12 @@ const CURATE_SCHEMA = {
 // =============================================================================
 // Shared fragment + role prompts
 // =============================================================================
-const ENV = `PROJECT BRIEF (what the docs are FOR — it decides what is relevant): ${B_REF}
+const ENV = `PROJECT BRIEF (what the docs are FOR, so it decides relevance): ${B_REF}
 VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
 Converting HTML to clean markdown is fine (keep headings, tables, and code blocks whole); changing the
-words is not. Brevity comes from leaving irrelevant content OUT (subtraction), never from compressing
-what you keep. Every doc file starts with a source header: source (URL, or file path/range, or
-doc#section), version, retrieval date.
+words is not. Brevity comes from leaving irrelevant content OUT, never from compressing what you keep.
+Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
+retrieval date.
 Write ONLY inside ${OUT_DIR}; do NOT touch any repo, stage, or commit.`;
 
 // The testbed may carry a credential — least-privilege: it is handed ONLY to the roles that verify
@@ -180,13 +180,12 @@ Write ONLY inside ${OUT_DIR}; do NOT touch any repo, stage, or commit.`;
 const TESTBED_ENV = TESTBED ? `
 TESTBED — verify claims EMPIRICALLY where you can: ${TESTBED}
 Claims from NON-OFFICIAL sources (forums, blogs, Q&A) are hypotheses: verify each against the testbed
-BEFORE recording it, and record the exact command + response excerpt VERBATIM next to the claim — a
-measurement beats an argument, and it lets the next reader re-run it. What you cannot verify, mark
-UNVERIFIED or leave out. Official docs are captured as-is. Treat the testbed strictly READ-ONLY.` : '';
+BEFORE recording it, and record the exact command + response excerpt VERBATIM next to the claim. What
+you cannot verify, mark UNVERIFIED or leave out. Official docs are captured as-is. Treat the testbed strictly READ-ONLY.` : '';
 
 const gatherPrompt = (src) => `
-You are a DOC GATHERER building a local documentation set for a coding LLM. You capture; you do not
-author. Cover YOUR source thoroughly; other gatherers cover the others.
+You are a DOC GATHERER building a local documentation set for a coding LLM. Cover YOUR source
+thoroughly; other gatherers cover the others.
 ${ENV}${TESTBED_ENV}
 YOUR SOURCE: ${src.focus}
 KIND: ${src.kind} — ${KIND_GUIDE[src.kind] || KIND_GUIDE.web}
@@ -194,13 +193,13 @@ KIND: ${src.kind} — ${KIND_GUIDE[src.kind] || KIND_GUIDE.web}
 PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
-2. Copy what you keep VERBATIM into ${OUT_DIR}/${src.id}/ (create it) — one kebab-case .md file per
-   page/topic, each with its source header, code examples whole.
-Return files_written + skipped via the schema (the docs themselves are the files).`;
+2. Copy what you keep VERBATIM into ${OUT_DIR}/${src.id}/ (create it): one kebab-case .md file per
+   page/topic, each with its source header.
+Return files_written + skipped via the schema.`;
 
 const scrubPrompt = (src) => `
-You are a DOC SCRUBBER making freshly captured docs clean reading for a coding LLM. Edit every .md file
-in ${OUT_DIR}/${src.id}/ IN PLACE — remove junk, change no words.
+You are a DOC SCRUBBER cleaning freshly captured docs for a coding LLM. Edit every .md file in
+${OUT_DIR}/${src.id}/ IN PLACE.
 ${ENV}
 DELETE ONLY capture junk: leftover navigation/menu/breadcrumb fragments, cookie/consent banners,
 feedback/share/"was this helpful" widgets, marketing blocks, broken image/link remnants, stray HTML tags,
@@ -210,45 +209,44 @@ the curator judges relevance.
 Return files_cleaned via the schema.`;
 
 const curatePrompt = (round) => `
-You are the CURATOR of the documentation set at ${OUT_DIR} — its librarian, not its author. Read every
-file, then make the folder the best working set for a coding LLM on this brief.
+You are the CURATOR of the documentation set at ${OUT_DIR}. Read every file, then make the folder the
+best working set for a coding LLM on this brief.
 ${ENV}${TESTBED_ENV}
-${round > 1 ? `This is curate round ${round}: the set was already curated + indexed once, then gap-fill
-gathers added files. Re-read the whole set, integrate the new files, and rewrite the index in full.\n` : ''}
-YOUR FOLDER: ${OUT_DIR} is a dedicated, engine-owned directory for THIS doc set. Everything in it is
-either a capture this run's gatherers made from its sources, or a file you yourself wrote. Inside it you
-have FULL delete authority — delete freely to serve the brief; whole-set judgment is what makes
-cross-source dedup and re-curation work.
-SAFETY CATCH: if you nonetheless find content under ${OUT_DIR} that is clearly NEITHER of those two
-things — no source header and unrelated to any source, hand-authored notes, an unrelated project's docs
-— then the operator pointed the engine at a folder that is not dedicated to this set. Do NOT delete,
-move, split, or rewrite that content: leave it exactly as it is, list its paths under Coverage notes,
-and return foreign_content=true with foreign_paths. Everything else stays under your full authority.
+${round > 1 ? `This is curate round ${round}: gap-fill gathers added files to the already curated +
+indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. Before you
+rewrite it, READ the previous ${INDEX_FILE}: its Coverage notes name each file an earlier round returned
+as a recapture gap (a failed fidelity check or a wrong version). Once a gap-fill file recaptures that
+source, DELETE the superseded file and drop it from the index.\n` : ''}
+YOUR FOLDER: ${OUT_DIR} is dedicated to THIS doc set. Everything in it is either a capture this run's
+gatherers made from its sources, or a file you yourself wrote. Inside it you have FULL delete authority:
+delete freely to serve the brief.
+SAFETY CATCH: if you nonetheless find content under ${OUT_DIR} that is clearly NEITHER (no source header
+and unrelated to any source, hand-authored notes, an unrelated project's docs), the folder is not
+dedicated to this set. Do NOT delete, move, split, or rewrite that content: leave it exactly as it is,
+list its paths under Coverage notes, and return foreign_content=true with foreign_paths. Everything else
+stays under your full authority.
 
 JOBS (in order):
-1. ORGANIZE — consistent kebab-case names, grouped by topic; SPLIT any file too big for one focused read
-   at heading boundaries (move the text verbatim; carry the source header into every part); DELETE files
-   and sections the brief does not need, and exact duplicates (keep the more authoritative source).
+1. ORGANIZE: consistent kebab-case names, grouped by topic. SPLIT any file too big for one focused read
+   at heading boundaries, carrying the source header into every part. DELETE files and sections the
+   brief does not need, and exact duplicates (keep the more authoritative source).
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write ${INDEX_FILE}: one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
-${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK — LAST, after the index is written (the curated set must already be safe on
-   disk). The whole set's value is that it is the source's OWN WORDS; nothing has tested that yet, so
-   test it on a sample instead of asserting it. Pick up to ${FIDELITY_N} captured file(s), preferring in
-   this order: any file that read as paraphrase/summary or lacks a source header; files captured from a
-   repo/local path (the cited path is a local read — exact and nearly free); then the largest and least
-   official web files. For each, open the source cited in its OWN header and compare ONE substantive
-   passage word for word — a code block, or a parameter/field table.
-   A passage that has been reworded, condensed, or reordered is a FAILURE: name the file + the source in
-   Coverage notes and return it as a { kind, focus } recapture gap.
-   If a source cannot be reached (no web access, path gone) do NOT guess and do NOT fail: skip it, leave
-   it out of the count, and say so in Coverage notes — fidelity_checked: 0 is a valid, honest answer.
-   Return fidelity_checked + fidelity_failures.
-` : `Fidelity spot-checking is disabled for this run (fidelitySample: 0) — return fidelity_checked: 0.\n`}Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps — ONLY gaps a fresh gather could actually
-fix, each { kind, focus } actionable on its own ([] when coverage is adequate).`;
+${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
+   source's OWN WORDS. Pick up to ${FIDELITY_N} captured file(s), preferring first any file that reads as
+   paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
+   nearly free local read), then the largest and least official web files. For each, open the source
+   cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
+   table) word for word.
+   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
+   notes and return it as a { kind, focus } recapture gap.
+   If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
+   it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
+` : `Fidelity spot-checking is disabled for this run: return fidelity_checked: 0.\n`}Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
+fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).`;
 
 // =============================================================================
 // [GATHER → SCRUB] ⇄ CURATE — gather→scrub pipelines per source (a source is scrubbed as soon as its

@@ -153,6 +153,26 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-09-30
+
+- **Leaner prompts.** Each engine's agent prompts are 6 to 14 percent shorter, and so are the skill
+  descriptions Claude keeps loaded. The concision pass changed no rule.
+- **docs drops a superseded recapture.** The round-2 curator reads the previous `INDEX.md`. When a
+  gap-fill file recaptures a flagged source, the curator deletes the superseded file and drops it from
+  the index.
+- **A parked block's resume step names the status flip.** Park's note and develop's followups tell you
+  to flip the block to todo before you relaunch it with runOnly. runOnly selects only todo blocks.
+- **A dirty tree at launch never parks your edits.** develop now checks for a clean tree before it
+  checks the plan. Before, a developer that stopped at the tree check was reported as unable to read its
+  plan, and park moved your own edits into a patch.
+- **Park leaves a clean tree.** It saves a block's new files even when the block changed no tracked
+  file, and it removes `git add -N` entries along with their files.
+- **investigate reports a verified no-solution as one.** A no-solution that rests on criteria nothing
+  can meet no longer ends as blocked on you.
+- **The plugin grant follows links.** When the plugin folder is reached through a link,
+  `plugin-access.mjs` adds a rule for both paths. A skill skips the question when its working directory
+  is the plugin folder or a folder that contains it.
+
 ### 2026-09-29
 
 - **Installed skills launch their engines from any project.** Before this, a skill run outside this

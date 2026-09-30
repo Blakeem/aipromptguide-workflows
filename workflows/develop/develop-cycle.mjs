@@ -237,14 +237,13 @@ const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-g
 
 // Settled decisions, never prior reviews, which would anchor them (#5). canContest=true is the blind
 // reviewer: the contest channel and DISMISSED alone (see GATE_DIR). Acceptance overrides instead.
-const SETTLED = (id, canContest = true, round = 0) => `Before reviewing, READ ${canContest ? 'this if it exists — it is' : 'these if they exist — they are'} the settled decisions, so you do
-NOT re-raise what is already closed:
+const SETTLED = (id, canContest = true, round = 0) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.${round === 1 ? `
-    In round 1 it exists only if the developer already declined something this block (or on a resume);
-    a missing file means nothing is settled yet, so do not search for it elsewhere.` : ''}${canContest ? '' : `
+    In round 1 it exists only if the developer already declined something (or on a resume). A missing
+    file means nothing is settled yet, so do not search for it elsewhere.` : ''}${canContest ? '' : `
   • ${NEEDS_USER} — items already escalated to the user.`}
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).${canContest ? `
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ''}`;
 
@@ -273,8 +272,8 @@ const developSchema = (mode) => ({
     ? ['plan_obtained', 'baseline_dirty_files', 'results', 'entries_found', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments']
     : ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
-    plan_obtained:     { type: 'boolean', description: 'true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read.' },
-    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply).' },
+    plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
+    baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
@@ -288,16 +287,16 @@ const developSchema = (mode) => ({
           },
         },
       },
-      entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run before any reviewer spawns. Report -1 on later rounds (the check does not apply).' },
+      entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds.' },
     } : {
       produced:        { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     }),
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed', 'failed-expected', 'failed-unexpected', 'not-run'], description: 'passed = the required verification ran and PASSED. failed = it ran and failed. failed-expected = a red baseline exactly as a test-first block intends. failed-unexpected = failed for a WRONG reason (a real defect / bad fixture). not-run = no verification executed.' },
     tests_run_count:   { type: 'integer', description: 'the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block\'s run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)' },
-    full_suite_outcome:{ type: 'string', enum: ['passed', 'failed', 'not-run', 'scoped-skip'], description: 'result of running the FULL test gate to confirm the EXISTING suite is not reddened; "scoped-skip" when this run is scoped to each block\'s own selector and the rest of the suite may be intentionally red' },
+    full_suite_outcome:{ type: 'string', enum: ['passed', 'failed', 'not-run', 'scoped-skip'], description: 'result of running the FULL test gate to confirm the EXISTING suite is not reddened. "scoped-skip" when this run is scoped to each block\'s own selector.' },
     verification_method:{ type: 'string', description: 'what was actually run to verify (e.g. "pytest -q", "phpunit --filter Bar", "curl localhost:3000/health"); note here if a configured MCP/tool was UNAVAILABLE in this environment' },
-    unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline.' },
+    unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run.' },
     needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
     // Required, unlike dismissed_count: an omitted field must not read as "none this round".
@@ -312,7 +311,7 @@ const QUALITY_SCHEMA = {
   properties: {
     clean:       { type: 'boolean', description: 'true if NO production-blocking defects were found in the unstaged diff' },
     issue_count: { type: 'integer', description: 'number of production-blocking defects written to the review file' },
-    contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round because the stated reason is wrong for a genuine production-blocking defect (0 if none)' },
+    contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round (0 if none)' },
   },
 };
 
@@ -322,21 +321,21 @@ const acceptanceSchema = (mode) => {
   const terms = {
     feature: {
       pass: 'true if every acceptance criterion is met, the feature is reachable, gates are green, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
+      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
       reachable: 'the feature is actually wired in / reachable from the app entry points',
       criteriaFrom: 'THIS block',
       suite: 'observed outcome of running the FULL gates',
     },
     section: {
       pass: 'true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
+      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
       reachable: 'this block\'s change is actually wired in / reachable — every call site converted, route mounted, symbol exported',
       criteriaFrom: 'THIS block',
       suite: 'observed outcome of running the block gate (and, where the goal expects it, the full gates)',
     },
     fix: {
       pass: 'true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, the gate is green, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files (only on pass; NEVER commit)',
+      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
       suite: 'observed outcome of running the FULL gates',
     },
   }[mode] || {};
@@ -346,7 +345,7 @@ const acceptanceSchema = (mode) => {
       ? ['plan_obtained', 'pass', 'staged', 'fix_checks']
       : ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
-      plan_obtained: { type: 'boolean', description: 'true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless.' },
+      plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
       pass:        { type: 'boolean', description: terms.pass },
       staged:      { type: 'boolean', description: terms.staged },
       ...(mode === 'fix' ? {
@@ -386,7 +385,7 @@ const PARK_SCHEMA = {
     cleared:     { type: 'boolean', description: 'true if `git diff` is empty after step 3, including a diff that was already empty' },
     gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing (the tree is safe for what comes next)' },
     patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
-    strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so.' },
+    strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none)' },
     notes:       { type: 'string' },
   },
 };
@@ -415,14 +414,14 @@ const SWEEP_SCHEMA = {
 // =============================================================================
 // Shared prompt fragments + decision matrix (developer-owned)
 // =============================================================================
-const ENV = `${GOAL ? `GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
-${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror — mine it for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
+const ENV = `${GOAL ? `GOAL (this run's ONE goal, split into the plan file's blocks): ${GOAL}\n` : ''}TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
+${REFERENCE_P ? `REFERENCE (a COMPLETED example to mirror for the canonical pattern): ${REFERENCE_P}\n` : ''}CONVENTIONS (match these): ${CONVENTIONS}
 GATES (the commands that define "it works"):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.`;
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.`;
 
 // A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
 const SUITE_LINE = SUITE === 'green'
@@ -441,47 +440,44 @@ const SCOPE_LINE = {
   fix: 'NO scope creep beyond what each fix requires',
 };
 const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "${SCOPE_LINE[mode]}"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "${SCOPE_LINE[mode]}"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to ${dismissedFile(id)} so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to ${dismissedFile(id)}:
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to ${amendedFile(id)} —
+  • AMEND (6a): append ONE entry to ${amendedFile(id)}:
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to ${NEEDS_USER}: the block id, the round, the defect's file:line, and
-    the path ${amendedFile(id)} — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path ${amendedFile(id)}, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to ${dismissedFile(id)} in the DROP shape above, its reason
-    \`ESCALATED: <the default you took, ≤15 words>\` — the blind reviewer is NOT shown ${NEEDS_USER},
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.`;
+    \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${NEEDS_USER}
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.`;
 
 // =============================================================================
 // Role prompts. DEVELOP_FRAME and ACCEPTANCE_FRAME switch on mode. The blind critic sees no plan.
@@ -503,14 +499,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. ${staging}
 4. ${MATRIX(p.id, round, p.mode)}
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+Return ONLY the decision fields via the schema (no prose report).`;
 
 const sectionDevelop = (p, round, { opening, ledgerNote, staging }) => {
   const gateExpectation = p.gate === 'red-baseline'
     ? 'red-baseline — AUTHOR this block\'s tests; they MUST FAIL because the code is not converted yet. Report test_outcome="failed-expected" once they run and fail for the RIGHT reason (asserting the not-yet-built target behavior), or "failed-unexpected" if they fail for a wrong reason (parse error, missing fixture).'
     : p.gate === 'build-only'
       ? 'build-only — no test pass/fail requirement; just keep the build green.'
-      : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block\'s `test_selector:` line when it has one, else the test gate.';
+      : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed").';
   return `
 You are the DEVELOPER. Implement ${planRef(p)}. Build ONLY this block minimally and surgically; match
 conventions; ${SCOPE_LINE.section}.
@@ -525,14 +521,14 @@ PROCEDURE:
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
 2. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
-   scoped to this block (its \`test_selector:\` line when it has one, else the test gate):
-   ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
-   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
+   scoped to this block (use the block's \`test_selector:\` line when it has one, else the test gate):
+   ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete tests to get green. SANITY-CHECK
+   the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
+   doubt run one file per invocation or use the runner's --filter.
 3. ${SUITE_LINE} Build/lint must always pass.
 4. ${staging}
 5. ${MATRIX(p.id, round, p.mode)}
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+Return ONLY the decision fields via the schema (no prose report).`;
 };
 
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
@@ -549,29 +545,27 @@ ${opening}
 ${ledgerNote}
 
 PROCEDURE:
-${round === 1 ? `0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
-   "### [" entries across every block printed and report the count as entries_found. If it is 0,
-   STOP RIGHT THERE: change nothing and return with that count. A block carrying no entries is nothing to
-   fix, and working from memory would be worse than not running.
-` : `0. Report entries_found=-1 (the inventory count is a round-1 check).
-`}1. VERIFY-FIRST: the entries were written from a PAST snapshot — for EACH one, read the CURRENT code and
-   confirm the issue still exists. If it was already fixed or no longer applies, record it STALE and move
-   on. Never "fix" what isn't there. STALE means someone ELSE closed it before this run: an entry YOU
-   already fixed in an earlier round of this block stays FIXED every round, since its diff is still
-   unstaged and still has to be verified.
-2. FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Every other entry — SKIP, NEEDS_USER,
-   DEFER, anything else — is left UNTOUCHED and recorded SKIPPED: that triage is the user's call, not
-   yours. Apply each confirmed fix per its **Fix:** instruction, matching the CONVENTIONS and the
-   surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
-   to make the gate pass; never disable lint rules.
+${round === 1 ? `0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
+   anything. COUNT the "### [" entries across every block printed and report the count as
+   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
+` : `0. Report entries_found=-1.
+`}1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+   issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
+   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   round of this block stays FIXED every round, since its diff is still unstaged and still has to be
+   verified.
+2. FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Leave every other entry (SKIP,
+   NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
+   Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
+   warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
+   disable lint rules.
 3. RUN THE GATE until it is GREEN — build: ${GATES.build ?? '(none)'} ; verification: ${GATES.test ?? '(no test gate configured)'}.
    ${SUITE_LINE} SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
-   cannot resolve it within THAT
-   fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
-   rest.
+   cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
+   with the reason, and keep the rest.
 4. ${staging}
 5. ${MATRIX(p.id, round, p.mode)}
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).`;
+Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
 
@@ -579,45 +573,45 @@ const developPrompt = (p, round, reviewPath) => {
   // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
   const opening = round === 1
     ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  \`git -C ${REPO} diff --name-only\`                        — unstaged tracked edits
-  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` — untracked files (\`git diff\` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.`
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  \`git -C ${REPO} diff --name-only\` (unstaged tracked edits)
+  \`git -C ${REPO} status --porcelain\`, lines starting \`??\` (untracked files, which \`git diff\` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, implement this block from
+scratch on top of the staged baseline.`
     : `${reviewPath
       ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
       : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
-tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.`}
+tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.`}
 Report baseline_dirty_files=-1.`;
   // Every round, round 1 included: the ledger persists across resumes.
   const ledgerNote = `If ${dismissedFile(p.id)} exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.`;
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.`;
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
 // BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
 const qualityPrompt = (p, round) => `
-You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
-plan, spec or goal — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 TARGET REPO: ${REPO}
-GATES (the commands that decide whether the build and tests pass):
+GATES:
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}
 
 ${SETTLED(p.id, true, round)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  \`git -C ${REPO} diff\`                    (unstaged tracked changes — review this; on a large diff run
-                                          \`git -C ${REPO} diff --stat\` first, then read it file by file)
+  \`git -C ${REPO} diff\`: unstaged tracked changes, the work to review. On a large diff run
+  \`git -C ${REPO} diff --stat\` first, then read it file by file.
   \`git -C ${REPO} status --porcelain\` then READ every untracked file (\`??\`) — \`git diff\` OMITS those.
   A \` A\` entry (intent-to-add) is a new file \`git diff\` already shows in full. A first-column \`A\` or
   \`M\` is STAGED: the staged half of an \`AM\` or \`MM\` file is baseline, and only its unstaged half
@@ -650,17 +644,17 @@ ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 
 ${SETTLED(p.id, false)}
-OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are issue-aware — if a
-dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
-dismissal: fail acceptance for it and record it in your review file. An \`ESCALATED:\` line is a decision
+OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
+actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
+acceptance for it and record it in your review file. An \`ESCALATED:\` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ ${amendedFile(p.id)} if it exists. It records **Fix:** instructions the developer
-OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
+OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that issue stays actually_fixed=false, or the escape hatch becomes a free pass.
+NOTHING: that issue stays actually_fixed=false.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -679,32 +673,31 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    The developer reports these issues STALE (already absent from the current code):
 ${claimedStale.map((id) => `     - ${id}`).join('\n') || '     (none reported stale)'}
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
-   Return a fix_check for it too: actually_fixed=true only when you confirmed the defect is gone. A STALE
+   Return a fix_check for it too. A STALE
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
 2. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose \`- decision:\` is not
-   ACTIONABLE. Those are the user's calls to make, not this run's; a fix applied to one fails acceptance
-   even when the code change looks right. The developer reports these issues SKIPPED:
+   ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
+   entry is the user's call. The developer reports these issues SKIPPED:
 ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported skipped)'}
    Confirm each one's \`- decision:\` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
-4. Run the FULL gates once and record the real outcome:
-     build: ${GATES.build ?? '(none)'}    test: ${GATES.test ?? '(none)'}
+4. Run the FULL gates (GATES above) once and record the real outcome.
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
-5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE you decide anything in
-   step 6: the per-issue root-cause verdict (with the residual path for any incomplete one), the
-   triage-held result, the regression result, the gate output, and each gap — or "All fixes close their
-   root cause; triage held; no regression."
+5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 6: the
+   per-issue root-cause verdict (with the residual path for any incomplete one), the triage-held result,
+   the regression result, the gate output, and each gap — or "All fixes close their root cause; triage
+   held; no regression."
 6. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, gate
      green, no regression →
      \`git -C ${REPO} add <this block's changed AND newly-created files>\` (NEVER commit); return
-     pass=true, staged=true. The baseline now advances to include this block.
+     pass=true, staged=true.
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
-     a valid pass — return pass=true AND staged=true (there is simply nothing to add). Say so explicitly
-     in your file. Do NOT invent changes to justify it.
+     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
+     invent changes to justify it.
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the
      tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
@@ -726,32 +719,30 @@ const planAcceptance = (p, round) => {
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. ${ACC_SUITE_LINE} If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.`
-    : `Run the FULL gates once and record the real outcome:
-     build: ${GATES.build ?? '(none)'}    test: ${GATES.test ?? '(none)'}
+    : `Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.`;
   return `
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
-passed (or was skipped because the developer changed nothing). Verify, against the repo itself, that THIS
-block is fully delivered and nothing regressed. Read ${planRef(p)}. You judge the work against that
-block; you never implement it.
+passed (or was skipped because the developer changed nothing). Read ${planRef(p)}. You judge the work
+against that block; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
 
 ${SETTLED(p.id, false)}
-OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. You are plan-aware — if a
-dismissed item ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes
-a regression, that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 An \`ESCALATED:\` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ ${amendedFile(p.id)} if it exists. It records plan clauses the developer OVERRODE after
-verifying the clause itself prescribes a real defect (MATRIX 6a). Judge a criterion whose prescribing
-clause was amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that criterion stays UNMET, or the escape hatch becomes a free pass.
+NOTHING: that criterion stays UNMET.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -762,21 +753,20 @@ PROCEDURE:
    a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
    behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
    criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
-   locator in your review file — a criterion you asserted without one does not count as met.
+   locator in your review file. A criterion asserted without one is not met.
 2. ${reachStep}
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
 4. ${gateStep}
-5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE you decide anything in
-   step 6: the numbered per-criterion table WITH its locators, the reachability + regression result, the
-   gate output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
+5. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 6: the
+   numbered per-criterion table WITH its locators, the reachability + regression result, the gate
+   output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
 6. DECIDE:
    • All criteria met, reachable, gate satisfied, no regression → \`git -C ${REPO} add <this block's
-     changed AND newly-created files>\` (NEVER commit); return pass=true, staged=true. The baseline now
-     advances to include this block.
+     changed AND newly-created files>\` (NEVER commit); return pass=true, staged=true.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (there is simply nothing to add). Say so explicitly in your file. Do NOT invent changes to justify it.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
 };
@@ -797,40 +787,43 @@ const parkReason = (haltKind) => ({
 const parkPrompt = (p, lastReviewPath, escalated, haltKind, stopsRun) => `
 You are PARKING the plan block "${p.id}", which ${escalated
     ? `was halted: ${parkReason(haltKind)}`
-    : 'did NOT reach acceptance within its round budget'}. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree${stopsRun
-    ? `. The run stops after you — ${escalated ? 'only the user can unblock it' : 'the blocks after this one depend on it'} — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming`
-    : ` so the REST OF THE RUN can continue — the
-next block's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that
-block and fail it for this one's problems`}. Accepted blocks are STAGED and must survive untouched.
+    : 'did NOT reach acceptance within its round budget'}. SAVE its work to a patch, then clear it from
+the tree${stopsRun
+    ? `. The run stops after you (${escalated ? 'only the user can unblock it' : 'the blocks after this one depend on it'}), so leave the repo in a
+known, buildable state the user can come back to`
+    : ` so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
+scopes on the unstaged diff`}.
 ${ENV}
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to ${parkedPatch(p.id)} (create ${STATE_DIR}/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to ${parkedPatch(p.id)}
+   (create ${STATE_DIR}/ if needed):
      \`git -C ${REPO} diff --binary > ${parkedPatch(p.id)}\`
-   \`--binary\` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via \`git add -N\`.
+   \`--binary\` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via \`git add -N\`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If \`git status --porcelain\` still lists any \`??\` untracked file this block created
-   (the developer missed its \`git add -N\`), COPY those files into ${parkedNewDir(p.id)}/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If \`git -C ${REPO} status --porcelain\` still lists any \`??\` untracked file this
+   block created (the developer missed its \`git add -N\`), COPY those files into ${parkedNewDir(p.id)}/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   \`git -C ${REPO} checkout -- <files>\`. Then delete the files it CREATED (untracked + any
-   \`git add -N\` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a \`??\` stray is safe ONLY because step 2 copied it to
-   ${parkedNewDir(p.id)}/. If step 2 did not copy a stray, do NOT delete it.
+   \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file it CREATED with
+   \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and \`git diff\` stays non-empty. Always name the files:
+   an unpathed \`git reset\` or \`git rm\` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each \`??\` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to ${parkedNewDir(p.id)}/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${stopsRun
@@ -839,35 +832,37 @@ PROCEDURE:
    - one line on why it was parked (${escalated ? parkReason(haltKind) : 'what acceptance was still failing'})
    - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
-     \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the \`git apply\`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with \`runOnly:["${p.id}"]\` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to \`git add -A\` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the \`git apply\`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     \`plan-edit.mjs args\` has applied this run's statuses, set this block's \`status:\` back to \`todo\`
+     in its plan file. Then re-invoke with \`runOnly:["${p.id}"]\` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to \`git add -A\` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
 
 const sweepPrompt = (doneIds) => `
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
-repo itself, that the GOAL is actually fully achieved — your job is to find what the plan MISSED, not to
-re-review accepted work. Read the approved plan file(s) VERBATIM: ${PLAN_FILES.join(' , ')}.
+repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
+Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
+this role): ${PLAN_FILES.join(' , ')}.
 ${ENV}
 COMPLETED BLOCKS: ${doneIds.join(', ')}
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
-   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts so
-   coverage is checkable.
-2. Run the FULL gates once and record the real outcome (build: ${GATES.build ?? '(none)'} ; test:
-   ${GATES.test ?? '(none)'}). If the GOAL implies whole-suite green at the end, a red suite is a gap; if
-   a red tail is expected, say which failures look expected vs surprising.
+   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
+2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
+   vs surprising.
 3. Spot-check the staged diff (\`git -C ${REPO} diff --staged --stat\`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested
@@ -1123,21 +1118,9 @@ for (const p of pending) {
       break;
     }
 
-    // ---- PRECONDITION: the developer actually HAS its block -----------------------------------------
-    // The block command runs in the agent's shell, so this attestation is the only proof the block
-    // arrived. `=== false` leaves a null return to the agent-dead halt above.
-    if (dev?.plan_obtained === false) {
-      halted = true;
-      escalated = true;   // it may have touched the tree before giving up → park rather than abandon
-      haltKind = 'plan-unreadable';
-      haltReason = `Developer for block ${p.id} could not obtain its plan (round ${round}). Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
-      rec.status = 'BLOCKED (plan unreadable)';
-      log(`  ✋ ${p.id} r${round}: developer never got its plan → halting before any review agent`);
-      break;
-    }
-
     // ---- PRECONDITION (round 1 of every block): the unstaged tree must have been CLEAN --------------
-    // Reviewers scope on the unstaged diff, so pre-existing work would be judged as this block's.
+    // Reviewers scope on the unstaged diff, so pre-existing work would be judged as this block's. Checked
+    // before plan_obtained, whose halt parks: a developer that stops here never ran its block command.
     if (round === 1) {
       // Guard the value, never its coercion: Number(null), Number(false) and Number('') are a finite 0,
       // which reads as clean.
@@ -1152,20 +1135,35 @@ for (const p of pending) {
         log(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A only your own edits, or git stash -u, then re-run)`);
         break;
       }
-      // Zero `### [` entries would reach the no-changes terminal and report a clean outcome over an
-      // inventory nobody read. The value is guarded, never coerced, as above.
-      if (fix) {
-        const entries = dev.entries_found;
-        if (typeof entries !== 'number' || !Number.isFinite(entries)) {
-          log(`  ⚠ ${p.id} r1: developer did not report entries_found — the inventory-readable precondition was NOT verified`);
-        } else if (entries === 0) {
-          halted = true;
-          rec.status = 'BLOCKED (no issue entries)';
-          haltKind = 'inventory-empty';
-          haltReason = `Fix block ${p.id} was not started: the developer counted ZERO "### [" issue entries in the block it was handed, so there was nothing to fix. Its block reference was: ${planRef(p)}. Run that yourself and read what it prints: check the planPath and the block id, NOT runId/root/stateDir — those name where run-state lands and select nothing in the plan file. Nothing was built or changed.`;
-          log(`  ✋ ${p.id}: developer found 0 "### [" issue entries in its block → halting before any review agent (check the planPath and the block id)`);
-          break;
-        }
+    }
+
+    // ---- PRECONDITION: the developer actually HAS its block -----------------------------------------
+    // The block command runs in the agent's shell, so this attestation is the only proof the block
+    // arrived. `=== false` leaves a null return to the agent-dead halt above.
+    if (dev?.plan_obtained === false) {
+      halted = true;
+      escalated = true;   // it may have touched the tree before giving up → park rather than abandon
+      haltKind = 'plan-unreadable';
+      haltReason = `Developer for block ${p.id} could not obtain its plan (round ${round}). Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
+      rec.status = 'BLOCKED (plan unreadable)';
+      log(`  ✋ ${p.id} r${round}: developer never got its plan → halting before any review agent`);
+      break;
+    }
+
+    // ---- PRECONDITION (round 1 of a fix block): the inventory was readable -------------------------
+    // Zero `### [` entries would reach the no-changes terminal and report a clean outcome over an
+    // inventory nobody read. The value is guarded, never coerced, as above.
+    if (round === 1 && fix) {
+      const entries = dev.entries_found;
+      if (typeof entries !== 'number' || !Number.isFinite(entries)) {
+        log(`  ⚠ ${p.id} r1: developer did not report entries_found — the inventory-readable precondition was NOT verified`);
+      } else if (entries === 0) {
+        halted = true;
+        rec.status = 'BLOCKED (no issue entries)';
+        haltKind = 'inventory-empty';
+        haltReason = `Fix block ${p.id} was not started: the developer counted ZERO "### [" issue entries in the block it was handed, so there was nothing to fix. Its block reference was: ${planRef(p)}. Run that yourself and read what it prints: check the planPath and the block id, NOT runId/root/stateDir — those name where run-state lands and select nothing in the plan file. Nothing was built or changed.`;
+        log(`  ✋ ${p.id}: developer found 0 "### [" issue entries in its block → halting before any review agent (check the planPath and the block id)`);
+        break;
       }
     }
     // ---- FIX MODE: the per-issue results ARE the round's record ------------------------------------
@@ -1407,10 +1405,11 @@ for (const p of pending) {
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next.`;
     } else if (halted) {
-      // The run is stopping, so say where the work went (see rec.patch).
-      haltReason += rec.patch
-        ? ` Its work is SAVED to ${rec.patch} and the tree is CLEAN; resolve with the user, then resume from this block.`
-        : ` It had NOTHING to save (its working tree was already empty) and the tree is CLEAN; resolve with the user, then resume from this block.`;
+      // The run is stopping, so say where the work went (see rec.patch). A patchless park can still hold strays.
+      let savedTo = ' It had NOTHING to save (its working tree was already empty)';
+      if (rec.patch) savedTo = ` Its work is SAVED to ${rec.patch}`;
+      else if (rec.strays) savedTo = ` It had no diff to patch, but its new files are SAVED to ${rec.strays}/`;
+      haltReason += `${savedTo} and the tree is CLEAN; resolve with the user, then resume from this block.`;
     }
   }
   // Guards a future exit that sets no status: a leaked 'pending' reads as "still working".
@@ -1462,7 +1461,7 @@ const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
 const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
 // Split on rec.patch. An empty park is still a block not done.
 const patchedPlans = parkedPlans.filter((r) => r.patch);
-const emptyParkPlans = parkedPlans.filter((r) => !r.patch);
+const emptyParkPlans = parkedPlans.filter((r) => !r.patch && !r.strays);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
 // block stopped by a halt that never parks (dirty-baseline, inventory-empty, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
@@ -1527,7 +1526,7 @@ return {
       ? `Work SAVED and cleared from the tree — nothing discarded — for: ${patchedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply --3way\` restore command). `
       : ''}${emptyParkPlans.length
       ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
-      : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone with runOnly after sharpening its block in the plan file, or drop it. `
+      : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone (sharpen its block in the plan file if needed, flip it to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly), or drop it. `
     : ''}${noChangePlans.length
     ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
     : ''}${haltedPlans.length

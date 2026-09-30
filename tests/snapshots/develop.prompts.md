@@ -6,34 +6,34 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6822 | every block accepts first time |
-| quality | 1 | 1 | 3117 | every block accepts first time |
-| acceptance | 1 | 1 | 5454 | every block accepts first time |
-| develop | 2 | 1 | 7312 | every block accepts first time |
-| acceptance | 2 | 2 | 5705 | every block accepts first time |
-| final-sweep | 1 | 1 | 1942 | every block accepts first time |
-| develop | 3 | 1 | 6193 | quality flags the first round |
-| quality | 2 | 1 | 2930 | quality flags the first round |
-| develop | 4 | 1 | 6683 | quality flags the first round |
-| develop | 5 | 1 | 6191 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6681 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 6177 | the gate never goes green |
-| park | 1 | 1 | 5150 | the gate never goes green |
-| develop | 8 | 1 | 6667 | the gate never goes green |
-| park | 2 | 1 | 5094 | a parked block, and the run carries on |
-| park | 3 | 1 | 5138 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8338 | a fix block closes its issues |
-| acceptance | 3 | 3 | 6653 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 1933 | a fix block closes its issues |
-| develop | 10 | 2 | 8430 | a pass of two fix blocks closes its issues |
-| acceptance | 4 | 3 | 6742 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 1963 | a pass of two fix blocks closes its issues |
-| acceptance | 5 | 3 | 6652 | every issue is already fixed |
-| park | 4 | 1 | 5312 | the developer staged its own work |
-| park | 5 | 1 | 5150 | developer never got its block |
-| park | 6 | 1 | 5168 | the developer dies |
-| park | 7 | 1 | 5245 | developer escalates |
-| park | 8 | 1 | 5279 | developer escalates in an ordered run |
+| develop | 1 | 1 | 6025 | every block accepts first time |
+| quality | 1 | 1 | 2914 | every block accepts first time |
+| acceptance | 1 | 1 | 5007 | every block accepts first time |
+| develop | 2 | 1 | 6418 | every block accepts first time |
+| acceptance | 2 | 2 | 5288 | every block accepts first time |
+| final-sweep | 1 | 1 | 1879 | every block accepts first time |
+| develop | 3 | 1 | 5515 | quality flags the first round |
+| quality | 2 | 1 | 2738 | quality flags the first round |
+| develop | 4 | 1 | 5908 | quality flags the first round |
+| develop | 5 | 1 | 5513 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 5906 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 5477 | the gate never goes green |
+| park | 1 | 1 | 5205 | the gate never goes green |
+| develop | 8 | 1 | 5870 | the gate never goes green |
+| park | 2 | 1 | 5149 | a parked block, and the run carries on |
+| park | 3 | 1 | 5200 | an ordered run stops at a parked block |
+| develop | 9 | 2 | 7384 | a fix block closes its issues |
+| acceptance | 3 | 3 | 6238 | a fix block closes its issues |
+| final-sweep | 2 | 1 | 1870 | a fix block closes its issues |
+| develop | 10 | 2 | 7476 | a pass of two fix blocks closes its issues |
+| acceptance | 4 | 3 | 6327 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 1900 | a pass of two fix blocks closes its issues |
+| acceptance | 5 | 3 | 6237 | every issue is already fixed |
+| park | 4 | 1 | 5374 | the developer staged its own work |
+| park | 5 | 1 | 5212 | developer never got its block |
+| park | 6 | 1 | 5230 | the developer dies |
+| park | 7 | 1 | 5300 | developer escalates |
+| park | 8 | 1 | 5341 | developer escalates in an ordered run |
 
 ## develop · variant 1 · schema 1
 
@@ -46,25 +46,25 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-a
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  `git -C E:/repo diff --name-only`                        — unstaged tracked edits
-  `git -C E:/repo status --porcelain`, lines starting `??` — untracked files (`git diff` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  `git -C E:/repo diff --name-only` (unstaged tracked edits)
+  `git -C E:/repo status --porcelain`, lines starting `??` (untracked files, which `git diff` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, implement this block from
+scratch on top of the staged baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
 
@@ -77,51 +77,48 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond the plan"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -142,11 +139,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -178,7 +175,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -186,7 +183,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -214,27 +211,26 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 
 ~~~~text
 
-You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
-plan, spec or goal — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 TARGET REPO: E:/repo
-GATES (the commands that decide whether the build and tests pass):
+GATES:
   build: npm run build
   test:  npm test
 
-Before reviewing, READ this if it exists — it is the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    In round 1 it exists only if the developer already declined something this block (or on a resume);
-    a missing file means nothing is settled yet, so do not search for it elsewhere.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
+    In round 1 it exists only if the developer already declined something (or on a resume). A missing
+    file means nothing is settled yet, so do not search for it elsewhere.
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`                    (unstaged tracked changes — review this; on a large diff run
-                                          `git -C E:/repo diff --stat` first, then read it file by file)
+  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
+  `git -C E:/repo diff --stat` first, then read it file by file.
   `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
   A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
   `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
@@ -275,7 +271,7 @@ WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (crea
     },
     "contested_dismissals": {
       "type": "integer",
-      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round because the stated reason is wrong for a genuine production-blocking defect (0 if none)"
+      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
     }
   }
 }
@@ -288,41 +284,39 @@ WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (crea
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
-passed (or was skipped because the developer changed nothing). Verify, against the repo itself, that THIS
-block is fully delivered and nothing regressed. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". You judge the work against that
-block; you never implement it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+neighbouring block for context; your block is ONLY "block-a". You judge the work
+against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-a   (mode: feature, gate: green)
 
-Before reviewing, READ these if they exist — they are the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. You are plan-aware — if a
-dismissed item ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes
-a regression, that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 An `ESCALATED:` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
-verifying the clause itself prescribes a real defect (MATRIX 6a). Judge a criterion whose prescribing
-clause was amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that criterion stays UNMET, or the escape hatch becomes a free pass.
+NOTHING: that criterion stays UNMET.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -333,26 +327,24 @@ PROCEDURE:
    a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
    behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
    criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
-   locator in your review file — a criterion you asserted without one does not count as met.
+   locator in your review file. A criterion asserted without one is not met.
 2. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
-4. Run the FULL gates once and record the real outcome:
-     build: npm run build    test: npm test
+4. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
-5. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE you decide anything in
-   step 6: the numbered per-criterion table WITH its locators, the reachability + regression result, the
-   gate output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
+5. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 6: the
+   numbered per-criterion table WITH its locators, the reachability + regression result, the gate
+   output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
 6. DECIDE:
    • All criteria met, reachable, gate satisfied, no regression → `git -C E:/repo add <this block's
-     changed AND newly-created files>` (NEVER commit); return pass=true, staged=true. The baseline now
-     advances to include this block.
+     changed AND newly-created files>` (NEVER commit); return pass=true, staged=true.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (there is simply nothing to add). Say so explicitly in your file. Do NOT invent changes to justify it.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~
@@ -372,7 +364,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "pass": {
       "type": "boolean",
@@ -380,7 +372,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
     },
     "reachable": {
       "type": "boolean",
@@ -425,26 +417,26 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-b
-GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
+GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  `git -C E:/repo diff --name-only`                        — unstaged tracked edits
-  `git -C E:/repo status --porcelain`, lines starting `??` — untracked files (`git diff` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  `git -C E:/repo diff --name-only` (unstaged tracked edits)
+  `git -C E:/repo status --porcelain`, lines starting `??` (untracked files, which `git diff` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, implement this block from
+scratch on top of the staged baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
 
@@ -453,58 +445,55 @@ PROCEDURE:
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
-   scoped to this block (its `test_selector:` line when it has one, else the test gate):
-   npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
-   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
+   scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
+   npm test. Never weaken/delete tests to get green. SANITY-CHECK
+   the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
+   doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond it"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -525,11 +514,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -561,7 +550,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -569,7 +558,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -598,41 +587,39 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
-passed (or was skipped because the developer changed nothing). Verify, against the repo itself, that THIS
-block is fully delivered and nothing regressed. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". You judge the work against that
-block; you never implement it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+neighbouring block for context; your block is ONLY "block-b". You judge the work
+against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-b   (mode: section, gate: green)
 
-Before reviewing, READ these if they exist — they are the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. You are plan-aware — if a
-dismissed item ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes
-a regression, that OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 An `ESCALATED:` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
-verifying the clause itself prescribes a real defect (MATRIX 6a). Judge a criterion whose prescribing
-clause was amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that criterion stays UNMET, or the escape hatch becomes a free pass.
+NOTHING: that criterion stays UNMET.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -643,7 +630,7 @@ PROCEDURE:
    a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
    behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
    criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
-   locator in your review file — a criterion you asserted without one does not count as met.
+   locator in your review file. A criterion asserted without one is not met.
 2. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -655,16 +642,15 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
-5. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE you decide anything in
-   step 6: the numbered per-criterion table WITH its locators, the reachability + regression result, the
-   gate output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
+5. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 6: the
+   numbered per-criterion table WITH its locators, the reachability + regression result, the gate
+   output, and each gap (title + file:line + fix) — or "All criteria met; reachable; no regression."
 6. DECIDE:
    • All criteria met, reachable, gate satisfied, no regression → `git -C E:/repo add <this block's
-     changed AND newly-created files>` (NEVER commit); return pass=true, staged=true. The baseline now
-     advances to include this block.
+     changed AND newly-created files>` (NEVER commit); return pass=true, staged=true.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (there is simply nothing to add). Say so explicitly in your file. Do NOT invent changes to justify it.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~
@@ -684,7 +670,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "pass": {
       "type": "boolean",
@@ -692,7 +678,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
     },
     "reachable": {
       "type": "boolean",
@@ -733,26 +719,26 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
-repo itself, that the GOAL is actually fully achieved — your job is to find what the plan MISSED, not to
-re-review accepted work. Read the approved plan file(s) VERBATIM: E:/flow/plans/bus.md.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
+Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
+this role): E:/flow/plans/bus.md.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 COMPLETED BLOCKS: block-a, block-b
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
-   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts so
-   coverage is checkable.
-2. Run the FULL gates once and record the real outcome (build: npm run build ; test:
-   npm test). If the GOAL implies whole-suite green at the end, a red suite is a gap; if
-   a red tail is expected, say which failures look expected vs surprising.
+   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
+2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
+   vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -814,15 +800,15 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
@@ -839,51 +825,48 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond the plan"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -904,11 +887,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -940,7 +923,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -948,7 +931,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -976,25 +959,24 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 
 ~~~~text
 
-You are a CODE CRITIC. You have NO information about what this code is for, what it should do, or any
-plan, spec or goal — and you must not seek any. Judge the code PURELY ON ITS OWN MERITS.
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 TARGET REPO: E:/repo
-GATES (the commands that decide whether the build and tests pass):
+GATES:
   build: npm run build
   test:  npm test
 
-Before reviewing, READ this if it exists — it is the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
 If you are confident a DISMISSED reason is WRONG and the issue is genuinely production-blocking, raise
 it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`                    (unstaged tracked changes — review this; on a large diff run
-                                          `git -C E:/repo diff --stat` first, then read it file by file)
+  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
+  `git -C E:/repo diff --stat` first, then read it file by file.
   `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
   A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
   `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
@@ -1035,7 +1017,7 @@ WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (crea
     },
     "contested_dismissals": {
       "type": "integer",
-      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round because the stated reason is wrong for a genuine production-blocking defect (0 if none)"
+      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
     }
   }
 }
@@ -1052,17 +1034,17 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-b
-GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
+GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -1074,58 +1056,55 @@ PROCEDURE:
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
-   scoped to this block (its `test_selector:` line when it has one, else the test gate):
-   npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
-   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
+   scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
+   npm test. Never weaken/delete tests to get green. SANITY-CHECK
+   the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
+   doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond it"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -1146,11 +1125,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -1182,7 +1161,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -1190,7 +1169,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -1223,15 +1202,15 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-a-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
@@ -1248,51 +1227,48 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond the plan"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -1313,11 +1289,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -1349,7 +1325,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -1357,7 +1333,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -1390,17 +1366,17 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-b
-GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
+GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-b-r1.md and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -1412,58 +1388,55 @@ PROCEDURE:
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
-   scoped to this block (its `test_selector:` line when it has one, else the test gate):
-   npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
-   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
+   scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
+   npm test. Never weaken/delete tests to get green. SANITY-CHECK
+   the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
+   doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond it"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -1484,11 +1457,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -1520,7 +1493,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -1528,7 +1501,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -1561,18 +1534,18 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-a
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
-tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.
+tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -1586,51 +1559,48 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond the plan"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-a.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -1651,11 +1621,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -1687,7 +1657,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -1695,7 +1665,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -1723,64 +1693,69 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree so the REST OF THE RUN can continue — the
-next block's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that
-block and fail it for this one's problems. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. SAVE its work to a patch, then clear it from
+the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
+scopes on the unstaged diff.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -1811,7 +1786,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -1831,19 +1806,19 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-b
-GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed"). Scope the test run to THIS block: use the block's `test_selector:` line when it has one, else the test gate.
+GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
-tree — re-run the gate (below), see what is failing, and fix it. Build ON your work; do NOT revert it.
+tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -1853,58 +1828,55 @@ PROCEDURE:
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
 2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
-   scoped to this block (its `test_selector:` line when it has one, else the test gate):
-   npm test. Never weaken/delete
-   tests to get green. SANITY-CHECK the runner really executed your unit tests. Some runners silently
-   ignore extra path args, so when in doubt run one file per invocation or use the runner's --filter.
+   scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
+   npm test. Never weaken/delete tests to get green. SANITY-CHECK
+   the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
+   doubt run one file per invocation or use the runner's --filter.
 3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond it"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-b.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -1925,11 +1897,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "produced": {
       "type": "boolean",
@@ -1961,7 +1933,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -1969,7 +1941,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -1997,64 +1969,69 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree so the REST OF THE RUN can continue — the
-next block's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that
-block and fail it for this one's problems. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. SAVE its work to a patch, then clear it from
+the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
+scopes on the unstaged diff.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -2085,7 +2062,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -2100,63 +2077,69 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — the blocks after this one depend on it — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget. SAVE its work to a patch, then clear it from
+the tree. The run stops after you (the blocks after this one depend on it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -2187,7 +2170,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -2209,96 +2192,91 @@ neighbouring block for context; your block is ONLY "block-c". Each block printed
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  `git -C E:/repo diff --name-only`                        — unstaged tracked edits
-  `git -C E:/repo status --porcelain`, lines starting `??` — untracked files (`git diff` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  `git -C E:/repo diff --name-only` (unstaged tracked edits)
+  `git -C E:/repo status --porcelain`, lines starting `??` (untracked files, which `git diff` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, implement this block from
+scratch on top of the staged baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
-   "### [" entries across every block printed and report the count as entries_found. If it is 0,
-   STOP RIGHT THERE: change nothing and return with that count. A block carrying no entries is nothing to
-   fix, and working from memory would be worse than not running.
-1. VERIFY-FIRST: the entries were written from a PAST snapshot — for EACH one, read the CURRENT code and
-   confirm the issue still exists. If it was already fixed or no longer applies, record it STALE and move
-   on. Never "fix" what isn't there. STALE means someone ELSE closed it before this run: an entry YOU
-   already fixed in an earlier round of this block stays FIXED every round, since its diff is still
-   unstaged and still has to be verified.
-2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Every other entry — SKIP, NEEDS_USER,
-   DEFER, anything else — is left UNTOUCHED and recorded SKIPPED: that triage is the user's call, not
-   yours. Apply each confirmed fix per its **Fix:** instruction, matching the CONVENTIONS and the
-   surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
-   to make the gate pass; never disable lint rules.
+0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
+   anything. COUNT the "### [" entries across every block printed and report the count as
+   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+   issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
+   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   round of this block stays FIXED every round, since its diff is still unstaged and still has to be
+   verified.
+2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
+   NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
+   Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
+   warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
+   disable lint rules.
 3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
-   cannot resolve it within THAT
-   fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
-   rest.
+   cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
+   with the reason, and keep the rest.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond what each fix requires"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-c.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -2320,11 +2298,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "results": {
       "type": "array",
@@ -2354,7 +2332,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "entries_found": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run before any reviewer spawns. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds."
     },
     "build_passed": {
       "type": "boolean"
@@ -2382,7 +2360,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -2390,7 +2368,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -2425,34 +2403,33 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-c   (mode: fix, gate: green)
 
-Before reviewing, READ these if they exist — they are the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. You are issue-aware — if a
-dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
-dismissal: fail acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
+actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
+acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c.md if it exists. It records **Fix:** instructions the developer
-OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
+OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that issue stays actually_fixed=false, or the escape hatch becomes a free pass.
+NOTHING: that issue stays actually_fixed=false.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2471,32 +2448,31 @@ PROCEDURE:
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
-   Return a fix_check for it too: actually_fixed=true only when you confirmed the defect is gone. A STALE
+   Return a fix_check for it too. A STALE
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
 2. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
-   ACTIONABLE. Those are the user's calls to make, not this run's; a fix applied to one fails acceptance
-   even when the code change looks right. The developer reports these issues SKIPPED:
+   ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
+   entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
-4. Run the FULL gates once and record the real outcome:
-     build: npm run build    test: npm test
+4. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
-5. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE you decide anything in
-   step 6: the per-issue root-cause verdict (with the residual path for any incomplete one), the
-   triage-held result, the regression result, the gate output, and each gap — or "All fixes close their
-   root cause; triage held; no regression."
+5. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 6: the
+   per-issue root-cause verdict (with the residual path for any incomplete one), the triage-held result,
+   the regression result, the gate output, and each gap — or "All fixes close their root cause; triage
+   held; no regression."
 6. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, gate
      green, no regression →
      `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return
-     pass=true, staged=true. The baseline now advances to include this block.
+     pass=true, staged=true.
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
-     a valid pass — return pass=true AND staged=true (there is simply nothing to add). Say so explicitly
-     in your file. Do NOT invent changes to justify it.
+     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
+     invent changes to justify it.
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the
      tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
@@ -2516,7 +2492,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "pass": {
       "type": "boolean",
@@ -2524,7 +2500,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
     },
     "fix_checks": {
       "type": "array",
@@ -2573,26 +2549,26 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
-repo itself, that the GOAL is actually fully achieved — your job is to find what the plan MISSED, not to
-re-review accepted work. Read the approved plan file(s) VERBATIM: E:/flow/plans/bus.md.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
+Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
+this role): E:/flow/plans/bus.md.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 COMPLETED BLOCKS: block-c
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
-   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts so
-   coverage is checkable.
-2. Run the FULL gates once and record the real outcome (build: npm run build ; test:
-   npm test). If the GOAL implies whole-suite green at the end, a red suite is a gap; if
-   a red tail is expected, say which failures look expected vs surprising.
+   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
+2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
+   vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -2657,96 +2633,91 @@ STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", 
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline); the UNSTAGED tree must be EMPTY, because everything
-unstaged at the end of this round is reviewed and judged as YOUR work.
-  `git -C E:/repo diff --name-only`                        — unstaged tracked edits
-  `git -C E:/repo status --porcelain`, lines starting `??` — untracked files (`git diff` OMITS these)
-Report baseline_dirty_files = the count of DISTINCT files across those two lists (entries that are ONLY
-staged are the accepted baseline — do NOT count them). If it is NOT 0, STOP RIGHT THERE: change nothing,
-write nothing, do no work, and return immediately with that count — the run halts so the operator can
-fold or stash that work. If it IS 0, implement this block from scratch on top of the staged baseline.
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  `git -C E:/repo diff --name-only` (unstaged tracked edits)
+  `git -C E:/repo status --porcelain`, lines starting `??` (untracked files, which `git diff` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, implement this block from
+scratch on top of the staged baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-0. INVENTORY READABLE — do this FIRST, before reading or editing anything else. COUNT the
-   "### [" entries across every block printed and report the count as entries_found. If it is 0,
-   STOP RIGHT THERE: change nothing and return with that count. A block carrying no entries is nothing to
-   fix, and working from memory would be worse than not running.
-1. VERIFY-FIRST: the entries were written from a PAST snapshot — for EACH one, read the CURRENT code and
-   confirm the issue still exists. If it was already fixed or no longer applies, record it STALE and move
-   on. Never "fix" what isn't there. STALE means someone ELSE closed it before this run: an entry YOU
-   already fixed in an earlier round of this block stays FIXED every round, since its diff is still
-   unstaged and still has to be verified.
-2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Every other entry — SKIP, NEEDS_USER,
-   DEFER, anything else — is left UNTOUCHED and recorded SKIPPED: that triage is the user's call, not
-   yours. Apply each confirmed fix per its **Fix:** instruction, matching the CONVENTIONS and the
-   surrounding style. Where a fix warrants a pinning test, write it. Never weaken or delete existing tests
-   to make the gate pass; never disable lint rules.
+0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
+   anything. COUNT the "### [" entries across every block printed and report the count as
+   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+   issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
+   isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
+   round of this block stays FIXED every round, since its diff is still unstaged and still has to be
+   verified.
+2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
+   NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
+   Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
+   warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
+   disable lint rules.
 3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
-   cannot resolve it within THAT
-   fix's own scope, revert that change surgically, record the entry FAILED with the reason, and keep the
-   rest.
+   cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
+   with the reason, and keep the rest.
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
-   it does not stage content). Set unstaged_confirmed=true. The acceptance verifier stages for real on
-   accept — anything YOU stage is reviewed by nobody and HALTS the run.
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
-  1. Not a real problem / false positive .............. DROP — LOG it (see LOGGING).
-  2. Pre-existing in untouched code (not yours) ....... DROP silently (out of scope; never fix — regression risk).
-  3. Stops the build/tests/verification ............... FIX (always).
-  4. A real, clear, in-scope fix (local, small) ....... FIX.
-  5. Needed to satisfy the spec / wire this block in .. FIX (an unreachable or incomplete block is not done).
-  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective —
-      you reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX
-        .............................................. FIX it: the verified defect outranks the
-      prescription. RECORD an amendment (see LOGGING).
-      PRECEDENCE — for THIS clause only, that verified defect also outranks the "NO scope creep beyond what each fix requires"
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
-      still bind, exactly as written.
+      still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-        .............................................. DROP — LOG it (see LOGGING).
+      → DROP + LOG.
   7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-        .............................................. ESCALATE (see LOGGING).
-  8. Anything else (style, medium/low polish, a different block's work) ... DROP silently.
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
 
-LOGGING — this (plus your code) is your ONLY output. Keep it minimal and unambiguous:
-  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md so reviewers won't re-raise it —
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md:
       `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
-  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md —
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md:
       `## Plan amendment: block-c-plus-1 r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
     Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
-    the path E:/flow/runs/flow/AMENDED-block-c-plus-1.md — and NO plan text, so the amendment reaches the user where they already
-    look without copying the spec anywhere else. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (as much detail as the user
-    needs to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    the path E:/flow/runs/flow/AMENDED-block-c-plus-1.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
     If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
     append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>` — the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md,
-    so without that line it re-raises your default every round and this block parks instead of accepting.
-This is NOT a general code review — a SEPARATE review workflow audits the whole codebase later. Make
-THIS block correct, testable, and production-safe; leave the lines you TOUCH a little better; touch
-nothing else.
-Return ONLY the decision fields via the schema (no prose report — your code IS the output).
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
 ~~~~json
@@ -2768,11 +2739,11 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE your block text — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating your block by eye in the plan file. FALSE halts the run: never build from a plan you could not read."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many DISTINCT files already had UNSTAGED or untracked changes BEFORE you touched anything (staged files are the accepted baseline — never counted). 0 = clean; >0 HALTS the run. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
     },
     "results": {
       "type": "array",
@@ -2802,7 +2773,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "entries_found": {
       "type": "integer",
-      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run before any reviewer spawns. Report -1 on later rounds (the check does not apply)."
+      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds."
     },
     "build_passed": {
       "type": "boolean"
@@ -2830,7 +2801,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
         "not-run",
         "scoped-skip"
       ],
-      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened; \"scoped-skip\" when this run is scoped to each block's own selector and the rest of the suite may be intentionally red"
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
     },
     "verification_method": {
       "type": "string",
@@ -2838,7 +2809,7 @@ Return ONLY the decision fields via the schema (no prose report — your code IS
     },
     "unstaged_confirmed": {
       "type": "boolean",
-      "description": "true if all changes were left UNSTAGED (git add NOT run on content; git add -N only, for new files). Anything you stage yourself is reviewed by NOBODY — say false rather than claim it, which HALTS the run instead of laundering staged work into the accepted baseline."
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
     },
     "needs_user": {
       "type": "boolean",
@@ -2874,34 +2845,33 @@ the output of each command below, one block per command:
 Run every one. Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and
 STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 
-Before reviewing, READ these if they exist — they are the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. You are issue-aware — if a
-dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
-dismissal: fail acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
+actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
+acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c-plus-1.md if it exists. It records **Fix:** instructions the developer
-OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
+OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that issue stays actually_fixed=false, or the escape hatch becomes a free pass.
+NOTHING: that issue stays actually_fixed=false.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2921,32 +2891,31 @@ PROCEDURE:
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
-   Return a fix_check for it too: actually_fixed=true only when you confirmed the defect is gone. A STALE
+   Return a fix_check for it too. A STALE
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
 2. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
-   ACTIONABLE. Those are the user's calls to make, not this run's; a fix applied to one fails acceptance
-   even when the code change looks right. The developer reports these issues SKIPPED:
+   ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
+   entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
-4. Run the FULL gates once and record the real outcome:
-     build: npm run build    test: npm test
+4. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
-5. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE you decide anything in
-   step 6: the per-issue root-cause verdict (with the residual path for any incomplete one), the
-   triage-held result, the regression result, the gate output, and each gap — or "All fixes close their
-   root cause; triage held; no regression."
+5. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 6: the
+   per-issue root-cause verdict (with the residual path for any incomplete one), the triage-held result,
+   the regression result, the gate output, and each gap — or "All fixes close their root cause; triage
+   held; no regression."
 6. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, gate
      green, no regression →
      `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return
-     pass=true, staged=true. The baseline now advances to include this block.
+     pass=true, staged=true.
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
-     a valid pass — return pass=true AND staged=true (there is simply nothing to add). Say so explicitly
-     in your file. Do NOT invent changes to justify it.
+     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
+     invent changes to justify it.
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the
      tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
@@ -2966,7 +2935,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "pass": {
       "type": "boolean",
@@ -2974,7 +2943,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
     },
     "fix_checks": {
       "type": "array",
@@ -3023,26 +2992,26 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
-repo itself, that the GOAL is actually fully achieved — your job is to find what the plan MISSED, not to
-re-review accepted work. Read the approved plan file(s) VERBATIM: E:/flow/plans/one.md , E:/flow/plans/two.md.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
+Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
+this role): E:/flow/plans/one.md , E:/flow/plans/two.md.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 COMPLETED BLOCKS: block-c-plus-1
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
-   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts so
-   coverage is checkable.
-2. Run the FULL gates once and record the real outcome (build: npm run build ; test:
-   npm test). If the GOAL implies whole-suite green at the end, a red suite is a gap; if
-   a red tail is expected, say which failures look expected vs surprising.
+   replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
+2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
+   vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -3106,34 +3075,33 @@ Run it. That output is the block, verbatim. If it exits non-zero, report plan_ob
 never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
 neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 BLOCK: block-c   (mode: fix, gate: green)
 
-Before reviewing, READ these if they exist — they are the settled decisions, so you do
-NOT re-raise what is already closed:
+Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files — review the CURRENT
-diff FRESH (so you also catch new or similar nearby issues, and independently re-verify earlier fixes).
-OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. You are issue-aware — if a
-dismissed item actually leaves a claimed fix incomplete or causes a regression, that OVERRIDES the
-dismissal: fail acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
+Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues and re-verifying earlier fixes independently.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
+actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
+acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
 routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
 held escalation never fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c.md if it exists. It records **Fix:** instructions the developer
-OVERRODE after verifying the instruction itself prescribes a real defect (MATRIX 6a). Judge an issue whose
+OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
-NOTHING — that issue stays actually_fixed=false, or the escape hatch becomes a free pass.
+NOTHING: that issue stays actually_fixed=false.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3152,32 +3120,31 @@ PROCEDURE:
    The developer reports these issues STALE (already absent from the current code):
      - i-1
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
-   Return a fix_check for it too: actually_fixed=true only when you confirmed the defect is gone. A STALE
+   Return a fix_check for it too. A STALE
    claim you cannot confirm is actually_fixed=false and fails acceptance exactly like an unclosed FIXED claim.
 2. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
-   ACTIONABLE. Those are the user's calls to make, not this run's; a fix applied to one fails acceptance
-   even when the code change looks right. The developer reports these issues SKIPPED:
+   ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
+   entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
 3. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
    behavior was changed or broken.
-4. Run the FULL gates once and record the real outcome:
-     build: npm run build    test: npm test
+4. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
-5. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE you decide anything in
-   step 6: the per-issue root-cause verdict (with the residual path for any incomplete one), the
-   triage-held result, the regression result, the gate output, and each gap — or "All fixes close their
-   root cause; triage held; no regression."
+5. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 6: the
+   per-issue root-cause verdict (with the residual path for any incomplete one), the triage-held result,
+   the regression result, the gate output, and each gap — or "All fixes close their root cause; triage
+   held; no regression."
 6. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, gate
      green, no regression →
      `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return
-     pass=true, staged=true. The baseline now advances to include this block.
+     pass=true, staged=true.
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
-     a valid pass — return pass=true AND staged=true (there is simply nothing to add). Say so explicitly
-     in your file. Do NOT invent changes to justify it.
+     a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
+     invent changes to justify it.
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no blind reviewer judged the
      tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
@@ -3197,7 +3164,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you actually HAVE the block text you are judging against — the plan-block command exited 0 and printed it, or (ONLY when you were handed a plan file rather than a command) you read that file. A command that failed means FALSE — never fall back to locating the block by eye. FALSE halts the run: a verdict reached without the spec is worthless."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "pass": {
       "type": "boolean",
@@ -3205,7 +3172,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     },
     "staged": {
       "type": "boolean",
-      "description": "true if you ran `git add` on this block's files (only on pass; NEVER commit)"
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
     },
     "fix_checks": {
       "type": "array",
@@ -3253,63 +3220,69 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which was halted: the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — only the user can unblock it — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which was halted: the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work. SAVE its work to a patch, then clear it from
+the tree. The run stops after you (only the user can unblock it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -3340,7 +3313,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -3355,63 +3328,69 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which was halted: an agent could not obtain its plan. Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — only the user can unblock it — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which was halted: an agent could not obtain its plan. SAVE its work to a patch, then clear it from
+the tree. The run stops after you (only the user can unblock it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent could not obtain its plan)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -3442,7 +3421,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -3457,63 +3436,69 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which was halted: an agent returned nothing (skipped or died). Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — only the user can unblock it — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which was halted: an agent returned nothing (skipped or died). SAVE its work to a patch, then clear it from
+the tree. The run stops after you (only the user can unblock it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent returned nothing (skipped or died))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -3544,7 +3529,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -3559,64 +3544,69 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree so the REST OF THE RUN can continue — the
-next block's blind reviewer scopes on the unstaged diff, so leftover work would be attributed to that
-block and fail it for this one's problems. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). SAVE its work to a patch, then clear it from
+the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
+scopes on the unstaged diff.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -3647,7 +3637,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -3662,63 +3652,69 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). Its work is NOT thrown away and NOT left lying
-in the working tree: you SAVE it to a patch, then clear it from the tree. The run stops after you — only the user can unblock it — but the repo is left in a known,
-buildable state the user can come back to (or run something else against) before resuming. Accepted blocks are STAGED and must survive untouched.
-GOAL CONTEXT — this run drives ONE goal, decomposed into blocks in the plan file: move every caller onto the new client
+You are PARKING the plan block "block-a", which was halted: the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md). SAVE its work to a patch, then clear it from
+the tree. The run stops after you (only the user can unblock it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
 GATES (the commands that define "it works"):
   build: npm run build
   test:  npm test
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need — do NOT re-read the whole tree, the whole plan file, or the entire reference. Prefer targeted grep
-over broad reads. Don't restate large files back; act on them.
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
   • Nothing is EVER committed.
 
-SAVE BEFORE YOU CLEAR — never the other way round. If the unstaged diff is NOT empty and step 1 cannot
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
 1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   nothing to park — skip to step 3 and return saved=false, patch_bytes=0, with a note saying so.
-   Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch (create E:/flow/runs/flow/ if needed):
+   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
+   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
-   `--binary` is REQUIRED (a plain diff records "Binary files differ" and will not re-apply). The
-   unstaged diff IS exactly this block's work, and files the developer created are in it via `git add -N`.
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and files the developer created are in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git status --porcelain` still lists any `??` untracked file this block created
-   (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/ preserving
-   relative paths — the patch CANNOT carry them. Skip build output and caches. Report the count as
-   strays_saved: it matters, because step 4 must tell the user those files exist.
+2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
+   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
+   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
+   the count as strays_saved.
 3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Then delete the files it CREATED (untracked + any
-   `git add -N` intent-to-add entries). Be precise about WHY each is safe to delete: an intent-to-add
-   file is carried by the patch from step 1; a `??` stray is safe ONLY because step 2 copied it to
-   E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do NOT delete it.
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
+   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
+   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
+   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
+   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
+   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
+   NOT delete it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
 4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, the line
-     "Saved work: none (the tree held no changes)" in their place.
+     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
+     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
+     line "Saved work: no patch (the diff was empty)" if it did.
    - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
      new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`. Omit this line entirely when
-     there were no strays — do not leave a dangling reference to an empty directory.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed), then re-invoke
-     with `runOnly:["block-a"]` from the CLEAN baseline and let the developer redo it — the default,
-     with the patch kept for reference. The ONLY alternative is to apply the patch and finish this block
-     BY HAND, because a resumed run requires a clean unstaged tree and halts on a dirty one. Do NOT tell
-     the user to `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline,
-     invisible to the blind reviewer.
-Do NOT touch the staged baseline, do NOT commit, and do NOT modify any file outside this block's work.
+     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
+     there is no patch. Omit this line entirely when there were no strays.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
+     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
+     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
+     UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
 ~~~~
 
@@ -3749,7 +3745,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "strays_saved": {
       "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none). Non-zero means the restore needs a SECOND step beyond git apply, and step 4 must say so."
+      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"

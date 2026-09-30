@@ -5,7 +5,8 @@
 // grant never damages the user's settings file.
 import { execFileSync } from 'node:child_process';
 import {
-  mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, existsSync, lstatSync, symlinkSync,
+  copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync, existsSync, lstatSync,
+  symlinkSync,
 } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,16 +15,18 @@ import { grantDir, ruleFor, withRule } from '../tools/plugin-access.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/plugin-access.mjs');
 
-/** The CLI with its settings in `configDir`: `{ stdout, stderr, code }`, never throwing. */
-function cli(configDir, ...argv) {
+/** The CLI at `script` with its settings in `configDir`: `{ stdout, stderr, code }`, never throwing. */
+function cliAt(script, configDir, ...argv) {
   try {
-    const stdout = execFileSync(process.execPath, [CLI, ...argv],
+    const stdout = execFileSync(process.execPath, [script, ...argv],
       { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, CLAUDE_CONFIG_DIR: configDir } });
     return { stdout, stderr: '', code: 0 };
   } catch (e) {
     return { stdout: String(e.stdout || ''), stderr: String(e.stderr || ''), code: e.status ?? 1 };
   }
 }
+
+const cli = (configDir, ...argv) => cliAt(CLI, configDir, ...argv);
 
 /** The message from a call that should throw, or '' if it wrongly succeeded. */
 function failsWith(fn) {
@@ -158,5 +161,44 @@ section('grant refuses a dangling settings link, so the link survives for the do
     }
   } finally {
     rmSync(linkRoot, { recursive: true, force: true });
+  }
+}
+
+section('a plugin path through a link grants both the invoked spelling and the resolved folder');
+{
+  // Node realpaths the main module, so import.meta.url alone names only the link's target.
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'aipg-access-root-')));
+  const real = join(dir, 'real');
+  const link = join(dir, 'link');
+  const configDir = join(dir, 'config');
+  let isLinked = false;
+  try {
+    mkdirSync(join(real, 'tools'), { recursive: true });
+    mkdirSync(join(real, '.claude-plugin'));
+    mkdirSync(configDir);
+    copyFileSync(CLI, join(real, 'tools', 'plugin-access.mjs'));
+    copyFileSync(join(REPO_ROOT, '.claude-plugin', 'plugin.json'), join(real, '.claude-plugin', 'plugin.json'));
+    try {
+      symlinkSync(real, link, process.platform === 'win32' ? 'junction' : 'dir');
+      isLinked = true;
+    } catch { isLinked = false; }
+
+    if (isLinked) {
+      const script = join(link, 'tools', 'plugin-access.mjs');
+      const settingsPath = join(configDir, 'settings.json');
+      const rules = [ruleFor(grantDir(link, 'aipg'), homedir()), ruleFor(grantDir(real, 'aipg'), homedir())];
+      eq(cliAt(script, configDir, 'grant').stdout, `granted ${rules.join(' ')} in ${settingsPath} (added)
+`,
+        'grant through the link adds both rules in one write');
+      eq(JSON.stringify(JSON.parse(readFileSync(settingsPath, 'utf8')).permissions.allow), JSON.stringify(rules),
+        'permissions.allow holds exactly the link rule and the resolved rule');
+      eq(cliAt(script, configDir, 'check').stdout, `granted ${rules.join(' ')} in ${settingsPath}
+`,
+        'a second check through the link says granted');
+    } else {
+      ok(true, 'skipped: this machine cannot create a link');
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 }

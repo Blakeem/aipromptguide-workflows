@@ -51,3 +51,19 @@ section('a dead scrubber does not stop the run — its source is still curated')
   ok(labels.includes('curate:r1'), 'the curator still ran');
   ok(out.indexWritten === true, 'and the set was indexed');
 }
+
+section('the round-2 curator deletes a file its recapture superseded');
+// A recapture gap gets a new source id, so its gatherer writes into a new directory beside the flagged
+// file. The two are not exact duplicates, so without this instruction the round-2 curator keeps both.
+{
+  const RECAPTURE = {
+    ...CURATE, fidelity_failures: 1,
+    gaps: [{ kind: 'web', focus: 'recapture the webhooks page verbatim' }],
+  };
+  const { labels, prompt } = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate:r1': RECAPTURE, 'curate:r2': CURATE });
+  const r2 = prompt('curate:r2');
+  ok(labels.includes('curate:r2'), 'the recapture gap drives a second curate round');
+  ok(r2.includes('READ the previous E:/r/runs/t/docs/INDEX.md'), 'the round-2 prompt names the previous index to read');
+  ok(/DELETE the superseded file and drop it from the index/.test(r2), 'and tells the curator to delete the superseded file');
+  ok(!/superseded/.test(prompt('curate:r1')), 'the round-1 prompt carries no supersede rule');
+}

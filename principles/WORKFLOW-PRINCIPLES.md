@@ -91,12 +91,16 @@ cannot be stretched to license a status file. For this reason the retired `resol
 grep and produces findings no per-block agent could reach. Resolve's sweep only retold the harness's own
 accounting.
 
-The developer's only outputs besides code are two append files:
+The developer's only outputs besides code are three append files:
 - **`DISMISSED-<id>.md`**, the dismissed-findings ledger, one per plan, section, or batch. It holds one
   terse line per review finding the developer declined (false positive, intentional, conflicts with
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
   is `<file:line> — <gist> — SKIPPED: <≤15-word reason>`. The ledger is an inter-agent message from the
   developer to the reviewers and the user's end-of-run audit of every judgment call.
+- **`AMENDED-<id>.md`**, one entry per plan clause the developer overrode because it prescribes a real
+  defect. Each entry quotes the clause, names the defect's file:line, and says what was built instead.
+  It is an inter-agent message from the developer to the acceptance stage. It is kept outside `gate/`
+  because it quotes plan text (#3). `NEEDS-USER.md` gets a pointer line to it.
 - **`NEEDS-USER.md`**, the user-facing notes of blockers, questions, and decisions only the user can
   make. These may be as full as the user needs to decide. A hard blocker also stops its block (#7). A
   flag-and-proceed item is recorded, and the developer continues with a defensible default.
@@ -151,7 +155,7 @@ governs content that moves verbatim when it moves. This principle governs not du
 the copy earns its place.
 
 ### 12. Right-size before you run
-Each run builds one bounded feature. A job too small to deserve a reviewed plan, such as a one-liner or
+Each block builds one bounded feature. A job too small to deserve a reviewed plan, such as a one-liner or
 a rename, is too small for the workflow, so make the edit directly. A job too big, such as a
 breadth-spanning migration, is split or built as section-mode blocks.
 
@@ -296,12 +300,12 @@ Use these as yes/no checks when reviewing any workflow.
       remember? (#4)
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs? (#5)
 - [ ] Are the only files written the numbered inter-agent reviews, the developer's terse
-      `DISMISSED-<id>.md` ledger (or investigate's `DISQUALIFIED.md`), the full user-facing
-      `NEEDS-USER.md`, and the workflow's own product (`issues/`, `proposals/`, `variations/`,
-      `lenses/`, decision files, investigate's `options/` and `DETERMINATION.md`, the docs set and
-      `INDEX.md`, develop's `SWEEP.md`, a parked patch)? Any status, summary, progress, or "what I did"
-      file is narration and a violation, including one that restates numbers the harness already has.
-      (#6)
+      `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
+      `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, and the workflow's own product
+      (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
+      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, a parked patch)? Any
+      status, summary, progress, or "what I did" file is narration and a violation, including one
+      that restates numbers the harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3), and the
       acceptance stage the ledger and user notes, with neither reading the prior review files? (#5)
 - [ ] Can a reviewer contest a wrong dismissal, and must the developer then fix or escalate it and never

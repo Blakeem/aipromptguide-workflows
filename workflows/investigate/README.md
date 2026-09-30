@@ -90,10 +90,11 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 
 ## Reviewing the result
 
-Under `runs/<runId>/`: the qualifying options with their per-criterion evidence (`options/<id>.md`), the
-full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each round covered and what it
-would try next (`SEARCHED.md`), the critic's round-by-round findings (`acceptance-review-rN.md`), and the
-conclusion (`DETERMINATION.md`).
+Under `runs/<runId>/`: each option the investigator qualified, with its per-criterion evidence
+(`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each
+round covered and what it would try next (`SEARCHED.md`), the critic's round-by-round findings
+(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The file of an option the critic
+disqualified stays in `options/`. The run's `options` result lists only the verified ones.
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
 `not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — you

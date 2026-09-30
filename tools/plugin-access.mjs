@@ -1,12 +1,13 @@
-// tools/plugin-access.mjs: the one Read allow rule that lets the Workflow tool launch this plugin's engines.
+// tools/plugin-access.mjs: the Read allow rule that lets the Workflow tool launch this plugin's engines,
+// plus a second rule for the resolved folder when the plugin path goes through a link.
 //
 // The Workflow tool takes a scriptPath only when the session may already read it, and an installed
 // plugin's folder sits outside every project. A plugin cannot grant itself access, so each skill runs
 // `check` first and, after the user agrees, `grant`. Claude Code reloads settings live, so the next
 // launch in the same session passes.
 //
-//   node tools/plugin-access.mjs check    # "granted <rule> in <settings>" or "missing <rule> in <settings>"
-//   node tools/plugin-access.mjs grant    # adds the rule to the user settings, a no-op when present
+//   node tools/plugin-access.mjs check    # "granted <rules> in <settings>" or "missing <rules> in <settings>"
+//   node tools/plugin-access.mjs grant    # adds the missing rules to the user settings, a no-op when present
 //
 // The user settings are <$CLAUDE_CONFIG_DIR or ~/.claude>/settings.json. Ordinary Node: `node --check` applies.
 
@@ -15,7 +16,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const USAGE = 'usage: node tools/plugin-access.mjs check|grant';
@@ -107,20 +108,30 @@ function main(argv) {
   // Input
   const [verb] = argv;
   if (argv.length !== 1 || !VERBS.includes(verb)) throw new Error(USAGE);
-  const root = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
-  const pluginName = JSON.parse(readFileSync(join(root, '.claude-plugin', 'plugin.json'), 'utf8')).name;
+  // Node realpaths the main module, so only argv[1] keeps the ${CLAUDE_PLUGIN_ROOT} spelling through a link.
+  // Whether the scriptPath gate matches that spelling or the resolved one is unmeasured, so both are granted.
+  const invokedRoot = dirname(dirname(resolve(process.argv[1])));
+  const realRoot = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
+  const pluginName = JSON.parse(readFileSync(join(realRoot, '.claude-plugin', 'plugin.json'), 'utf8')).name;
   const settingsPath = join(process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude'), 'settings.json');
   const settings = readSettings(settingsPath);
+  let granted = settings;
+  let present = true;
 
   // Process
-  const rule = ruleFor(grantDir(root, pluginName), homedir());
-  const { settings: granted, present } = withRule(settings, rule);
+  const rules = [...new Set([invokedRoot, realRoot].map((r) => ruleFor(grantDir(r, pluginName), homedir())))];
+  for (const rule of rules) {
+    const folded = withRule(granted, rule);
+    granted = folded.settings;
+    present = present && folded.present;
+  }
+  const spelled = rules.join(' ');
 
   // Output
-  if (present) return `granted ${rule} in ${settingsPath}\n`;
-  if (verb === 'check') return `missing ${rule} in ${settingsPath}\n`;
+  if (present) return `granted ${spelled} in ${settingsPath}\n`;
+  if (verb === 'check') return `missing ${spelled} in ${settingsPath}\n`;
   writeSettings(settingsPath, granted);
-  return `granted ${rule} in ${settingsPath} (added)\n`;
+  return `granted ${spelled} in ${settingsPath} (added)\n`;
 }
 
 // Realpath both sides, as the other tools do: a link in the script path otherwise made the CLI a no-op.

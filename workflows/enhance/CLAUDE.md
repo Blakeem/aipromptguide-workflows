@@ -58,7 +58,7 @@ One phase, no mid-run questions — settle everything with the user first:
   `runs/` lands outside the target repo.
 - **`scope` — REQUIRED:** the file/dir paths every finder reads. Each lens sees **all** of it, so keep it
   to what one agent can genuinely read in a turn. Larger than that → run per subsystem with a narrower
-  scope, or subdivide with lens × unit.
+  scope.
 - **`lenses` — REQUIRED:** ≥1 axis (strings, or `{ id, focus, criteria }`). Ids that collide after
   slugging throw — two lenses would write the same proposal file.
 - **`target.repo`:** the absolute path to the system under audit — the directory holding its `.git`.

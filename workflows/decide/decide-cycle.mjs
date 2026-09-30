@@ -92,7 +92,7 @@ const REQ         = (!PLAN_PATH && A.requirements) ? String(A.requirements) : ''
 if (!PLAN_PATH && !REQ) {
   throw new Error('Provide the requirements (the rubric both the decider and reviewer judge against): either planPath (a plan-mode file) or requirements (an inline string with the non-negotiable constraints + weighted criteria + the decision to be made).');
 }
-const REQ_REF     = PLAN_PATH ? `the requirements at ${PLAN_PATH} (read them verbatim — they are the fixed rubric)` : `the requirements below:\n-----\n${REQ}\n-----`;
+const REQ_REF     = PLAN_PATH ? `the requirements at ${PLAN_PATH} (read them verbatim: the fixed rubric)` : `the requirements below:\n-----\n${REQ}\n-----`;
 
 // Lenses — the evaluation perspectives. Each becomes ONE analyst → ONE file. Accept strings or {id, focus}.
 const LENSES = (Array.isArray(A.lenses) ? A.lenses : []).map((l, i) => {
@@ -125,7 +125,7 @@ const DECIDE_SCHEMA = {
   required: RANKED ? ['wrote_file', 'chosen', 'shortlist', 'meets_all_requirements', 'needs_user'] : ['wrote_file', 'chosen', 'meets_all_requirements', 'needs_user'],
   properties: {
     wrote_file:             { type: 'boolean', description: 'true if you wrote the decision file' },
-    chosen:                 { type: 'string', description: RANKED ? 'short title of the RANK-1 option (the list itself is in the file)' : 'short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)' },
+    chosen:                 { type: 'string', description: RANKED ? 'short title of the RANK-1 option (the list itself is in the file)' : 'short title of the chosen conclusion (may be a hybrid)' },
     ...(RANKED ? {
       shortlist: {
         type: 'array',
@@ -142,7 +142,7 @@ const DECIDE_SCHEMA = {
         },
       },
     } : {}),
-    meets_all_requirements: { type: 'boolean', description: RANKED ? 'true if EVERY option on the shortlist satisfies every non-negotiable (any that does not must be off the list, not ranked last)' : 'true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)' },
+    meets_all_requirements: { type: 'boolean', description: RANKED ? 'true if EVERY option on the shortlist satisfies every non-negotiable' : 'true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)' },
     open_questions:         { type: 'integer', description: 'count of unresolved points you noted in the decision file (0 if none)' },
     needs_user:             { type: 'boolean', description: 'true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
   },
@@ -153,9 +153,9 @@ const REVIEW_SCHEMA = {
   required: ['wrote_file', 'agree', 'gap_count', 'gap_ids', 'needs_user'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true if you wrote the review file' },
-    agree:      { type: 'boolean', description: 'true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated' },
+    agree:      { type: 'boolean', description: 'true ONLY if your CHECK found no gap: every requirement met, matrix sound' },
     gap_count:  { type: 'integer', description: 'number of gaps/objections written to the review file (0 when you agree)' },
-    gap_ids:    { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. "p99-unproven", "lru-citation-stretched"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified' },
+    gap_ids:    { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. "p99-unproven", "lru-citation-stretched"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap' },
     needs_user: { type: 'boolean', description: 'true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
   },
 };
@@ -164,73 +164,70 @@ const REVIEW_SCHEMA = {
 // Shared prompt fragment
 // =============================================================================
 const ENV = `THE DECISION + RUBRIC: ${REQ_REF}
-${REPO ? `CODEBASE (read-only context — pattern-fit / feasibility only; do NOT modify): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONTEXT ? `EXTRA CONTEXT: ${CONTEXT}\n` : ''}${TESTBED ? `TESTBED — ground claims EMPIRICALLY where you can: ${TESTBED}\nPrefer MEASURED evidence over reasoning: run the check, cite the exact command + result in your file
-(#14) — a measurement beats an argument, and it lets the reviewer re-run it. Treat the testbed strictly
-READ-ONLY unless it explicitly says otherwise; leave no artifacts behind.\n` : ''}NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.`;
+${REPO ? `CODEBASE (read-only context — pattern-fit / feasibility only; do NOT modify): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONTEXT ? `EXTRA CONTEXT: ${CONTEXT}\n` : ''}${TESTBED ? `TESTBED — ground claims EMPIRICALLY where you can: ${TESTBED}\nPrefer MEASURED evidence over reasoning: run the check and cite the exact command + result in your file,
+so the reviewer can re-run it. Treat the testbed as READ-ONLY unless it says otherwise. Leave no artifacts.\n` : ''}NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.`;
 
 // =============================================================================
 // Role prompts
 // =============================================================================
 const analystPrompt = (lens) => `
-You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answer your lens can offer —
-push that perspective hard; the decider will balance lenses later, so do NOT pre-compromise.
+You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answer your lens can offer.
+Push that perspective hard and do NOT pre-compromise: the decider balances lenses later.
 ${ENV}
 YOUR LENS: ${lens.focus}
 
 PROCEDURE:
-1. Generate 2–4 DISTINCT options that address the decision (include a simple baseline among them).
-2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0). State the reasoning per score.
-3. Recommend the one option your lens favours, and call out which ELEMENTS of it are worth keeping even
-   if another option ultimately wins (so the decider can build a hybrid).
-WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed): for each option a short block — title,
-description, your 0–10 lens score + why, and (for your pick) the keep-worthy elements. Be concrete and
+1. Generate 2–4 DISTINCT options that address the decision, including a simple baseline.
+2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0).
+3. Recommend the one option your lens favours, and name the ELEMENTS of it worth keeping even if another
+   option wins (so the decider can build a hybrid).
+WRITE ${lensFile(lens.id)} (create ${LENS_DIR}/ if needed): per option a short block with title,
+description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
 terse. Do NOT modify any repo, stage, or commit.
-Return wrote_file + top_pick via the schema (the analysis itself is the file).`;
+Return via the schema.`;
 
 const decidePrompt = (round, reviewPath) => `
 You are the DECIDER. Converge the lensed analyses into ${RANKED
     ? `a RANKED SHORTLIST of the strongest options (up to ${SHORTLIST_N}) via a global weighted decision
-matrix. You are NOT picking one winner — the user wants the best options in order, to choose among or
-combine. Rank honestly; do not pad the list to reach ${SHORTLIST_N}.`
-    : `ONE justified conclusion via a global weighted
-decision matrix that pulls in the best elements of each lens where they compose.`}
+matrix. You are NOT picking one winner: the user wants the best options in order, to choose among or
+combine.`
+    : `ONE justified conclusion via a global weighted decision matrix.`}
 ${ENV}
-LENS ANALYSES — read each VERBATIM (these are your inputs):
+LENS ANALYSES — read each VERBATIM:
 ${LIVE.map((l) => `  - ${lensFile(l.id)}  (lens: ${l.focus})`).join('\n')}
 ${round === 1
-    ? `This is round 1.`
-    : `The reviewer did NOT yet agree — READ ${reviewPath} and resolve every gap/objection it raises.
-Your prior decision is at ${decisionFile(round - 1)}; revise it, do not start over unless a gap is fundamental.`}
+    ? ''
+    : `The reviewer did NOT yet agree. READ ${reviewPath} and resolve every gap/objection it raises.
+Revise your prior decision at ${decisionFile(round - 1)}. Start over only if a gap is fundamental.`}
 
 PROCEDURE:
-1. Consolidate the options across all lens files; dedupe near-identical ones. You MAY construct a hybrid
-   that combines the best elements of several — but only where they genuinely compose (no Frankenstein).
-2. Choose the weighted CRITERIA from the requirements (and their weights). Build a decision matrix:
-   each candidate option (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable
-   violations forced to 0, weighted total computed. The highest defensible total wins.
-   GROUND every cell (#14): cite the lens evidence behind the score (lens + the specific claim); where
-   none exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence" — never
-   fabricate a citation.
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the weighted CRITERIA and their weights from the requirements. Build a decision matrix: each
+   candidate (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable violations forced to
+   0, weighted total computed. The highest defensible total wins.
+   GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
+   exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
+   citation.
 ${RANKED
     ? `3. RANK the strongest options by weighted total, best first, up to ${SHORTLIST_N}. An option that
-   violates a non-negotiable is OFF the list entirely — never ranked last. For EACH listed option give:
-   what it BUYS, what it COSTS, and its rank rationale (why it sits above the one below it). Then state
-   which listed options genuinely COMBINE and which are MUTUALLY EXCLUSIVE — a shortlist the user cannot
-   safely mix is a trap. Do NOT pad: a list of three real options beats ${SHORTLIST_N} with filler, and
-   if one option truly dominates, say so plainly at rank 1 rather than manufacturing rivals.
+   violates a non-negotiable is OFF the list, never ranked last. Do NOT pad: three real options beat
+   ${SHORTLIST_N} with filler, and if one option truly dominates, say so at rank 1 rather than
+   manufacturing rivals.
 WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed): the matrix (table, all candidates scored),
-then the RANKED SHORTLIST — one block per option with buys / costs / rank rationale — then a
-"Combine / exclude" section, then anything you considered and left OFF the list with one line why, then
-any open questions. Do NOT modify any repo, stage, or commit.`
-    : `3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
-   Confirm it satisfies every non-negotiable and criterion; note any residual risk or follow-up.
+then the RANKED SHORTLIST (one block per option: what it BUYS, what it COSTS, and why it sits above the one
+below it), then a "Combine / exclude" section stating which listed options genuinely COMBINE and which are
+MUTUALLY EXCLUSIVE (a shortlist the user cannot safely mix is a trap), then anything you considered and
+left OFF the list with one line why, then any open questions. Do NOT modify any repo, stage, or commit.`
+    : `3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE ${decisionFile(round)} (create ${STATE_DIR}/ if needed): the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.`}
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to ${NEEDS_USER} and set needs_user=true (the run HALTS).
-Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — titles + rank + combines_with/excludes; the reasoning stays in the file)' : ''} + meets_all_requirements + open_questions + needs_user + wrote_file via the schema.`;
+Return via the schema.`;
 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not argument evaluation): the reviewer
 // MUST see the decision + requirements to judge them. It does NOT read prior review files (that would
@@ -238,47 +235,42 @@ Return chosen${RANKED ? ' (your rank-1) + shortlist (the ordered index — title
 // instruction-based, not placement-based (#3): prior reviews share STATE_DIR, an accepted trade-off
 // vs. per-round directories.
 const reviewPrompt = (round, priorSlugs, isFinal) => `
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'}: find any
-requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
-non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK ${RANKED ? 'the ranked shortlist' : 'the conclusion'} against the CHECK below.
+Agree (agree=true) only when you genuinely cannot.
 ${ENV}
 THE ${RANKED ? 'SHORTLIST' : 'DECISION'} TO REVIEW (read it verbatim): ${decisionFile(round)}
 THE LENS ANALYSES it drew on (cross-check its claims against these): ${LIVE.map((l) => lensFile(l.id)).join(', ')}
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-${priorSlugs.length ? `Gaps earlier reviews raised, AS SLUGS (ids only — you have not seen their content, and are not to go
-looking for it): ${priorSlugs.join(', ')}. If a gap you find is the SAME issue as one of those, then
-reuse its slug verbatim in gap_ids; otherwise mint a new short kebab-case one. Which gaps repeat is a
-measurement, not an opinion — do not stretch a slug to fit, and do not withhold one because it was
-raised before.
+${priorSlugs.length ? `Gaps earlier reviews raised, AS SLUGS (ids only. Do not go looking for their content):
+${priorSlugs.join(', ')}. If a gap you find is the SAME issue as one of those, reuse its slug verbatim in
+gap_ids. Otherwise mint a new short kebab-case one. Do not stretch a slug to fit, and do not withhold one
+because it was raised before.
 ` : ''}
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
-   cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
-   "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
-   assertion is a gap. Re-derive any score that looks generous.
+2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
+   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
+   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
+   score that looks generous.
 ${RANKED
     ? `3. A clearly stronger option the decider left OFF the list, or never considered?
-4. Is the ORDER defensible? Name any option that dominates the one ranked above it, and any pair whose
-   ranking the matrix does not actually support. Is anything on the list padding — a filler option that
-   should not be there at all?
-5. Are the COMBINE / MUTUALLY-EXCLUSIVE claims right? Two items sold as combinable that actually
-   conflict is the most damaging error this list can carry — check each claimed pair against the lens
-   evidence. Any option on the list violating a non-negotiable is an automatic NOT agree (it should
-   have been excluded, not ranked).`
+4. Is the ORDER defensible? Name any option that dominates the one ranked above it, any pair whose
+   ranking the matrix does not support, and any filler option that should not be on the list at all.
+5. Are the COMBINE / MUTUALLY-EXCLUSIVE claims right? Check each claimed pair against the lens evidence:
+   two items sold as combinable that actually conflict is the most damaging error this list can carry.
+   Any listed option violating a non-negotiable is an automatic NOT agree.`
     : `3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?`}
-WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, ${RANKED
+WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/objection with the
+requirement or lens evidence it rests on, or, if sound, ${RANKED
     ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
     : '"Conclusion holds: every requirement met, matrix sound."'} Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.${isFinal ? `
-This is the run's LAST round — no decider round follows this review. If you do NOT agree, END that file
-with a \`## WHERE NEXT\` section: the ONE requirement axis the rubric does not settle (the trade-off you
-and the decider keep landing on opposite sides of), and the ONE change to the requirements — a weight, a
-non-negotiable, a missing criterion — that would let a decision converge. It is the only thing that makes
-a stalled decision resumable; without it, it reads like a finished one with nothing left to do.` : ''}
-Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.`;
+This is the run's LAST round: no decider round follows. If you do NOT agree, END that file with a
+\`## WHERE NEXT\` section: the ONE requirement axis the rubric does not settle (the trade-off you and the
+decider keep landing on opposite sides of), and the ONE change to the requirements (a weight, a
+non-negotiable, a missing criterion) that would let a decision converge.` : ''}
+Return via the schema.`;
 
 // =============================================================================
 // DIVERGE — fan out one analyst per lens, concurrently (read-only, write own lens file).

@@ -6,14 +6,14 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| analyst | 1 | 1 | 1426 | reviewer agrees |
-| decide | 1 | 1 | 2344 | reviewer agrees |
-| review | 1 | 1 | 2228 | reviewer agrees |
-| decide | 2 | 1 | 2566 | gaps to the round budget |
-| review | 2 | 1 | 2636 | gaps to the round budget |
-| review | 3 | 1 | 3150 | gaps to the round budget |
-| decide | 3 | 1 | 2281 | one lens dies |
-| review | 4 | 1 | 2188 | one lens dies |
+| analyst | 1 | 1 | 1272 | reviewer agrees |
+| decide | 1 | 1 | 2091 | reviewer agrees |
+| review | 1 | 1 | 1970 | reviewer agrees |
+| decide | 2 | 1 | 2315 | gaps to the round budget |
+| review | 2 | 1 | 2289 | gaps to the round budget |
+| review | 3 | 1 | 2660 | gaps to the round budget |
+| decide | 3 | 1 | 2028 | one lens dies |
+| review | 4 | 1 | 1930 | one lens dies |
 
 ## analyst · variant 1 · schema 1
 
@@ -21,8 +21,8 @@ this file is stale.
 
 ~~~~text
 
-You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answer your lens can offer —
-push that perspective hard; the decider will balance lenses later, so do NOT pre-compromise.
+You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answer your lens can offer.
+Push that perspective hard and do NOT pre-compromise: the decider balances lenses later.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -32,20 +32,20 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
 YOUR LENS: efficiency
 
 PROCEDURE:
-1. Generate 2–4 DISTINCT options that address the decision (include a simple baseline among them).
-2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0). State the reasoning per score.
-3. Recommend the one option your lens favours, and call out which ELEMENTS of it are worth keeping even
-   if another option ultimately wins (so the decider can build a hybrid).
-WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed): for each option a short block — title,
-description, your 0–10 lens score + why, and (for your pick) the keep-worthy elements. Be concrete and
+1. Generate 2–4 DISTINCT options that address the decision, including a simple baseline.
+2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0).
+3. Recommend the one option your lens favours, and name the ELEMENTS of it worth keeping even if another
+   option wins (so the decider can build a hybrid).
+WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed): per option a short block with title,
+description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
 terse. Do NOT modify any repo, stage, or commit.
-Return wrote_file + top_pick via the schema (the analysis itself is the file).
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -74,8 +74,7 @@ Return wrote_file + top_pick via the schema (the analysis itself is the file).
 
 ~~~~text
 
-You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted
-decision matrix that pulls in the best elements of each lens where they compose.
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -85,31 +84,31 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
-LENS ANALYSES — read each VERBATIM (these are your inputs):
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
   - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
-This is round 1.
+
 
 PROCEDURE:
-1. Consolidate the options across all lens files; dedupe near-identical ones. You MAY construct a hybrid
-   that combines the best elements of several — but only where they genuinely compose (no Frankenstein).
-2. Choose the weighted CRITERIA from the requirements (and their weights). Build a decision matrix:
-   each candidate option (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable
-   violations forced to 0, weighted total computed. The highest defensible total wins.
-   GROUND every cell (#14): cite the lens evidence behind the score (lens + the specific claim); where
-   none exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence" — never
-   fabricate a citation.
-3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
-   Confirm it satisfies every non-negotiable and criterion; note any residual risk or follow-up.
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the weighted CRITERIA and their weights from the requirements. Build a decision matrix: each
+   candidate (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable violations forced to
+   0, weighted total computed. The highest defensible total wins.
+   GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
+   exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
+   citation.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
-Return chosen + meets_all_requirements + open_questions + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -128,7 +127,7 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
     },
     "chosen": {
       "type": "string",
-      "description": "short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)"
+      "description": "short title of the chosen conclusion (may be a hybrid)"
     },
     "meets_all_requirements": {
       "type": "boolean",
@@ -152,9 +151,8 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion: find any
-requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
-non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
+Agree (agree=true) only when you genuinely cannot.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -164,25 +162,25 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
 
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
-   cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
-   "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
-   assertion is a gap. Re-derive any score that looks generous.
+2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
+   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
+   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
+   score that looks generous.
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -202,7 +200,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated"
+      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
     },
     "gap_count": {
       "type": "integer",
@@ -213,7 +211,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified"
+      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
     },
     "needs_user": {
       "type": "boolean",
@@ -229,8 +227,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
 
 ~~~~text
 
-You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted
-decision matrix that pulls in the best elements of each lens where they compose.
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -240,32 +237,32 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
-LENS ANALYSES — read each VERBATIM (these are your inputs):
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
   - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
-The reviewer did NOT yet agree — READ E:/flow/runs/flow/decision-review-r1.md and resolve every gap/objection it raises.
-Your prior decision is at E:/flow/runs/flow/decision-r1.md; revise it, do not start over unless a gap is fundamental.
+The reviewer did NOT yet agree. READ E:/flow/runs/flow/decision-review-r1.md and resolve every gap/objection it raises.
+Revise your prior decision at E:/flow/runs/flow/decision-r1.md. Start over only if a gap is fundamental.
 
 PROCEDURE:
-1. Consolidate the options across all lens files; dedupe near-identical ones. You MAY construct a hybrid
-   that combines the best elements of several — but only where they genuinely compose (no Frankenstein).
-2. Choose the weighted CRITERIA from the requirements (and their weights). Build a decision matrix:
-   each candidate option (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable
-   violations forced to 0, weighted total computed. The highest defensible total wins.
-   GROUND every cell (#14): cite the lens evidence behind the score (lens + the specific claim); where
-   none exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence" — never
-   fabricate a citation.
-3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
-   Confirm it satisfies every non-negotiable and criterion; note any residual risk or follow-up.
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the weighted CRITERIA and their weights from the requirements. Build a decision matrix: each
+   candidate (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable violations forced to
+   0, weighted total computed. The highest defensible total wins.
+   GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
+   exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
+   citation.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r2.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
-Return chosen + meets_all_requirements + open_questions + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -284,7 +281,7 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
     },
     "chosen": {
       "type": "string",
-      "description": "short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)"
+      "description": "short title of the chosen conclusion (may be a hybrid)"
     },
     "meets_all_requirements": {
       "type": "boolean",
@@ -308,9 +305,8 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion: find any
-requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
-non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
+Agree (agree=true) only when you genuinely cannot.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -320,30 +316,29 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r2.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-Gaps earlier reviews raised, AS SLUGS (ids only — you have not seen their content, and are not to go
-looking for it): slug-a, slug-b. If a gap you find is the SAME issue as one of those, then
-reuse its slug verbatim in gap_ids; otherwise mint a new short kebab-case one. Which gaps repeat is a
-measurement, not an opinion — do not stretch a slug to fit, and do not withhold one because it was
-raised before.
+Gaps earlier reviews raised, AS SLUGS (ids only. Do not go looking for their content):
+slug-a, slug-b. If a gap you find is the SAME issue as one of those, reuse its slug verbatim in
+gap_ids. Otherwise mint a new short kebab-case one. Do not stretch a slug to fit, and do not withhold one
+because it was raised before.
 
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
-   cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
-   "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
-   assertion is a gap. Re-derive any score that looks generous.
+2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
+   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
+   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
+   score that looks generous.
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -363,7 +358,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated"
+      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
     },
     "gap_count": {
       "type": "integer",
@@ -374,7 +369,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified"
+      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
     },
     "needs_user": {
       "type": "boolean",
@@ -390,9 +385,8 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion: find any
-requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
-non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
+Agree (agree=true) only when you genuinely cannot.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -402,35 +396,33 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r3.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-Gaps earlier reviews raised, AS SLUGS (ids only — you have not seen their content, and are not to go
-looking for it): slug-a, slug-b. If a gap you find is the SAME issue as one of those, then
-reuse its slug verbatim in gap_ids; otherwise mint a new short kebab-case one. Which gaps repeat is a
-measurement, not an opinion — do not stretch a slug to fit, and do not withhold one because it was
-raised before.
+Gaps earlier reviews raised, AS SLUGS (ids only. Do not go looking for their content):
+slug-a, slug-b. If a gap you find is the SAME issue as one of those, reuse its slug verbatim in
+gap_ids. Otherwise mint a new short kebab-case one. Do not stretch a slug to fit, and do not withhold one
+because it was raised before.
 
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
-   cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
-   "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
-   assertion is a gap. Re-derive any score that looks generous.
+2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
+   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
+   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
+   score that looks generous.
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-This is the run's LAST round — no decider round follows this review. If you do NOT agree, END that file
-with a `## WHERE NEXT` section: the ONE requirement axis the rubric does not settle (the trade-off you
-and the decider keep landing on opposite sides of), and the ONE change to the requirements — a weight, a
-non-negotiable, a missing criterion — that would let a decision converge. It is the only thing that makes
-a stalled decision resumable; without it, it reads like a finished one with nothing left to do.
-Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
+This is the run's LAST round: no decider round follows. If you do NOT agree, END that file with a
+`## WHERE NEXT` section: the ONE requirement axis the rubric does not settle (the trade-off you and the
+decider keep landing on opposite sides of), and the ONE change to the requirements (a weight, a
+non-negotiable, a missing criterion) that would let a decision converge.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -450,7 +442,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated"
+      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
     },
     "gap_count": {
       "type": "integer",
@@ -461,7 +453,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified"
+      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
     },
     "needs_user": {
       "type": "boolean",
@@ -477,8 +469,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
 
 ~~~~text
 
-You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted
-decision matrix that pulls in the best elements of each lens where they compose.
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -488,30 +479,30 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
-LENS ANALYSES — read each VERBATIM (these are your inputs):
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
-This is round 1.
+
 
 PROCEDURE:
-1. Consolidate the options across all lens files; dedupe near-identical ones. You MAY construct a hybrid
-   that combines the best elements of several — but only where they genuinely compose (no Frankenstein).
-2. Choose the weighted CRITERIA from the requirements (and their weights). Build a decision matrix:
-   each candidate option (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable
-   violations forced to 0, weighted total computed. The highest defensible total wins.
-   GROUND every cell (#14): cite the lens evidence behind the score (lens + the specific claim); where
-   none exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence" — never
-   fabricate a citation.
-3. State the WINNER, WHY it wins, and explicitly WHY NOT each runner-up (the disqualifying trade-offs).
-   Confirm it satisfies every non-negotiable and criterion; note any residual risk or follow-up.
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the weighted CRITERIA and their weights from the requirements. Build a decision matrix: each
+   candidate (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable violations forced to
+   0, weighted total computed. The highest defensible total wins.
+   GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
+   exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
+   citation.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
 with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
-Return chosen + meets_all_requirements + open_questions + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -530,7 +521,7 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
     },
     "chosen": {
       "type": "string",
-      "description": "short title of the chosen conclusion (may be a hybrid pulling the best of several lenses)"
+      "description": "short title of the chosen conclusion (may be a hybrid)"
     },
     "meets_all_requirements": {
       "type": "boolean",
@@ -554,9 +545,8 @@ Return chosen + meets_all_requirements + open_questions + needs_user + wrote_fil
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion: find any
-requirement it misses, any unsupported leap in the matrix, any clearly-better option it overlooked, any
-non-negotiable it violates. Agreement (agree=true) is only warranted when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
+Agree (agree=true) only when you genuinely cannot.
 THE DECISION + RUBRIC: the requirements below:
 -----
 ## Decision
@@ -566,25 +556,25 @@ Which cache layer?
 ## Weighted criteria
 - latency (weight 3)
 -----
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win, no
-matter how strong elsewhere. Prefer the SIMPLEST option that meets all requirements; if a more complex
-option wins, the matrix must justify why the simpler one is inadequate.
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md
 Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
 
 CHECK, against the requirements rubric:
 1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion actually addressed, and every matrix cell's citation VERIFIED (#14): the
-   cited lens claim exists and actually supports that score — spot-read the lens files. Cells marked
-   "own judgment, low-confidence" are legitimate; a stretched/fabricated citation or an unmarked
-   assertion is a gap. Re-derive any score that looks generous.
+2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
+   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
+   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
+   score that looks generous.
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with concrete
-reference to the requirement or lens evidence it rests on — or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
+Return via the schema.
 ~~~~
 
 ~~~~json
@@ -604,7 +594,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if the conclusion meets EVERY requirement and the decision matrix is sound — no unsupported leap, no clearly-better option overlooked, no non-negotiable violated"
+      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
     },
     "gap_count": {
       "type": "integer",
@@ -615,7 +605,7 @@ Return agree + gap_count + gap_ids + needs_user + wrote_file via the schema.
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"); [] when you agree. If a slug is listed as raised by an earlier round and you are re-raising THAT SAME issue, reuse it verbatim; mint a new one only for a genuinely new gap. Which gaps repeat is how the operator tells a decider that is not resolving them from a question that is under-specified"
+      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
     },
     "needs_user": {
       "type": "boolean",

@@ -145,7 +145,7 @@ const reviewSchema = (categories) => ({
   type: 'object',
   required: ['findings', 'wrote_clean_marker'],
   properties: {
-    wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-unit marker file (you had ZERO findings AND no ALREADY-FOUND list); false whenever you report any finding' },
+    wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-unit marker file, false whenever you report any finding' },
     findings: {
       type: 'array',
       items: {
@@ -206,47 +206,44 @@ const VERIFY_SCHEMA = {
 // Shared prompt fragments
 // =============================================================================
 const ENV = `TARGET REPO: ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
-All source paths below are RELATIVE TO THIS REPO. Use \`git -C ${REPO} …\` for any git operation.
-CONVENTIONS (judge against these; deviations are 'convention' findings):
+Source paths are RELATIVE TO THIS REPO. Use \`git -C ${REPO} …\` for git.
+CONVENTIONS (judge against these):
 ${CONVENTIONS}
-GATES (the build/test commands that define "it works"; run them from the repo root):
+GATES (the build/test commands that define "it works", run from the repo root):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only with a targeted grep or a short read, and only to confirm or reject a
-candidate in those files. Findings stay about those files.
-Prefer targeted grep over broad reads. Don't restate large files back; act on them.`;
+task names. Read another file only by targeted grep or short read, and only to confirm or reject a
+candidate in those files. Don't restate large files back.`;
 
 // =============================================================================
 // Review-phase prompts
 // =============================================================================
 const reviewPrompt = (unit, L, handled, cleanEligible) => `
 You are the REVIEWER ${L.mandate}. This is a
-FIND-ONLY pass: you report defects; a verified+batched phase fixes them later. Do NOT modify any file in
+FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
 the target repo${cleanEligible
     ? ' (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).'
     : '. Write no file. Another pass decides the unit\'s marker. Return wrote_clean_marker=false.'}
 ${ENV}
 UNIT: ${unit.id}${L.isSet ? `\nLENS: ${L.id}` : ''}
-FILES TO REVIEW (read them fully; review ONLY these files):
+FILES TO REVIEW (read them fully):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
 
-Assess against these criteria and report concrete, located issues:
-  ${L.criteria}.
+Assess against these criteria:
+  ${L.criteria}.${L.categories.includes('convention') ? "\n  File deviations from CONVENTIONS as 'convention' findings." : ''}
 
 RULES:
 - SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ ${L.findingNoun}. Do NOT report below-floor,
-  stylistic, or speculative "could be more defensive" suggestions — they are dropped downstream and
-  only waste the verify stage. If in doubt it's below the floor, omit it.
-- READ THE CURRENT FILE CONTENTS before reporting. Do NOT report anything already handled in the code
-  as it exists now${handled.length ? ', and do NOT re-report anything in the ALREADY FOUND list below (even rephrased)' : ''}.
+  stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
+- Do NOT report anything the current code already handles${handled.length ? ', or anything in the ALREADY FOUND list below, even rephrased' : ''}.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
-  above narrows WHICH defects matter here; it never licenses proposing a new capability, a feature, or
-  an efficiency idea — those are a different workflow and are rejected downstream. Every finding must
-  be something the code gets WRONG today, not something it could do better.
+  above narrows WHICH defects matter here. It never licenses proposing a new capability, a feature, or
+  an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
+  WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters${L.matters},
-  and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass (do NOT re-report):\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
+  and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass:\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO ${REVIEW_SEV_NAME}+ findings, WRITE the file ${issueFile(unit.id)} (create
 ${ISSUES_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
@@ -260,10 +257,9 @@ reviewed: true
 
 No issues found.
 -----
-If you report ANY ${REVIEW_SEV_NAME}+ finding, write NOTHING (a verifier writes this unit's file) and set wrote_clean_marker=false.
-Do NOT write issues.json, any shared doc, or a source file.
+If you report ANY ${REVIEW_SEV_NAME}+ finding, write NOTHING and set wrote_clean_marker=false.
 ` : ''}
-Return findings via the schema. An empty findings array means this unit is clean — a normal, good outcome.`;
+Return findings via the schema. An empty array (a clean unit) is a normal, good outcome.`;
 
 // CONTRACT with develop's fix mode — change both together. The issue-file BLOCK FORMAT the verifier writes
 // below (frontmatter unit/hash/reviewed; a `## Plan: <slug(unit.id)>` header with its mode/gate/status
@@ -272,21 +268,19 @@ Return findings via the schema. An empty findings array means this unit is clean
 // tools/plan-block.mjs and tools/plan-edit.mjs args writes statuses back into.
 // `lensDied` stamps `hash: incomplete`, which gen-units reads as `changed`, so resume re-runs the dead lens.
 const verifyPrompt = (unit, items, lensDied) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
-You are the VERIFIER (read-only on SOURCE — you write exactly one inventory file and nothing else). For
-each candidate finding below, inspect the ACTUAL code in the repo to confirm it is real, correct its
-severity, then route it with the decision matrix. Reject false positives and gold-plating ruthlessly —
-a noisy inventory wastes the user's triage time and the fixer's context. Reject, in particular,
-anything the code ALREADY does, and anything that is a preference rather than a defect.
+You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else. For
+each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
+route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
+anything the code ALREADY does and anything that is a preference rather than a defect.
 ${ENV}
 UNIT: ${unit.id}
 UNIT FILES (each entry's \`- loc:\` value comes from this list):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
-THE REVIEWER${multi ? "S'" : "'S"} BRIEF${multi ? 'S' : ''} for this unit — context for judging severity. ${multi
-    ? `${lenses.length} reviewers each swept these files under a DIFFERENT brief; judge each candidate against
-the brief it came from (named on its line below). A brief narrows which defects matter; it does NOT
-widen what counts as one.
+THE REVIEWER${multi ? "S'" : "'S"} BRIEF${multi ? 'S' : ''} (context for judging severity). ${multi
+    ? `${lenses.length} reviewers each swept these files under a DIFFERENT brief. Judge each candidate against
+the brief named on its line below. A brief narrows which defects matter. It does NOT widen what counts as one.
 ${lenses.map((l) => `  [${l.id}] ${l.mandate}`).join('\n')}`
-    : `It narrows which defects matter, it does NOT widen what counts as one:
+    : `It narrows which defects matter. It does NOT widen what counts as one:
   ${lenses[0].mandate}`}
 CANDIDATE FINDINGS (finding_id :: ${multi ? 'lens :: ' : ''}file :: category/severity :: title):
 ${items.map((i) => `  - ${i.id} :: ${multi ? `[${i.f._lens?.id || '?'}] :: ` : ''}${i.f.file}${i.f.line ? ':' + i.f.line : ''} :: ${i.f.category}/${i.f.severity} :: ${i.f.title}\n      ${i.f.detail}\n      suggested: ${i.f.suggested_fix || '(none)'}`).join('\n')}
@@ -294,9 +288,7 @@ ${items.map((i) => `  - ${i.id} :: ${multi ? `[${i.f._lens?.id || '?'}] :: ` : '
 FOLD DUPLICATES FIRST. ${multi ? 'Different briefs' : 'One reviewer'} can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
 justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
-"duplicate of <id>". Do not let one defect enter the inventory twice — the fixer would fix it, then find
-it stale. Candidates that merely share a file and category are NOT duplicates unless the underlying
-defect is the same.
+"duplicate of <id>". Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
@@ -306,20 +298,19 @@ DECISION MATRIX — score each real finding on:
   architectural: true if it questions a design/structural decision
 
 ROUTING (apply in order; first match wins):
-  - is_real == false                       -> REJECT
-  - scope == scope-creep                   -> REJECT (note why; do not pursue)
-  - architectural == true                  -> NEEDS_USER (the user must decide design direction; fill options + recommendation)
+  - is_real == false -> REJECT
+  - scope == scope-creep -> REJECT (note why, do not pursue)
+  - architectural == true -> NEEDS_USER (fill options + recommendation)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch; the user plans it)
-  - otherwise                              -> ACTIONABLE (write a precise, minimal fix_instruction)
-An alternative that another fix clearly dominates is not a materially different valid fix: it does not
-make a finding NEEDS_USER. You may narrow a suggested fix to the part you verified.
-Before routing a finding that reverses a documented design choice, check the gotchas in the unit's own
-CLAUDE.md (the one nearest its files).
-Also set a short \`theme\` keyword per verdict so related issues can be batched together.
+  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - otherwise -> ACTIONABLE (write a precise, minimal fix_instruction)
+An alternative that another fix clearly dominates is not a materially different valid fix. You may
+narrow a suggested fix to the part you verified.
+Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
+nearest the unit's files.
+Set a short \`theme\` keyword per verdict.
 
-WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). Use EXACTLY this format
-so the user can triage it and it stands as a fix-mode plan file develop can build:
+WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed) in EXACTLY this format:
 -----
 ---
 unit: ${unit.id}
@@ -352,13 +343,12 @@ status: todo
 **Recommendation:** <recommendation>  (NEEDS_USER only)
 -----
 The \`## Plan:\` line, the three preamble lines under it, and every entry's \`- status: open\` are
-load-bearing — without them the file is not a plan the fixer can be handed. Write the header id exactly
-as shown; it is the slug of the unit id, not the unit id.
-The \`- file:\` line takes ONE line number: for a candidate carrying a range or a list ("840-842, 880"),
-write its first line (840).
+REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
+the slug of the unit id, not the unit id.
+The \`- file:\` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
 the frontmatter above, then \`# Review: ${unit.id}\`, then the single line "No issues found."
-Do NOT write issues.json, any shared doc, or modify source. Set wrote_file=true and return all verdicts via the schema.`; };
+Set wrote_file=true and return all verdicts via the schema.`; };
 
 // =============================================================================
 // Fan out reviewer → verifier per unit (read-only, concurrent), then STOP. The main agent supplies

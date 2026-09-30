@@ -64,9 +64,9 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
 | throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 52) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 371) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 381) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 382) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 361) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 371) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 372) |
 
 ## Coverage
 

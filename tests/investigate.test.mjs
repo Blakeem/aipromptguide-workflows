@@ -121,6 +121,8 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
   ok(/WHERE NEXT/.test(out.nextStep) && /OPEN, not closed/.test(out.nextStep),
     'nextStep leads with WHERE NEXT and says plainly that the search is open');
   eq(out.options.join(), 'opt-a', 'the upheld option is still a valid answer — stopping does not invalidate what was found');
+  ok(out.reviewFile.endsWith('acceptance-review-r1.md') && out.nextStep.includes(out.reviewFile),
+    'nextStep points at the review, the only place a determination linking a disqualified option is recorded');
 }
 
 section('a contested saturation claim buys another round, and reads only its OWN contest flag');
@@ -595,6 +597,18 @@ section('the investigator prompt names the ledger every round, and a review file
   ok(busy.byLabel('investigate')[1].prompt.includes('acceptance-review-r1.md'),
     'and it DOES name the review file after a round that wrote one');
   ok(busy.prompt('critique').includes('opt-a'), 'the critic is told exactly which option ids to verify');
+
+  // A learning round skips the critic and has already answered r1's review, so r3 must not be sent back
+  // to re-answer it as if it were fresh.
+  const stale = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] } : LEARN),
+    'critique': { ...CRIT, upheld: ['opt-a'] },
+  }, { ...baseArgs, maxRounds: 4 });
+  const p3 = stale.byLabel('investigate')[2].prompt;
+  ok(p3.includes('NO critique was written'), 'after a critic-less learning round r3 is told no critique was written');
+  ok(!p3.includes('acceptance-review-r1.md'), 'and r3 does NOT name the r1 review the learning round already answered');
+  ok(stale.logs.some((l) => /r2: search continues/.test(l) && /DISQUALIFIED\.md/.test(l) && !/acceptance-review-r1/.test(l)),
+    'the r2 continue log names the ledger, not the stale r1 review');
 }
 
 section('every role prompt carries the read-only contract');

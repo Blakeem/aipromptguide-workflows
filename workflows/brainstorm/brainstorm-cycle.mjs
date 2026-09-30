@@ -58,7 +58,7 @@ const BRIEF       = (!PLAN_PATH && A.brief) ? String(A.brief) : '';
 if (!PLAN_PATH && !BRIEF) {
   throw new Error('Provide the problem framing: either planPath (a brief/requirements file each generator reads verbatim) or brief (a short inline string).');
 }
-const BRIEF_REF   = PLAN_PATH ? `the shared brief at ${PLAN_PATH} (read it verbatim — it is the single source of truth)` : `the brief below:\n-----\n${BRIEF}\n-----`;
+const BRIEF_REF   = PLAN_PATH ? `the shared brief at ${PLAN_PATH} verbatim (the single source of truth)` : `the brief below:\n-----\n${BRIEF}\n-----`;
 
 // Optional reference docs each generator may draw on (the "brainstorm-refs" mode). Handed as paths
 // the agent reads (#11 — link, don't paste). Each is genuinely distinct, so multiple links are fine.
@@ -87,7 +87,7 @@ const GENERATE_SCHEMA = {
   properties: {
     entry:   { type: 'string', description: 'path to the MAIN artifact you wrote (the file to open first)' },
     files:   { type: 'array', items: { type: 'string' }, description: 'all files you wrote for this variation' },
-    summary: { type: 'string', description: 'ONE line: what makes THIS variation distinct (for the user\'s comparison index — NOT the content, which is in the file)' },
+    summary: { type: 'string', description: 'ONE line: what makes THIS variation distinct (for the user\'s comparison index, NOT the content)' },
   },
 };
 
@@ -95,25 +95,24 @@ const GENERATE_SCHEMA = {
 // Generator prompt — divergent, fully committed, writes one folder, reviews nothing.
 // =============================================================================
 const generatePrompt = (lens) => `
-You are a CREATIVE GENERATOR producing ONE complete ${KIND} optimized for a SINGLE lens. This is
-DIVERGENT ideation: commit FULLY to your lens. Do NOT hedge, do NOT compare to other approaches, do NOT
-water it down toward a safe compromise. Other generators are exploring other lenses in parallel and the
-user will compare and combine — so push your lens as far as it sensibly goes. There is no single right
-answer; a bold, coherent take is the goal.
+You are a CREATIVE GENERATOR producing ONE complete ${KIND} through a SINGLE lens. This is DIVERGENT
+ideation: commit FULLY to your lens. Do NOT hedge, compare to other approaches, or water it down toward a
+safe compromise. Other generators take other lenses in parallel and the user will compare and combine,
+so push your lens as far as it sensibly goes. A bold, coherent take is the goal.
 
 YOUR LENS: ${lens.focus}
 THE BRIEF: read ${BRIEF_REF}.
-${REFERENCES.length ? `REFERENCE MATERIAL (read these for grounding; they are distinct sources, use what is relevant):\n${REFERENCES.map((r) => `  - ${r}`).join('\n')}\n` : ''}${REPO ? `EXISTING CODEBASE (read-only context, e.g. to match an existing style — do NOT modify it): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONSTRAINTS ? `CONSTRAINTS (shared — every variation must respect these): ${CONSTRAINTS}\n` : ''}OUTPUT FORMAT: ${FORMAT}.
+${REFERENCES.length ? `REFERENCE MATERIAL (read for grounding, use what is relevant):\n${REFERENCES.map((r) => `  - ${r}`).join('\n')}\n` : ''}${REPO ? `EXISTING CODEBASE (read-only context, e.g. to match an existing style): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONSTRAINTS ? `CONSTRAINTS (every variation must respect these): ${CONSTRAINTS}\n` : ''}OUTPUT FORMAT: ${FORMAT}.
 
 PROCEDURE:
-1. Produce your COMPLETE ${KIND} through your lens — fully realized, not an outline (unless the format
-   IS an outline). Make the lens's influence obvious and concrete in the result.
-2. WRITE it into the folder ${lensDir(lens.id)}/ (create it). Put the main artifact at
-   ${lensDir(lens.id)}/index.<ext> (pick the extension the format implies, e.g. .md/.html); put any
-   supporting files alongside it.
-3. Do NOT review or critique your work, do NOT modify the target repo, do NOT stage or commit. The
-   file(s) in your folder are your ONLY output.
-Return the entry path + a ONE-LINE differentiator via the schema (the full content stays in the file).`;
+1. Produce the COMPLETE ${KIND}, fully realized, not an outline (unless the format IS an outline). Make
+   the lens's influence obvious and concrete.
+2. WRITE it into ${lensDir(lens.id)}/ (create it): the main artifact at
+   ${lensDir(lens.id)}/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
+   files alongside it.
+3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
+   folder are your ONLY output.
+Return the entry path + a ONE-LINE differentiator via the schema.`;
 
 // =============================================================================
 // Generate — fan out one generator per lens, concurrently. No review, no staging, no convergence.

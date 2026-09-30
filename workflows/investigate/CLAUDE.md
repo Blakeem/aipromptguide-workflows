@@ -58,8 +58,8 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
   unconditional: it fires for `refine` as well as `run`.
 - **`sources` (optional but useful):** a starting set of avenues (strings, or `{ id, focus }`). It is
   deliberately **not** a fan-out key — one investigator per round sweeps them all, and it is explicitly an
-  opening list, not a closed one. An avenue the investigator finds itself counts just as much, and one it
-  rules out goes in the ledger.
+  opening list, not a closed one. An avenue the investigator finds itself counts just as much. One it
+  rules out goes in `SEARCHED.md`, never in the ledger.
 - **`target.repo` (optional):** pass it when the answer must fit existing code. All roles read it
   **read-only**; the engine never modifies it.
 - **`testbed` (optional):** how a candidate may be **empirically checked** (a scratch project to install
@@ -223,8 +223,10 @@ agents per run, so a fast tier buys nothing.
   result — relay it *with that caveat attached*, never on its own. Re-invoke with the same `runId` (and a
   higher `maxRounds`) to continue from the ledger.
 - **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
-  `DETERMINATION.md` and lead with its **WHERE NEXT**: the options it names are critic-verified and valid,
-  but nothing was proved to be all of them. To continue, pick an avenue WHERE NEXT names and re-invoke
+  `DETERMINATION.md` and lead with its **WHERE NEXT**. The return's `options` is the verified set, and each is a
+  valid answer. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
+  option the critic disqualified, so read the latest `acceptance-review-rN.md` alongside it for any defect
+  the critic found in the determination. To continue, pick an avenue WHERE NEXT names and re-invoke
   with the same `runId` (the memory files resume it), or make the premise/criteria change it proposes.
   An unchanged re-run buys another round over the same worked-out ground.
 - **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no
@@ -261,8 +263,8 @@ inline.
 
 ## 10. State files (`runs/<runId>/`, outside every repo)
 
-- `options/<id>.md` — one per qualifying option: per-criterion evidence with citations, what it buys, what
-  it costs, sources.
+- `options/<id>.md` — one per option the investigator qualified: per-criterion evidence with citations,
+  what it buys, what it costs, sources. A critic-disqualified option's file stays on disk.
 - `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate naming the criterion it
   fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. **This is the search's memory** and
   the reason each round diverges from the last.
