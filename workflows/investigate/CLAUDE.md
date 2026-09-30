@@ -7,7 +7,7 @@ it re-reads at the top of the next round — so each round diverges from what al
 circling — and an adversarial **non-blind critic** verifies each new option (and each citation against its
 source) before it counts. The loop ends when the investigator can **evidence** that no avenues remain and
 the critic agrees, not when the first answer works. Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A
-*convergence* workflow of the **search** shape: it honors the core (#1–4, #6, #8, #11–14) and runs a review
+*convergence* workflow of the **search** shape: it honors the core (#1–4, #6, #8, #11–15) and runs a review
 loop in the **spirit of #5 but non-blind by design** — a critic that cannot see the option or the criteria
 cannot verify either. It produces a determination, **not code**: nothing is staged or committed.
 

@@ -44,5 +44,10 @@ for (const name of SKILLS) {
   ok(body.includes('${CLAUDE_PLUGIN_ROOT}'), 'body resolves the plugin root');
   ok(body.includes('${CLAUDE_PLUGIN_DATA}'), 'body resolves the data dir (run-state root)');
   ok(body.includes(`/workflows/${name}/CLAUDE.md`), 'body points at this workflow\'s guide');
+  // The Workflow tool refuses a scriptPath the session cannot already read, and a plugin cannot grant
+  // itself its own folder.
+  const accessCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check');
+  ok(accessCheck >= 0 && accessCheck < body.indexOf(`/workflows/${name}/CLAUDE.md`),
+    'body runs the plugin-access check before it hands over to the guide');
   ok(/\$ARGUMENTS\s*$/.test(body), 'body ends with $ARGUMENTS');
 }

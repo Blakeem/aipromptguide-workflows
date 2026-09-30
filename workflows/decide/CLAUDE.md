@@ -5,7 +5,7 @@ lensed analyst per perspective (each finds + scores the best option through its 
 via a **decider** that builds a global weighted decision matrix pulling in the best of each, gated by a
 **non-blind adversarial reviewer** — looped until decider and reviewer agree against fixed requirements.
 Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the core (#1–4,
-#6, #8, #11–14) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
+#6, #8, #11–15) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
 must see the decision and the rubric to judge them (#3 guards code-regression anchoring, not argument
 evaluation). It produces a conclusion, **not code**: nothing is staged or committed.
 

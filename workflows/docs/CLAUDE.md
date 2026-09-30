@@ -7,7 +7,7 @@ then a **curator** organizes and splits the set, deletes what the brief doesn't 
 checks **cross-source consistency + coverage**, and finally **spot-checks a bounded sample** of files
 against their cited sources; gaps it finds (missing coverage *or* files needing recapture) drive a
 bounded gap-fill gather round. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
-*provision* workflow honoring the core (#1–4, #6, #8, #11–14). It is deliberately **happy-path**: no
+*provision* workflow honoring the core (#1–4, #6, #8, #11–15). It is deliberately **happy-path**: no
 review loop or blind reviewer (Scope: the user judges); the gap loop is the only feedback. There is
 **no claim-verifier agent by design**:
 a verifier exists to catch the gap between a gatherer's *paraphrase* and its source, and verbatim capture

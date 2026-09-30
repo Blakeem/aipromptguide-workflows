@@ -5,7 +5,7 @@ writing up, not nits. It fans out one **finder per lens** across the WHOLE scope
 slices — cross-cutting enhancements are the point), then a **verifier per lens** that kills anything the
 system already does, scores impact × effort, routes each survivor, and writes one verbatim
 `proposals/<lens>.md`. Then it **STOPS**. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
-*generative* workflow honoring the core (#1–4, #6, #8, #11–14); it writes no code, stages nothing, and
+*generative* workflow honoring the core (#1–4, #6, #8, #11–15); it writes no code, stages nothing, and
 never commits.
 
 **There is deliberately NO fix-mode output.** Nothing here is ever applied automatically. That is not an

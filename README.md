@@ -35,9 +35,8 @@ trade-offs**, that's decide; when the answer is already out there and the work i
 it fits**, that's investigate. The tell is whether missing a requirement is a trade-off or simply
 disqualifying.
 
-All eight share the design rules in **[principles/](principles/)**:
-the sixteen [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file-bus, no busy-work
-agents).
+All eight share the design rules in **[principles/](principles/)**, the fifteen
+[Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file bus, no busy work).
 
 **The Flow column is a diagram of what a run actually does** — every agent, gate, loop and terminal
 state, rendered inline by GitHub. Read one before starting a run you have not done before: the terminal
@@ -75,9 +74,13 @@ and commit
 /plugin install aipg@aipromptguide
 ```
 
-That's it — the workflows land in the plugin cache and run-state goes to the plugin's persistent
-data dir (`~/.claude/plugins/data/…`), outside every project. Run one:
+The workflows land in the plugin cache, and run state goes to the plugin's persistent data dir
+(`~/.claude/plugins/data/…`), outside every project. Then run one, such as
 `/aipg:develop add a search_docs MCP tool. Plan it first.`
+
+Since Claude Code only starts a workflow from a folder the session can read, the first run asks if
+Claude can read the plugin folder. Say yes and a Read rule is added to your user settings. It stays in
+place when the plugin updates.
 
 ## Install (checkout — for development, or driving workflows by path)
 
@@ -149,6 +152,13 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 ## Changelog
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
+
+### 2026-09-29
+
+- **Installed skills launch their engines from any project.** Before this, a skill run outside this
+  checkout failed with "scriptPath must be a script path this tool returned, or a file you can already
+  read". Each skill now runs `tools/plugin-access.mjs` first, which adds one Read rule for the plugin
+  folder once you agree. See [Install (plugin)](#install-plugin).
 
 ### 2026-09-26
 

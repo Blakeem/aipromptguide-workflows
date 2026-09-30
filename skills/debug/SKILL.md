@@ -5,6 +5,12 @@ argument-hint: "[repo/change to review, or inventory to fix]"
 
 The user wants to run the **debug** dynamic workflow (review, then fix) on the task below.
 
+First run `node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check`. The Workflow tool launches an
+engine only from a folder the session may read, and this plugin's folder is outside the project. On
+`missing`, ask the user once whether to add the printed Read rule to their user settings. On a yes, run
+the same command with `grant`. Settings reload live, so the launch needs no restart. On a no, the user
+can run `/add-dir ${CLAUDE_PLUGIN_ROOT}`, which lasts for this session only.
+
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/debug/CLAUDE.md` and follow it exactly. Resolved paths for
 this install — use these wherever the guide says "this checkout" or "the tool's own directory":
 

@@ -5,7 +5,7 @@ so they stay in sync.
 
 ## What's here
 
-- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** — the sixteen principles for designing a
+- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** holds the fifteen principles for designing a
   background `Workflow` engine, the mechanics that follow from them, and a yes/no review checklist.
 
 ## In brief
@@ -34,4 +34,4 @@ fix modes) · [debug](../workflows/debug/) (review, feeding develop's fix mode)
 [docs-cycle](../workflows/docs/) · [refine-cycle](../workflows/refine/) (converges the plan develop builds)
 
 Which principles apply to which kind is spelled out in
-[`WORKFLOW-PRINCIPLES.md` → Scope](WORKFLOW-PRINCIPLES.md#scope--which-principles-apply-to-which-workflow-kind).
+[`WORKFLOW-PRINCIPLES.md` → Scope](WORKFLOW-PRINCIPLES.md#scope).
