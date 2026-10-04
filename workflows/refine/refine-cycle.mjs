@@ -213,7 +213,8 @@ gap_count. ${BELOW.length
 SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line
 each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
 WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole run, prefixed
-"CONTESTS DISMISSAL:", saying why the reason does not hold.
+"CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked \`USER-RULED:\` is the user's
+own ruling: never contest it.
 
 WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed) and put EVERYTHING there VERBATIM, since it
 is your ONLY channel to the editor: a numbered GAPS section, then the FYI section, then a QUESTIONS
@@ -351,9 +352,10 @@ while (round < MAX_ROUNDS) {
     break;
   }
   // A contested dismissal the editor escalated is a user-only call. Another round would find the original
-  // DISMISSED line, skip it, and could report converged with the question still unanswered.
+  // DISMISSED line, skip it, and could report converged with the question still unanswered. Its ruling is
+  // recorded where the next critic reads it, so a relaunch does not contest it again.
   if (fold.needs_user === true) {
-    haltKind = 'needs-answers';
+    haltKind = 'dismissal-contested';
     log(`  ✋ r${round}: editor escalated a contested dismissal to the operator (see ${NEEDS_USER}); halting`);
     break;
   }
@@ -369,7 +371,8 @@ while (round < MAX_ROUNDS) {
 // together is how an unconverged plan gets handed to a build engine as a finished one.
 const HALT_STATUS = {
   'converged':          'converged (one clean round: no gaps at or above the floor, no questions)',
-  'needs-answers':      'needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
+  'needs-answers':      'needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
+  'dismissal-contested': 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user\'s ruling by folding the gap into the plan or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to DISMISSED-PLAN.md, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
   'rounds':             'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)',
   'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)',
   'critique-unwritten': 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round)',

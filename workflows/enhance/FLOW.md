@@ -12,7 +12,8 @@ flowchart TD
   a1["find · opus<br/>×2 concurrent"]
   a2["verify · opus<br/>×2 concurrent"]
   t1(["proposals written"])
-  t2(["no proposal file (the lens produced nothing)"])
+  t2(["lens NOT audited (finder died, lens reported in failed)"])
+  t3(["no proposal file (the lens produced nothing)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x3[/"throw: args.root is required"/]
@@ -32,6 +33,7 @@ flowchart TD
   S0 --> x8
   a1 --> a2
   a1 --> t2
+  a1 --> t3
   a2 --> t1
 ```
 
@@ -47,7 +49,8 @@ flowchart TD
 | Terminal | Reached when | Source |
 |---|---|---|
 | proposals written | both finders return candidates above the floor | declared |
-| no proposal file (the lens produced nothing) | the finder dies · every candidate scores below the impact floor | declared |
+| lens NOT audited (finder died, lens reported in failed) | the finder dies (the lens is reported in failed) | declared |
+| no proposal file (the lens produced nothing) | every candidate scores below the impact floor | declared |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 38) |
 | throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 41) |
 | throw: args.root is required | args.root is missing | throw (line 45) |
@@ -59,4 +62,4 @@ flowchart TD
 
 ## Coverage
 
-11 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 10 terminal states.
+11 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 11 terminal states.

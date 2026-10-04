@@ -293,7 +293,8 @@ for (const a of ready) log(`  ✓ ${a.lens}: favours "${a.top}"`);
 if (!ready.length) throw new Error('No analyst produced a lens file — cannot converge. Check the requirements/lenses and re-run.');
 // Converge only over lenses whose file exists; a dropped lens is logged, never silently assumed.
 const LIVE = LENSES.filter((l) => ready.some((a) => a.lens === l.id));
-for (const l of LENSES.filter((l) => !LIVE.includes(l))) log(`  ✗ ${l.id}: no lens file (analyst failed/skipped) — dropped from convergence`);
+const failed = LENSES.filter((l) => !LIVE.includes(l)).map((l) => l.id);
+for (const id of failed) log(`  ✗ ${id}: no lens file (analyst failed/skipped) — dropped from convergence`);
 
 // =============================================================================
 // CONVERGE — decider ⇄ non-blind reviewer, until they agree or the round budget is spent.
@@ -303,6 +304,8 @@ let reviewPath = '';            // latest review the decider must address (contr
 let lastReviewFile = '';        // latest review written, agreeing or not (surfaced in the return)
 let lastChosen = '';
 let lastShortlist = [];         // ranked mode: the ordered index the decider returned (reasoning is in the file)
+let lastMeetsAll = false;       // the decider's own rubric attestation for the latest decision file
+let contradicted = false;       // the reviewer agreed while listing open gaps
 
 // WHICH gaps the reviewer raises, round over round. A gap COUNT cannot tell a decider that keeps failing
 // to resolve the objections it was already given from a question so under-specified that every round
@@ -323,10 +326,13 @@ while (round < MAX_ROUNDS) {
   }));
   if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
   if (dec.wrote_file !== true) log(`  ⚠ r${round}: decider did NOT confirm writing ${decisionFile(round)} — check it before relaying`);
-  lastChosen = dec.chosen || lastChosen;
-  if (RANKED && Array.isArray(dec.shortlist) && dec.shortlist.length) {
-    lastShortlist = [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99));
+  // Per round, no carry-over: an empty shortlist is a valid ranked return and must not pair an older
+  // round's options with this round's decision file.
+  lastChosen = typeof dec.chosen === 'string' ? dec.chosen : '';
+  if (RANKED) {
+    lastShortlist = Array.isArray(dec.shortlist) ? [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)) : [];
   }
+  lastMeetsAll = dec.meets_all_requirements === true;
   if (dec.needs_user === true) {
     halted = true; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: decider escalated → halting (see ${NEEDS_USER})`);
@@ -369,6 +375,13 @@ while (round < MAX_ROUNDS) {
   }
   if (rev.agree === true) {
     agreed = true;
+    // Flagged, not halted: the decision is the run's last step, so the contradiction cannot compound.
+    const openGaps = Math.max(gapIds.length, Number.isInteger(rev.gap_count) ? rev.gap_count : 0);
+    if (openGaps > 0) {
+      contradicted = true;
+      log(`  ⚠ r${round}: reviewer AGREES but lists ${openGaps} open gap(s) — self-contradictory; audit ${decisionReviewFile(round)}`);
+    }
+    if (!lastMeetsAll) log(`  ⚠ r${round}: reviewer AGREES but the decider reported meets_all_requirements=false — audit ${decisionFile(round)}`);
     log(`  ✓ r${round}: reviewer AGREES — conclusion holds`);
     break;
   }
@@ -384,14 +397,23 @@ log(`decide: ${status} after ${round} round(s)`);
 // resolving objections it has already been handed, so another round against the same rubric buys the
 // same review again. Mostly NEW: the rubric is not settling what "best" means, and each round finds
 // fresh ground — an under-specified question. Opposite fixes, so naming the wrong one costs a whole
-// re-run. Empty when the last review raised no slugs at all: no evidence, no diagnosis.
+// re-run. Empty when the last review raised no slugs, or ran in round 1 where the decider never had a
+// round to address a gap: no evidence, no diagnosis.
 const finalGaps  = gapRounds.length ? gapRounds[gapRounds.length - 1] : null;
 const repeatsOut = lastGapIds.filter((id) => (gapFirstRound.get(id) ?? round) < round);
-const churn = !finalGaps || !finalGaps.gaps
+const churn = !finalGaps || !finalGaps.gaps || finalGaps.round < 2
   ? ''
   : finalGaps.repeated > finalGaps.new
     ? `The final review re-raised ${finalGaps.repeated} gap(s) an earlier round already put to the decider (${repeatsOut.map((id) => `${id}, first raised in ${decisionReviewFile(gapFirstRound.get(id))}`).join('; ')}) — the decider is not RESOLVING them, so another round against the same rubric will not either. `
     : `The final review raised ${finalGaps.new} gap(s) no earlier round did — every round finds fresh ground, which is what an UNDER-SPECIFIED question looks like from here: the rubric is not settling what "best" means. `;
+
+const agreeCaveats = [
+  contradicted ? `The reviewer agreed while listing open gaps: audit ${decisionReviewFile(round)} before presenting. ` : '',
+  agreed && !lastMeetsAll ? `The decider itself reported that ${RANKED ? 'a shortlisted option' : 'the conclusion'} does not meet every requirement: check ${decisionFile(round)} before presenting. ` : '',
+].join('');
+const droppedLenses = failed.length
+  ? ` These lenses produced no lens file and were left out of the decision: ${failed.join(', ')}. Re-run them with the same runId.`
+  : '';
 
 return {
   phase: 'decide',
@@ -409,13 +431,16 @@ return {
   reviewFile: lastReviewFile,
   needsUserFile: halted ? NEEDS_USER : '',
   lensFiles: LIVE.map((l) => lensFile(l.id)),
+  failed,
   lensPicks: LIVE.map((l) => ({ lens: l.id, focus: l.focus, top: ready.find((a) => a.lens === l.id)?.top || '' })),
+  contradicted,
+  meetsAllRequirements: lastMeetsAll,
   reviewTrail: `Lens analyses in ${LENS_DIR}/, and decision-rN.md / decision-review-rN.md in ${STATE_DIR}/ show every round.`,
   nextStep: halted
     ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then re-invoke with the same runId to continue.`
-    : agreed
-      ? (RANKED
+    : (agreed
+      ? agreeCaveats + (RANKED
         ? `Present the SHORTLIST: relay ${decisionFile(round)} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
         : `Present the conclusion: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements and re-run, or raise maxRounds.`,
+      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements and re-run, or raise maxRounds.`) + droppedLenses,
 };

@@ -12,7 +12,7 @@ flowchart TD
   a1["review · opus<br/>×2 concurrent"]
   a2["verify · opus<br/>×2 concurrent"]
   t1(["inventory written (the clean unit never reached verify)"])
-  t2(["no inventory (every unit read clean)"])
+  t2(["no inventory (a reviewer died: unit reported in failed, re-review it)"])
   t3(["inventory written (both lenses merged behind one verifier)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, target, conventions, units }"/]
@@ -57,7 +57,7 @@ flowchart TD
 | Terminal | Reached when | Source |
 |---|---|---|
 | inventory written (the clean unit never reached verify) | one unit is clean, the other has findings | declared |
-| no inventory (every unit read clean) | a reviewer dies (its unit reads as clean, unmarked) | declared |
+| no inventory (a reviewer died: unit reported in failed, re-review it) | a reviewer dies (its unit is reported in failed, unmarked) | declared |
 | inventory written (both lenses merged behind one verifier) | each unit is swept once per lens | declared |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |

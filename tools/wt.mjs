@@ -66,9 +66,10 @@
 //       untouched. A human or a fix run resolves it on the branch.
 //   30  integration-red — the gate failed on the SYNCED state. The sync merge is kept on the branch (it
 //       records the exact combined state a fix run must address); integration is untouched and green.
-//   40  unsafe / precondition — foreign hook, no init, another batch active, hook self-test failed,
-//       provision red, unlanded work in a worktree being cleaned, a batch cleaned while its chains are
-//       still registered, an empty index over a dirty tree, a sync git refused up front, a command
+//   40  unsafe / precondition — foreign hook, a relative core.hooksPath, no init, another batch active,
+//       hook self-test failed or never exercised, provision red, unlanded work in a worktree being
+//       cleaned, a batch cleaned while its chains are still registered, an empty index over a dirty
+//       tree, unaccepted work left beside a committed accept, a sync git refused up front, a command
 //       killed for flooding its output buffer. Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
@@ -182,8 +183,11 @@ function mustGit(cwd, args, what) {
   return r.stdout;
 }
 
-/** `git status --porcelain` as `['XY path', …]` — the XY prefix is load-bearing (` A` = intent-to-add). */
-const porcelainLines = (worktree) => git(worktree, ['status', '--porcelain']).stdout
+/**
+ * `git status --porcelain` as `['XY path', …]` — the XY prefix is load-bearing (` A` = intent-to-add).
+ * `--untracked-files=normal` because `status.showUntrackedFiles=no` would otherwise hide untracked work.
+ */
+const porcelainLines = (worktree) => git(worktree, ['status', '--porcelain', '--untracked-files=normal']).stdout
   .split('\n')
   .map((l) => (l.endsWith('\r') ? l.slice(0, -1) : l))
   .filter(Boolean);
@@ -320,6 +324,12 @@ function init(opt) {
   const parent = opt.dir === undefined ? dirname(repo) : requireAbsolute(opt, 'dir');
 
   // Process
+  // Git resolves a relative hooks path inside EACH worktree, so no single hook file could guard every chain.
+  const hooksPath = git(repo, ['config', '--type=path', '--get', 'core.hooksPath']);
+  const hooksDir = hooksPath.code === 0 ? hooksPath.stdout.trim() : '';
+  if (hooksDir && !isAbsolute(hooksDir)) {
+    throw unsafe(`core.hooksPath is RELATIVE ("${hooksDir}") in ${repo} — git resolves a relative hooks path inside each worktree, so one reference-transaction hook cannot guard every chain; point core.hooksPath at an absolute directory and re-run init`);
+  }
   const active = integrationEntries(listWorktrees(repo));
   const mine = active.find((e) => e.branch === intBranch(batch)) ?? null;
   const other = active.find((e) => e.branch !== intBranch(batch)) ?? null;
@@ -378,8 +388,15 @@ function selfTest(worktree) {
   const stashBefore = git(worktree, ['stash', 'list']).stdout.trim();
   const probe = resolve(worktree, PROBE_FILE);
   writeFileSync(probe, 'aipg hook probe\n');
-  const push = git(worktree, ['stash', 'push', '-u', '-m', 'aipg-probe']);
+  // `--all` and the pathspec: `-u` skips an IGNORED probe, and git then exits 0 with no stash made, so a
+  // pop keyed on the exit code alone would pop the operator's own top entry into this worktree.
+  const push = git(worktree, ['stash', 'push', '--all', '-m', 'aipg-probe', '--', PROBE_FILE]);
+  const stashAfter = git(worktree, ['stash', 'list']).stdout.trim();
 
+  if (push.code === 0 && stashAfter === stashBefore) {
+    rmSync(probe, { force: true });
+    throw unsafe(`hook self-test could not run in ${worktree}: "git stash push" exited 0 but made NO stash entry (${firstLine(push.stdout) || firstLine(push.stderr) || 'no output'}), so the reference-transaction hook was never exercised — find what keeps git from stashing ${PROBE_FILE} there before starting any agent`);
+  }
   if (push.code === 0) {
     const pop = git(worktree, ['stash', 'pop']);          // the stash HAPPENED — take it back off the stack
     rmSync(probe, { force: true });
@@ -754,10 +771,11 @@ function isLanded(worktree, batch, key) {
 
 /**
  * Step 2. Commit the ACCEPTED index — index-only, never `-a`: work an engine left unstaged was not
- * accepted and must stay behind. When the commit fails, the split below is what separates "this chain
- * finished with nothing to land" from "this chain's accepted work is about to be thrown away", and they
- * must never share an exit code: the orchestrator moves on from 10, and a later `clean --key` on a tree
- * it believes empty is `remove --force` on the only copy of that work.
+ * accepted, so it is never committed and the land refuses while it remains. When the commit fails, the
+ * split below is what separates "this chain finished with nothing to land" from "this chain's accepted
+ * work is about to be thrown away", and they must never share an exit code: the orchestrator moves on
+ * from 10, and a later `clean --key` on a tree it believes empty is `remove --force` on the only copy of
+ * that work.
  *
  * A clean tree over an empty index is NOT nothing-to-land on its own. It is also what the recovery this
  * tool prescribes leaves behind: `syncFromIntegration`'s exit 20 says "resolve it on <chain> and land
@@ -767,7 +785,13 @@ function isLanded(worktree, batch, key) {
  */
 function commitAccepted(worktree, batch, key) {
   const commit = git(worktree, ['commit', '-m', `${key}: accepted`]);
-  if (commit.code === 0) return;
+  if (commit.code === 0) {
+    // The gate runs in this tree and the land merges only the commit, so leftover work would be judged
+    // and then left behind.
+    const left = porcelainLines(worktree);
+    if (!left.length) return;
+    throw unsafe(`"${key}" committed its accepted index, but ${worktree} still holds work that was NOT accepted (${fileList(left)}) — the gate would judge it and the land would leave it behind; "git add" it if it passed review (develop-cycle's passed-but-unstaged halt), or save it outside the tree and discard it ("git stash" is refused here), then land again`);
+  }
 
   const indexClean = git(worktree, ['diff', '--cached', '--quiet']).code === 0;
   if (!indexClean) {

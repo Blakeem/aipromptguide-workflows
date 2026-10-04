@@ -47,12 +47,12 @@ const base = {
 // Agent returns carrying every attestation the engine reads. `produced` gates the blind review, and
 // `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
 const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
-const CLEAN    = { clean: true, issue_count: 0, contested_dismissals: 0 };
-const FLAGGED  = { clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
+const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
+const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const SWEEP_OK = { complete: true, gaps: [], suite_result: 'green' };
+const SWEEP_OK = { wrote_file: true, complete: true, gaps: [], suite_result: 'green' };
 
 // The fix frame's returns. `produced` is DERIVED from results here, so the status values below are what
 // decide whether the blind reviewer is spawned at all.
@@ -60,7 +60,7 @@ const devFix = (results, extra) => ({ ...DEV_OK, produced: undefined, entries_fo
 const FIX_DONE   = devFix([{ issue_id: 'i-1', status: 'FIXED' }]);
 const FIX_STALE  = devFix([{ issue_id: 'i-1', status: 'STALE' }]);
 const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
-const ACC_FIX    = { pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], gap_count: 0, suite_result: 'green' };
+const ACC_FIX    = { wrote_file: true, pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], gap_count: 0, suite_result: 'green' };
 
 // The clean full run every "what changes" scenario is a one-key edit of.
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };
@@ -304,6 +304,27 @@ export default {
       when: 'acceptance stages while reporting a regression',
       args: base,
       respond: { ...GREEN_RUN, acceptance: { ...ACC_PASS, regression: true } },
+    },
+    {
+      // Rejected work in the index would skip every later review, so the loop halts instead of re-rounding.
+      name: 'acceptance stages a rejected block',
+      when: 'acceptance fails a block but reports staged=true',
+      args: base,
+      respond: { ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true }, park: PARK_OK },
+    },
+    {
+      // A failing verdict sends the next developer to its review file, so an unattested file halts. Two
+      // scenarios, one per reviewer, since coverage cannot see a second route into one terminal.
+      name: 'the quality reviewer fails a block without its file',
+      when: 'quality finds defects but does not confirm writing its file',
+      args: base,
+      respond: { ...GREEN_RUN, quality: { ...FLAGGED, wrote_file: false }, park: PARK_OK },
+    },
+    {
+      name: 'acceptance fails a block without its file',
+      when: 'acceptance finds gaps but does not confirm writing its file',
+      args: base,
+      respond: { ...GREEN_RUN, acceptance: { ...ACC_FAIL, wrote_file: false }, park: PARK_OK },
     },
     {
       // The staged index is the one surface NEITHER reviewer looks at, so work the developer staged

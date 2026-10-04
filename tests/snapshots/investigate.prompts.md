@@ -8,15 +8,15 @@ this file is stale.
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1311 | refine the criteria |
 | investigate | 1 | 1 | 5653 | exhaustion agreed |
-| critique | 1 | 1 | 4303 | exhaustion agreed |
-| critique | 2 | 1 | 4400 | no solution verified |
+| critique | 1 | 1 | 4327 | exhaustion agreed |
+| critique | 2 | 1 | 4424 | no solution verified |
 | investigate | 2 | 1 | 6737 | exhaustion contested |
 | investigate | 3 | 1 | 7102 | exhaustion contested |
-| critique | 3 | 1 | 4611 | saturation agreed |
+| critique | 3 | 1 | 4635 | saturation agreed |
 | investigate | 4 | 1 | 6540 | quiet rounds |
 | investigate | 5 | 1 | 6905 | quiet rounds |
-| critique | 4 | 1 | 3823 | quiet rounds |
-| critique | 5 | 1 | 3182 | investigator escalates |
+| critique | 4 | 1 | 3847 | quiet rounds |
+| critique | 5 | 1 | 3206 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -316,7 +316,7 @@ CHECK:
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
 3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it).
+   your review file (the next investigator reads it). Count them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -356,7 +356,8 @@ Return via the schema.
     "contests_saturation",
     "agree",
     "needs_user",
-    "determination_defects"
+    "determination_defects",
+    "reopened"
   ],
   "properties": {
     "wrote_file": {
@@ -400,6 +401,10 @@ Return via the schema.
     "determination_defects": {
       "type": "integer",
       "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }
@@ -439,7 +444,7 @@ CHECK:
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
 3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it).
+   your review file (the next investigator reads it). Count them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -479,7 +484,8 @@ Return via the schema.
     "contests_saturation",
     "agree",
     "needs_user",
-    "determination_defects"
+    "determination_defects",
+    "reopened"
   ],
   "properties": {
     "wrote_file": {
@@ -523,6 +529,10 @@ Return via the schema.
     "determination_defects": {
       "type": "integer",
       "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }
@@ -899,7 +909,7 @@ CHECK:
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
 3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it).
+   your review file (the next investigator reads it). Count them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -942,7 +952,8 @@ Return via the schema.
     "contests_saturation",
     "agree",
     "needs_user",
-    "determination_defects"
+    "determination_defects",
+    "reopened"
   ],
   "properties": {
     "wrote_file": {
@@ -986,6 +997,10 @@ Return via the schema.
     "determination_defects": {
       "type": "integer",
       "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }
@@ -1358,7 +1373,7 @@ CHECK:
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
 3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it).
+   your review file (the next investigator reads it). Count them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -1393,7 +1408,8 @@ Return via the schema.
     "contests_saturation",
     "agree",
     "needs_user",
-    "determination_defects"
+    "determination_defects",
+    "reopened"
   ],
   "properties": {
     "wrote_file": {
@@ -1437,6 +1453,10 @@ Return via the schema.
     "determination_defects": {
       "type": "integer",
       "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }
@@ -1476,7 +1496,7 @@ CHECK:
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
 3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it).
+   your review file (the next investigator reads it). Count them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -1507,7 +1527,8 @@ Return via the schema.
     "contests_saturation",
     "agree",
     "needs_user",
-    "determination_defects"
+    "determination_defects",
+    "reopened"
   ],
   "properties": {
     "wrote_file": {
@@ -1551,6 +1572,10 @@ Return via the schema.
     "determination_defects": {
       "type": "integer",
       "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }

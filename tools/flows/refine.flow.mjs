@@ -83,8 +83,7 @@ export default {
       respond: { 'plan-critic': QUESTIONS },
     },
     {
-      // A second route into needs-answers that adds no role and no terminal, so coverage cannot see it:
-      // without this scenario the plan-editor -> needs-answers edge is missing from the map.
+      // Its own terminal: the ruling is recorded in DISMISSED-PLAN.md, not by restructuring the plan.
       name: 'the editor escalates a contested dismissal',
       when: 'the editor escalates a contested dismissal',
       args: base,

@@ -51,7 +51,7 @@ export default {
   scenarios: [
     {
       // THE conditional-second-stage proof, and why both units live in one scenario: u1 is clean (its
-      // reviewer writes the marker, stage 1 returns at review.mjs:378-382 without spawning), u2 has a
+      // reviewer writes the marker, stage 2 skips the verifier at review.mjs:439-448), u2 has a
       // finding and reaches the verifier. Two paths out of one `review` node.
       name: 'a clean unit beside one with findings',
       when: 'one unit is clean, the other has findings',
@@ -60,18 +60,17 @@ export default {
       terminal: 'inventory written (the clean unit never reached verify)',
     },
     {
-      // A dead reviewer resolves to null, which reads as ZERO findings (review.mjs:358): no verifier, no
-      // marker, the run carries on and the unit is left for a resume (:378-382). That is the SAME path a
-      // genuinely clean unit takes, so both lanes here share one edge and one terminal — merging into the
-      // clean path is what the engine really does, and pretending otherwise would draw a branch it lacks.
+      // A dead reviewer's lens is pushed to `failed` (review.mjs:418-423), its unit gets no marker (:442)
+      // and is excluded from unitsReviewed (:509). No extra agent spawns, so this declared terminal is the
+      // only place the map can separate it from a clean unit.
       name: 'a dead reviewer beside a clean one',
-      when: 'a reviewer dies (its unit reads as clean, unmarked)',
+      when: 'a reviewer dies (its unit is reported in failed, unmarked)',
       args: { ...base, units: [unit('u1'), unit('u2')] },
       respond: { 'review:u1': null, review: CLEAN },
-      terminal: 'no inventory (every unit read clean)',
+      terminal: 'no inventory (a reviewer died: unit reported in failed, re-review it)',
     },
     {
-      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs:346-370 loops lenses INSIDE the
+      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs:396-434 loops lenses INSIDE the
       // stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
       // `review` node annotated concurrent, plus a SELF-LOOP for the next lens — and no review → review
       // edge attributable to the differing unit id, which `group.item` is what rules out.

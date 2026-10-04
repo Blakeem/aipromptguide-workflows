@@ -138,7 +138,9 @@ agents per run, so a fast tier buys nothing.
   another round. That contest is what makes "these are all of them" worth anything — and it **costs a
   citation**: the contest must name the missed avenue with a source and locator connecting it to the
   criterion or search-space bound it puts back in play. A bare "you missed something" fits any search that
-  ever ended, so it settles nothing and still buys a round.
+  ever ended, so it settles nothing and still buys a round. A reopen flag buys a round too. While the
+  critic flags a ledger candidate for reopening (`reopened` above 0) or returns no count, no termination
+  claim ends the run, even with `agree` set.
 - **Saturation is a STOP, not a close — and it never dresses as one.** From round 2 the investigator must
   actively check for diminishing returns against its own trajectory: nothing genuinely new this round, or
   a yield collapse to well under half the best round while the best unswept avenue is at most `medium`. It
@@ -159,8 +161,8 @@ agents per run, so a fast tier buys nothing.
   qualifiers actually differ on** — what each buys and costs — never the criteria, since every qualifier
   passes all of those and a criteria table compares nothing. "Which to pick when" is a discriminator, not
   a ranking. Loosen this and a multi-option run degrades into a bag of files. The last round writes it
-  too, labelled a **partial result**, since a search that ran out of rounds still owes its comparison and
-  near misses.
+  too, labelled a **partial result** when that round claims no termination, since a search that ran out
+  of rounds still owes its comparison and near misses.
 - **Near misses are first-class.** A candidate failing **exactly one** criterion gets a `NEAR-MISS:` ledger
   line with the shortfall in numbers, its own determination section, and a count in the return. On a
   no-solution or round-budget run it is often the only actionable thing the search produced, and one line
@@ -173,7 +175,7 @@ agents per run, so a fast tier buys nothing.
   `acceptance-review-rN.md` before quoting the number. It counts **this invocation's** markers, while
   `DISQUALIFIED.md` is cumulative across resumes — a resumed run reporting 2 against a ledger holding 9 is
   correct, not a bug.
-- **Seven terminal states, never folded together.** "Ran out of rounds", "ran out of tokens", "nothing can
+- **Eight terminal states, never folded together.** "Ran out of rounds", "ran out of tokens", "nothing can
   qualify", "the yield collapsed" and "the round produced nothing" are five different facts, and
   collapsing any pair is how a *stopped* search gets reported as a *finished* one:
 
@@ -186,6 +188,7 @@ agents per run, so a fast tier buys nothing.
   | `stalled (a round added nothing new and claimed nothing — stopped unverified)` | A round produced nothing at all. Unverified, no determination. |
   | `stopped on token budget (resume where it left off)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
+  | `BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)` | The investigator or the critic did not attest its write. Halted before that output was used. No determination is named. |
 
   Only the first is a *finished* search.
 
@@ -221,8 +224,11 @@ agents per run, so a fast tier buys nothing.
   and some are worth doing on their own merits even though they do not qualify. Check
   `determinationDefects` as for `exhaustive`. Do not re-run unchanged.
 - **`not exhaustive`** — say so plainly. Options found so far may be fine, but **do not present them as a
-  complete answer**. `DETERMINATION.md` exists here too, written on the final round and labelled a partial
-  result. Relay it *with that caveat attached*, never on its own. Check `determinationDefects` as for
+  complete answer**. `DETERMINATION.md` exists here too, written on the final round. It is labelled a
+  partial result unless that round claimed termination and the critic did not accept the claim. Such a
+  file asserts the rejected claim and may lack WHERE NEXT, so label it a partial result yourself and add
+  the open avenue from the latest `acceptance-review-rN.md`. Relay it *with that caveat attached*, never
+  on its own. Check `determinationDefects` as for
   `exhaustive`. Re-invoke with the same `runId` (and a
   higher `maxRounds`) to continue from the ledger.
 - **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
@@ -234,7 +240,11 @@ agents per run, so a fast tier buys nothing.
 - **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no
   determination to relay. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say so plainly,
   then either re-invoke with the same `runId` to continue from that memory or change the criteria/premise.
-- **`BLOCKED`** — read `NEEDS-USER.md`, resolve with the user (usually by editing the criteria), re-invoke.
+- **`BLOCKED (needs user input)`**: read `NEEDS-USER.md`, resolve with the user (usually by editing the
+  criteria), re-invoke.
+- **`BLOCKED (an agent did not confirm writing its files ...)`**: check the files `haltReason` names,
+  then re-invoke `phase:"run"` as a fresh run with the same `runId` and no `resumeFromRunId`. A resume
+  replays the cached return and halts the same way.
 - Always offer `DISQUALIFIED.md`. What was ruled out and why is often the most useful artifact in the run,
   and it is what makes a later re-run cheap.
 
@@ -242,8 +252,8 @@ agents per run, so a fast tier buys nothing.
 
 Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args. The ledger means the search
 **continues** rather than restarting — a fresh investigator reads what is already closed and does not
-re-walk it. Halts to resolve first: a `needs_user` escalation, or a token-budget stop (nothing to resolve
-there, just re-invoke).
+re-walk it. The halts to resolve first are a `needs_user` escalation, an unattested write (check the
+files `haltReason` names), and a token-budget stop (nothing to resolve there, just re-invoke).
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
 args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents from cache.
@@ -254,7 +264,8 @@ Full schema + defaults: the Config block atop `investigate-cycle.mjs` (the canon
 inline.
 - **Required:** `runId` · `root` (§3) · `criteria` (inline) **or** `planPath` (absolute path to the
   criteria file).
-- **Optional:** `phase` (`refine` | `run`, default `run`) · `sources` (starting avenues — §3) · `context`
+- **Optional:** `phase` (`refine` | `run`, default `run`, and any other value **throws**) ·
+  `sources` (starting avenues — §3) · `context`
   (domain facts) · `testbed` (how to check a candidate empirically) · `target.repo` (absolute, read-only) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (5; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary round-budget
@@ -279,7 +290,8 @@ inline.
   round with nothing to check produces none.
 - `DETERMINATION.md` — the run's product file, in the fixed shape of §6, linking to `options/<id>.md`
   rather than restating them (#11). Written on a terminating round **and** on the last round the budget
-  allows (labelled a partial result). **The return names it only where the run ENDED in one of those two
+  allows (labelled a partial result when that round claims no termination). **The return names it
+  only where the run ENDED in one of those two
   states** — which is narrower than where one was written: a run that claims termination in round 1, gets
   contested, then stops on the token budget has a real (stale) determination on disk that `determination`
   does not name, and so does a last round that escalated instead of concluding. That gap is deliberate,

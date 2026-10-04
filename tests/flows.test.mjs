@@ -185,7 +185,7 @@ section('a terminal with parens and quotes survives into quoted Mermaid; its em 
     'and the graph keeps the em dash — only the emitted document drops it');
 }
 
-section('investigate keeps its SEVEN status terminals distinct — asserted by their exact strings');
+section('investigate keeps its EIGHT status terminals distinct — asserted by their exact strings');
 // A count alone passes just as well when two of them are wrong, and folding any pair is how a stopped
 // search gets reported as a finished one. The two newest are the likeliest to be folded: a critic agrees
 // to a SATURATION claim exactly as it agrees to exhaustion, and a STALLED round is not a round budget
@@ -193,8 +193,9 @@ section('investigate keeps its SEVEN status terminals distinct — asserted by t
 {
   const g = await buildGraph(investigate);
   const derived = g.terminals.filter((t) => t.source === 'derived').map((t) => t.label).sort();
-  eq(derived.length, 7, 'seven derived terminals');
+  eq(derived.length, 8, 'eight derived terminals');
   eq(derived.join(' | '), [
+    'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)',
     'BLOCKED (needs user input)',
     'exhaustive (search closed, critic agreed)',
     'no qualifying option exists (verified)',
@@ -246,7 +247,7 @@ section('two scenarios dying at DIFFERENT rounds map to ONE throw node');
 {
   const g = await buildGraph(investigate);
   const throwNodes = g.terminals.filter((t) => t.source === 'throw');
-  eq(throwNodes.length, 8, 'eight throw sites, eight nodes');
+  eq(throwNodes.length, 9, 'nine throw sites, nine nodes');
   const dead = throwNodes.filter((t) => t.label.includes('Investigator returned nothing'));
   eq(dead.length, 1, 'the two dead-investigator scenarios share one node');
   eq(dead[0].scenarios.join(', '), 'dead investigator (round 1), dead investigator (round 3)', 'both are credited to it');
@@ -417,6 +418,14 @@ section('the round count is per LANE — fan-out width and roadmap length never 
   const retry = dg.edges.filter((e) => e.fromId === acc.id && e.toId === dev.id && e.back);
   eq(retry.length, 1, 'exactly one of the two acceptance -> develop edges is the retry');
   eq(retry[0].repeat, 4, 'and a block that never accepts still measures its full maxRounds of 4');
+
+  // One ungrouped call looping back into a fan-out of k lanes walks the edge ONCE for the round, not k times.
+  const twoGaps = [{ kind: 'web', focus: 'webhooks' }, { kind: 'web', focus: 'rate limits' }];
+  const [gapRound] = docsSpec.scenarios;
+  const wide = { ...docsSpec, scenarios: [{ ...gapRound, respond: { ...gapRound.respond,
+    curate: (label) => ({ ...CURATE_BASE, gaps: /r1$/.test(label) ? twoGaps : [] }) } }] };
+  eq(edgeBetween(await buildGraph(wide), 'curate', 'gather').repeat, 2,
+    'a curator that returns 2 gaps in a 2-round loop reads x2, not the x3 one count per entered lane gives');
 }
 
 section('a label matching no known role is a hard error naming the label');

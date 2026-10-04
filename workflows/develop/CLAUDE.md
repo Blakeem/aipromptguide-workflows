@@ -44,11 +44,14 @@ preamble or another block never reaches it.
 5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
    step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
-   file's `synced:` key, oldest first, all or nothing. The engine decides every value: an accepted,
-   all-stale or passed-but-unstaged block → `done`, a park within the round budget → `parked`, every
-   other halt or a fix block that closed nothing → `blocked`. Fix issues map FIXED → `fixed` and STALE →
-   `stale` only when their block landed and acceptance confirmed the claim. FIXED, STALE or FAILED in a
-   block that did not land, or a claim acceptance refuted → `needs-attention`. SKIPPED keeps `open`. The
+   file's `synced:` key, oldest first, all or nothing. The engine decides every value. An accepted or
+   passed-but-unstaged block → `done`, a park within the round budget → `parked`, every other halt or
+   a fix block whose report in round 1 was all SKIPPED or empty → `blocked`. A fix block whose report
+   in round 1 was all STALE, or STALE plus SKIPPED, counts as accepted only once acceptance confirms
+   each STALE claim. Fix issues map FIXED → `fixed` and STALE → `stale` only when their block landed
+   and acceptance confirmed the claim. FAILED in any block → `needs-attention`. FIXED or STALE in a
+   block that did not land, or a claim acceptance refuted → `needs-attention` too. SKIPPED keeps
+   `open`. The
    plan file is the selection truth and git staging is the landed truth. Flip `parked`/`blocked` back to
    `todo` after resolving, then relaunch from step 3. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
@@ -84,15 +87,18 @@ external inventories use the same shape.
 Same roles and contracts as the engines it replaces, with these merge-specific points:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
-  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. **Must attest `unstaged_confirmed` — a
-  missing or false attestation now HALTS** (the staged index is surface neither reviewer checks).
-- **Quality Reviewer** — blind by placement (`gate/` only). Skipped ONLY when no produced work is
-  still unreviewed: a round that only re-runs a red gate or drops every finding cannot skip the gate
-  past unreviewed or actively-flagged code (`reviewOwed`).
+  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. **Must attest `unstaged_confirmed`. A
+  missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
+  surface neither reviewer checks).
+- **Quality Reviewer** — blind by placement (`gate/` only). Skipped ONLY when no work is owed a review
+  (`reviewOwed`). A round that only re-runs a red gate, drops every finding or answers a failed
+  acceptance cannot skip it past unreviewed, flagged or rejected code.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
-  block the staged baseline already satisfies passes without inventing changes). Only agent that
-  stages. Every defect it writes counts as a gap, including a regression the block prescribes or no
-  current caller reaches. The developer never dismisses a regression. It fixes the regression, with an
+  block the staged baseline already satisfies passes without inventing changes). When no blind review
+  has run for a feature or section block, any unstaged or untracked change fails acceptance. In fix
+  mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. Every defect it
+  writes counts as a gap, including a regression the block prescribes or no current caller reaches.
+  The developer never dismisses a regression. It fixes the regression, with an
   amendment when the block prescribes it, or escalates it with a default when the fix needs major
   changes outside the block's scope. The review file holds no notes section.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
@@ -112,13 +118,18 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 `build-only` = build green.
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
-passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed` and `log-cap`.
+passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
+`rejected-staged`, `review-unwritten` and `log-cap`. `rejected-staged` means acceptance failed a block
+but staged it, so inspect `git diff --cached` and unstage that block's files before resuming.
+`review-unwritten` means a quality reviewer or acceptance verifier failed a block without confirming its
+review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
 1,000 log lines, and a relaunch builds the rest. A block whose status lines overrun that room still
 finishes. Its lines past 1,000 survive only in the return's `statusSync`, and the next block halts. When
 that block was the last in a `sweep: goal-coverage` run, the run halts before the sweep. Every block is
 then done, so a relaunch has nothing to build, and you verify coverage against the goal yourself. Every exit
-leaves a clean tree except passed-but-unstaged. Verify ground truth yourself after every run: run the
+leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose park did not confirm a
+clear. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
 `DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md` and `SWEEP.md`.
 
@@ -128,7 +139,8 @@ Durable state = git staging + the plan file's status lines + the review-file tra
 args from a fresh `plan-edit.mjs args` (never the previous args object) rebuilds pending from `todo`,
 with the finished runs already applied — no startAt
 needed in the common case (`runOnly`/`startAt` still work as explicit overrides, unknown ids throw).
-A parked block's work is in `parked-<id>.patch`, not the tree; sharpen its block, flip it to `todo`,
+A parked block's work is in `parked-<id>.patch`, not the tree, unless its park halted `park-unsafe`.
+That halt reason and `followups` say where its work is. Sharpen its block, flip it to `todo` and
 relaunch.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
@@ -139,6 +151,8 @@ the state dir), then relaunch clean. Never `git add -A` it.
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
 `AMENDED-<id>.md` · `NEEDS-USER.md` · `parked-<id>.patch` (+ `parked-<id>-newfiles/`) · `SWEEP.md`.
+An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
+that share a prefix get separate files.
 
 ## 9. Args reference
 

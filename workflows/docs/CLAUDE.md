@@ -45,7 +45,10 @@ No mid-run questions — frame it with the user first:
    cross-source inconsistencies, unresolved gaps, and the fidelity spot-check (`fidelity.checked` /
    `fidelity.failures` — a low or zero count means the verbatim promise went *untested*, not that it
    held). If the return sets `foreignContent`, **warn the user first**: `outDir` was not a dedicated
-   folder (§3). If `indexWritten` is false the curator never confirmed writing `INDEX.md` — say so and
+   folder (§3). If the return names sources in `gatherFailed` or `scrubFailed`, warn the user first too.
+   A source in `gatherFailed` lost its gatherer, so its coverage may be partial. A source in
+   `scrubFailed` lost its scrubber, so its files may still hold nav chrome or ads. If `indexWritten`
+   is false the curator never confirmed writing `INDEX.md` — say so and
    check the file exists before relying on the set. Without `outDir` the set sits in gitignored
    run-state — copy it into the project (or re-run with `outDir`) if it should persist. Point the
    working agent/plan at the INDEX.
@@ -175,5 +178,6 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
 
 Report when done: the folder + `INDEX.md` paths, file count, rounds run, inconsistencies, unresolved
 gaps, and the fidelity result (`fidelity.checked` / `fidelity.failures`) — then relay the Coverage notes.
-Lead with the `foreignContent` warning if the return carries one. **Nothing is staged or committed**;
+Lead with the `foreignContent`, `gatherFailed` and `scrubFailed` warnings when the return carries them.
+**Nothing is staged or committed**;
 copy the set into the project (or re-run with `outDir`) if it should persist.

@@ -71,8 +71,8 @@ flowchart TD
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
 | throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 293) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 324) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 347) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 327) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 353) |
 
 ## Coverage
 

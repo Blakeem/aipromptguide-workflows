@@ -365,17 +365,19 @@ const results = await pipeline(
     const items = candidates.map((c, i) => ({ id: `${slug(lens.id)}-${i + 1}`, c }));
     if (items.length === 0) {
       if (markerWritten) log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
+      else if (belowFloor > 0) log(`  ⚠ ${lens.id}: all ${belowFloor} candidate(s) sat below the ${MIN_IMPACT_NAME} floor, so no ${proposalFile(lens.id)} was written — re-run with a lower minImpact to see them`);
       else log(`  ⚠ ${lens.id}: nothing above the floor but no ${proposalFile(lens.id)} was written — re-run this lens to get its marker`);
-      return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0, belowFloor }, kept: [] };
+      return { lens: lens.id, focus: lens.focus, file: markerWritten ? proposalFile(lens.id) : null, counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0, belowFloor }, kept: [] };
     }
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
     }));
-    // A DEAD verifier is not a verified lens, exactly as a dead finder is not a clean one (:343-346).
-    // Returning the result object anyway kept the lens out of `failed`, counted it as audited, and
-    // reported a `file:` path nobody wrote. Dropping it to null is the one place the operator sees it.
-    if (!v) {
-      log(`  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and no ${proposalFile(lens.id)} was written. Re-run it.`);
+    // A dead verifier, or one that did not attest its proposal file, leaves the lens unverified: null puts
+    // it in `failed` with no path reported, the one place the operator sees it.
+    if (!v || v.wrote_file !== true) {
+      log(!v
+        ? `  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and no ${proposalFile(lens.id)} was written. Re-run it.`
+        : `  ⚠ ${lens.id}: the verifier did NOT confirm writing ${proposalFile(lens.id)} — this lens was NOT verified. Re-run it.`);
       return null;
     }
     // Match every verdict back to a candidate we actually submitted (same guard as debug/review.mjs):
@@ -383,13 +385,15 @@ const results = await pipeline(
     // and the main agent would report adoption numbers the proposal file does not contain.
     const byId = new Set(items.map((x) => x.id));
     const seen = new Set();
-    const verdicts = (v?.verdicts || []).filter((x) => {
+    const verdicts = (v.verdicts || []).filter((x) => {
       if (!byId.has(x.candidate_id) || seen.has(x.candidate_id)) return false;
       seen.add(x.candidate_id);
       return true;
     });
-    const stray = (v?.verdicts || []).length - verdicts.length;
+    const stray = (v.verdicts || []).length - verdicts.length;
     if (stray) log(`  ⚠ ${lens.id}: ignored ${stray} verdict(s) with an unknown or duplicate candidate_id`);
+    const unjudged = items.filter((x) => !seen.has(x.id)).map((x) => x.id);
+    if (unjudged.length) log(`  ⚠ ${lens.id}: the verifier returned no verdict for ${unjudged.join(', ')} — they are in no count; check ${proposalFile(lens.id)} before triaging`);
     const by = (d) => verdicts.filter((x) => x.decision === d).length;
     const counts = {
       found: items.length,
@@ -400,8 +404,8 @@ const results = await pipeline(
       defects: verdicts.filter((x) => x.is_defect === true).length,
       tooRisky: verdicts.filter((x) => x.too_risky === true).length,
       belowFloor,
+      unjudged: unjudged.length,
     };
-    if (v?.wrote_file !== true) log(`  ⚠ ${lens.id}: verifier did NOT confirm writing ${proposalFile(lens.id)} — check it before triaging`);
     log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
     return {
       lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts,
@@ -428,11 +432,13 @@ return {
   // `belowFloor` counts candidates cut on the FINDER's own unverified score, before any verifier saw
   // them — so they are in no proposal file at all. It is the only signal that the floor, not the system,
   // is why a lens came back thin.
-  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), belowFloor },
+  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), belowFloor, unjudged: total('unjudged') },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
   lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
   failed,
-  nextStep: `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}`,
+  nextStep: live.length === 0
+    ? `NOTHING was audited: every lens failed (${failed.join(', ')}). There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
+    : `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and have no proposal file: ${failed.join(', ')} — offer to re-run just those.` : ''}`,
 };

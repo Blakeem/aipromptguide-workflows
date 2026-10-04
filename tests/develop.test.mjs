@@ -26,12 +26,12 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 
 // Mirrors tools/flows/develop.flow.mjs, so "a healthy return" has one definition per engine.
 const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
-const CLEAN    = { clean: true, issue_count: 0, contested_dismissals: 0 };
-const FLAGGED  = { clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
+const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
+const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const SWEEP_OK = { complete: true, gaps: [], suite_result: 'green' };
+const SWEEP_OK = { wrote_file: true, complete: true, gaps: [], suite_result: 'green' };
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
@@ -180,7 +180,7 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
   const { out, prompt, logs } = await run({
     develop: firstRound(DEV_FIXED, DEV_STALE),
     quality: firstRound(FLAGGED, CLEAN),
-    acceptance: { pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [] },
+    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [] },
   }, FIX_BLOCK);
   ok(/- i-1/.test(prompt('acceptance')), 'round 2 still hands acceptance the id claimed FIXED in round 1');
   ok(!/none claimed fixed/.test(prompt('acceptance')), 'the claim list did not empty on the downgrade');
@@ -201,8 +201,8 @@ const FIX_ONE = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green'
 // flag in would let every case below pass on the one field the engine must ignore there.
 const { produced, ...DEV_FIX } = DEV_OK;
 const fixDev = (results, extra = {}) => ({ ...DEV_FIX, entries_found: 1, results, ...extra });
-const FIX_PASS = { pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }] };
-const FIX_GAP  = { pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [] };
+const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }] };
+const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [] };
 
 section('mode fix takes gate green ONLY: build-only and red-baseline throw at launch');
 // A fix block's entries are defects in WORKING code, so both other gates would stage a "closed" issue on
@@ -286,10 +286,23 @@ section('a round-1 fix block where every entry is reported STALE goes to accepta
   eq(refuted.out.plansDone.length, 0, 'a STALE claim acceptance refutes never counts done');
 }
 
+section('a round-1 STALE and SKIPPED mix goes to acceptance and lands, never the no-changes terminal');
+// A triaged block often holds non-ACTIONABLE entries beside ACTIONABLE ones fixed upstream. Sent to the
+// no-changes terminal, a relaunch reproduced the same report and the block could never land.
+{
+  const MIX = fixDev([{ issue_id: 'i-1', status: 'STALE' }, { issue_id: 'i-2', status: 'SKIPPED' }]);
+  const { out, calls, prompt } = await run({ develop: MIX, acceptance: FIX_PASS }, FIX_ONE);
+  eq(calls.map((c) => c.label.split(' ')[0]).join(), 'develop,acceptance', 'developer then acceptance: no quality, no park');
+  ok(/reports these issues STALE[^]*?- i-1/.test(prompt('acceptance')), 'acceptance is handed the STALE id to confirm');
+  ok(/reports these issues SKIPPED:\n\s*- i-2/.test(prompt('acceptance')), 'and the SKIPPED id to check its triage');
+  eq(out.plansDone.join(), 'fix-a', 'a confirmed mix counts DONE');
+  eq(syncOf(out), 'fix-a=done,i-1=stale', 'the STALE entry syncs stale and the SKIPPED entry stays open');
+}
+
 section('a round-1 fix block that closed nothing is NOT done, and `ordered` decides whether the run stops');
-// All-SKIPPED, a SKIPPED/STALE mix and an EMPTY array all closed zero issues, so the entries stay open and
-// the block must never count done. Only an all-stale block that acceptance confirms may. The no-changes
-// terminal does not park: the developer changed nothing, so there is nothing to save and nothing to clear.
+// All-SKIPPED and an EMPTY array closed zero issues, so the entries stay open and the block must never
+// count done. A block holding a STALE claim acceptance confirms may. The no-changes terminal does not
+// park: the developer changed nothing, so there is nothing to save and nothing to clear.
 {
   const skipped = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, FIX_ONE);
   eq(skipped.calls.length, 1, 'no reviewer and no park on an empty diff');
@@ -302,7 +315,7 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
   eq(empty.out.plansDone.length, 0, 'and never counts done either');
 
   const stop = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, { ...FIX_ONE, ordered: true });
-  eq(stop.out.status, 'halted (a fix block closed no issue - every entry was skipped or stale, and the ordered run stopped there)', 'ordered status');
+  eq(stop.out.status, 'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)', 'ordered status');
   ok(!stop.labels.some((l) => l.startsWith('park')), 'still nothing to park');
   ok(/The tree is clean/.test(stop.out.haltReason), 'and the reason says the tree is clean');
 
@@ -912,6 +925,35 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
     'while the plan-aware verifier still reads both settled-decision files');
 }
 
+section('two block ids that share their first 60 characters get distinct run-state files');
+// A bare 60-char cut gave two such blocks one DISMISSED ledger, one review file per round and one parked
+// patch, so one block's declined findings silenced the other's blind review.
+{
+  const stem = `shared-prefix-${'x'.repeat(50)}`;
+  const ids = [`${stem}-one`, `${stem}-two`];
+  const plans = ids.map((id) => ({ id, mode: 'fix', gate: 'green' }));
+  const r = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS },
+    { ...baseArgs, plans });
+  const fileOf = (text, re) => text.match(re)?.[0] ?? '';
+  const files = ids.map((id) => ({
+    quality: fileOf(r.prompt(`quality ${id}`), /quality-review-[a-z0-9-]+-r1\.md/),
+    acceptance: fileOf(r.prompt(`acceptance ${id}`), /acceptance-review-[a-z0-9-]+-r1\.md/),
+    dismissed: fileOf(r.prompt(`quality ${id}`), /DISMISSED-[a-z0-9-]+\.md/),
+  }));
+  for (const kind of ['quality', 'acceptance', 'dismissed']) {
+    ok(files[0][kind] !== '' && files[1][kind] !== '', `both blocks name a ${kind} file`);
+    ok(files[0][kind] !== files[1][kind], `and the two ${kind} files differ: ${files[0][kind]} vs ${files[1][kind]}`);
+  }
+  ok(files.every((f) => f.dismissed.length <= 'DISMISSED-.md'.length + 60), 'each slug still fits in 60 characters');
+
+  const sixty = `id-${'y'.repeat(57)}`;
+  eq(sixty.length, 60, 'an id of exactly 60 characters');
+  const whole = await run(GREEN_RUN, { ...baseArgs, plans: [{ id: sixty, mode: 'feature', gate: 'build-only' }] });
+  ok(whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/quality-review-${sixty}-r1.md`)
+    && whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/DISMISSED-${sixty}.md`),
+    'keeps its whole id in its file names, as before');
+}
+
 section('run-state and plan files inside the target repo each draw their own warning');
 // Two doors onto the same hazard (#3): run-state holds the review files, the plan file holds the SPEC.
 // Both warn rather than halt, because a mid-flight throw strands a run the operator may still want.
@@ -1197,9 +1239,14 @@ section('statusSync maps each fix entry by its report AND by whether its block l
   }, FIX_ONE);
   eq(syncOf(allStale.out), 'fix-a=done,i-1=stale,i-2=stale', 'an all-stale block acceptance confirmed is done and each entry stale');
 
-  const noChanges = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }, { issue_id: 'i-2', status: 'STALE' }]) }, FIX_ONE);
-  eq(syncOf(noChanges.out), 'fix-a=blocked,i-2=needs-attention',
-    'a no-changes block is blocked, its unchecked STALE entry needs-attention, its SKIPPED entry untouched');
+  const noChanges = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, FIX_ONE);
+  eq(syncOf(noChanges.out), 'fix-a=blocked', 'a no-changes block is blocked and its SKIPPED entry untouched');
+
+  const mixed = await run({
+    develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }, { issue_id: 'i-2', status: 'STALE' }]),
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-2', actually_fixed: true }] },
+  }, FIX_ONE);
+  eq(syncOf(mixed.out), 'fix-a=done,i-2=stale', 'a SKIPPED and STALE mix acceptance confirmed is done, its STALE entry stale, its SKIPPED entry untouched');
 
   // Quality never clean at the round budget: the block parks before acceptance, so no reviewer checked the STALE claim.
   const unchecked = await run({
@@ -1481,4 +1528,179 @@ section('a malformed pass throws before any agent runs');
   }
   ok(/duplicate plan id\(s\) \[fix-a\]/.test(await throwsWith(ENGINE, { args: { ...PASS_ARGS, plans: [PASS, { id: 'fix-a', mode: 'fix', planPath: 'E:/plans/one.md' }] }, respond: {} })),
     'a member id that is also another entry\'s id');
+}
+
+// ---------------------------------------------------------------------------------------------
+// Staging and verdict contradictions the round loop must not trust
+// ---------------------------------------------------------------------------------------------
+section('a developer that escalates AND will not confirm its work stayed unstaged halts even an unordered run');
+// needs_user broke out before the staging guard, so an unordered run parked the block and carried on with
+// self-staged work in the index no reviewer saw.
+{
+  const { out, labels } = await run({
+    ...GREEN_RUN,
+    develop: (label) => (/block-a/.test(label) ? { ...DEV_OK, needs_user: true, unstaged_confirmed: false } : DEV_OK),
+    park: PARK_OK,
+  });
+  eq(out.status, 'BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)',
+    'the staging halt wins over the unordered needs-user park');
+  ok(!labels.some((l) => /block-b/.test(l)), 'block-b never started');
+  ok(/also escalated a user-only decision \(see .*NEEDS-USER\.md\)/.test(out.haltReason), 'the halt reason also names the escalation');
+  eq(out.ledger[0].needsUser, true, 'and the ledger records it');
+}
+
+section('acceptance that FAILS a block but reports staged=true halts, never re-rounds over the index');
+{
+  const { out, labels, prompt } = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true }, park: PARK_OK });
+  eq(out.status, 'BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)', 'status');
+  ok(/REJECTED block block-a in round 1 .*acceptance-review-block-a-r1\.md.*git -C E:\/repo diff --cached/.test(out.haltReason),
+    `the reason names the block, round, file and the staged diff: ${out.haltReason.slice(0, 160)}`);
+  ok(!labels.includes('develop block-a r2'), 'no second develop round runs over the staged index');
+  ok(labels.includes('park:block-a'), 'any unstaged remainder is parked');
+  ok(/acceptance rejected the block but staged it anyway; inspect `git -C E:\/repo diff --cached`/.test(prompt('park')), 'park is told the real cause');
+  ok(!labels.some((l) => /block-b/.test(l)), 'block-b never started');
+  eq(out.ledger[0].status, 'BLOCKED (acceptance staged a rejected block)', 'ledger status');
+}
+{
+  const { out, logs } = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true, wrote_file: false }, park: PARK_OK });
+  eq(out.ledger[0].status, 'BLOCKED (acceptance staged a rejected block)', 'the staged check still runs first');
+  ok(/did not confirm writing .*acceptance-review-block-a-r1\.md, so that file may not exist/.test(out.haltReason),
+    `an unwritten review file is never cited as one to see: ${out.haltReason.slice(0, 160)}`);
+  ok(!/see .*acceptance-review-block-a-r1\.md/.test(out.haltReason), 'no "see" citation');
+  ok(logs.some((l) => /⚠ block-a r1: acceptance verifier did not confirm writing/.test(l)), 'the log warns');
+}
+
+section('a fix the developer reverted and reported FAILED leaves acceptance\'s claimed-FIXED list');
+{
+  const reports = {
+    develop: firstRound(
+      fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }], { entries_found: 2 }),
+      fixDev([{ issue_id: 'i-1', status: 'FAILED' }, { issue_id: 'i-2', status: 'FIXED' }], { entries_found: -1 })),
+    quality: CLEAN,
+    acceptance: firstRound(FIX_GAP, { ...FIX_PASS, fix_checks: [{ issue_id: 'i-2', actually_fixed: true }] }),
+  };
+  const { byLabel, logs } = await run(reports, FIX_ONE);
+  const claimedList = (p) => p.split('claims these issues FIXED:')[1].split('For EACH')[0];
+  const [r1, r2] = byLabel('acceptance').map((c) => claimedList(c.prompt));
+  ok(/- i-1/.test(r1) && /- i-2/.test(r1), 'round 1 lists both claimed fixes');
+  ok(/- i-2/.test(r2), 'round 2 still lists i-2');
+  ok(!/- i-1/.test(r2), 'round 2 drops the reverted i-1');
+  ok(!logs.some((l) => /THIN EVIDENCE/.test(l)), 'one check for one live claim is not thin');
+}
+
+section('a park that did not clear, or a dead park, is never reported as having nothing to save');
+// Either may leave work in the tree or in parked-<id>.patch, so "nothing to restore" could send the
+// operator past it.
+{
+  const notCleared = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: { saved: false, cleared: false, gates_green: true, patch_bytes: 0 } }, { ...ONE_BLOCK, maxRounds: 1 });
+  ok(!/nothing to save/i.test(notCleared.out.followups), 'an uncleared park never says nothing to save');
+  ok(/Park did NOT confirm a save or a clear for: block-a\. Their work may still be in the working tree or in .*parked-<id>\.patch: inspect both/.test(notCleared.out.followups),
+    'followups say to inspect the tree and the patch');
+  ok(!notCleared.logs.some((l) => /work saved to nothing to save/.test(l)), 'an uncleared park log line does not claim nothing to save');
+  ok(notCleared.logs.some((l) => /work saved to nowhere: park confirmed no save or clear/.test(l)), 'the log line says park confirmed neither');
+
+  for (const [what, park] of [['saved', { saved: true, cleared: false, gates_green: true, patch_bytes: 2048 }], ['contradictory', { saved: false, cleared: false, gates_green: true, patch_bytes: 2048 }]]) {
+    const { out } = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park }, { ...ONE_BLOCK, maxRounds: 1 });
+    ok(!/SAVED and cleared/.test(out.followups), `${what}: a patched park that did not clear never reads as cleared`);
+    ok(/Work SAVED but NOT cleared from the tree for: block-a/.test(out.followups), `${what}: followups say the tree still holds it`);
+  }
+
+  const dead =await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: null }, { ...ONE_BLOCK, maxRounds: 1 });
+  eq(dead.out.status, 'BLOCKED (a parked block left the tree unsafe — inspect before resuming)', 'a dead park is still unsafe');
+  ok(/park agent for block block-a returned nothing \(skipped or died\), so whether its work is in .*parked-block-a\.patch or still in the working tree is unknown: inspect both/.test(dead.out.haltReason),
+    'the reason says the outcome is unknown');
+  ok(!/nothing to save/i.test(dead.out.followups), 'followups never say nothing to save');
+  ok(/Park did NOT confirm a save or a clear for: block-a/.test(dead.out.followups), 'and name the block to inspect');
+  ok(!dead.logs.some((l) => /work saved to nothing to save/.test(l)), 'the park log line does not claim nothing to save');
+
+  const empty = await run({ develop: { ...DEV_OK, needs_user: true }, park: { ...PARK_OK, saved: false, patch_bytes: 0 } }, ONE_BLOCK);
+  ok(/NO patch was written for: block-a/.test(empty.out.followups), 'a confirmed-clear empty park still reads as nothing to save');
+  ok(!/Park did NOT confirm/.test(empty.out.followups), 'and is not listed as unconfirmed');
+  ok(empty.logs.some((l) => /work saved to nothing to save/.test(l)), 'and its log line says nothing to save');
+}
+
+section('a quality clean:true that carries findings or contests is NOT clean');
+// The prompt defines clean as no findings and no contests. Trusted, the contested or counted findings went
+// to acceptance and never reached the developer.
+{
+  for (const [what, bad] of [['contested_dismissals', { ...CLEAN, contested_dismissals: 1 }], ['issue_count', { ...CLEAN, issue_count: 1 }]]) {
+    const { labels, byLabel, logs } = await run({ ...GREEN_RUN, quality: firstRound(bad, CLEAN) }, ONE_BLOCK);
+    ok(!labels.includes('acceptance block-a r1'), `${what}: no acceptance runs in round 1`);
+    ok(byLabel('develop block-a r2')[0]?.prompt.includes('quality-review-block-a-r1.md'), `${what}: the next developer is sent to the quality file`);
+    ok(logs.some((l) => /quality returned clean=true with issue_count=\d+ and contested_dismissals=\d+ — self-contradictory/.test(l)), `${what}: the contradiction is logged`);
+  }
+}
+
+section('a failing reviewer that did not attest its review file halts instead of routing a missing path');
+{
+  const q = await run({ ...GREEN_RUN, quality: { ...FLAGGED, wrote_file: false }, park: PARK_OK });
+  eq(q.out.status, 'BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)', 'quality: status');
+  ok(/Quality reviewer for block block-a reported findings in round 1 but did not confirm writing .*quality-review-block-a-r1\.md/.test(q.out.haltReason), 'quality: the reason names the file');
+  ok(!q.labels.includes('develop block-a r2'), 'quality: no developer is sent to it');
+  ok(q.labels.includes('park:block-a'), 'quality: the work is parked');
+  ok(!/quality-review-block-a-r1\.md/.test(q.prompt('park:block-a')), 'quality: park never cites the unwritten file');
+
+  const a = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, wrote_file: false }, park: PARK_OK });
+  eq(a.out.status, 'BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)', 'acceptance: status');
+  ok(/Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing .*acceptance-review-block-a-r1\.md/.test(a.out.haltReason), 'acceptance: the reason names the file');
+  ok(!a.labels.includes('develop block-a r2'), 'acceptance: no developer is sent to it');
+
+  const fixA = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: { ...FIX_GAP, wrote_file: false }, park: PARK_OK }, FIX_ONE);
+  eq(fixA.out.ledger[0].status, 'BLOCKED (review file not written)', 'fix-mode acceptance halts the same way');
+
+  // On the clean and pass paths the verdict needs no file to act on, so only a warning is logged.
+  const passes = await run({ ...GREEN_RUN, quality: { ...CLEAN, wrote_file: false }, acceptance: { ...ACC_PASS, wrote_file: false } }, ONE_BLOCK);
+  eq(passes.out.status, 'done (all blocks staged)', 'an unattested clean or pass still lands');
+  ok(passes.logs.some((l) => /quality reviewer did not confirm writing .*quality-review-block-a-r1\.md/.test(l)), 'the quality gap is logged');
+  ok(passes.logs.some((l) => /acceptance verifier did not confirm writing .*acceptance-review-block-a-r1\.md/.test(l)), 'the acceptance gap is logged');
+
+  const SWEPT = { ...baseArgs, sweep: 'goal-coverage', goal: 'g' };
+  const GAPS = { complete: false, gaps: [{ title: 't', evidence: 'e' }], suite_result: 'green' };
+  const unwritten = await run({ ...GREEN_RUN, 'final-sweep': { ...GAPS, wrote_file: false } }, SWEPT);
+  ok(unwritten.logs.some((l) => /sweep: 1 potential gap\(s\) — .*SWEEP\.md was not written, so the gap count comes from the sweep's return alone/.test(l)), 'an unwritten sweep file is never cited as one to read');
+  ok(/goal-coverage gaps — .*SWEEP\.md was not written/.test(unwritten.out.followups), 'nor in followups');
+  const written = await run({ ...GREEN_RUN, 'final-sweep': { ...GAPS, wrote_file: true } }, SWEPT);
+  ok(/goal-coverage gaps — read .*SWEEP\.md\./.test(written.out.followups), 'a written sweep file is cited');
+}
+
+section('feature and section acceptance is told when no blind reviewer judged the tree');
+{
+  const skipped = await run({ ...GREEN_RUN, develop: { ...DEV_OK, produced: false } }, ONE_BLOCK);
+  ok(/NO CHANGES REPORTED, NON-EMPTY DIFF: no blind reviewer judged the tree because the developer\n\s+reported no changes, so the unstaged diff and the untracked files MUST be empty/.test(skipped.prompt('acceptance')),
+    'a produced:false round carries the empty-diff rule');
+  const reviewed = await run(GREEN_RUN, ONE_BLOCK);
+  ok(!/NO CHANGES REPORTED/.test(reviewed.prompt('acceptance')), 'a reviewed round does not');
+  const sectionRun = await run({ ...GREEN_RUN, develop: { ...DEV_OK, produced: false } }, { ...baseArgs, plans: [BLOCKS[1]] });
+  ok(/NO CHANGES REPORTED/.test(sectionRun.prompt('acceptance')), 'the section frame carries it too');
+}
+
+section('a round answering a failed acceptance owes a blind review whatever produced says');
+// Acceptance's empty-diff rule covers only a block no reviewer ever judged. Later edits answering a gap
+// must reach the blind critic before acceptance can stage them.
+{
+  const { out, labels } = await run({
+    develop: firstRound(DEV_OK, { ...DEV_OK, produced: false }),
+    quality: CLEAN,
+    acceptance: firstRound(ACC_FAIL, ACC_PASS),
+  }, ONE_BLOCK);
+  const qualityAt = labels.indexOf('quality block-a r2');
+  ok(qualityAt >= 0, 'feature: round 2 is blind-reviewed after the acceptance fail');
+  ok(qualityAt < labels.indexOf('acceptance block-a r2'), 'before acceptance can stage it');
+  eq(out.status, 'done (all blocks staged)', 'and the block accepts once reviewed');
+  const fixRun = await run({
+    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }], { entries_found: -1 })),
+    quality: CLEAN,
+    acceptance: firstRound(FIX_GAP, FIX_PASS),
+  }, FIX_ONE);
+  ok(fixRun.labels.includes('quality fix-a r2'), 'fix: a STALE-only round 2 after a FIXED claim is blind-reviewed too');
+}
+
+section('an acceptance pass with gap_count above 0 is flagged as contradicting itself');
+{
+  const { out, logs } = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, gap_count: 1 } }, ONE_BLOCK);
+  eq(out.ledger[0].contradicted, true, 'the ledger flags it');
+  ok(logs.some((l) => /CONTRADICTS ITS OWN PASS \(.*gap_count=1\)/.test(l)), 'the log carries the mark and the count');
+  eq(out.status, 'done (all blocks staged)', 'flag only: the block still lands');
+  const clean = await run(GREEN_RUN, ONE_BLOCK);
+  eq(clean.out.ledger[0].contradicted, false, 'gap_count 0 is not flagged');
 }

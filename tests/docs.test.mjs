@@ -26,12 +26,30 @@ section('a dead scrubber is logged as a death, never as "0 file(s)"');
 // death was recorded NOWHERE. The captured files then ship with whatever nav chrome and ads the capture
 // picked up, under a checkmark (WORKFLOW-PRINCIPLES.md #15: an auxiliary death is logged + recorded).
 {
-  const { logs } = await run({ 'gather': GATHER, 'scrub': null, 'curate': CURATE });
+  const { logs, out } = await run({ 'gather': GATHER, 'scrub': null, 'curate': CURATE });
   ok(!logs.some((l) => /✓ scrubbed api-reference/.test(l)), 'no success line for a scrubber that never returned');
   const dead = logs.find((l) => /scrub:api-reference/.test(l) && /returned nothing/.test(l));
   ok(!!dead, `the death is logged and names the source: ${dead}`);
   ok(/skipped or died/.test(dead || ''), 'and says the agent skipped or died');
   ok(/NOT scrubbed/.test(dead || ''), 'and says what that costs the set');
+  ok(out.scrubFailed.join() === 'api-reference', 'the death is recorded in the return');
+  ok(/^WARN THE USER FIRST: these sources' files were NOT scrubbed, so nav chrome or ads may remain: api-reference\./.test(out.nextStep),
+    `and nextStep warns before presenting the set: ${out.nextStep.slice(0, 120)}`);
+}
+
+section('a dead gatherer is logged as a death, never as "0 file(s)", and recorded in the return');
+// The ✓ line printed before `g` was checked, so a death read exactly like a live gatherer that captured nothing.
+{
+  const { logs, out } = await run({ 'gather': null, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
+  ok(!logs.some((l) => /✓ gathered/.test(l)), 'no success line for a gatherer that never returned');
+  ok(logs.some((l) => /gather:api-reference returned nothing \(agent skipped or died\)/.test(l)), 'the death is logged and names the source');
+  ok(out.gatherFailed.join() === 'api-reference', 'the death is recorded in the return');
+  ok(/^WARN THE USER FIRST: these gatherers returned nothing, so coverage may be partial: api-reference\./.test(out.nextStep), 'and nextStep warns');
+  ok(out.scrubFailed.length === 0, 'a live scrubber is not recorded');
+
+  const healthy = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
+  ok(healthy.out.gatherFailed.length === 0 && healthy.out.scrubFailed.length === 0, 'a healthy run records no death');
+  ok(!/WARN THE USER FIRST: these/.test(healthy.out.nextStep), 'and its nextStep carries no death warning');
 }
 
 section('a scrubber that legitimately cleaned nothing still reads as a success');

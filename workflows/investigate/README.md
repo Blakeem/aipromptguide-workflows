@@ -98,8 +98,9 @@ disqualified stays in `options/`. The run's `options` result lists only the veri
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
 `not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — you
-still get a determination, written on the final round and labelled a partial result, so treat it as partial
-and re-run to continue, since the ledger makes that cheap rather than repetitive.
+still get a determination, written on the final round. Treat it as partial even when it claims the search
+ended, since the critic did not accept that claim. Re-run to continue, since the ledger makes that cheap
+rather than repetitive.
 `stopped on saturation` means the yield collapsed and the critic agreed another round was not worth its
 cost: the options are verified, the search is **open**, and the determination's WHERE NEXT section names
 the avenues left and the premise change that would open new ground. `stalled` means a round produced

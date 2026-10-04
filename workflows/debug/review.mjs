@@ -440,7 +440,10 @@ const results = await pipeline(
     if (items.length === 0) {
       if (markerWritten) log(`  ✓ ${unit.id}: clean (0 findings) — reviewer wrote the marker, verify skipped`);
       else if (lensDied) log(`  ⚠ ${unit.id}: no findings, but a reviewer died — no marker written, resume will re-review it`);
-      else log(`  ⚠ ${unit.id}: clean but the reviewer did NOT write ${issueFile(unit.id)} — resume will re-review it`);
+      else {
+        log(`  ⚠ ${unit.id}: clean but the reviewer did NOT write ${issueFile(unit.id)} — resume will re-review it`);
+        failed.push({ unit: unit.id, stage: 'review', marker: false });
+      }
       return { unit: unit.id, file: markerWritten ? issueFile(unit.id) : null, counts: { found: 0, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 }, kept: [] };
     }
     const verify = await agent(verifyPrompt(unit, items, lensDied), roleOpts('verify', {
@@ -460,9 +463,12 @@ const results = await pipeline(
     const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
     const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
     const kept = [];
+    const unmatched = [];
+    const verdicted = new Set();
     for (const v of (verify?.verdicts || [])) {
       const item = byId.get(v.finding_id);
-      if (!item) continue;
+      if (!item) { unmatched.push(String(v.finding_id)); continue; }
+      verdicted.add(item.id);
       if (!v.is_real || v.decision === 'REJECT') { counts.rejected++; continue; }
       if (v.decision === 'ACTIONABLE') counts.actionable++;
       else if (v.decision === 'NEEDS_USER') counts.needs_user++;
@@ -473,6 +479,13 @@ const results = await pipeline(
         category: item.f.category, decision: v.decision, effort: v.matrix?.effort || 'small',
         title: item.f.title, theme: v.theme || '',
       });
+    }
+    // A dead verifier is already recorded above. A live one that misses or mis-copies an id leaves a kept
+    // finding out of the returned index and totals, though the issue file still holds it.
+    const unverdicted = verify ? items.filter((x) => !verdicted.has(x.id)).map((x) => x.id) : [];
+    if (unmatched.length || unverdicted.length) {
+      log(`  ⚠ ${unit.id}: verifier verdicts do not cover the findings (unmatched: ${unmatched.join(', ') || 'none'}, no verdict: ${unverdicted.join(', ') || 'none'}) — the returned index and totals are incomplete; read ${issueFile(unit.id)}`);
+      failed.push({ unit: unit.id, stage: 'verify', unmatched, unverdicted });
     }
     log(`  ✓ ${unit.id}: ${counts.found} found → ${counts.actionable} actionable, ${counts.needs_user} needs-you, ${counts.deferred} deferred, ${counts.rejected} rejected`);
     return { unit: unit.id, file: verifyWrote ? issueFile(unit.id) : null, counts, kept };

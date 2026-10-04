@@ -153,6 +153,67 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-04
+
+- **develop halts when a reviewer breaks its contract.** An acceptance verifier that fails a block but
+  stages it halts the run as `rejected-staged`. A quality or acceptance reviewer that fails a block
+  without confirming its review file halts it as `review-unwritten`. Before, rejected work could stay in
+  the accepted baseline. The next developer could also read a review file nobody wrote.
+- **develop checks staging before a needs-user escalation.** A developer that escalates without
+  confirming its work stayed unstaged halts the run. Before, an unordered run parked the block and
+  continued over the self-staged work.
+- **A fix block that reports STALE beside SKIPPED entries in round 1 reaches acceptance.** It lands done
+  once acceptance confirms each STALE claim. Before, it ended blocked and no relaunch could land it.
+- **develop's reviews miss less.** A round that answers a failed acceptance gets a blind review. Feature
+  and section acceptance fails any change no blind reviewer judged. A quality verdict of clean beside a
+  finding or contest count goes back to the developer. A fix the developer reverted and reported FAILED
+  no longer holds its block open.
+- **develop flags more of its own contradictions.** An acceptance pass that counts gaps is flagged. The
+  followups name a park that confirmed no clear, so they never call that block's work nothing to save.
+- **develop keeps long block ids apart in its run-state files.** An id past 60 characters keeps a hash of
+  the whole id in each file name. Before, two ids that shared their first 60 characters shared one
+  DISMISSED ledger, one parked patch and the same review files.
+- **debug review records every gap in its coverage.** `failed` also lists a clean unit whose reviewer
+  wrote no marker and a unit whose verifier missed or miscopied a finding id. `gen-units.mjs` skips
+  symlinks and junctions, as git does, so a dangling or cyclic link no longer crashes it.
+- **decide reports what its agreement rests on.** The return carries `failed` (lenses left out of the
+  decision), `contradicted` (the reviewer agreed while listing gaps) and `meetsAllRequirements` (the
+  decider's own rubric check). `chosen` and `shortlist` come from the latest round only. A run of one
+  round no longer gets an UNDER-SPECIFIED diagnosis it has no evidence for.
+- **enhance never reports a path or a count it cannot back.** A verifier that did not confirm its
+  proposal file lands its lens in `failed`. A lens whose candidates all sat below the floor reports
+  `file: null`. `summary.unjudged` counts candidates the verifier returned no verdict for. A run where
+  every lens failed says nothing was audited.
+- **docs returns `gatherFailed` and `scrubFailed`.** The hand-back warns first when a gatherer or a
+  scrubber returned nothing.
+- **investigate halts on an unattested write.** An investigator or critic that does not confirm writing
+  its files ends the run `BLOCKED` before its output is used. The critic counts the candidates it flags
+  for reopening in `reopened`. Any flag keeps a termination claim from ending the run. An invalid `phase`
+  throws. The hand-back of a run that spent its round budget no longer calls a determination partial when
+  it asserts a claim the critic rejected.
+- **refine gives a contested dismissal its own status.** The editor's escalation halts as
+  `dismissal-contested`. A `USER-RULED:` line in `DISMISSED-PLAN.md` records the user's ruling. No later
+  critic contests it.
+- **wt's hook self-test never pops your own stash.** `prep` stashes its probe file with `--all`, so a
+  repo that ignores the probe still exercises the hook. When git makes no stash entry, `prep` exits 40
+  and says the hook was never exercised. Before, git stashed nothing when the repo ignored the probe. The
+  self-test then popped your own top stash into the new chain worktree.
+- **`wt land` refuses work that was not accepted.** After it commits a chain's accepted index, `land`
+  exits 40 while the chain worktree still holds unstaged or untracked work. Its message says to stage
+  that work when it passed review, or to save it outside the tree. Before, the gate judged that work
+  while the land merged only the commit, so a green gate could rest on a change that never landed.
+  `land` also sees untracked files when `status.showUntrackedFiles` is `no`.
+- **`wt init` refuses a relative `core.hooksPath`.** Git resolves a relative hooks path inside each
+  worktree, so one hook cannot guard every chain. `init` exits 40 before it creates any worktree, and
+  its message asks for an absolute path. Before, `init` wrote the hook inside the integration worktree
+  only, and every `prep` then failed with advice to re-run `init`.
+- **A flow map counts a loop into a fan-out once per round.** Before, a back edge into a fan-out of
+  several lanes counted one traversal per lane, so a loop of two rounds could read ×3.
+- **The enhance and debug flow maps give a dead agent its own terminal.** A dead enhance finder ends at
+  a terminal that says its lens was not audited. A dead debug reviewer ends at a terminal that says to
+  re-review its unit. Before, both maps drew the dead agent onto the terminal for a lens or unit with
+  nothing to report.
+
 ### 2026-10-03
 
 - **refine grades a gap by its impact.** A crash, lost or corrupted data, or wrong output on an input

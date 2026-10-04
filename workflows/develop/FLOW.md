@@ -21,17 +21,19 @@ flowchart TD
   t5(["halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted)"])
   t6(["BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built)"])
   t7(["run complete with N block(s) blocked"])
-  t8(["halted (a fix block closed no issue - every entry was skipped or stale, and the ordered run stopped there)"])
+  t8(["halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)"])
   t9(["BLOCKED (a block passed but was not staged - stage it, then resume)"])
   t10(["BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing)"])
-  t11(["BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)"])
-  t12(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
-  t13(["BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)"])
-  t14(["BLOCKED (working tree was not clean - nothing was built)"])
-  t15(["BLOCKED (needs user input)"])
-  t16(["BLOCKED (a parked block left the tree unsafe - inspect before resuming)"])
-  t17(["stopped on token budget (resume where it left off)"])
-  t18(["stopped on the runtime log line cap (resume where it left off)"])
+  t11(["BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)"])
+  t12(["BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)"])
+  t13(["BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)"])
+  t14(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
+  t15(["BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)"])
+  t16(["BLOCKED (working tree was not clean - nothing was built)"])
+  t17(["BLOCKED (needs user input)"])
+  t18(["BLOCKED (a parked block left the tree unsafe - inspect before resuming)"])
+  t19(["stopped on token budget (resume where it left off)"])
+  t20(["stopped on the runtime log line cap (resume where it left off)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
   x3[/"throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }"/]
@@ -89,7 +91,7 @@ flowchart TD
   a1 --> a4
   a1 --> t6
   a1 --> t8
-  a1 --> t14
+  a1 --> t16
   a2 -.->|"the blind review finds defects (×2)"| a1
   a2 --> a3
   a2 --> a4
@@ -103,16 +105,18 @@ flowchart TD
   a3 --> t7
   a3 --> t9
   a3 --> t10
-  a3 --> t17
-  a3 --> t18
+  a3 --> t19
+  a3 --> t20
   a4 ==>|"next item"| a1
   a4 --> t4
   a4 --> t5
   a4 --> t11
   a4 --> t12
   a4 --> t13
+  a4 --> t14
   a4 --> t15
-  a4 --> t16
+  a4 --> t17
+  a4 --> t18
   a5 --> t1
 ```
 
@@ -151,9 +155,11 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted) | a block parks and ordered is true | derived |
 | BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built) | a fix block printed no issue entries | derived |
 | run complete with N block(s) blocked | a fix block closes nothing and ordered is false | derived |
-| halted (a fix block closed no issue - every entry was skipped or stale, and the ordered run stopped there) | a fix block closes nothing and ordered is true | derived |
+| halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there) | a fix block closes nothing and ordered is true | derived |
 | BLOCKED (a block passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
 | BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
+| BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming) | acceptance fails a block but reports staged=true | derived |
+| BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming) | quality finds defects but does not confirm writing its file · acceptance finds gaps but does not confirm writing its file | derived |
 | BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming) | the developer will not confirm its work stayed unstaged | derived |
 | BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
 | BLOCKED (an agent returned nothing - it was skipped or died; its work is parked) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
@@ -168,25 +174,25 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: args.root is required | args.root is missing | throw (line 35) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 39) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 126) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 131) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 136) |
-| throw: Invalid goal key | goal is a number | throw (line 140) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 145) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 163) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 171) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 178) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 189) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 197) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 205) |
-| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 221) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 232) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 932) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 944) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 951) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 958) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 967) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 133) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 138) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 143) |
+| throw: Invalid goal key | goal is a number | throw (line 147) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 152) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 170) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 178) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 185) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 196) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 204) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 212) |
+| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 228) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 239) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 951) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 963) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 970) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 977) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 986) |
 
 ## Coverage
 
-58 scenarios · 5/5 roles · 24/24 throw sites · 13/13 halt statuses · 42 terminal states.
+61 scenarios · 5/5 roles · 24/24 throw sites · 15/15 halt statuses · 44 terminal states.

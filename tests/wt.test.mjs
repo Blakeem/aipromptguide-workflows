@@ -236,6 +236,20 @@ await withFixture(({ repo }) => {
   eq(sha(repo, 'refs/heads/aipg/int-b1'), '', '...and creates no branch');
 });
 
+section('a RELATIVE core.hooksPath is refused before any worktree or hook exists');
+await withFixture(({ root, repo }) => {
+  // Git resolves a relative hooks path inside each worktree, so the hook would guard the integration
+  // worktree alone and every prep's self-test would fail with "re-run init".
+  git(repo, ['config', 'core.hooksPath', '.husky']);
+  const r = wt(['init', '--repo', repo, '--batch', 'b1']);
+  eq(r.code, 40, 'init exits 40 on a relative core.hooksPath');
+  ok(/core\.hooksPath/.test(r.stderr), `...naming it: ${firstLine(r.stderr)}`);
+  ok(!worktreePaths(repo).some((p) => /aipg-int-/.test(p)), '...creating no integration worktree');
+  ok(!existsSync(join(root, 'aipg-int-b1')), '...and no folder for one');
+  eq(git(repo, ['branch', '--list', 'aipg/int-*']).stdout.trim(), '', '...and no aipg/int-* branch');
+  ok(!existsSync(join(repo, '.husky', 'reference-transaction')), '...and no hook written');
+});
+
 section('a FOREIGN reference-transaction hook is never clobbered');
 await withFixture(({ repo }) => {
   const hook = join(repo, '.git', 'hooks', 'reference-transaction');
@@ -302,6 +316,27 @@ await withFixture(({ root, repo }) => {
   eq(norm(r.stdout.trim()), norm(join(root, 'aipg-alpha')), '...and it still prints the worktree path');
   eq(git(repo, ['stash', 'list']).stdout.trim(), before, "...leaving the operator's own entry exactly as it was");
   ok(!existsSync(join(root, 'aipg-alpha', '.aipg-hook-probe')), '...and no probe file behind');
+});
+
+section("an IGNORED probe file never makes the self-test pop the operator's own stash entry");
+await withFixture(({ root, repo }) => {
+  // `stash push -u` skips ignored files and exits 0 with no entry made, so a pop keyed on that exit code
+  // applied the operator's top stash into the fresh chain worktree and dropped it from the stack.
+  writeFileSync(join(repo, '.gitignore'), '.*\n!.gitignore\n');
+  git(repo, ['add', '-A']);
+  git(repo, ['commit', '-qm', 'ignore dotfiles']);
+  writeFileSync(join(repo, 'a.txt'), 'operator WIP\n');
+  eq(git(repo, ['stash', 'push', '-u', '-m', 'operator WIP']).code, 0, 'the operator stashes their own work before init');
+  const list = git(repo, ['stash', 'list']).stdout.trim();
+  const reflog = git(repo, ['log', '-g', '--format=%H', 'refs/stash']).stdout.trim();
+  ok(list !== '' && reflog !== '', '...so refs/stash holds one entry when prep runs');
+
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init exits 0');
+  const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
+  eq(r.code, 0, `prep exits 0 — the hook refused the probe although the repo ignores it (${firstLine(r.stderr)})`);
+  eq(git(repo, ['stash', 'list']).stdout.trim(), list, "...the operator's stash list is unchanged");
+  eq(git(repo, ['log', '-g', '--format=%H', 'refs/stash']).stdout.trim(), reflog, '...and so is the refs/stash reflog');
+  eq(git(join(root, 'aipg-alpha'), ['status', '--porcelain', '--ignored']).stdout.trim(), '', '...and the chain worktree is clean, probe included');
 });
 
 section("prep's self-test catches a hook removed behind its back, and leaves no probe residue");
@@ -562,7 +597,7 @@ await withFixture(({ root, repo }) => {
   ok(!existsSync(lockOf(repo)), '...with no lock left behind');
 });
 
-section('land: a sync git REFUSES up front is exit 40, not a conflict — and nothing is aborted');
+section('land: unaccepted work that a sync would touch is exit 40, not a conflict — and nothing is aborted');
 await withFixture(({ root, repo }) => {
   const { chains } = batchOf(root, repo, ['alpha', 'beta']);
   const gate = gateCmd(root, 'green', GATE_GREEN);
@@ -570,17 +605,64 @@ await withFixture(({ root, repo }) => {
   stage(chains.beta, 'beta.txt', 'beta\n');
   eq(land(repo, 'alpha', gate).code, 0, 'alpha lands, so the sync into beta now touches a.txt');
 
-  // UNSTAGED — so it survives the index-only accept commit and git refuses the merge before it starts.
+  // UNSTAGED — so it survives the index-only accept commit, and the land refuses before any sync.
   writeFileSync(at(chains.beta, 'a.txt'), 'unaccepted local edit\n');
   const before = sha(repo, 'refs/heads/aipg/int-b1');
 
   const r = land(repo, 'beta', gate);
-  eq(r.code, 40, 'a merge refused for unstaged overlap exits 40, NOT 20');
-  ok(/REFUSED/.test(r.stderr), `...naming the refusal: ${firstLine(r.stderr)}`);
-  ok(/a\.txt/.test(r.stderr), '...and the file that blocks it');
-  ok(!/no merge to abort/.test(r.stderr), '...with no "there is no merge to abort" fatal (the abort is MERGE_HEAD-gated)');
+  eq(r.code, 40, 'unaccepted work over an overlapping sync exits 40, NOT 20');
+  ok(/NOT accepted/.test(r.stderr), `...naming the refusal: ${firstLine(r.stderr)}`);
+  ok(/a\.txt/.test(r.stderr), '...and the file that holds the unaccepted work');
+  ok(!/no merge to abort/.test(r.stderr), '...with no "there is no merge to abort" fatal');
   eq(sha(repo, 'refs/heads/aipg/int-b1'), before, '...integration is untouched (SHA)');
   eq(readOr(at(chains.beta, 'a.txt')), 'unaccepted local edit\n', '...and the unaccepted edit is still there, untouched');
+  ok(!existsSync(lockOf(repo)), '...with no lock left behind');
+});
+
+section('land: unaccepted work the sync never touches is still exit 40 — the gate would judge what does not land');
+await withFixture(({ root, repo }) => {
+  const { intWt, chains } = batchOf(root, repo, ['alpha', 'beta']);
+  const gate = gateCmd(root, 'needs-fixed', "if (!require('fs').readFileSync('a.txt', 'utf8').includes('fixed')) process.exit(1);\n");
+  stage(chains.alpha, 'alpha.txt', 'alpha\n');
+  eq(land(repo, 'alpha', gate).code, 0, 'alpha lands first (ancestor skip), so beta must sync and gate');
+
+  // The gate passes only because of the UNSTAGED edit, which the land would never carry into integration.
+  stage(chains.beta, 'b.txt', 'accepted\n');
+  writeFileSync(at(chains.beta, 'a.txt'), 'fixed, but never accepted\n');
+  const before = sha(repo, 'refs/heads/aipg/int-b1');
+
+  const r = land(repo, 'beta', gate);
+  eq(r.code, 40, 'a staged b.txt beside an unstaged a.txt edit exits 40, never 0');
+  ok(/NOT accepted/.test(r.stderr) && /a\.txt/.test(r.stderr), `...naming the unaccepted file: ${firstLine(r.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/int-b1'), before, '...integration is untouched (SHA)');
+  eq(readOr(at(intWt, 'a.txt')), 'one\n', "...and integration's a.txt never read as fixed");
+  ok(!existsSync(lockOf(repo)), '...with no lock left behind');
+
+  eq(git(chains.beta, ['checkout', '--', 'a.txt']).code, 0, 'the operator discards the unaccepted edit');
+  const again = land(repo, 'beta', gate);
+  eq(again.code, 30, `land again judges only the accepted work, and the gate is red on it (${firstLine(again.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/int-b1'), before, '...so integration is still untouched');
+});
+
+section('land: an UNTRACKED unaccepted file is exit 40 even when status.showUntrackedFiles is no');
+await withFixture(({ root, repo }) => {
+  const { intWt, chains } = batchOf(root, repo, ['alpha', 'beta']);
+  const gate = gateCmd(root, 'needs-c', "if (!require('fs').existsSync('c.txt')) process.exit(1);\n");
+  stage(chains.alpha, 'alpha.txt', 'alpha\n');
+  eq(land(repo, 'alpha', gateCmd(root, 'green', GATE_GREEN)).code, 0, 'alpha lands first, so beta must sync and gate');
+
+  // The repo config reaches every worktree, and it hides untracked files from a plain `git status`.
+  eq(git(repo, ['config', 'status.showUntrackedFiles', 'no']).code, 0, 'the operator hides untracked files');
+  stage(chains.beta, 'b.txt', 'accepted\n');
+  writeFileSync(at(chains.beta, 'c.txt'), 'never accepted\n');
+  const before = sha(repo, 'refs/heads/aipg/int-b1');
+
+  const r = land(repo, 'beta', gate);
+  eq(r.code, 40, 'a staged b.txt beside an untracked c.txt exits 40, never 0');
+  ok(/NOT accepted/.test(r.stderr) && /c\.txt/.test(r.stderr), `...naming the untracked file: ${firstLine(r.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/int-b1'), before, '...integration is untouched (SHA)');
+  ok(!existsSync(at(intWt, 'c.txt')), '...and integration never received c.txt');
+  eq(readOr(at(chains.beta, 'c.txt')), 'never accepted\n', '...while the untracked file stays in the chain');
   ok(!existsSync(lockOf(repo)), '...with no lock left behind');
 });
 

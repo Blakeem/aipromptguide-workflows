@@ -378,3 +378,34 @@ section('two unit ids that map to one issue file throw before any reviewer spawn
 // The 'required args throw rather than silently defaulting' section (runId, root, target.repo, units)
 // moved to required-args.test.mjs, which sweeps the same keys across EVERY engine — the axis this defect
 // class actually travels on.
+
+section('a mis-copied verdict id is logged and recorded, not silently dropped from the index');
+// The issue file still holds the finding, but the returned index and totals the operator triages from do not.
+{
+  const { out, logs } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness', title: 'A' }), finding({ category: 'security', title: 'B' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u-2')] },
+  });
+  ok(logs.some((l) => /⚠ u1: verifier verdicts do not cover the findings \(unmatched: u-2, no verdict: u1-2\) — the returned index and totals are incomplete; read E:\/r\/runs\/t\/issues\/u1\.md/.test(l)),
+    'the gap is logged with both id lists and the issue file');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify', unmatched: ['u-2'], unverdicted: ['u1-2'] }]), 'and recorded in failed');
+  eq(out.unitsReviewed, 0, 'so the unit is not counted as fully reviewed');
+
+  const { out: full } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  eq(JSON.stringify(full.failed), '[]', 'full coverage records nothing');
+}
+
+section('a clean reviewer that did not attest its marker is recorded in failed');
+// Unrecorded, the unit counted as reviewed while a prior run's issue file stayed in issues/ as current.
+{
+  const { out } = await run({}, { 'review': NO_FINDINGS });
+  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', marker: false }]), 'the unattested marker is in failed');
+  eq(out.unitsReviewed, 0, 'and the unit is not counted as reviewed');
+
+  const { out: marked } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
+  eq(JSON.stringify(marked.failed), '[]', 'an attested marker records nothing');
+  eq(marked.unitsReviewed, 1, 'and counts the unit');
+}

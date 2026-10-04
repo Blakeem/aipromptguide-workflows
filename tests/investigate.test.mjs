@@ -16,7 +16,7 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 // interesting cases — but note that on its own it now STALLS the run at r1, so a scenario that needs a
 // second round scripts LEARN instead.
 const INV  = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'low', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false, reopened: 0 };
 // A LEARNING round: it qualifies nothing but closes candidates in the ledger. Answer-neutral and still
 // legitimate — a real run does this constantly — so it must not trip the stalled backstop.
 const LEARN = { ...INV, disqualified_added: 1 };
@@ -86,11 +86,18 @@ section('a contested exhaustion claim buys another round, and the search can sti
   eq(byLabel('investigate').length, 3, 'and it spun to the round bound');
   eq(out.status, 'not exhaustive (round budget spent)', 'status');
   ok(out.exhaustive === false, 'nothing is reported as exhaustive');
-  // The determination IS named here — the last round writes it as a labelled PARTIAL result — so the
-  // caveat has to travel with it, or a partial answer reads exactly like a finished one.
+  // The last round CLAIMED exhaustion, so the prompt never told it to label the file partial. The
+  // caveat has to say the file asserts a rejected claim, or the operator relays it as a finished answer.
   ok(out.determination.endsWith('DETERMINATION.md'), 'the partial determination is surfaced');
-  ok(/PARTIAL result/.test(out.nextStep) && /not.*complete answer/i.test(out.nextStep),
-    'and nextStep says plainly that it is partial, not a complete answer');
+  ok(/asserts the exhaustion claim the critic did NOT accept \(see .*acceptance-review-r3\.md\): it is NOT labelled partial and may lack WHERE NEXT, so label it a PARTIAL result/.test(out.nextStep),
+    'nextStep says the file asserts a rejected claim and must be labelled partial');
+  ok(!/it says so at the top/.test(out.nextStep), 'and never claims the file already says it is partial');
+  ok(/not.*complete answer/i.test(out.nextStep), 'and says plainly that it is not a complete answer');
+
+  const { out: quiet } = await run({ 'investigate': { ...INV, new_options: 1, option_ids: ['o'] }, 'critique': CRIT }, { ...baseArgs, maxRounds: 1 });
+  eq(quiet.status, 'not exhaustive (round budget spent)', 'a quiet last round runs out of rounds too');
+  ok(/DETERMINATION\.md was written as a PARTIAL result \(it says so at the top\)/.test(quiet.nextStep),
+    'and keeps the partial wording, since the prompt told it to label the file');
 }
 
 section('an uncontested exhaustion claim ends the loop before the round budget');
@@ -672,4 +679,68 @@ section('every role prompt carries the read-only contract');
   ok(runPhase.prompt('investigate').includes(LINE), 'investigator');
   ok(runPhase.prompt('critique').includes(LINE), 'critic');
   ok(refinePhase.prompt('criteria-critic').includes(LINE), 'criteria critic');
+}
+
+section('an unknown phase throws instead of silently running the full search');
+// 'Refine' is the meta.phases title, so it is the plausible typo, and it skipped the mandatory criteria refine.
+{
+  for (const bad of ['Refine', 'search', 7]) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, phase: bad }, respond: {} });
+    ok(/^Invalid phase: args\.phase must be refine \| run/.test(msg), `phase ${JSON.stringify(bad)} throws: ${msg.slice(0, 70)}`);
+  }
+  const { calls } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, { ...baseArgs, phase: 'refine' });
+  eq(calls.length, 1, 'refine still runs');
+}
+
+section('an investigator that did not attest its files halts before any critic spawns');
+// The critic and the return would name those files, and a same-runId re-run can leave stale ones there.
+{
+  const { out, labels } = await run({ 'investigate': { ...INV, wrote_files: false, new_options: 1, option_ids: ['o'], exhausted: true }, 'critique': { ...CRIT, agree: true } });
+  ok(!labels.some((l) => l.startsWith('critique')), 'no critic spawned');
+  eq(out.status, 'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)', 'status');
+  ok(out.halted === true, 'reported halted');
+  ok(/investigator did not confirm writing its files in round 1: .*options\/, .*DISQUALIFIED\.md, .*SEARCHED\.md and .*DETERMINATION\.md/.test(out.haltReason),
+    `the reason names every owed file: ${out.haltReason}`);
+  eq(out.determination, '', 'no determination is named');
+  ok(/FRESH run with the same runId and no resumeFromRunId/.test(out.nextStep), 'nextStep says how to relaunch');
+
+  const { out: escalated } = await run({ 'investigate': { ...INV, wrote_files: false, needs_user: true } });
+  eq(escalated.status, 'BLOCKED (needs user input)', 'an escalation keeps its own terminal');
+}
+
+section('a critic that did not attest its review file halts before its verdict is applied');
+{
+  const { out, labels } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['o'], exhausted: true },
+    'critique': { ...CRIT, wrote_file: false, upheld: ['o'], agree: true },
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(out.status, 'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)', 'status');
+  ok(!labels.includes('investigate r2'), 'no next investigator is sent to the unwritten review');
+  eq(out.reviewFile, '', 'no review file is named');
+  eq(out.determination, '', 'no determination is named');
+  eq(out.options.length, 0, 'its upheld list was never applied');
+  ok(/critic did not confirm writing .*acceptance-review-r1\.md in round 1/.test(out.haltReason), 'the reason names the file');
+}
+
+section('a critic that agrees but flags a candidate for re-opening buys another round');
+// A written but uncounted re-open finding let an agreed claim end the run as a closed search.
+{
+  const { out, labels, logs } = await run({
+    'investigate': { ...INV, exhausted: true },
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, agree: true, reopened: 1 } : { ...CRIT, agree: true }),
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(labels.includes('investigate r2'), 'another investigator round ran');
+  ok(logs.some((l) => /termination claim not accepted \(the critic flagged 1 disqualified candidate\(s\) for re-opening\)/.test(l)), 'the log names the re-open count');
+  eq(out.status, 'exhaustive (search closed, critic agreed)', 'round 2 closes once nothing is flagged');
+
+  const { labels: missing, logs: missingLogs } = await run({
+    'investigate': { ...INV, exhausted: true },
+    'critique': (label) => {
+      if (!/r1$/.test(label)) return { ...CRIT, agree: true };
+      const { reopened, ...noCount } = { ...CRIT, agree: true };
+      return noCount;
+    },
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(missing.includes('investigate r2'), 'a missing count is unknown, never zero, so it buys a round too');
+  ok(missingLogs.some((l) => /the critic returned no re-open count/.test(l)), 'and the log says why');
 }

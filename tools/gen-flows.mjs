@@ -485,7 +485,9 @@ export async function buildGraph(spec) {
         for (const k of local) seen.add(k);
         if (prev) exits.push(prev);
       }
-      // Join to whatever ran before this segment.
+      // Join to whatever ran before this segment. One transition walks each (lane, from, to) edge once,
+      // however many of this segment's lanes it enters, so a back-edge is counted once per key here.
+      const joinRepeat = new Map();
       for (const to of entries) {
         if (!prevExits.length) addEdge(START_ID, to.node.key, sc.when);
         for (const from of prevExits) {
@@ -493,7 +495,9 @@ export async function buildGraph(spec) {
           const b = itemIdOf(to.call.label, to.node.role);
           const boundary = !!a && !!b && a !== b;
           const back = !boundary && isBack(from.node.key, to.node.key, segSeen);
-          addEdge(from.node.key, to.node.key, sc.when, { boundary, back, repeat: back ? traversalOf(from.call, from.node.role, from.node.key, to.node.key) : 0 });
+          const jk = `${laneOf(from.call, from.node.role)}\u0000${from.node.key}\u0000${to.node.key}`;
+          if (back && !joinRepeat.has(jk)) joinRepeat.set(jk, traversalOf(from.call, from.node.role, from.node.key, to.node.key));
+          addEdge(from.node.key, to.node.key, sc.when, { boundary, back, repeat: back ? joinRepeat.get(jk) : 0 });
         }
       }
       // Concurrency: how many lanes of this fan-out ran the same role. That count is the node's

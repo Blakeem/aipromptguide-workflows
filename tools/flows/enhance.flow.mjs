@@ -3,15 +3,12 @@
 // ../gen-flows.mjs. Regenerate with `node tools/gen-flows.mjs enhance`; `--check` fails the gate while
 // FLOW.md is stale.
 //
-// A lens with nothing above the impact floor never reaches the verifier (enhance-cycle.mjs:347-351), so
+// A lens with nothing above the impact floor never reaches the verifier (enhance-cycle.mjs:366-370), so
 // the graph has two exits from `find`: straight to a terminal, or on through `verify`. The engine returns
 // no `status`, so every non-throwing scenario declares its `terminal`.
 //
-// SIBLING DIVERGENCE worth knowing before reading the map (tests/CLAUDE.md §1): a dead finder is
-// control-flow-identical to a clean lens here and `failed` stays EMPTY — the array at :386-387 fills only
-// when a pipeline stage THROWS, and a dead agent resolves to null instead. brainstorm-cycle.mjs:125 does
-// populate `failed` from a dead generator. Same family, different reporting; neither is drawn as a
-// distinct path because neither IS one.
+// A dead finder is dropped at stage 1 and reported in `failed`, like brainstorm's dead generator. It
+// spawns no extra agent, so its own declared terminal is the only place the map can tell it apart.
 
 const base = {
   runId: 'flow',
@@ -33,12 +30,11 @@ const CANDIDATE = {
   risk: 'a single verifier turn gets longer',
 };
 const FOUND = { wrote_clean_marker: false, candidates: [CANDIDATE] };
-// Reported, then floored out by the engine before verify (:338-340). Control-flow-identical to the dead
-// finder above it — same edge, same terminal.
+// Reported, then floored out by the engine before verify (:356-357).
 const BELOW_FLOOR = { wrote_clean_marker: false, candidates: [{ ...CANDIDATE, impact: 'marginal' }] };
 
 // Verdict ids are the ones the ENGINE minted (`<slug(lens)>-<n>`), read back off the label: a stray id is
-// dropped by the engine's own guard (:358-364), so hard-coding one would quietly stop exercising the
+// dropped by the engine's own guard (:384-392), so hard-coding one would quietly stop exercising the
 // counting and return-building code the trace runs through.
 const verifier = (label) => ({
   wrote_file: true,
@@ -65,17 +61,15 @@ export default {
       terminal: 'proposals written',
     },
     {
-      // A dead finder resolves to null, so `candidates` reads as an empty array: no verifier, no proposal
-      // file, and the lens is still counted as live (:341, :347-351, :386-387).
+      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`
+      // (:352-355, :363, :419).
       name: 'a dead finder',
-      when: 'the finder dies',
+      when: 'the finder dies (the lens is reported in failed)',
       args: { ...base, lenses: ['efficiency'] },
       respond: { find: null },
-      terminal: 'no proposal file (the lens produced nothing)',
+      terminal: 'lens NOT audited (finder died, lens reported in failed)',
     },
     {
-      // Distinct CAUSE, identical control flow to the dead finder — which is why it lands on the same
-      // edge and the same terminal, carrying its own condition on the label rather than a fake branch.
       name: 'nothing above the floor',
       when: 'every candidate scores below the impact floor',
       args: { ...base, lenses: ['efficiency'] },

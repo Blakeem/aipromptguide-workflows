@@ -194,3 +194,76 @@ section('a gap_count that contradicts the ids is logged, and garbage ids are fil
   eq(none.gapRounds?.[0]?.gaps, 0, 'a review that returns no ids at all reads as no slugs, not as garbage');
   ok(/WHERE NEXT/.test(none.nextStep), 'and the hand-back still routes to WHERE NEXT — there is a stall either way');
 }
+
+section('a dead lens analyst is recorded in the return and named in the hand-back');
+// One lens of many is auxiliary (#15): its death must not read as a full run that converged over every lens.
+{
+  const { out } = await run({ analyst: ANALYST, 'analyst:simplest': null, decide: DECIDE, review: AGREE });
+  eq(JSON.stringify(out.failed), '["simplest"]', 'the dead lens is in failed');
+  eq(out.lensFiles.length, 1, 'and only the surviving lens file is listed');
+  ok(/left out of the decision: simplest\./.test(out.nextStep), `nextStep names the dropped lens: ${out.nextStep.slice(-120)}`);
+
+  const { out: full } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
+  eq(JSON.stringify(full.failed), '[]', 'a full run has an empty failed list');
+  ok(!/left out of the decision/.test(full.nextStep), 'and no dropped-lens sentence');
+}
+
+section('a one-round stall gets no churn diagnosis: the decider never had a round to address a gap');
+{
+  const { out } = await run({ analyst: ANALYST, decide: DECIDE, review: gaps('p99-unproven') }, { ...baseArgs, maxRounds: 1 });
+  ok(!/UNDER-SPECIFIED/.test(out.nextStep), 'not UNDER-SPECIFIED');
+  ok(!/not RESOLVING/.test(out.nextStep), 'not "not RESOLVING" either');
+  ok(/Refine the requirements and re-run, or raise maxRounds/.test(out.nextStep), 'the plain stall text remains');
+}
+
+section('an empty ranked shortlist or a blank chosen replaces the earlier round\'s, never carries it over');
+// The return pairs shortlist with decisionFile, which names the LATEST round's file.
+{
+  const SHORT = { ...DECIDE, shortlist: [{ rank: 2, title: 'redis' }, { rank: 1, title: 'in-process LRU' }] };
+  const { out } = await run({
+    analyst: ANALYST,
+    decide: (label) => (/r1$/.test(label) ? SHORT : { ...SHORT, chosen: '', shortlist: [] }),
+    review: gaps('p99-unproven'),
+  }, { ...baseArgs, selection: 'ranked', maxRounds: 2 });
+  ok(out.decisionFile.endsWith('decision-r2.md'), 'the return names round 2\'s decision file');
+  eq(JSON.stringify(out.shortlist), '[]', 'and round 2\'s empty shortlist, not round 1\'s');
+  eq(out.chosen, '', 'and round 2\'s blank chosen');
+
+  const { out: r1 } = await run({ analyst: ANALYST, decide: SHORT, review: AGREE }, { ...baseArgs, selection: 'ranked' });
+  eq(r1.shortlist.map((s) => s.rank).join(','), '1,2', 'a non-empty shortlist is still sorted by rank');
+}
+
+section('an agree that lists open gaps is flagged, not trusted silently');
+// Flag, not halt (tests/CLAUDE.md §3): the decision is the last step, so the harm cannot compound.
+{
+  const { out, logs } = await run({ analyst: ANALYST, decide: DECIDE, review: { ...AGREE, gap_ids: ['x'] } });
+  eq(out.status, 'decided (decider + reviewer agree)', 'the status is unchanged');
+  ok(logs.some((l) => /reviewer AGREES but lists 1 open gap\(s\) — self-contradictory; audit .*decision-review-r1\.md/.test(l)), 'the contradiction is logged');
+  eq(out.contradicted, true, 'and returned');
+  ok(/^The reviewer agreed while listing open gaps: audit .*decision-review-r1\.md before presenting\./.test(out.nextStep), 'nextStep leads with the audit');
+
+  const { out: count } = await run({ analyst: ANALYST, decide: DECIDE, review: { ...AGREE, gap_count: 2 } });
+  eq(count.contradicted, true, 'a positive gap_count with no ids is the same contradiction');
+
+  const { out: clean } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
+  eq(clean.contradicted, false, 'a clean agree is not flagged');
+  ok(/^Present the conclusion/.test(clean.nextStep), 'and its nextStep is unchanged');
+}
+
+section('an agree over a decision the decider says misses a requirement is flagged');
+{
+  const { out, logs } = await run({ analyst: ANALYST, decide: { ...DECIDE, meets_all_requirements: false }, review: AGREE });
+  eq(out.status, 'decided (decider + reviewer agree)', 'the status is unchanged');
+  eq(out.meetsAllRequirements, false, 'the decider\'s attestation is returned');
+  ok(logs.some((l) => /reviewer AGREES but the decider reported meets_all_requirements=false — audit .*decision-r1\.md/.test(l)), 'the contradiction is logged');
+  ok(/^The decider itself reported that the conclusion does not meet every requirement: check .*decision-r1\.md before presenting\./.test(out.nextStep), 'nextStep leads with the check');
+
+  const { out: ranked } = await run({ analyst: ANALYST, decide: { ...DECIDE, meets_all_requirements: false, shortlist: [] }, review: AGREE }, { ...baseArgs, selection: 'ranked' });
+  ok(/a shortlisted option does not meet every requirement/.test(ranked.nextStep), 'ranked mode names a shortlisted option');
+
+  const { out: both } = await run({ analyst: ANALYST, decide: { ...DECIDE, meets_all_requirements: false }, review: { ...AGREE, gap_ids: ['x'] } });
+  ok(/^The reviewer agreed while listing open gaps: .* The decider itself reported/.test(both.nextStep), 'both caveats compose, reviewer first');
+
+  const { out: ok1 } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
+  eq(ok1.meetsAllRequirements, true, 'a met rubric returns true');
+}

@@ -131,8 +131,9 @@ the decider that one file's path next round; the decider revises rather than res
   says which failure it is** — `[{ round, gaps, new, repeated }]`, one entry per review. Mostly *repeated*
   gaps: the decider is not resolving objections it already has, and another round buys the same review.
   Mostly *new* ones: the rubric is under-specified, so each round finds fresh ground — refine it rather
-  than raising `maxRounds`. The hand-back names whichever it is, and points at the last review's
-  WHERE NEXT.
+  than raising `maxRounds`. The hand-back names whichever it is when the last review ran in round 2 or
+  later, and it points at the last review's WHERE NEXT. A run of one round gets no diagnosis, since the
+  decider had no round to address a gap.
 - **Non-blind is deliberate (#3/#5).** The reviewer must see the decision and rubric; never make it
   blind. It still reads no prior review file, to re-check fresh.
 - **`selection` shapes the deliverable, not the rigor.** `single` (default) → one winner + why-not-each
@@ -182,7 +183,12 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
 Report when done: status (agreed / needs-attention / blocked), the chosen conclusion, where the matrix
-is (`decisionFile`), and the lens files for the user to inspect. The return carries the paths
-(`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), the per-round gap
-split (`gapRounds`, §6), and `selection` as structured fields; in `ranked` mode it adds the ordered
-`shortlist` index and `chosen` is the rank-1 option. **Nothing is staged or committed.**
+is (`decisionFile`), the lens files for the user to inspect, and every lens in `failed`. The return
+carries the paths (`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`),
+the lenses whose analyst wrote no lens file and so were left out of the decision (`failed`), the
+per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured fields.
+`contradicted` is true when the reviewer agreed while listing open gaps. `meetsAllRequirements` is false
+when the latest decider reported that its conclusion, or a shortlisted option, misses a requirement. An
+agreed run with either flag raised still ends `decided`, and its hand-back names the file to audit before
+presenting. In `ranked` mode the return adds the ordered `shortlist` index and `chosen` is the rank-1
+option, both from the latest round only. **Nothing is staged or committed.**

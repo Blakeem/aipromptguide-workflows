@@ -21,8 +21,9 @@ Four things together — remove any one and the plan grows every round instead o
   green gate catches on its first run. The size of the fix never lowers a grade.
   Below-floor findings land in the critique file's FYI section. They never block convergence, and
   `belowFloor` returns their count.
-- **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined; the critic skips
-  settled items and may contest one once.
+- **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
+  settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
+  the user's own ruling.
 - **The minimal-fold editor.** It changes NOTHING a gap does not name, and re-validates the file
   through the plan-block tool after every fold.
 
@@ -35,10 +36,14 @@ Four things together — remove any one and the plan grows every round instead o
    - `converged` — hand the final text to the user for approval, then build it with develop, whose
      args come from `plan-edit.mjs args`. When `belowFloor` is above 0, the user reads the FYI section of
      `lastCritique` before approving, since no editor folded those findings.
-   - `needs-answers` — read `NEEDS-USER.md`: the critic raised things only you can settle (a
-     dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done` block), or the editor
-     escalated a contested dismissal. Restructure the plan (new blocks need fresh kebab ids), then
-     relaunch as a fresh run (no resumeFromRunId).
+   - `needs-answers`: read `NEEDS-USER.md`. The critic raised things only you can settle (a
+     dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done`
+     block). Restructure the plan (new blocks need fresh kebab ids), then relaunch as a fresh run (no
+     resumeFromRunId).
+   - `dismissal-contested`: read `NEEDS-USER.md`. The critic contested a declined gap, and the editor
+     escalated it. Record the user's ruling. Fold the gap into the plan, or append
+     `<block id> - <gap gist> - USER-RULED: <reason>` to `DISMISSED-PLAN.md`. Then relaunch as a fresh
+     run (same runId and stateDir, no resumeFromRunId).
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified. Read
      `lastCritique`, decide, relaunch as a fresh run (no resumeFromRunId) to confirm.
    - A `BLOCKED (...)` status — the halt reason names the repair.
@@ -60,7 +65,7 @@ be re-refined without rewriting the spec its staged code was built against.
   run the `--list` check first, then relaunch with resumeFromRunId to replay the cached critic and
   redo the fold, since a relaunch without it restarts at round 1), folded gaps with `wrote_file`
   false (`fold-unattested`), `plan_parses` false (`plan-broken` — repair by hand), `needs_user` true
-  (`needs-answers` — it escalated a contested dismissal to `NEEDS-USER.md`).
+  (`dismissal-contested`, since it escalated a contested dismissal to `NEEDS-USER.md`).
 
 ## 4. State files
 

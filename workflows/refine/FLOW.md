@@ -12,12 +12,13 @@ flowchart TD
   a1["plan-critic · opus<br/>Critique"]
   a2["plan-editor · opus<br/>Fold"]
   t1(["converged (one clean round: no gaps at or above the floor, no questions)"])
-  t2(["needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
-  t3(["rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)"])
-  t4(["BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round)"])
-  t5(["BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
-  t6(["BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
-  t7(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool's resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round N)"])
+  t2(["needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
+  t3(["dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user's ruling by folding the gap into the plan or by appending #quot;<block id> - <gap gist> - USER-RULED: <reason>#quot; to DISMISSED-PLAN.md, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
+  t4(["rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)"])
+  t5(["BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round)"])
+  t6(["BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
+  t7(["BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))"])
+  t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool's resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round N)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, planPath, target:{repo} }"/]
   x3[/"throw: args.root is required"/]
@@ -37,14 +38,14 @@ flowchart TD
   a1 --> a2
   a1 --> t1
   a1 --> t2
-  a1 --> t4
+  a1 --> t5
   a1 --> x8
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
-  a2 --> t2
   a2 --> t3
-  a2 --> t5
+  a2 --> t4
   a2 --> t6
   a2 --> t7
+  a2 --> t8
 ```
 
 ## Phases
@@ -59,7 +60,8 @@ flowchart TD
 | Terminal | Reached when | Source |
 |---|---|---|
 | converged (one clean round: no gaps at or above the floor, no questions) | the first critic finds nothing · a fold, then a clean round | derived |
-| needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)) | the critic raises a question · the editor escalates a contested dismissal | derived |
+| needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)) | the critic raises a question | derived |
+| dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user's ruling by folding the gap into the plan or by appending "&lt;block id&gt; - &lt;gap gist&gt; - USER-RULED: &lt;reason&gt;" to DISMISSED-PLAN.md, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)) | the editor escalates a contested dismissal | derived |
 | rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged) | gaps remain at the round budget | derived |
 | BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round) | the critic reports findings it did not write | derived |
 | BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)) | the editor reports folds it did not write | derived |
@@ -72,8 +74,8 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 48) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 61) |
 | throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 72) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 288) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 289) |
 
 ## Coverage
 
-17 scenarios · 2/2 roles · 8/8 throw sites · 7/7 halt statuses · 15 terminal states.
+17 scenarios · 2/2 roles · 8/8 throw sites · 8/8 halt statuses · 16 terminal states.

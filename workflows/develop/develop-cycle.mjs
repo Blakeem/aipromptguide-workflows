@@ -95,7 +95,14 @@ const statusRoom = () => LOG_CAP - Math.max(logCount, LOG_BUDGET) - (logBudgetNo
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
-const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
+// A long slug keeps a hash of its full form: two block ids sharing a 60-char prefix would otherwise share
+// every run-state file, the DISMISSED ledger and the parked patch included.
+const fnv1a       = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
+const slug        = (s) => {
+  const full = String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  if (full.length <= 60) return full;
+  return `${full.slice(0, 51).replace(/-$/, '')}-${fnv1a(full)}`;
+};
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
@@ -335,8 +342,9 @@ const developSchema = (mode) => ({
 
 const QUALITY_SCHEMA = {
   type: 'object',
-  required: ['clean', 'issue_count'],
+  required: ['wrote_file', 'clean', 'issue_count'],
   properties: {
+    wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
     clean:       { type: 'boolean', description: 'true if NO production-blocking defects were found in the unstaged diff' },
     issue_count: { type: 'integer', description: 'number of production-blocking defects written to the review file' },
     contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round (0 if none)' },
@@ -370,10 +378,11 @@ const acceptanceSchema = (mode) => {
   return {
     type: 'object',
     required: mode === 'fix'
-      ? ['plan_obtained', 'pass', 'staged', 'fix_checks']
-      : ['plan_obtained', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
+      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks']
+      : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
       plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
+      wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
       pass:        { type: 'boolean', description: terms.pass },
       staged:      { type: 'boolean', description: terms.staged },
       ...(mode === 'fix' ? {
@@ -420,8 +429,9 @@ const PARK_SCHEMA = {
 
 const SWEEP_SCHEMA = {
   type: 'object',
-  required: ['complete', 'gaps'],
+  required: ['wrote_file', 'complete', 'gaps'],
   properties: {
+    wrote_file: { type: 'boolean', description: 'true ONLY if you wrote the sweep file' },
     complete: { type: 'boolean', description: 'true if no goal-coverage gaps were found' },
     gaps: {
       type: 'array',
@@ -661,8 +671,9 @@ refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
-"No production-blocking defects found." Then return clean (true if NO findings, including no contests)
-+ issue_count + contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
+"No production-blocking defects found." Then return wrote_file (true ONLY if you wrote that file) + clean
+(true if NO findings, including no contests) + issue_count + contested_dismissals via the schema. Do NOT
+modify source, stage, or commit.`;
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
@@ -746,9 +757,10 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
      tree, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
 
-const planAcceptance = (p, round) => {
+const planAcceptance = (p, round, { reviewSkipped }) => {
   const isSection = p.mode === 'section';
   const reachStep = isSection
     ? `REACHABILITY: prove every integration point this block owns is satisfied — every call site
@@ -821,15 +833,19 @@ PROCEDURE:
      changed AND newly-created files>\` (NEVER commit); return pass=true, staged=true.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.${reviewSkipped ? `
+   • NO CHANGES REPORTED, NON-EMPTY DIFF: no blind reviewer judged the tree because the developer
+     reported no changes, so the unstaged diff and the untracked files MUST be empty. Any change there
+     fails acceptance: name the files in your file and return pass=false.` : ''}
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code. Return ONLY the decision fields via the schema.`;
 };
 
 const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix: fixAcceptance };
 
-const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = []) =>
-  ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped });
+const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = [], reviewSkipped = false) =>
+  ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped, reviewSkipped });
 
 // Only needs-user writes a NEEDS-USER entry, so every other halt names its own cause for park to cite.
 const parkReason = (haltKind) => ({
@@ -837,6 +853,8 @@ const parkReason = (haltKind) => ({
   'agent-dead': 'an agent returned nothing (skipped or died)',
   'plan-unreadable': 'an agent could not obtain its plan',
   'staging-unconfirmed': `the developer did not confirm its work stayed unstaged; inspect \`git -C ${REPO} diff --cached\` for self-staged work`,
+  'rejected-staged': `acceptance rejected the block but staged it anyway; inspect \`git -C ${REPO} diff --cached\` and unstage this block's files`,
+  'review-unwritten': 'a reviewer reported a failing verdict but did not confirm writing its review file',
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
 
 const parkPrompt = (p, lastReviewPath, escalated, haltKind, stopsRun) => `
@@ -922,7 +940,8 @@ PROCEDURE (read-only except step 4):
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
-Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema.`;
+Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
+with wrote_file=true ONLY if you wrote ${SWEEP_FILE}.`;
 
 // =============================================================================
 // Launch guards — the gate commands are what "it works" MEANS here.
@@ -1036,6 +1055,8 @@ function fixTracker(p) {
   // A STALE report closes its entry once the block lands, so acceptance confirms it too. One still in
   // claimedEver is this block's own fix and is already on the FIXED list.
   const stale = () => [...reported].filter(([id, s]) => s === 'STALE' && !claimedEver.has(id)).map(([id]) => id);
+  // A later FAILED report is a reverted fix, so acceptance must not hold the block open on it.
+  const claimed = () => [...claimedEver].filter((id) => reported.get(id) !== 'FAILED');
   return {
     /** This round's results, recorded before any halt so an escalated block still reaches the ledger. */
     record(dev) {
@@ -1049,7 +1070,7 @@ function fixTracker(p) {
       return results;
     },
     ledger: () => [...reported].map(([issue_id, status]) => ({ issue_id, status })),
-    claimed: () => [...claimedEver],
+    claimed,
     stale,
     skipped: () => [...reported].filter(([, s]) => s === 'SKIPPED').map(([id]) => id),
     /** The verdict's fix checks. Every verdict counts, not just a pass: the latest check per id wins. */
@@ -1062,12 +1083,13 @@ function fixTracker(p) {
       }
       const openChecks = checks.filter((c) => c?.actually_fixed === false).length;
       const staleIds = stale();
+      const claimedCount = claimed().length;
       return {
         criteria: null,
         reachable: null,
-        thin: checks.length < claimedEver.size + staleIds.length,
+        thin: checks.length < claimedCount + staleIds.length,
         open: openChecks > 0,
-        evidence: `${checks.length} check(s) for ${claimedEver.size} claimed fix(es)${staleIds.length ? ` and ${staleIds.length} stale claim(s)` : ''}`,
+        evidence: `${checks.length} check(s) for ${claimedCount} claimed fix(es)${staleIds.length ? ` and ${staleIds.length} stale claim(s)` : ''}`,
         contraDetail: `unclosed=${openChecks}`,
         score: `${checks.length} fix check(s)`,
         reachNote: '',
@@ -1159,7 +1181,7 @@ for (const p of pending) {
   }
 
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, patch: null, strays: null };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null, strays: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
@@ -1167,8 +1189,8 @@ for (const p of pending) {
   // The latest review file the developer must address. Empty until a reviewer writes one, and never
   // replaced by a path nobody wrote: the halt reason and parkPrompt each say so instead.
   let reviewPath = '';
-  // Produced work no clean review has passed. The tree is CUMULATIVE while `produced` is per-round, so a
-  // round that only re-runs a red gate or DROPs every finding reports produced=false over unreviewed code.
+  // Work no clean review has passed. The tree is CUMULATIVE while `produced` is per-round, so a round that
+  // re-runs a red gate, DROPs every finding or answers a failed acceptance can report produced=false over it.
   let reviewOwed = false;
   let accepted = false;
   // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1
@@ -1254,6 +1276,23 @@ for (const p of pending) {
     // empty diff. Recorded before the halts below so an escalated block still reaches the ledger.
     const results = fix ? fix.record(dev) : [];
     if (fix) rec.results = fix.ledger();
+    // ---- PRECONDITION: the work is still UNSTAGED ---------------------------------------------------
+    // Self-staged work would skip both reviewers and be inherited as the accepted baseline. It follows the
+    // dead-agent, dirty-baseline and plan_obtained guards, since a null return also fails `!== true`, and
+    // precedes needs_user, since a staged index must halt even an unordered run.
+    if (dev.unstaged_confirmed !== true) {
+      halted = true;
+      escalated = true;   // real work is probably in the tree → park it rather than abandon it
+      haltKind = 'staging-unconfirmed';
+      haltReason = `Developer for block ${p.id} did not confirm its work stayed UNSTAGED in round ${round} (unstaged_confirmed=${JSON.stringify(dev.unstaged_confirmed)}). The staged index is the one surface neither reviewer checks — the blind critic reads \`git diff\`, acceptance treats \`git diff --staged\` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect \`git -C ${REPO} diff --cached\` before resuming.`;
+      if (dev.needs_user === true) {
+        rec.needsUser = true;
+        haltReason += ` The developer also escalated a user-only decision (see ${NEEDS_USER}).`;
+      }
+      rec.status = 'BLOCKED (staging unconfirmed)';
+      logLine(`  ✋ ${p.id} r${round}: developer did not confirm its work stayed UNSTAGED → halting before any review agent (inspect git -C ${REPO} diff --cached)`);
+      break;
+    }
     if (dev?.needs_user === true) {
       escalated = true;   // real work may be in the tree → park it below rather than abandoning it there
       rec.status = 'BLOCKED (needs user)';
@@ -1267,20 +1306,6 @@ for (const p of pending) {
         parkKind = 'needs-user';
       }
       logLine(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → ${ORDERED ? 'halting' : 'parking it, the unordered run continues'} (see ${NEEDS_USER})`);
-      break;
-    }
-    // ---- PRECONDITION: the work is still UNSTAGED ---------------------------------------------------
-    // Self-staged work would skip both reviewers and be inherited as the accepted baseline.
-    // POSITION IS LOAD-BEARING: it sits AFTER the dead-agent, plan_obtained, dirty-baseline and
-    // needs_user checks, because a null return also fails `!== true` — a dead developer must report
-    // agent-dead, and a dirty baseline dirty-baseline, never this.
-    if (dev.unstaged_confirmed !== true) {
-      halted = true;
-      escalated = true;   // real work is probably in the tree → park it rather than abandon it
-      haltKind = 'staging-unconfirmed';
-      haltReason = `Developer for block ${p.id} did not confirm its work stayed UNSTAGED in round ${round} (unstaged_confirmed=${JSON.stringify(dev.unstaged_confirmed)}). The staged index is the one surface neither reviewer checks — the blind critic reads \`git diff\`, acceptance treats \`git diff --staged\` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect \`git -C ${REPO} diff --cached\` before resuming.`;
-      rec.status = 'BLOCKED (staging unconfirmed)';
-      logLine(`  ✋ ${p.id} r${round}: developer did not confirm its work stayed UNSTAGED → halting before any review agent (inspect git -C ${REPO} diff --cached)`);
       break;
     }
     if (dev?.dismissed_count) {
@@ -1305,21 +1330,23 @@ for (const p of pending) {
     }
 
     // ---- FIX MODE, ROUND 1 ONLY: nothing produced over a green gate --------------------------------
-    // All STALE is a claim acceptance must confirm, so it falls through. Anything else closed nothing and
-    // never counts done. Round 1 only (see reviewOwed): later, results:[] can follow a real fix, and this
-    // exit would strand that work past quality, acceptance and park.
+    // A STALE claim, alone or beside SKIPPED entries, is one acceptance must confirm, so it falls through.
+    // All SKIPPED or no report closed nothing. Round 1 only: a later results:[] can follow a real fix.
     if (fix && !produced && round === 1) {
-      const onlyStale = results.length > 0 && results.every((r) => r?.status === 'STALE');
-      if (onlyStale) {
-        logLine(`  ${p.id}: every issue reported already resolved (all ${results.length} STALE) — no diff, so acceptance confirms each claim without a blind review`);
+      const staleCount = results.filter((r) => r?.status === 'STALE').length;
+      if (staleCount > 0) {
+        const claim = staleCount === results.length
+          ? `every issue reported already resolved (all ${staleCount} STALE)`
+          : `${staleCount} issue(s) reported already resolved (STALE), the rest SKIPPED`;
+        logLine(`  ${p.id}: ${claim} — no diff, so acceptance confirms each claim without a blind review`);
       } else {
         fixTerminal = 'no-changes';
         rec.status = fixTerminal;
-        logLine(`  ⚠ ${p.id}: no changes produced — ${results.length ? 'every entry was skipped or stale' : 'the developer reported no entries at all'}; the block is NOT done and its issues stay open`);
+        logLine(`  ⚠ ${p.id}: no changes produced — ${results.length ? 'every entry was skipped' : 'the developer reported no entries at all'}; the block is NOT done and its issues stay open`);
         if (ORDERED) {
           halted = true;
           haltKind = 'no-changes';
-          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED or STALE (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE — then re-run. The tree is clean.`;
+          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE — then re-run. The tree is clean.`;
         }
         break;
       }
@@ -1348,7 +1375,23 @@ for (const p of pending) {
         rec.contested += quality.contested_dismissals;
         logLine(`  ⚠ ${p.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — developer must fix or escalate, not re-dismiss (audit ${dismissedFile(p.id)})`);
       }
-      if (quality?.clean !== true) {
+      // clean means no findings and no contests, so a clean:true beside either count contradicts itself and
+      // must route its findings to the developer rather than on to acceptance.
+      const qualityClean = quality.clean === true && !(Number(quality.issue_count) > 0) && !(Number(quality.contested_dismissals) > 0);
+      if (quality.clean === true && !qualityClean) {
+        logLine(`  ⚠ ${p.id} r${round}: quality returned clean=true with issue_count=${quality.issue_count} and contested_dismissals=${quality.contested_dismissals} — self-contradictory; treated as NOT clean`);
+      }
+      if (!qualityClean) {
+        // An unwritten review file would send the next developer, and park, to a path nobody wrote.
+        if (quality.wrote_file !== true) {
+          halted = true;
+          escalated = true;
+          haltKind = 'review-unwritten';
+          haltReason = `Quality reviewer for block ${p.id} reported findings in round ${round} but did not confirm writing ${qualityFile(p.id, round)}, so there is no review file for the developer to address. Check whether that file exists before resuming.`;
+          rec.status = 'BLOCKED (review file not written)';
+          logLine(`  ✋ ${p.id} r${round}: quality reviewer did not confirm writing ${qualityFile(p.id, round)} → halting`);
+          break;
+        }
         reviewOwed = true;
         reviewPath = qualityFile(p.id, round);
         if (round >= MAX_ROUNDS) { logLine(`  ⚠ ${p.id} r${round}: ${quality?.issue_count ?? '?'} quality issue(s) open at round budget (see ${reviewPath})`); break; }
@@ -1356,6 +1399,7 @@ for (const p of pending) {
         continue;
       }
       reviewOwed = false;
+      if (quality.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: quality reviewer did not confirm writing ${qualityFile(p.id, round)}`);
       logLine(`  ✓ ${p.id} r${round}: quality review clean`);
     } else {
       logLine(`  ${p.id} r${round}: developer produced no changes — skipping blind review; acceptance will judge the block against its criteria`);
@@ -1363,7 +1407,7 @@ for (const p of pending) {
 
     // ---- ACCEPTANCE REVIEW (plan-aware; stages on pass; baseline advances) ---
     phase('Acceptance');
-    const acc = await agent(acceptancePrompt(p, round, fix?.claimed(), fix?.stale(), fix?.skipped()), roleOpts('acceptance', {
+    const acc = await agent(acceptancePrompt(p, round, fix?.claimed(), fix?.stale(), fix?.skipped(), rec.qualityRounds === 0), roleOpts('acceptance', {
       schema: acceptanceSchema(p.mode), phase: 'Acceptance', label: `acceptance ${p.id} r${round}`,
     }));
     // A dead verifier is not a gap verdict, and the next round would read a review file nobody wrote.
@@ -1394,10 +1438,11 @@ for (const p of pending) {
       rec.reachable = verdict.reachable;
       // A thin pass (#14) is flagged for audit, not failed: acceptance already staged.
       rec.thinEvidence = verdict.thin;
-      // Flag both contradictions. Halt only on the regression: staged work becomes every later baseline.
-      rec.contradicted = acc?.regression === true || verdict.open;
+      // Flag every contradiction. Halt only on the regression: staged work becomes every later baseline.
+      rec.contradicted = acc?.regression === true || verdict.open || Number(acc?.gap_count) > 0;
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${verdict.evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
-      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}) — audit ${acceptanceFile(p.id, round)}` : '';
+      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}, gap_count=${acc?.gap_count}) — audit ${acceptanceFile(p.id, round)}` : '';
+      if (acc.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)}`);
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
@@ -1421,6 +1466,30 @@ for (const p of pending) {
       logLine(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
     }
+    // Rejected work in the index skips every later review and becomes the baseline they judge against.
+    if (acc.staged === true) {
+      const accCite = acc.wrote_file === true
+        ? `see ${acceptanceFile(p.id, round)}`
+        : `it did not confirm writing ${acceptanceFile(p.id, round)}, so that file may not exist`;
+      halted = true;
+      escalated = true;   // park saves any unstaged remainder and leaves the index alone
+      haltKind = 'rejected-staged';
+      haltReason = `Acceptance REJECTED block ${p.id} in round ${round} but reported staged=true (${accCite}), so work it failed may now sit in the accepted baseline. Inspect \`git -C ${REPO} diff --cached\` and unstage this block's files before resuming.`;
+      rec.status = 'BLOCKED (acceptance staged a rejected block)';
+      if (acc.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)}`);
+      logLine(`  ✋ ${p.id} r${round}: acceptance failed the block but staged it → halting (inspect git -C ${REPO} diff --cached)`);
+      break;
+    }
+    if (acc.wrote_file !== true) {
+      halted = true;
+      escalated = true;
+      haltKind = 'review-unwritten';
+      haltReason = `Acceptance verifier for block ${p.id} failed the block in round ${round} but did not confirm writing ${acceptanceFile(p.id, round)}, so there is no review file for the developer to address. Check whether that file exists before resuming.`;
+      rec.status = 'BLOCKED (review file not written)';
+      logLine(`  ✋ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)} → halting`);
+      break;
+    }
+    reviewOwed = true;
     reviewPath = acceptanceFile(p.id, round);
     if (round >= MAX_ROUNDS) { logLine(`  ⚠ ${p.id} r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s) at round budget (see ${reviewPath})`); break; }
     logLine(`  ↻ ${p.id} r${round}: acceptance found ${acc?.gap_count ?? '?'} gap(s)${acc?.regression ? ' [REGRESSION]' : ''} → develop addresses ${reviewPath}`);
@@ -1468,20 +1537,27 @@ for (const p of pending) {
     rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(p.id) : null;
     // A value, so parked[] never parses status prose: an escalated block keeps its BLOCKED status.
     rec.parked = true;
+    // Only a confirmed clear proves a patchless park had nothing to save.
+    rec.parkCleared = pk?.cleared === true;
     if (strays > 0) rec.strays = parkedNewDir(p.id);
     if (!escalated) rec.status = 'parked (not accepted within round budget)';
+    const parkSavedTo = rec.patch || (rec.parkCleared ? 'nothing to save' : pk ? 'nowhere: park confirmed no save or clear' : 'unknown: the park agent returned nothing');
     // Park's notes are the only place an empty park explains itself. Logged, not returned.
-    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (work saved to ${rec.patch || 'nothing to save'}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(p.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
+    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (work saved to ${parkSavedTo}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(p.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     // A tree we could not clear (or a broken build) is unsafe for whatever comes next, so those DO halt
     // even in an unordered run, where a plain park does not.
     if (contradictory) {
       halted = true;
       haltKind = 'park-unsafe';
       haltReason = `Park reported saved=false for block ${p.id} but wrote ${pk.patch_bytes} bytes to ${parkedPatch(p.id)} — the report contradicts itself. The patch is real; inspect it before continuing (the tree was ${pk?.cleared === true ? 'already cleared' : 'left as-is'}).`;
-    } else if (pk?.cleared !== true) {
+    } else if (!pk) {
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `Block ${p.id} could not be cleared from the working tree${pk?.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next.`;
+      haltReason = `The park agent for block ${p.id} returned nothing (skipped or died), so whether its work is in ${parkedPatch(p.id)} or still in the working tree is unknown: inspect both. The tree is unsafe for whatever runs next until you do.`;
+    } else if (pk.cleared !== true) {
+      halted = true;
+      haltKind = 'park-unsafe';
+      haltReason = `Block ${p.id} could not be cleared from the working tree${pk.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next.`;
     } else if (pk?.gates_green === false) {
       // A cleared tree with a red build is not safe to resume into.
       halted = true;
@@ -1513,6 +1589,7 @@ for (const p of pending) {
 // =============================================================================
 let sweep = null;
 let sweepFailed = false;   // the sweep RAN and DIED — distinct from the legitimate did-not-run cases
+let sweepFileNote = '';
 const goalCovered = !halted && ALL_PLANS
   .filter((p) => p.status !== 'skip')
   .every((p) => p.status === 'done' || doneIds.includes(p.id));
@@ -1529,11 +1606,15 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
   }));
   // A dead sweep is not a clean sweep. It does not halt: every block is staged, and the sweep is advisory.
   sweepFailed = !sweep;
+  // The sweep file is cited only when the sweep attested writing it.
+  sweepFileNote = sweep?.wrote_file === true
+    ? `read ${SWEEP_FILE}`
+    : `${SWEEP_FILE} was not written, so the gap count comes from the sweep's return alone`;
   logLine(sweepFailed
     ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: re-run the sweep, or check coverage against the goal yourself.`
     : sweep.complete
       ? `sweep: no goal-coverage gaps found (suite: ${sweep.suite_result || 'n/a'})`
-      : `sweep: ${(sweep.gaps || []).length} potential gap(s) — see ${SWEEP_FILE}`);
+      : `sweep: ${(sweep.gaps || []).length} potential gap(s) — ${sweepFileNote}`);
 }
 
 // =============================================================================
@@ -1550,7 +1631,11 @@ const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
 const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
 // Split on rec.patch. An empty park is still a block not done.
 const patchedPlans = parkedPlans.filter((r) => r.patch);
-const emptyParkPlans = parkedPlans.filter((r) => !r.patch && !r.strays);
+const savedClearedPlans = patchedPlans.filter((r) => r.parkCleared === true);
+const savedUnclearedPlans = patchedPlans.filter((r) => r.parkCleared !== true);
+const emptyParkPlans = parkedPlans.filter((r) => !r.patch && !r.strays && r.parkCleared === true);
+// A patchless park that never confirmed a clear may still hold the work in the tree or a patch file.
+const unclearedParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared !== true);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
 // block stopped by a halt that never parks (dirty-baseline, inventory-empty, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
@@ -1563,11 +1648,13 @@ const HALT_STATUS = {
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
   'inventory-empty': 'BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built)',
-  'no-changes':      'halted (a fix block closed no issue - every entry was skipped or stale, and the ordered run stopped there)',
+  'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',
   'staging-unconfirmed': 'BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)',
   'passed-unstaged': 'BLOCKED (a block passed but was not staged — stage it, then resume)',
   'acceptance-regression': 'BLOCKED (a block staged while self-reporting a regression — inspect the staged diff before continuing)',
+  'rejected-staged': 'BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)',
+  'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)',
   'parked':          'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)',
   'park-unsafe':     'BLOCKED (a parked block left the tree unsafe — inspect before resuming)',
   'budget':          'stopped on token budget (resume where it left off)',
@@ -1612,10 +1699,14 @@ return {
     : ''}${needsUserParks.length
     ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
     : ''}${parkedPlans.length
-    ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${patchedPlans.length
-      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${patchedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply --3way\` restore command). `
+    ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${savedClearedPlans.length
+      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply --3way\` restore command). `
+      : ''}${savedUnclearedPlans.length
+      ? `Work SAVED but NOT cleared from the tree for: ${savedUnclearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch, and the working tree still holds it). Clear the tree before resuming, and keep the patch until you have. `
       : ''}${emptyParkPlans.length
       ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
+      : ''}${unclearedParkPlans.length
+      ? `Park did NOT confirm a save or a clear for: ${unclearedParkPlans.map((r) => r.id).join(', ')}. Their work may still be in the working tree or in ${STATE_DIR}/parked-<id>.patch: inspect both before discarding anything. `
       : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone (sharpen its block in the plan file if needed, flip it to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly), or drop it. `
     : ''}${noChangePlans.length
     ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
@@ -1624,6 +1715,6 @@ return {
     : ''}${amendedIds.length
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
-    ? `The sweep reported goal-coverage gaps — read ${SWEEP_FILE}. `
+    ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
     : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };

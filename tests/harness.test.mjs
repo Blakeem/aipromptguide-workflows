@@ -42,7 +42,8 @@ section('an arg-validation throw legitimately has no calls at all');
 
 section('a normal run reports kind:return and the engine\'s own status');
 {
-  const t = await runTrace(INVESTIGATE, { args: { ...invArgs, maxRounds: 1 } });
+  // Both writers attest their files: an unattested write is its own BLOCKED terminal, not a normal run.
+  const t = await runTrace(INVESTIGATE, { args: { ...invArgs, maxRounds: 1 }, respond: { 'investigate': { wrote_files: true }, 'critique': { wrote_file: true } } });
   eq(t.terminal.kind, 'return', 'terminal kind');
   eq(t.terminal.status, 'not exhaustive (round budget spent)', 'status');
   eq(t.terminal.status, t.out.status, 'which is out.status verbatim');

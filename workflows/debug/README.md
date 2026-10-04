@@ -149,8 +149,9 @@ The run leaves a transparent trail under `runs/<runId>/`:
   [README](../develop/README.md) lists them.
 
 Run the gates yourself, spot-check the riskiest fixes, then commit. Issues marked needs-attention were
-attempted and parked. Read that block's acceptance review for why, then restore the patch and finish by
-hand, or retry those issues with a sharper fix instruction.
+attempted but not closed. The fix failed, its block stopped before acceptance staged it, or acceptance
+found the fix incomplete. Read that block's acceptance review for why. Then restore its parked patch, if
+it has one, and finish by hand, or retry those issues with a sharper fix instruction.
 
 ---
 

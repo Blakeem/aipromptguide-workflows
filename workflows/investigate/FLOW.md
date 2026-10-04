@@ -20,14 +20,16 @@ flowchart TD
   t6(["stalled (a round added nothing new and claimed nothing - stopped unverified)"])
   t7(["stopped on token budget (resume where it left off)"])
   t8(["BLOCKED (needs user input)"])
+  t9(["BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, criteria#124;planPath }"/]
   x3[/"throw: args.root is required"/]
-  x4[/"throw: Invalid numeric arg"/]
-  x5[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
-  x6[/"throw: Criteria critic returned nothing"/]
-  x7[/"throw: Investigator returned nothing in round ..."/]
-  x8[/"throw: Acceptance critic returned nothing in round ..."/]
+  x4[/"throw: Invalid phase"/]
+  x5[/"throw: Invalid numeric arg"/]
+  x6[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
+  x7[/"throw: Criteria critic returned nothing"/]
+  x8[/"throw: Investigator returned nothing in round ..."/]
+  x9[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -36,20 +38,23 @@ flowchart TD
   S0 --> x3
   S0 --> x4
   S0 --> x5
+  S0 --> x6
   a1 --> t1
-  a1 --> x6
+  a1 --> x7
   a2 -.->|"L1 ×5"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
-  a2 --> x7
+  a2 --> t9
+  a2 --> x8
   a3 -.->|"the critic contests the coverage claim · +1 more (×5)"| a2
   a3 --> t2
   a3 --> t3
   a3 --> t4
   a3 --> t5
   a3 --> t8
-  a3 --> x8
+  a3 --> t9
+  a3 --> x9
 ```
 
 ## Phases
@@ -78,15 +83,17 @@ flowchart TD
 | stalled (a round added nothing new and claimed nothing - stopped unverified) | a round adds nothing at all | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
+| BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId) | the investigator does not confirm writing its files · the critic does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 22) |
 | throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 25) |
 | throw: args.root is required | args.root is missing | throw (line 28) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 41) |
-| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 78) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 380) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 440) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 477) |
+| throw: Invalid phase | phase is neither refine nor run | throw (line 33) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 44) |
+| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 81) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 384) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 445) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 488) |
 
 ## Coverage
 
-21 scenarios · 3/3 roles · 8/8 throw sites · 7/7 halt statuses · 16 terminal states.
+24 scenarios · 3/3 roles · 9/9 throw sites · 8/8 halt statuses · 18 terminal states.

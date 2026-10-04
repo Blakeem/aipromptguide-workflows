@@ -30,7 +30,8 @@ const FOLD_OK   = { wrote_file: true, folded: 2, declined: 0, plan_parses: true 
 // any pair of them together is how an unconverged plan gets handed to a build engine as a finished one.
 const CONVERGED     = 'converged (one clean round: no gaps at or above the floor, no questions)';
 const FRESH         = 'relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)';
-const NEEDS_ANSWERS = `needs-answers (the critic or editor raised questions only the operator can settle - restructure the plan, then ${FRESH})`;
+const NEEDS_ANSWERS = `needs-answers (the critic raised questions only the operator can settle - restructure the plan, then ${FRESH})`;
+const CONTESTED     = `dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user's ruling by folding the gap into the plan or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to DISMISSED-PLAN.md, then ${FRESH})`;
 const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
 const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)';
 const NO_CRITIQUE   = `BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; ${FRESH} to redo the round)`;
@@ -141,15 +142,17 @@ section('questions end the run on any round, and the editor never sees them');
   eq(byLabel('plan-editor').length, 1, 'the round-1 fold ran; the round-2 question spawned no second editor');
 }
 
-section('an editor that escalates a contested dismissal ends the run needs-answers, not converged');
+section('an editor that escalates a contested dismissal ends the run dismissal-contested, not converged');
 // The escalated question lives only in NEEDS-USER.md. The next critic would skip the original DISMISSED
-// line, find nothing else, and report converged with a user-only call still open.
+// line, find nothing else, and report converged with a user-only call still open. The ruling must land in
+// DISMISSED-PLAN.md, the file the next critic reads, or a relaunch contests and escalates it again.
 {
   const { out, byLabel, prompt } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': { ...FOLD_OK, needs_user: true } });
   ok(prompt('plan-editor').includes('needs_user=true'), 'the editor is told which field reports the escalation');
-  eq(out.status, NEEDS_ANSWERS, 'status');
+  eq(out.status, CONTESTED, 'status');
   eq(out.rounds, 1, 'on the round the editor escalated');
   eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
+  ok(/A line marked `USER-RULED:` is the user's\s+own ruling: never contest it\./.test(prompt('plan-critic')), 'the critic is told a USER-RULED line is never contested');
 }
 
 section('a gap in an already-done block arrives as a question, never as a gap to fold');

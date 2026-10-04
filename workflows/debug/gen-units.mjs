@@ -125,16 +125,17 @@ function chunk(items) {
   return chunks;
 }
 
+// Dirents report a symlink or junction as neither file nor dir, so links are skipped as git does:
+// a dangling link cannot ENOENT, a link to an ancestor cannot ELOOP, a sibling link is not reviewed twice.
 function walk(dir) {
-  const entries = readdirSync(dir).sort();
+  const entries = readdirSync(dir, { withFileTypes: true })
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   const files = entries
-    .filter((e) => wanted(e))
-    .map((e) => join(dir, e))
-    .filter((p) => statSync(p).isFile());
+    .filter((d) => d.isFile() && wanted(d.name))
+    .map((d) => join(dir, d.name));
   const subdirs = entries
-    .filter((e) => !EXCLUDES.has(e))
-    .map((e) => join(dir, e))
-    .filter((p) => statSync(p).isDirectory());
+    .filter((d) => d.isDirectory() && !EXCLUDES.has(d.name))
+    .map((d) => join(dir, d.name));
 
   const units = [];
   const small = [];

@@ -258,6 +258,8 @@ log(`docs: ${SOURCES.length} source(s) [${SOURCES.map((s) => s.kind).join(', ')}
 if (SOURCES.some((s) => s.kind === 'repo') && !REPO) log(`  ⚠ a "repo" source was given but no target.repo — that gatherer has nothing to read.`);
 
 let curate = null;
+const gatherFailed = [];   // source ids whose gatherer returned nothing, across rounds
+const scrubFailed = [];    // source ids whose scrubber returned nothing, across rounds
 let toGather = SOURCES;
 let rounds = 0;
 
@@ -271,7 +273,12 @@ while (rounds < MAX_ROUNDS) {
       (src) => agent(gatherPrompt(src), roleOpts('gather', {
         schema: GATHER_SCHEMA, phase: 'Gather', label: `gather:${src.id}`,
       })).then((g) => {
-        log(`  ✓ gathered ${src.id}: ${g?.files_written ?? 0} file(s)${g?.skipped ? `, ${g.skipped} skipped` : ''}`);
+        if (!g) {
+          gatherFailed.push(src.id);
+          log(`  ⚠ gather:${src.id} returned nothing (agent skipped or died) — files it wrote, if any, are still scrubbed + curated; re-run this source if coverage is thin`);
+        } else {
+          log(`  ✓ gathered ${src.id}: ${g.files_written ?? 0} file(s)${g.skipped ? `, ${g.skipped} skipped` : ''}`);
+        }
         return { src, g };
       }),
       (prev) => {
@@ -280,13 +287,14 @@ while (rounds < MAX_ROUNDS) {
         return agent(scrubPrompt(prev.src), roleOpts('scrub', {
           schema: SCRUB_SCHEMA, phase: 'Scrub', label: `scrub:${prev.src.id}`,
         })).then((s) => {
-          // A dead scrubber and one that found nothing to clean both collapsed onto the `?? 0` sentinel,
-          // so `✓ scrubbed <id>: 0 file(s)` was byte-identical either way — and no scrub field reaches the
-          // return, so the death was recorded NOWHERE. Scrub is an AUXILIARY role (its death cannot stop
-          // the run: what the gatherer wrote is on disk and the curator still indexes it), so its death
-          // policy is log + record — never a success line.
-          if (!s) log(`  ⚠ scrub:${prev.src.id} returned nothing (agent skipped or died) — that source's captured files were NOT scrubbed, so nav chrome/ads may survive into the set; re-run this source or clean them by hand.`);
-          else log(`  ✓ scrubbed ${prev.src.id}: ${s.files_cleaned ?? 0} file(s)`);
+          // Scrub is auxiliary: the curator still indexes what the gatherer wrote, so a death is logged and
+          // recorded in scrubFailed, never reported as a success line.
+          if (!s) {
+            scrubFailed.push(prev.src.id);
+            log(`  ⚠ scrub:${prev.src.id} returned nothing (agent skipped or died) — that source's captured files were NOT scrubbed, so nav chrome/ads may survive into the set; re-run this source or clean them by hand.`);
+          } else {
+            log(`  ✓ scrubbed ${prev.src.id}: ${s.files_cleaned ?? 0} file(s)`);
+          }
           return prev;
         });
       },
@@ -346,6 +354,13 @@ if (foreignFound) {
   log(`     Point outDir at a fresh directory per doc set before re-running.`);
 }
 
+const degradedWarning = gatherFailed.length || scrubFailed.length
+  ? `WARN THE USER FIRST: ${[
+    gatherFailed.length ? `these gatherers returned nothing, so coverage may be partial: ${gatherFailed.join(', ')}` : '',
+    scrubFailed.length ? `these sources' files were NOT scrubbed, so nav chrome or ads may remain: ${scrubFailed.join(', ')}` : '',
+  ].filter(Boolean).join('. ')}. `
+  : '';
+
 return {
   phase: 'docs',
   runId: RUN_ID,
@@ -359,6 +374,8 @@ return {
   foreignContent: foreignFound,
   foreignPaths,
   unresolvedGaps: (curate?.gaps ?? []).filter((g) => g && g.focus).length,
+  gatherFailed,
+  scrubFailed,
   stateDir: STATE_DIR,
-  nextStep: `${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${curate?.fidelity_checked ?? 0} file(s) compared against their source, ${curate?.fidelity_failures ?? 0} failed) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
+  nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${curate?.fidelity_checked ?? 0} file(s) compared against their source, ${curate?.fidelity_failures ?? 0} failed) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };

@@ -110,6 +110,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    pass merges adjacent units up to `--pack-loc` LOC (default 2000 ≈ ~215k tokens/agent — a right-sized
    review turn); base caps are `--cap-loc 2000 --cap-files 24 --big-file 2000`. Show the user the printed
    unit list; tune `--pack-loc` (0 disables packing) or `--cap-loc/--big-file` if units look lopsided.
+   `gen-units.mjs` skips symlinks and junctions, as git does, so code reached only through a link is in
+   no unit.
 2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
@@ -201,7 +203,11 @@ with `units` from `gen-units.mjs`.
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`).
 - **Returns** `issues` (a machine-built index of every finding),
-  `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed` (every dead reviewer
-  `{ unit, stage: 'review', lens }` and every verifier that did not attest its write
-  `{ unit, stage: 'verify' }`). `unitsReviewed` excludes units with a `failed` entry. Re-review those.
+  `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. `failed` holds every dead
+  reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer did not attest its marker
+  `{ unit, stage: 'review', marker: false }`, every verifier that did not attest its write
+  `{ unit, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a finding id
+  `{ unit, stage: 'verify', unmatched, unverdicted }`. `unitsReviewed` excludes units with a `failed`
+  entry. Re-review those, except a unit whose entry carries `unmatched` and `unverdicted`. For that unit,
+  `issues` and `inventory` are incomplete, so triage from its issue file.
 - **Throws** when two unit ids map to one issue file or one plan id, naming both.

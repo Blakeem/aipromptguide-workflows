@@ -2,10 +2,10 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs investigate`; `--check` fails the gate while FLOW.md is stale.
 //
-// Coverage aimed at here: all seven terminal states (they are seven different FACTS — folding any pair is
+// Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a round with nothing to check, forced open on the last round because a determination is due), a
-// contested claim of EACH kind buying another round, and each of the eight throw sites.
+// contested claim of EACH kind buying another round, and each of the nine throw sites.
 
 const base = {
   runId: 'flow',
@@ -16,7 +16,7 @@ const base = {
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. This one now STALLS the run, so it
 // is the stalled scenario's script and nothing else's.
 const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'medium', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false };
+const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false, reopened: 0 };
 const FOUND = { ...INV, new_options: 1, option_ids: ['opt-a'] };
 // A LEARNING round: it qualifies nothing but closes candidates, so the critic gate stays shut and the loop
 // keeps going. This is what a multi-round scenario has to be scripted with now — an all-zero filler round
@@ -43,7 +43,7 @@ export default {
       respond: { 'criteria-critic': null },
     },
 
-    // ---- phase: run — the seven terminal states ------------------------------------------------
+    // ---- phase: run — the terminal states ------------------------------------------------------
     {
       name: 'exhaustion agreed',
       when: 'the critic agrees the search is closed',
@@ -129,8 +129,21 @@ export default {
       args: base,
       respond: { investigate: { ...INV, needs_user: true } },
     },
+    {
+      // Two routes into one terminal, one per writer, since coverage cannot see the second route.
+      name: 'investigator does not attest its files',
+      when: 'the investigator does not confirm writing its files',
+      args: base,
+      respond: { investigate: { ...FOUND, wrote_files: false } },
+    },
+    {
+      name: 'critic does not attest its review file',
+      when: 'the critic does not confirm writing its review file',
+      args: base,
+      respond: { investigate: FOUND, critique: { ...CRIT, wrote_file: false } },
+    },
 
-    // ---- the seven throw sites -------------------------------------------------------------------
+    // ---- the throw sites -------------------------------------------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -162,6 +175,7 @@ export default {
       when: 'maxRounds is not a number',
       args: { ...base, maxRounds: 'three' },
     },
+    { name: 'unknown phase', when: 'phase is neither refine nor run', args: { ...base, phase: 'Refine' } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no criteria', when: 'neither criteria nor planPath', args: { runId: 'flow', root: 'E:/flow' } },

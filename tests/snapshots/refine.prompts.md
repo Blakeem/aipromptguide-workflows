@@ -6,7 +6,7 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 5690 | a clean first round |
+| plan-critic | 1 | 1 | 5762 | a clean first round |
 | plan-editor | 1 | 1 | 1971 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
@@ -72,7 +72,8 @@ gap_count. Gaps graded minor are BELOW the floor: list them in a separate
 SETTLED DECISIONS - READ E:/flow/runs/flow-refine/DISMISSED-PLAN.md FIRST if it exists: the editor's ledger of declined gaps, one line
 each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
 WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole run, prefixed
-"CONTESTS DISMISSAL:", saying why the reason does not hold.
+"CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked `USER-RULED:` is the user's
+own ruling: never contest it.
 
 WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed) and put EVERYTHING there VERBATIM, since it
 is your ONLY channel to the editor: a numbered GAPS section, then the FYI section, then a QUESTIONS
