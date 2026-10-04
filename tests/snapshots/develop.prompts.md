@@ -6,29 +6,29 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6025 | every block accepts first time |
+| develop | 1 | 1 | 6249 | every block accepts first time |
 | quality | 1 | 1 | 2914 | every block accepts first time |
-| acceptance | 1 | 1 | 5007 | every block accepts first time |
-| develop | 2 | 1 | 6418 | every block accepts first time |
-| acceptance | 2 | 2 | 5288 | every block accepts first time |
+| acceptance | 1 | 1 | 5980 | every block accepts first time |
+| develop | 2 | 1 | 6642 | every block accepts first time |
+| acceptance | 2 | 2 | 6261 | every block accepts first time |
 | final-sweep | 1 | 1 | 1879 | every block accepts first time |
-| develop | 3 | 1 | 5515 | quality flags the first round |
+| develop | 3 | 1 | 5739 | quality flags the first round |
 | quality | 2 | 1 | 2738 | quality flags the first round |
-| develop | 4 | 1 | 5908 | quality flags the first round |
-| develop | 5 | 1 | 5513 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 5906 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 5477 | the gate never goes green |
+| develop | 4 | 1 | 6132 | quality flags the first round |
+| develop | 5 | 1 | 5737 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6130 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 5701 | the gate never goes green |
 | park | 1 | 1 | 5205 | the gate never goes green |
-| develop | 8 | 1 | 5870 | the gate never goes green |
+| develop | 8 | 1 | 6094 | the gate never goes green |
 | park | 2 | 1 | 5149 | a parked block, and the run carries on |
 | park | 3 | 1 | 5200 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 7384 | a fix block closes its issues |
-| acceptance | 3 | 3 | 6238 | a fix block closes its issues |
+| develop | 9 | 2 | 7608 | a fix block closes its issues |
+| acceptance | 3 | 3 | 7359 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1870 | a fix block closes its issues |
-| develop | 10 | 2 | 7476 | a pass of two fix blocks closes its issues |
-| acceptance | 4 | 3 | 6327 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 7700 | a pass of two fix blocks closes its issues |
+| acceptance | 4 | 3 | 7448 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1900 | a pass of two fix blocks closes its issues |
-| acceptance | 5 | 3 | 6237 | every issue is already fixed |
+| acceptance | 5 | 3 | 7358 | every issue is already fixed |
 | park | 4 | 1 | 5374 | the developer staged its own work |
 | park | 5 | 1 | 5212 | developer never got its block |
 | park | 6 | 1 | 5230 | the developer dies |
@@ -98,6 +98,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -318,6 +321,17 @@ amended against the AMENDED behavior, not the superseded clause, and NAME every 
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that criterion stays UNMET.
 
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
+staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
+without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
+not a regression. Count each one, even when this block's own text prescribes the construction that
+causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
+calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
+text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
+the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
+Your file holds no notes, observations or non-blocking section.
+
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
@@ -473,6 +487,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -620,6 +637,17 @@ verifying the clause itself prescribes a real defect. Judge a criterion whose pr
 amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
+staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
+without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
+not a regression. Count each one, even when this block's own text prescribes the construction that
+causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
+calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
+text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
+the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
+Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -846,6 +874,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -1084,6 +1115,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -1248,6 +1282,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -1416,6 +1453,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -1580,6 +1620,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -1856,6 +1899,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -2256,6 +2302,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md:
@@ -2430,6 +2479,19 @@ OVERRODE after verifying the instruction itself prescribes a real defect. Judge 
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
+unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
+regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
+third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
+requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
+path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
+The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
+the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
+or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2697,6 +2759,9 @@ PROCEDURE:
   8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md:
@@ -2872,6 +2937,19 @@ OVERRODE after verifying the instruction itself prescribes a real defect. Judge 
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
+unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
+regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
+third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
+requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
+path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
+The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
+the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
+or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3102,6 +3180,19 @@ OVERRODE after verifying the instruction itself prescribes a real defect. Judge 
 instruction was amended against the AMENDED behavior, not the superseded one, and NAME every issue you
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
+unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
+regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
+third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
+requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
+path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
+The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
+the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
+or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).

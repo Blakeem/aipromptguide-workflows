@@ -1108,6 +1108,32 @@ section('acceptance judges an amended criterion against the AMENDED behavior, wi
   }
 }
 
+section('acceptance counts every defect it writes, in every mode: a prescribed or unreached regression is a gap, and the rest is dropped');
+// An uncounted notes section is a channel no agent reads on a pass, so a waived regression staged unseen.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const a = flat(r.prompt(`acceptance ${id}`));
+    ok(a.includes('EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
+    ok(a.includes('a third-party one included'), `${mode}: a third-party caller's behavior is in the regression bar`);
+    ok(a.includes('suite rule allows to be red is not a regression'), `${mode}: a suite-allowed red test is not a regression`);
+    ok(a.includes('prescribes the construction that causes it'), `${mode}: a prescribed regression still counts`);
+    ok(a.includes('unreached by any current caller'), `${mode}: an unreached regression still counts`);
+    ok(a.includes("Those calls are the developer's, never yours."), `${mode}: the call on a counted regression is the developer's`);
+    ok(a.includes("escalates it when the fix needs major changes outside this block's scope"), `${mode}: the developer's only waiver is an escalation`);
+    ok(!a.includes('dismiss or escalate'), `${mode}: a counted regression is never the developer's to dismiss`);
+    ok(flat(r.prompt(`develop ${id}`)).includes('A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b.'),
+      `${mode}: the developer's MATRIX never drops a counted regression`);
+    ok(a.includes('the OVERRIDE rule above governs it'), `${mode}: a ledgered one falls to the OVERRIDE rule`);
+    ok(a.includes('Drop any other concern silently.'), `${mode}: anything below the bar is dropped`);
+    ok(a.includes('Your file holds no notes, observations or non-blocking section.'), `${mode}: the review file has no uncounted section`);
+    if (mode !== 'fix') continue;
+    // The gap list ends in "drop silently", so a fail condition a step states but the list omits passes.
+    ok(a.includes('an ACTIONABLE entry reported SKIPPED, a touched entry'), 'fix: an ACTIONABLE entry reported SKIPPED is a gap');
+    ok(a.includes('a non-empty diff with no FIXED claim'), 'fix: a non-empty diff with no FIXED claim is a gap');
+    ok(a.includes('a gate not satisfied, or a regression'), 'fix: an unsatisfied gate, unavailable tool included, is a gap');
+  }
+}
+
 section('a recorded amendment is logged, summed into the ledger and named in followups; zero is silent');
 // `plan_amendments` is REQUIRED so "none" is an explicit claim, which only means something if the engine
 // reads it (tests/CLAUDE.md §3).
@@ -1206,6 +1232,84 @@ section('statusSync maps each fix entry by its report AND by whether its block l
   ok(unclosed.out.statusSync.some((e) => e.id === 'i-1' && e.value === 'needs-attention'),
     'a landed FIXED entry its fix_check calls unclosed is needs-attention, never fixed');
   eq(syncOf(unclosed.out), 'fix-a=done,i-1=needs-attention', 'while the block itself still lands done');
+}
+
+section('a block whose status edits outgrow one log line logs them over several lines, each under the cap');
+{
+  const ids = Array.from({ length: 100 }, (_, i) => `i-${i + 1}`);
+  const { out, logs } = await run({
+    develop: fixDev(ids.map((issue_id) => ({ issue_id, status: 'FIXED' }))),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: ids.map((issue_id) => ({ issue_id, actually_fixed: true })) },
+  }, { ...FIX_ONE, planPath: 'E:/' + 'deep/'.repeat(20) + 'inventory.md' });
+  const oneLine = 'status-sync ' + JSON.stringify(out.statusSync);
+  ok(oneLine.length > 11024, `the edits as one line pass the runtime's 11,024-char cut: ${oneLine.length}`);
+  const lines = logs.filter((l) => l.startsWith('status-sync '));
+  ok(lines.length > 1, `they log over several lines: ${lines.length}`);
+  ok(lines.every((l) => l.length <= 10000), `each line is at most 10,000 chars: ${lines.map((l) => l.length).join(', ')}`);
+  ok(JSON.stringify(lines.flatMap((l) => JSON.parse(l.slice('status-sync '.length)))) === JSON.stringify(out.statusSync),
+    'and the lines concatenated hold every edit in order');
+
+  const few = await run(GREEN_RUN, ONE_BLOCK);
+  eq(few.logs.filter((l) => l.startsWith('status-sync ')).length, 1, 'a block with few edits logs exactly one line');
+}
+
+const idsWithoutKeptStatus = (logs, ids) => {
+  const kept = new Set(logs.slice(0, 1000).filter((l) => l.startsWith('status-sync '))
+    .flatMap((l) => JSON.parse(l.slice('status-sync '.length)).map((e) => e.id)));
+  return ids.filter((id) => !kept.has(id));
+};
+
+section('a run past the log budget still logs every status line inside the runtime\'s first 1,000');
+// 300 one-round blocks log 1,202 lines unbudgeted. 200 log 802, which never reach the budget.
+{
+  const NOTICE = 'develop: log budget of 900 lines reached, progress lines suppressed, status lines continue';
+  const plans = Array.from({ length: 300 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
+  const { out, logs } = await run(GREEN_RUN, { ...baseArgs, plans });
+  eq(out.plansDone.length, plans.length, 'every block is done');
+  eq(logs.filter((l) => l === NOTICE).length, 1, 'the logs hold the notice line once');
+  const missing = idsWithoutKeptStatus(logs, plans.map((p) => p.id));
+  eq(missing.length, 0, `the first 1,000 lines hold a status line for every block${missing.length ? `, first miss ${missing[0]}` : ''}`);
+  ok(logs.length <= 1000, `the logs number at most 1,000: ${logs.length}`);
+
+  ok(!(await run(GREEN_RUN, ONE_BLOCK)).logs.includes(NOTICE), 'a short run logs no notice line');
+}
+
+section('a run whose status lines would outgrow the runtime\'s first 1,000 halts before the block that would lose one');
+// 400 one-round blocks log 1,077 lines under the progress budget alone, so blocks 324 to 400 lose their status lines.
+{
+  const plans = Array.from({ length: 400 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
+  const { out, logs } = await run(GREEN_RUN, { ...baseArgs, plans });
+  eq(out.status, 'stopped on the runtime log line cap (resume where it left off)', 'the run halts on the log line cap');
+  const next = plans[out.plansDone.length]?.id;
+  ok(out.plansDone.length > 0 && next, `the halt falls mid-run: ${out.plansDone.length} block(s) done`);
+  ok(out.haltReason.includes(`startAt:"${next}"`), `the halt reason resumes at the first block not run: ${next}`);
+  const missing = idsWithoutKeptStatus(logs, out.plansDone);
+  eq(missing.length, 0, `the first 1,000 lines hold a status line for every finished block${missing.length ? `, first miss ${missing[0]}` : ''}`);
+  ok(logs.length <= 1000, `the logs number at most 1,000: ${logs.length}`);
+}
+
+section('a last block whose status lines overrun the runtime\'s first 1,000 returns them before any sweep runs');
+// 322 one-round blocks leave room for one status line, and 200 fixed issues need two, so the last
+// block's status lines overrun the cap. Awaiting the sweep after that leaves a stop that loses them.
+{
+  const ids = Array.from({ length: 200 }, (_, i) => `i-${i + 1}`);
+  const plans = [...Array.from({ length: 322 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' })),
+    { id: 'fix-z', mode: 'fix', gate: 'green' }];
+  const { out, logs, labels } = await run({
+    ...GREEN_RUN,
+    'develop fix-z': fixDev(ids.map((issue_id) => ({ issue_id, status: 'FIXED' }))),
+    'acceptance fix-z': { ...FIX_PASS, fix_checks: ids.map((issue_id) => ({ issue_id, actually_fixed: true })) },
+    'final-sweep': SWEEP_OK,
+  }, { ...baseArgs, sweep: 'goal-coverage', goal: 'g', plans });
+  ok(logs.slice(1000).some((l) => l.startsWith('status-sync ')), `the last block's status lines overrun the cap: ${logs.length} lines`);
+  eq(out.plansDone.length, plans.length, 'every block is done');
+  ok(!labels.includes('final-sweep'), 'the run spawns no sweep after the overrun');
+  eq(out.status, 'stopped on the runtime log line cap (resume where it left off)', 'it halts on the log line cap');
+  ok(/goal-coverage sweep/.test(out.haltReason) && /verify coverage against the goal yourself/.test(out.haltReason),
+    `the halt reason says the sweep did not run: ${out.haltReason.slice(0, 60)}`);
+  const fixed = out.statusSync.filter((e) => ids.includes(e.id) && e.value === 'fixed').length;
+  eq(fixed, ids.length, 'the returned statuses close every fixed issue');
 }
 
 section('an entry claimed FIXED and re-reported STALE is only closed if its block lands');

@@ -31,6 +31,7 @@ flowchart TD
   t15(["BLOCKED (needs user input)"])
   t16(["BLOCKED (a parked block left the tree unsafe - inspect before resuming)"])
   t17(["stopped on token budget (resume where it left off)"])
+  t18(["stopped on the runtime log line cap (resume where it left off)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
   x3[/"throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }"/]
@@ -103,6 +104,7 @@ flowchart TD
   a3 --> t9
   a3 --> t10
   a3 --> t17
+  a3 --> t18
   a4 ==>|"next item"| a1
   a4 --> t4
   a4 --> t5
@@ -159,31 +161,32 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (needs user input) | the developer hits a user-only blocker in an ordered run | derived |
 | BLOCKED (a parked block left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start the next block | derived |
+| stopped on the runtime log line cap (resume where it left off) | the next status line could fall past the runtime's 1,000 kept log lines · the last block's status lines fell past the runtime's 1,000 kept log lines | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
 | throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the --list object is pasted in whole | throw (line 28) |
 | throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
 | throw: args.root is required | args.root is missing | throw (line 35) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 39) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 98) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 103) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 108) |
-| throw: Invalid goal key | goal is a number | throw (line 112) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 117) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 135) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 143) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 150) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 161) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 169) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 177) |
-| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 193) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 204) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 877) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 889) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 896) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 903) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 912) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 126) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 131) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 136) |
+| throw: Invalid goal key | goal is a number | throw (line 140) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 145) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 163) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 171) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 178) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 189) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 197) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 205) |
+| throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 221) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 232) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 932) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 944) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 951) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 958) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 967) |
 
 ## Coverage
 
-56 scenarios · 5/5 roles · 24/24 throw sites · 12/12 halt statuses · 41 terminal states.
+58 scenarios · 5/5 roles · 24/24 throw sites · 13/13 halt statuses · 42 terminal states.

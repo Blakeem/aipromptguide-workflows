@@ -97,11 +97,14 @@ section('an uncontested exhaustion claim ends the loop before the round budget')
 {
   const { out, byLabel } = await run({
     'investigate': { ...INV, exhausted: true },
-    'critique': { ...CRIT, agree: true },
+    'critique': { ...CRIT, agree: true, determination_defects: 2 },
   }, { ...baseArgs, maxRounds: 4 });
   eq(byLabel('investigate').length, 1, 'ended on round 1, well inside maxRounds=4');
   eq(out.status, 'exhaustive (search closed, critic agreed)', 'status');
   ok(out.exhaustive === true && out.determination.endsWith('DETERMINATION.md'), 'the determination file is surfaced');
+  ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
+  ok(out.nextStep.includes('The critic found 2 defect(s) in the determination') && out.nextStep.includes(out.reviewFile),
+    'nextStep states the count and names the review file that holds them');
 }
 
 section('an agreed saturation claim is a STOPPED search with its own terminal, never a closed one');
@@ -110,7 +113,7 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
 {
   const { out, byLabel } = await run({
     'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'], saturated: true },
-    'critique': { ...CRIT, upheld: ['opt-a'], agree: true },
+    'critique': { ...CRIT, upheld: ['opt-a'], agree: true, determination_defects: 2 },
   }, { ...baseArgs, maxRounds: 4 });
   eq(byLabel('investigate').length, 1, 'the agreed claim ended the loop on round 1, well inside maxRounds=4');
   eq(out.status, 'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)', 'status');
@@ -123,6 +126,9 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
   eq(out.options.join(), 'opt-a', 'the upheld option is still a valid answer — stopping does not invalidate what was found');
   ok(out.reviewFile.endsWith('acceptance-review-r1.md') && out.nextStep.includes(out.reviewFile),
     'nextStep points at the review, the only place a determination linking a disqualified option is recorded');
+  ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
+  ok(out.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and nextStep states the count');
+  ok(/ANSWER may still link an option the critic disqualified/.test(out.nextStep), 'the disqualified-option warning stays');
 }
 
 section('a contested saturation claim buys another round, and reads only its OWN contest flag');
@@ -234,11 +240,53 @@ section('a verified no-solution gets its own status, not the round-budget one');
 {
   const { out } = await run({
     'investigate': { ...INV, no_solution: true },
-    'critique': { ...CRIT, agree: true },
+    'critique': { ...CRIT, agree: true, determination_defects: 2 },
   });
   eq(out.status, 'no qualifying option exists (verified)', 'status');
   ok(out.noSolution === true && out.exhaustive === false, 'reported as a verified dead end, not as an exhaustive search');
   ok(/relaxing one criterion|relaxing a criterion|relax/.test(out.nextStep), 'nextStep tells the operator the only thing that changes the answer');
+  ok(out.reviewFile.endsWith('acceptance-review-r1.md') && out.nextStep.includes(out.reviewFile),
+    'nextStep points at the review, the only place a defect the critic found in the determination is recorded');
+  ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
+  ok(out.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and nextStep states the count');
+}
+
+section('a determination count of 0 reads as clean, and a missing one as unknown, never as clean');
+// The critic writes determination defects into its review file without changing agree, so the count is
+// the operator's only signal. A missing count must keep pointing at the review file (#15).
+{
+  const TERMINALS = {
+    'exhausted':   { ...INV, exhausted: true },
+    'saturated':   { ...INV, saturated: true },
+    'no-solution': { ...INV, no_solution: true },
+  };
+  for (const [name, inv] of Object.entries(TERMINALS)) {
+    const { out: clean } = await run({ 'investigate': inv, 'critique': { ...CRIT, agree: true, determination_defects: 0 } });
+    ok(clean.determinationDefects === 0, `${name}: a count of 0 is returned as 0`);
+    ok(clean.nextStep.includes('The critic found no defect in the determination.') && !clean.nextStep.includes(clean.reviewFile),
+      `${name}: nextStep says the determination is clean and sends no one to the review file for it`);
+
+    const { out: unknown } = await run({ 'investigate': inv, 'critique': { ...CRIT, agree: true } });
+    ok(unknown.determinationDefects === null, `${name}: an omitted count is null, not 0`);
+    ok(unknown.nextStep.includes(unknown.reviewFile) && !/The critic found/.test(unknown.nextStep),
+      `${name}: nextStep still points at the review file and claims no count`);
+  }
+
+  // A critic with no determination due is told to return 0, and that 0 must not read as a checked file.
+  const { out: early } = await run({
+    'investigate': (label) => (label === 'investigate r1' ? { ...INV, new_options: 1, option_ids: ['opt-a'] } : INV),
+    'critique r1': { ...CRIT, upheld: ['opt-a'], determination_defects: 0 },
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(early.status, 'stalled (a round added nothing new and claimed nothing — stopped unverified)', 'the run stalls after a critic that owed no determination');
+  ok(early.determinationDefects === null, 'a count from a round that owed no determination is ignored');
+
+  // A later determination with no count must not inherit an earlier determination's count.
+  const { out: stale } = await run({
+    'investigate': { ...INV, exhausted: true },
+    'critique r1': { ...CRIT, contests_exhaustion: true, determination_defects: 3 },
+    'critique r2': { ...CRIT, agree: true },
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(stale.determinationDefects === null, 'a count describes only the determination the critic last checked');
 }
 
 section('the determination is NEVER named where no investigator was told to write it');

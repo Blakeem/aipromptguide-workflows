@@ -322,6 +322,27 @@ section('the clean-marker rule is relative to the severity floor');
   ok(r.includes('If you report ANY high+ finding, write NOTHING'), 'and so does the write-nothing condition');
 }
 
+section('reviewer and verifier grade by impact, never by fix size');
+// An unanchored scale lets a crash be graded below the floor, and the harness drops sub-floor findings uncounted.
+{
+  const SCALE = [
+    'When two grades fit, take the higher.',
+    'critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.',
+    'high - crashes or gives wrong output on an input the code accepts.',
+    'medium - a real defect with a bounded impact',
+    'low - a real defect with no effect on any input the code accepts today.',
+  ];
+  const { prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  for (const role of ['review', 'verify']) {
+    const text = prompt(role).replace(/\s+/g, ' ');
+    for (const line of SCALE) ok(text.includes(line), `the ${role} prompt defines the grade: ${line}`);
+    ok(!text.includes('is high or critical'), `the ${role} prompt maps no case to two grades`);
+  }
+}
+
 section('an unknown reviewSeverity throws instead of disabling the floor');
 {
   const msg = await throwsWith(ENGINE, { args: { ...baseArgs, units: [UNIT], reviewSeverity: 'Medium' }, respond: {} });

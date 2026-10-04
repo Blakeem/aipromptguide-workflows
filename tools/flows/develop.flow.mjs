@@ -400,5 +400,26 @@ export default {
       budget: budgetFloor,
       respond: { ...GREEN_RUN, acceptance: watch(ACC_PASS) },
     },
+    {
+      // The runtime keeps a run's first 1,000 log lines, and 400 one-round blocks outgrow them even with
+      // progress lines budgeted. Stops cleanly BETWEEN blocks, like the token floor.
+      name: 'log line cap',
+      when: 'the next status line could fall past the runtime\'s 1,000 kept log lines',
+      args: { ...base, plans: Array.from({ length: 400 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'green' })) },
+      respond: GREEN_RUN,
+    },
+    {
+      // A second route into the same terminal, which coverage cannot see: 322 one-round blocks leave room
+      // for one status line, and the last block's 200 issue statuses need two, so the run skips the sweep.
+      // One FIXED claim keeps the acceptance prompt the variant 'a fix block closes its issues' snapshots.
+      name: 'log line cap before the sweep',
+      when: 'the last block\'s status lines fell past the runtime\'s 1,000 kept log lines',
+      args: { ...base, plans: [...Array.from({ length: 322 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'green' })), FIX_BLOCK] },
+      respond: {
+        ...GREEN_RUN,
+        [`develop ${FIX_BLOCK.id}`]: devFix(Array.from({ length: 200 }, (_, i) => ({ issue_id: `i-${i + 1}`, status: i ? 'FAILED' : 'FIXED' }))),
+        [`acceptance ${FIX_BLOCK.id}`]: ACC_FIX,
+      },
+    },
   ],
 };

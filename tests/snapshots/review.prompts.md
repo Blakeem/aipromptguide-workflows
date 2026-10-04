@@ -6,12 +6,12 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 2643 | a clean unit beside one with findings |
-| verify | 1 | 1 | 4670 | a clean unit beside one with findings |
-| review | 2 | 1 | 2229 | two lenses per unit |
-| review | 3 | 1 | 2355 | two lenses per unit |
-| verify | 2 | 1 | 4982 | two lenses per unit |
-| verify | 3 | 1 | 4982 | two lenses per unit |
+| review | 1 | 1 | 3138 | a clean unit beside one with findings |
+| verify | 1 | 1 | 5163 | a clean unit beside one with findings |
+| review | 2 | 1 | 2724 | two lenses per unit |
+| review | 3 | 1 | 2850 | two lenses per unit |
+| verify | 2 | 1 | 5475 | two lenses per unit |
+| verify | 3 | 1 | 5475 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -45,6 +45,12 @@ Assess against these criteria:
 RULES:
 - SEVERITY FLOOR: report ONLY medium+ production DEFECTS. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
+- SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 - Do NOT report anything the current code already handles.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
@@ -156,6 +162,12 @@ You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file 
 each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
 route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
 anything the code ALREADY does and anything that is a preference rather than a defect.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -395,6 +407,12 @@ Assess against these criteria:
 RULES:
 - SEVERITY FLOOR: report ONLY medium+ production DEFECTS. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
+- SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 - Do NOT report anything the current code already handles.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
@@ -515,6 +533,12 @@ Assess against these criteria:
 RULES:
 - SEVERITY FLOOR: report ONLY medium+ production DEFECTS. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
+- SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 - Do NOT report anything the current code already handles, or anything in the ALREADY FOUND list below, even rephrased.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
@@ -615,6 +639,12 @@ You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file 
 each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
 route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
 anything the code ALREADY does and anything that is a preference rather than a defect.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -836,6 +866,12 @@ You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file 
 each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
 route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
 anything the code ALREADY does and anything that is a preference rather than a defect.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):

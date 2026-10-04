@@ -83,9 +83,9 @@ flowchart TD
 | throw: args.root is required | args.root is missing | throw (line 28) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 41) |
 | throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 78) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 378) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 437) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 474) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 380) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 440) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 477) |
 
 ## Coverage
 

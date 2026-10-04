@@ -91,7 +91,10 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   past unreviewed or actively-flagged code (`reviewOwed`).
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the staged baseline already satisfies passes without inventing changes). Only agent that
-  stages.
+  stages. Every defect it writes counts as a gap, including a regression the block prescribes or no
+  current caller reaches. The developer never dismisses a regression. It fixes the regression, with an
+  amendment when the block prescribes it, or escalates it with a default when the fix needs major
+  changes outside the block's scope. The review file holds no notes section.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
@@ -109,7 +112,12 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 `build-only` = build green.
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
-passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`. Every exit
+passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed` and `log-cap`.
+`log-cap` stops the run before a block once no room for a status line is left in the runtime's first
+1,000 log lines, and a relaunch builds the rest. A block whose status lines overrun that room still
+finishes. Its lines past 1,000 survive only in the return's `statusSync`, and the next block halts. When
+that block was the last in a `sweep: goal-coverage` run, the run halts before the sweep. Every block is
+then done, so a relaunch has nothing to build, and you verify coverage against the goal yourself. Every exit
 leaves a clean tree except passed-but-unstaged. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
 `DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md` and `SWEEP.md`.

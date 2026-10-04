@@ -19,7 +19,8 @@ Two agents take turns, up to `maxRounds`.
 A plan review that keeps adding detail never ends. Four rules make this one finish.
 
 - **Defects only.** A gap must name something that would build wrong or fail, such as a missing wiring
-  point, a wrong file, a criterion with no step, a block order error, or a block too big for one pass.
+  point, a wrong file, a criterion with no step, a block order error, a block too big for one pass, or a
+  crash or wrong output on an input the plan accepts.
   Improvements, alternatives and style are not gaps.
 - **A severity floor.** Gaps below `critiqueSeverity` (default `major`) are listed for reference and
   count for nothing.
@@ -29,6 +30,8 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 ## Results
 
 - `converged` means the last round found no gap or question. The plan is ready for your approval.
+  When `belowFloor` is above 0, read the FYI section of the last critique file first, since those
+  findings were never folded into the plan.
 - `needs-answers` means the critic raised something only you can decide, such as a block order or a
   block to split. Read `NEEDS-USER.md`, change the plan, and run refine again.
 - `rounds-exhausted` means the last round's gaps were folded but not checked again. Run refine again to

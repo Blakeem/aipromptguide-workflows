@@ -72,6 +72,14 @@ An engine is **not** an ordinary Node module. The harness executes the file body
 - **The harness is not an LLM.** No context window, no tools: it cannot read a file, run git, or shell
   out. "The harness should just read X" is never a valid fix — that work belongs to an agent, or to the
   main agent before the run (#4).
+- **The runtime cuts long log lines.** A log line over 11,024 chars keeps its first 5,000 and last 5,000
+  chars around a `... [N characters truncated] ...` marker. Only a run's first 1,000 log lines are kept,
+  and later lines drop with no marker. So a log line a tool parses back stays under 10,000 chars, and
+  develop stops its progress lines at 900 to leave room for its status lines inside the first 1,000.
+  A block whose status lines overrun that room halts the next block, and its lines past the cap survive
+  only in the result's `statusSync`. The
+  run record's `result` is never cut, and its `logs` hold only the engine's own lines (measured in
+  2.1.287 to 2.1.289).
 
 ---
 

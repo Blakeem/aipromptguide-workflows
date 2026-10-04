@@ -210,23 +210,25 @@ agents per run, so a fast tier buys nothing.
   qualifying options is a normal, good outcome: they are **unranked by design**, because qualification is
   pass/fail and weighing them is `decide-cycle`'s job. Present the trade-offs and let the user choose —
   and if they then want them ranked, that is a `decide-cycle` run over this option set, not a re-run here.
-  Read the latest `acceptance-review-rN.md` alongside it: any defect the critic found *in the
-  determination* is recorded there and nowhere else (it deliberately does not change `agree` — a malformed
-  determination is not an open search).
+  The return's `determinationDefects` counts the defects the critic found in the determination. When it
+  is above 0, or null because the critic gave no count, read them in the latest `acceptance-review-rN.md`
+  and correct them before you relay it. They deliberately do not change `agree`, since a malformed
+  determination is not an open search.
 - **`no qualifying option exists (verified)`** — this is a real answer, not a failure. Relay the
   determination and the ledger, and take the criterion it names to the user: **relaxing one criterion is
   the only thing that changes this result.** **Lead with the near misses** when `nearMisses` is non-zero:
   each failed exactly one criterion, so they are precisely what relaxing a criterion would make available,
-  and some are worth doing on their own merits even though they do not qualify. Do not re-run unchanged.
+  and some are worth doing on their own merits even though they do not qualify. Check
+  `determinationDefects` as for `exhaustive`. Do not re-run unchanged.
 - **`not exhaustive`** — say so plainly. Options found so far may be fine, but **do not present them as a
   complete answer**. `DETERMINATION.md` exists here too, written on the final round and labelled a partial
-  result — relay it *with that caveat attached*, never on its own. Re-invoke with the same `runId` (and a
+  result. Relay it *with that caveat attached*, never on its own. Check `determinationDefects` as for
+  `exhaustive`. Re-invoke with the same `runId` (and a
   higher `maxRounds`) to continue from the ledger.
 - **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
   `DETERMINATION.md` and lead with its **WHERE NEXT**. The return's `options` is the verified set, and each is a
   valid answer. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
-  option the critic disqualified, so read the latest `acceptance-review-rN.md` alongside it for any defect
-  the critic found in the determination. To continue, pick an avenue WHERE NEXT names and re-invoke
+  option the critic disqualified, so check `determinationDefects` as for `exhaustive`. To continue, pick an avenue WHERE NEXT names and re-invoke
   with the same `runId` (the memory files resume it), or make the premise/criteria change it proposes.
   An unchanged re-run buys another round over the same worked-out ground.
 - **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no

@@ -50,6 +50,13 @@ const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
 const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
 const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
 if (REVIEW_SEV === undefined) throw new Error(`reviewSeverity "${REVIEW_SEV_NAME}" is not one of low|medium|high|critical`);
+// The reviewer and the verifier both grade on this one written scale, so the floor cuts where both expect it.
+const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.`;
 
 // LENS — WHICH defects this pass hunts. Unset reproduces the defect-hunting text verbatim, so an
 // existing call is unaffected. Set it to aim the same machinery at a narrower class of defect (a
@@ -236,6 +243,7 @@ Assess against these criteria:
 RULES:
 - SEVERITY FLOOR: report ONLY ${REVIEW_SEV_NAME}+ ${L.findingNoun}. Do NOT report below-floor,
   stylistic, or speculative "could be more defensive" suggestions. If in doubt it's below the floor, omit it.
+- ${SEVERITY_SCALE}
 - Do NOT report anything the current code already handles${handled.length ? ', or anything in the ALREADY FOUND list below, even rephrased' : ''}.
 - Stay INSIDE this unit's files. Cross-file concerns: mention as context in detail, do not chase.
 - Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep. Your brief
@@ -272,6 +280,7 @@ You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file 
 each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
 route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
 anything the code ALREADY does and anything that is a preference rather than a defect.
+${SEVERITY_SCALE}
 ${ENV}
 UNIT: ${unit.id}
 UNIT FILES (each entry's \`- loc:\` value comes from this list):

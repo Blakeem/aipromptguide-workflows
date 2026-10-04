@@ -8,15 +8,15 @@ this file is stale.
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1311 | refine the criteria |
 | investigate | 1 | 1 | 5653 | exhaustion agreed |
-| critique | 1 | 1 | 4221 | exhaustion agreed |
-| critique | 2 | 1 | 4318 | no solution verified |
+| critique | 1 | 1 | 4303 | exhaustion agreed |
+| critique | 2 | 1 | 4400 | no solution verified |
 | investigate | 2 | 1 | 6737 | exhaustion contested |
 | investigate | 3 | 1 | 7102 | exhaustion contested |
-| critique | 3 | 1 | 4529 | saturation agreed |
+| critique | 3 | 1 | 4611 | saturation agreed |
 | investigate | 4 | 1 | 6540 | quiet rounds |
 | investigate | 5 | 1 | 6905 | quiet rounds |
-| critique | 4 | 1 | 3741 | quiet rounds |
-| critique | 5 | 1 | 3150 | investigator escalates |
+| critique | 4 | 1 | 3823 | quiet rounds |
+| critique | 5 | 1 | 3182 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -332,6 +332,7 @@ CHECK:
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
    not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
    no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
@@ -354,7 +355,8 @@ Return via the schema.
     "contests_exhaustion",
     "contests_saturation",
     "agree",
-    "needs_user"
+    "needs_user",
+    "determination_defects"
   ],
   "properties": {
     "wrote_file": {
@@ -394,6 +396,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
     }
   }
 }
@@ -449,6 +455,7 @@ CHECK:
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
    not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
    no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
@@ -471,7 +478,8 @@ Return via the schema.
     "contests_exhaustion",
     "contests_saturation",
     "agree",
-    "needs_user"
+    "needs_user",
+    "determination_defects"
   ],
   "properties": {
     "wrote_file": {
@@ -511,6 +519,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
     }
   }
 }
@@ -906,6 +918,7 @@ CHECK:
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
    not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
    no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
@@ -928,7 +941,8 @@ Return via the schema.
     "contests_exhaustion",
     "contests_saturation",
     "agree",
-    "needs_user"
+    "needs_user",
+    "determination_defects"
   ],
   "properties": {
     "wrote_file": {
@@ -968,6 +982,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
     }
   }
 }
@@ -1351,6 +1369,7 @@ CHECK:
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
    not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
    no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
@@ -1373,7 +1392,8 @@ Return via the schema.
     "contests_exhaustion",
     "contests_saturation",
     "agree",
-    "needs_user"
+    "needs_user",
+    "determination_defects"
   ],
   "properties": {
     "wrote_file": {
@@ -1413,6 +1433,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
     }
   }
 }
@@ -1459,7 +1483,7 @@ CHECK:
 5. No termination was claimed this round: leave agree, contests_exhaustion and contests_saturation
    false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
-   on disk: it is not this round's output.
+   on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.
@@ -1482,7 +1506,8 @@ Return via the schema.
     "contests_exhaustion",
     "contests_saturation",
     "agree",
-    "needs_user"
+    "needs_user",
+    "determination_defects"
   ],
   "properties": {
     "wrote_file": {
@@ -1522,6 +1547,10 @@ Return via the schema.
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
     }
   }
 }

@@ -36,6 +36,10 @@ function writeRecord(configDir, runId, logs, status = 'completed', timestamp = n
   writeFileSync(join(runs, `${runId}.json`), JSON.stringify({ runId, timestamp, workflowName: 'develop-cycle', status, logs, result: null }));
 }
 
+// The runtime's measured log line cap (Claude Code 2.1.287 to 2.1.289): whole up to 11,024 chars, else head and tail.
+const runtimeCut = (line) => (line.length <= 11024 ? line
+  : line.slice(0, 5000) + '\n\n... [' + (line.length - 10000) + ' characters truncated] ...\n\n' + line.slice(-5000));
+
 const statuses = (args) => args.plans.map((r) => `${r.id}=${r.status}`).join(',');
 const issueStatus = (path, id) => validate(parseBlocks(read(path)), path)
   .flatMap((b) => b.issues).find((e) => e.id === id)?.keys.find((k) => k.key === 'status')?.value;
@@ -158,6 +162,67 @@ section('a stopped run still reaches the plan: the blocks it finished are applie
   const { logs } = await launch(argsFrom(config, roadmap), { ...RESPOND, 'develop export': null });
   writeRecord(config, 'wf_killed', logs, 'killed');
   eq(statuses(argsFrom(config, roadmap)), 'store=done,export=blocked', 'the finished block is done, and the one that died is blocked');
+}
+
+section('a stopped run whose fix block outgrew one log line still brings every status to the plan');
+{
+  const dir = tmpDir();
+  const config = tmpDir();
+  const inventory = join(dir, 'inventory.md');
+  const ids = Array.from({ length: 250 }, (_, i) => `f-${i + 1}`);
+  writeFileSync(inventory, inventoryFromVerifierPrompt(ids).replace(/## Plan: [^ ]+/, '## Plan: inventory'));
+  const { out, logs } = await launch(argsFrom(config, inventory), {
+    'develop inventory': { ...DEV_FIX, entries_found: ids.length, results: ids.map((issue_id) => ({ issue_id, status: 'FIXED' })) },
+    quality: CLEAN,
+    'acceptance inventory': { ...ACC_FIX, fix_checks: ids.map((issue_id) => ({ issue_id, actually_fixed: true })) },
+  });
+  const oneLine = 'status-sync ' + JSON.stringify(out.statusSync);
+  ok(oneLine.length > 11024, `the edits as one line pass the runtime's 11,024-char cut: ${oneLine.length}`);
+  writeRecord(config, 'wf_big', logs.map(runtimeCut), 'killed');
+  let args = null;
+  let err = '';
+  try { args = argsFrom(config, inventory); } catch (e) { err = e.message; }
+  ok(!err, `plan-edit args reads the record without throwing: ${err}`);
+  eq(args ? statuses(args) : '', 'inventory=done', 'the block is done');
+  const notFixed = ids.filter((id) => issueStatus(inventory, id) !== 'fixed');
+  eq(notFixed.length, 0, `and every issue status is fixed in the inventory file${notFixed.length ? `, first miss ${notFixed[0]}` : ''}`);
+}
+
+const writeFeatureRoadmap = (path, count) => writeFileSync(path, Array.from({ length: count }, (_, i) => `b-${i + 1}`)
+  .map((id) => `## Plan: ${id} - block ${id}\nmode: feature\ngate: build-only\n\nBuild ${id}.\n`).join('\n'));
+const ONE_ROUND = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
+
+section('a stopped run past the runtime\'s line cap still brings every status to the plan');
+// 300 one-round blocks log 1,202 lines unbudgeted, so the runtime would keep no status line past block 249.
+{
+  const dir = tmpDir();
+  const config = tmpDir();
+  const roadmap = join(dir, 'roadmap.md');
+  writeFeatureRoadmap(roadmap, 300);
+  const { logs } = await launch(argsFrom(config, roadmap), ONE_ROUND);
+  writeRecord(config, 'wf_long', logs.slice(0, 1000), 'killed');
+  const plans = argsFrom(config, roadmap).plans;
+  const notDone = plans.filter((r) => r.status !== 'done').map((r) => r.id);
+  eq(plans.length - notDone.length, 300, `every block is done${notDone.length ? `, first miss ${notDone[0]}` : ''}`);
+}
+
+section('a run halted at the runtime\'s line cap brings every finished status to the plan, and a relaunch builds the rest');
+// 400 one-round blocks outgrow the runtime's first 1,000 lines even with progress lines budgeted.
+{
+  const dir = tmpDir();
+  const config = tmpDir();
+  const roadmap = join(dir, 'roadmap.md');
+  writeFeatureRoadmap(roadmap, 400);
+  const first = await launch(argsFrom(config, roadmap), ONE_ROUND);
+  ok(first.out.halted && first.out.plansDone.length < 400, `the run halts before the last block: ${first.out.plansDone.length} done`);
+  writeRecord(config, 'wf_cap', first.logs.slice(0, 1000), 'killed');
+  const relaunch = argsFrom(config, roadmap);
+  const done = relaunch.plans.filter((r) => r.status === 'done').map((r) => r.id);
+  const notMarked = first.out.plansDone.filter((id) => !done.includes(id));
+  eq(notMarked.length, 0, `every block the run finished is done in the plan${notMarked.length ? `, first miss ${notMarked[0]}` : ''}`);
+  eq(done.length, first.out.plansDone.length, 'and no other block is');
+  const second = await launch(relaunch, ONE_ROUND);
+  eq(done.length + second.out.plansDone.length, 400, 'and the relaunch builds every block left');
 }
 
 section('a packed pass of two inventories runs as one cycle, and each file gets its own statuses back');

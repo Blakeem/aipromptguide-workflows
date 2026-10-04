@@ -57,15 +57,26 @@ section('an FYI-only round writes its critique file and still converges, naming 
 // One rule for the critic: below-floor findings need the file, so an FYI-only round writes it and returns
 // zero counts. The engine must read that as convergence, not as a round with something to fold.
 {
-  const { out, labels, prompt } = await run({ 'plan-critic': { wrote_file: true, gap_count: 0, question_count: 0 } });
+  const { out, labels, prompt } = await run({ 'plan-critic': { wrote_file: true, gap_count: 0, question_count: 0, fyi_count: 2 } });
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
   ok(p.includes('A round with FYI items and no gaps or questions writes the file'),
     'the critic is told an FYI-only round writes the file');
   ok(p.includes('A round with nothing at all writes NOTHING'),
     'and that a round with nothing at all writes nothing');
+  ok(p.includes('Count them in fyi_count'), 'the critic is told to count its below-floor items');
   eq(out.status, CONVERGED, 'status');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for below-floor findings');
   eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the FYI file is named as the last critique');
+  eq(out.belowFloor, 2, 'and the return carries the FYI count, so the operator knows that file holds findings');
+}
+
+section('belowFloor is the LAST round\'s FYI count, never a run total');
+// A fold rewrites the lines an earlier FYI item cited, so only the final critic's count describes the
+// plan the operator is about to approve.
+{
+  const { out } = await run({ 'plan-critic': firstRound({ ...GAPS, fyi_count: 3 }, CLEAN), 'plan-editor': FOLD_OK });
+  eq(out.status, CONVERGED, 'status');
+  eq(out.belowFloor, 0, 'the clean final round reported no FYI items, so the round-1 count is not carried');
 }
 
 section('the critic prompt settles gates, grading and one-fix-per-gap');
@@ -82,6 +93,26 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
   ok(p.includes('EXACTLY ONE smallest change that closes it (never alternatives)')
     && p.includes('every other gap whose change touches the same plan lines'),
     'one fix per gap, with overlapping gaps named');
+  ok(p.includes('7. A FAILURE ON ACCEPTED INPUT') && p.includes('Exactly seven classes qualify'),
+    'a failure on accepted input is a defect class of its own');
+  ok(!p.includes('six classes'), 'no line still counts six classes');
+}
+
+section('the critic grades by impact on accepted input, never by fix size');
+{
+  const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
+  const prompts = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
+  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('SETTLED DECISIONS'));
+  eq(prompts.length, 2, 'two critic rounds ran');
+  ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
+    'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
+  ok(prompts[0].includes('Only the gate counts as a catch'), 'a guess that a developer will notice is never a catch');
+  ok(prompts[0].includes('The size of the fix never lowers a grade'), 'a one-line fix does not make a crash minor');
+  ok(prompts[0].includes('a crash on an accepted input that the gate would not catch is major'),
+    'the crash example yields to the gate-catch rule');
+  ok(!prompts[0].includes('blast radius is one line'), 'minor is no longer defined by the size of the fix');
+  ok(bar(prompts[0]).length > 0 && bar(prompts[0]) === bar(prompts[1]),
+    'every round\'s critic grades under the same bar');
 }
 
 section('a gapped round then a clean one converges on round 2, with exactly one editor');
@@ -189,6 +220,14 @@ section('a critic that reports findings it never wrote halts before the editor')
 
   const { out: asked } = await run({ 'plan-critic': { wrote_file: false, gap_count: 0, question_count: 1 } });
   eq(asked.status, NO_CRITIQUE, 'an unwritten QUESTION halts the same way, ahead of the needs-answers branch');
+}
+
+section('a critic that reports FYI items it never wrote halts instead of converging');
+// Below-floor findings never drive a fold, but the critique file is still their only record.
+{
+  const { out, labels } = await run({ 'plan-critic': { wrote_file: false, gap_count: 0, question_count: 0, fyi_count: 1 } });
+  eq(out.status, NO_CRITIQUE, 'status');
+  ok(!labels.some((l) => l.startsWith('plan-editor')), 'and no editor is spawned');
 }
 
 section('an editor that reports folds it never wrote halts, and a broken parse halts separately');

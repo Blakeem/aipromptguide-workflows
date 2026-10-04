@@ -264,7 +264,13 @@ ${RANKED
 WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/objection with the
 requirement or lens evidence it rests on, or, if sound, ${RANKED
     ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
-    : '"Conclusion holds: every requirement met, matrix sound."'} Do NOT modify any repo, stage, or commit. If a requirement contradiction
+    : '"Conclusion holds: every requirement met, matrix sound."'}
+A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
+the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
+or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
+concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to ${NEEDS_USER} and set needs_user=true.${isFinal ? `
 This is the run's LAST round: no decider round follows. If you do NOT agree, END that file with a
 \`## WHERE NEXT\` section: the ONE requirement axis the rubric does not settle (the trade-off you and the

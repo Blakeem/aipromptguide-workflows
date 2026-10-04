@@ -48,6 +48,11 @@ through `plan-edit.mjs args`, which every launch needs. A block waiting on the u
 notification. When a new need appears, fold it into the required step, or make it a required argument so
 that it is a decision and cannot be skipped. Never add an agent or a checklist line for it.
 
+The rule also covers an agent's attention. When a tool or runtime limit gets in an agent's way, fix it
+at the source, in the tool or the engine. No prompt carries a workaround for a limit, so the agent's
+attention stays on its task. For example, develop splits its status lines to fit the runtime's log line
+cap, so no agent or operator ever handles a cut line.
+
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
 1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits for
@@ -191,6 +196,13 @@ and never fabricates support. This makes review loops converge on substance, sin
 reads "no evidence, no gap". For researchers it reads "a claim without a source is a hypothesis, so mark
 it as one".
 
+A severity floor that filters defects sits on a written scale. Each grade is defined by its impact on
+the product, every case maps to one grade, and the size of the fix never lowers a grade. A judge never
+dismisses a defect it can cite. It counts the defect as a gap, so the agent that owns the fix acts on it.
+A finding a judge writes but does not count is a dismissal with no ledger line. The one exception is a
+section the workflow declares and returns by count, such as refine's FYI section and investigate's
+determination defects.
+
 ### 15. A missing result is its own outcome
 An agent that returns nothing (died mid-run, killed, empty output) is a distinct outcome. It is never
 conflated with success, a clean verdict, or a legitimately empty result set. The defect shape is the
@@ -297,7 +309,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Could any agent be eliminated, with its job folded into another agent, the harness, or the main
       agent's pre-run setup, without losing quality? If yes, eliminate it. Does everything carried
       between runs ride a step the operator must run anyway, with nothing left for someone to
-      remember? (#4)
+      remember? Is every tool or runtime limit an agent would hit fixed in the tool or the engine, with
+      no workaround in a prompt? (#4)
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs? (#5)
 - [ ] Are the only files written the numbered inter-agent reviews, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
@@ -325,7 +338,9 @@ Use these as yes/no checks when reviewing any workflow.
       `CLAUDE.md` already says? (#13)
 - [ ] Does every score, severity, verdict, and finding cite checkable evidence (file:line, source, lens
       claim) or mark itself the judge's own judgment with a confidence? Are there no asserted numbers
-      and no fabricated citations? (#14)
+      and no fabricated citations? Does every severity floor sit on a written impact scale where the
+      size of the fix never lowers a grade? Does every judge count each defect it writes, with no notes
+      section outside a declared section returned by count? (#14)
 - [ ] Does every `agent()` consumption site have an explicit death policy (solo critical throws, build
       loop halts and parks, auxiliary logs and records it in the return)? Is there no absorbing idiom
       (`|| []`, `?? default`) that makes a dead agent identical to a legitimate outcome? Does the harness

@@ -76,7 +76,8 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
   aims the same machinery at a class of defect. "Report DEFECTS, not redesigns" and the verifier's
   `scope-creep → REJECT` are UNCONDITIONAL — see the scope caveat at the top. Improvements are `enhance`.
 - **Severity floor.** `reviewSeverity` (default medium) keeps nitpicks out of the inventory. Don't lower
-  it — that's the noise spiral.
+  it, since that starts the noise spiral. The reviewer and verifier grade on one written impact scale,
+  `SEVERITY_SCALE` in `review.mjs`, and the size of the fix never lowers a grade.
 
 ## Lenses (optional — `review.mjs`)
 

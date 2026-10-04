@@ -12,10 +12,15 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 Four things together — remove any one and the plan grows every round instead of settling:
 - **The defect bar.** A gap must name something that would build wrong or fail: a missing wiring
   point, a wrong or absent file, a criterion with no implementing step, a dependency-ordering error,
-  a block too big for one develop pass, a reference the block states only outside itself. Improvements, alternatives, and style are excluded
+  a block too big for one develop pass, a reference the block states only outside itself, a failure on
+  an input the repo or the plan accepts. Improvements, alternatives, and style are excluded
   unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
-  Below-floor findings land in the critique file's FYI section and count for nothing.
+  The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
+  output on an input the repo or the plan accepts is major, unless it is an omission the block's own
+  green gate catches on its first run. The size of the fix never lowers a grade.
+  Below-floor findings land in the critique file's FYI section. They never block convergence, and
+  `belowFloor` returns their count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined; the critic skips
   settled items and may contest one once.
 - **The minimal-fold editor.** It changes NOTHING a gap does not name, and re-validates the file
@@ -28,7 +33,8 @@ Four things together — remove any one and the plan grows every round instead o
 2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
    a notification turn"). Read the result:
    - `converged` — hand the final text to the user for approval, then build it with develop, whose
-     args come from `plan-edit.mjs args`.
+     args come from `plan-edit.mjs args`. When `belowFloor` is above 0, the user reads the FYI section of
+     `lastCritique` before approving, since no editor folded those findings.
    - `needs-answers` — read `NEEDS-USER.md`: the critic raised things only you can settle (a
      dependency-ordering error or too-big block whose fix restructures blocks, a gap in an already-`done` block), or the editor
      escalated a contested dismissal. Restructure the plan (new blocks need fresh kebab ids), then
@@ -74,5 +80,6 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   `<root>/tools/plan-block.mjs`, the editor's re-validation command — pre-allowlist it) ·
   `conventions` · `reference` · `models`/`agentTypes` (both roles opus) · `stateDir`.
 - **Return:** `status` · `rounds` · `openGaps`/`questions` (the LAST round's counts — on
-  `rounds-exhausted` they are folded-but-unverified) · `dismissedCount` · `lastCritique` ·
+  `rounds-exhausted` they are folded-but-unverified) · `belowFloor` (the LAST round's FYI count) ·
+  `dismissedCount` · `lastCritique` ·
   `planPath` · `stateDir`.

@@ -109,7 +109,8 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
 - **Reviewer** (review · opus) — **non-blind, adversarial**; reads the decision + requirements + lens
   files and tries to break the conclusion (unmet requirement, uncited/unsupported score — **it verifies
   matrix citations against the lens files** (#14) — overlooked option, violated non-negotiable). Reads
-  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Agreement ends the loop. Each
+  no prior review file (re-checks fresh). Writes `decision-review-rN.md`. Every concern it writes is a
+  gap that blocks agreement, and the file holds no notes section. Agreement ends the loop. Each
   gap it raises carries a short **slug** (`gap_ids`); from round 2 it is handed the earlier rounds' slugs
   as **ids only** — no content, so it still judges fresh — and reuses one when re-raising the same issue,
   which is what makes repeated-vs-new measurable (§6). On the **last** round a non-agreeing review also

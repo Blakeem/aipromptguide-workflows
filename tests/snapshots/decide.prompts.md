@@ -8,12 +8,12 @@ this file is stale.
 |---|---|---|---|---|
 | analyst | 1 | 1 | 1272 | reviewer agrees |
 | decide | 1 | 1 | 2091 | reviewer agrees |
-| review | 1 | 1 | 1970 | reviewer agrees |
+| review | 1 | 1 | 2471 | reviewer agrees |
 | decide | 2 | 1 | 2315 | gaps to the round budget |
-| review | 2 | 1 | 2289 | gaps to the round budget |
-| review | 3 | 1 | 2660 | gaps to the round budget |
+| review | 2 | 1 | 2790 | gaps to the round budget |
+| review | 3 | 1 | 3161 | gaps to the round budget |
 | decide | 3 | 1 | 2028 | one lens dies |
-| review | 4 | 1 | 1930 | one lens dies |
+| review | 4 | 1 | 2431 | one lens dies |
 
 ## analyst · variant 1 · schema 1
 
@@ -178,7 +178,13 @@ CHECK, against the requirements rubric:
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
+A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
+the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
+or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
+concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Return via the schema.
 ~~~~
@@ -336,7 +342,13 @@ CHECK, against the requirements rubric:
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
+A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
+the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
+or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
+concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Return via the schema.
 ~~~~
@@ -416,7 +428,13 @@ CHECK, against the requirements rubric:
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
+A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
+the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
+or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
+concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 This is the run's LAST round: no decider round follows. If you do NOT agree, END that file with a
 `## WHERE NEXT` section: the ONE requirement axis the rubric does not settle (the trade-off you and the
@@ -572,7 +590,13 @@ CHECK, against the requirements rubric:
 3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound." Do NOT modify any repo, stage, or commit. If a requirement contradiction
+requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
+A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
+the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
+or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
+concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Return via the schema.
 ~~~~

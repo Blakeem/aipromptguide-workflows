@@ -150,6 +150,25 @@ section('the FINAL round is told to write WHERE NEXT; earlier rounds are not');
   ok(/axis/.test(p2) && /converge/.test(p2), 'and is told what goes in it — the unsettled axis + the change that would converge a decision');
 }
 
+section('every concern the reviewer writes counts, in both selections');
+// An agreeing review file reaches no agent, so an uncounted notes section there is a concern nobody acts on.
+{
+  const RULES = [
+    'A concern you write about the decision is a gap.',
+    'it blocks agree',
+    'is evidence, not a concern',
+    'stays a gap whatever its effect on the verdict',
+    'you drop silently',
+    'The file holds no notes or not-a-gap section.',
+  ];
+  for (const args of [baseArgs, { ...baseArgs, selection: 'ranked' }]) {
+    const { byLabel } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE }, args);
+    const p = byLabel('review')[0].prompt.replace(/\s+/g, ' ');
+    const sel = args.selection ?? 'single';
+    for (const rule of RULES) ok(p.includes(rule), `${sel}: the reviewer is told "${rule}"`);
+  }
+}
+
 section('a gap_count that contradicts the ids is logged, and garbage ids are filtered');
 // Self-contradictory, but the harm does not compound (tests/CLAUDE.md §3): the slugs drive the split and
 // the count is only printed, so this is flagged, never a halt.

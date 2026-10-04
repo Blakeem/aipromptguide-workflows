@@ -153,6 +153,38 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-03
+
+- **refine grades a gap by its impact.** A crash, lost or corrupted data, or wrong output on an input
+  the repo or the plan accepts is its own defect class. It grades major unless the block's gate catches
+  it, and the size of the fix never lowers a grade. Before, a crash on half of a valid seed range was
+  graded minor and never folded.
+- **refine counts its FYI items.** The return carries `belowFloor`, so a converged plan with unfolded
+  findings says so.
+- **debug grades on a written impact scale.** Its reviewer and verifier share one definition of
+  critical, high, medium and low. A crash or wrong output on an accepted input is high, and lost or
+  corrupted data is critical, so the default medium floor never drops either.
+- **develop's acceptance verifier counts every defect it writes.** A regression the block prescribes
+  or no current caller reaches is a gap. The developer fixes it, or escalates it to you when the fix
+  needs major changes outside the block's scope. Before, the verifier could pass a block and list real
+  regressions as notes.
+- **Principle #14 covers severity scales and uncounted findings.** A severity scale grades by impact,
+  and a judge counts every defect it writes.
+- **Principle #4 covers an agent's attention.** A tool or runtime limit is fixed in the tool or the
+  engine, so no prompt carries a workaround for it.
+- **decide's reviewer counts every concern it writes.** A concern blocks agreement, so none reaches the
+  user unread in an agreeing review.
+- **develop's status lines stay under the runtime's log cap.** A block with many issue edits logs them
+  over several lines. Before, the runtime could cut one long line, and `plan-edit.mjs args` then failed
+  with a JSON parse error on that run's record, whatever the run's status.
+- **develop keeps room for its status lines inside the runtime's first 1,000 log lines.** Progress
+  lines stop at 900. A run of several hundred blocks stops before a block once no room for a status line
+  is left, and a relaunch builds the rest. A block whose status lines overrun the cap halts the next
+  block, or skips the goal-coverage sweep when it was the last block.
+- **investigate counts the defects its critic finds in the determination.** The return carries
+  `determinationDefects`. The hand-back of an exhaustive, no-solution or saturated run says how many
+  there are and where to read them.
+
 ### 2026-09-30
 
 - **Leaner prompts.** Each engine's agent prompts are 6 to 14 percent shorter, and so are the skill

@@ -115,7 +115,7 @@ const INVESTIGATE_SCHEMA = {
 
 const CRITIQUE_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'upheld', 'disqualified', 'near_misses', 'contests_exhaustion', 'contests_saturation', 'agree', 'needs_user'],
+  required: ['wrote_file', 'upheld', 'disqualified', 'near_misses', 'contests_exhaustion', 'contests_saturation', 'agree', 'needs_user', 'determination_defects'],
   properties: {
     wrote_file:          { type: 'boolean', description: 'true if you wrote your round review file' },
     upheld:              { type: 'array', items: { type: 'string' }, description: 'ids of THIS round\'s new options that survive your verification — every criterion met, every citation checked out' },
@@ -125,6 +125,7 @@ const CRITIQUE_SCHEMA = {
     contests_saturation: { type: 'boolean', description: 'true if you contest the saturation claim with a cited avenue (step 5)' },
     agree:               { type: 'boolean', description: 'true if you accept this round\'s termination claim (step 5)' },
     needs_user:          { type: 'boolean', description: 'true ONLY if you found a criteria contradiction only the USER can resolve that this round\'s termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree' },
+    determination_defects: { type: 'integer', description: 'defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree' },
   },
 };
 
@@ -334,9 +335,10 @@ ${det
    ANSWER links an option the ledger disqualifies, including one you disqualified this round. Its
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
    not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
-   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.`
+   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.`
     : `6. No determination was DUE this round, so do not judge the run on one. Ignore any ${DETERMINATION}
-   on disk: it is not this round's output.`}
+   on disk: it is not this round's output. Set determination_defects to 0.`}
 WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.${det ? ` Then any defect in ${DETERMINATION}.` : ''}
@@ -407,6 +409,7 @@ let reviewPath = '';            // set the moment a critic call returns, so it c
                                 // critic wrote. The return names it as the latest review.
 let critRound = 0;              // the round reviewPath's critic ran in: after a critic-less round that
                                 // review is already answered, so the next investigator must not get it.
+let determinationDefects = null; // the critic's count for the determination it last checked. null when no critic has checked one
 let nearMisses = 0;             // NEAR-MISS: ledger lines (failed EXACTLY ONE criterion), surfaced so the
                                 // candidates a user could relax a criterion for cannot die in the ledger.
 // One entry per investigator round, counts and the confidence enum only (#8). A round with 0 new options
@@ -475,6 +478,8 @@ while (round < MAX_ROUNDS) {
     if (crit.wrote_file !== true) log(`  ⚠ r${round}: critic did NOT confirm writing ${reviewFile(round)} — check it before relaying`);
     reviewPath = reviewFile(round);
     critRound = round;
+    // A missing count is unknown, never zero, so it must not read as a clean determination (#15).
+    if (det) determinationDefects = Number.isInteger(crit.determination_defects) && crit.determination_defects >= 0 ? crit.determination_defects : null;
     // Disqualification must be able to REMOVE, not just withhold. A later critic can knock out an option
     // an earlier round upheld — it is told to verify anything no earlier review cleared, and a quiet last
     // round now routes a full re-verification pass through here — so an append-only answer set would keep
@@ -602,6 +607,11 @@ const concluded = haltKind === 'exhausted' || haltKind === 'no-solution';
 // comparison and near misses. 'budget', 'needs-user' and 'stalled' name none, never a file nothing wrote.
 // `round > 0` proves an investigator ran, since 'rounds' is haltKind's initial value.
 const determined = concluded || haltKind === 'saturated' || (haltKind === 'rounds' && round > 0);
+const determinationNote = determinationDefects > 0
+  ? `The critic found ${determinationDefects} defect(s) in the determination. Read them in ${reviewPath} and correct them before you relay it.`
+  : determinationDefects === 0
+    ? 'The critic found no defect in the determination.'
+    : `Read ${reviewPath || 'the latest round review'} alongside it: the critic notes any defect it found in the determination there.`;
 log(`investigate: ${status} after ${round} round(s) — ${upheldIds.length} qualifying option(s), ${nearMisses} near-miss(es)`);
 
 return {
@@ -622,6 +632,7 @@ return {
   nearMisses,
   trajectory,
   reviewFile: reviewPath,
+  determinationDefects,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
   searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${STATE_DIR}/ shows each round the critic judged.`,
   nextStep: halted
@@ -629,12 +640,12 @@ return {
       ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user (usually by editing the criteria), then re-invoke phase:"run" with the same runId — the ledger means the search resumes rather than restarts.`
       : `Run stopped on budget — ${haltReason}`)
     : haltKind === 'exhausted'
-      ? `Present the determination: relay ${DETERMINATION} (the options, the comparison, which to pick when, the near misses, the coverage evidence) and let the user read each options/<id>.md for the per-criterion evidence, plus ${LEDGER} for what was ruled out. The options are UNRANKED by design — present the trade-offs and let the user choose; to rank them you want decide-cycle. Read ${reviewPath || 'the latest round review'} alongside it: the critic notes any defect it found in the determination there. To build what it names, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`
+      ? `Present the determination: relay ${DETERMINATION} (the options, the comparison, which to pick when, the near misses, the coverage evidence) and let the user read each options/<id>.md for the per-criterion evidence, plus ${LEDGER} for what was ruled out. The options are UNRANKED by design — present the trade-offs and let the user choose; to rank them you want decide-cycle. ${determinationNote} To build what it names, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`
       : haltKind === 'saturated'
-        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. The return's \`options\` is the verified set of ${upheldIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them. The determination's ANSWER may still link an option the critic disqualified, so read ${reviewPath || 'the latest round review'} alongside it: the critic notes any defect it found in the determination there.${nearMisses ? ` Include the ${nearMisses} NEAR MISS(es) — each failed exactly one criterion.` : ''} To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
+        ? `The search STOPPED on diminishing returns and the critic agreed the collapse is real — it is OPEN, not closed, so never present it as exhaustive or complete. Relay ${DETERMINATION} and lead with its WHERE NEXT section. The return's \`options\` is the verified set of ${upheldIds.length} option(s), and each is a valid answer, but nothing was proved to be all of them. The determination's ANSWER may still link an option the critic disqualified. ${determinationNote}${nearMisses ? ` Include the ${nearMisses} NEAR MISS(es) — each failed exactly one criterion.` : ''} To continue, pick an avenue WHERE NEXT names and re-invoke phase:"run" with the same runId — ${SEARCHED} and ${LEDGER} carry the memory, so the next round starts from swept ground rather than re-walking it — or make the premise/criteria change it proposes. Re-running unchanged buys another round over the same worked-out ground, which is what this stop is telling you.`
         : haltKind === 'stalled'
           ? `Round ${round} added NOTHING — no option, no ledger line, no claim — so the run stopped rather than buy another round of the same. Nothing here is verified: no critic ran and no ${DETERMINATION} was written, so there is no product file to relay. Read the \`r<N> NEXT:\` lines in ${SEARCHED} (the avenues the search itself named as unswept) and ${LEDGER} (what is already closed), and say plainly that the search produced nothing this invocation. Then either re-invoke phase:"run" with the same runId to continue from that memory, or change the criteria/premise — an unchanged re-run starts from the same empty round.`
           : haltKind === 'no-solution'
-            ? `NOTHING qualifies, and the critic verified that. Relay ${DETERMINATION} + ${LEDGER} and take the criterion it names to the user: relaxing one criterion is the only thing that changes this answer.${nearMisses ? ` Lead with the ${nearMisses} NEAR MISS(es) — each failed exactly one criterion, so they are what relaxing a criterion would make available, and some may be worth doing on their own merits even though they do not qualify.` : ''} Do NOT re-run unchanged — the same criteria produce the same dead end.`
+            ? `NOTHING qualifies, and the critic verified that. Relay ${DETERMINATION} + ${LEDGER} and take the criterion it names to the user: relaxing one criterion is the only thing that changes this answer. ${determinationNote}${nearMisses ? ` Lead with the ${nearMisses} NEAR MISS(es) — each failed exactly one criterion, so they are what relaxing a criterion would make available, and some may be worth doing on their own merits even though they do not qualify.` : ''} Do NOT re-run unchanged — the same criteria produce the same dead end.`
             : `The round budget ran out with the search still open — ${upheldIds.length} option(s) qualified so far but NOTHING was proved exhaustive, so do not present this as a complete answer. ${DETERMINATION} was written as a PARTIAL result (it says so at the top) — relay it with that caveat, alongside ${LEDGER}${nearMisses ? ` and its ${nearMisses} NEAR MISS(es)` : ''} and the latest ${reviewPath || 'round review'}. Then either re-invoke with the same runId (and a higher maxRounds) to continue from the ledger, or accept the partial result.`,
 };
