@@ -9,7 +9,7 @@ import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 
-const baseArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1' };
+const baseArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1', priorRounds: 0 };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. Spread over it to script the
@@ -435,12 +435,45 @@ section('required args throw, and the two throws cannot pass on each other\'s me
   eq(refineMsg, critMsg, 'refine hits the same guard — there is no second, drift-prone copy of it');
 }
 
+section('priorRounds continues the round numbers of a resumed search');
+// The review files and SEARCHED.md's r<N> lines are keyed by round number, so a resume that restarted at
+// r1 would overwrite the earlier rounds' reviews and hand its first investigator no critique.
+{
+  const msg = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r', criteria: 'c' } });
+  ok(/args\.priorRounds is required/.test(msg), `a run without priorRounds throws: ${msg.slice(0, 50)}`);
+  ok(/Invalid numeric arg: args\.priorRounds/.test(await throwsWith(ENGINE, { args: { ...baseArgs, priorRounds: '2' } })),
+    'a priorRounds that only coerces to a number throws too');
+  const { calls: refine } = await run({ 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } },
+    { runId: 't', root: 'E:/r', criteria: 'c', phase: 'refine' });
+  eq(refine.length, 1, 'refine runs no rounds, so it needs no priorRounds');
+
+  const { out, byLabel } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'] },
+    'critique': CRIT,
+  }, { ...baseArgs, priorRounds: 2, maxRounds: 2 });
+  eq(byLabel('investigate').map((c) => c.label).join(), 'investigate r3,investigate r4',
+    'the rounds continue at r3, and maxRounds counts only this run\'s rounds');
+  const [p3, p4] = byLabel('investigate').map((c) => c.prompt);
+  ok(/resumes after round 2/.test(p3) && p3.includes('acceptance-review-r2.md') && /round 3 of at most 4/.test(p3),
+    'the first resumed investigator is pointed at the last run\'s review');
+  ok(p4.includes('acceptance-review-r3.md') && !/resumes after/.test(p4) && /round 4 is this run's LAST/.test(p4),
+    'the next round reads this run\'s review and owes the determination');
+  eq(byLabel('critique').map((c) => c.label).join(), 'critique r3,critique r4', 'the critics write r3 and r4, never over r1 or r2');
+  eq(out.rounds, 4, 'rounds counts the whole search');
+  ok(/priorRounds: 4/.test(out.nextStep), 'nextStep names the priorRounds that continues the search');
+
+  const { out: stopped } = await run({}, { ...baseArgs, priorRounds: 3 }, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
+  ok(/Stopped before round 4/.test(stopped.haltReason) && /priorRounds: 3/.test(stopped.haltReason),
+    'a budget stop names the round it did not start and the priorRounds to pass');
+  eq(stopped.determination, '', 'and names no determination, since no round of this run wrote one');
+}
+
 section('the token budget stops cleanly between rounds');
 {
   const { out, calls } = await run({}, baseArgs, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
   eq(calls.length, 0, 'stopped before spawning anything');
   eq(out.status, 'stopped on token budget (resume where it left off)', 'status');
-  ok(/same runId/.test(out.haltReason) && /DISQUALIFIED\.md/.test(out.haltReason),
+  ok(/same args and priorRounds: 0/.test(out.haltReason) && /DISQUALIFIED\.md/.test(out.haltReason),
     'halt reason carries the resume hint and names the ledger the resume reads');
 }
 
@@ -702,7 +735,7 @@ section('an investigator that did not attest its files halts before any critic s
   ok(/investigator did not confirm writing its files in round 1: .*options\/, .*DISQUALIFIED\.md, .*SEARCHED\.md and .*DETERMINATION\.md/.test(out.haltReason),
     `the reason names every owed file: ${out.haltReason}`);
   eq(out.determination, '', 'no determination is named');
-  ok(/FRESH run with the same runId and no resumeFromRunId/.test(out.nextStep), 'nextStep says how to relaunch');
+  ok(/FRESH run with the same runId, priorRounds: 0 and no resumeFromRunId/.test(out.nextStep), 'nextStep relaunches so the halted round re-runs');
 
   const { out: escalated } = await run({ 'investigate': { ...INV, wrote_files: false, needs_user: true } });
   eq(escalated.status, 'BLOCKED (needs user input)', 'an escalation keeps its own terminal');
@@ -720,6 +753,17 @@ section('a critic that did not attest its review file halts before its verdict i
   eq(out.determination, '', 'no determination is named');
   eq(out.options.length, 0, 'its upheld list was never applied');
   ok(/critic did not confirm writing .*acceptance-review-r1\.md in round 1/.test(out.haltReason), 'the reason names the file');
+  // A later resume would hand the unattested review to its first investigator, so the operator moves it aside.
+  ok(/Move that file aside before the relaunch/.test(out.nextStep), `nextStep says to move the unattested review aside: ${out.nextStep.slice(0, 200)}`);
+
+  // The halted round's options and claim were never verified, so the relaunch must re-run it, not skip it.
+  const { out: resumed } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['o'], exhausted: true },
+    'critique': { ...CRIT, wrote_file: false, upheld: ['o'], agree: true },
+  }, { ...baseArgs, priorRounds: 2, maxRounds: 3 });
+  eq(resumed.rounds, 3, 'the resumed run halted in r3');
+  ok(/FRESH run with the same runId, priorRounds: 2 and no resumeFromRunId/.test(resumed.nextStep),
+    `nextStep names the priorRounds that re-runs r3: ${resumed.nextStep.slice(0, 160)}`);
 }
 
 section('a critic that agrees but flags a candidate for re-opening buys another round');

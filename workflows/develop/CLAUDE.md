@@ -13,11 +13,11 @@ block** before the next. Built to
 Right-size per block, same bars as the engines it replaces: a `feature` block is one bounded feature
 (~10–100+ lines plus tests); a `section` block is one coherent slice of one goal, roughly
 feature-sized. Too small → just edit. A block too big for one develop pass → split it before running.
-Hand-written documentation stays out of blocks (no defect class for the blind reviewer; write docs
-directly after the run and verify with a debug doc-accuracy pass). Generated files, such as a flow map
-regenerated from an engine a block changes, belong to that block. Locate code in a block body by section
-title or grep pattern, not line number, since earlier blocks shift lines. Make each block
-self-contained. Every agent reads only its own block, so a path or instruction stated only in the file
+A block may edit hand-written documentation. Acceptance judges a doc edit only against the block's
+acceptance criteria or fix entries, so name each doc change a block owes in one of them. Generated
+files, such as a flow map regenerated from an engine a block changes, belong to that block. Locate code
+in a block body by section title or grep pattern, not line number, since earlier blocks shift lines.
+Make each block self-contained. Every agent reads only its own block, so a path or instruction stated only in the file
 preamble or another block never reaches it.
 
 ## 2. The flow

@@ -1119,9 +1119,9 @@ section('a dismissal reason and a prose-only diff are both judged from the code 
       `${mode}: a DROP reason never cites the plan`);
   }
   const q = (await run(GREEN_RUN)).prompt('quality block-a');
-  ok(/A diff that changes ONLY comments or string text has three checkable defects/.test(q)
+  ok(/A hunk that changes ONLY comments, string text or documentation has three checkable defects/.test(q)
     && q.includes('git -C E:/repo diff --word-diff') && /Whether the wording reads well is out of scope/.test(q),
-    'the blind reviewer has a bar for a comment- or string-only diff');
+    'the blind reviewer has a bar for a comment, string or documentation hunk');
 }
 
 section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');

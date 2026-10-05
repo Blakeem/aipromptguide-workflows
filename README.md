@@ -173,6 +173,9 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **develop keeps long block ids apart in its run-state files.** An id past 60 characters keeps a hash of
   the whole id in each file name. Before, two ids that shared their first 60 characters shared one
   DISMISSED ledger, one parked patch and the same review files.
+- **develop blocks may edit documentation.** Acceptance judges a doc edit only against its block's
+  criteria or fix entries. The blind reviewer checks a doc hunk the way it checks a comment hunk.
+  Before, the develop guide kept hand-written docs out of blocks.
 - **debug review records every gap in its coverage.** `failed` also lists a clean unit whose reviewer
   wrote no marker and a unit whose verifier missed or miscopied a finding id. `gen-units.mjs` skips
   symlinks and junctions, as git does, so a dangling or cyclic link no longer crashes it.
@@ -191,6 +194,10 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   for reopening in `reopened`. Any flag keeps a termination claim from ending the run. An invalid `phase`
   throws. The hand-back of a run that spent its round budget no longer calls a determination partial when
   it asserts a claim the critic rejected.
+- **investigate continues its round numbers on a resume.** `phase:"run"` requires `priorRounds`, which
+  is 0 for a new search and the value the last return's `nextStep` names on a resume. The first resumed
+  investigator reads the last run's review. Before, a resume restarted at round 1, wrote over the
+  earlier review files and repeated the `r<N>` labels in `SEARCHED.md`.
 - **refine gives a contested dismissal its own status.** The editor's escalation halts as
   `dismissal-contested`. A `USER-RULED:` line in `DISMISSED-PLAN.md` records the user's ruling. No later
   critic contests it.

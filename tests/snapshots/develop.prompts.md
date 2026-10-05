@@ -7,13 +7,13 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | develop | 1 | 1 | 6249 | every block accepts first time |
-| quality | 1 | 1 | 2962 | every block accepts first time |
+| quality | 1 | 1 | 2977 | every block accepts first time |
 | acceptance | 1 | 1 | 6083 | every block accepts first time |
 | develop | 2 | 1 | 6642 | every block accepts first time |
 | acceptance | 2 | 2 | 6364 | every block accepts first time |
 | final-sweep | 1 | 1 | 1946 | every block accepts first time |
 | develop | 3 | 1 | 5739 | quality flags the first round |
-| quality | 2 | 1 | 2786 | quality flags the first round |
+| quality | 2 | 1 | 2801 | quality flags the first round |
 | develop | 4 | 1 | 6132 | quality flags the first round |
 | develop | 5 | 1 | 5737 | acceptance finds gaps, then passes |
 | develop | 6 | 1 | 6130 | acceptance finds gaps, then passes |
@@ -249,10 +249,10 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-A diff that changes ONLY comments or string text has three checkable defects: a change to executable
-code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command, identifier or
-file the new text names that does not exist, and a sentence the change removed that other text still
-refers to. Whether the wording reads well is out of scope.
+A hunk that changes ONLY comments, string text or documentation has three checkable defects: a change
+to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, and a sentence the change removed that other
+text still refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
@@ -1047,10 +1047,10 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-A diff that changes ONLY comments or string text has three checkable defects: a change to executable
-code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command, identifier or
-file the new text names that does not exist, and a sentence the change removed that other text still
-refers to. Whether the wording reads well is out of scope.
+A hunk that changes ONLY comments, string text or documentation has three checkable defects: a change
+to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, and a sentence the change removed that other
+text still refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (create E:/flow/runs/flow/gate/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly

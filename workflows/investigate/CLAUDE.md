@@ -46,8 +46,8 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
 4. **Fold the findings in.** Fix gaps directly in the criteria file; relay each question via
    `AskUserQuestion`. **Replace every `unfalsifiable` criterion with one evidence can settle** — a
    criterion nothing can decide keeps every candidate arguable forever and the loop never converges.
-5. **`phase:"run"`** (same `runId` + `planPath`). It loops investigator ⇄ critic and returns the qualifying
-   options, the determination, and which terminal state it reached.
+5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds: 0`). It loops investigator ⇄ critic and
+   returns the qualifying options, the determination, and which terminal state it reached.
 6. **Present** per §7 — and lead with *which* terminal state, because they mean very different things.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
@@ -66,7 +66,7 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
   into, a script, a read-only endpoint). Both roles are told to prefer measured evidence and cite the exact
   command + result, and the critic re-runs measurements. Keep it read-only by construction and
   **pre-allowlist the commands** — a background run cannot answer permission prompts.
-- **`maxRounds`** (default 5) and **`minRoundBudget`** (default 100k) bound the search — §6.
+- **`maxRounds`** (default 5) and **`minRoundBudget`** (default 100k) bound each run of the search — §6.
 - **Fresh vs. resume.** The ledger IS the search's memory, so **preserving `runs/<runId>/` is what makes a
   resume cheaper than a restart.** Clear it only for a genuinely different question.
 
@@ -229,41 +229,48 @@ agents per run, so a fast tier buys nothing.
   file asserts the rejected claim and may lack WHERE NEXT, so label it a partial result yourself and add
   the open avenue from the latest `acceptance-review-rN.md`. Relay it *with that caveat attached*, never
   on its own. Check `determinationDefects` as for
-  `exhaustive`. Re-invoke with the same `runId` (and a
-  higher `maxRounds`) to continue from the ledger.
+  `exhaustive`. Resume (§8) to continue from the ledger.
 - **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
   `DETERMINATION.md` and lead with its **WHERE NEXT**. The return's `options` is the verified set, and each is a
   valid answer. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
-  option the critic disqualified, so check `determinationDefects` as for `exhaustive`. To continue, pick an avenue WHERE NEXT names and re-invoke
-  with the same `runId` (the memory files resume it), or make the premise/criteria change it proposes.
+  option the critic disqualified, so check `determinationDefects` as for `exhaustive`. To continue, pick an avenue WHERE NEXT names and resume
+  (§8), or make the premise/criteria change it proposes.
   An unchanged re-run buys another round over the same worked-out ground.
 - **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no
   determination to relay. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say so plainly,
-  then either re-invoke with the same `runId` to continue from that memory or change the criteria/premise.
+  then either resume (§8) to continue from that memory or change the criteria/premise.
 - **`BLOCKED (needs user input)`**: read `NEEDS-USER.md`, resolve with the user (usually by editing the
-  criteria), re-invoke.
+  criteria), resume (§8).
 - **`BLOCKED (an agent did not confirm writing its files ...)`**: check the files `haltReason` names,
-  then re-invoke `phase:"run"` as a fresh run with the same `runId` and no `resumeFromRunId`. A resume
-  replays the cached return and halts the same way.
+  then resume (§8) as a fresh run with no `resumeFromRunId`. A `resumeFromRunId` relaunch replays the
+  cached return and halts the same way.
 - Always offer `DISQUALIFIED.md`. What was ruled out and why is often the most useful artifact in the run,
   and it is what makes a later re-run cheap.
 
 ## 8. Resume
 
-Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args. The ledger means the search
-**continues** rather than restarting — a fresh investigator reads what is already closed and does not
-re-walk it. The halts to resolve first are a `needs_user` escalation, an unattested write (check the
-files `haltReason` names), and a token-budget stop (nothing to resolve there, just re-invoke).
+Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args and `priorRounds` set to the
+value the last return's `nextStep` names. After an unattested write that value is `rounds - 1`, so the
+halted round re-runs. The round numbers then continue, so the earlier review files and `r<N>` lines stay
+intact and the first investigator reads the last run's review. `maxRounds` counts only the new run's
+rounds. The ledger means the search **continues** rather than restarting. A fresh investigator reads
+what is already closed and does not re-walk it. The halts to resolve first are a `needs_user`
+escalation, an unattested write (check the files `haltReason` names), and a token-budget stop (nothing
+to resolve there, just re-invoke). After a critic's unattested write, move its review file aside before
+the relaunch. A re-run round that spawns no critic leaves that file in place, and a later resume hands
+it to the first investigator as an accepted review.
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
-args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents from cache.
+args, `priorRounds` included, and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents
+from cache.
 
 ## 9. Args reference
 
 Full schema + defaults: the Config block atop `investigate-cycle.mjs` (the canonical source). Pass `args`
 inline.
 - **Required:** `runId` · `root` (§3) · `criteria` (inline) **or** `planPath` (absolute path to the
-  criteria file).
+  criteria file) · `priorRounds` on `phase:"run"` (0 for a new search, the value the last
+  return's `nextStep` names on a resume, §8).
 - **Optional:** `phase` (`refine` | `run`, default `run`, and any other value **throws**) ·
   `sources` (starting avenues — §3) · `context`
   (domain facts) · `testbed` (how to check a candidate empirically) · `target.repo` (absolute, read-only) ·

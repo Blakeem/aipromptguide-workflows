@@ -16,6 +16,7 @@ this file is stale.
 | investigate | 4 | 1 | 6540 | quiet rounds |
 | investigate | 5 | 1 | 6905 | quiet rounds |
 | critique | 4 | 1 | 3847 | quiet rounds |
+| investigate | 6 | 1 | 6864 | resumed search |
 | critique | 5 | 1 | 3206 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
@@ -1457,6 +1458,174 @@ Return via the schema.
     "reopened": {
       "type": "integer",
       "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+    }
+  }
+}
+~~~~
+
+## investigate · variant 6 · schema 1
+
+`investigate r3` in "resumed search"
+
+~~~~text
+
+You are the INVESTIGATOR (round 3 of at most 7). Find an answer that ALREADY EXISTS and
+meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
+over anything you could invent.
+THE QUESTION + CRITERIA: the criteria below:
+-----
+## Question
+Which library qualifies?
+## Acceptance Criteria
+- runs on Node 24
+-----
+EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
+"close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
+passage/locator that supports it. An uncited claim is not evidence.
+SEARCH MEMORY — read ALL THREE before you search:
+  • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
+    re-opens it. Do NOT re-walk an avenue it closes.
+  • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
+    here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
+  • E:/flow/runs/flow/options/ — one file per option written so far. A file stays on disk after the critic
+    disqualifies its option. An option the ledger or a critique disqualified is OUT: never link it in
+    ANSWER. Bring it back only by re-proposing it (a fresh E:/flow/runs/flow/options/<id>.md this round) on a
+    critique's re-open note.
+This search resumes after round 2. If E:/flow/runs/flow/acceptance-review-r2.md does not exist, that round had
+nothing for the critic to check, so change the avenue rather than repeat it. If it exists, READ it and answer EVERY point it raises. A
+disqualified option needs a DIFFERENT candidate, not a re-argued one. A candidate the review re-opens is
+the exception: re-propose it. A contested exhaustion claim names
+an avenue you did not sweep: sweep it.
+
+PROCEDURE:
+1. Read the criteria VERBATIM and list them NUMBERED. Every step below checks against that numbering.
+2. SEARCH the avenues above and any you find yourself. Prefer primary sources (official docs, the source
+   itself, release notes, the spec) over summaries.
+3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
+   to keep a candidate you like.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
+   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
+   sources. Terse and concrete.
+5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
+   `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
+   A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
+   shortfall in NUMBERS wherever the criterion has any.
+   Append only: never rewrite, reorder or prune it.
+   Do NOT re-append a REDISCOVERED candidate (one the ledger already closed that your search turned up
+   again). Return their count as rediscovered.
+6. AVENUES — APPEND to E:/flow/runs/flow/SEARCHED.md one line per avenue you actually SWEPT this round:
+   `r3 SWEPT: <avenue> — <queries/terms used> — <result: X new, Y rediscovered | nothing>`
+   Then EXACTLY ONE line saying where you would look next:
+   `r3 NEXT: <most promising unswept avenue> — confidence: high|medium|low|none — <why>`
+   `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
+   only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
+   Append only: never rewrite, reorder or prune it.
+7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+   • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
+     more" is not exhaustion.
+   • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
+     stronger fact than finding none. Say which criterion every candidate died on.
+   • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
+     genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
+     genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
+     avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
+     OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
+     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
+     claim that and leave saturated false: never both.
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
+   E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
+   • ANSWER — the qualifying options, one linked line each. None qualified? Say so, then skip to NEAR MISSES.
+   • COMPARISON — the qualifiers tabled over the axes they actually DIFFER on (what each BUYS and COSTS,
+     from their files). NOT the criteria: every qualifier passes those, so a criteria table compares
+     nothing. Exactly one qualifier: say so and omit the table.
+   • WHICH TO PICK WHEN — one line per option: the situation it is the right answer for. UNRANKED, since
+     qualification is pass/fail.
+   • NEAR MISSES — every `NEAR-MISS:` line in the ledger: the ONE criterion it failed, the shortfall in
+     numbers, and whether it is worth doing anyway on its own merits. Say plainly that none is a
+     qualifier, even if worth doing.
+   • COVERAGE — the avenues you swept, what remains untried, and why what remains cannot hold a qualifier.
+   • WHERE NEXT — REQUIRED on a STOPPED result (a saturation, a no_solution, or a partial last round).
+     One line per UNSWEPT avenue with its own `confidence: high|medium|low|none`, then the ONE change to
+     the premise or the criteria that would open search space this run could not reach. Omit the section
+     only on an evidenced exhaustion.
+   For no_solution ALSO: why nothing qualifies, and the SINGLE criterion the user could relax to change
+   that. That criterion IS the WHERE NEXT premise change. Append it to E:/flow/runs/flow/NEEDS-USER.md as well. That entry is
+   informational: needs_user stays false, because the critic verifies the no_solution claim itself.
+If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
+append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Do NOT modify any repo, stage, or commit.
+Return via the schema, option_ids included.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_files",
+    "new_options",
+    "disqualified_added",
+    "near_misses",
+    "rediscovered",
+    "next_avenue_confidence",
+    "exhausted",
+    "no_solution",
+    "saturated",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_files": {
+      "type": "boolean",
+      "description": "true if you wrote every file steps 4 to 8 call for this round"
+    },
+    "new_options": {
+      "type": "integer",
+      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    },
+    "disqualified_added": {
+      "type": "integer",
+      "description": "candidates you appended to the DISQUALIFIED ledger this round"
+    },
+    "near_misses": {
+      "type": "integer",
+      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
+    },
+    "rediscovered": {
+      "type": "integer",
+      "description": "closed candidates you met again this round, not re-appended (step 5)"
+    },
+    "next_avenue_confidence": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "none"
+      ],
+      "description": "the confidence on this round's r<N> NEXT: line (step 6)"
+    },
+    "exhausted": {
+      "type": "boolean",
+      "description": "true if you claim the search space is closed (step 7)"
+    },
+    "no_solution": {
+      "type": "boolean",
+      "description": "true if you claim no candidate can meet the criteria (step 7)"
+    },
+    "saturated": {
+      "type": "boolean",
+      "description": "leave false unless you claim saturation (step 7)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
+    },
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }

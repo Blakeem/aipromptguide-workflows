@@ -27,9 +27,10 @@ flowchart TD
   x4[/"throw: Invalid phase"/]
   x5[/"throw: Invalid numeric arg"/]
   x6[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
-  x7[/"throw: Criteria critic returned nothing"/]
-  x8[/"throw: Investigator returned nothing in round ..."/]
-  x9[/"throw: Acceptance critic returned nothing in round ..."/]
+  x7[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
+  x8[/"throw: Criteria critic returned nothing"/]
+  x9[/"throw: Investigator returned nothing in round ..."/]
+  x10[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -39,14 +40,15 @@ flowchart TD
   S0 --> x4
   S0 --> x5
   S0 --> x6
+  S0 --> x7
   a1 --> t1
-  a1 --> x7
+  a1 --> x8
   a2 -.->|"L1 ×5"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
   a2 --> t9
-  a2 --> x8
+  a2 --> x9
   a3 -.->|"the critic contests the coverage claim · +1 more (×5)"| a2
   a3 --> t2
   a3 --> t3
@@ -54,7 +56,7 @@ flowchart TD
   a3 --> t5
   a3 --> t8
   a3 --> t9
-  a3 --> x9
+  a3 --> x10
 ```
 
 ## Phases
@@ -76,7 +78,7 @@ flowchart TD
 | Terminal | Reached when | Source |
 |---|---|---|
 | criteria critique returned (refine stops here) | phase:"refine" | declared |
-| exhaustive (search closed, critic agreed) | the critic agrees the search is closed | derived |
+| exhaustive (search closed, critic agreed) | the critic agrees the search is closed · a search resumes after round 2 | derived |
 | no qualifying option exists (verified) | the critic agrees nothing can qualify | derived |
 | not exhaustive (round budget spent) | the critic contests the coverage claim · the critic contests the saturation claim · a round only rules candidates out | derived |
 | stopped on saturation (diminishing returns, critic agreed - the search is open, not closed) | the critic agrees the search has run dry | derived |
@@ -90,10 +92,11 @@ flowchart TD
 | throw: Invalid phase | phase is neither refine nor run | throw (line 33) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 44) |
 | throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 81) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 384) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 445) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 488) |
+| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 91) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 397) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 460) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 503) |
 
 ## Coverage
 
-24 scenarios · 3/3 roles · 9/9 throw sites · 8/8 halt statuses · 18 terminal states.
+26 scenarios · 3/3 roles · 10/10 throw sites · 8/8 halt statuses · 19 terminal states.

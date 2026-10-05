@@ -12,7 +12,7 @@ const BRAINSTORM  = 'workflows/brainstorm/brainstorm-cycle.mjs';
 const REVIEW      = 'workflows/debug/review.mjs';
 
 const srcOf = (rel) => readFileSync(`${REPO_ROOT}/${rel}`, 'utf8');
-const invArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ' };
+const invArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ', priorRounds: 0 };
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
 const reviewArgs = (units) => ({ runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units });
 const FINDING = { file: 'a.js', line: '1', category: 'correctness', severity: 'high', title: 'T', detail: 'd' };

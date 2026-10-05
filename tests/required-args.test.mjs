@@ -137,9 +137,9 @@ const SWEEP = [
   },
   {
     engine: 'workflows/investigate/investigate-cycle.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1' },
+    baseArgs: { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1', priorRounds: 0 },
     respond: {},
-    required: ['runId', 'root', 'criteria'],
+    required: ['runId', 'root', 'criteria', 'priorRounds'],
   },
 ];
 

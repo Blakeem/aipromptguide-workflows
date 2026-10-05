@@ -664,10 +664,10 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-A diff that changes ONLY comments or string text has three checkable defects: a change to executable
-code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact tokens), a path, command, identifier or
-file the new text names that does not exist, and a sentence the change removed that other text still
-refers to. Whether the wording reads well is out of scope.
+A hunk that changes ONLY comments, string text or documentation has three checkable defects: a change
+to executable code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, and a sentence the change removed that other
+text still refers to. Whether the wording reads well is out of scope.
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly

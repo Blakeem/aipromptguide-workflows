@@ -5,12 +5,13 @@
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a round with nothing to check, forced open on the last round because a determination is due), a
-// contested claim of EACH kind buying another round, and each of the nine throw sites.
+// contested claim of EACH kind buying another round, and each of the ten throw sites.
 
 const base = {
   runId: 'flow',
   root: 'E:/flow',
   criteria: '## Question\nWhich library qualifies?\n## Acceptance Criteria\n- runs on Node 24',
+  priorRounds: 0,
 };
 
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. This one now STALLS the run, so it
@@ -97,6 +98,13 @@ export default {
       respond: { investigate: LEARN, critique: CRIT },
     },
     {
+      // The resumed first round reads the last invocation's review, so its prompt is a variant of its own.
+      name: 'resumed search',
+      when: 'a search resumes after round 2',
+      args: { ...base, priorRounds: 2 },
+      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], agree: true } },
+    },
+    {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
       // terminal unreachable. Stateless on purpose: the scenario is run more than once.
       name: 'token budget floor',
@@ -179,5 +187,6 @@ export default {
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no criteria', when: 'neither criteria nor planPath', args: { runId: 'flow', root: 'E:/flow' } },
+    { name: 'no priorRounds', when: 'phase:"run" without priorRounds', args: { runId: 'flow', root: 'E:/flow', criteria: base.criteria } },
   ],
 };
