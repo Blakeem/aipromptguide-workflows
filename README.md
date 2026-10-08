@@ -221,6 +221,22 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   would catch went ungraded. Two instructions in one block that cannot both hold count as a wrong
   instruction. Each critique re-lists every below-floor item that still holds, so the last critique lists
   all of them.
+- **develop's guide says how to resolve an acceptance-regression halt.** That halt leaves the block
+  staged but marks it `blocked` and its fixed issues `needs-attention`. The guide gives the steps to keep
+  or reject the work. The halt reason no longer says to relaunch with `startAt`, which would skip a
+  rejected block.
+- **A relaunch with nothing to build says when the coverage sweep did not run.** The goal-coverage sweep
+  runs only at the end of a run that builds a block. So after a halt you resolve by hand, the relaunch
+  says to check coverage against the goal yourself.
+- **develop's fixer adds a piece the plan's text left out without an amendment.** An amendment is only for
+  a plan instruction that is itself wrong.
+- **debug's verifier writes a Fix that covers every file its issue calls wrong.** Before, a Fix could tell
+  the fixer to leave such a file unchanged.
+- **docs says which files a rerun may delete.** A run into a folder that already holds a set re-curates
+  that set under the new brief and may delete from it. Only content that is neither a source capture nor
+  a file the curator wrote is left untouched and reported.
+- **The READMEs and skill descriptions follow the house style.** They have no mid-sentence colons or
+  filler words, and every fact is kept.
 
 ### 2026-10-07
 
