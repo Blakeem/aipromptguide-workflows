@@ -79,13 +79,13 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
 ## Reviewing the result
 
 `runs/<runId>/docs/` (or your `outDir`) holds the curated set of `<source>/*.md` verbatim docs plus
-`INDEX.md`. Start at the index: one line per file, then **Coverage notes** with any cross-source
-inconsistencies, unresolved gaps, files that failed the spot-check, and sources the spot-check could not
+`INDEX.md`. Start at the index. It lists one line per file, then **Coverage notes** with any
+cross-source inconsistencies, unresolved gaps, files that failed the spot-check, and sources the spot-check could not
 reach. Claude reports how many files were spot-checked when the run ends. Copy the folder into your repo
 if you want to keep it, or pass `outDir` up front.
 
-**Give it its own folder.** The output directory belongs to the run: the curator deletes freely inside
-it, which is what lets it dedup, split, and re-curate the whole set. Point it at a fresh directory per
+**Give it its own folder.** The output directory belongs to the run, so the curator deletes freely
+inside it to dedup, split, and re-curate the entire set. Point it at a fresh directory per
 doc set (`docs/stripe/`, not `docs/`). A run into a folder that already holds a set re-curates that set
 under the new brief and may delete from it. Anything in there that is not a source-headed capture or a
 curator-written file is left untouched and reported back. This is a sign the folder was shared and

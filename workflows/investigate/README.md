@@ -6,33 +6,34 @@ An autonomous Claude Code workflow for the question **"what already exists that 
 requirements?"** It searches, qualifies each candidate against fixed pass/fail criteria, and keeps
 looking until it can show you that nothing qualifying was left unsearched.
 
-You write the criteria: the question, the pass/fail gates, and what counts as proof. Claude runs one
-**investigator** per round that reads every earlier rejection before it starts, so each round diverges from
-what already failed instead of circling the same ground. An adversarial **critic** then verifies each
-surviving option against every criterion and checks every citation against its source. The loop closes only
-when the investigator can *evidence* that the search is complete and the critic agrees.
+You write the criteria file, which holds the question, the pass/fail gates, and what counts as proof.
+Claude runs one **investigator** per round that reads every earlier rejection before it starts, so each
+round diverges from what already failed instead of circling the same ground. An adversarial **critic**
+then verifies each surviving option against every criterion and checks every citation against its source.
+The loop closes only when the investigator can *evidence* that the search is complete and the critic
+agrees.
 
 ### What sets it apart
 
 A **bounded exhaustive search** built on the shared [Workflow Principles](../../principles/):
 
 - **Pass/fail, not weighted.** Every criterion is a gate. Miss one and a candidate is out, however strong
-  it is elsewhere. There is no weighted total and no "close enough".
+  it is elsewhere. There is no weighted total or "close enough".
 - **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with the
   criterion it failed, and every later round reads it first. That memory is what turns repeated searching
-  into converging rather than repeating. A second file, `SEARCHED.md`, does the same for **ground**: which
-  avenues were swept, with what search terms, and the most promising one still untried. Closed candidates
+  into converging rather than repeating. A second file, `SEARCHED.md`, does the same for **ground**. It records
+  which avenues were swept, with what search terms, and the most promising one still untried. Closed candidates
   do not come back, and neither do closed searches.
 - **Exhaustion has to survive an attack.** Claiming the search is complete requires naming which avenues
   were swept and why what remains cannot hold an answer. The critic can contest a thin claim and buy
   another round. That is what makes "these are all of them" worth trusting.
-- **"Nothing qualifies" is a real answer.** Verified by the critic, delivered with the reason and the one
-  criterion you could relax to change it. It is kept strictly separate from "we ran out of rounds" and
-  "we ran out of tokens", so a stopped search is never reported as a finished one.
+- **"Nothing qualifies" is a real answer.** The critic verifies it, and the answer comes with the reason
+  and the one criterion you could relax to change it. It is kept strictly separate from "we ran out of
+  rounds" and "we ran out of tokens", so a stopped search is never reported as a finished one.
 - **Several answers is a normal outcome.** Qualifying options come back unranked with their trade-offs,
   because ranking them is a different job (see below). The determination tables them on the axes they
-  actually differ on and says which to pick when, so "unranked" does not mean undifferentiated.
-- **Near misses are not thrown away.** A candidate that failed *exactly one* criterion is marked as such
+  differ on and says which to pick when, so "unranked" does not mean undifferentiated.
+- **Near misses are not thrown away.** A candidate that failed *only one* criterion is marked as such
   in the ledger, with the shortfall in numbers, and gets its own section in the determination. When
   nothing qualifies, those are usually the most useful thing the run found, since they are the candidates
   that relaxing a criterion would put back on the table.
@@ -46,8 +47,8 @@ and the real work is *weighing trade-offs* among approaches the AI generates. It
 agreement about an argument, via a weighted matrix. **investigate** is for when the answer is already out
 there and the work is *finding it and proving it fits*. It converges on coverage.
 
-The tell: if you want to trade criterion A off against criterion B, you want decide. If missing criterion A
-is simply disqualifying, you want investigate.
+If you want to trade one criterion off against another, you want decide. If missing a criterion
+disqualifies a candidate, you want investigate.
 
 ---
 
@@ -56,11 +57,11 @@ is simply disqualifying, you want investigate.
 - ✅ **Right size:** a question with several hard constraints whose answer probably already exists (a
   library, tool, API, config, technique, standard, or precedent), where you also want to know nothing
   better was missed.
-- ✅ **Not just code.** Everything domain-specific arrives through the criteria file, so a regulatory,
+- ✅ **Questions outside code.** Everything domain-specific arrives through the criteria file, so a regulatory,
   procurement, or engineering-standards question works the same way.
 - ❌ **Weighing trade-offs among invented approaches:** use [`decide-cycle`](../decide/).
 - ❌ **Creative options for you to pick between:** use [`brainstorm-cycle`](../brainstorm/).
-- ❌ **You already know the answer, or one search settles it:** just look it up.
+- ❌ **You already know the answer, or one search answers it:** look it up.
 
 ---
 
@@ -77,8 +78,8 @@ or clone the repo as `aipg/` and drive it by path. Trigger it:
 Claude reads `aipg/workflows/investigate/CLAUDE.md`, writes the criteria with you in plan mode, runs a
 mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 
-1. **Frames the criteria.** Plan mode: the question, the pass/fail gates, the evidence standard, the search
-   space.
+1. **Frames the criteria.** The criteria file written in plan mode states the question, the pass/fail
+   gates, the evidence standard and the search space.
 2. **Reviews the criteria.** An independent critic returns gaps, blocking questions, and any criterion no
    evidence could settle. Those get fixed before a single search runs.
 3. **Searches and qualifies.** The investigator finds and self-checks. The critic verifies and
@@ -90,7 +91,7 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 
 ## Reviewing the result
 
-Under `runs/<runId>/`: each option the investigator qualified, with its per-criterion evidence
+`runs/<runId>/` holds each option the investigator qualified, with its per-criterion evidence
 (`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each
 round covered and what it would try next (`SEARCHED.md`), the critic's round-by-round findings
 (`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The critic writes its verdict as
@@ -104,7 +105,7 @@ still get a determination, written on the final round. Treat it as partial even 
 ended, since the critic did not accept that claim. Re-run to continue, since the ledger makes that cheap
 rather than repetitive.
 `stopped on saturation` means the yield collapsed and the critic agreed another round was not worth its
-cost: the options are verified, the search is **open**, and the determination's WHERE NEXT section names
+cost. The options are verified and the search is **open**. The determination's WHERE NEXT section names
 the avenues left and the premise change that would open new ground. `stalled` means a round's
 investigator found no option, ruled out no candidate and made no claim, so the run stopped instead of
 buying another empty one. There is no determination. A stall in a run's first round still ran the critic

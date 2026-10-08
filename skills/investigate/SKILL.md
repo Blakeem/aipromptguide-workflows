@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG investigate workflow: find an answer that already exists and qualify it against fixed pass/fail criteria, until nothing qualifying is left unsearched. Use only when the user explicitly asks for the AIPG investigate workflow."
+description: "Run the AIPG investigate workflow, which finds an answer that already exists and qualifies it against fixed pass/fail criteria, until nothing qualifying is left unsearched. Use only when the user explicitly asks for the AIPG investigate workflow."
 argument-hint: "[question + pass/fail criteria]"
 ---
 

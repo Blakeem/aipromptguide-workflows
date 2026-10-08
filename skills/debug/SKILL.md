@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG debug workflow: review a repo or change for production defects, then fix the triaged issue files with develop's fix mode. Use only when the user explicitly asks for the AIPG debug workflow."
+description: "Run the AIPG debug workflow, which reviews a repo or change for production defects and then fixes the triaged issue files with develop's fix mode. Use only when the user explicitly asks for the AIPG debug workflow."
 argument-hint: "[repo/change to review, or inventory to fix]"
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG develop workflow: build the todo blocks of approved plan files (feature, section and fix modes), staging each accepted block. Use only when the user explicitly asks for the AIPG develop workflow."
+description: "Run the AIPG develop workflow, which builds the todo blocks of approved plan files in feature, section and fix modes, then stages each accepted block. Use only when the user explicitly asks for the AIPG develop workflow."
 argument-hint: "[plan file or blocks to build]"
 ---
 

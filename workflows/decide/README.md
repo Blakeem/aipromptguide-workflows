@@ -68,7 +68,8 @@ or clone the repo as `aipg/` and drive it by path. Trigger it:
 Claude reads `aipg/workflows/decide/CLAUDE.md`, writes the requirements with you in plan mode, picks the
 lenses, then runs `decide-cycle.mjs` **by path**.
 
-1. **Frames the rubric.** Plan mode: the decision, the non-negotiables, the weighted criteria.
+1. **Frames the rubric.** The rubric written in plan mode states the decision, the non-negotiables and
+   the weighted criteria.
 2. **Diverges.** One analyst per lens generates and scores options.
 3. **Converges.** The decider builds the matrix and concludes. The reviewer attacks it, and they loop
    to agreement.
@@ -78,7 +79,7 @@ lenses, then runs `decide-cycle.mjs` **by path**.
 
 ## Reviewing the result
 
-Under `runs/<runId>/`: the per-lens analyses (`lenses/<lens>.md`), the decider's matrix and conclusion
+`runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`), the decider's matrix and conclusion
 (`decision-rN.md`), and the reviewer's objections each round (`decision-review-rN.md`). Since a re-run
 can leave an earlier run's files with higher round numbers in that folder, read the decision file that
 the run's result names. Also skim the lens files to see the trade-offs that shaped it. Then build the

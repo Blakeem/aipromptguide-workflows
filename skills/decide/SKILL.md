@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG decide workflow: lensed analysis of approaches, a weighted matrix, and a justified conclusion, adversarially reviewed. Use only when the user explicitly asks for the AIPG decide workflow."
+description: "Run the AIPG decide workflow, which compares approaches through lenses and a weighted matrix, then reaches a justified conclusion under adversarial review. Use only when the user explicitly asks for the AIPG decide workflow."
 argument-hint: "[decision question]"
 ---
 

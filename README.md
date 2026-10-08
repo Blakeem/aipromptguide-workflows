@@ -1,11 +1,11 @@
 # AI Prompt Guide Workflows
 
 **[aipromptguide.com](https://aipromptguide.com)** · A collection of production-grade **Claude Code
-dynamic workflows**: the prompts and orchestration that *guide the AI* through real engineering work,
-plus the shared design principles they're all built to.
+dynamic workflows** and the design principles they're built to. The workflows hold the prompts and
+orchestration that *guide the AI* through real engineering work.
 
 Each workflow is a background **Workflow engine** (a `.mjs` script) paired with a `CLAUDE.md` operator
-guide. The guide is the prompt: it drives **plan mode** and the human approval gate *outside* the engine,
+guide. The guide is the prompt. It drives **plan mode** and the human approval gate *outside* the engine,
 then runs the engine to do the work. The **build** workflows leave the result test-verified, wired in,
 and staged for you to commit. The **generative** ones leave cited files for you to use. Either way,
 **nothing is ever committed for you**.
@@ -39,15 +39,15 @@ All eight share the design rules in **[principles/](principles/)**, the fifteen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file bus, no busy work).
 
 **The Flow column is a diagram of what a run does.** It shows every agent, gate, loop and terminal
-state, rendered inline by GitHub. Read one before starting a run you have not done before: the terminal
-states in particular are the part worth knowing in advance, since "ran out of rounds" and "proved there
+state, rendered inline by GitHub. Read one before starting a run you have not done before. The terminal
+states are the part most worth knowing in advance, since "ran out of rounds" and "proved there
 is no answer" are different results that look alike in a summary.
 
 Those maps are **generated, never hand-drawn**. `tools/gen-flows.mjs` runs each engine against scripted
 agent replies and watches which agents it spawns, so a diagram can only ever show a path that really
-runs. That makes it a linter as much as a picture: it fails `node tests/run.mjs` when a map goes stale,
-when an engine grows a branch no scenario reaches, or when `meta.phases` stops matching the phases the
-agents actually run under.
+runs. So the generator is also a linter. It fails `node tests/run.mjs` when a map goes stale, when an engine
+grows a branch no scenario reaches, or when `meta.phases` stops matching the phases the agents run
+under.
 
 ## Why it's built this way
 
@@ -93,7 +93,7 @@ place when the plugin updates.
 
 2. **Open the checkout in Claude Code.** The root `CLAUDE.md` routes to each workflow's guide, with
    `root` = the checkout. To use the plugin's skills against a local clone, add it as a local
-   marketplace instead: `/plugin marketplace add ./aipg` then `/plugin install aipg@aipromptguide`.
+   marketplace instead, with `/plugin marketplace add ./aipg` and then `/plugin install aipg@aipromptguide`.
 
 ## One checkout, many projects
 
@@ -112,7 +112,7 @@ E:/myproject/          ← target.repo   the project itself, the folder holding 
 - **`root`** is the base the run-state hangs off. `<root>/runs/<runId>/` holds the review files, the
   ledgers, and any parked patch. Normally the checkout's own folder, so nothing lands in your project.
 
-Keeping them apart is what makes the blind review work: the issue files live outside the repo under
+Keeping them apart is what makes the blind review work. The issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
 The develop, refine and debug engines warn if you point run-state inside the target repo. develop and refine also warn when a plan file resolves inside it.
 

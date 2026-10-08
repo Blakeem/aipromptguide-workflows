@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG refine workflow: converge a plan file before develop builds it, with a read-only critic under a fixed defect bar and a minimal-fold editor alternating until one clean round. Use only when the user explicitly asks for the AIPG refine workflow."
+description: "Run the AIPG refine workflow, which converges a plan file before develop builds it. A read-only critic under a fixed defect bar and a minimal-fold editor alternate until one round is clean. Use only when the user explicitly asks for the AIPG refine workflow."
 argument-hint: "[plan file to converge]"
 ---
 

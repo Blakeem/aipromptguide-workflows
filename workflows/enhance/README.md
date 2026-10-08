@@ -15,8 +15,9 @@ blocks in a [`develop-cycle`](../develop/) plan file to get built.
 A **read-only audit** built on the shared [Workflow Principles](../../principles/):
 
 - **Enhancement, not improvement.** The floor is deliberately high. A typo *is* an improvement, but
-  nobody writes it up as an enhancement. The [debug](../debug/) workflow catches it anyway. The test
-  every agent is held to: would a competent engineer file this as an enhancement ticket?
+  nobody writes it up as an enhancement. The [debug](../debug/) workflow catches it anyway. Every agent
+  is held to one test, which asks whether a competent engineer would file the proposal as an enhancement
+  ticket.
 - **Removal is a first-class outcome.** Deleting a role, a file, an argument, or a code path is one of
   the best things the audit can return. The finders are told to hunt for it deliberately, because
   most audits only ever add.
@@ -24,13 +25,12 @@ A **read-only audit** built on the shared [Workflow Principles](../../principles
   enhancements are cross-cutting ("every engine re-implements this", "these three roles could be two")
   and are invisible to anyone reading one file at a time.
 - **A ruthless verifier.** Its first check asks *does the system already do this?* A proposal for
-  something the system already does is the most common failure of an audit pass.
-  Then: is the claimed benefit real, is this just taste, and is this actually a
-  **defect** in disguise? A noisy proposal list wastes your time, and an audit that cries wolf gets
-  ignored.
-- **Nothing is auto-applied, on purpose.** There is no fix loop here and no plan to add one. An
+  something the system already does is the most common failure of an audit pass. Then the verifier asks
+  whether the claimed benefit is real, whether the proposal is only taste, and whether it is a **defect**
+  in disguise. A noisy proposal list wastes your time, and an audit that cries wolf gets ignored.
+- **Nothing is auto-applied, on purpose.** There is no fix loop here or plan to add one. An
   enhancement list never converges (there is always another enhancement), and auto-applying one behind a
-  short review gate is exactly the scope creep the debug workflow exists to prevent. A human triages.
+  short review gate is the scope creep the debug workflow exists to prevent. A human triages.
 - **Convergence is the signal.** Two lenses landing on the same change independently is the strongest
   evidence in the run. The lens files stay separate so you can see it.
 
@@ -60,14 +60,14 @@ or clone the repo as `aipg/` and drive it by path. Trigger it:
 - **Plain pointer:** tell Claude to *use the enhance-cycle **workflow** in `aipg/workflows/enhance/`* and
   what to audit.
 
-Claude reads `aipg/workflows/enhance/CLAUDE.md`, settles the scope and lenses with you, then runs
+Claude reads `aipg/workflows/enhance/CLAUDE.md`, decides the scope and lenses with you, then runs
 `enhance-cycle.mjs` **by path**.
 
 1. **Frames it.** Agrees the scope and the lenses. Above all, it agrees what "better" *means* for this
    system, so the lenses optimize toward the same thing.
-2. **Finds.** One finder per lens, concurrently, each reading the whole scope. Every candidate is
-   grounded: what the code does today (with the line), what it would do instead, and the specific cost
-   that removes.
+2. **Finds.** One finder per lens, concurrently, each reading the whole scope. Every candidate
+   states what the code does today (with the line), what it would do instead, and the specific cost the
+   change removes.
 3. **Verifies.** A verifier per lens checks each candidate against the real code, rejects what doesn't
    survive, re-scores impact and effort, and routes the rest.
 4. **Stops.** Claude presents the proposals and triages them with you.

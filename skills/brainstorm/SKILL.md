@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG brainstorm workflow: one fully committed variation per lens for a human to pick or combine, with no AI verdict. Use only when the user explicitly asks for the AIPG brainstorm workflow."
+description: "Run the AIPG brainstorm workflow, which writes one fully committed variation per lens for a human to pick or combine, with no AI verdict. Use only when the user explicitly asks for the AIPG brainstorm workflow."
 argument-hint: "[topic + lenses]"
 ---
 

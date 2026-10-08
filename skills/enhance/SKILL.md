@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG enhance workflow: a read-only lensed audit of a working system that yields verified, impact-scored proposals for the user to triage. Nothing is applied. Use only when the user explicitly asks for the AIPG enhance workflow."
+description: "Run the AIPG enhance workflow, which audits a working system read-only through lenses and returns verified proposals scored by impact for the user to triage. Nothing is applied. Use only when the user explicitly asks for the AIPG enhance workflow."
 argument-hint: "[system to audit]"
 ---
 
