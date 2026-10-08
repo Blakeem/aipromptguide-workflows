@@ -13,7 +13,7 @@ const base = {
   lenses: ['minimalist', 'bold editorial', 'playful'],
 };
 
-const GEN = { entry: 'index.md', summary: 'one line', files: ['index.md'] };
+const GEN = { entry: 'index.md', summary: 'one line' };
 
 export default {
   engine: 'workflows/brainstorm/brainstorm-cycle.mjs',

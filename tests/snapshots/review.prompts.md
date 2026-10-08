@@ -7,11 +7,11 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | review | 1 | 1 | 3138 | a clean unit beside one with findings |
-| verify | 1 | 1 | 5163 | a clean unit beside one with findings |
+| verify | 1 | 1 | 5171 | a clean unit beside one with findings |
 | review | 2 | 1 | 2724 | two lenses per unit |
 | review | 3 | 1 | 2850 | two lenses per unit |
-| verify | 2 | 1 | 5475 | two lenses per unit |
-| verify | 3 | 1 | 5475 | two lenses per unit |
+| verify | 2 | 1 | 5483 | two lenses per unit |
+| verify | 3 | 1 | 5483 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -190,8 +190,8 @@ CANDIDATE FINDINGS (finding_id :: file :: category/severity :: title):
 
 FOLD DUPLICATES FIRST. One reviewer can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
-justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
-"duplicate of <id>". Candidates that merely share a file and category are NOT duplicates.
+justified severity, with a **Fix:** line that closes the whole thing) and REJECT the others.
+Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
@@ -202,16 +202,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
-  - scope == scope-creep -> REJECT (note why, do not pursue)
-  - architectural == true -> NEEDS_USER (fill options + recommendation)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
+  - scope == scope-creep -> REJECT (do not pursue)
+  - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
+  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
+    **Recommendation:** lines)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal fix_instruction)
+  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Set a short `theme` keyword per verdict.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -238,12 +238,11 @@ status: todo
 - category: <category>
 - effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
-- theme: <theme>
 
 **What:** <detail — what's wrong and why it matters in production>
-**Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
+**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
+**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
+**Recommendation:** <your suggested direction>           (NEEDS_USER only)
 -----
 The `## Plan:` line, the three preamble lines under it, and every entry's `- status: open` are
 REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
@@ -347,25 +346,6 @@ Set wrote_file=true and return all verdicts via the schema.
                 "type": "boolean"
               }
             }
-          },
-          "rationale": {
-            "type": "string"
-          },
-          "fix_instruction": {
-            "type": "string",
-            "description": "precise minimal instruction for the fixer (ACTIONABLE only)"
-          },
-          "options": {
-            "type": "string",
-            "description": "NEEDS_USER only: the distinct choices + tradeoffs"
-          },
-          "recommendation": {
-            "type": "string",
-            "description": "NEEDS_USER only: your suggested direction"
-          },
-          "theme": {
-            "type": "string",
-            "description": "short grouping keyword (e.g. \"pagination\") for batching related issues"
           }
         }
       }
@@ -672,8 +652,8 @@ CANDIDATE FINDINGS (finding_id :: lens :: file :: category/severity :: title):
 
 FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
-justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
-"duplicate of <id>". Candidates that merely share a file and category are NOT duplicates.
+justified severity, with a **Fix:** line that closes the whole thing) and REJECT the others.
+Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
@@ -684,16 +664,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
-  - scope == scope-creep -> REJECT (note why, do not pursue)
-  - architectural == true -> NEEDS_USER (fill options + recommendation)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
+  - scope == scope-creep -> REJECT (do not pursue)
+  - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
+  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
+    **Recommendation:** lines)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal fix_instruction)
+  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Set a short `theme` keyword per verdict.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -720,12 +700,11 @@ status: todo
 - category: <category>
 - effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
-- theme: <theme>
 
 **What:** <detail — what's wrong and why it matters>
-**Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
+**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
+**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
+**Recommendation:** <your suggested direction>           (NEEDS_USER only)
 -----
 The `## Plan:` line, the three preamble lines under it, and every entry's `- status: open` are
 REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
@@ -829,25 +808,6 @@ Set wrote_file=true and return all verdicts via the schema.
                 "type": "boolean"
               }
             }
-          },
-          "rationale": {
-            "type": "string"
-          },
-          "fix_instruction": {
-            "type": "string",
-            "description": "precise minimal instruction for the fixer (ACTIONABLE only)"
-          },
-          "options": {
-            "type": "string",
-            "description": "NEEDS_USER only: the distinct choices + tradeoffs"
-          },
-          "recommendation": {
-            "type": "string",
-            "description": "NEEDS_USER only: your suggested direction"
-          },
-          "theme": {
-            "type": "string",
-            "description": "short grouping keyword (e.g. \"pagination\") for batching related issues"
           }
         }
       }
@@ -899,8 +859,8 @@ CANDIDATE FINDINGS (finding_id :: lens :: file :: category/severity :: title):
 
 FOLD DUPLICATES FIRST. Different briefs can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
-justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
-"duplicate of <id>". Candidates that merely share a file and category are NOT duplicates.
+justified severity, with a **Fix:** line that closes the whole thing) and REJECT the others.
+Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
@@ -911,16 +871,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
-  - scope == scope-creep -> REJECT (note why, do not pursue)
-  - architectural == true -> NEEDS_USER (fill options + recommendation)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
+  - scope == scope-creep -> REJECT (do not pursue)
+  - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
+  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
+    **Recommendation:** lines)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal fix_instruction)
+  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Set a short `theme` keyword per verdict.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -947,12 +907,11 @@ status: todo
 - category: <category>
 - effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
-- theme: <theme>
 
 **What:** <detail — what's wrong and why it matters>
-**Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
+**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
+**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
+**Recommendation:** <your suggested direction>           (NEEDS_USER only)
 -----
 The `## Plan:` line, the three preamble lines under it, and every entry's `- status: open` are
 REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
@@ -1056,25 +1015,6 @@ Set wrote_file=true and return all verdicts via the schema.
                 "type": "boolean"
               }
             }
-          },
-          "rationale": {
-            "type": "string"
-          },
-          "fix_instruction": {
-            "type": "string",
-            "description": "precise minimal instruction for the fixer (ACTIONABLE only)"
-          },
-          "options": {
-            "type": "string",
-            "description": "NEEDS_USER only: the distinct choices + tradeoffs"
-          },
-          "recommendation": {
-            "type": "string",
-            "description": "NEEDS_USER only: your suggested direction"
-          },
-          "theme": {
-            "type": "string",
-            "description": "short grouping keyword (e.g. \"pagination\") for batching related issues"
           }
         }
       }

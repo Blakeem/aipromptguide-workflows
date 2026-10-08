@@ -86,7 +86,6 @@ const GENERATE_SCHEMA = {
   required: ['entry', 'summary'],
   properties: {
     entry:   { type: 'string', description: 'path to the MAIN artifact you wrote (the file to open first)' },
-    files:   { type: 'array', items: { type: 'string' }, description: 'all files you wrote for this variation' },
     summary: { type: 'string', description: 'ONE line: what makes THIS variation distinct (for the user\'s comparison index, NOT the content)' },
   },
 };
@@ -123,7 +122,7 @@ log(`brainstorm: ${LENSES.length} lens(es) → ${VAR_DIR}${REFERENCES.length ? `
 const results = await parallel(LENSES.map((lens) => () =>
   agent(generatePrompt(lens), roleOpts('generate', {
     schema: GENERATE_SCHEMA, phase: 'Generate', label: `generate:${lens.id}`,
-  })).then((r) => ({ lens: lens.id, focus: lens.focus, dir: lensDir(lens.id), entry: r?.entry || '', summary: r?.summary || '', files: r?.files || [] }))
+  })).then((r) => ({ lens: lens.id, focus: lens.focus, dir: lensDir(lens.id), entry: r?.entry || '', summary: r?.summary || '' }))
 ));
 
 const variations = results.filter(Boolean).filter((v) => v.entry);

@@ -3,13 +3,14 @@
 //
 // Divides source directories into bounded "review units" so each review agent has limited focus.
 // Rule: a unit = one directory's direct files, EXCEPT
-//   - any single file > --big-file LOC becomes its own unit
-//   - a direct-file group over --cap-loc / --cap-files is split into sequential chunks
+//   - any single file > --unit-loc LOC becomes its own unit
+//   - a direct-file group over --unit-loc LOC or --cap-files files is split into sequential chunks
 //   - subdirectories recurse into their own units
-// Then a bin-packing pass merges adjacent (path-sorted) base units first-fit-greedy up to --pack-loc
+// Then a bin-packing pass merges adjacent (path-sorted) base units first-fit-greedy up to --unit-loc
 // LOC each (default 2000 ≈ ~215k tokens per review agent), because walk() never merges sibling dirs on
 // its own. A base unit already at/over the target stays solo; merged units get a `<common-dir>#p<n>` id
-// and a recomputed hash. --pack-loc 0 disables the pass (old per-directory units).
+// and a recomputed hash. The pass checks no file count, so --cap-files caps a unit only under --no-pack,
+// which disables the pass (old per-directory units).
 // Output is stable (sorted) so the same tree always yields the same manifest, and each unit
 // carries a content hash so the engine re-reviews only units whose files changed.
 //
@@ -25,11 +26,11 @@
 //                       harmless on other stacks; override for your own generated-file pattern)
 //   --exclude <dirs>    comma-separated directory names to skip anywhere (default: common
 //                       dependency/build dirs across ecosystems)
-//   --cap-loc <n>       max LOC per multi-file unit before splitting (default: 2000)
-//   --cap-files <n>     max files per multi-file unit before splitting (default: 24)
-//   --big-file <n>      a single file this big gets reviewed alone (default: 2000)
-//   --pack-loc <n>      target LOC per unit for the sibling-merge bin-packing pass (default: 2000;
-//                       0 disables packing → old per-directory units)
+//   --unit-loc <n>      the one LOC bound (default: 2000): a file over it is reviewed alone, a
+//                       directory's files split at it, and the packing pass merges units up to it
+//   --cap-files <n>     max files per directory chunk (default: 24). Packing ignores it, so it caps a
+//                       unit only under --no-pack
+//   --no-pack           disable the bin-packing pass → old per-directory units
 //   --out <path>        where to write the manifest (default: manifest.json in cwd)
 //   --issues-dir <path> RESUME: a completed review's runs/<runId>/issues/ dir. Each unit is joined
 //                       against <issues-dir>/<fileSafe(id)>.md and tagged state: new|changed|unchanged
@@ -41,8 +42,9 @@ import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from 'n
 import { join, relative, resolve, dirname, isAbsolute } from 'node:path';
 import { createHash } from 'node:crypto';
 
+// Null prototype: `--__proto__` or `--constructor` must land as an own key the unknown-flag guard sees.
 function parseArgs(argv) {
-  const out = {};
+  const out = Object.create(null);
   for (let i = 0; i < argv.length; i++) {
     if (argv[i].startsWith('--')) out[argv[i].slice(2)] = argv[i + 1] && !argv[i + 1].startsWith('--') ? argv[++i] : 'true';
   }
@@ -50,9 +52,25 @@ function parseArgs(argv) {
 }
 const opt = parseArgs(process.argv.slice(2));
 
+// parseArgs keeps every flag, so an unread one would be ignored: a scripted `--pack-loc 0` would leave
+// packing on. Reject it before any walk.
+const KNOWN_FLAGS = new Set(['repo', 'src', 'ext', 'skip', 'exclude', 'unit-loc', 'cap-files', 'no-pack', 'out', 'issues-dir']);
+const RETIRED_FLAGS = new Map([
+  ['cap-loc', 'use --unit-loc <n>'],
+  ['big-file', 'use --unit-loc <n>'],
+  ['pack-loc', 'use --unit-loc <n> for the packing target, and --no-pack in place of --pack-loc 0'],
+]);
+for (const name of Object.keys(opt)) {
+  if (KNOWN_FLAGS.has(name)) continue;
+  console.error(RETIRED_FLAGS.has(name)
+    ? `--${name} is retired — ${RETIRED_FLAGS.get(name)}`
+    : `unknown flag --${name} (known: ${[...KNOWN_FLAGS].map((f) => `--${f}`).join(', ')})`);
+  process.exit(1);
+}
+
 // Nothing is COERCED. `Number('abc')` and a bare flag's `Number('true')` are both NaN, and every
 // comparison against NaN is false — so a typo does not error, it silently DISABLES the bound it was
-// meant to set (no LOC cap, no big-file split, no bin-packing) and the run pays for review agents
+// meant to set (no LOC cap, no big-file split, no packing bound) and the run pays for review agents
 // scoped by a limit that was never applied. Fail fast instead, in the same style as --issues-dir below.
 const num = (raw, name, min, dflt) => {
   if (raw === undefined) return dflt;
@@ -69,10 +87,13 @@ const SRC_DIRS  = (opt.src ?? 'src').split(',').map((s) => s.trim()).filter(Bool
 const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.go,.rs,.java,.kt,.rb,.php,.cs,.cpp,.cc,.c,.h,.hpp,.swift,.scala').split(',').map((s) => s.trim()).filter(Boolean);
 const SKIP_RE   = new RegExp(opt.skip ?? String.raw`\.d\.ts$|\.min\.`);
 const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git,target,__pycache__,.venv,venv,.tox,.gradle').split(',').map((s) => s.trim()));
-const CAP_LOC   = num(opt['cap-loc'], 'cap-loc', 1, 2000);
+const UNIT_LOC  = num(opt['unit-loc'], 'unit-loc', 1, 2000);
 const CAP_FILES = num(opt['cap-files'], 'cap-files', 1, 24);
-const BIG_FILE  = num(opt['big-file'], 'big-file', 1, 2000);
-const PACK_LOC  = num(opt['pack-loc'], 'pack-loc', 0, 2000);   // 0 stays legal — it disables packing
+if (opt['no-pack'] !== undefined && opt['no-pack'] !== 'true') {
+  console.error(`--no-pack takes no value (got "${opt['no-pack']}")`);
+  process.exit(1);
+}
+const PACK      = opt['no-pack'] === undefined;
 const CEIL_LOC  = 3500;                          // ~350k-token review ceiling; warn on any unit past it
 const OUT       = isAbsolute(opt.out ?? '') ? opt.out : resolve(opt.out ?? 'manifest.json');
 const ISSUES    = opt['issues-dir'] ? resolve(opt['issues-dir']) : '';
@@ -113,7 +134,7 @@ function chunk(items) {
   let cur = [];
   let curLoc = 0;
   for (const it of items) {
-    if (cur.length && (curLoc + it.loc > CAP_LOC || cur.length >= CAP_FILES)) {
+    if (cur.length && (curLoc + it.loc > UNIT_LOC || cur.length >= CAP_FILES)) {
       chunks.push(cur);
       cur = [];
       curLoc = 0;
@@ -140,7 +161,7 @@ function walk(dir) {
   const units = [];
   const small = [];
   for (const f of files) {
-    if (loc(f) > BIG_FILE) units.push(makeUnit(rel(f), [f]));
+    if (loc(f) > UNIT_LOC) units.push(makeUnit(rel(f), [f]));
     else small.push({ path: f, loc: loc(f) });
   }
   if (small.length) {
@@ -171,19 +192,19 @@ function commonDirPrefix(group) {
   return parts.join('/') || '_root';
 }
 
-// Bin-packing pass: merge adjacent (already path-sorted) base units first-fit-greedy up to PACK_LOC LOC
+// Bin-packing pass: merge adjacent (already path-sorted) base units first-fit-greedy up to UNIT_LOC LOC
 // per unit. Singleton groups pass through UNCHANGED (stable id + hash); a base unit already at/over the
 // target stays solo. Merged units rebuild abs paths and reuse makeUnit, so the merged hash is the
-// existing hashFiles over the merged set. --pack-loc 0 (PACK_LOC <= 0) disables the pass.
+// existing hashFiles over the merged set. --no-pack disables the pass.
 function pack(baseUnits) {
-  if (!(PACK_LOC > 0)) return baseUnits;
+  if (!PACK) return baseUnits;
   const groups = [];
   let cur = [];
   let curLoc = 0;
   const flush = () => { if (cur.length) { groups.push(cur); cur = []; curLoc = 0; } };
   for (const u of baseUnits) {
-    if (u.loc >= PACK_LOC) { flush(); groups.push([u]); continue; }
-    if (cur.length && curLoc + u.loc > PACK_LOC) flush();
+    if (u.loc >= UNIT_LOC) { flush(); groups.push([u]); continue; }
+    if (cur.length && curLoc + u.loc > UNIT_LOC) flush();
     cur.push(u);
     curLoc += u.loc;
   }
@@ -199,10 +220,10 @@ function pack(baseUnits) {
   });
 }
 
-// --issues-dir join. CONTRACT with review.mjs — change together: the issue-file name scheme
-// (fileSafe(unit.id) + '.md', review.mjs:95/102) and the `hash:` frontmatter line both writers stamp
-// (review.mjs:216/266) are the whole interface. A file with no readable hash counts as CHANGED — the
-// safe direction, since missing a changed unit means its defects are never reviewed.
+// --issues-dir join. CONTRACT with review.mjs — change together: the issue-file name scheme (review.mjs's
+// fileSafe and issueFile) and the `hash:` frontmatter line that the reviewer's clean marker and the
+// verifier's template both stamp are the whole interface. A file with no readable hash counts as
+// CHANGED — the safe direction, since missing a changed unit means its defects are never reviewed.
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 
 function issueHash(unitId) {
@@ -234,7 +255,7 @@ if (!units.length) {
 }
 
 for (const u of units) {
-  if (u.loc > CEIL_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC (est. >~350k tokens) — past the review ceiling; lower --pack-loc or split the file`);
+  if (u.loc > CEIL_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC (est. >~350k tokens) — past the review ceiling; ${u.fileCount === 1 ? 'split the file' : 'lower --unit-loc'}`);
 }
 
 if (ISSUES) for (const u of units) u.state = stateOf(u);
@@ -243,7 +264,7 @@ const stale = ISSUES ? units.filter((u) => u.state !== 'unchanged') : [];
 const manifest = {
   repo: REPO,
   src: SRC_DIRS,
-  caps: { CAP_LOC, CAP_FILES, BIG_FILE, PACK_LOC },
+  caps: { UNIT_LOC, CAP_FILES, PACK },
   totalUnits: units.length,
   totalLoc: units.reduce((s, u) => s + u.loc, 0),
   ...(ISSUES ? { issuesDir: ISSUES, staleUnits: stale } : {}),
@@ -257,7 +278,7 @@ console.log(`${units.length} units, ${manifest.totalLoc} LOC → ${OUT}\n`);
 if (ISSUES) {
   const n = (s) => units.filter((u) => u.state === s).length;
   console.log(`vs ${ISSUES}: ${n('new')} new, ${n('changed')} changed, ${n('unchanged')} unchanged — pass manifest.staleUnits (${stale.length}) as review.mjs args.units`);
-  if (PACK_LOC > 0) console.log(`  approximate after a tree change: packing re-derives merged "<dir>#p<n>" ids, so files added or removed can shift ids and report units as new that were in fact reviewed`);
+  if (PACK) console.log(`  approximate after a tree change: packing re-derives merged "<dir>#p<n>" ids, so files added or removed can shift ids and report units as new that were in fact reviewed`);
   console.log('');
 }
 for (const u of [...units].sort((a, b) => a.loc - b.loc)) {

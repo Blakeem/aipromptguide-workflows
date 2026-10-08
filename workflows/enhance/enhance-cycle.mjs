@@ -165,15 +165,12 @@ const VERIFY_SCHEMA = {
         required: ['candidate_id', 'is_real', 'impact', 'effort', 'decision'],
         properties: {
           candidate_id: { type: 'string' },
-          is_real:      { type: 'boolean', description: 'false if the system ALREADY does this, the claimed cost does not exist, or you could not substantiate it from the code' },
+          is_real:      { type: 'boolean', description: 'false if the system ALREADY does this, the claimed cost does not exist, or you could not substantiate it from the code. A real candidate below the impact floor stays true: its impact score rejects it.' },
           impact:       { type: 'string', enum: ['transformative', 'high', 'moderate', 'marginal'], description: 'YOUR confirmed impact (finders over-rate; correct it)' },
           effort:       { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
           decision:     { type: 'string', enum: ['ADOPT', 'ROADMAP', 'NEEDS_USER', 'REJECT'] },
           is_defect:    { type: 'boolean', description: 'true if this is really a BUG in current behavior, not an enhancement. Always REJECT these, and say so.' },
           too_risky:    { type: 'boolean', description: 'true if the risk you verified outweighs the cost removed. Always REJECT these, and name the risk.' },
-          rationale:    { type: 'string' },
-          options:      { type: 'string', description: 'NEEDS_USER only: the distinct choices + tradeoffs' },
-          recommendation: { type: 'string', description: 'NEEDS_USER only: your suggested direction' },
           theme:        { type: 'string', description: 'short grouping keyword so related proposals can be planned together' },
         },
       },
@@ -185,8 +182,10 @@ const VERIFY_SCHEMA = {
 // Shared prompt fragment
 // =============================================================================
 const ENV = `${REPO ? `TARGET REPO: ${REPO}  ` : 'NO TARGET REPO — every scope path below is absolute.  '}(lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})
-SCOPE — read THESE, and judge only these (paths are repo-relative unless absolute):
+SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
 ${SCOPE.map((p) => `  - ${p}`).join('\n')}
+Files outside the scope may be read and cited as evidence. A proposal may also name a file outside the
+scope that its change must touch.
 CONVENTIONS / house rules (an enhancement must fit these, or argue explicitly for changing them):
 ${CONVENTIONS}
 ${GOALS ? `WHAT "BETTER" MEANS HERE (the north star every lens serves):\n${GOALS}\n` : ''}${CONTEXT ? `CONTEXT: ${CONTEXT}\n` : ''}
@@ -194,12 +193,14 @@ THIS IS AN ENHANCEMENT AUDIT:
   • An ENHANCEMENT makes a system that already WORKS work better: faster, cheaper, simpler, smaller,
     more robust, less work to operate, or newly capable.
   • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
-    behavior) is OUT OF SCOPE. Do not report it here. It will be rejected.
+    behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
+    passing reports it as its own candidate whose title starts \`DEFECT:\`, with \`today\` naming what is
+    broken, \`instead\` the fix and \`cost_removed\` the harm. It is routed to the defect workflow.
   • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
     is one of the best outcomes available. Look for it deliberately.
   • THE FLOOR IS HIGH. Report ONLY ${MIN_IMPACT_NAME}+ impact. The test: would a competent engineer
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
-BE TOKEN-ECONOMICAL: read the scope properly, but don't restate large files back.`;
+BE TOKEN-ECONOMICAL: don't restate large files back.`;
 
 // =============================================================================
 // Role prompts
@@ -211,9 +212,9 @@ target repo (the ONLY file you may write is the clean-lens marker described belo
 ${ENV}
 YOUR LENS: ${lens.focus}
 ${lens.criteria ? `WHAT TO WEIGH UNDER THIS LENS: ${lens.criteria}\n` : ''}
-Push your lens hard across the WHOLE scope. Cross-cutting findings ("every engine re-implements X",
-"these three roles could be two") are the most valuable thing you can return. Other lenses run in
-parallel. Do not hedge toward them.
+Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
+re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
+lenses run in parallel. Do not hedge toward them.
 
 RULES:
 - GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
@@ -259,31 +260,43 @@ ${items.map((i) => `  - ${i.id} :: ${i.c.category} :: ${i.c.impact}/${i.c.effort
       removes: ${i.c.cost_removed}
       risk:    ${i.c.risk || '(none stated)'}`).join('\n')}
 
+READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
+rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
+mechanism does and not only by the candidate's words.
+
 REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1–3:
   1. THE SYSTEM ALREADY DOES THIS, the find pass's most common failure. Check every candidate against
      the current code before anything else.
   2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A benefit that holds
      only under an assumption the code does not make is not a benefit.
-  3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed. Also anything
-     below the ${MIN_IMPACT_NAME} impact floor once YOU have scored it honestly.
+  3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
-     REJECT it with a one-line note naming what is broken, so the user can route it to the defect
-     workflow. Do NOT smuggle it through as an enhancement.
+     REJECT it. Its one line naming what is broken goes under \`## Defects to route\`, not
+     \`## Rejected\`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
+     enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
+     half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
+     and put the defect half under \`## Defects to route\`.
   5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
      A change that would break or weaken something the system needs, or leave ambiguous an instruction
      or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
-     too_risky=true and REJECT it with a one-line note naming the risk.
+     too_risky=true and REJECT it with a one-line note under \`## Rejected\` naming the risk.
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
   effort : trivial | small | medium | large
+A real candidate you score below the ${MIN_IMPACT_NAME} floor keeps is_real=true and its honest impact, and the
+ROUTING line "impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
-  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line why)
+  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line under \`## Rejected\`,
+    or under \`## Defects to route\` for an is_defect candidate)
   - impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
-    -> NEEDS_USER (fill options + recommendation)
-  - effort == large OR it touches many files/contracts at once -> ROADMAP (real, but needs planning, not a single change)
+    -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
+  - effort == large OR the change alters a contract across files (a return field, an arg, a status
+    string or a file format that more than one file reads or writes) -> ROADMAP (real, but needs
+    planning, not a single change). A doc-only edit across many files is not a contract change and
+    does not trigger ROADMAP.
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short \`theme\` keyword per verdict.
 
@@ -293,7 +306,7 @@ WRITE the proposal file ${proposalFile(lens.id)} (create ${PROPOSALS_DIR}/ if ne
 lens: ${lens.id}
 focus: ${lens.focus}
 reviewed: true
-note: PROPOSALS — human triage required. Not a defect inventory; nothing here is applied automatically.
+note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is applied automatically.
 ---
 # Enhancements: ${lens.id}
 
@@ -311,14 +324,20 @@ note: PROPOSALS — human triage required. Not a defect inventory; nothing here 
 **Instead:** <the change, concrete enough to hand to a builder>
 **Removes:** <the specific cost this removes>
 **Risk:** <what it could break or make worse>
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
+**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
+**Recommendation:** <your suggested direction>           (NEEDS_USER only)
+
+## Defects to route
+(one line per defect: \`- <candidate_id>: <file:line> <what is broken>\`, covering every is_defect
+candidate and every defect half split from a kept candidate. A rejected defect goes here only, never
+also under Rejected. Write this section only when it has a line.)
 
 ## Rejected
-(one line each: \`<title> — <why>\`; mark defects as \`DEFECT (route to the defect workflow): <what is broken>\`)
+(one line each: \`<title>: <why>\`)
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
-${MIN_IMPACT_NAME} impact floor." followed by the Rejected section.
+${MIN_IMPACT_NAME} impact floor." followed by the Defects to route section when it has a line, then the
+Rejected section.
 A question only the user can answer stays in that candidate's NEEDS_USER block in THIS file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
 Do NOT write into any issues/ directory, and do NOT stage or commit.
@@ -339,35 +358,29 @@ const results = await pipeline(
     const found = await agent(findPrompt(lens), roleOpts('find', {
       schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
     }));
-    // Floor the finder's own scores before verify — below-floor candidates only cost verify tokens.
-    // They are cut here, so they never reach the verifier and never appear in the proposal file's
-    // Rejected section: this count is the ONLY trace they existed. It has to reach the caller, because
-    // `minImpact` is a knob the operator is invited to lower (CLAUDE.md §3) and "12 candidates sat one
-    // rank under your floor" is exactly the fact that decides whether lowering it is worth a re-run.
-    // Logging it and dropping it made a floor that is too high indistinguishable from a clean system.
     // A DEAD finder is not a clean lens. `found?.candidates || []` would make the two identical — zero
-    // candidates, zero below the floor, and a result object carrying this lens id, so `failed` stays empty
-    // and the run reports the lens as audited. Dropping it to null instead puts it in `failed`, which is
-    // the one place the operator can see that this lens produced nothing because nobody looked.
+    // candidates and a result object carrying this lens id, so `failed` stays empty and the run reports
+    // the lens as audited. Dropping it to null instead puts it in `failed`, which is the one place the
+    // operator can see that this lens produced nothing because nobody looked.
     if (!found) {
-      log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, no marker file). Re-run it.`);
+      log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
       return null;
     }
-    const kept = (found.candidates || []).filter((c) => (IMPACT_RANK[c.impact] ?? 1) >= MIN_IMPACT);
-    const belowFloor = (found.candidates || []).length - kept.length;
-    if (belowFloor) log(`  ${lens.id}: ${belowFloor} candidate(s) below the ${MIN_IMPACT_NAME} floor — cut before verify, not in the proposal file`);
-    return { lens, candidates: kept, belowFloor, markerWritten: found.wrote_clean_marker === true };
+    return { lens, candidates: found.candidates || [], markerWritten: found.wrote_clean_marker === true };
   },
   // -- Verify + write the lens proposal file — ONLY when the lens has candidates ---------------
   async (r) => {
     if (!r) return null;                        // stage 1 dropped a dead finder — it belongs in `failed`
-    const { lens, candidates, belowFloor, markerWritten } = r;
+    const { lens, candidates, markerWritten } = r;
     const items = candidates.map((c, i) => ({ id: `${slug(lens.id)}-${i + 1}`, c }));
     if (items.length === 0) {
-      if (markerWritten) log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
-      else if (belowFloor > 0) log(`  ⚠ ${lens.id}: all ${belowFloor} candidate(s) sat below the ${MIN_IMPACT_NAME} floor, so no ${proposalFile(lens.id)} was written — re-run with a lower minImpact to see them`);
-      else log(`  ⚠ ${lens.id}: nothing above the floor but no ${proposalFile(lens.id)} was written — re-run this lens to get its marker`);
-      return { lens: lens.id, focus: lens.focus, file: markerWritten ? proposalFile(lens.id) : null, counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0, belowFloor }, kept: [] };
+      // No candidate and no attested marker leaves no file anyone vouches for, so the lens goes to `failed`.
+      if (!markerWritten) {
+        log(`  ⚠ ${lens.id}: the finder did NOT confirm writing its marker — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
+        return null;
+      }
+      log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
+      return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 }, kept: [] };
     }
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
@@ -376,7 +389,7 @@ const results = await pipeline(
     // it in `failed` with no path reported, the one place the operator sees it.
     if (!v || v.wrote_file !== true) {
       log(!v
-        ? `  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and no ${proposalFile(lens.id)} was written. Re-run it.`
+        ? `  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and any ${proposalFile(lens.id)} on disk is unverified. Re-run it.`
         : `  ⚠ ${lens.id}: the verifier did NOT confirm writing ${proposalFile(lens.id)} — this lens was NOT verified. Re-run it.`);
       return null;
     }
@@ -403,7 +416,6 @@ const results = await pipeline(
       rejected: by('REJECT'),
       defects: verdicts.filter((x) => x.is_defect === true).length,
       tooRisky: verdicts.filter((x) => x.too_risky === true).length,
-      belowFloor,
       unjudged: unjudged.length,
     };
     log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
@@ -417,22 +429,18 @@ const results = await pipeline(
 
 const live = results.filter(Boolean);
 const failed = LENSES.filter((l) => !live.some((r) => r.lens === l.id)).map((l) => l.id);
-if (failed.length) log(`  ⚠ no proposal file from: ${failed.join(', ')} (finder or verifier failed) — re-run these lenses`);
+if (failed.length) log(`  ⚠ no verified proposal file from: ${failed.join(', ')} (finder or verifier failed) — re-run these lenses`);
 
 const total = (k) => live.reduce((s, r) => s + (r.counts[k] || 0), 0);
 const adopt = total('adopt'), roadmap = total('roadmap'), needsUser = total('needs_user');
 const defects = total('defects');
-const belowFloor = total('belowFloor');
-log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}${belowFloor ? `; ${belowFloor} cut below the ${MIN_IMPACT_NAME} floor` : ''}`);
+log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}`);
 
 return {
   phase: 'enhance',
   runId: RUN_ID,
   proposalsDir: PROPOSALS_DIR,
-  // `belowFloor` counts candidates cut on the FINDER's own unverified score, before any verifier saw
-  // them — so they are in no proposal file at all. It is the only signal that the floor, not the system,
-  // is why a lens came back thin.
-  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), belowFloor, unjudged: total('unjudged') },
+  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), unjudged: total('unjudged') },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
@@ -440,5 +448,5 @@ return {
   failed,
   nextStep: live.length === 0
     ? `NOTHING was audited: every lens failed (${failed.join(', ')}). There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
-    : `Read the proposal files in ${PROPOSALS_DIR}/ and PRESENT them to the user: the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and anything the verifier flagged as a DEFECT goes to the debug workflow instead. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${belowFloor ? ` ALSO TELL THEM: ${belowFloor} candidate(s) were cut below the ${MIN_IMPACT_NAME} impact floor before verification, so they appear in NO proposal file. That is a knob, not a verdict — if the run came back thinner than expected, re-run with a lower minImpact to see them.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and have no proposal file: ${failed.join(', ')} — offer to re-run just those.` : ''}`,
+    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failed.join(', ')} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
 };

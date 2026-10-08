@@ -1,6 +1,6 @@
 // debug/review.mjs — the read-only fan-out that builds the inventory.
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
-// returned issues[] index, the triaged inventory a develop fix-mode block is built from.
+// issue file the verifier writes, the triaged inventory a develop fix-mode block is built from.
 import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
@@ -14,7 +14,7 @@ const DESTRUCT = { id: 'destructive', mandate: 'auditing for DESTRUCTIVE behavio
 const FLOW     = { id: 'control-flow', mandate: 'auditing CONTROL-FLOW', categories: ['control-flow', 'null-handling'] };
 
 const MATRIX  = { clarity: 'clear', effort: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false };
-const keep    = (id, extra = {}) => ({ finding_id: id, is_real: true, severity: 'high', decision: 'ACTIONABLE', matrix: MATRIX, theme: 'x', ...extra });
+const keep    = (id, extra = {}) => ({ finding_id: id, is_real: true, severity: 'high', decision: 'ACTIONABLE', matrix: MATRIX, ...extra });
 const finding = (extra) => ({ file: 'a.js', line: '1', severity: 'high', title: 'T', detail: 'd', ...extra });
 const NO_FINDINGS = { wrote_clean_marker: false, findings: [] };
 const catsOf  = (call) => call.opts.schema?.properties?.findings?.items?.properties?.category?.enum;
@@ -34,7 +34,7 @@ section('a lens array spawns one reviewer per lens and exactly ONE verifier');
   const { out, calls, logs, byLabel, prompt } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
     'review:u1/destructive':  { wrote_clean_marker: false, findings: [finding({ category: 'data-loss', title: 'T1' })] },
     'review:u1/control-flow': { wrote_clean_marker: false, findings: [finding({ category: 'control-flow', title: 'T2' })] },
-    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2', { severity: 'medium', theme: 'y' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2', { severity: 'medium' })] },
   });
   const revs = byLabel('review');
   eq(revs.length, 2, 'two reviewers');
@@ -203,9 +203,9 @@ section('the verifier\'s required wrote_file attestation is actually read');
 
 section('a DEAD verifier is named and says how many findings were dropped');
 // `verify?.verdicts || []` yields no kept issues, so all four counts are 0 and the ✓ line reads as a
-// normal clean-ish unit — while the unit's real findings vanish from the returned issues[] the operator
-// builds a fix-mode block from. Nothing downstream can notice: those issues never reach the block, so
-// develop's no-issue-entries halt never fires for them.
+// normal clean-ish unit — while the unit's real findings vanish from the returned counts the operator
+// triages from. Nothing downstream can notice: those issues never reach a fix-mode block, so develop's
+// no-issue-entries halt never fires for them.
 {
   const { out, logs } = await run({}, {
     'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness', title: 'A' }), finding({ category: 'security', title: 'B' })] },
@@ -231,24 +231,39 @@ section('a verifier that did not attest its write never names that file in needs
   eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify' }]), 'the unattested write is in the return');
 }
 
-section('the returned issues[] carries every issue-index field');
-// Discarding this index forced the operator to hand-grep it back out of the issue files — which is how
-// a `file:224-276` range once became the number 224276.
+section('the return carries no issues index, and the verifier is asked for no theme');
+// The issue files are the triage surface: nothing reads a returned index or a theme keyword.
 {
-  const { out } = await run({}, {
-    'review': { wrote_clean_marker: false, findings: [finding({ line: '10-20', category: 'correctness' })] },
-    'verify': { wrote_file: true, verdicts: [keep('u1-1', { severity: 'medium', matrix: { ...MATRIX, effort: 'trivial' }, theme: 'th' })] },
+  const { out, byLabel, prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1', { severity: 'medium' })] },
   });
-  const need = ['id', 'unit', 'file', 'line', 'loc', 'severity', 'category', 'decision', 'effort', 'title', 'theme'];
-  const got = out.issues?.[0] || {};
-  const missing = need.filter((k) => !(k in got));
-  eq(out.issues?.length, 1, 'one issue in the index');
-  ok(missing.length === 0, `carries every issue-index field${missing.length ? ` — missing ${missing.join(', ')}` : ''}`);
-  eq(got.line, '10-20', 'the line RANGE stayed a string');
-  eq(got.severity, 'medium', 'severity is the VERIFIER\'s, not the reviewer\'s');
-  eq(got.effort, 'trivial', 'effort comes from the verifier\'s matrix');
-  eq(got.loc, 10, 'loc is joined from the unit\'s file list');
+  const verdictProps = byLabel('verify')[0]?.opts.schema?.properties?.verdicts?.items?.properties || {};
+  const v = prompt('verify');
+  eq(out.issues, undefined, 'the return has no issues field');
+  ok(!('theme' in verdictProps), 'the verdict schema has no theme property');
+  ok(!v.includes('- theme:'), 'the verifier template has no theme line');
+  ok(!v.includes('`theme` keyword'), 'the verifier is not asked for a theme keyword');
+  eq(out.inventory.bySeverity.medium, 1, 'severity is the VERIFIER\'s, not the reviewer\'s');
+  eq(out.inventory.bySeverity.high, 0, 'the reviewer\'s grade is not counted');
+  eq(JSON.stringify(out.hottest), JSON.stringify([{ area: '(root)', issues: 1 }]), 'the finding counts in its area');
   eq(out.inventory.actionable, 1, 'counted actionable');
+}
+
+section('the verdict schema holds decisions only, and the prompt points every fix at the file');
+// The verifier writes its fix, options and recommendation into the issue file first, so a schema copy is emitted after it and read by nothing.
+{
+  const { byLabel, prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const verdictProps = byLabel('verify')[0]?.opts.schema?.properties?.verdicts?.items?.properties || {};
+  const v = prompt('verify');
+  eq(Object.keys(verdictProps).join(), 'finding_id,is_real,severity,decision,matrix', 'the verdict items hold exactly the decision fields');
+  ok(!v.includes('fix_instruction'), 'the verify prompt names no fix_instruction');
+  ok(!v.includes('options + recommendation'), 'and no options + recommendation pair');
+  ok(!v.includes('duplicate of <id>') && !v.includes('note why'), 'and asks for no note on a rejected duplicate or scope-creep verdict');
+  ok(v.includes('**Fix:** line'), 'it points the fix at the file\'s **Fix:** line');
 }
 
 section('the verifier writes a fix-mode PLAN block, and its own template parses as one');
@@ -272,7 +287,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   // <placeholder> filled. Asserting the template's lines proves the words; parsing it proves the format.
   const FILL = {
     id: 'workflows-debug-p1-1', status: 'open', file: 'a.js:1', loc: '10',
-    severity: 'high', category: 'correctness', effort: 'small', decision: 'ACTIONABLE', theme: 'x',
+    severity: 'high', category: 'correctness', effort: 'small', decision: 'ACTIONABLE',
   };
   const fixture = v.split('\n-----\n')[1].split('\n')
     .filter((l) => !l.startsWith('(for EACH'))
@@ -379,14 +394,14 @@ section('two unit ids that map to one issue file throw before any reviewer spawn
 // moved to required-args.test.mjs, which sweeps the same keys across EVERY engine — the axis this defect
 // class actually travels on.
 
-section('a mis-copied verdict id is logged and recorded, not silently dropped from the index');
-// The issue file still holds the finding, but the returned index and totals the operator triages from do not.
+section('a mis-copied verdict id is logged and recorded, not silently dropped from the totals');
+// The issue file still holds the finding, but the returned totals the operator triages from do not.
 {
   const { out, logs } = await run({}, {
     'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness', title: 'A' }), finding({ category: 'security', title: 'B' })] },
     'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u-2')] },
   });
-  ok(logs.some((l) => /⚠ u1: verifier verdicts do not cover the findings \(unmatched: u-2, no verdict: u1-2\) — the returned index and totals are incomplete; read E:\/r\/runs\/t\/issues\/u1\.md/.test(l)),
+  ok(logs.some((l) => /⚠ u1: verifier verdicts do not cover the findings \(unmatched: u-2, no verdict: u1-2\) — the returned totals are incomplete; read E:\/r\/runs\/t\/issues\/u1\.md/.test(l)),
     'the gap is logged with both id lists and the issue file');
   eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify', unmatched: ['u-2'], unverdicted: ['u1-2'] }]), 'and recorded in failed');
   eq(out.unitsReviewed, 0, 'so the unit is not counted as fully reviewed');
@@ -408,4 +423,30 @@ section('a clean reviewer that did not attest its marker is recorded in failed')
   const { out: marked } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
   eq(JSON.stringify(marked.failed), '[]', 'an attested marker records nothing');
   eq(marked.unitsReviewed, 1, 'and counts the unit');
+}
+
+section('nextStep leads with the re-review when a failed unit has no trustworthy issue file');
+// A unit in failed without `unmatched` needs a re-review, which rewrites its issue file, so a nextStep that
+// opens on triage would have the operator edit a file the resume then overwrites.
+{
+  const { out: deadLens } = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review:u1/destructive': null,
+    'review:u1/control-flow': { wrote_clean_marker: false, findings: [finding({ category: 'control-flow' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  ok(deadLens.nextStep.startsWith('First re-review u1:'), `a dead lens reviewer leads with the re-review: ${deadLens.nextStep.slice(0, 80)}`);
+  ok(deadLens.nextStep.includes('playbook step "Resume the review"'), 'and names the playbook step by its title');
+
+  const { out: unattested } = await run({}, { 'review': NO_FINDINGS });
+  ok(unattested.nextStep.startsWith('First re-review u1:'), `an unattested clean marker leads with the re-review: ${unattested.nextStep.slice(0, 80)}`);
+
+  const { out: unmatchedOnly } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u-1')] },
+  });
+  eq(unmatchedOnly.failed.length, 1, 'the only failed entry is the unmatched one');
+  ok(unmatchedOnly.nextStep.startsWith('Present the inventory'), 'an unmatched-only failure is triaged from its issue file, not re-reviewed');
+
+  const { out: clean } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
+  ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run with an attested marker opens on the inventory');
 }

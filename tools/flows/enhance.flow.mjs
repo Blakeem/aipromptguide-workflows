@@ -3,12 +3,13 @@
 // ../gen-flows.mjs. Regenerate with `node tools/gen-flows.mjs enhance`; `--check` fails the gate while
 // FLOW.md is stale.
 //
-// A lens with nothing above the impact floor never reaches the verifier (enhance-cycle.mjs:366-370), so
-// the graph has two exits from `find`: straight to a terminal, or on through `verify`. The engine returns
-// no `status`, so every non-throwing scenario declares its `terminal`.
+// A lens whose finder returns no candidate never reaches the verifier, so the graph has two exits from
+// `find`: straight to a terminal, or on through `verify`. The engine returns no `status`, so every
+// non-throwing scenario declares its `terminal`.
 //
-// A dead finder is dropped at stage 1 and reported in `failed`, like brainstorm's dead generator. It
-// spawns no extra agent, so its own declared terminal is the only place the map can tell it apart.
+// A dead finder, and a finder with no candidate and no attested marker, each land the lens in `failed`,
+// like brainstorm's dead generator. Neither spawns an extra agent, so its own declared terminal is the only
+// place the map can tell it apart from a clean lens.
 
 const base = {
   runId: 'flow',
@@ -30,11 +31,9 @@ const CANDIDATE = {
   risk: 'a single verifier turn gets longer',
 };
 const FOUND = { wrote_clean_marker: false, candidates: [CANDIDATE] };
-// Reported, then floored out by the engine before verify (:356-357).
-const BELOW_FLOOR = { wrote_clean_marker: false, candidates: [{ ...CANDIDATE, impact: 'marginal' }] };
 
 // Verdict ids are the ones the ENGINE minted (`<slug(lens)>-<n>`), read back off the label: a stray id is
-// dropped by the engine's own guard (:384-392), so hard-coding one would quietly stop exercising the
+// dropped by the engine's own guard, so hard-coding one would quietly stop exercising the
 // counting and return-building code the trace runs through.
 const verifier = (label) => ({
   wrote_file: true,
@@ -61,8 +60,7 @@ export default {
       terminal: 'proposals written',
     },
     {
-      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`
-      // (:352-355, :363, :419).
+      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`.
       name: 'a dead finder',
       when: 'the finder dies (the lens is reported in failed)',
       args: { ...base, lenses: ['efficiency'] },
@@ -70,11 +68,18 @@ export default {
       terminal: 'lens NOT audited (finder died, lens reported in failed)',
     },
     {
-      name: 'nothing above the floor',
-      when: 'every candidate scores below the impact floor',
+      name: 'a clean lens',
+      when: 'the finder returns no candidate and attests its marker',
       args: { ...base, lenses: ['efficiency'] },
-      respond: { find: BELOW_FLOOR },
-      terminal: 'no proposal file (the lens produced nothing)',
+      respond: { find: { wrote_clean_marker: true, candidates: [] } },
+      terminal: 'clean lens (the finder wrote the marker, verify skipped)',
+    },
+    {
+      name: 'no candidate, no marker',
+      when: 'the finder returns no candidate and does not attest its marker',
+      args: { ...base, lenses: ['efficiency'] },
+      respond: { find: { wrote_clean_marker: false, candidates: [] } },
+      terminal: 'lens NOT audited (no marker attested, lens reported in failed)',
     },
 
     // ---- the eight throw sites, in the order the engine checks them ------------------------------

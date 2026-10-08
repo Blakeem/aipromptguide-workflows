@@ -65,8 +65,7 @@ function inventoryFromVerifierPrompt(ids) {
     .replace('<your confirmed severity>', 'high')
     .replace('<category>', 'correctness')
     .replace('<matrix effort>', 'small')
-    .replace('<ACTIONABLE | NEEDS_USER | DEFER>', 'ACTIONABLE')
-    .replace('<theme>', 'null-guards');
+    .replace('<ACTIONABLE | NEEDS_USER | DEFER>', 'ACTIONABLE');
   return `${head}\n${ids.map(fill).join('\n')}\n`;
 }
 

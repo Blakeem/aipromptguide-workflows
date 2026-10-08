@@ -85,7 +85,8 @@ Unset, the reviewer hunts production defects generally; every existing call is u
 aim it at a narrower class — a destructiveness audit, a data-loss sweep, a compliance pass, a
 document/drawing review. Fields (all optional, each falls back to the defect-hunting default):
 `{ id, mandate, criteria, categories, findingNoun, matters }` — `mandate` replaces the reviewer's one-line
-charter, `categories` the finding enum, the rest the floor wording.
+charter, `criteria` its assessment list, `categories` the finding enum, and `findingNoun`/`matters` the
+floor wording.
 
 - **`args.lens`** sets the default for every unit; **`unit.lens`** REPLACES it for that unit (it does not
   merge — element-wise merging of arrays is unpredictable; per-field defaults still apply). An **empty
@@ -106,44 +107,59 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 
 1. **Units:** `node <path to gen-units.mjs> --repo <abs> --src src --out <root>/runs/<runId>/manifest.json`
    (`gen-units.mjs` sits beside this guide — `workflows/debug/` in a checkout, the path the skill
-   resolves from the installed plugin; the `--out` base is `root`, never your cwd). A bin-packing
-   pass merges adjacent units up to `--pack-loc` LOC (default 2000 ≈ ~215k tokens/agent — a right-sized
-   review turn); base caps are `--cap-loc 2000 --cap-files 24 --big-file 2000`. Show the user the printed
-   unit list; tune `--pack-loc` (0 disables packing) or `--cap-loc/--big-file` if units look lopsided.
-   `gen-units.mjs` skips symlinks and junctions, as git does, so code reached only through a link is in
-   no unit.
+   resolves from the installed plugin; the `--out` base is `root`, never your cwd). `--unit-loc`
+   (default 2000 ≈ ~215k tokens/agent — a right-sized review turn) is the one LOC bound: a file over it
+   is its own unit, a directory's files split at it, and a bin-packing pass merges adjacent units up to
+   it. `--no-pack` keeps per-directory units. `--cap-files` (default 24) caps files per unit only under
+   `--no-pack`, since packing checks no file count. Show the user the printed unit list; tune
+   `--unit-loc` if units look lopsided. `gen-units.mjs` skips symlinks and junctions, as git does, so
+   code reached only through a link is in no unit.
 2. **Read the manifest yourself** and pass its `units` array in `args`. Also pass `root` (this checkout
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
    `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
 3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
    "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
-   returns counts + the hottest areas + `needsUserFiles`. Then PRESENT the inventory: read the issue
-   files, walk the user through totals by severity/decision, the hot areas, and every NEEDS_USER item
-   with its options + recommendation. This is a scoping conversation.
-4. **Triage by EDITING the issue files** (`runs/<runId>/issues/*.md` — the single source of truth):
+   returns counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to
+   re-review (Args reference), resume them through step 4 (Resume the review) before step 5 (triage).
+   Then PRESENT the inventory: read the issue files, walk the user through totals by severity/decision,
+   the hot areas, and every NEEDS_USER item with its options + recommendation. This is a scoping
+   conversation.
+4. **Resume the review.** Re-run `gen-units.mjs` with `--issues-dir <root>/runs/<runId>/issues`, under
+   the same runId. gen-units resolves the flag against your cwd, and run-state hangs off `root`. It
+   joins each unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`,
+   and emits `manifest.staleUnits`.
+   - Pass `manifest.staleUnits` as `args.units`, plus every unit the last return's `failed` names for
+     re-review that `staleUnits` lacks. A clean reviewer or a verifier that wrote its file and then did
+     not attest it leaves the unit's real hash, so gen-units reads that unit `unchanged`.
+   - Run the resume before any triage edit and before develop. A re-review rewrites each re-reviewed
+     unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`.
+   - `staleUnits` carries gen-units ids and no `unit.lens`. If the run set `unit.lens`, re-attach each
+     unit's lens before passing it. For a lens fan-out, pass your own lens units instead, each with its
+     unit's current gen-units hash, and keep only those whose `issues/<fileSafe(id)>.md` is missing or
+     whose `hash:` line differs from that hash, `incomplete` included.
+5. **Triage by EDITING the issue files** (`runs/<runId>/issues/*.md` — the single source of truth):
    - skip → set its `- decision:` line to `SKIP` (anything ≠ ACTIONABLE is skipped by the fix loop)
    - approve a NEEDS_USER with a chosen option → set `- decision: ACTIONABLE` and REWRITE its `**Fix:**`
      line to encode that option precisely
    - a DEFER the user still wants → ACTIONABLE only if genuinely batchable. Large cross-cutting work
      belongs in its own plan file as `section` blocks.
    - regroup lopsided files with `node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>`.
-5. **Clean baseline (#4).** Fold any pre-existing local changes into the staged baseline (`git add -A`) or
-   stash them. Ask the user which they want *before* starting. Gates must be GREEN.
-6. **Run develop on the issue files** (`../develop/CLAUDE.md`). Each triaged issue file with findings is
-   one fix-mode block. `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>`
-   prints one args object for all of them, with small blocks packed into shared passes. Clean-marker files are not plans, so leave them out. A file with no
-   `- decision: ACTIONABLE` entry after triage is not a plan either: set its block `status: skip` (or
-   leave it out). Start with one file, or `runOnly` naming one block, to sanity-check cost and quality.
-7. **Statuses.** The next `plan-edit.mjs args` over the same files writes every block and issue
-   `status:` line develop decided (fixed, stale, needs-attention, or blocked). A SKIPPED issue stays
-   `open`.
-8. **Verify ground truth yourself:** run the full gates for real, `git diff --cached --stat`, and
-   `git status --porcelain` to confirm nothing was left unstaged. Spot-read the riskiest fixes.
-9. **Resume.** `review.mjs`: re-run `gen-units.mjs` with `--issues-dir runs/<runId>/issues` — it joins each
-   unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`, and emits
-   `manifest.staleUnits`. Pass that array as `args.units`. The fix loop: relaunch develop with the same
-   files. Only blocks still `todo` are built, and verify-first re-marks stale issues cheaply.
+6. **Build the triaged files with develop.**
+   - Each triaged issue file with findings is one fix-mode block.
+     `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>` prints one args
+     object for all of them, with small blocks packed into shared passes. Clean-marker files are not
+     plans, so leave them out. A file with no `- decision: ACTIONABLE` entry after triage is not a plan
+     either: set its block `status: skip` (or leave it out). Start with one file, or `runOnly` naming
+     one block, to sanity-check cost and quality.
+   - Before launch, ask the user how to settle a dirty tree, under the rules in develop §4, and confirm
+     the gates are green.
+   - Then follow `../develop/CLAUDE.md` from §2 step 3.
+   - After the run, add `git status --porcelain` and a spot-read of the riskiest fixes to develop §6's
+     ground-truth checks.
+   - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, what
+     is staged (`git diff --cached --stat`), any NEEDS-USER items, and every parked block with its patch
+     path and the user's options, and **never commit**: the user reviews and commits.
 
 ## External inventory (skip `review.mjs`)
 
@@ -154,7 +170,7 @@ hand-author the inventory in the exact verifier format — the `## Plan: <id>` f
 its preamble, then `### [<id>]` blocks with the `- ` header lines (including `- status: open`) and a
 precise `**Fix:**` — anchoring each behavior-level finding to `file:line` yourself, and record
 skipped findings with `- decision: SKIP` so the triage is on file. Check it parses:
-`node <plan-block.mjs> <file> --list`. Then playbook steps 5–8.
+`node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with develop).
 
 **The `### [<id>]` heading is a contract, not a style choice.** The round-1 `entries_found`
 precondition counts those entries; a file that uses some other heading reads as an empty inventory and
@@ -176,19 +192,16 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 - **The blind reviewer is blind by placement AND instruction.** Its prompt's only run-state paths point
   into `runs/<runId>/gate/`; the issue files live at the run-state root, off every path it is handed,
   and the prompt still forbids reading any inventory/issue file as defense-in-depth.
-- **The issue files are the source of truth for WHAT to fix.** The engines never write them. Only
-  you do, at triage and through `plan-edit.mjs args` before each develop launch. develop's verifier
-  writes only its own `NEW-ISSUES.md`, never these.
+- **The issue files are the source of truth for WHAT to fix.** `review.mjs` writes them, and a
+  `review.mjs` re-run rewrites each unit file it re-reviews from scratch, triage edits and statuses
+  included. Otherwise only you write them, at triage and through `plan-edit.mjs args` before each develop
+  launch. develop's verifier writes only its own `NEW-ISSUES.md`, never these.
 
 ## State files (`runs/<runId>/`, outside every repo)
 
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable, a fix-mode plan file). The fix loop's files (reviews,
 ledgers, parked patches) land in develop's state dir, listed in `../develop/CLAUDE.md`.
-
-Report when done: issues fixed / stale / needs-attention, the full-suite result (you ran it), what's
-staged (`git diff --cached --stat`), any NEEDS-USER items, and **every parked block with its patch path
-and what the user's options are**. **Never commit** — tell the user to review and commit.
 
 ## Args reference
 
@@ -203,12 +216,11 @@ with `units` from `gen-units.mjs`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`).
-- **Returns** `issues` (a machine-built index of every finding),
-  `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. `failed` holds every dead
-  reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer did not attest its marker
-  `{ unit, stage: 'review', marker: false }`, every verifier that did not attest its write
+- **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. `failed` holds every
+  dead reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer did not attest its
+  marker `{ unit, stage: 'review', marker: false }`, every verifier that did not attest its write
   `{ unit, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a finding id
   `{ unit, stage: 'verify', unmatched, unverdicted }`. `unitsReviewed` excludes units with a `failed`
   entry. Re-review those, except a unit whose entry carries `unmatched` and `unverdicted`. For that unit,
-  `issues` and `inventory` are incomplete, so triage from its issue file.
+  `inventory` is incomplete, so triage from its issue file.
 - **Throws** when two unit ids map to one issue file or one plan id, naming both.

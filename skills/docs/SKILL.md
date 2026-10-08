@@ -1,5 +1,5 @@
 ---
-description: "Run the AIPG docs workflow: capture the docs a project builds against verbatim (web, repo, files), then scrub, curate and index them into a working folder. Use only when the user explicitly asks for the AIPG docs workflow."
+description: "Run the AIPG docs workflow: capture the docs a project builds against verbatim (web, repo, files), then scrub the web captures, curate and index them into a working folder. Use only when the user explicitly asks for the AIPG docs workflow."
 argument-hint: "[which docs to gather + for what task]"
 ---
 

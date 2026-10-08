@@ -50,13 +50,6 @@ Return the entry path + a ONE-LINE differentiator via the schema.
       "type": "string",
       "description": "path to the MAIN artifact you wrote (the file to open first)"
     },
-    "files": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "all files you wrote for this variation"
-    },
     "summary": {
       "type": "string",
       "description": "ONE line: what makes THIS variation distinct (for the user's comparison index, NOT the content)"
@@ -105,13 +98,6 @@ Return the entry path + a ONE-LINE differentiator via the schema.
     "entry": {
       "type": "string",
       "description": "path to the MAIN artifact you wrote (the file to open first)"
-    },
-    "files": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "all files you wrote for this variation"
     },
     "summary": {
       "type": "string",

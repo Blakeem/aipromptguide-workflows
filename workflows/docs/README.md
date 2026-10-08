@@ -9,8 +9,9 @@ documentation **verbatim** from the web, a repo, or local files, then curates it
 You frame the brief (what the docs are *for*, which versions), the sources to pull, and where the set
 should live. Use a fresh folder dedicated to this one doc set, usually `docs/<system>/` in your project.
 Claude runs one gatherer per source (each copying the relevant pages verbatim, with source + version
-headers), a fast scrub pass that strips capture junk, then a curator that organizes and splits the set,
-deletes what the brief doesn't need, writes `INDEX.md`, and checks the sources against each other.
+headers), a fast scrub pass that strips capture junk from each web source, then a curator that
+organizes and splits the set, deletes what the brief doesn't need, writes `INDEX.md`, and checks the sources
+against each other.
 Coverage gaps are filled with a bounded follow-up gather.
 
 ### What sets it apart
@@ -66,8 +67,8 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
 `docs-cycle.mjs` **by path**.
 
 1. **Gathers.** One gatherer per source copies the brief-relevant docs verbatim, source-headed.
-2. **Scrubs.** A fast pass per source strips capture junk (nav fragments, widgets, broken markup) in
-   place, with no words changed.
+2. **Scrubs.** A fast pass per web source strips capture junk (nav fragments, widgets, broken markup)
+   in place, with no words changed.
 3. **Curates.** A curator organizes + splits the set, deletes the irrelevant, writes `INDEX.md`, and
    flags cross-source inconsistencies.
 4. **Fills gaps.** Coverage holes or files needing recapture trigger a bounded follow-up gather,
@@ -79,8 +80,9 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
 
 `runs/<runId>/docs/` (or your `outDir`) holds the curated set of `<source>/*.md` verbatim docs plus
 `INDEX.md`. Start at the index: one line per file, then **Coverage notes** with any cross-source
-inconsistencies, unresolved gaps, and how many files were spot-checked against their source. Copy the
-folder into your repo if you want to keep it, or pass `outDir` up front.
+inconsistencies, unresolved gaps, files that failed the spot-check, and sources the spot-check could not
+reach. Claude reports how many files were spot-checked when the run ends. Copy the folder into your repo
+if you want to keep it, or pass `outDir` up front.
 
 **Give it its own folder.** The output directory belongs to the run: the curator deletes freely inside
 it, which is what lets it dedup, split, and re-curate the whole set. Point it at a fresh directory per

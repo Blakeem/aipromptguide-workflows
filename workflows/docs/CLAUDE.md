@@ -2,11 +2,11 @@
 
 `docs-cycle.mjs` provisions the **local doc set a project needs to build against**: one **gatherer** per
 source (web / repo / local files) **copies the relevant docs verbatim** into a folder — selection and
-subtraction at capture, never paraphrase — a **scrubber** cleans each source of capture junk in place,
-then a **curator** organizes and splits the set, deletes what the brief doesn't need, writes `INDEX.md`,
-checks **cross-source consistency + coverage**, and finally **spot-checks a bounded sample** of files
-against their cited sources; gaps it finds (missing coverage *or* files needing recapture) drive a
-bounded gap-fill gather round. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
+subtraction at capture, never paraphrase — a **scrubber** cleans each web source of capture junk in
+place, then a **curator** organizes and splits the set, deletes what the brief doesn't need, writes
+`INDEX.md`, checks **cross-source consistency + coverage**, and finally **spot-checks a bounded sample**
+of files against their cited sources; gaps it finds (missing coverage *or* files needing recapture)
+drive a bounded gap-fill gather round. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
 *provision* workflow honoring the core (#1–4, #6, #8, #11–15). It is deliberately **happy-path**: no
 review loop or blind reviewer (Scope: the user judges); the gap loop is the only feedback. There is
 **no claim-verifier agent by design**:
@@ -39,17 +39,17 @@ No mid-run questions — frame it with the user first:
    run-state, copy out later. A complex brief goes in **`EnterPlanMode`**, approve, pass `planPath`; a
    simple one inline as `brief`.
 2. **Run** the engine (`sources` + `brief`/`planPath` + `outDir`). It gathers verbatim, scrubs capture
-   junk, curates + indexes, fills gaps (bounded by `maxRounds`), and returns the folder + index paths
-   and counts.
+   junk from web captures, curates + indexes, fills gaps (bounded by `maxRounds`), and returns the
+   folder + index paths and counts.
 3. **Present** the set: read `INDEX.md` (including **Coverage notes**) and relay what was gathered, any
    cross-source inconsistencies, unresolved gaps, and the fidelity spot-check (`fidelity.checked` /
-   `fidelity.failures` — a low or zero count means the verbatim promise went *untested*, not that it
-   held). If the return sets `foreignContent`, **warn the user first**: `outDir` was not a dedicated
-   folder (§3). If the return names sources in `gatherFailed` or `scrubFailed`, warn the user first too.
-   A source in `gatherFailed` lost its gatherer, so its coverage may be partial. A source in
-   `scrubFailed` lost its scrubber, so its files may still hold nav chrome or ads. If `indexWritten`
-   is false the curator never confirmed writing `INDEX.md` — say so and
-   check the file exists before relying on the set. Without `outDir` the set sits in gitignored
+   `fidelity.failures`, summed over every curate round — a low or zero count means the verbatim
+   promise went *untested*, not that it held). If the return sets `foreignContent`, **warn the user
+   first**: `outDir` was not a dedicated folder (§3). If the return names sources in `gatherFailed` or
+   `scrubFailed`, warn the user first too. A source in `gatherFailed` lost its gatherer, so its
+   coverage may be partial. A source in `scrubFailed` lost its scrubber, so its files may still hold
+   nav chrome or ads. If `indexWritten` is false the curator never confirmed writing `INDEX.md` — say
+   so and check the file exists before relying on the set. Without `outDir` the set sits in gitignored
    run-state — copy it into the project (or re-run with `outDir`) if it should persist. Point the
    working agent/plan at the INDEX.
 
@@ -113,7 +113,8 @@ code, so every role defaults to a fast tier (override via `models`).
   `<outDir>/<id>/`, one file per page/topic, each with a source header (URL or path, version, retrieval
   date). Subtraction at capture: skips nav, marketing, other versions, irrelevant features. HTML→markdown
   conversion is fine; changing words is not.
-- **Scrubber** (scrub · haiku) — one per source, pipelined off its gather (no barrier). Cleans the
+- **Scrubber** (scrub · haiku) — one per web source, pipelined off its gather (no barrier). Repo and
+  files sources skip it: their captures are usually markdown already, with no HTML chrome. Cleans the
   source dir in place: removes capture junk (nav/menu fragments, cookie banners, feedback widgets,
   broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure →
   keep; relevance deletion belongs to the curator.
@@ -124,8 +125,9 @@ code, so every role defaults to a fast tier (override via `models`).
   to `fidelitySample` files against their cited source**. Returns gaps a fresh gather could fix: missing
   coverage **or** a recapture (wrong version pulled, failed spot-check). Reports (never deletes) content
   in `outDir` it neither captured nor wrote. A dead gatherer is survivable (what it wrote is on disk and
-  still gets scrubbed + curated); a dead **curator throws** — nothing else produces the set, so re-invoke
-  with the same args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay from cache.
+  still gets curated, and scrubbed first for a web source); a dead **curator throws** — nothing else
+  produces the set, so re-invoke with the same args/`runId` and pass the `Workflow` tool's
+  `resumeFromRunId` to replay from cache.
 
 ## 6. Contracts (keep intact)
 
@@ -134,20 +136,21 @@ code, so every role defaults to a fast tier (override via `models`).
   kept. Deleted web content stays re-fetchable via its cited URL — the source remains the single truth.
 - **That promise is sampled, not asserted.** After the index is written the curator opens the source a
   file's own header cites and compares one substantive passage (a code block, a parameter table) word
-  for word — up to `fidelitySample` files, default 3. A reworded, condensed or reordered passage fails
-  and re-enters the gap loop as a recapture. An unreachable source is skipped honestly:
-  `fidelity.checked: 0` is valid and means *untested*, not clean. `fidelitySample: 0` removes the
-  signal entirely.
+  for word — up to `fidelitySample` files, default 3. Round 1 samples the whole set. A gap-fill round
+  samples only the files its own gatherers captured, and the return's `fidelity` counts sum every
+  round. A reworded, condensed or reordered passage fails and re-enters the gap loop as a recapture.
+  An unreachable source is skipped honestly: `fidelity.checked: 0` is valid and means *untested*, not
+  clean. `fidelitySample: 0` removes the signal entirely.
 - **The curator is the checker.** Cross-source inconsistencies (version mismatches, contradictions) and
   coverage gaps are found by the one agent that reads everything — no separate verifier re-reading the
   same files (#4).
 - **Scrub is junk-only.** The scrubber strips mechanical capture artifacts and fixes formatting — it
   never judges relevance and never changes words; when unsure it keeps.
-- **Bounded gap loop.** `[gather → scrub → curate]×N`, up to `maxRounds` (default 2). Gaps returned are
-  thin routing directives (`{kind, focus}`, #8) covering missing coverage *and* recaptures (wrong
-  version, failed spot-check); their rationale lives in Coverage notes. A gap-fill id that would collide
-  with an id already used this run is suffixed (`-2`, `-3`, …), so no gather overwrites another's
-  captures. Gaps still open at the bound stay listed there for the user.
+- **Bounded gap loop.** `[gather → scrub (web sources) → curate]×N`, up to `maxRounds` (default 2).
+  Gaps returned are thin routing directives (`{kind, focus}`, #8) covering missing coverage *and*
+  recaptures (wrong version, failed spot-check); their rationale lives in Coverage notes. A gap-fill id
+  that would collide with an id already used this run is suffixed (`-2`, `-3`, …), so no gather
+  overwrites another's captures. Gaps still open at the bound stay listed there for the user.
 - **INDEX.md is the entry point.** One line per file — path, what it covers, when to read it — plus
   Coverage notes. The consuming agent starts there.
 - **`outDir` is engine-owned; everything outside it is read-only.** The engine writes only the doc set +
@@ -177,7 +180,8 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
 - `docs/INDEX.md` — one line per file + Coverage notes (cross-source inconsistencies, open gaps).
 
 Report when done: the folder + `INDEX.md` paths, file count, rounds run, inconsistencies, unresolved
-gaps, and the fidelity result (`fidelity.checked` / `fidelity.failures`) — then relay the Coverage notes.
+gaps, and the fidelity result (`fidelity.checked` / `fidelity.failures`, summed over every round) — then
+relay the Coverage notes.
 Lead with the `foreignContent`, `gatherFailed` and `scrubFailed` warnings when the return carries them.
 **Nothing is staged or committed**;
 copy the set into the project (or re-run with `outDir`) if it should persist.

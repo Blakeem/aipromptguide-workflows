@@ -2,7 +2,7 @@
 // Focus: the SCRUBBER, the one auxiliary role whose death cannot stop the run and therefore has to be
 // visible in the log instead. Everything else about this engine is held by tools/flows/docs.flow.mjs
 // (its throw sites, both exits of the gap loop, a dead gatherer, a zero-file source).
-import { runEngine, section, ok } from './harness.mjs';
+import { runEngine, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/docs/docs-cycle.mjs';
 
@@ -83,5 +83,59 @@ section('the round-2 curator deletes a file its recapture superseded');
   ok(labels.includes('curate:r2'), 'the recapture gap drives a second curate round');
   ok(r2.includes('READ the previous E:/r/runs/t/docs/INDEX.md'), 'the round-2 prompt names the previous index to read');
   ok(/DELETE the superseded file and drop it from the index/.test(r2), 'and tells the curator to delete the superseded file');
-  ok(!/superseded/.test(prompt('curate:r1')), 'the round-1 prompt carries no supersede rule');
+  // A relaunch into the same outDir starts at round 1 with the earlier run's flagged files on disk.
+  ok(/If E:\/r\/runs\/t\/docs\/INDEX\.md already exists[^]*DELETE the superseded file/.test(prompt('curate:r1')),
+    'the round-1 prompt carries the supersede rule, gated on the index already existing');
+  ok(/by an earlier run into this folder/.test(r2), 'the ownership sentence counts an earlier run\'s captures as owned');
+}
+
+section('only a web source gets a scrubber');
+// Repo and files captures are usually markdown already, so a scrubber there would find no HTML chrome to strip.
+{
+  const args = {
+    ...baseArgs,
+    target: { repo: 'E:/proj' },
+    sources: [
+      ...baseArgs.sources,
+      { id: 'sdk-readme', kind: 'repo', focus: 'the SDK README and examples' },
+      { id: 'local-notes', kind: 'files', focus: 'the vendored API spec under vendor/spec' },
+    ],
+  };
+  const { labels, out } = await run({ 'gather': GATHER, 'scrub': null, 'curate': CURATE }, args);
+  ok(labels.includes('scrub:api-reference'), 'the web source is scrubbed');
+  ok(!labels.includes('scrub:sdk-readme'), 'the repo source spawns no scrubber');
+  ok(!labels.includes('scrub:local-notes'), 'the files source spawns no scrubber');
+  ok(out.scrubFailed.join() === 'api-reference', `scrubFailed can name only a web source: ${out.scrubFailed.join()}`);
+}
+
+section('the scrub prompt carries the verbatim rule and the write boundary, never the brief');
+// The scrubber judges no relevance, so the brief (inline or a planPath file) is text it has no use for.
+{
+  const { prompt } = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
+  const scrub = prompt('scrub:api-reference');
+  ok(!scrub.includes(baseArgs.brief) && !/PROJECT BRIEF/.test(scrub), 'the inline brief is not in the scrub prompt');
+  ok(/VERBATIM RULE/.test(scrub), 'the verbatim rule is');
+  ok(/Write ONLY inside E:\/r\/runs\/t\/docs/.test(scrub), 'and so is the write boundary');
+  ok(prompt('gather:api-reference').includes(baseArgs.brief), 'the gatherer still reads the brief');
+
+  const planned = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': CURATE },
+    { ...baseArgs, brief: undefined, planPath: 'E:/r/brief.md' });
+  ok(!planned.prompt('scrub:api-reference').includes('E:/r/brief.md'), 'a planPath brief is not in the scrub prompt either');
+}
+
+section('a gap-fill curator spot-checks only that round\'s captures, and the return sums every round');
+// A later round re-reads the whole set, but re-sampling files an earlier round already checked spends the
+// sample on old evidence. The return then has to add the rounds up, or one small gap-fill round would
+// stand for the whole run's verbatim check.
+{
+  const RECAPTURE = { ...CURATE, fidelity_failures: 1, gaps: [{ kind: 'web', focus: 'recapture the webhooks page verbatim' }] };
+  const { prompt, out } = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate:r1': RECAPTURE, 'curate:r2': CURATE });
+  const r2 = prompt('curate:r2');
+  ok(r2.includes('E:/r/runs/t/docs/recapture-the-webhooks-page-verbatim/'), 'the round-2 prompt names the gap-fill capture directory');
+  ok(/pick ONLY from the files this round's gatherers captured/.test(r2), 'and restricts the spot-check to this round\'s captures');
+  ok(/Re-read the whole set/.test(r2), 'while still re-reading the whole set');
+  ok(!/pick ONLY from the files this round's gatherers captured/.test(prompt('curate:r1')), 'the round-1 prompt samples the whole set');
+  eq(out.fidelity.checked, 4, 'fidelity.checked sums both rounds');
+  eq(out.fidelity.failures, 1, 'fidelity.failures sums both rounds');
+  ok(/across all 2 curate round\(s\)/.test(out.nextStep), `nextStep says the counts cover every round: ${out.nextStep}`);
 }

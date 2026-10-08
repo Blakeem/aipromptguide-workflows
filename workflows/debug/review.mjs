@@ -1,7 +1,7 @@
 export const meta = {
   name: 'review',
   description: 'Read-only fan-out review, lean/file-bus design. Fans out over bounded units (reviewer, then a verifier only where findings exist) READ-ONLY and writes one verbatim issue file per unit (the inventory + your triage doc), then STOPS. A clean unit is written by the reviewer itself; a unit with findings goes to a verifier — one writer per file. You triage the files; develop-cycle.mjs in fix mode then builds each triaged issue file as a fix-mode block behind a two-stage review. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
-  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. The return carries a pre-triage `issues` index of every kept finding, so the operator presents the inventory without re-grepping the files by hand. Then run develop-cycle.mjs in fix mode, one plans entry per triaged issue file with findings, which fixes each file behind a two-stage review, staging accepted work. Nothing is ever committed.',
+  whenToUse: 'Review a whole codebase (or subsystem) as a planned campaign. The main agent runs gen-units.mjs and passes the units in args. This pass is read-only and concurrent: each unit gets a reviewer; clean units get their runs/<runId>/issues/<unit>.md marker from the reviewer, units with findings get a verifier that writes that file (a parseable, human-triage-ready inventory). It then STOPS. You triage by editing those files (flip a decision to SKIP, answer a NEEDS_USER by writing the chosen option into its Fix line). An OPTIONAL lens (args.lens, or per-unit unit.lens) narrows WHICH defects a unit hunts — a destructiveness audit, a data-loss sweep, a compliance pass. Pass an ARRAY of lenses to sweep the same files from several genuinely different angles: each unit is reviewed once per lens and the results merge into that unit\'s single issue file behind ONE verifier. A lens never widens the pass into proposing improvements or features: this is defect-hunting only, because the inventory feeds an autonomous fixer. Then run develop-cycle.mjs in fix mode, one plans entry per triaged issue file with findings, which fixes each file behind a two-stage review, staging accepted work. Nothing is ever committed.',
   phases: [
     { title: 'Review', detail: 'Reviewer finds production defects in ONE bounded unit (units run concurrently, read-only); when it finds nothing it writes the clean issues/<unit>.md marker itself.' },
     { title: 'Verify', detail: 'Spawned ONLY for units with findings: confirms each against real code, corrects severity, routes via the decision matrix, and WRITES runs/<runId>/issues/<unit>.md verbatim (the inventory). Returns a slim verdict index.' },
@@ -187,6 +187,7 @@ const VERIFY_SCHEMA = {
           is_real: { type: 'boolean' },
           severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'], description: 'YOUR confirmed severity (reviewers over-rate; correct it)' },
           decision: { type: 'string', enum: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'REJECT'] },
+          // No harness line reads matrix: it is the verifier's routing scaffold and the source of each entry's `- effort:` line.
           matrix: {
             type: 'object',
             required: ['clarity', 'effort', 'blast_radius', 'scope', 'architectural'],
@@ -198,11 +199,6 @@ const VERIFY_SCHEMA = {
               architectural: { type: 'boolean' },
             },
           },
-          rationale: { type: 'string' },
-          fix_instruction: { type: 'string', description: 'precise minimal instruction for the fixer (ACTIONABLE only)' },
-          options: { type: 'string', description: 'NEEDS_USER only: the distinct choices + tradeoffs' },
-          recommendation: { type: 'string', description: 'NEEDS_USER only: your suggested direction' },
-          theme: { type: 'string', description: 'short grouping keyword (e.g. "pagination") for batching related issues' },
         },
       },
     },
@@ -296,8 +292,8 @@ ${items.map((i) => `  - ${i.id} :: ${multi ? `[${i.f._lens?.id || '?'}] :: ` : '
 
 FOLD DUPLICATES FIRST. ${multi ? 'Different briefs' : 'One reviewer'} can surface the SAME underlying defect in different words. Where
 two or more candidates are one defect, keep ONE verdict for it (the clearest id, at the highest
-justified severity, with a fix_instruction that closes the whole thing) and REJECT the others with
-"duplicate of <id>". Candidates that merely share a file and category are NOT duplicates.
+justified severity, with a **Fix:** line that closes the whole thing) and REJECT the others.
+Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
@@ -308,16 +304,16 @@ DECISION MATRIX — score each real finding on:
 
 ROUTING (apply in order; first match wins):
   - is_real == false -> REJECT
-  - scope == scope-creep -> REJECT (note why, do not pursue)
-  - architectural == true -> NEEDS_USER (fill options + recommendation)
-  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill options + recommendation)
+  - scope == scope-creep -> REJECT (do not pursue)
+  - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
+  - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
+    **Recommendation:** lines)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal fix_instruction)
+  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Set a short \`theme\` keyword per verdict.
 
 WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed) in EXACTLY this format:
 -----
@@ -344,12 +340,11 @@ status: todo
 - category: <category>
 - effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
-- theme: <theme>
 
 **What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>
-**Fix:** <fix_instruction>            (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
-**Options:** <options>                (NEEDS_USER only)
-**Recommendation:** <recommendation>  (NEEDS_USER only)
+**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
+**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
+**Recommendation:** <your suggested direction>           (NEEDS_USER only)
 -----
 The \`## Plan:\` line, the three preamble lines under it, and every entry's \`- status: open\` are
 REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
@@ -361,13 +356,13 @@ Set wrote_file=true and return all verdicts via the schema.`; };
 
 // =============================================================================
 // Fan out reviewer → verifier per unit (read-only, concurrent), then STOP. The main agent supplies
-// args.units (gen-units.mjs output it read) and, on resume, only the units whose issues/<unit>.md is
-// missing or whose embedded hash changed. The engine reviews whatever units it is given — there is no
-// loader/scribe/organizer (WORKFLOW-PRINCIPLES.md #4/#6).
+// args.units (gen-units.mjs output it read) and, on resume, the units lacking an issue file or whose hash
+// changed, plus each unit the last return's `failed` names for re-review. The engine reviews whatever
+// units it is given — there is no loader/scribe/organizer (WORKFLOW-PRINCIPLES.md #4/#6).
 // =============================================================================
 const units = A.units;
 if (!Array.isArray(units) || !units.length) {
-  throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass only the units lacking an issue file or whose hash changed. Reuse this runId on a resume — gen-units.mjs --issues-dir joins units against runs/<runId>/issues.');
+  throw new Error('review requires a non-empty args.units array (run gen-units.mjs, read it, and pass units — see CLAUDE.md). On resume pass the units lacking an issue file or whose hash changed, plus each unit the last return\'s `failed` names for re-review. Reuse this runId on a resume — gen-units.mjs --issues-dir joins units against runs/<runId>/issues.');
 }
 // One writer per issue file and one plan id per file: fileSafe and slug are lossy, so two unit ids can
 // map to one name and their writers would overwrite each other concurrently.
@@ -452,15 +447,14 @@ const results = await pipeline(
     // `wrote_file` is REQUIRED by VERIFY_SCHEMA and instructed in the prompt — read it, or two failures
     // both log as a normal ✓: a verifier that returned verdicts without writing issues/<unit>.md (the
     // ✓ line points at a file that does not exist), and a DEAD verifier, where `verify?.verdicts || []`
-    // yields no kept issues at all and this unit's real findings vanish from the returned `issues` array
-    // the operator triages from. Same guard as enhance-cycle.mjs's verifier.
+    // yields no kept issues at all and this unit's real findings vanish from the returned counts.
+    // Same guard as enhance-cycle.mjs's verifier.
     const verifyWrote = verify?.wrote_file === true;
     if (!verifyWrote) {
       log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
       failed.push({ unit: unit.id, stage: 'verify' });
     }
     const byId = new Map(items.map((x) => [x.id, x]));
-    const locOf = new Map((unit.files || []).map((f) => [f.path, f.loc]));
     const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
     const kept = [];
     const unmatched = [];
@@ -473,18 +467,13 @@ const results = await pipeline(
       if (v.decision === 'ACTIONABLE') counts.actionable++;
       else if (v.decision === 'NEEDS_USER') counts.needs_user++;
       else counts.deferred++;
-      kept.push({
-        id: item.id, unit: unit.id, file: item.f.file, line: item.f.line || '',
-        loc: locOf.get(item.f.file) ?? 0, severity: v.severity || item.f.severity,
-        category: item.f.category, decision: v.decision, effort: v.matrix?.effort || 'small',
-        title: item.f.title, theme: v.theme || '',
-      });
+      kept.push({ file: item.f.file, severity: v.severity || item.f.severity, decision: v.decision });
     }
     // A dead verifier is already recorded above. A live one that misses or mis-copies an id leaves a kept
-    // finding out of the returned index and totals, though the issue file still holds it.
+    // finding out of the returned totals, though the issue file still holds it.
     const unverdicted = verify ? items.filter((x) => !verdicted.has(x.id)).map((x) => x.id) : [];
     if (unmatched.length || unverdicted.length) {
-      log(`  ⚠ ${unit.id}: verifier verdicts do not cover the findings (unmatched: ${unmatched.join(', ') || 'none'}, no verdict: ${unverdicted.join(', ') || 'none'}) — the returned index and totals are incomplete; read ${issueFile(unit.id)}`);
+      log(`  ⚠ ${unit.id}: verifier verdicts do not cover the findings (unmatched: ${unmatched.join(', ') || 'none'}, no verdict: ${unverdicted.join(', ') || 'none'}) — the returned totals are incomplete; read ${issueFile(unit.id)}`);
       failed.push({ unit: unit.id, stage: 'verify', unmatched, unverdicted });
     }
     log(`  ✓ ${unit.id}: ${counts.found} found → ${counts.actionable} actionable, ${counts.needs_user} needs-you, ${counts.deferred} deferred, ${counts.rejected} rejected`);
@@ -503,6 +492,13 @@ const areas = {};
 for (const i of all) { const a = area(i.file); (areas[a] ??= { area: a, count: 0, maxSev: 0 }); areas[a].count++; areas[a].maxSev = Math.max(areas[a].maxSev, SEV_RANK[i.severity] ?? 1); }
 const hottest = Object.values(areas).sort((x, y) => y.maxSev - x.maxSev || y.count - x.count).slice(0, 8).map((a) => ({ area: a.area, issues: a.count }));
 
+// A unit whose entry carries `unmatched` is triaged from its issue file. Every other failed unit needs a
+// re-review, which rewrites its issue file, so the re-review comes before any triage edit.
+const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.unit))];
+const reReviewStep = reReviewIds.length
+  ? `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (debug CLAUDE.md, playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. `
+  : '';
+
 return {
   phase: 'review',
   runId: RUN_ID,
@@ -519,13 +515,5 @@ return {
   hottest,
   // Which files hold items that need a triage decision (open these to present options).
   needsUserFiles: processed.filter((r) => r.counts.needs_user > 0 && r.file !== null).map((r) => r.file),
-  // The machine-built index of every kept finding. The engine already had to build this to compute the
-  // counts above; discarding it forced the operator to re-derive the same array by hand-grepping the issue
-  // files, which is error-prone busywork (a hand rebuild is how a `file.py:224-276` range once became the
-  // number 224276).
-  // It is PRE-TRIAGE — the verifier's decisions, not the user's. Apply the triage on top: drop the ones
-  // the user set to SKIP, and flip approved NEEDS_USER items to ACTIONABLE (re-reading their rewritten
-  // Fix lines). The issue FILES remain the source of truth for WHAT to fix; this is only the index.
-  issues: all,
-  nextStep: `Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
+  nextStep: `${reReviewStep}Present the inventory: read ${ISSUES_DIR}/*.md and walk the user through totals, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
 };

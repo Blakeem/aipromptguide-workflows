@@ -40,7 +40,6 @@ const verifier = (perUnit) => (label) => ({
     severity: 'high',
     decision: 'ACTIONABLE',
     matrix: { clarity: 'clear', effort: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false },
-    theme: 'null-guards',
   })),
 });
 
@@ -51,7 +50,7 @@ export default {
   scenarios: [
     {
       // THE conditional-second-stage proof, and why both units live in one scenario: u1 is clean (its
-      // reviewer writes the marker, stage 2 skips the verifier at review.mjs:439-448), u2 has a
+      // reviewer writes the marker, stage 2 skips the verifier at review.mjs:437-446), u2 has a
       // finding and reaches the verifier. Two paths out of one `review` node.
       name: 'a clean unit beside one with findings',
       when: 'one unit is clean, the other has findings',
@@ -60,8 +59,8 @@ export default {
       terminal: 'inventory written (the clean unit never reached verify)',
     },
     {
-      // A dead reviewer's lens is pushed to `failed` (review.mjs:418-423), its unit gets no marker (:442)
-      // and is excluded from unitsReviewed (:509). No extra agent spawns, so this declared terminal is the
+      // A dead reviewer's lens is pushed to `failed` (review.mjs:416-421), its unit gets no marker (:440)
+      // and is excluded from unitsReviewed (:501). No extra agent spawns, so this declared terminal is the
       // only place the map can separate it from a clean unit.
       name: 'a dead reviewer beside a clean one',
       when: 'a reviewer dies (its unit is reported in failed, unmarked)',
@@ -70,7 +69,7 @@ export default {
       terminal: 'no inventory (a reviewer died: unit reported in failed, re-review it)',
     },
     {
-      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs:396-434 loops lenses INSIDE the
+      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs:394-432 loops lenses INSIDE the
       // stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
       // `review` node annotated concurrent, plus a SELF-LOOP for the next lens — and no review → review
       // edge attributable to the differing unit id, which `group.item` is what rules out.

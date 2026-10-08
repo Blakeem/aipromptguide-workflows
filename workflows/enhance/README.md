@@ -80,7 +80,8 @@ proposal list and the decisions happen with you afterward.
 ## Reviewing the result
 
 `runs/<runId>/proposals/` holds one file per lens. Each file holds the kept proposals (highest impact
-first) and a `Rejected` section explaining what was thrown out and why. Every proposal carries:
+first), a `Defects to route` section when the verifier found a defect, and a `Rejected` section that
+explains what was thrown out and why. Every proposal carries:
 
 - **Today** states what the system does now, at a specific line
 - **Instead** states the change, concrete enough to hand to a builder
@@ -89,8 +90,8 @@ first) and a `Rejected` section explaining what was thrown out and why. Every pr
 - **impact / effort / decision** holds the two scores and one of `ADOPT` (ready to build), `ROADMAP` (real,
   but needs planning), or `NEEDS_USER` (a call only you can make, with options and a recommendation)
 
-Read the ADOPT items first, then decide scope. Anything the verifier marked as a **defect** belongs in
-the [debug](../debug/) workflow instead.
+Read the ADOPT items first, then decide scope. Each line in the `Defects to route` section is a defect
+that belongs in the [debug](../debug/) workflow.
 
 ---
 

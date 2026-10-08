@@ -7,10 +7,11 @@
 // without a label they collapse into one blank end node.
 //
 // Coverage aimed at here: both exits of the gap loop (curated clean vs. a gap surviving the round
-// budget), and the two survivable per-source branches the coverage assertions CANNOT force — a dead
-// gatherer (scrubbed anyway: what it wrote is already on disk) and a zero-file source (scrub SKIPPED,
-// the run continues). Neither throws and neither has its own terminal, so this table is the only thing
-// holding them in the diagram. Plus each of the eight throw sites.
+// budget), and the three per-source branches the coverage assertions CANNOT force — a dead web
+// gatherer (scrubbed anyway: what it wrote is already on disk), a zero-file source (scrub SKIPPED, the
+// run continues) and a repo source (scrub SKIPPED: only web captures carry HTML chrome). None throws
+// and none has its own terminal, so this table is the only thing holding them in the diagram. Plus each
+// of the eight throw sites.
 
 const base = {
   runId: 'flow',
@@ -66,7 +67,7 @@ export default {
       terminal: 'gap(s) left open at the round budget',
     },
 
-    // ---- the two survivable per-source branches --------------------------------------------------
+    // ---- the survivable per-source branches ------------------------------------------------------
     {
       // A dead gatherer resolves to null inside pipeline() rather than throwing. The scrubber still
       // runs for it ON PURPOSE — files it wrote before dying are on disk and need cleaning.
@@ -83,6 +84,18 @@ export default {
       when: 'one source reports zero files',
       args: base,
       respond: { 'gather:release-notes': { files_written: 0, skipped: 9 }, gather: GATHER, scrub: SCRUB, curate: CURATE },
+      terminal: CURATED,
+    },
+    {
+      // The kind check returns early the same way: only the web source beside it gets a scrubber.
+      name: 'a repo source skips the scrubber',
+      when: 'a repo source sits beside a web source',
+      args: {
+        ...base,
+        target: { repo: 'E:/flow/project' },
+        sources: [base.sources[0], { id: 'sdk-readme', kind: 'repo', focus: 'the SDK README and examples' }],
+      },
+      respond: { gather: GATHER, scrub: SCRUB, curate: CURATE },
       terminal: CURATED,
     },
 

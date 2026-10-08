@@ -48,8 +48,8 @@ One phase, no mid-run questions — settle everything with the user first:
    its options + recommendation. **Call out any change two or more lenses landed on independently** —
    that convergence is the strongest signal in the run.
 5. **Triage with the user**, then route. ADOPT → a `feature` block. ROADMAP → `section` blocks or a
-   `feature` block of its own. Both go in a `develop-cycle` plan file. Anything flagged `DEFECT` → the
-   debug workflow.
+   `feature` block of its own. Both go in a `develop-cycle` plan file. Every line under a file's
+   `## Defects to route` → the debug workflow.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -58,7 +58,7 @@ One phase, no mid-run questions — settle everything with the user first:
   `runs/` lands outside the target repo.
 - **`scope` — REQUIRED:** the file/dir paths every finder reads. Each lens sees **all** of it, so keep it
   to what one agent can genuinely read in a turn. Larger than that → run per subsystem with a narrower
-  scope.
+  scope. Every proposal targets the scope. Agents may read and cite files outside it as evidence.
 - **`lenses` — REQUIRED:** ≥1 axis (strings, or `{ id, focus, criteria }`). Ids that collide after
   slugging throw — two lenses would write the same proposal file.
 - **`target.repo`:** the absolute path to the system under audit — the directory holding its `.git`.
@@ -68,12 +68,12 @@ One phase, no mid-run questions — settle everything with the user first:
 - **`goals` (strongly recommended):** what "better" means for this system.
 - **`conventions`:** house rules an enhancement must fit — or argue explicitly for changing.
 - **`minImpact`** (default `moderate`): the floor. `marginal` is below it on purpose. Lower it only if
-  you genuinely want the long tail; that is the noise spiral. The return's `summary.belowFloor` counts
-  candidates cut **on the finder's own unverified score, before any verifier saw them** — so they are in
-  no proposal file. A thin run with a high `belowFloor` means the floor, not the system; that is the
-  number that tells you whether re-running lower is worth it.
-- **Fresh vs. resume.** A re-run with the same `runId` overwrites each lens's proposal file. Keep an old
-  batch → new `runId` (or `stateDir`).
+  you genuinely want the long tail; that is the noise spiral. The verifier rejects a candidate it scores
+  below the floor and names it in that lens file's `## Rejected` section. That section is where a thin
+  run shows whether the floor or the system thinned it.
+- **Fresh vs. resume.** A re-run with the same `runId` overwrites the proposal file of each lens that
+  produces one in this run. A lens in `failed` keeps any earlier file, so present only the paths in
+  `lenses[].file`. Keep an old batch → new `runId` (or `stateDir`).
 
 ## 4. Lenses — the fan-out axis
 
@@ -100,14 +100,18 @@ noise.
   the code as it is: **what the system does today** (cited `file:line`) → **what it would do instead** →
   **the specific cost that removes** (tokens, wall-clock, agent count, operator steps, a failure mode,
   maintenance surface). No nameable cost = not an enhancement. Zero candidates is a legitimate outcome —
-  the finder then writes its own clean `proposals/<lens>.md` marker.
-- **Verifier** (verify · opus) — spawned ONLY for lenses with candidates. Rejects ruthlessly, first match
+  the finder then writes its own clean `proposals/<lens>.md` marker. A finder that verifies a defect in
+  passing reports it as a `DEFECT:` candidate.
+- **Verifier** (verify · opus) — spawned ONLY for lenses with candidates. It reads the code each
+  candidate cites plus what the REJECT rules need, and for rule 1 searches the scope for an existing
+  mechanism by what it does, not only by the candidate's words. Rejects ruthlessly, first match
   wins: (1) **the system already does this** — the most common failure of a find pass; (2) the claimed
-  cost is not real or cannot be substantiated from the code; (3) it is taste, or below the floor once
-  honestly scored; (4) it is a **defect**, not an enhancement — rejected with `is_defect`, so you can
-  route it to debug; (5) its verified **risk outweighs** the cost removed, such as breaking something the
-  system needs or leaving a required instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/effort (finders over-rate) and **writes**
-  `proposals/<lens>.md` verbatim.
+  cost is not real or cannot be substantiated from the code; (3) it is taste; (4) it is a **defect**, not
+  an enhancement — rejected with `is_defect`, so you can route it to debug; (5) its verified **risk
+  outweighs** the cost removed, such as breaking something the system needs or leaving a required
+  instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/effort (finders over-rate)
+  and **writes** `proposals/<lens>.md` verbatim. A real candidate it scores below the floor keeps
+  `is_real` true and is rejected as below the floor.
 
 ## 6. Contracts (keep intact)
 
@@ -118,9 +122,10 @@ noise.
 - **An enhancement list does not converge.** There is always another enhancement. Debug's *closed*
   inventory is what makes its fix loop terminate; an open-ended proposal list has no such property, which
   is the second reason it must not drive a fixer.
-- **Defects are out of scope, both directions.** The finder is told not to report them; the verifier
-  rejects them with `is_defect=true` and names what is broken so you can route it. Do not relax this —
-  the two workflows stay clean by staying separate.
+- **Defects are out of scope, both directions.** A finder reports a defect it found in passing as a
+  `DEFECT:` candidate, never as an enhancement. The verifier rejects it with `is_defect=true` and lists
+  every defect, including one split from a kept candidate, under `## Defects to route` so you can route
+  it. Do not relax this — the two workflows stay clean by staying separate.
 - **Read-only.** The only files written are the per-lens proposal files. Source is never modified,
   nothing is staged, nothing is committed.
 - **One writer per proposal file** — the finder when the lens is clean, the verifier when it has
@@ -138,7 +143,7 @@ The proposal files are the output; the return is an index into them. Read them a
 - **NEEDS_USER** items — a genuine product/design call, each with options + a recommendation. These are
   the ones that actually need the conversation.
 - **Convergence** — any change two or more lenses found independently.
-- **Anything flagged DEFECT** — route to the debug workflow, and say so.
+- **Every line under a file's `## Defects to route`** — route to the debug workflow, and say so.
 
 Then decide scope together. Adopted items become `feature` blocks in a `develop-cycle` plan file.
 A ROADMAP item spanning many call sites becomes `section` blocks.
@@ -146,23 +151,22 @@ A ROADMAP item spanning many call sites becomes `section` blocks.
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 - `proposals/<lens>.md` — one per lens (non-alphanumerics in the lens id become underscores:
-  `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals plus a `## Rejected`
-  section (one line each, defects marked). This IS the deliverable. A verifier-written file (a lens that
-  had candidates) carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring
-  human triage; a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens
-  reports NO file when its finder died, its verifier died, or its verifier did not confirm writing the
-  file. Each of those lands the lens in `failed`. A lens also reports no file when no candidate cleared
-  the floor and the finder wrote no marker. That lens stays in `lenses[]` with `file: null`. The run logs
-  a ⚠ naming the lens in each case. Re-run it, with a lower `minImpact` when every candidate it found
-  fell below the floor.
+  `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals, a
+  `## Defects to route` section (one line per defect, written only when it has one) and a `## Rejected`
+  section (one line each). This IS the deliverable. A verifier-written file (a lens that had candidates)
+  carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring human triage;
+  a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO file when
+  its finder died, its finder returned no candidate without attesting its marker, its verifier died, or
+  its verifier did not confirm writing the file. Each of those lands the lens in `failed`. The run logs
+  a ⚠ naming the lens in each case. Re-run it.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.
 
 Report when done: adopt/roadmap/needs-user counts, where the proposals are, the convergent findings, any
-defects to route, any `failed` lenses (not audited, no proposal file), and `summary.belowFloor` (§3)
-and `summary.unjudged` when either is non-zero. `summary.unjudged` counts candidates the verifier
-returned no verdict for, so they are in no other count. Check them in that lens's proposal file. When
+defects to route, any `failed` lenses (not audited, no verified proposal file), and `summary.unjudged`
+when it is non-zero. `summary.unjudged` counts candidates the verifier returned no verdict for, so they
+are in no other count. Check them in that lens's proposal file. When
 every lens failed, nothing was audited, so never report a clean audit. **Nothing is staged or
 committed.**
 

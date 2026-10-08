@@ -132,7 +132,9 @@ nothing wrote. Gate such a flag on `round > 0` — the proof an agent actually r
 below-floor candidates on the *finder's own unverified score*, logged the count, and dropped it — so a
 `minImpact` set too high was indistinguishable from a clean system, and those candidates appeared in no
 proposal file at all. If a knob silently removes work, its count belongs in the return (#8: a count is
-control plane), or the operator cannot tell the knob from the verdict.
+control plane), or the operator cannot tell the knob from the verdict. enhance resolved it by removing
+the cut: every finder candidate now reaches the verifier, which rejects a sub-floor one by name in its
+lens file's `## Rejected` section.
 
 **Documented-Required-but-defaulted.** `abs()` resolves a relative path against `ROOT`, and `ROOT` is the
 *tool's* directory — so `TARGET.repo ?? '.'` silently means "operate on the workflow tool itself." For an
