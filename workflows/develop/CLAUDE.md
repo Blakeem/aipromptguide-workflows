@@ -156,7 +156,7 @@ inspect `git diff --cached`. To keep the work, run §2 step 3, then set the bloc
 Then set each fix issue that the acceptance file named in the halt reason confirmed closed to `fixed`
 or `stale`, as §2 step 5 maps a landed block's issues. To reject it, unstage the block's files, set
 them aside as §4 describes, run §2 step 3, then set the block's `status:` to `todo`. Either way, run
-step 3 again for the launch args, with no `startAt`.
+step 3 again for the launch args.
 `review-unwritten` means a quality reviewer or acceptance verifier failed a block without confirming its
 review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
@@ -174,8 +174,10 @@ gates, `git diff --cached`, grep integration points, read the latest acceptance 
 
 Durable state = git staging + the plan file's status lines + the review-file trail. A relaunch with
 args from a fresh `plan-edit.mjs args` (never the previous args object) rebuilds pending from `todo`,
-with the finished runs already applied — no startAt
-needed in the common case (`runOnly`/`startAt` still work as explicit overrides, unknown ids throw).
+with the finished runs already applied. `runOnly` is the one explicit slice, and an unknown id throws.
+When the run-record fold is unavailable (records past `cleanupPeriodDays`, or `--expect` fails), recover
+with `runOnly` or by editing the statuses in the plan file. A `resumeFromRunId` replay of a run launched
+with a retired arg throws at launch.
 A parked block's work is in `parked-<id>.patch`, not the tree, unless its park halted `park-unsafe`.
 That halt reason and `followups` say where its work is. Sharpen its block, run §2 step 3 (it applies
 the finished run's statuses), set the block's `status:` back to `todo`, then run step 3 again for the
@@ -202,10 +204,10 @@ that share a prefix get separate files.
 ## 9. Args reference
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
-- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath?, mode, gate, status,
-  planContext? }`, or a pass `{ id, mode: fix, gate, status, blocks: [{ id, planPath, issues }] }` from
-  `--pack`; malformed **throws** naming the shape) · a `planPath` per entry or the top-level
-  `planPath` default (**throws** naming the id with neither) · `target.repo` (**throws** if missing) ·
+- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath, mode, gate, status }`
+  rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status, blocks:
+  [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no `planPath`
+  **throws** naming it.) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
@@ -217,9 +219,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `sweepFailed` · `newIssues` (fix mode, null when a verifier returned no usable report) ·
   `newIssueFiles` (the sorted new-issues files the verifiers named, null when `newIssues` is null) ·
   `followups`.
-- **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
+- **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (every role opus) · `stateDir` · `runOnly`/`startAt` · `continueParked` (block ids whose round 1
+  (every role opus) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
   restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).
+- **Retired:** `startAt`, a top-level `planPath` and `planContext` are retired and **throw**.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

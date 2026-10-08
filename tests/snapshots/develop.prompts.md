@@ -150,7 +150,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -398,7 +398,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -557,7 +557,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -729,7 +729,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -943,7 +943,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1193,7 +1193,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1362,7 +1362,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1535,7 +1535,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -1707,7 +1707,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -1862,7 +1862,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -2011,7 +2011,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -2286,7 +2286,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -2676,7 +2676,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -2898,7 +2898,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -3145,7 +3145,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",
@@ -3371,7 +3371,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -3631,7 +3631,7 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
     },
     "wrote_file": {
       "type": "boolean",
@@ -4629,7 +4629,7 @@ Return ONLY the decision fields via the schema (no prose report).
   "properties": {
     "plan_obtained": {
       "type": "boolean",
-      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
     },
     "baseline_dirty_files": {
       "type": "integer",

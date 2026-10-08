@@ -169,7 +169,7 @@ THE DEFECT BAR - a gap must name something that would build wrong or fail. Exact
   3. An ACCEPTANCE CRITERION WITH NO IMPLEMENTING STEP: the block promises a behavior no step builds.
   4. A DEPENDENCY-ORDERING ERROR between blocks: a block needs something a later block creates.
   5. A BLOCK TOO BIG for one develop pass: more than roughly one coherent artifact plus its tests.
-  6. A REFERENCE OUTSIDE THE BLOCK: develop hands each agent only its own block by default, so a path, term or
+  6. A REFERENCE OUTSIDE THE BLOCK: develop hands each agent only its own block, so a path, term or
      instruction the block relies on but states only in the file preamble or another block is missing.
   7. A FAILURE ON ACCEPTED INPUT: built as written, the block crashes, loses or corrupts data, or gives
      wrong output on an input the repo or the plan accepts.

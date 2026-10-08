@@ -28,19 +28,22 @@
 const TARGET = { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' };
 const GATES = { build: 'npm run build', test: 'npm test' };
 
+// `plan-edit.mjs args` prints a planPath on every row, and the engine has no default for a row without one.
+const BUS = 'plans/bus.md';
+
 // Two blocks, because the block loop and its boundary edge are invisible with one — and ONE OF EACH MODE,
 // because the developer and acceptance frames switch on it (feature = wired in and reachable; section =
 // every call site converted) and a single-mode table would never build the section frame.
 const BLOCKS = [
-  { id: 'block-a', mode: 'feature', gate: 'green' },
-  { id: 'block-b', mode: 'section', gate: 'green' },
+  { id: 'block-a', planPath: BUS, mode: 'feature', gate: 'green' },
+  { id: 'block-b', planPath: BUS, mode: 'section', gate: 'green' },
 ];
 // The THIRD frame, kept out of BLOCKS so every scenario above stays a two-block run: a fix block's worker
 // returns per-issue results instead of `produced`, and its two round-1 terminals are reachable from no
 // other mode. Gate green is the only gate a fix block takes.
-const FIX_BLOCK = { id: 'block-c', mode: 'fix', gate: 'green' };
+const FIX_BLOCK = { id: 'block-c', planPath: BUS, mode: 'fix', gate: 'green' };
 const base = {
-  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, planPath: 'plans/bus.md',
+  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES,
   goal: 'move every caller onto the new client', sweep: 'goal-coverage', plans: BLOCKS,
 };
 
@@ -99,17 +102,21 @@ export default {
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
-    // Checked FIRST, before the general guard: `plan-block.mjs --list` prints an OBJECT, so pasting that
-    // straight in is the live typo. There is no back-compat path to fall through to here.
-    { name: 'malformed plans', when: 'the --list object is pasted in whole', args: { ...base, plans: { blocks: BLOCKS } } },
+    // Checked FIRST, before the general guard: `plan-edit.mjs args` prints an OBJECT to spread, so nesting
+    // it under plans is the live typo. There is no back-compat path to fall through to here.
+    { name: 'malformed plans', when: 'the plan-edit.mjs args object is nested under plans', args: { ...base, plans: { plans: BLOCKS } } },
     { name: 'no runId', when: 'a plans array arrives with no runId', args: { plans: BLOCKS } },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow', plans: BLOCKS } },
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow', plans: BLOCKS } },
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-block round loop never runs, and every block parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
+    // Retired args throw rather than being ignored: each served only a hand-built payload.
+    { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
+    { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },
+    { name: 'planContext is retired', when: 'a plans row carries planContext', args: { ...base, plans: [{ ...BLOCKS[0], planContext: 'full' }] } },
 
-    // The four FILE KEYS the operator copies off `--list`. Each is control input, and each throw exists
+    // The four FILE KEYS `plan-edit.mjs args` prints. Each is control input, and each throw exists
     // because the coerced reading is silently wrong: the string "false" is truthy, so a coerced `ordered`
     // flips park semantics without a word in any log line.
     { name: 'ordered is not a boolean', when: 'ordered is the string "false"', args: { ...base, ordered: 'false' } },
@@ -130,9 +137,9 @@ export default {
     { name: 'block gate is illegal for its mode', when: 'a feature block asks for gate red-baseline', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
     { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
-    // Every block's body lives in a plan FILE, addressed by id. With no path anywhere the developer would
-    // be handed an empty plan reference and build nothing while reporting success.
-    { name: 'no plan file for a block', when: 'no entry and no top-level planPath', args: { ...base, planPath: '' } },
+    // Every block's body lives in a plan FILE, addressed by id. A row with no path would hand the developer
+    // an empty plan reference, and it would build nothing while reporting success.
+    { name: 'no plan file for a block', when: 'a plans row carries no planPath', args: { ...base, plans: [{ id: 'block-a', mode: 'feature' }] } },
     { name: 'duplicate block ids', when: 'two plans entries share one id', args: { ...base, plans: [BLOCKS[0], { ...BLOCKS[0] }] } },
 
     { name: 'no build gate', when: 'args.gates.build is missing', args: { ...base, gates: { test: GATES.test } } },
@@ -140,7 +147,6 @@ export default {
     // every todo block in the file.
     { name: 'runOnly is not an array', when: 'runOnly is a bare block id string', args: { ...base, runOnly: 'block-b' } },
     { name: 'runOnly names no block', when: 'runOnly holds an unknown block id', args: { ...base, runOnly: ['nope'] } },
-    { name: 'startAt names no block', when: 'startAt is an unknown block id', args: { ...base, startAt: 'nope' } },
     // A string, or an id outside the pending slice, would otherwise redo the block from scratch silently.
     { name: 'continueParked is not an array', when: 'continueParked is a bare block id string', args: { ...base, continueParked: 'block-a' } },
     { name: 'continueParked names no pending block', when: 'continueParked holds an id this run does not build', args: { ...base, continueParked: ['nope'] } },
@@ -416,7 +422,7 @@ export default {
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
       // terminal unreachable. Stops cleanly BETWEEN blocks: block-a is accepted and staged, block-b is left
-      // for a resume with startAt.
+      // todo for a relaunch with fresh `plan-edit.mjs args`.
       name: 'token budget floor',
       when: 'too few tokens left to start the next block',
       args: base,
@@ -428,7 +434,7 @@ export default {
       // progress lines budgeted. Stops cleanly BETWEEN blocks, like the token floor.
       name: 'log line cap',
       when: 'the next status line could fall past the runtime\'s 1,000 kept log lines',
-      args: { ...base, plans: Array.from({ length: 400 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'green' })) },
+      args: { ...base, plans: Array.from({ length: 400 }, (_, i) => ({ id: `block-${i + 1}`, planPath: BUS, mode: 'feature', gate: 'green' })) },
       respond: GREEN_RUN,
     },
     {
@@ -437,7 +443,7 @@ export default {
       // One FIXED claim keeps the acceptance prompt the variant 'a fix block closes its issues' snapshots.
       name: 'log line cap before the sweep',
       when: 'the last block\'s status lines fell past the runtime\'s 1,000 kept log lines',
-      args: { ...base, plans: [...Array.from({ length: 322 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'green' })), FIX_BLOCK] },
+      args: { ...base, plans: [...Array.from({ length: 322 }, (_, i) => ({ id: `block-${i + 1}`, planPath: BUS, mode: 'feature', gate: 'green' })), FIX_BLOCK] },
       respond: {
         ...GREEN_RUN,
         [`develop ${FIX_BLOCK.id}`]: devFix(Array.from({ length: 200 }, (_, i) => ({ issue_id: `i-${i + 1}`, status: i ? 'FAILED' : 'FIXED' }))),

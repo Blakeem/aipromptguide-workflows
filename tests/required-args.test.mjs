@@ -48,12 +48,11 @@ const UNIT     = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
 
 // Both blocks are build-only, so this baseline deliberately carries NO test command: it is the
 // condition-FALSE payload, and the baseline assertion below is what proves gates.test is optional there.
-// The top-level planPath is what makes bodyless entries legal — every block is a "## Plan: <id>" block
-// inside it, and an entry with no path anywhere throws.
+// Each row carries its own planPath, as every row `plan-edit.mjs args` prints does, and a row without one
+// throws.
 const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' },
-  planPath: 'plans/bus.md',
-  plans: [{ id: 'block-a', mode: 'feature', gate: 'build-only' },
-    { id: 'block-b', mode: 'section', gate: 'build-only' }] };
+  plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'build-only' },
+    { id: 'block-b', planPath: 'plans/bus.md', mode: 'section', gate: 'build-only' }] };
 // refine converges a plan FILE and builds nothing, so it takes no gates at all. `planPath` carries the
 // whole subject of the run: there is no inline plan and no default, and an omitted one would spawn a
 // critic against nothing and report a clean round for a plan it never saw.
@@ -89,7 +88,7 @@ const SWEEP = [
       // scoped to the PENDING slice, so a done/skip block asking for green must NOT demand the command.
       { path: 'gates.test', when: 'a todo block has gate:"green"',
         args: { ...DEVELOP_ARGS, gates: { build: 'b', test: 't' },
-          plans: [{ id: 'block-a', mode: 'feature', gate: 'green', status: 'todo' }] } }],
+          plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'green', status: 'todo' }] } }],
   },
   {
     engine: 'workflows/refine/refine-cycle.mjs',
@@ -171,8 +170,8 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
 
 // ---------------------------------------------------------------------------------------------
 // develop-cycle's control VALUES. The sweep above only deletes an arg, and develop's whole control array
-// is data the operator copies off `plan-block.mjs --list` by hand — so the live failure is a value that
-// is PRESENT and wrong, not one that is missing. Every one of these used to coerce somewhere in the
+// is data the operator spreads from `plan-edit.mjs args` and may edit by hand — so the live failure is a
+// value that is PRESENT and wrong, not one that is missing. Every one of these used to coerce somewhere in the
 // family: a miscopied gate got the green default that demands the very tests a test-first block leaves
 // failing, and a typoed status silently dropped its block from the run.
 // ---------------------------------------------------------------------------------------------
@@ -180,10 +179,10 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
   const engine = 'workflows/develop/develop-cycle.mjs';
   section('develop-cycle.mjs — a malformed plans array and every miscopied enum value throws');
   const VALUES = [
-    ['plans', 'the --list object pasted in whole', { ...DEVELOP_ARGS, plans: { blocks: DEVELOP_ARGS.plans } }],
-    ['plans[].mode', 'mode:"bogus", which names no frame this engine holds', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'bogus' }] }],
-    ['plans[].gate', 'gate:"red-baseline" on a FEATURE block (a section gate)', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] }],
-    ['plans[].status', 'status:"wip"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] }],
+    ['plans', 'the plan-edit.mjs args object nested under plans', { ...DEVELOP_ARGS, plans: { plans: DEVELOP_ARGS.plans } }],
+    ['plans[].mode', 'mode:"bogus", which names no frame this engine holds', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'bogus' }] }],
+    ['plans[].gate', 'gate:"red-baseline" on a FEATURE block (a section gate)', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'red-baseline' }] }],
+    ['plans[].status', 'status:"wip"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', status: 'wip' }] }],
     ['suite', 'suite:"all"', { ...DEVELOP_ARGS, suite: 'all' }],
     ['sweep', 'sweep:"always"', { ...DEVELOP_ARGS, sweep: 'always' }],
   ];

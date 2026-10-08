@@ -17,10 +17,12 @@ const ENGINE = 'workflows/develop/develop-cycle.mjs';
 // Two blocks, ONE OF EACH MODE: the developer and acceptance frames switch on it, and a single-mode
 // table would never build the section frame. Both build-only, so the gate sections below can pick their
 // own gate without fighting this baseline.
-const BLOCKS = [{ id: 'block-a', mode: 'feature', gate: 'build-only' },
-  { id: 'block-b', mode: 'section', gate: 'build-only' }];
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' },
-  planPath: 'E:/plans/bus.md', plans: BLOCKS };
+// `plan-edit.mjs args` prints a planPath on every row, and the engine has no default for a row without one.
+const BUS = 'E:/plans/bus.md';
+const onBus = (p) => ({ planPath: BUS, ...p });
+const BLOCKS = [onBus({ id: 'block-a', mode: 'feature', gate: 'build-only' }),
+  onBus({ id: 'block-b', mode: 'section', gate: 'build-only' })];
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, plans: BLOCKS };
 const ONE_BLOCK = { ...baseArgs, plans: [BLOCKS[0]] };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
@@ -200,7 +202,7 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
 // — the entire verification substance of the fix frame — with nothing to iterate over while round 1's
 // unstaged diff is still there to be staged.
 {
-  const FIX_BLOCK = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green' }] };
+  const FIX_BLOCK = { ...baseArgs, plans: [onBus({ id: 'fix-a', mode: 'fix', gate: 'green' })] };
   const DEV_FIXED = { ...DEV_OK, results: [{ issue_id: 'i-1', status: 'FIXED' }] };
   const DEV_STALE = { ...DEV_OK, results: [{ issue_id: 'i-1', status: 'STALE' }] };
   const { out, prompt, logs } = await run({
@@ -222,7 +224,7 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
 // issue inventory, this engine reads ONE block whose body IS the inventory, so the no-changes terminal
 // moves from a batch record onto the ledger's per-block record.
 // ---------------------------------------------------------------------------------------------
-const FIX_ONE = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green' }] };
+const FIX_ONE = { ...baseArgs, plans: [onBus({ id: 'fix-a', mode: 'fix', gate: 'green' })] };
 // `produced` is DELIBERATELY dropped: in fix mode the engine DERIVES it from `results`, and leaving the
 // flag in would let every case below pass on the one field the engine must ignore there.
 const { produced, ...DEV_FIX } = DEV_OK;
@@ -234,7 +236,7 @@ const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
   { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
   { id: 'fix-b', planPath: 'E:/plans/two.md', issues: ['i-3'] },
 ] };
-const PASS_ARGS = { ...baseArgs, planPath: undefined, plans: [PASS] };
+const PASS_ARGS = { ...baseArgs, plans: [PASS] };
 const passDev = (results) => ({ ...DEV_OK, produced: undefined, results });
 
 section('fix acceptance records a harm with a separate cause as a new issue in its block\'s own file, never a gap');
@@ -329,7 +331,7 @@ section('fix acceptance records a harm with a separate cause as a new issue in i
   eq(JSON.stringify(feature.out.newIssueFiles), '[]', 'and no file');
   ok(!/NEW-ISSUES/.test(feature.prompt('acceptance')), 'and its verifier is never told of one');
 
-  const idle = await run({}, { ...FIX_ONE, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green', status: 'done' }] });
+  const idle = await run({}, { ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], status: 'done' }] });
   eq(idle.out.newIssues, 0, 'a nothing-to-run return carries the count');
   eq(JSON.stringify(idle.out.newIssueFiles), '[]', 'and the file list');
 }
@@ -340,7 +342,7 @@ section('mode fix takes gate green ONLY: build-only and red-baseline throw at la
 // FAIL. Neither can be coerced to green, hence a launch throw rather than a per-block gate miss.
 {
   for (const gate of ['build-only', 'red-baseline']) {
-    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate }] } });
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [onBus({ id: 'fix-a', mode: 'fix', gate })] } });
     ok(/plan gate\(s\) \[fix-a: /.test(msg) && msg.includes(JSON.stringify(gate)),
       `gate ${gate} throws naming the block and the value it was handed: ${msg.slice(0, 60)}`);
     ok(/mode fix takes green\)/.test(msg), 'and states the only legal gate for the mode');
@@ -482,7 +484,7 @@ section('a red-baseline gate rejects a count of 0 exactly as green does');
 // step reports failed-expected with tests_run_count 0. That is a gate passed on a test that never ran,
 // staged as a phantom TDD baseline.
 {
-  const RED = { ...baseArgs, plans: [{ id: 'block-a', mode: 'section', gate: 'red-baseline' }] };
+  const RED = { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' })] };
   const RED_DEV = { ...DEV_OK, test_outcome: 'failed-expected' };
 
   const zero = await run({ ...GREEN_RUN, develop: { ...RED_DEV, tests_run_count: 0 }, park: PARK_OK }, RED);
@@ -502,7 +504,7 @@ section('suite:green fails a green gate on a reddened suite; suite:scoped allows
 // The one thing the FILE key layers on top of `green`: breaking the existing suite is a regression, but a
 // test-first migration expects the rest of the suite to be red until its last block lands.
 {
-  const GREEN_GATE = { ...baseArgs, plans: [{ id: 'block-a', mode: 'feature', gate: 'green' }] };
+  const GREEN_GATE = { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green' })] };
 
   const reddened = await run({ ...GREEN_RUN, develop: { ...DEV_OK, full_suite_outcome: 'failed' }, park: PARK_OK }, GREEN_GATE);
   ok(!reddened.labels.some((l) => l.startsWith('quality')), 'no reviewer spawned on a reddened suite');
@@ -517,7 +519,7 @@ section('suite:green fails a green gate on a reddened suite; suite:scoped allows
 section('an omitted gate takes the green default, never a throw');
 // Only a gate that was typed and is wrong throws. An absent one is the documented default.
 {
-  const { out } = await run(GREEN_RUN, { ...baseArgs, plans: [{ id: 'block-a', mode: 'section' }] });
+  const { out } = await run(GREEN_RUN, { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'section' })] });
   eq(out.ledger[0].gate, 'green', 'the ledger records the green default');
   eq(out.status, 'done (all blocks staged)', 'and the block builds under it');
 }
@@ -845,10 +847,10 @@ section('acceptance that stages while reporting a regression halts the run');
   eq(out.status, 'BLOCKED (a block staged while self-reporting a regression — inspect the staged diff before continuing)', 'status');
   eq(out.plansDone.join(), 'block-a', 'the block itself still counts as done (staged)');
   ok(out.ledger[0].contradicted === true, 'and the ledger flags the self-contradiction');
-  // A relaunch with startAt on the next block never rebuilds a rejected block flipped back to todo.
+  // The plan file's statuses pick the relaunch's blocks, so a block rejected back to todo is rebuilt.
   ok(out.haltReason.includes('CLAUDE.md §6'), 'the halt reason points at the keep-or-reject guide');
-  ok(out.haltReason.includes('relaunch without startAt'), 'and says to relaunch without startAt');
-  ok(!out.haltReason.includes('startAt the NEXT'), 'and never says to set startAt to the next block');
+  ok(out.haltReason.includes('relaunch with fresh `plan-edit.mjs args`'), 'and says to relaunch with fresh plan-edit.mjs args');
+  ok(!/startAt/.test(out.haltReason), 'and never names startAt');
 }
 
 section('acceptance that stages while reporting unreachable is only FLAGGED');
@@ -874,8 +876,8 @@ section('acceptance that passed without staging halts without parking');
   // Acceptance passed, so the plan file says done. Synced as blocked, the documented flip-to-todo rebuilt a
   // block that had already landed on top of its own staged copy.
   eq(syncOf(out), 'block-a=done', 'statusSync marks the passed block done');
-  ok(/then relaunch: the next `plan-edit\.mjs args` marks the block done: no startAt is needed/.test(out.haltReason),
-    'and the reason says stage, relaunch, with no startAt, and that args marks the block done');
+  ok(/then relaunch: the next `plan-edit\.mjs args` marks the block done\./.test(out.haltReason) && !/startAt/.test(out.haltReason),
+    'and the reason says stage, relaunch, and that args marks the block done');
   ok(/1 block\(s\) halted and are NOT done: block-a - the halt reason above says what each needs/.test(out.followups),
     'followups defers to the halt reason rather than giving fix-block advice');
   ok(!/closed NO issue|- decision:/.test(out.followups), 'and never tells a feature block to read decision lines');
@@ -932,11 +934,11 @@ section('only todo blocks are built: done, skip, parked and blocked are never se
 // baseline. The filter is what makes a relaunch against the same plan file safe.
 {
   const MIXED = { ...baseArgs, plans: [
-    { id: 'block-done', mode: 'feature', gate: 'build-only', status: 'done' },
-    { id: 'block-skip', mode: 'feature', gate: 'build-only', status: 'skip' },
-    { id: 'block-parked', mode: 'feature', gate: 'build-only', status: 'parked' },
-    { id: 'block-blocked', mode: 'feature', gate: 'build-only', status: 'blocked' },
-    { id: 'block-todo', mode: 'feature', gate: 'build-only', status: 'todo' },
+    onBus({ id: 'block-done', mode: 'feature', gate: 'build-only', status: 'done' }),
+    onBus({ id: 'block-skip', mode: 'feature', gate: 'build-only', status: 'skip' }),
+    onBus({ id: 'block-parked', mode: 'feature', gate: 'build-only', status: 'parked' }),
+    onBus({ id: 'block-blocked', mode: 'feature', gate: 'build-only', status: 'blocked' }),
+    onBus({ id: 'block-todo', mode: 'feature', gate: 'build-only', status: 'todo' }),
   ] };
   const { out, labels } = await run(GREEN_RUN, MIXED);
   ok(!labels.some((l) => /block-done|block-skip|block-parked|block-blocked/.test(l)),
@@ -969,7 +971,7 @@ section('gates.test is demanded only for the PENDING set, not for blocks already
 // nothing-to-run terminal above.
 {
   const DONE_GREEN = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' },
-    planPath: 'E:/plans/bus.md', plans: [{ id: 'block-a', mode: 'feature', gate: 'green', status: 'done' }] };
+    plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green', status: 'done' })] };
   const { out, calls } = await run({}, DONE_GREEN);
   eq(calls.length, 0, 'the relaunch spawns nothing');
   eq(out.status, 'nothing to run (no todo blocks)', 'and reaches the terminal instead of throwing');
@@ -985,20 +987,16 @@ section('a partial slice builds only its blocks and is never reported as done');
   const only = await run(GREEN_RUN, { ...baseArgs, runOnly: ['block-b'] });
   ok(!only.labels.some((l) => l.includes('block-a')), 'runOnly skipped block-a');
   eq(only.out.status, 'partial slice complete', 'runOnly status');
-  const from = await run(GREEN_RUN, { ...baseArgs, startAt: 'block-b' });
-  eq(from.out.plansDone.join(), 'block-b', 'startAt built from block-b to the end');
-  eq(from.out.status, 'partial slice complete', 'startAt status');
+  const from = await throwsWith(ENGINE, { args: { ...baseArgs, startAt: 'block-b' } });
+  ok(/^args\.startAt is retired/.test(from), `startAt no longer slices, it throws: ${from.slice(0, 50)}`);
 }
 
 section('a block id matching nothing throws instead of building a smaller roadmap');
 // A silently dropped id builds fewer blocks than the operator asked for, and if every id is a typo,
 // nothing at all, reported as a benign "partial slice complete" with no error.
 {
-  for (const scope of [{ runOnly: ['nope'] }, { startAt: 'nope' }]) {
-    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, ...scope } });
-    ok(/nope/.test(msg) && /block-a, block-b/.test(msg),
-      `${Object.keys(scope)[0]} "nope" throws and lists the valid ids: ${msg.slice(0, 60)}`);
-  }
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, runOnly: ['nope'] } });
+  ok(/nope/.test(msg) && /block-a, block-b/.test(msg), `runOnly "nope" throws and lists the valid ids: ${msg.slice(0, 60)}`);
 }
 
 section('the token budget stops cleanly between blocks');
@@ -1006,7 +1004,9 @@ section('the token budget stops cleanly between blocks');
   const { out, calls } = await run({}, baseArgs, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
   eq(calls.length, 0, 'stopped before spawning anything');
   eq(out.status, 'stopped on token budget (resume where it left off)', 'status');
-  ok(/startAt:"block-a"/.test(out.haltReason), 'halt reason carries the resume point');
+  ok(/^Stopped before block block-a:/.test(out.haltReason), 'halt reason names the block it stopped before');
+  ok(out.haltReason.includes('Relaunch with fresh `plan-edit.mjs args`') && !/startAt/.test(out.haltReason),
+    'and says to relaunch with fresh plan-edit.mjs args, never startAt');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1018,15 +1018,15 @@ section('the sweep runs on the pre-done + this-run union, with skips excluded');
 // and anything else still open means the goal is not finished and the sweep has nothing to judge.
 {
   const MIX = { ...baseArgs, sweep: 'goal-coverage', goal: 'move every caller onto the new client', plans: [
-    { id: 'block-done', mode: 'feature', gate: 'build-only', status: 'done' },
-    { id: 'block-skip', mode: 'feature', gate: 'build-only', status: 'skip' },
-    { id: 'block-todo', mode: 'feature', gate: 'build-only', status: 'todo' },
+    onBus({ id: 'block-done', mode: 'feature', gate: 'build-only', status: 'done' }),
+    onBus({ id: 'block-skip', mode: 'feature', gate: 'build-only', status: 'skip' }),
+    onBus({ id: 'block-todo', mode: 'feature', gate: 'build-only', status: 'todo' }),
   ] };
   const { labels, prompt } = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, MIX);
   eq(labels.filter((l) => l === 'final-sweep').length, 1, 'exactly one sweep, after the last block');
   ok(/COMPLETED BLOCKS: block-todo/.test(prompt('final-sweep')), 'it names the blocks this run staged');
 
-  const OPEN = { ...MIX, plans: [...MIX.plans, { id: 'block-open', mode: 'feature', gate: 'build-only', status: 'blocked' }] };
+  const OPEN = { ...MIX, plans: [...MIX.plans, onBus({ id: 'block-open', mode: 'feature', gate: 'build-only', status: 'blocked' })] };
   const open = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, OPEN);
   ok(!open.labels.includes('final-sweep'), 'a non-skip block that is not done keeps the sweep from running');
   eq(open.out.sweep, null, 'and no sweep result is fabricated');
@@ -1111,12 +1111,13 @@ section('a plans value that is not a non-empty array throws, pointing at the pla
   for (const bad of ['block-a', 42, true, [], null]) {
     const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: bad } });
     ok(/args\.plans must be a NON-EMPTY array/.test(msg) && /"plan-edit\.mjs args <planPath>" prints an object: spread it/.test(msg)
-      && /"plans" array/.test(msg) && !/--list/.test(msg),
+      && /"plans" array becomes args\.plans/.test(msg) && /Never nest that object under "plans"/.test(msg) && !/--list/.test(msg),
       `plans ${JSON.stringify(bad)} throws naming the plan-edit.mjs args object to spread: ${msg.slice(0, 45)}`);
   }
-  const noId = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ mode: 'feature', gate: 'green', status: 'todo' }] } });
-  ok(/"plans" row that "plan-edit\.mjs args <planPath>" prints/.test(noId) && !/--list/.test(noId),
-    `an entry with no id names plan-edit.mjs args rows as the source: ${noId.slice(0, 60)}`);
+  const noId = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [onBus({ mode: 'feature', gate: 'green', status: 'todo' })] } });
+  ok(/"plans" row that "plan-edit\.mjs args <planPath>" prints/.test(noId) && /--pack/.test(noId)
+    && !/--list|planContext/.test(noId),
+    `an entry with no id names plan-edit.mjs args rows and --pack passes as the source: ${noId.slice(0, 60)}`);
 }
 
 section('duplicate ids and a mode this engine does not build both throw');
@@ -1126,25 +1127,21 @@ section('duplicate ids and a mode this engine does not build both throw');
   const dupe = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [BLOCKS[0], { ...BLOCKS[0] }] } });
   ok(/duplicate plan id\(s\) \[block-a\]/.test(dupe), `duplicate ids throw: ${dupe.slice(0, 60)}`);
 
-  const bogus = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ id: 'block-a', mode: 'bogus' }] } });
+  const bogus = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'bogus' })] } });
   ok(/not one of feature \| section \| fix/.test(bogus), `an unknown mode throws: ${bogus.slice(0, 60)}`);
   ok(/"bogus"/.test(bogus), 'and names the value it was handed');
 }
 
-section('a block with no plan file anywhere throws; the top-level planPath satisfies one missing its own');
+section('a row with no planPath throws naming it');
 // Without a plan file the block reference names an empty path and the developer builds against nothing
-// while reporting success. The top-level default is what keeps undecorated `--list` rows usable.
+// while reporting success.
 {
-  const msg = await throwsWith(ENGINE, { args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
-    gates: { build: 'b' }, plans: [{ id: 'block-a', mode: 'feature', gate: 'build-only' }] } });
-  ok(/carry no planPath/.test(msg), `throws: ${msg.slice(0, 60)}`);
-  ok(/block-a/.test(msg), 'and names the block');
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs,
+    plans: [BLOCKS[0], { id: 'block-b', mode: 'section', gate: 'build-only' }] } });
+  ok(/^plans \[block-b\] carry no planPath/.test(msg), `throws naming only the row without one: ${msg.slice(0, 60)}`);
   // Hand-derived `--list` rows skip the status fold, so a finished block would be rebuilt.
-  ok(/plan-edit\.mjs args <planPath>/.test(msg) && !/--list/.test(msg), 'and points at plan-edit.mjs args, never --list');
-
-  const { prompt } = await run(GREEN_RUN, ONE_BLOCK);
-  ok(/'E:\/plans\/bus\.md' 'block-a'/.test(prompt('develop block-a')),
-    'an entry with no path of its own is addressed inside the top-level plan file');
+  ok(/"plan-edit\.mjs args <planPath>" and spread the object it prints: every row it prints carries its own planPath/.test(msg)
+    && !/--list|top-level/.test(msg), 'and says every plan-edit.mjs args row carries its own, naming no --list or top-level default');
 }
 
 section('a block reaches developer and acceptance as a plan-block COMMAND, never the blind reviewer');
@@ -1176,12 +1173,31 @@ section('args.blockTool points the block command at an installed plugin\'s own t
   ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
 }
 
-section('planContext:"full" hands the file instead, for a block that needs its neighbours');
+section('a row carrying planContext throws, naming the row, since every agent gets the block command');
 {
-  const { prompt } = await run(GREEN_RUN, { ...baseArgs, plans: [{ ...BLOCKS[0], planContext: 'full' }] });
-  const dev = prompt('develop block-a');
-  ok(/"## Plan: block-a" inside the plan file at E:\/plans\/bus\.md/.test(dev), 'the block is named inside the file');
-  ok(!/plan-block\.mjs/.test(dev), 'and no extraction command is issued');
+  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ ...BLOCKS[0], planContext: 'full' }, BLOCKS[1]] } });
+  ok(/^args\.plans\[\]\.planContext is retired/.test(msg), `throws: ${msg.slice(0, 50)}`);
+  ok(/\[block-a\]/.test(msg) && !/block-b/.test(msg), 'and names only the row carrying it');
+}
+
+section('each retired arg throws at launch, naming itself and its replacement, after the numeric guards');
+// Ignoring one would build a different set of blocks, or hand agents a different plan text, than the
+// operator asked for.
+{
+  const retired = [
+    ['startAt', { startAt: 'block-b' }, /^args\.startAt is retired: .*"plan-edit\.mjs args <planPath>".*args\.runOnly/],
+    ['planPath', { planPath: BUS }, /^The top-level args\.planPath is retired: .*every "plans" row that "plan-edit\.mjs args <planPath>" prints carries its own planPath/],
+    ['planContext', { plans: [{ ...BLOCKS[0], planContext: 'block' }] }, /^args\.plans\[\]\.planContext is retired: .*plan-block command.*whole plan file/],
+  ];
+  for (const [name, extra, re] of retired) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, ...extra } });
+    ok(re.test(msg), `${name} throws naming itself and its replacement: ${msg.slice(0, 70)}`);
+    const numeric = await throwsWith(ENGINE, { args: { ...baseArgs, ...extra, maxRounds: 'x' } });
+    ok(/^Invalid numeric arg/.test(numeric), `and ${name} is checked after the numeric guards: ${numeric.slice(0, 40)}`);
+  }
+  const absent = await run(GREEN_RUN, { ...baseArgs, startAt: undefined, planPath: undefined,
+    plans: BLOCKS.map((b) => ({ ...b, planContext: undefined })) });
+  eq(absent.out.status, 'done (all blocks staged)', 'a retired key whose value is undefined counts as absent');
 }
 
 const STATE = 'E:/r/runs/t';
@@ -1219,7 +1235,7 @@ section('two block ids that share their first 60 characters get distinct run-sta
 {
   const stem = `shared-prefix-${'x'.repeat(50)}`;
   const ids = [`${stem}-one`, `${stem}-two`];
-  const plans = ids.map((id) => ({ id, mode: 'fix', gate: 'green' }));
+  const plans = ids.map((id) => onBus({ id, mode: 'fix', gate: 'green' }));
   const r = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS },
     { ...baseArgs, plans });
   const fileOf = (text, re) => text.match(re)?.[0] ?? '';
@@ -1236,7 +1252,7 @@ section('two block ids that share their first 60 characters get distinct run-sta
 
   const sixty = `id-${'y'.repeat(57)}`;
   eq(sixty.length, 60, 'an id of exactly 60 characters');
-  const whole = await run(GREEN_RUN, { ...baseArgs, plans: [{ id: sixty, mode: 'feature', gate: 'build-only' }] });
+  const whole = await run(GREEN_RUN, { ...baseArgs, plans: [onBus({ id: sixty, mode: 'feature', gate: 'build-only' })] });
   ok(whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/quality-review-${sixty}-r1.md`)
     && whole.prompt(`quality ${sixty}`).includes(`${STATE}/gate/DISMISSED-${sixty}.md`),
     'keeps its whole id in its file names, as before');
@@ -1253,9 +1269,9 @@ const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside th
   eq(planWarnings(logs).length, 0, 'and it does not also fire the PLAN guard');
 }
 {
-  // Both blocks default to the one top-level path, so the guard has three chances to warn about it. The
-  // dedupe Set is what keeps a one-file roadmap from repeating the same line per block.
-  const warn = planWarnings((await run(GREEN_RUN, { ...baseArgs, planPath: 'E:\\repo\\docs\\bus.md' })).logs);
+  // Both rows name the one plan file, so a one-file roadmap must not repeat the warning per block.
+  const inRepo = BLOCKS.map((b) => ({ ...b, planPath: 'E:\\repo\\docs\\bus.md' }));
+  const warn = planWarnings((await run(GREEN_RUN, { ...baseArgs, plans: inRepo })).logs);
   eq(warn.length, 1, 'a plan file inside the repo warns exactly ONCE, backslashes normalized');
   ok((warn[0] ?? '').includes('E:/repo/docs/bus.md'), `and names the offending path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
 }
@@ -1268,7 +1284,7 @@ const planWarnings = (logs) => logs.filter((l) => l.includes('resolves inside th
 {
   // The repo ROOT itself, through backslashes and a trailing slash: the check runs on the abs()-normalized
   // path, so neither separator style nor a trailing slash can dodge the equality branch.
-  const { logs } = await run(GREEN_RUN, { ...baseArgs, planPath: 'E:\\repo\\' });
+  const { logs } = await run(GREEN_RUN, { ...baseArgs, plans: [{ ...BLOCKS[0], planPath: 'E:\\repo\\' }] });
   const warn = planWarnings(logs);
   eq(warn.length, 1, 'a plan path equal to the repo root warns exactly once');
   ok((warn[0] ?? '').includes('(E:/repo)'), `and names the normalized path: ${(warn[0] ?? '(none)').slice(0, 60)}`);
@@ -1588,7 +1604,7 @@ section('a block whose status edits outgrow one log line logs them over several 
     develop: fixDev(ids.map((issue_id) => ({ issue_id, status: 'FIXED' }))),
     quality: CLEAN,
     acceptance: { ...FIX_PASS, fix_checks: ids.map((issue_id) => ({ issue_id, actually_fixed: true })) },
-  }, { ...FIX_ONE, planPath: 'E:/' + 'deep/'.repeat(20) + 'inventory.md' });
+  }, { ...FIX_ONE, plans: [{ ...FIX_ONE.plans[0], planPath: 'E:/' + 'deep/'.repeat(20) + 'inventory.md' }] });
   const oneLine = 'status-sync ' + JSON.stringify(out.statusSync);
   ok(oneLine.length > 11024, `the edits as one line pass the runtime's 11,024-char cut: ${oneLine.length}`);
   const lines = logs.filter((l) => l.startsWith('status-sync '));
@@ -1611,7 +1627,7 @@ section('a run past the log budget still logs every status line inside the runti
 // 300 one-round blocks log 1,202 lines unbudgeted. 200 log 802, which never reach the budget.
 {
   const NOTICE = 'develop: log budget of 900 lines reached, progress lines suppressed, status lines continue';
-  const plans = Array.from({ length: 300 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
+  const plans = Array.from({ length: 300 }, (_, i) => onBus({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
   const { out, logs } = await run(GREEN_RUN, { ...baseArgs, plans });
   eq(out.plansDone.length, plans.length, 'every block is done');
   eq(logs.filter((l) => l === NOTICE).length, 1, 'the logs hold the notice line once');
@@ -1625,12 +1641,14 @@ section('a run past the log budget still logs every status line inside the runti
 section('a run whose status lines would outgrow the runtime\'s first 1,000 halts before the block that would lose one');
 // 400 one-round blocks log 1,077 lines under the progress budget alone, so blocks 324 to 400 lose their status lines.
 {
-  const plans = Array.from({ length: 400 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
+  const plans = Array.from({ length: 400 }, (_, i) => onBus({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' }));
   const { out, logs } = await run(GREEN_RUN, { ...baseArgs, plans });
   eq(out.status, 'stopped on the runtime log line cap (resume where it left off)', 'the run halts on the log line cap');
   const next = plans[out.plansDone.length]?.id;
   ok(out.plansDone.length > 0 && next, `the halt falls mid-run: ${out.plansDone.length} block(s) done`);
-  ok(out.haltReason.includes(`startAt:"${next}"`), `the halt reason resumes at the first block not run: ${next}`);
+  ok(out.haltReason.startsWith(`Stopped before block ${next}:`), `the halt reason names the first block not run: ${next}`);
+  ok(out.haltReason.includes('Relaunch with fresh `plan-edit.mjs args`') && !/startAt/.test(out.haltReason),
+    'and says to relaunch with fresh plan-edit.mjs args, never startAt');
   const missing = idsWithoutKeptStatus(logs, out.plansDone);
   eq(missing.length, 0, `the first 1,000 lines hold a status line for every finished block${missing.length ? `, first miss ${missing[0]}` : ''}`);
   ok(logs.length <= 1000, `the logs number at most 1,000: ${logs.length}`);
@@ -1641,8 +1659,8 @@ section('a last block whose status lines overrun the runtime\'s first 1,000 retu
 // block's status lines overrun the cap. Awaiting the sweep after that leaves a stop that loses them.
 {
   const ids = Array.from({ length: 200 }, (_, i) => `i-${i + 1}`);
-  const plans = [...Array.from({ length: 322 }, (_, i) => ({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' })),
-    { id: 'fix-z', mode: 'fix', gate: 'green' }];
+  const plans = [...Array.from({ length: 322 }, (_, i) => onBus({ id: `block-${i + 1}`, mode: 'feature', gate: 'build-only' })),
+    onBus({ id: 'fix-z', mode: 'fix', gate: 'green' })];
   const { out, logs, labels } = await run({
     ...GREEN_RUN,
     'develop fix-z': fixDev(ids.map((issue_id) => ({ issue_id, status: 'FIXED' }))),
@@ -1703,13 +1721,13 @@ section('acceptance is handed STALE and SKIPPED ids beside the FIXED list, and c
 }
 
 section('the block command is role-neutral: acceptance is never told to implement it');
-// planRef hands the same text to the developer and to the verifier, whose prompt forbids modifying source.
+// blockRef hands the same text to the developer and to the verifier, whose prompt forbids modifying source.
 {
-  for (const args of [ONE_BLOCK, { ...baseArgs, plans: [{ ...BLOCKS[0], planContext: 'full' }] }, FIX_ONE]) {
+  for (const args of [ONE_BLOCK, FIX_ONE]) {
     const { prompt } = await run({ ...GREEN_RUN, develop: args === FIX_ONE ? fixDev([{ issue_id: 'i-1', status: 'FIXED' }]) : DEV_OK, acceptance: args === FIX_ONE ? FIX_PASS : ACC_PASS }, args);
     const id = args.plans[0].id;
     const acc = prompt(`acceptance ${id}`);
-    ok(acc !== '' && !/implement EXACTLY|implement ONLY/.test(acc), `${id} (${args.plans[0].planContext ?? 'block'}): acceptance is not told to implement`);
+    ok(acc !== '' && !/implement EXACTLY|implement ONLY/.test(acc), `${id}: acceptance is not told to implement`);
     ok(/you never implement it/.test(acc), 'and it is told it judges against the block');
     ok(/Implement the |Resolve the verified issues in /.test(prompt(`develop ${id}`)), 'while the developer role still builds it');
   }
@@ -1737,10 +1755,10 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
 // A red-baseline or build-only block has red or absent tests by design, and the blind reviewer must not learn that.
 {
   const variants = [
-    ['a green feature block', { ...baseArgs, plans: [{ id: 'block-a', mode: 'feature', gate: 'green' }] }, DEV_OK],
-    ['a red-baseline section block', { ...baseArgs, plans: [{ id: 'block-a', mode: 'section', gate: 'red-baseline' }] },
+    ['a green feature block', { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green' })] }, DEV_OK],
+    ['a red-baseline section block', { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' })] },
       { ...DEV_OK, test_outcome: 'failed-expected' }],
-    ['a suite: scoped run', { ...baseArgs, suite: 'scoped', plans: [{ id: 'block-a', mode: 'feature', gate: 'green' }] },
+    ['a suite: scoped run', { ...baseArgs, suite: 'scoped', plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green' })] },
       { ...DEV_OK, full_suite_outcome: 'scoped-skip' }]];
   const gateTexts = [];
   for (const [name, args, develop] of variants) {
@@ -1754,7 +1772,7 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
 
 section('tests_run_count counts what the runner reports, and a section block scopes by its test_selector line');
 {
-  const { calls, prompt } = await run({ ...GREEN_RUN }, { ...baseArgs, plans: [{ id: 'sec', mode: 'section', gate: 'green' }] });
+  const { calls, prompt } = await run({ ...GREEN_RUN }, { ...baseArgs, plans: [onBus({ id: 'sec', mode: 'section', gate: 'green' })] });
   const desc = calls.find((c) => c.label.startsWith('develop sec')).opts.schema.properties.tests_run_count.description;
   ok(/tests, or of assertions/.test(desc) && /0 = nothing ran = a FALSE green/.test(desc), 'the field covers assertion-counting runners and keeps the 0 rule');
   ok(/use the block's `test_selector:` line when it has one, else the test gate/.test(prompt('develop sec')),

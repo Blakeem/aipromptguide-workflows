@@ -22,10 +22,10 @@ try {
 } catch (e) {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
-// Name the shape received: `plan-edit.mjs args` prints an object, so pasting it in whole is the likely mistake.
+// Name the shape received: nesting the object `plan-edit.mjs args` prints under plans is the likely mistake.
 if (!A || !Array.isArray(A.plans) || !A.plans.length) {
   const shape = !A ? 'no args at all' : A.plans === undefined ? 'nothing' : Array.isArray(A.plans) ? 'an empty array' : A.plans === null ? 'null' : `a ${typeof A.plans}`;
-  throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-edit.mjs args <planPath>" prints an object: spread it into the args, so its "plans" array lands here, not the object itself. There is no single-plan or inline-plan fallback.`);
+  throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-edit.mjs args <planPath>" prints an object: spread it into the args, so its "plans" array becomes args.plans. Never nest that object under "plans". There is no single-plan or inline-plan fallback.`);
 }
 if (!A.runId) {
   throw new Error('args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
@@ -55,6 +55,21 @@ const num = (v, name, min, dflt, max = 1_000_000) => {
 };
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // develop→quality→acceptance rounds per block
 const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // token floor to start another block
+
+// Retired args throw, never ignored: each served only a hand-built payload, which skips the status fold
+// `plan-edit.mjs args` applies. Below num(): the cross-engine bound sweep passes refine's top-level planPath.
+if (A.startAt !== undefined) {
+  throw new Error(`args.startAt is retired: relaunch with fresh "plan-edit.mjs args <planPath>", which applies the finished runs' statuses so the run builds only the blocks still todo, or name the blocks to build in args.runOnly. Got startAt ${JSON.stringify(A.startAt)}.`);
+}
+if (A.planPath !== undefined) {
+  throw new Error(`The top-level args.planPath is retired: every "plans" row that "plan-edit.mjs args <planPath>" prints carries its own planPath, so spread the object it prints and drop this key. Got planPath ${JSON.stringify(A.planPath)}.`);
+}
+const CONTEXT_ROWS = A.plans.map((p, i) => [p, i])
+  .filter(([p]) => p?.planContext !== undefined)
+  .map(([p, i]) => (typeof p.id === 'string' ? p.id : `index ${i}`));
+if (CONTEXT_ROWS.length) {
+  throw new Error(`args.plans[].planContext is retired: plans [${CONTEXT_ROWS.join(', ')}] carry it. Every agent gets its block through the plan-block command, which already names the whole plan file for neighbour context, so drop the key.`);
+}
 
 // Set an agentType only when it exists in your registry. The blind critic is opus because the fast tier
 // surfaced one deep defect per round on large diffs. Sweep is opus too: the runtime relays the launching
@@ -106,50 +121,39 @@ const slug        = (s) => {
 const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 const REPO        = abs(TARGET.repo);                      // absolute path to the target git repo (required)
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);   // <root>/runs/<runId> unless overridden
-// The default for entries with no planPath, so undecorated `--list` rows work in the one-file case.
-const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
 // Run-state inside the target repo puts the review and ledger files in the blind reviewer's reach (#3).
 if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
   logLine(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
-// The plan file has the same exposure (#3). Warn, not throw: a throw strands a run the operator may still
-// want. Deduped because a one-file roadmap repeats one planPath on every entry.
-const PLAN_PLACEMENT_WARNED = new Set();
-const warnPlanPlacement = (p) => {
-  if (!p || !REPO || PLAN_PLACEMENT_WARNED.has(p)) return;
-  if (p !== REPO && !p.startsWith(REPO + '/')) return;
-  PLAN_PLACEMENT_WARNED.add(p);
-  logLine(`⚠ plan file (${p}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
-};
-warnPlanPlacement(PLAN_PATH);
 // An installed plugin keeps tools/ in its cache and ROOT in its data dir, so args.blockTool names the tool.
 // Without it every block command exits non-zero and the run halts on plan_obtained=false.
 const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
 
 // =============================================================================
-// File-level keys, copied off `--list`. A typed value outside the set throws: the string "false" is truthy.
+// File-level keys, spread from what `plan-edit.mjs args` prints. A typed value outside the set throws: the
+// string "false" is truthy.
 // =============================================================================
 if (A.ordered != null && typeof A.ordered !== 'boolean') {
-  throw new Error(`Invalid ordered key: args.ordered must be a boolean; got ${JSON.stringify(A.ordered)}. It decides whether a PARKED block stops the run, and the string "false" is truthy — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid ordered key: args.ordered must be a boolean; got ${JSON.stringify(A.ordered)}. It decides whether a PARKED block stops the run, and the string "false" is truthy — spread what "plan-edit.mjs args <planPath>" prints.`);
 }
 const ORDERED = A.ordered === true;
 const VALID_SUITE = new Set(['green', 'scoped']);
 if (A.suite != null && !VALID_SUITE.has(A.suite)) {
-  throw new Error(`Invalid suite key: args.suite must be green | scoped; got ${JSON.stringify(A.suite)}. It decides whether a reddened EXISTING suite fails a green gate, so it must never coerce — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid suite key: args.suite must be green | scoped; got ${JSON.stringify(A.suite)}. It decides whether a reddened EXISTING suite fails a green gate, so it must never coerce — spread what "plan-edit.mjs args <planPath>" prints.`);
 }
 const SUITE = A.suite ?? 'green';
 const VALID_SWEEP = new Set(['goal-coverage', 'none']);
 if (A.sweep != null && !VALID_SWEEP.has(A.sweep)) {
-  throw new Error(`Invalid sweep key: args.sweep must be goal-coverage | none; got ${JSON.stringify(A.sweep)}. It decides whether the run ends with a whole-goal coverage check — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid sweep key: args.sweep must be goal-coverage | none; got ${JSON.stringify(A.sweep)}. It decides whether the run ends with a whole-goal coverage check — spread what "plan-edit.mjs args <planPath>" prints.`);
 }
 const SWEEP_MODE = A.sweep ?? 'none';
 if (A.goal != null && typeof A.goal !== 'string') {
-  throw new Error(`Invalid goal key: args.goal must be a string; got ${JSON.stringify(A.goal)}. It is the goal line every agent is framed with and the sweep's re-grep seed — copy the value "plan-block.mjs <planPath> --list" prints.`);
+  throw new Error(`Invalid goal key: args.goal must be a string; got ${JSON.stringify(A.goal)}. It is the goal line every agent is framed with and the sweep's re-grep seed — spread what "plan-edit.mjs args <planPath>" prints.`);
 }
 const GOAL = A.goal ?? '';
 // The sweep re-derives its surface from the goal, so a goalless sweep would run with nothing to cover.
 if (SWEEP_MODE === 'goal-coverage' && !GOAL.trim()) {
-  throw new Error('Missing goal key: args.sweep is goal-coverage but args.goal is empty, so the sweep would re-derive its surface from nothing. Add a "goal:" file key to the plan file (or "sweep: none"), then copy the value "plan-block.mjs <planPath> --list" prints.');
+  throw new Error('Missing goal key: args.sweep is goal-coverage but args.goal is empty, so the sweep would re-derive its surface from nothing. Add a "goal:" file key to the plan file (or "sweep: none"), then spread what "plan-edit.mjs args <planPath>" prints.');
 }
 
 // =============================================================================
@@ -167,7 +171,7 @@ const NO_ID = RAW.map((p, i) => [p, i])
   .filter(([p]) => !p || typeof p !== 'object' || typeof p.id !== 'string' || !p.id.trim())
   .map(([, i]) => i);
 if (NO_ID.length) {
-  throw new Error(`plans entries at index [${NO_ID.join(', ')}] are not objects carrying a string id. Every entry is a "plans" row that "plan-edit.mjs args <planPath>" prints — { id, planPath, mode, gate, status } — optionally with its own planContext.`);
+  throw new Error(`plans entries at index [${NO_ID.join(', ')}] are not objects carrying a string id. Every entry is a "plans" row that "plan-edit.mjs args <planPath>" prints — { id, planPath, mode, gate, status } — or a pass that "plan-edit.mjs args --pack" prints.`);
 }
 
 // An id names run-state files and enters the block command, so a non-slug is a slug() file collision or a
@@ -214,18 +218,17 @@ if (BAD_STATUS.length) {
 
 const ALL_PLANS = RAW.map((p) => ({
   id: String(p.id),
-  planPath: p.planPath ? abs(p.planPath) : (p.blocks ? '' : PLAN_PATH),
+  planPath: p.planPath ? abs(p.planPath) : '',
   mode: p.mode,
   gate: p.gate ?? 'green',
   status: p.status ?? 'todo',
-  planContext: p.planContext === 'full' ? 'full' : 'block',
   blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues })) : null,
 }));
 
 // An empty plan path would have the developer build against nothing and report success.
 const NO_PATH = ALL_PLANS.filter((p) => !p.planPath && !p.blocks).map((p) => p.id);
 if (NO_PATH.length) {
-  throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath and there is no top-level planPath to default to — the developer would be handed an empty plan reference. Derive the args with "plan-edit.mjs args <planPath>" and spread the object it prints: every row it prints carries its planPath.`);
+  throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath — the developer would be handed an empty plan reference. Derive the args with "plan-edit.mjs args <planPath>" and spread the object it prints: every row it prints carries its own planPath.`);
 }
 
 // Pass members count too: every run-state file is keyed by the bare id.
@@ -239,12 +242,15 @@ if (DUPE_IDS.size) {
   throw new Error(`duplicate plan id(s) [${[...DUPE_IDS].join(', ')}] in args.plans. Every per-block run-state file (reviews, DISMISSED, AMENDED, parked patch) is keyed by the bare id, so duplicates would overwrite each other.`);
 }
 
-// Checked here, not beside PLAN_PATH, because only ALL_PLANS holds resolved paths. The sweep reads these.
+// The sweep reads these. A plan file in the target repo has run-state's exposure (#3). Warn, not throw: a
+// throw strands a run the operator may still want.
 const PLAN_FILES = [...new Set(ALL_PLANS.flatMap((p) => (p.blocks ? p.blocks.map((b) => b.planPath) : [p.planPath])))];
-for (const path of PLAN_FILES) warnPlanPlacement(path);
+for (const path of PLAN_FILES.filter((f) => REPO && (f === REPO || f.startsWith(REPO + '/')))) {
+  logLine(`⚠ plan file (${path}) resolves inside the target repo — the blind quality reviewer could read the spec straight out of the repo tree, and the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path — never one inside the target repo.`);
+}
 
-// 'block' lets a parser decide where the block ends: plan bodies use `##` headers, so an agent reading by
-// eye can stop at the first `## Feature` and build a truncated spec. 'full' hands the whole file.
+// A parser decides where the block ends: plan bodies use `##` headers, so an agent reading the file by eye
+// can stop at the first `## Feature` and build a truncated spec.
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
 Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
 display cuts long output. That output is the block, verbatim. If it exits non-zero, report
@@ -255,9 +261,6 @@ ${p.blocks.map((b) => `  node '${BLOCK_TOOL}' '${b.planPath}' '${b.id}'`).join('
 Run every one, each redirected to its own file outside the target repo, and read those files, since the
 Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
 plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
-const planRef = (p) => p.planContext === 'full' && !p.blocks
-  ? `the block headed "## Plan: ${p.id}" inside the plan file at ${p.planPath} (read THAT block verbatim; the other blocks are CONTEXT only — your block is ONLY "${p.id}")`
-  : blockRef(p);
 
 // Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files and
 // NEEDS-USER, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
@@ -313,7 +316,7 @@ const developSchema = (mode) => ({
     ? ['plan_obtained', 'baseline_dirty_files', 'results', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments']
     : ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
-    plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
+    plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
     ...(mode === 'fix' ? {
       results: {
@@ -386,7 +389,7 @@ const acceptanceSchema = (mode) => {
       ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks', 'new_issues', 'new_issue_blocks']
       : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
-      plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
+      plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
       wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
       pass:        { type: 'boolean', description: terms.pass },
       staged:      { type: 'boolean', description: terms.staged },
@@ -519,7 +522,7 @@ lines you TOUCH a little better, and touch nothing else.`;
 // Role prompts. DEVELOP_FRAME and ACCEPTANCE_FRAME switch on mode. The blind critic sees no plan.
 // =============================================================================
 const featureDevelop = (p, round, { opening, ledgerNote, staging }) => `
-You are the DEVELOPER. Implement ${planRef(p)}. Build it minimally and surgically; match conventions;
+You are the DEVELOPER. Implement ${blockRef(p)}. Build it minimally and surgically; match conventions;
 ${SCOPE_LINE.feature}.
 ${ENV}
 BLOCK: ${p.id}
@@ -544,7 +547,7 @@ const sectionDevelop = (p, round, { opening, ledgerNote, staging }) => {
       ? 'build-only — no test pass/fail requirement; just keep the build green.'
       : 'green — this block\'s selector tests must RUN and PASS (test_outcome="passed").';
   return `
-You are the DEVELOPER. Implement ${planRef(p)}. Build ONLY this block minimally and surgically; match
+You are the DEVELOPER. Implement ${blockRef(p)}. Build ONLY this block minimally and surgically; match
 conventions; ${SCOPE_LINE.section}.
 ${ENV}
 BLOCK: ${p.id}
@@ -570,7 +573,7 @@ Return ONLY the decision fields via the schema (no prose report).`;
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
 // the user's triage.
 const fixDevelop = (p, round, { opening, ledgerNote, staging }) => `
-You are the FIXER. Resolve the verified issues in ${planRef(p)}. Each block printed IS an inventory: a
+You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, ${SCOPE_LINE.fix}.
@@ -699,7 +702,7 @@ ${p.blocks.map((b) => `     - ${b.issues.join(', ')} → ${newIssuesFile(b.id)} 
 const fixAcceptance = (p, round, { claimedFixed, claimedStale, reportedSkipped }) => `
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
-${planRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
+${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a \`- decision:\` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
@@ -813,7 +816,7 @@ const planAcceptance = (p, round, { reviewSkipped }) => {
    and return pass=false.`;
   return `
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
-passed (or was skipped because the developer changed nothing). Read ${planRef(p)}. You judge the work
+passed (or was skipped because the developer changed nothing). Read ${blockRef(p)}. You judge the work
 against that block; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
@@ -988,7 +991,6 @@ if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
 // =============================================================================
 //   status:'todo'   — the only status this engine builds. done/skip/parked/blocked are never selected.
 //   runOnly: [ids]  — build exactly these blocks (in array order).
-//   startAt: id     — build from this block to the end (skip already-accepted earlier ones).
 //   continueParked: [ids] — these pending blocks restore their parked patch in round 1 instead of redoing it.
 // =============================================================================
 const TODO = ALL_PLANS.filter((p) => p.status === 'todo');
@@ -1004,16 +1006,8 @@ if (runOnly) {
   const unknown = runOnly.filter((id) => !ALL_PLANS.some((p) => p.id === id));
   if (unknown.length) throw new Error(`args.runOnly ${unknown.map((id) => `"${id}"`).join(', ')} matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
   pending = TODO.filter((p) => runOnly.includes(p.id));
-} else if (A.startAt) {
-  // Resolved against the WHOLE array, not the todo slice: startAt is normally the first not-yet-accepted
-  // id, and naming an already-done one must scope the run rather than throw.
-  const i = ALL_PLANS.findIndex((p) => p.id === A.startAt);
-  // Falling back to the full array would rebuild accepted blocks.
-  if (i < 0) throw new Error(`args.startAt "${A.startAt}" matches no plan id. Valid ids: ${ALL_PLANS.map((p) => p.id).join(', ')}`);
-  const fromHere = new Set(ALL_PLANS.slice(i).map((p) => p.id));
-  pending = TODO.filter((p) => fromHere.has(p.id));
 }
-const isFullRun = !runOnly && !A.startAt;
+const isFullRun = !runOnly;
 // Shape before ids, as for runOnly: a string would otherwise drop the scope and redo the block from scratch.
 if (A.continueParked !== undefined && A.continueParked !== null
     && (!Array.isArray(A.continueParked) || A.continueParked.some((id) => typeof id !== 'string' || !id.trim()))) {
@@ -1064,11 +1058,11 @@ if (!pending.length) {
     newIssues: 0,
     newIssueFiles: [],
     reviewTrail,
-    followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
+    followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
   };
 }
 
-logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : A.startAt ? ` (startAt: ${A.startAt})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}]`);
+logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}]`);
 
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
 // Also logged per block as one or more STATUS_LOG lines: run logs survive a failed or stopped run, and
@@ -1228,7 +1222,7 @@ for (const p of pending) {
   if (budget.total && budget.remaining() < MIN_PLAN_BUDGET) {
     halted = true;   // so the reason + resume instruction surface in the return value
     haltKind = 'budget';
-    haltReason = `Stopped before block ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Resume with startAt:"${p.id}".`;
+    haltReason = `Stopped before block ${p.id}: ~${Math.round(budget.remaining() / 1000)}k tokens remain (< minPlanBudget). Relaunch with fresh \`plan-edit.mjs args\`: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
     logLine(`⏸ ${haltReason}`);
     break;
   }
@@ -1237,7 +1231,7 @@ for (const p of pending) {
   if (statusRoom() < 1) {
     halted = true;
     haltKind = 'log-cap';
-    haltReason = `Stopped before block ${p.id}: Claude Code keeps only a run's first ${LOG_CAP} log lines, and this block's status line could fall past them. Resume with startAt:"${p.id}".`;
+    haltReason = `Stopped before block ${p.id}: Claude Code keeps only a run's first ${LOG_CAP} log lines, and this block's status line could fall past them. Relaunch with fresh \`plan-edit.mjs args\`: it applies this run's statuses, so the relaunch builds only the blocks still todo.`;
     break;
   }
 
@@ -1311,7 +1305,7 @@ for (const p of pending) {
       halted = true;
       escalated = true;   // it may have touched the tree before giving up → park rather than abandon
       haltKind = 'plan-unreadable';
-      haltReason = `Developer for block ${p.id} could not obtain its plan (round ${round}). Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
+      haltReason = `Developer for block ${p.id} could not obtain its plan (round ${round}). Its plan reference was: ${blockRef(p)}. Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.`;
       rec.status = 'BLOCKED (plan unreadable)';
       logLine(`  ✋ ${p.id} r${round}: developer never got its plan → halting before any review agent`);
       break;
@@ -1473,7 +1467,7 @@ for (const p of pending) {
       halted = true;
       escalated = true;
       haltKind = 'plan-unreadable';
-      haltReason = `Acceptance verifier for block ${p.id} could not obtain its plan (round ${round}), so it had no criteria to judge. Its plan reference was: ${planRef(p)}. Run that yourself: a non-zero exit names the cause.`;
+      haltReason = `Acceptance verifier for block ${p.id} could not obtain its plan (round ${round}), so it had no criteria to judge. Its plan reference was: ${blockRef(p)}. Run that yourself: a non-zero exit names the cause.`;
       rec.status = 'BLOCKED (plan unreadable)';
       logLine(`  ✋ ${p.id} r${round}: acceptance never got its plan → halting`);
       break;
@@ -1516,7 +1510,7 @@ for (const p of pending) {
         if (acc?.regression === true) {
           halted = true;
           haltKind = 'acceptance-regression';
-          haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → unstage and set its files aside, then todo), and relaunch without startAt: the plan file selects the todo blocks.`;
+          haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → unstage and set its files aside, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.`;
           logLine(`  ✋ ${p.id}: staged while self-reporting a REGRESSION → halting the run (inspect git -C ${REPO} diff --cached)`);
         }
         break;
@@ -1537,7 +1531,7 @@ for (const p of pending) {
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
       haltKind = 'passed-unstaged';
-      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done: no startAt is needed.`;
+      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done.`;
       logLine(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
     }
