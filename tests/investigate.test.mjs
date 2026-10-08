@@ -340,13 +340,14 @@ section('a later critic can REMOVE an option an earlier round upheld');
 // last rounds, so an option upheld in r1 can be broken in r2 — and "only upheld ids reach the caller" is
 // worth nothing if the id cannot be taken back out.
 {
-  const { out } = await run({
+  const { out, logs: removeLogs } = await run({
     'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] } : INV),
     'critique': (label) => (/r1$/.test(label)
       ? { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] }
       : { ...CRIT, disqualified: ['opt-a'] }),
   }, { ...baseArgs, maxRounds: 2 });
   eq(out.options.length, 0, 'the option upheld in r1 and knocked out in r2 is gone from the answer set');
+  ok(!removeLogs.some((l) => /out of verified_ids/.test(l)), 'and a disqualified id is never reported as left unlisted');
   ok(!JSON.stringify(out).includes('opt-a'), 'and appears nowhere in the return');
 
   // ...and it STAYS out. A later critic cannot resurrect it by listing it in `upheld`: the last round
@@ -848,6 +849,23 @@ section('each option file carries the critic\'s verdict, and the run\'s result c
   eq(both.options.join(), 'opt-b', 'an id in both verified_ids and disqualified of one critic is dropped');
   ok(bothLogs.some((l) => /opt-a/.test(l) && /BOTH upheld and disqualified/.test(l)), 'and logged');
 
+  // Neither verified id may vanish unnamed: one this critic upheld, or one an earlier critic of this run verified.
+  const { out: self, logs: selfLogs } = await run({
+    'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'] },
+    'critique': { ...CRIT, upheld: ['opt-a'], verified_ids: [] },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(self.options.join(), '', 'an id the critic upheld but left out of verified_ids stays out');
+  ok(selfLogs.some((l) => /opt-a/.test(l) && /out of verified_ids/.test(l)), 'and the log names it');
+  const { out: dropped, logs: droppedLogs } = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] }
+      : { ...INV, new_options: 1, option_ids: ['opt-b'], exhausted: true }),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] }
+      : { ...CRIT, upheld: ['opt-b'], verified_ids: ['opt-b'], agree: true }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(dropped.options.join(), 'opt-b', 'an id an earlier critic verified stays out when the latest critic leaves it unlisted');
+  ok(droppedLogs.some((l) => /r2: critic left opt-a out of verified_ids without disqualifying it/.test(l)), 'and the log names it');
+  ok(!droppedLogs.some((l) => /opt-b/.test(l) && /out of verified_ids/.test(l)), 'and names no listed id');
+
   const { verified_ids: _omitted, ...NO_SET } = CRIT;
   const { out: unknown, logs: unknownLogs } = await run({
     'investigate': { ...INV, new_options: 1, option_ids: ['opt-a'] },
@@ -858,6 +876,71 @@ section('each option file carries the critic\'s verdict, and the run\'s result c
   ok(unknownLogs.some((l) => /round budget spent/.test(l) && /an unknown number of option\(s\) qualified/.test(l)),
     'and so does the last-round log');
   ok(unknownLogs.some((l) => /^investigate: .*an unknown number of qualifying option\(s\)/.test(l)), 'and the final log');
+
+  // One new option a round, so no round stalls and each round's critic runs.
+  const adds = (label) => ({ ...INV, new_options: 1, option_ids: [`opt-${label.slice(-1)}`] });
+  const { out: restored } = await run({
+    'investigate': adds,
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-1'], verified_ids: ['opt-1'] }
+      : /r2$/.test(label) ? { ...CRIT, upheld: ['opt-2'], verified_ids: ['opt-2'] }
+        : { ...CRIT, upheld: ['opt-3'], verified_ids: ['opt-1', 'opt-2', 'opt-3'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(restored.options.join(), 'opt-1,opt-2,opt-3', 'a later critic that lists a dropped id restores it');
+
+  const { out: revived, logs: revivedLogs } = await run({
+    'investigate': (label) => (/r3$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-c'] } : { ...INV, new_options: 1, option_ids: ['opt-a'] }),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, disqualified: ['opt-a'] }
+      : /r2$/.test(label) ? { ...CRIT, upheld: ['opt-a'], verified_ids: [] }
+        : { ...CRIT, upheld: ['opt-c'], verified_ids: ['opt-a', 'opt-c'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(revived.options.join(), 'opt-a,opt-c', 'a re-proposal the critic upheld but left unlisted is no longer dead, so a later listing restores it');
+  ok(!revivedLogs.some((l) => /IGNORED/.test(l)), 'and that later listing is not ignored');
+
+  const { logs: gapLogs } = await run({
+    'investigate': adds,
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-1'], verified_ids: ['opt-1'] }
+      : /r2$/.test(label) ? { ...NO_SET, upheld: ['opt-2'] }
+        : { ...CRIT, upheld: ['opt-3'], verified_ids: ['opt-2', 'opt-3'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(gapLogs.some((l) => /r3: critic left opt-1 out of verified_ids/.test(l)), 'a drop is still named after a critic that returned no list');
+  ok(!gapLogs.some((l) => /opt-2/.test(l) && /out of verified_ids/.test(l)), 'and the id that no-list critic upheld draws no warning once a later critic lists it');
+
+  const { logs: noListUpheldLogs } = await run({
+    'investigate': adds,
+    'critique': (label) => (/r1$/.test(label) ? { ...NO_SET, upheld: ['opt-1'] } : { ...CRIT, upheld: ['opt-2'], verified_ids: ['opt-2'] }),
+  }, { ...baseArgs, maxRounds: 2 });
+  ok(noListUpheldLogs.some((l) => /r2: critic left opt-1 out of verified_ids/.test(l)), 'an id a no-list critic upheld is named when a later critic omits it');
+
+  const { out: listedOnly, logs: listedOnlyLogs } = await run({
+    'investigate': (label) => (/r3$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-c'] } : { ...INV, new_options: 1, option_ids: ['opt-a'] }),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, disqualified: ['opt-a'] }
+      : /r2$/.test(label) ? { ...CRIT, verified_ids: ['opt-a'] }
+        : { ...CRIT, upheld: ['opt-c'], verified_ids: ['opt-a', 'opt-c'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(listedOnly.options.join(), 'opt-a,opt-c', 'a re-proposal the critic lists without upholding is back');
+  ok(!listedOnlyLogs.some((l) => /IGNORED/.test(l)), 'and no listing of it is ignored');
+
+  const { logs: deadUpheldLogs } = await run({
+    'investigate': (label) => (/r1$/.test(label) ? { ...INV, new_options: 1, option_ids: ['opt-a'] } : { ...INV, new_options: 1, option_ids: ['opt-b'] }),
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, disqualified: ['opt-a'] } : { ...CRIT, upheld: ['opt-a', 'opt-b'], verified_ids: ['opt-b'] }),
+  }, { ...baseArgs, maxRounds: 2 });
+  ok(deadUpheldLogs.some((l) => /r2: critic left opt-a out of verified_ids/.test(l)), 'a dead id the critic upheld without listing is still named');
+
+  const { logs: lateKnockLogs } = await run({
+    'investigate': adds,
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-1'], verified_ids: ['opt-1'] }
+      : /r2$/.test(label) ? { ...NO_SET, upheld: ['opt-2'] }
+        : { ...CRIT, upheld: ['opt-3'], verified_ids: ['opt-2', 'opt-3'], disqualified: ['opt-1'] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(lateKnockLogs.some((l) => /r3: "opt-1" was upheld in an earlier round and is now DISQUALIFIED/.test(l)), 'a knock after a no-list critic is still named as a drop');
+
+  const { logs: prunedLogs } = await run({
+    'investigate': adds,
+    'critique': (label) => (/r1$/.test(label) ? { ...CRIT, upheld: ['opt-1'], verified_ids: ['opt-1'] }
+      : /r2$/.test(label) ? { ...NO_SET, disqualified: ['opt-1'] }
+        : { ...CRIT, verified_ids: [] }),
+  }, { ...baseArgs, maxRounds: 3 });
+  ok(!prunedLogs.some((l) => /opt-1/.test(l) && /out of verified_ids/.test(l)), 'an id a no-list critic knocked is never reported as left unlisted');
 
   const BUDGET = { total: 400_000, spent: () => 0, remaining: () => 40_000 };
   const { out: resumedStop } = await run({}, { ...baseArgs, priorRounds: 2 }, BUDGET);

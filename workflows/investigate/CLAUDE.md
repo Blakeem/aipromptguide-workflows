@@ -204,7 +204,10 @@ Every round **starts with the investigator**.
 - **Nothing unvetted reaches you.** The return's `options` is the `verified_ids` of the latest critic
   that attested its review file. That set holds every file in `options/` whose first line reads
   `verdict: upheld`, earlier rounds and earlier runs included. An id that critic also disqualified stays
-  out. So does an id an earlier critic of this run disqualified, unless this round re-proposed it.
+  out. So does an id an earlier critic of this run disqualified, unless this round re-proposed it. An id
+  that critic upheld, or an earlier critic of this run listed or upheld, also stays out when that critic leaves it
+  out of `verified_ids` without disqualifying it. The log names it. A later critic that lists it restores
+  it. `DETERMINATION.md` still links it while its file reads `verdict: upheld`.
   `options` is `null` when the set is unknown. That happens when the critic returned no `verified_ids`,
   or when a resumed run ended before any critic attested. A fresh search that ended before any critic
   attested returns `[]`. An escalation raised alongside new options still gets those options

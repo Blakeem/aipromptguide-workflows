@@ -448,6 +448,8 @@ const trajectory = [];
 // The latest critic's verified_ids. null means unknown: a resumed run's files may hold upheld options
 // before any critic of this run has read them, and a critic that returned no list leaves the set unread.
 let verifiedIds = PRIOR_ROUNDS === 0 ? [] : null;
+// The latest applied list, plus ids upheld since by critics that returned none, so each omission is named once.
+let lastKnownUpheld = [];
 const knockedEver = new Set();  // every id any critic has disqualified. Kept for the WHOLE run: an option
                                 // that died must not walk back into the answer set on a later critic's say-so.
 const idList = (v) => (Array.isArray(v) ? v : []).filter((id) => typeof id === 'string' && id);
@@ -542,25 +544,30 @@ while (round < LAST_ROUND) {
     if (verified === null) log(`  ⚠ r${round}: critic returned no verified_ids — the verified set is unknown, so \`options\` is null until a later critic lists it`);
     const bothWays = [...new Set([...idList(crit.upheld), ...(verified ?? [])])].filter((id) => knocked.has(id));
     if (bothWays.length) log(`  ⚠ r${round}: critic listed ${bothWays.join(', ')} as BOTH upheld and disqualified — taken as disqualified`);
+    // A dead option stays dead unless THIS round re-proposed it as a fresh options/<id>.md and this critic
+    // upheld it. Re-opening a wrong disqualification is the investigator's channel, never a later critic's say-so.
+    for (const id of ids) {
+      if (!knocked.has(id) && (idList(crit.upheld).includes(id) || verified?.includes(id))) knockedEver.delete(id);
+    }
     for (const id of (verified ?? [])) {
       if (knocked.has(id)) continue;
-      // A dead option stays dead unless THIS round re-proposed it as a fresh options/<id>.md. Re-opening a
-      // wrong disqualification is the investigator's channel, never a later critic's say-so.
-      if (knockedEver.has(id) && !ids.includes(id)) {
+      if (knockedEver.has(id)) {
         log(`  ⚠ r${round}: critic upheld "${id}", which an earlier round DISQUALIFIED and this round did not re-propose — IGNORED (it stays out; see ${LEDGER})`);
         continue;
       }
-      knockedEver.delete(id);                 // re-proposed and re-verified on its merits — genuinely back
       if (!nextSet.includes(id)) nextSet.push(id);
     }
-    // `upheld` covers this round's new options, so one missing from verified_ids is a self-contradiction.
-    const unlisted = verified === null ? [] : idList(crit.upheld).filter((id) => !knocked.has(id) && !verified.includes(id));
-    if (unlisted.length) log(`  ⚠ r${round}: critic upheld ${unlisted.join(', ')} but left it out of verified_ids — kept out; check its verdict line`);
+    // An id this critic upheld, or an earlier critic listed or upheld, still reads `verdict: upheld` unless this
+    // critic disqualified it. Missing from verified_ids, it is a listing slip or an unreported verdict, so it stays out.
+    const unlisted = verified === null ? []
+      : [...new Set([...idList(crit.upheld), ...lastKnownUpheld])].filter((id) => !knocked.has(id) && !verified.includes(id));
+    if (unlisted.length) log(`  ⚠ r${round}: critic left ${unlisted.join(', ')} out of verified_ids without disqualifying it — kept out of options; check its verdict line`);
     for (const id of knocked) {
       knockedEver.add(id);
-      if (verifiedIds?.includes(id)) log(`  ⚠ r${round}: "${id}" was upheld in an earlier round and is now DISQUALIFIED — dropped from the answer set`);
+      if (lastKnownUpheld.includes(id)) log(`  ⚠ r${round}: "${id}" was upheld in an earlier round and is now DISQUALIFIED — dropped from the answer set`);
     }
     verifiedIds = nextSet;
+    lastKnownUpheld = nextSet ?? [...new Set([...lastKnownUpheld, ...idList(crit.upheld)])].filter((id) => !knockedEver.has(id));
   }
   // Both writers append to the ledger, so both counts are summed, each under the same contradiction check.
   const critNear = Math.max(0, Number(crit?.near_misses) || 0);

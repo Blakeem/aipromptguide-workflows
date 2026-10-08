@@ -95,8 +95,8 @@ flowchart TD
 | throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 81) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 91) |
 | throw: Criteria critic returned nothing | the criteria critic dies | throw (line 409) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 480) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 524) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 482) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 526) |
 
 ## Coverage
 
