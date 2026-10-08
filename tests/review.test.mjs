@@ -313,7 +313,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
 }
 
 section('a verifier with zero kept verdicts writes the clean-marker bytes, never a plan header');
-// A `## Plan:` block with no entries halts develop's fix worker at entries_found 0, and a file with no
+// A `## Plan:` block with no entries fails `plan-block --list`, and a file with no
 // gate throws in plan-block — so the all-REJECTED case must land on the clean marker instead.
 {
   const CLEAN_MARKER = '---\nunit: u1\nhash: h\nreviewed: true\n---\n# Review: u1\n\nNo issues found.\n-----';

@@ -103,13 +103,13 @@ const ROADMAP = [
 ].join('\n');
 
 const DEV_OK = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, plan_obtained: true };
-const DEV_FIX = { ...DEV_OK, entries_found: 2, results: [{ issue_id: 'f-1', status: 'FIXED' }, { issue_id: 'f-2', status: 'STALE' }] };
+const DEV_FIX = { ...DEV_OK, results: [{ issue_id: 'f-1', status: 'FIXED' }, { issue_id: 'f-2', status: 'STALE' }] };
 const CLEAN = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 2, criteria_met: 2, evidence_recorded: true, gap_count: 0, plan_obtained: true };
 const ACC_FAIL = { ...ACC_PASS, pass: false, staged: false, criteria_met: 1, gap_count: 1 };
 const ACC_FIX = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, plan_obtained: true, suite_result: 'green',
   fix_checks: [{ issue_id: 'f-1', actually_fixed: true }, { issue_id: 'f-2', actually_fixed: true }] };
-const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
+const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
 
 const launch = (args, respond) => runEngine(DEVELOP, {
   args: { ...args, runId: 'bus', root: 'E:/state', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, maxRounds: 1 },
@@ -171,7 +171,7 @@ section('a stopped run whose fix block outgrew one log line still brings every s
   const ids = Array.from({ length: 250 }, (_, i) => `f-${i + 1}`);
   writeFileSync(inventory, inventoryFromVerifierPrompt(ids).replace(/## Plan: [^ ]+/, '## Plan: inventory'));
   const { out, logs } = await launch(argsFrom(config, inventory), {
-    'develop inventory': { ...DEV_FIX, entries_found: ids.length, results: ids.map((issue_id) => ({ issue_id, status: 'FIXED' })) },
+    'develop inventory': { ...DEV_FIX, results: ids.map((issue_id) => ({ issue_id, status: 'FIXED' })) },
     quality: CLEAN,
     'acceptance inventory': { ...ACC_FIX, fix_checks: ids.map((issue_id) => ({ issue_id, actually_fixed: true })) },
   });

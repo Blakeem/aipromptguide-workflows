@@ -51,16 +51,16 @@ const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dism
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL = { wrote_file: true, pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
-const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const SWEEP_OK = { wrote_file: true, complete: true, gaps: [], suite_result: 'green' };
+const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
+const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 
 // The fix frame's returns. `produced` is DERIVED from results here, so the status values below are what
 // decide whether the blind reviewer is spawned at all.
-const devFix = (results, extra) => ({ ...DEV_OK, produced: undefined, entries_found: results.length, results, ...extra });
+const devFix = (results, extra) => ({ ...DEV_OK, produced: undefined, results, ...extra });
 const FIX_DONE   = devFix([{ issue_id: 'i-1', status: 'FIXED' }]);
 const FIX_STALE  = devFix([{ issue_id: 'i-1', status: 'STALE' }]);
 const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
-const ACC_FIX    = { wrote_file: true, pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, gap_count: 0, suite_result: 'green' };
+const ACC_FIX    = { wrote_file: true, pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, new_issue_blocks: [], gap_count: 0, suite_result: 'green' };
 
 // The clean full run every "what changes" scenario is a one-key edit of.
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };
@@ -141,6 +141,9 @@ export default {
     { name: 'runOnly is not an array', when: 'runOnly is a bare block id string', args: { ...base, runOnly: 'block-b' } },
     { name: 'runOnly names no block', when: 'runOnly holds an unknown block id', args: { ...base, runOnly: ['nope'] } },
     { name: 'startAt names no block', when: 'startAt is an unknown block id', args: { ...base, startAt: 'nope' } },
+    // A string, or an id outside the pending slice, would otherwise redo the block from scratch silently.
+    { name: 'continueParked is not an array', when: 'continueParked is a bare block id string', args: { ...base, continueParked: 'block-a' } },
+    { name: 'continueParked names no pending block', when: 'continueParked holds an id this run does not build', args: { ...base, continueParked: ['nope'] } },
     // Scoped to the PENDING slice, unlike the siblings: an all-done relaunch must reach the nothing-to-run
     // terminal below rather than throw over a command this run would never execute.
     { name: 'no test gate for a green block', when: 'a todo block wants gate green with no test command', args: { ...base, gates: { build: GATES.build } } },
@@ -258,14 +261,6 @@ export default {
       },
     },
     {
-      // The block IS the inventory, so a block that printed no `### [` entries is a fix round with nothing
-      // to fix. Halts before any reviewer spawns, and does NOT park — nothing was changed.
-      name: 'a fix block has no issue entries',
-      when: 'a fix block printed no issue entries',
-      args: { ...base, plans: [FIX_BLOCK] },
-      respond: { develop: devFix([]) },
-    },
-    {
       // ALL-STALE: every entry is claimed already closed. The empty diff skips the blind review, and
       // acceptance confirms each STALE claim before the block counts done.
       name: 'every issue is already fixed',
@@ -304,6 +299,13 @@ export default {
       when: 'acceptance stages while reporting a regression',
       args: base,
       respond: { ...GREEN_RUN, acceptance: { ...ACC_PASS, regression: true } },
+    },
+    {
+      // Parked, unlike passed-but-unstaged: that halt's remedy stages the work, and this work is a flagged regression.
+      name: 'passed with a regression, not staged',
+      when: 'acceptance passes, flags a regression and stages nothing',
+      args: base,
+      respond: { ...GREEN_RUN, acceptance: { ...ACC_PASS, staged: false, regression: true }, park: PARK_OK },
     },
     {
       // Rejected work in the index would skip every later review, so the loop halts instead of re-rounding.
@@ -441,6 +443,14 @@ export default {
         [`develop ${FIX_BLOCK.id}`]: devFix(Array.from({ length: 200 }, (_, i) => ({ issue_id: `i-${i + 1}`, status: i ? 'FAILED' : 'FIXED' }))),
         [`acceptance ${FIX_BLOCK.id}`]: ACC_FIX,
       },
+    },
+    {
+      // Adds no node or edge: it puts the round-1 restore text in the prompt snapshot. Last, so the
+      // variants above keep their numbers.
+      name: 'a parked block is continued from its patch',
+      when: 'continueParked names block-a and every block accepts',
+      args: { ...base, continueParked: ['block-a'] },
+      respond: GREEN_RUN,
     },
   ],
 };

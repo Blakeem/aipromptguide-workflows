@@ -76,9 +76,9 @@ gate (30) stay the arbiters. No fatal mode in v1.
   `reference-transaction` hook refusing `refs/stash` updates from inside `aipg-*` worktrees, and
   `prep` proves the hook live in each fresh worktree before any agent runs there. Your own
   `git stash` outside `aipg-*` worktrees is untouched. The hook's bytes are load-bearing
-  (M19/M20/M31). Do not edit them. Inside a chain worktree, develop's `git stash -u` recovery is
-  refused. Set an interrupted block's unreviewed work aside by saving `git diff --binary` plus its
-  untracked files to the state dir, or relaunch that run with `resumeFromRunId`. Never follow the
+  (M19/M20/M31). Do not edit them. Inside a chain worktree, `git stash` is refused. Set an
+  interrupted block's unreviewed work aside with develop's save-and-clear
+  (`workflows/develop/CLAUDE.md` §4), which never uses the stash. Never follow the
   hook's `git add -A` advice for work no reviewer passed.
 - **The integration branch** — two lands merging into it at once is the one step that cannot
   overlap. `land` serializes on `<git-common-dir>/aipg-land.lock`, held across sync+gate+merge.

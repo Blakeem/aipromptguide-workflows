@@ -269,6 +269,30 @@ section('issue entries live under a fix-mode block, and carry their own `- key:`
   eq(gapEntry.values.decision, 'DEFER', 'and the whole run is read, not just its first line');
 }
 
+section('--list rejects a todo fix block with no issue entry, and validate() does not');
+{
+  // An empty todo inventory used to pass --list and halt a launched run only after a developer spawned.
+  const fixBlock = (preamble, entries = '', id = 'empty-inv') => `## Plan: ${id} - t\nmode: fix\ngate: green\n${preamble}\n${entries}body\n`;
+  const FIXES = /add one, delete the block, or set its "status:" to skip/;
+
+  const todo = planFails(fixBlock('status: todo\n'));
+  ok(/empty-inv/.test(todo), 'a todo fix block with no entry throws, naming the block');
+  ok(todo.includes('"### [<id>]"'), 'the message names the entry heading it needs');
+  ok(FIXES.test(todo), 'and the three fixes');
+  ok(/empty-inv/.test(planFails(fixBlock(''))), 'a fix block with no status: line is todo by default, so it throws');
+  ok(/empty-inv/.test(planFails(fixBlock('status: todo\n', '```\n### [x-y] an example entry\n```\n\n'))),
+    'a fenced entry heading is an example, so its block still throws');
+
+  const both = planFails(`${fixBlock('')}\n${fixBlock('', '', 'other-inv')}`);
+  ok(/in test/.test(both) && /empty-inv/.test(both) && /other-inv/.test(both), 'one throw names every such block and the file');
+
+  for (const status of ['done', 'skip', 'parked', 'blocked']) {
+    eq(listOf(fixBlock(`status: ${status}\n`)).blocks[0].status, status, `a ${status} fix block with no entry still lists`);
+  }
+  eq(listOf(fixBlock('status: todo\n', '### [x-y] t\n\n')).blocks[0].id, 'empty-inv', 'a todo fix block with one entry lists');
+  eq(failsWith0(fixBlock('status: todo\n')), '', 'validate() still accepts a todo fix block with no entry');
+}
+
 section('every metadata fault exits 1 naming the offending key, value or id');
 {
   ok(/unknown file key "goa"/.test(planFails(`goa: x\n\n${ONE()}`)), 'an unknown file key names it');

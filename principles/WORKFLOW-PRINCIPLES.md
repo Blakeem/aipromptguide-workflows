@@ -86,9 +86,10 @@ did" reports. A run writes only three kinds of file. These are the numbered inte
 ledgers and user notes below, and the workflow's own product, the thing the run exists to produce. The
 product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
 `options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked patch
-(`parked-<id>.patch`, plus a `parked-<id>-newfiles/` directory when needed). `DETERMINATION.md` earns its
-place the same way develop's `SWEEP.md` does. It holds the cross-option comparison and the coverage
-evidence, which no per-option file contains, and it links to `options/<id>.md` instead of restating them.
+(`parked-<id>.patch`, plus `parked-<id>.prev<n>.patch` for an earlier park of the same unit).
+`DETERMINATION.md` earns its place the same way develop's `SWEEP.md` does. It holds the cross-option
+comparison and the coverage evidence, which no per-option file contains, and it links to
+`options/<id>.md` instead of restating them.
 
 A file that restates numbers the harness already has is narration whatever its title, so "product"
 cannot be stretched to license a status file. For this reason the retired `resolve-cycle` deleted its
@@ -120,8 +121,9 @@ sequential, which is the only reason a shared append-only file is safe.
 
 The developer writes no "what I did" report, since its code is its output (#8). Reviewers write only
 their numbered review files. The one exception is develop's fix-mode acceptance verifier, which
-appends a harm with a separate cause to `NEW-ISSUES.md`, an untriaged issue inventory the user triages
-like debug's `issues/`. Nothing outside this list is written.
+appends a harm with a separate cause to its source block's `NEW-ISSUES-<id>.md` in the plan directory,
+an untriaged issue inventory the user triages like debug's `issues/`. Nothing outside this list is
+written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -286,16 +288,16 @@ rules and apply only where they fit.
   numbered review trail. Every terminal exit leaves the tree clean, with accepted work staged and
   unfinished work parked. So a resumed run starts from the same clean baseline as a fresh one, and the
   round-1 precondition applies unconditionally, including on resume. A parked unit's work lives in its
-  patch, and the user decides whether to restore it before re-running that unit. This invariant is
+  patch. develop can continue the unit from that patch (`continueParked`) or redo it. This invariant is
   load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
 - **Preventing review spin.** The `DISMISSED-<id>.md` ledger stops a blind reviewer from re-flagging
   settled findings forever. Reviewers skip ledger items for the stated reason and may contest a clearly
   wrong one once. The developer must fix or escalate a contested item (#5).
 - **Fresh and resumed state directory.** `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative. The
   per-unit ledgers append across rounds, and `NEEDS-USER.md` is one global file. The main agent clears
-  its engine's own state files in `runs/<id>/` for a fresh feature, never a plan file, debug's `issues/`
-  or an untriaged `NEW-ISSUES.md`, and preserves them on resume, so a halted run keeps its ledger and
-  user notes. This is pre-run setup (#4), not an engine job.
+  its engine's own state files in `runs/<id>/` for a fresh feature, never a plan file or debug's
+  `issues/`, and preserves them on resume, so a halted run keeps its ledger and user notes. This is
+  pre-run setup (#4), not an engine job.
 
 ---
 
@@ -319,7 +321,7 @@ Use these as yes/no checks when reviewing any workflow.
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
       `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, and the workflow's own product
       (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
-      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and `NEW-ISSUES.md`, a parked patch)? Any
+      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and `NEW-ISSUES-<id>.md`, a parked patch)? Any
       status, summary, progress, or "what I did" file is narration and a violation, including one
       that restates numbers the harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3), and the

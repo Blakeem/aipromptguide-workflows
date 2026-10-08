@@ -10,7 +10,7 @@
 // dead-agent sweep (dead-agent.test.mjs), and role/throw/terminal coverage (flow-coverage.test.mjs).
 // The dead-agent cases kept below assert what that sweep cannot see: guard ordering, the next round
 // never spawning, and a round-2 death.
-import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/develop/develop-cycle.mjs';
 
@@ -30,8 +30,8 @@ const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dism
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL = { wrote_file: true, pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
-const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048, strays_saved: 0 };
-const SWEEP_OK = { wrote_file: true, complete: true, gaps: [], suite_result: 'green' };
+const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
+const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
@@ -43,13 +43,39 @@ const syncOf = (out) => out.statusSync.map((e) => `${e.id}=${e.value}`).join(','
 section('a dirty baseline halts before any reviewer, and never parks the operator\'s work');
 // Parking here would take the operator's own uncommitted changes hostage, and nothing was built anyway.
 {
-  const { out, calls, labels } = await run({ develop: { ...DEV_OK, baseline_dirty_files: 4 } });
+  const { out, calls, labels, logs } = await run({ develop: { ...DEV_OK, baseline_dirty_files: 4 } });
   eq(calls.length, 1, 'only the developer ran, no reviewer spawned');
+  ok(logs.some((l) => /pre-existing unstaged\/untracked file\(s\).*never git stash/.test(l)) && !logs.some((l) => /stash -u/.test(l)),
+    'the log line never prescribes git stash -u');
   ok(!labels.some((l) => l.startsWith('park')), 'did NOT park the operator\'s changes');
   eq(out.status, 'BLOCKED (working tree was not clean — nothing was built)', 'status');
   eq(out.parked.length, 0, 'nothing in parked[]');
   ok(/4 file\(s\)/.test(out.haltReason), 'halt reason names the count');
-  ok(/add -A/.test(out.haltReason) && /stash/.test(out.haltReason), 'and gives both remedies');
+  ok(/add -A/.test(out.haltReason) && /diff --binary > E:\/r\/runs\/t\/set-aside-<n>\.patch/.test(out.haltReason),
+    'and gives both remedies');
+  // develop keeps accepted blocks only in the index, and `git stash -u` resets the index to HEAD.
+  ok(!/stash -u/.test(out.haltReason) && /unpathed `git reset`, `git rm` or `git stash` touches the staged baseline/.test(out.haltReason),
+    'the set-aside never stashes, and says why');
+  // A fresh run has no state dir yet, so an unguarded failed save would be followed by the clear.
+  ok(/mkdir -p E:\/r\/runs\/t/.test(out.haltReason)
+    && out.haltReason.indexOf('stop and clear nothing') > out.haltReason.indexOf('diff --binary >')
+    && out.haltReason.indexOf('stop and clear nothing') < out.haltReason.indexOf('checkout -- <files>'),
+    'the set-aside creates the state dir and gates the clear on a non-empty saved patch');
+  ok(/checkout -- <files>/.test(out.haltReason) && /rm -f -q -- <file>/.test(out.haltReason)
+    && /`git -C E:\/repo diff --cached` is unchanged/.test(out.haltReason), 'it clears by path and confirms the index is unchanged');
+  // The round-1 clean check counts every `??` file, so untracked build output left behind re-halts the relaunch.
+  ok(out.haltReason.indexOf('remove the untracked build output and caches') > -1
+    && out.haltReason.indexOf('remove the untracked build output and caches') < out.haltReason.indexOf('add -N -- <file>')
+    && /confirm `git -C E:\/repo status --porcelain` lists no `\?\?` file/.test(out.haltReason),
+    'the set-aside removes untracked build output first and confirms no untracked file is left');
+  ok(/plain `git -C E:\/repo apply <patch>`, never `--3way`/.test(out.haltReason), 'its restore never stages');
+  // A resume re-runs a killed round-1 developer live, whose clean-baseline check halts on its own partial work.
+  ok(!/resumeFromRunId/.test(out.haltReason), 'and never offers a cached replay');
+  // The halt still syncs the block blocked, so a fresh args run would drop it unless it is flipped back.
+  ok(/recorded the block as `blocked`/.test(out.haltReason)
+    && /run `plan-edit\.mjs args` \(it applies that status\), set this block's `status:` back to `todo`, run `plan-edit\.mjs args` again/.test(out.haltReason),
+    'and says to flip the block back to todo between two plan-edit.mjs args runs');
+  ok(!/re-invoke this run unchanged|Nothing was built or changed/.test(out.haltReason), 'never says to re-invoke the same args');
   // A killed run never parks, so its unreviewed block is also dirt here. `git add -A` on it would fold
   // code no reviewer passed into the accepted baseline.
   ok(/add -A` to KEEP it when it is your own pre-existing edits/.test(out.haltReason),
@@ -175,12 +201,12 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
 // unstaged diff is still there to be staged.
 {
   const FIX_BLOCK = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green' }] };
-  const DEV_FIXED = { ...DEV_OK, entries_found: 1, results: [{ issue_id: 'i-1', status: 'FIXED' }] };
-  const DEV_STALE = { ...DEV_OK, entries_found: -1, results: [{ issue_id: 'i-1', status: 'STALE' }] };
+  const DEV_FIXED = { ...DEV_OK, results: [{ issue_id: 'i-1', status: 'FIXED' }] };
+  const DEV_STALE = { ...DEV_OK, results: [{ issue_id: 'i-1', status: 'STALE' }] };
   const { out, prompt, logs } = await run({
     develop: firstRound(DEV_FIXED, DEV_STALE),
     quality: firstRound(FLAGGED, CLEAN),
-    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [], new_issues: 0 },
+    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [], new_issues: 0, new_issue_blocks: [] },
   }, FIX_BLOCK);
   ok(/- i-1/.test(prompt('acceptance')), 'round 2 still hands acceptance the id claimed FIXED in round 1');
   ok(!/none claimed fixed/.test(prompt('acceptance')), 'the claim list did not empty on the downgrade');
@@ -191,69 +217,121 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
 }
 
 // ---------------------------------------------------------------------------------------------
-// FIX mode — the derived `produced`, the two round-1 terminals, and the gate a fix block may take
+// FIX mode — the derived `produced`, the round-1 no-changes terminal, and the gate a fix block may take
 // Twins of tests/resolve.test.mjs's battery, ported to the block shape: resolve fans batches out of an
-// issue inventory, this engine reads ONE block whose body IS the inventory, so `entries_found` and the
-// terminals move from a batch record onto the ledger's per-block record.
+// issue inventory, this engine reads ONE block whose body IS the inventory, so the no-changes terminal
+// moves from a batch record onto the ledger's per-block record.
 // ---------------------------------------------------------------------------------------------
 const FIX_ONE = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green' }] };
 // `produced` is DELIBERATELY dropped: in fix mode the engine DERIVES it from `results`, and leaving the
 // flag in would let every case below pass on the one field the engine must ignore there.
 const { produced, ...DEV_FIX } = DEV_OK;
-const fixDev = (results, extra = {}) => ({ ...DEV_FIX, entries_found: 1, results, ...extra });
-const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0 };
-const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [], new_issues: 0 };
+const fixDev = (results, extra = {}) => ({ ...DEV_FIX, results, ...extra });
+const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, new_issue_blocks: [] };
+const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [], new_issues: 0, new_issue_blocks: [] };
 
-section('fix acceptance records a harm with a separate cause as a new issue, never a gap');
+const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
+  { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
+  { id: 'fix-b', planPath: 'E:/plans/two.md', issues: ['i-3'] },
+] };
+const PASS_ARGS = { ...baseArgs, planPath: undefined, plans: [PASS] };
+const passDev = (results) => ({ ...DEV_OK, produced: undefined, results });
+
+section('fix acceptance records a harm with a separate cause as a new issue in its block\'s own file, never a gap');
 // A fix loop converges because its inventory is closed at triage, so the verifier routes such a harm to a
 // file the user triages instead of failing a fix whose own root cause is closed.
 {
   const DEV_FIXED = fixDev([{ issue_id: 'i-1', status: 'FIXED' }]);
   const ran = (r) => r.labels.some((l) => l.startsWith('acceptance'));
-  const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, new_issues: 2 } }, FIX_ONE);
+  const FILE_A = 'E:/r/plans/t/NEW-ISSUES-fix-a.md';
+  const FILE_B = 'E:/r/plans/t/NEW-ISSUES-fix-b.md';
+  const TO_CHECK = (...files) => `so check these files for entries: ${files.join(', ')}.`;
+  const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, new_issues: 2, new_issue_blocks: ['fix-a'] } }, FIX_ONE);
   const acc = found.prompt('acceptance').replace(/\s+/g, ' ');
-  ok(acc.includes('E:/r/runs/t/NEW-ISSUES.md only, never to your review file') && acc.includes('"- decision: NEEDS_USER"')
-    && acc.includes('"## Plan: new-issues - '),
-    'the verifier is told where a new issue goes, that it stays out of the review file, and how the file is shaped');
+  ok(acc.includes(`${FILE_A} only, never to your review file`) && acc.includes('"- decision: NEEDS_USER"')
+    && acc.includes('"## Plan: fix-a-new-issues - '),
+    'the verifier is told its block\'s file, that a new issue stays out of the review file, and how the file is shaped');
+  ok(acc.includes('Before you append, read every existing NEW-ISSUES-*.md in E:/r/plans/t/ and never append a harm any of them already holds.'),
+    'and to read every block\'s file before appending, so a harm two blocks see is recorded once');
   ok(acc.includes('a cause that shares no code path with the root cause you re-derived')
     && acc.includes('A sibling path, caller or branch with the identical defect is always a residual path, and when unsure, treat it as one.'),
     'the boundary keeps a sibling path with the same defect a residual path');
   ok(acc.includes('It sets no fix_check false, and it never excuses a regression or an unsatisfied gate.'),
     'a new issue never outranks a regression or the gate');
   ok(acc.includes('EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.'), 'only the review file\'s defects count');
+  ok(!found.calls.some((c) => c.prompt.includes('E:/r/runs/t/NEW-ISSUES.md')) && !found.out.followups.includes('E:/r/runs/t/NEW-ISSUES.md'),
+    'no prompt and no followups names the old run-wide file');
+  ok(!/NEW-ISSUES/.test(found.prompt('quality')), 'the blind quality prompt names no NEW-ISSUES path');
   eq(found.out.newIssues, 2, 'the return counts the new issues');
-  ok(found.logs.some((l) => /acceptance recorded 2 new issue\(s\) in E:\/r\/runs\/t\/NEW-ISSUES\.md/.test(l)), 'and the round logs them');
-  ok(/Acceptance recorded 2 new issue\(s\) outside the fixes' root causes in E:\/r\/runs\/t\/NEW-ISSUES\.md\. Once no parked or blocked block of this run is left to relaunch, move that file to E:\/r\/plans\/t\/NEW-ISSUES-t-<n>\.md, with n one past the highest already there/.test(found.out.followups),
-    'and the followups say to move the file out once the run is finished, before triage');
+  eq(JSON.stringify(found.out.newIssueFiles), JSON.stringify([FILE_A]), 'and names the file the verifier wrote');
+  ok(found.logs.some((l) => l.includes(`acceptance recorded 2 new issue(s) in ${FILE_A}`)), 'and the round logs it');
+  ok(found.out.followups.includes(`Acceptance recorded 2 new issue(s) outside the fixes' root causes in: ${FILE_A}.`)
+    && found.out.followups.includes('Triage each file like a debug issue file once its block\'s status is done or skip'),
+    'the followups name the file and say to triage it once its block is done or skipped');
+  ok(!/\bmove\b|renumber|rename/i.test(found.out.followups), 'and never say to move, renumber or rename it');
+
+  const pass = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-3', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-3', actually_fixed: true }],
+      new_issues: 3, new_issue_blocks: ['fix-b', 'fix-a', 'fix-b'] },
+  }, PASS_ARGS);
+  const passAcc = pass.prompt('acceptance').replace(/\s+/g, ' ');
+  ok(passAcc.includes(`i-1, i-2 → ${FILE_A}`) && passAcc.includes(`i-3 → ${FILE_B}`),
+    'a pass verifier maps each member\'s issue ids to that member\'s file');
+  ok(!passAcc.includes('NEW-ISSUES-fix-a-plus-1'), 'and names no file for the pass\'s own id');
+  eq(JSON.stringify(pass.out.newIssueFiles), JSON.stringify([FILE_A, FILE_B]), 'the return\'s files are sorted and de-duplicated');
+
+  const passOwnId = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, new_issues: 1, new_issue_blocks: ['fix-a-plus-1'] },
+  }, PASS_ARGS);
+  eq(passOwnId.out.newIssueFiles, null, 'the pass\'s own id is no member, so the report is unknown');
+  ok(passOwnId.out.followups.includes(TO_CHECK(FILE_A, FILE_B)), 'and the followups list every member\'s file to check');
 
   const summed = await run({
     develop: DEV_FIXED, quality: CLEAN, park: PARK_OK,
-    acceptance: firstRound({ ...FIX_GAP, new_issues: 1 }, { ...FIX_PASS, new_issues: 2 }),
+    acceptance: firstRound({ ...FIX_GAP, new_issues: 1, new_issue_blocks: ['fix-a'] }, { ...FIX_PASS, new_issues: 2, new_issue_blocks: ['fix-a'] }),
   }, FIX_ONE);
   eq(summed.out.newIssues, 3, 'every round\'s count is summed, not only the last one');
+  eq(JSON.stringify(summed.out.newIssueFiles), JSON.stringify([FILE_A]), 'and a file two rounds name is listed once');
 
   const none = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
   ok(ran(none), 'the no-new-issue case ran its verifier');
   eq(none.out.newIssues, 0, 'a run that found none reports 0');
-  ok(!/NEW-ISSUES/.test(none.out.followups), 'and its followups never mention the file');
+  eq(JSON.stringify(none.out.newIssueFiles), '[]', 'and no file');
+  ok(!/NEW-ISSUES/.test(none.out.followups), 'and its followups never mention a file');
 
   const { new_issues: _, ...NO_COUNT } = FIX_PASS;
-  const unknown = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: NO_COUNT }, FIX_ONE);
-  eq(unknown.out.newIssues, null, 'a missing count is unknown, never 0');
-  ok(/returned no new-issue count, so check E:\/r\/runs\/t\/NEW-ISSUES\.md for entries/.test(unknown.out.followups),
-    'and the followups send the operator to the file');
+  const { new_issue_blocks: __, ...NO_BLOCKS } = FIX_PASS;
+  for (const [acceptance, what] of [
+    [NO_COUNT, 'a missing count'],
+    [NO_BLOCKS, 'a missing new_issue_blocks'],
+    [{ ...FIX_PASS, new_issue_blocks: 'fix-a' }, 'a new_issue_blocks that is not an array'],
+    [{ ...FIX_PASS, new_issues: 1, new_issue_blocks: ['fix-b'] }, 'an id outside the block'],
+    [{ ...FIX_PASS, new_issues: 1, new_issue_blocks: [] }, 'a positive count with no block named'],
+  ]) {
+    const unknown = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance }, FIX_ONE);
+    eq(unknown.out.newIssues, null, `${what} makes the count unknown, never 0`);
+    eq(unknown.out.newIssueFiles, null, `${what} makes the file list unknown too`);
+    ok(unknown.out.followups.includes(TO_CHECK(FILE_A)), `and the followups list the block's file to check (${what})`);
+  }
 
   const dead = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: null, park: PARK_OK }, FIX_ONE);
   eq(dead.out.newIssues, null, 'a dead verifier may have appended before it died, so the count is unknown');
-  ok(/NEW-ISSUES\.md for entries/.test(dead.out.followups), 'and the followups send the operator to the file');
+  eq(dead.out.newIssueFiles, null, 'and so are its files');
+  ok(dead.out.followups.includes(TO_CHECK(FILE_A)), 'and the followups send the operator to the file');
 
   const feature = await run(GREEN_RUN);
   ok(ran(feature), 'the feature case ran its verifier');
   eq(feature.out.newIssues, 0, 'a feature block has no new-issue channel and reports 0');
+  eq(JSON.stringify(feature.out.newIssueFiles), '[]', 'and no file');
   ok(!/NEW-ISSUES/.test(feature.prompt('acceptance')), 'and its verifier is never told of one');
 
   const idle = await run({}, { ...FIX_ONE, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green', status: 'done' }] });
-  eq(idle.out.newIssues, 0, 'a nothing-to-run return carries the field too');
+  eq(idle.out.newIssues, 0, 'a nothing-to-run return carries the count');
+  eq(JSON.stringify(idle.out.newIssueFiles), '[]', 'and the file list');
 }
 
 section('mode fix takes gate green ONLY: build-only and red-baseline throw at launch');
@@ -269,32 +347,6 @@ section('mode fix takes gate green ONLY: build-only and red-baseline throw at la
   }
 }
 
-section('a fix block whose inventory printed no entries halts before any reviewer; -1 in round 2 does not');
-// The block body IS the inventory here, so 0 entries means the developer read the wrong block (or none).
-// Unguarded, it returns an empty results array, the no-changes terminal fires, and the run ends reporting
-// a clean outcome over an inventory nobody read.
-{
-  const zero = await run({ develop: fixDev([], { entries_found: 0 }) }, FIX_ONE);
-  eq(zero.calls.length, 1, 'only the developer ran');
-  ok(!zero.labels.some((l) => l.startsWith('quality') || l.startsWith('acceptance') || l.startsWith('park')),
-    'no reviewer and no park on a block that was never started');
-  eq(zero.out.status, 'BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built)', 'status');
-  ok(/ZERO "### \[" issue entries/.test(zero.out.haltReason), 'the halt reason names what was counted');
-  ok(/'E:\/plans\/bus\.md' 'fix-a'/.test(zero.out.haltReason), 'and the block reference to re-run by hand');
-  eq(zero.out.plansDone.length, 0, 'nothing is done');
-
-  // -1 is the schema's round-2+ n/a. The precondition is round-1 only, so it must fall straight through
-  // rather than collapsing into the 0 halt.
-  const later = await run({
-    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]),
-      fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { entries_found: -1 })),
-    quality: firstRound(FLAGGED, CLEAN),
-    acceptance: FIX_PASS,
-  }, FIX_ONE);
-  ok(later.out.halted === false, 'entries_found -1 in round 2 does not halt');
-  eq(later.out.status, 'done (all blocks staged)', 'and the block still reaches acceptance');
-}
-
 section('a fix block that halts on escalation or staging still records the results it reported');
 // The ledger is where the operator syncs each entry's status line from. Recording after the halts left a
 // block that escalated with results:null, although its developer had reported every id.
@@ -304,20 +356,6 @@ section('a fix block that halts on escalation or staging still records the resul
     const { out } = await run({ develop: fixDev(reported, extra), park: PARK_OK }, { ...FIX_ONE, ordered: true });
     ok(out.halted === true, `${why}: the run halted`);
     eq(JSON.stringify(out.ledger[0]?.results), JSON.stringify(reported), `${why}: the ledger carries the reported results`);
-  }
-}
-
-section('the inventory-readable guard reads the VALUE, not what `=== 0` makes of it');
-// `false`, `''` and `[]` all compare `=== 0` as false, so a malformed return would read as a readable
-// inventory silently. Each must log that the precondition went unverified.
-{
-  for (const bad of [null, false, '', []]) {
-    const { logs } = await run({
-      develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { entries_found: bad }),
-      quality: CLEAN, acceptance: FIX_PASS,
-    }, FIX_ONE);
-    ok(logs.some((l) => /entries_found — the inventory-readable precondition was NOT verified/.test(l)),
-      `${JSON.stringify(bad)} is not silently a readable inventory`);
   }
 }
 
@@ -380,6 +418,11 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
   eq(carry.out.plansDone.join(), 'block-a', 'building the next block, which alone is done');
   eq(carry.out.status, 'run complete with 1 block(s) blocked', 'the status counts the blocked block, never "partial slice"');
   ok(/closed NO issue and are NOT done: fix-a/.test(carry.out.followups), 'and followups name it');
+  // A flip before the fold is undone by it, and the relaunch skips the block.
+  ok(/closed NO issue.*flip it back to todo once `plan-edit\.mjs args` has applied this run's statuses/.test(carry.out.followups),
+    'and order the flip after the status fold');
+  ok(/flip it back to todo once `plan-edit\.mjs args` has applied this run's statuses/.test(stop.out.haltReason),
+    'as does the ordered halt reason');
 }
 
 section('a round-2 empty results array takes NO shortcut — the run still reaches acceptance and park');
@@ -389,7 +432,7 @@ section('a round-2 empty results array takes NO shortcut — the run still reach
 // unstaged, unreviewed and attributed to the next block.
 {
   const { out, labels } = await run({
-    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([], { entries_found: -1 })),
+    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([])),
     quality: firstRound(FLAGGED, CLEAN),
     acceptance: FIX_GAP,
     park: PARK_OK,
@@ -543,8 +586,19 @@ section('the `ordered` file key decides whether a parked block stops the run');
   eq(carry.out.plansDone.join(), 'block-b', 'block-b is the only one done');
   ok(carry.out.parked[0].patch?.endsWith('parked-block-a.patch'), 'the patch path reaches the operator');
   eq(carry.out.status, 'run complete with 1 block(s) parked', 'status counts the parked block');
-  ok(/PARKED: block-a/.test(carry.out.followups) && /git apply --3way/.test(carry.out.followups),
+  ok(/PARKED: block-a/.test(carry.out.followups) && /git apply/.test(carry.out.followups),
     'followups names the parked block and the restore command');
+  // `--3way` implies `--index`: it stages the restored work, folding unreviewed code into the accepted baseline.
+  // The park prompt's warning still names `--3way`, so the check targets the restore command alone.
+  ok(!/apply --3way/.test(carry.out.followups), 'followups never names a --3way restore');
+  const parkText = carry.prompt('park:block-a');
+  ok(/`git -C E:\/repo apply E:\/r\/runs\/t\/parked-block-a\.patch`/.test(parkText) && !/apply --3way/.test(parkText),
+    'the park prompt\'s verbatim restore command is a plain git apply');
+  ok(carry.out.parked.every((r) => !('strays' in r)), 'no parked row carries a strays key');
+  ok(/continue it from its patch under full review \(the same relaunch, with continueParked naming it\)/.test(carry.out.followups),
+    'followups offers continueParked beside the runOnly redo');
+  ok(/restores the work UNSTAGED, with new\s+files untracked/.test(parkText),
+    'and the park note says the restore leaves the work unstaged');
   ok(/flip it to todo once `plan-edit\.mjs args` has applied this run's statuses, and relaunch it with runOnly/.test(carry.out.followups),
     'followups says to flip a parked block to todo before a runOnly relaunch, since runOnly selects only todo blocks');
 
@@ -562,12 +616,13 @@ section('a developer escalation parks first, then stops an ordered run');
 {
   const { out, labels, prompt } = await run({
     develop: { ...DEV_OK, needs_user: true },
-    park: { ...PARK_OK, strays_saved: 2 },
+    park: PARK_OK,
   }, { ...baseArgs, ordered: true });
   ok(labels.includes('park:block-a'), 'PARK ran on the halt path');
   eq(out.status, 'BLOCKED (needs user input)', 'status');
   ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
-  ok(out.parked[0]?.strays?.endsWith('parked-block-a-newfiles'), `strays dir surfaced: ${out.parked[0]?.strays}`);
+  ok(out.parked[0]?.patch?.endsWith('parked-block-a.patch'), `the escalated block's patch is surfaced: ${out.parked[0]?.patch}`);
+  ok(!('strays' in (out.parked[0] ?? {})), 'and its parked row carries no strays key');
   eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
   ok(/The tree is clean/.test(out.followups) && !/still holds/.test(out.followups),
     'followups says the tree is clean, never that it still holds the work');
@@ -591,16 +646,131 @@ section('a developer escalation parks first, then stops an ordered run');
   ok(!/Work SAVED/.test(out.followups), 'never that the work was saved');
 }
 {
-  // An empty diff can still hide `??` files the developer never registered: park copies them, so
-  // "nothing to save" would send the operator past real work.
-  const { out } = await run({
+  // Park marks every `??` file intent-to-add before it checks the diff, so an empty diff holds no new file
+  // and no second save location exists.
+  const { out, logs } = await run({
     develop: { ...DEV_OK, needs_user: true },
-    park: { ...PARK_OK, saved: false, patch_bytes: 0, strays_saved: 2 },
+    park: { ...PARK_OK, saved: false, patch_bytes: 0 },
   }, { ...baseArgs, ordered: true });
   eq(out.parked[0]?.patch, null, 'no patch path');
-  ok(/new files are SAVED to .*parked-block-a-newfiles\//.test(out.haltReason), `halt reason names the strays dir: ${out.haltReason}`);
-  ok(!/NOTHING to save/.test(out.haltReason), 'and never says there was nothing to save');
-  ok(!/NO patch was written for: block-a/.test(out.followups), 'followups does not list it as an empty park');
+  ok(/It had NOTHING to save \(its working tree was already empty\) and the tree is CLEAN/.test(out.haltReason),
+    `an empty ordered park says there was nothing to save: ${out.haltReason}`);
+  ok(!/newfiles|strays/.test(out.haltReason + out.followups) && !logs.some((l) => /stray/.test(l)),
+    'no halt reason, followup or log line names a strays dir');
+  ok(/NO patch was written for: block-a/.test(out.followups), 'followups lists it as an empty park');
+}
+
+section('park carries new files in its one patch and never overwrites an earlier patch');
+// An untracked file rides the `--binary` patch once it is intent-to-add, and a second park of a block must
+// keep the first attempt's patch, which may be the only copy of that work.
+{
+  const { prompt, byLabel } = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+  const parkText = prompt('park:block-a');
+  const markNew = parkText.indexOf('`git -C E:/repo add -N -- <path>`');
+  const emptyCheck = parkText.indexOf('Only then check `git -C E:/repo diff`');
+  const rename = parkText.indexOf('RENAME it to E:/r/runs/t/parked-block-a.prev<n>.patch');
+  const write = parkText.indexOf('`git -C E:/repo diff --binary > E:/r/runs/t/parked-block-a.patch`');
+  ok(markNew > -1 && markNew < emptyCheck && emptyCheck < write,
+    'park marks each ?? path intent-to-add before it checks the diff and writes the patch');
+  ok(!/-newfiles|CATCH STRAYS|strays/i.test(parkText), 'park has no strays step and no -newfiles dir');
+  ok(!('strays_saved' in (byLabel('park:block-a')[0]?.opts.schema.properties ?? { strays_saved: 1 })),
+    'PARK_SCHEMA has no strays_saved property');
+  ok(/if E:\/r\/runs\/t\/parked-block-a\.patch already exists, RENAME it/.test(parkText) && rename > -1 && rename < write,
+    'an existing patch is renamed to .prev<n> before the new one is written');
+  ok(/n one past the highest existing \.prev<n> number for this block, or 1 when none exists/.test(parkText),
+    'with n one past the highest existing one');
+  ok(/Never overwrite or delete either patch/.test(parkText), 'park never overwrites or deletes a patch');
+  ok(/renamed an earlier patch, one more line naming the `\.prev<n>\.patch` path\s+where that earlier attempt's patch now lives/.test(parkText),
+    'the NEEDS-USER entry names where the earlier patch now lives');
+  ok(/when E:\/r\/runs\/t\/parked-block-a\.patch already exists,\s+a line naming it as this block's earlier saved work/.test(parkText),
+    'an empty park names an existing patch as the block\'s earlier saved work');
+  ok(/"Saved work: none \(the tree held no changes\)"/.test(parkText) && !/Saved work: no patch/.test(parkText),
+    'one empty-diff line remains');
+  ok(/`git -C E:\/repo rm -f -q -- <file>`/.test(parkText) && !/delete each `\?\?` stray/.test(parkText),
+    'the clear step drops intent-to-add files by path and deletes no stray copy');
+  ok(/re-invoke with `runOnly:\["block-a"\]`[\s\S]*?`continueParked:\["block-a"\]`/.test(parkText)
+    && !/ONLY alternative is to\s+apply the patch and finish this block BY HAND/.test(parkText),
+    'how-to-resume names continueParked beside the runOnly redo, not a hand finish');
+}
+
+section('continueParked is validated before any agent runs');
+// A string or a stray id would otherwise redo the block from scratch with no word in any log line.
+{
+  const cases = [
+    ['a string', { ...baseArgs, continueParked: 'block-a' }, /^Invalid continueParked arg: args\.continueParked must be an ARRAY/],
+    ['an empty id', { ...baseArgs, continueParked: [''] }, /^Invalid continueParked arg/],
+    ['a non-string id', { ...baseArgs, continueParked: [7] }, /^Invalid continueParked arg/],
+    ['a done block', { ...baseArgs, plans: [{ ...BLOCKS[0], status: 'done' }, BLOCKS[1]], continueParked: ['block-a'] },
+      /^Invalid continueParked id: args\.continueParked "block-a" names no block this run builds\. Pending ids: block-b\./],
+    ['an unknown id', { ...baseArgs, continueParked: ['nope'] }, /^Invalid continueParked id: args\.continueParked "nope".*Pending ids: block-a, block-b\./],
+    ['a todo block runOnly excludes', { ...baseArgs, runOnly: ['block-b'], continueParked: ['block-a'] },
+      /^Invalid continueParked id: args\.continueParked "block-a".*Pending ids: block-b\./],
+  ];
+  for (const [what, args, msg] of cases) {
+    const { terminal, calls } = await runTrace(ENGINE, { args, respond: GREEN_RUN });
+    ok(terminal.kind === 'throw' && msg.test(terminal.message), `${what} throws: ${terminal.message}`);
+    eq(calls.length, 0, `${what}: no agent ran`);
+  }
+  const outside = await throwsWith(ENGINE, { args: { ...baseArgs, continueParked: ['nope'] }, respond: GREEN_RUN });
+  ok(/A parked or blocked block must be set back to todo before it can be continued/.test(outside),
+    'the id throw says a parked or blocked block must go back to todo first');
+
+  // An omitted or empty continueParked changes no prompt: redo from scratch stays the default.
+  const plain = await run(GREEN_RUN);
+  const empty = await run(GREEN_RUN, { ...baseArgs, continueParked: [] });
+  ok(empty.calls.length === plain.calls.length && empty.calls.every((c, i) => c.prompt === plain.calls[i].prompt),
+    'an empty continueParked leaves every prompt unchanged');
+  ok(/If it IS 0, implement this block from\nscratch on top of the staged baseline/.test(plain.prompt('develop block-a r1')),
+    'and round 1 still implements from scratch');
+}
+
+section('a continued block restores its patch in round 1, after the clean-baseline check');
+{
+  const { byLabel } = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...baseArgs, continueParked: ['block-a'] });
+  const r1 = byLabel('develop block-a r1')[0]?.prompt ?? '';
+  const clean = r1.indexOf('CONFIRM THE BASELINE IS CLEAN');
+  const apply = r1.indexOf('PLAIN `git -C E:/repo apply E:/r/runs/t/parked-block-a.patch`');
+  ok(clean > -1 && apply > clean, 'round 1 runs the clean-baseline check first, then the plain git apply of its patch');
+  ok(/never with `--3way`,\s+`--index` or `--cached`/.test(r1) && !/apply --3way/.test(r1), 'the restore is never --3way, --index or --cached');
+  ok(r1.indexOf('`git -C E:/repo add -N -- <file>` on each new file the patch created') > apply, 'it marks the patch\'s new files intent-to-add');
+  ok(/Confirm `git -C E:\/repo diff --cached --stat` is the same/.test(r1), 'it confirms the staged index is unchanged');
+  ok(/latest `## Parked block: block-a` entry in E:\/r\/runs\/t\/NEEDS-USER\.md and the review file that entry\s+names/.test(r1),
+    'it reads the park entry and the review it names');
+  ok(/The restored diff is THIS block's own unstaged work\. Report produced=true\./.test(r1), 'the restored work counts as produced');
+  ok(/If E:\/r\/runs\/t\/parked-block-a\.patch is missing or `git apply` fails/.test(r1) && /set needs_user=true and STOP/.test(r1),
+    'a missing patch or a failed apply falls back to needs_user');
+  ok(!/implement this block from\s+scratch on top/.test(r1), 'and it does not also implement from scratch');
+  const untouched = [byLabel('develop block-a r2')[0]?.prompt, byLabel('develop block-b r1')[0]?.prompt];
+  ok(untouched.every((t) => t && !/parked-block-a\.patch|CONTINUE from/.test(t)),
+    'round 2 of the continued block and the block not named get no restore text');
+}
+{
+  const { prompt } = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS },
+    { ...FIX_ONE, continueParked: ['fix-a'] });
+  const r1 = prompt('develop fix-a r1');
+  ok(!/step 0 below/.test(r1), 'a continued fix block names no procedure step 0, since its procedure starts at step 1');
+  ok(/Report every entry the restored work closes as FIXED, never STALE\./.test(r1), 'a continued fix block reports the entries the restored work closes as FIXED');
+}
+
+section('a continued block whose park saves nothing names the patch it was continued from');
+// The patch may be missing or may not have applied, so "nothing to save" would hide the earlier work and
+// "saved work" would promise a file that may not exist.
+{
+  const { out, logs } = await run({
+    develop: { ...DEV_OK, needs_user: true },
+    park: { ...PARK_OK, saved: false, patch_bytes: 0 },
+  }, { ...baseArgs, ordered: true, continueParked: ['block-a'] });
+  eq(out.parked[0]?.patch, null, 'no new patch path');
+  ok(/It was continued from E:\/r\/runs\/t\/parked-block-a\.patch, which holds its earlier work only if that file exists: its entry in E:\/r\/runs\/t\/NEEDS-USER\.md says whether the patch was missing or did not apply/.test(out.haltReason),
+    `the halt reason names the patch and the NEEDS-USER entry: ${out.haltReason}`);
+  ok(/No new patch was written for: block-a \(continued from E:\/r\/runs\/t\/parked-block-a\.patch\)/.test(out.followups)
+    && /entry in E:\/r\/runs\/t\/NEEDS-USER\.md says whether its patch was missing or did not apply/.test(out.followups),
+    'followups names the patch and the NEEDS-USER entry');
+  const parkLine = logs.find((l) => /PARKED/.test(l)) ?? '';
+  ok(/no new patch, continued from E:\/r\/runs\/t\/parked-block-a\.patch/.test(parkLine), `the park log line names the patch: ${parkLine}`);
+  const texts = [out.haltReason, out.followups, parkLine].join('\n');
+  ok(!/nothing to save|nothing to restore|NO patch was written/i.test(texts), 'none of them says there is nothing to save or restore');
+  ok(!/(SAVED|saved) to E:\/r\/runs\/t\/parked-block-a\.patch|work saved to/.test(texts), 'and none calls the patch saved work');
 }
 
 section('an unordered run parks a needs-user block and continues');
@@ -709,6 +879,29 @@ section('acceptance that passed without staging halts without parking');
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN,
     acceptance: { ...FIX_PASS, staged: false } }, FIX_ONE);
   eq(syncOf(fix.out), 'fix-a=done,i-1=fixed', 'a passed-unstaged fix block syncs its FIXED entry fixed');
+}
+
+section('acceptance that passed with a regression but staged nothing parks, and is never synced done');
+// Routed as passed-unstaged, the block synced done, its FIXED entries fixed, and the halt told the operator
+// to stage work its own verifier flagged as a regression.
+{
+  const { out, labels } = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, staged: false, regression: true }, park: PARK_OK });
+  ok(out.halted === true, 'halted');
+  ok(labels.includes('park:block-a'), 'parked the flagged work, so the tree is clean');
+  ok(!labels.some((l) => l.includes('block-b')), 'the run did not continue');
+  eq(out.status, 'BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is)', 'status');
+  eq(syncOf(out), 'block-a=blocked', 'statusSync marks the block blocked, never done');
+  eq(out.plansDone.length, 0, 'nothing counts done');
+  ok(/flagged a regression and staged nothing/.test(out.haltReason) && /left UNSTAGED and is flagged as a regression/.test(out.haltReason),
+    'the reason says the work is unstaged and flagged as a regression');
+  ok(/never stage it as it is/.test(out.haltReason) && !/Stage its files|git -C \S+ add/.test(out.haltReason),
+    'and never tells the operator to stage it');
+  ok(/see E:\/r\/runs\/t\/acceptance-review-block-a-r1\.md/.test(out.haltReason), 'and cites the acceptance file it wrote');
+  ok(/flagged a regression and staged nothing/.test(out.followups), 'followups repeats the reason');
+
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN,
+    acceptance: { ...FIX_PASS, staged: false, regression: true }, park: PARK_OK }, FIX_ONE);
+  eq(syncOf(fix.out), 'fix-a=blocked,i-1=needs-attention', 'a fix block syncs blocked and its FIXED entry needs-attention');
 }
 
 section('a pass resting on assertion rather than evidence is flagged THIN, never failed');
@@ -871,20 +1064,47 @@ section('a dead final sweep is reported as NOT RUN, never as zero gaps');
   ok(!logs.some((l) => /0 potential gap/.test(l)), 'never logs a clean-looking gap count for a check that died');
   eq(out.status, 'done (all blocks staged)', 'a dead sweep does not fail an otherwise complete run');
   ok(/completeness sweep DIED/.test(out.followups), 'and followups warns the user first');
+  // The sweep runs only after the block loop, and a relaunch finds every block done and returns first.
+  const deadLine = logs.find((l) => /completeness check DIED/.test(l)) ?? '';
+  ok(/check coverage against the goal yourself/.test(deadLine) && /verify coverage against the goal yourself/.test(out.followups),
+    'both tell the operator to verify coverage by hand');
+  ok(!/re-run/.test(deadLine) && !/re-run it/.test(out.followups), 'and neither offers a sweep re-run no relaunch can reach');
+}
+
+section('a sweep gap count is read only as a non-negative integer, and a missing one is unknown, never zero');
+// `(sweep.gaps || []).length` read a missing gap list as zero gaps.
+{
+  const SWEPT = { ...baseArgs, sweep: 'goal-coverage', goal: 'g' };
+  const GAPS = { wrote_file: true, complete: false, suite_result: 'green' };
+  const counted = await run({ ...GREEN_RUN, 'final-sweep': { ...GAPS, gap_count: 2 } }, SWEPT);
+  eq(counted.out.sweep.gaps, 2, 'the return carries the sweep\'s own count');
+  ok(counted.logs.some((l) => /sweep: 2 potential gap\(s\)/.test(l)), 'and the log line states it');
+  for (const [name, sweep] of [['missing', GAPS], ['negative', { ...GAPS, gap_count: -1 }],
+    ['fractional', { ...GAPS, gap_count: 1.5 }], ['string', { ...GAPS, gap_count: '2' }]]) {
+    const { out, logs } = await run({ ...GREEN_RUN, 'final-sweep': sweep }, SWEPT);
+    eq(out.sweep.gaps, null, `a ${name} count reads as unknown`);
+    ok(logs.some((l) => /sweep: returned no gap count/.test(l)), `a ${name} count is logged as no gap count`);
+    ok(!logs.some((l) => /0 potential gap/.test(l)), `a ${name} count never logs zero gaps`);
+  }
 }
 
 // ---------------------------------------------------------------------------------------------
 // The control array itself
 // ---------------------------------------------------------------------------------------------
-section('a plans value that is not a non-empty array throws, pointing at the --list blocks array');
+section('a plans value that is not a non-empty array throws, pointing at the plan-edit.mjs args object');
 // There is no single-plan fallback, so every one of these must stop before any agent. The message has to
-// name the fix, not merely exist: `plan-block.mjs --list` prints an object whose `blocks` array is the input.
+// name the fix, not merely exist: `plan-edit.mjs args` prints an object to spread, whose `plans` array is the input.
+// Rows copied off `plan-block.mjs --list` skip the status fold, so a block a finished run settled is rebuilt.
 {
   for (const bad of ['block-a', 42, true, [], null]) {
     const msg = await throwsWith(ENGINE, { args: { ...baseArgs, plans: bad } });
-    ok(/args\.plans must be a NON-EMPTY array/.test(msg) && /"blocks" array/.test(msg),
-      `plans ${JSON.stringify(bad)} throws naming the "blocks" array: ${msg.slice(0, 45)}`);
+    ok(/args\.plans must be a NON-EMPTY array/.test(msg) && /"plan-edit\.mjs args <planPath>" prints an object: spread it/.test(msg)
+      && /"plans" array/.test(msg) && !/--list/.test(msg),
+      `plans ${JSON.stringify(bad)} throws naming the plan-edit.mjs args object to spread: ${msg.slice(0, 45)}`);
   }
+  const noId = await throwsWith(ENGINE, { args: { ...baseArgs, plans: [{ mode: 'feature', gate: 'green', status: 'todo' }] } });
+  ok(/"plans" row that "plan-edit\.mjs args <planPath>" prints/.test(noId) && !/--list/.test(noId),
+    `an entry with no id names plan-edit.mjs args rows as the source: ${noId.slice(0, 60)}`);
 }
 
 section('duplicate ids and a mode this engine does not build both throw');
@@ -907,6 +1127,8 @@ section('a block with no plan file anywhere throws; the top-level planPath satis
     gates: { build: 'b' }, plans: [{ id: 'block-a', mode: 'feature', gate: 'build-only' }] } });
   ok(/carry no planPath/.test(msg), `throws: ${msg.slice(0, 60)}`);
   ok(/block-a/.test(msg), 'and names the block');
+  // Hand-derived `--list` rows skip the status fold, so a finished block would be rebuilt.
+  ok(/plan-edit\.mjs args <planPath>/.test(msg) && !/--list/.test(msg), 'and points at plan-edit.mjs args, never --list');
 
   const { prompt } = await run(GREEN_RUN, ONE_BLOCK);
   ok(/'E:\/plans\/bus\.md' 'block-a'/.test(prompt('develop block-a')),
@@ -1417,7 +1639,7 @@ section('an entry claimed FIXED and re-reported STALE is only closed if its bloc
 // would drop the entry from the inventory while its fix sits in a patch nobody applied.
 {
   const reports = {
-    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }], { entries_found: -1 })),
+    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }])),
     quality: firstRound(FLAGGED, CLEAN),
   };
   const parked = await run({ ...reports, acceptance: FIX_GAP, park: PARK_OK }, { ...FIX_ONE, maxRounds: 2 });
@@ -1474,6 +1696,11 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   const r1 = prompt('quality block-a r1');
   const r2 = prompt('quality block-a r2');
   ok(/build: b\n\s+test:  t\n/.test(r1), 'the build and test commands are named');
+  ok(/GATES[^\n]*already ran before you were spawned/.test(r1), 'the gates already ran before the reviewer');
+  ok(/a later stage re-runs them before anything is staged/.test(r1), 'and a later stage re-runs them');
+  ok(/Never run them in full/.test(r1), 'running them in full is forbidden');
+  ok(/test command only for ONE targeted test/.test(r1), 'one targeted test is allowed');
+  ok(/anything that breaks the\s+build or tests/.test(r1), 'a build or test break stays a defect class');
   ok(/READ every untracked file \(`\?\?`\)/.test(r1) && !/`\?\?`\/`A`/.test(r1), 'new files are the untracked ?? entries, not a staged A');
   ok(/staged half of an `AM` or `MM` file is baseline/.test(r1), 'an AM/MM file\'s staged half is baseline');
   ok(/diff --stat/.test(r1), 'a large diff starts from --stat');
@@ -1481,6 +1708,23 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   ok(r2 !== '' && !/In round 1 it exists only/.test(r2), 'round 2 drops the round-1 note');
   ok(r2.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'and still points at the ledger');
   eq(stateRefsOutsideGate(r1 + r2).join(', '), '', 'no run-state path outside gate/ in either round');
+}
+// A red-baseline or build-only block has red or absent tests by design, and the blind reviewer must not learn that.
+{
+  const variants = [
+    ['a green feature block', { ...baseArgs, plans: [{ id: 'block-a', mode: 'feature', gate: 'green' }] }, DEV_OK],
+    ['a red-baseline section block', { ...baseArgs, plans: [{ id: 'block-a', mode: 'section', gate: 'red-baseline' }] },
+      { ...DEV_OK, test_outcome: 'failed-expected' }],
+    ['a suite: scoped run', { ...baseArgs, suite: 'scoped', plans: [{ id: 'block-a', mode: 'feature', gate: 'green' }] },
+      { ...DEV_OK, full_suite_outcome: 'scoped-skip' }]];
+  const gateTexts = [];
+  for (const [name, args, develop] of variants) {
+    const { prompt } = await run({ ...GREEN_RUN, develop }, args);
+    const q = prompt('quality block-a r1');
+    ok(q !== '' && !/\b(green|red|passed|passing|failed|failing)\b/i.test(q), `${name}: the quality prompt states no gate outcome or kind`);
+    gateTexts.push(q.match(/GATES[\s\S]*?test: {2}t\n/)?.[0] ?? '');
+  }
+  ok(gateTexts[0] !== '' && gateTexts.every((t) => t === gateTexts[0]), 'the gates text is identical for every mode, gate and suite');
 }
 
 section('tests_run_count counts what the runner reports, and a section block scopes by its test_selector line');
@@ -1499,6 +1743,36 @@ section('a fix-mode results item declares only the fields the engine reads');
   const item = calls.find((c) => c.label.startsWith('develop fix-a')).opts.schema.properties.results.items;
   eq(Object.keys(item.properties).join(), 'issue_id,status', 'exactly issue_id and status');
   eq(item.required.join(), 'issue_id,status', 'both still required');
+}
+
+section('fix acceptance and the sweep return decisions only, never a prose field nothing reads');
+// judge reads issue_id and actually_fixed, and the harness reads only the sweep's gap count. The prose
+// lives in the review file and SWEEP.md.
+{
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  const item = fix.calls.find((c) => c.label.startsWith('acceptance fix-a')).opts.schema.properties.fix_checks.items;
+  eq(Object.keys(item.properties).join(), 'issue_id,actually_fixed', 'a fix check declares exactly issue_id and actually_fixed');
+  eq(item.required.join(), 'issue_id,actually_fixed', 'both still required');
+  ok(!/\bnote\b/.test(fix.prompt('acceptance fix-a')), 'the fix acceptance prompt never asks for a note');
+
+  const swept = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...baseArgs, sweep: 'goal-coverage', goal: 'g' });
+  const sweepSchema = swept.calls.find((c) => c.label === 'final-sweep').opts.schema;
+  ok(sweepSchema.required.includes('gap_count') && sweepSchema.properties.gap_count?.type === 'integer', 'the sweep schema requires an integer gap_count');
+  ok(!('gaps' in sweepSchema.properties) && !sweepSchema.required.includes('gaps'), 'and declares no gaps list');
+  ok(/gap_count/.test(swept.prompt('final-sweep')), 'the sweep prompt names gap_count');
+}
+
+section('the fix developer is never asked to count its entries');
+// plan-block --list rejects a todo fix block with no entry, so a count the developer reports would guard nothing.
+{
+  const fixed = fixDev([{ issue_id: 'i-1', status: 'FIXED' }]);
+  const rounds = await run({ develop: fixed, quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
+  const continued = await run({ develop: fixed, quality: CLEAN, acceptance: FIX_PASS }, { ...FIX_ONE, continueParked: ['fix-a'] });
+  const devs = [...rounds.calls, ...continued.calls].filter((c) => c.label.startsWith('develop fix-a'));
+  eq(devs.length, 3, 'rounds 1 and 2 and a continued round 1 ran');
+  ok(devs.every((c) => !('entries_found' in c.opts.schema.properties) && !c.opts.schema.required.includes('entries_found')),
+    'no fix developer schema carries entries_found');
+  ok(devs.every((c) => !/entries_found/.test(c.prompt)), 'and no fix developer prompt names it');
 }
 
 section('an ESCALATED dismissal is held by acceptance in every mode, and the hold wins over OVERRIDE');
@@ -1534,13 +1808,6 @@ section('park stops only when a NON-empty diff cannot be saved; an empty diff is
 // ---------------------------------------------------------------------------------------------
 // Passes: several fix blocks built in one develop cycle
 // ---------------------------------------------------------------------------------------------
-
-const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
-  { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
-  { id: 'fix-b', planPath: 'E:/plans/two.md', issues: ['i-3'] },
-] };
-const PASS_ARGS = { ...baseArgs, planPath: undefined, plans: [PASS] };
-const passDev = (results) => ({ ...DEV_OK, produced: undefined, entries_found: results.length, results });
 
 section('a pass hands every agent one command per member block, and edits each status in its own file');
 {
@@ -1627,8 +1894,8 @@ section('a fix the developer reverted and reported FAILED leaves acceptance\'s c
 {
   const reports = {
     develop: firstRound(
-      fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }], { entries_found: 2 }),
-      fixDev([{ issue_id: 'i-1', status: 'FAILED' }, { issue_id: 'i-2', status: 'FIXED' }], { entries_found: -1 })),
+      fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }]),
+      fixDev([{ issue_id: 'i-1', status: 'FAILED' }, { issue_id: 'i-2', status: 'FIXED' }])),
     quality: CLEAN,
     acceptance: firstRound(FIX_GAP, { ...FIX_PASS, fix_checks: [{ issue_id: 'i-2', actually_fixed: true }] }),
   };
@@ -1708,7 +1975,7 @@ section('a failing reviewer that did not attest its review file halts instead of
   ok(passes.logs.some((l) => /acceptance verifier did not confirm writing .*acceptance-review-block-a-r1\.md/.test(l)), 'the acceptance gap is logged');
 
   const SWEPT = { ...baseArgs, sweep: 'goal-coverage', goal: 'g' };
-  const GAPS = { complete: false, gaps: [{ title: 't', evidence: 'e' }], suite_result: 'green' };
+  const GAPS = { complete: false, gap_count: 1, suite_result: 'green' };
   const unwritten = await run({ ...GREEN_RUN, 'final-sweep': { ...GAPS, wrote_file: false } }, SWEPT);
   ok(unwritten.logs.some((l) => /sweep: 1 potential gap\(s\) — .*SWEEP\.md was not written, so the gap count comes from the sweep's return alone/.test(l)), 'an unwritten sweep file is never cited as one to read');
   ok(/goal-coverage gaps — .*SWEEP\.md was not written/.test(unwritten.out.followups), 'nor in followups');
@@ -1741,7 +2008,7 @@ section('a round answering a failed acceptance owes a blind review whatever prod
   ok(qualityAt < labels.indexOf('acceptance block-a r2'), 'before acceptance can stage it');
   eq(out.status, 'done (all blocks staged)', 'and the block accepts once reviewed');
   const fixRun = await run({
-    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }], { entries_found: -1 })),
+    develop: firstRound(fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), fixDev([{ issue_id: 'i-1', status: 'STALE' }])),
     quality: CLEAN,
     acceptance: firstRound(FIX_GAP, FIX_PASS),
   }, FIX_ONE);

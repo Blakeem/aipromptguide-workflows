@@ -462,6 +462,11 @@ export function listObject(blocks, source, fileKeys = null) {
   if (bad.length) {
     throw new Error(`invalid gate for: ${bad.join(', ')} in ${source} — a plan takes the set its own mode allows (${sets})`);
   }
+  // Here, not in validate(): a plan-edit move may empty a block, and the next --list or args names it.
+  const emptyFix = rows.filter((r, i) => r.mode === 'fix' && r.status === 'todo' && !blocks[i].issues.length);
+  if (emptyFix.length) {
+    throw new Error(`no issue entry in todo fix block(s): ${emptyFix.map((r) => r.id).join(', ')} in ${source} — a todo fix block needs at least one "### [<id>]" entry: add one, delete the block, or set its "status:" to skip`);
+  }
 
   // A section-mode block anywhere in the file moves the DEFAULTS only; an explicit file key still wins.
   const defaults = blocks.some((b) => b.mode === 'section') ? { ...FILE_DEFAULTS, ...SECTION_FILE_DEFAULTS } : FILE_DEFAULTS;

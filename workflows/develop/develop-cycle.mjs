@@ -1,7 +1,7 @@
 export const meta = {
   name: 'develop-cycle',
   description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
-  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode → the user approves), and the operator derives the `plans` array by decorating the `blocks` rows that `tools/plan-block.mjs <planPath> --list` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, never committed. Reuse one runId across resumes.',
+  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode → the user approves), and the operator derives the args with `tools/plan-edit.mjs args <planPath>` and spreads the object it prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, never committed. Reuse one runId across resumes.',
   phases: [
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues; implements minimally, runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags production-blocking defects, writes quality-review-<id>-rN.md. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
@@ -13,7 +13,7 @@ export const meta = {
 
 // =============================================================================
 // Config. Developer and acceptance read each block verbatim from its plan file (#2). Only the thin
-// `plans` routing knobs, copied off `plan-block.mjs --list`, and the round number travel as control (#1/#8).
+// `plans` routing knobs, printed by `plan-edit.mjs args`, and the round number travel as control (#1/#8).
 // =============================================================================
 // A bare parse error names the runtime, not the payload the operator must fix.
 let A;
@@ -22,10 +22,10 @@ try {
 } catch (e) {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
-// Name the shape received: `--list` prints an object, so pasting it in whole is the likely mistake.
+// Name the shape received: `plan-edit.mjs args` prints an object, so pasting it in whole is the likely mistake.
 if (!A || !Array.isArray(A.plans) || !A.plans.length) {
   const shape = !A ? 'no args at all' : A.plans === undefined ? 'nothing' : Array.isArray(A.plans) ? 'an empty array' : A.plans === null ? 'null' : `a ${typeof A.plans}`;
-  throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-block.mjs <planPath> --list" prints an object: pass its "blocks" array (decorated with a planPath, or with the top-level planPath you ran --list against), not the object itself. There is no single-plan or inline-plan fallback.`);
+  throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-edit.mjs args <planPath>" prints an object: spread it into the args, so its "plans" array lands here, not the object itself. There is no single-plan or inline-plan fallback.`);
 }
 if (!A.runId) {
   throw new Error('args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
@@ -167,7 +167,7 @@ const NO_ID = RAW.map((p, i) => [p, i])
   .filter(([p]) => !p || typeof p !== 'object' || typeof p.id !== 'string' || !p.id.trim())
   .map(([, i]) => i);
 if (NO_ID.length) {
-  throw new Error(`plans entries at index [${NO_ID.join(', ')}] are not objects carrying a string id. Every entry is a "blocks" row from "plan-block.mjs <planPath> --list" — { id, mode, gate, status } — optionally decorated with its own planPath and planContext.`);
+  throw new Error(`plans entries at index [${NO_ID.join(', ')}] are not objects carrying a string id. Every entry is a "plans" row that "plan-edit.mjs args <planPath>" prints — { id, planPath, mode, gate, status } — optionally with its own planContext.`);
 }
 
 // An id names run-state files and enters the block command, so a non-slug is a slug() file collision or a
@@ -225,7 +225,7 @@ const ALL_PLANS = RAW.map((p) => ({
 // An empty plan path would have the developer build against nothing and report success.
 const NO_PATH = ALL_PLANS.filter((p) => !p.planPath && !p.blocks).map((p) => p.id);
 if (NO_PATH.length) {
-  throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath and there is no top-level planPath to default to — the developer would be handed an empty plan reference. Either add planPath to each of those entries, or pass the top-level planPath you ran "plan-block.mjs <planPath> --list" against.`);
+  throw new Error(`plans [${NO_PATH.join(', ')}] carry no planPath and there is no top-level planPath to default to — the developer would be handed an empty plan reference. Derive the args with "plan-edit.mjs args <planPath>" and spread the object it prints: every row it prints carries its planPath.`);
 }
 
 // Pass members count too: every run-state file is keyed by the bare id.
@@ -267,10 +267,12 @@ const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse
 // MATRIX 6a overrides, read by acceptance only. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
-const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
+// A second park renames the first patch here. A slug holds no dot, so no block's own patch matches.
+const parkedPrevPatch = (id) => `${STATE_DIR}/parked-${slug(id)}.prev<n>.patch`;
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 // A closed inventory is what lets a fix loop converge, so an issue found mid-run waits for the user's triage.
-const NEW_ISSUES     = `${STATE_DIR}/NEW-ISSUES.md`;
+// One fixed file per source block, so its triage never waits on another block's relaunch.
+const newIssuesFile  = (id) => `${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${slug(id)}.md`;
 
 // Settled decisions, never prior reviews, which would anchor them (#5). canContest=true is the blind
 // reviewer: the contest channel and DISMISSED alone (see GATE_DIR). Acceptance overrides instead.
@@ -306,7 +308,7 @@ function gateOk(gate, dev) {
 const developSchema = (mode) => ({
   type: 'object',
   required: mode === 'fix'
-    ? ['plan_obtained', 'baseline_dirty_files', 'results', 'entries_found', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments']
+    ? ['plan_obtained', 'baseline_dirty_files', 'results', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments']
     : ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
   properties: {
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
@@ -324,7 +326,6 @@ const developSchema = (mode) => ({
           },
         },
       },
-      entries_found: { type: 'integer', description: 'ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds.' },
     } : {
       produced:        { type: 'boolean', description: 'true if you changed or added at least one file this round' },
     }),
@@ -380,7 +381,7 @@ const acceptanceSchema = (mode) => {
   return {
     type: 'object',
     required: mode === 'fix'
-      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks', 'new_issues']
+      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks', 'new_issues', 'new_issue_blocks']
       : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
       plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
@@ -397,11 +398,11 @@ const acceptanceSchema = (mode) => {
             properties: {
               issue_id: { type: 'string' },
               actually_fixed: { type: 'boolean', description: 'for a FIXED claim: the diff CLOSES THE ROOT CAUSE completely (not just the literal edit the issue described). For a STALE claim: you confirmed the defect is absent from the current code' },
-              note: { type: 'string', description: 'when false: the live residual path or what is still wrong' },
             },
           },
         },
-        new_issues: { type: 'integer', description: 'entries you appended to NEW-ISSUES.md this round (0 if none)' },
+        new_issues: { type: 'integer', description: 'entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)' },
+        new_issue_blocks: { type: 'array', items: { type: 'string' }, description: 'the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)' },
       } : {
         reachable:   { type: 'boolean', description: terms.reachable },
         criteria_total: { type: 'integer', description: `acceptance criteria you enumerated from ${terms.criteriaFrom} (0 means you enumerated none — never a legitimate pass)` },
@@ -422,32 +423,20 @@ const PARK_SCHEMA = {
   required: ['saved', 'cleared', 'gates_green'],
   properties: {
     saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree.' },
-    cleared:     { type: 'boolean', description: 'true if `git diff` is empty after step 3, including a diff that was already empty' },
+    cleared:     { type: 'boolean', description: 'true if `git diff` is empty after step 2, including a diff that was already empty' },
     gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing (the tree is safe for what comes next)' },
     patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
-    strays_saved:{ type: 'integer', description: 'how many untracked files you copied to the -newfiles dir in step 2 (0 if none)' },
     notes:       { type: 'string' },
   },
 };
 
 const SWEEP_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'complete', 'gaps'],
+  required: ['wrote_file', 'complete', 'gap_count'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true ONLY if you wrote the sweep file' },
     complete: { type: 'boolean', description: 'true if no goal-coverage gaps were found' },
-    gaps: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['title', 'evidence'],
-        properties: {
-          title:       { type: 'string' },
-          evidence:    { type: 'string', description: 'file:line hits or gate output proving the gap' },
-          suggested_block: { type: 'string', description: 'a one-line follow-up block that would close it' },
-        },
-      },
-    },
+    gap_count: { type: 'integer', description: 'the number of gaps you wrote to the sweep file, 0 when none' },
     suite_result: { type: 'string', description: 'observed outcome of running the FULL gates (or why they were not run)' },
   },
 };
@@ -589,11 +578,7 @@ ${opening}
 ${ledgerNote}
 
 PROCEDURE:
-${round === 1 ? `0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
-   anything. COUNT the "### [" entries across every block printed and report the count as
-   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
-` : `0. Report entries_found=-1.
-`}1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
+1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
@@ -613,6 +598,24 @@ Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
 
+// The restore follows the clean-baseline check, so the restored diff is the only unstaged work.
+const continueOpening = (p) => `CONTINUE from this block's
+parked patch instead of implementing it from scratch:
+  a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output.
+  b. Restore the patch with a PLAIN \`git -C ${REPO} apply ${parkedPatch(p.id)}\`, never with \`--3way\`,
+     \`--index\` or \`--cached\`: each of those stages the restored work into the accepted baseline.
+  c. Run \`git -C ${REPO} add -N -- <file>\` on each new file the patch created
+     (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
+  d. Confirm \`git -C ${REPO} diff --cached --stat\` is the same as the output step a kept.
+  e. READ the latest \`## Parked block: ${p.id}\` entry in ${NEEDS_USER} and the review file that entry
+     names, then continue from the restored work.
+The restored diff is THIS block's own unstaged work. ${p.mode === 'fix'
+    ? 'Report every entry the restored work closes as FIXED, never STALE.'
+    : 'Report produced=true.'}
+If ${parkedPatch(p.id)} is missing or \`git apply\` fails, confirm \`git -C ${REPO} diff\` is empty and that
+no file you created remains (a failed plain \`git apply\` changes nothing). Append an entry to
+${NEEDS_USER} naming ${parkedPatch(p.id)} and the apply error, set needs_user=true and STOP.`;
+
 const developPrompt = (p, round, reviewPath) => {
   // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
   const opening = round === 1
@@ -623,8 +626,9 @@ unstaged at the end of this round is judged as YOUR work.
   \`git -C ${REPO} status --porcelain\`, lines starting \`??\` (untracked files, which \`git diff\` OMITS)
 Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
 staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
-immediately with that count. The run halts for the operator. If it IS 0, implement this block from
-scratch on top of the staged baseline.`
+immediately with that count. The run halts for the operator. If it IS 0, ${CONTINUE.has(p.id)
+      ? continueOpening(p)
+      : 'implement this block from\nscratch on top of the staged baseline.'}`
     : `${reviewPath
       ? `A prior review flagged issues — READ ${reviewPath} and resolve exactly those. Your earlier work is
 already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
@@ -647,7 +651,8 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 TARGET REPO: ${REPO}
-GATES:
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}
 
@@ -677,6 +682,14 @@ WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if neede
 "No production-blocking defects found." Then return wrote_file (true ONLY if you wrote that file) + clean
 (true if NO findings, including no contests) + issue_count + contested_dismissals via the schema. Do NOT
 modify source, stage, or commit.`;
+
+// A pass member's file holds only harms its own entries list, so each block's file is triaged on its own.
+const newIssueRoute = (p) => p.blocks
+  ? `only to the file of the block whose entry lists the harm, never to your review file:
+${p.blocks.map((b) => `     - ${b.issues.join(', ')} → ${newIssuesFile(b.id)} (block "${b.id}")`).join('\n')}
+   Count it in new_issues and name that block in new_issue_blocks.`
+  : `to ${newIssuesFile(p.id)} only, never to your review file. Count it in new_issues and name
+   "${p.id}" in new_issue_blocks.`;
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
@@ -726,16 +739,17 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
-   with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
-   edit was made. Return one fix_check per claimed issue.
+   with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
+   its residual path goes in your review file at step 5. Return one fix_check per claimed issue.
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to ${NEW_ISSUES} only, never to your review file, and count it in new_issues. It sets no
+   new issue ${newIssueRoute(p)} It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
-   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
-   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   four lines "## Plan: ${p.blocks ? '<that block\'s id>' : p.id}-new-issues - issues found outside the fixes' root causes",
+   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
+   existing NEW-ISSUES-*.md in ${ROOT}/plans/${RUN_ID}/ and never append a harm any of them already holds.
+   Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
@@ -868,6 +882,7 @@ const parkReason = (haltKind) => ({
   'staging-unconfirmed': `the developer did not confirm its work stayed unstaged; inspect \`git -C ${REPO} diff --cached\` for self-staged work`,
   'rejected-staged': `acceptance rejected the block but staged it anyway; inspect \`git -C ${REPO} diff --cached\` and unstage this block's files`,
   'review-unwritten': 'a reviewer reported a failing verdict but did not confirm writing its review file',
+  'passed-regression': 'acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is',
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
 
 const parkPrompt = (p, lastReviewPath, escalated, haltKind, stopsRun) => `
@@ -886,54 +901,52 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. \`git -C ${REPO} status --porcelain\` first. If \`git -C ${REPO} diff\` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to ${parkedPatch(p.id)}
+1. SAVE. \`git -C ${REPO} status --porcelain\` first. Mark each \`??\` untracked path this block created
+   intent-to-add with \`git -C ${REPO} add -N -- <path>\`, so the patch carries it. Skip build output and
+   caches. Only then check \`git -C ${REPO} diff\`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if ${parkedPatch(p.id)} already exists, RENAME it to ${parkedPrevPatch(p.id)},
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to ${parkedPatch(p.id)}
    (create ${STATE_DIR}/ if needed):
      \`git -C ${REPO} diff --binary > ${parkedPatch(p.id)}\`
    \`--binary\` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via \`git add -N\`.
+   block's work, and every file it created is in it via \`git add -N\`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If \`git -C ${REPO} status --porcelain\` still lists any \`??\` untracked file this
-   block created (the developer missed its \`git add -N\`), COPY those files into ${parkedNewDir(p.id)}/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file it CREATED with
-   \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and \`git diff\` stays non-empty. Always name the files:
-   an unpathed \`git reset\` or \`git rm\` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each \`??\` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to ${parkedNewDir(p.id)}/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file it CREATED, the
+   ones step 1 marked included, with \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and \`git diff\` stays non-empty.
+   Always name the files: an unpathed \`git reset\` or \`git rm\` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
+3. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${stopsRun
     ? `, and that the blocks after it were NOT attempted${ORDERED ? ', because they depend on this one' : ''}`
     : '; the remaining blocks continued without it'}
    - one line on why it was parked (${escalated ? parkReason(haltKind) : 'what acceptance was still failing'})
    - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
-     \`git -C ${REPO} apply --3way ${parkedPatch(p.id)}\`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming \`${parkedNewDir(p.id)}/\` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the \`git apply\`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     \`git -C ${REPO} apply ${parkedPatch(p.id)}\`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that \`--3way\`, \`--index\` and \`--cached\` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the \`.prev<n>.patch\` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when ${parkedPatch(p.id)} already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      \`plan-edit.mjs args\` has applied this run's statuses, set this block's \`status:\` back to \`todo\`
      in its plan file. Then re-invoke with \`runOnly:["${p.id}"]\` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to \`git add -A\` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add \`continueParked:["${p.id}"]\` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     \`git add -A\` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.`;
+Return saved + cleared + gates_green + patch_bytes via the schema.`;
 
 const sweepPrompt = (doneIds) => `
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
@@ -954,7 +967,8 @@ PROCEDURE (read-only except step 4):
 4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote ${SWEEP_FILE}.`;
+with wrote_file=true ONLY if you wrote ${SWEEP_FILE}, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in ${SWEEP_FILE}.`;
 
 // =============================================================================
 // Launch guards — the gate commands are what "it works" MEANS here.
@@ -968,6 +982,7 @@ if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
 //   status:'todo'   — the only status this engine builds. done/skip/parked/blocked are never selected.
 //   runOnly: [ids]  — build exactly these blocks (in array order).
 //   startAt: id     — build from this block to the end (skip already-accepted earlier ones).
+//   continueParked: [ids] — these pending blocks restore their parked patch in round 1 instead of redoing it.
 // =============================================================================
 const TODO = ALL_PLANS.filter((p) => p.status === 'todo');
 // Shape before ids: a string runOnly would fall to null and silently build and stage every todo block.
@@ -992,6 +1007,18 @@ if (runOnly) {
   pending = TODO.filter((p) => fromHere.has(p.id));
 }
 const isFullRun = !runOnly && !A.startAt;
+// Shape before ids, as for runOnly: a string would otherwise drop the scope and redo the block from scratch.
+if (A.continueParked !== undefined && A.continueParked !== null
+    && (!Array.isArray(A.continueParked) || A.continueParked.some((id) => typeof id !== 'string' || !id.trim()))) {
+  throw new Error(`Invalid continueParked arg: args.continueParked must be an ARRAY of block id strings; got ${JSON.stringify(A.continueParked)}. It is not coerced — a non-array would silently redo each named block from scratch.`);
+}
+const continueParked = Array.isArray(A.continueParked) ? A.continueParked : [];
+// Only a block this run builds can restore its patch, so any other id would be silently ignored.
+const notPending = continueParked.filter((id) => !pending.some((p) => p.id === id));
+if (notPending.length) {
+  throw new Error(`Invalid continueParked id: args.continueParked ${notPending.map((id) => `"${id}"`).join(', ')} names no block this run builds. Pending ids: ${pending.map((p) => p.id).join(', ') || '(none)'}. A parked or blocked block must be set back to todo before it can be continued.`);
+}
+const CONTINUE = new Set(continueParked);
 
 // Scoped to pending, so an all-done relaunch reaches the nothing-to-run terminal instead of throwing over
 // a test command it will never run.
@@ -1020,6 +1047,7 @@ if (!pending.length) {
     ledger: [],
     statusSync: [],
     newIssues: 0,
+    newIssueFiles: [],
     reviewTrail,
     followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.`,
   };
@@ -1032,7 +1060,9 @@ const ledger = [];               // in-memory, returned to the orchestrator (NOT
 // `plan-edit.mjs args` folds them into the plan file.
 const statusSync = [];
 let newIssues = 0;
-let newIssuesUnknown = false;    // a fix verifier returned no count, so NEW-ISSUES.md may hold entries
+let newIssuesUnknown = false;    // a fix verifier's report was unusable, so a file it never named may hold entries
+const newIssueFiles = new Set();     // the files fix verifiers named in new_issue_blocks
+const startedIssueFiles = new Set(); // every started fix block's file: what to check when a report is unknown
 let halted = false;
 let haltReason = '';
 // A value, so the status line never parses haltReason prose. Every halt site sets it.
@@ -1197,8 +1227,9 @@ for (const p of pending) {
   }
 
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null, strays: null };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
+  if (fix) for (const b of p.blocks ?? [p]) startedIssueFiles.add(newIssuesFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
@@ -1252,8 +1283,8 @@ for (const p of pending) {
         halted = true;
         rec.status = 'BLOCKED (dirty baseline)';
         haltKind = 'dirty-baseline';
-        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then run ONE command and re-invoke this run unchanged: \`git -C ${REPO} add -A\` to KEEP it when it is your own pre-existing edits (folds it into the accepted baseline), or \`git -C ${REPO} stash -u\` to set it aside. If the dirt is an earlier interrupted develop run's unfinished block, never \`git add -A\` it (no reviewer passed it): \`git -C ${REPO} stash -u\` it and relaunch, or relaunch that run with the Workflow tool's resumeFromRunId. Nothing was built or changed.`;
-        logLine(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A only your own edits, or git stash -u, then re-run)`);
+        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then settle it one of two ways. \`git -C ${REPO} add -A\` to KEEP it when it is your own pre-existing edits (folds it into the accepted baseline). Or SET IT ASIDE without touching the staged index, which holds every accepted block. First remove the untracked build output and caches (they regenerate). If \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled. Otherwise mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, create the state dir if needed (\`mkdir -p ${STATE_DIR}\`), save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses (the patch carries the new files too), and confirm that patch exists and is non-empty. SAVE BEFORE YOU CLEAR: if it does not, stop and clear nothing. Then restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`, then confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached\` is unchanged. Restore it later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the staged baseline. If the dirt is an earlier interrupted develop run's unfinished block, never \`git add -A\` it (no reviewer passed it): set it aside as above. Nothing was built, but this run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+        logLine(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A only your own edits; set the rest aside as a git diff --binary patch, never git stash, which takes the staged baseline too — steps in the halt reason)`);
         break;
       }
     }
@@ -1271,22 +1302,6 @@ for (const p of pending) {
       break;
     }
 
-    // ---- PRECONDITION (round 1 of a fix block): the inventory was readable -------------------------
-    // Zero `### [` entries would reach the no-changes terminal and report a clean outcome over an
-    // inventory nobody read. The value is guarded, never coerced, as above.
-    if (round === 1 && fix) {
-      const entries = dev.entries_found;
-      if (typeof entries !== 'number' || !Number.isFinite(entries)) {
-        logLine(`  ⚠ ${p.id} r1: developer did not report entries_found — the inventory-readable precondition was NOT verified`);
-      } else if (entries === 0) {
-        halted = true;
-        rec.status = 'BLOCKED (no issue entries)';
-        haltKind = 'inventory-empty';
-        haltReason = `Fix block ${p.id} was not started: the developer counted ZERO "### [" issue entries in the block it was handed, so there was nothing to fix. Its block reference was: ${planRef(p)}. Run that yourself and read what it prints: check the planPath and the block id, NOT runId/root/stateDir — those name where run-state lands and select nothing in the plan file. Nothing was built or changed.`;
-        logLine(`  ✋ ${p.id}: developer found 0 "### [" issue entries in its block → halting before any review agent (check the planPath and the block id)`);
-        break;
-      }
-    }
     // ---- FIX MODE: the per-issue results ARE the round's record ------------------------------------
     // Derived, so a round that only SKIPPED or found STALE entries cannot pull the blind reviewer onto an
     // empty diff. Recorded before the halts below so an escalated block still reaches the ledger.
@@ -1362,7 +1377,7 @@ for (const p of pending) {
         if (ORDERED) {
           halted = true;
           haltKind = 'no-changes';
-          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE — then re-run. The tree is clean.`;
+          haltReason = `Fix block ${p.id} produced no changes in round 1: every entry it reported was SKIPPED (or it reported none), so nothing was fixed and nothing was staged. This is an ORDERED run, so the blocks after it were not attempted. Read the block itself — an entry only gets fixed while its \`- decision:\` line says ACTIONABLE — then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean.`;
         }
         break;
       }
@@ -1450,9 +1465,20 @@ for (const p of pending) {
     }
     if (acc?.regression === true) rec.regression = true;
     if (fix) {
-      if (Number.isInteger(acc.new_issues) && acc.new_issues >= 0) newIssues += acc.new_issues;
-      else newIssuesUnknown = true;
-      if (acc.new_issues > 0) logLine(`  ⓘ ${p.id} r${round}: acceptance recorded ${acc.new_issues} new issue(s) in ${NEW_ISSUES}`);
+      // A pass's own id names no file: each harm belongs to the member whose entry lists it.
+      const issueBlocks = p.blocks ? p.blocks.map((b) => b.id) : [p.id];
+      const countKnown = Number.isInteger(acc.new_issues) && acc.new_issues >= 0;
+      const namedBlocks = Array.isArray(acc.new_issue_blocks) ? acc.new_issue_blocks : null;
+      const blocksKnown = namedBlocks !== null && namedBlocks.every((id) => issueBlocks.includes(id))
+        && !(acc.new_issues > 0 && namedBlocks.length === 0);
+      if (countKnown && blocksKnown) {
+        const writtenFiles = [...new Set(namedBlocks)].map(newIssuesFile);
+        newIssues += acc.new_issues;
+        for (const file of writtenFiles) newIssueFiles.add(file);
+        if (acc.new_issues > 0) logLine(`  ⓘ ${p.id} r${round}: acceptance recorded ${acc.new_issues} new issue(s) in ${writtenFiles.join(', ')}`);
+      } else {
+        newIssuesUnknown = true;
+      }
     }
     // Per mode: a fix schema has no criteria or reachability, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
@@ -1478,6 +1504,17 @@ for (const p of pending) {
           haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`; unstage/fix it, then resume with startAt the NEXT block id.`;
           logLine(`  ✋ ${p.id}: staged while self-reporting a REGRESSION → halting the run (inspect git -C ${REPO} diff --cached)`);
         }
+        break;
+      }
+      // The passed-unstaged remedy below stages the work, which would put a flagged regression into the baseline.
+      if (acc?.regression === true) {
+        halted = true;
+        escalated = true;   // park saves the unstaged work and clears the tree
+        haltKind = 'passed-regression';
+        rec.status = 'BLOCKED (acceptance passed a flagged regression and staged nothing)';
+        if (acc.wrote_file === true) reviewPath = acceptanceFile(p.id, round);
+        haltReason = `Acceptance PASSED block ${p.id} in round ${round} but flagged a regression and staged nothing (${acc.wrote_file === true ? `see ${reviewPath}` : `it did not confirm writing ${acceptanceFile(p.id, round)}, so that file may not exist`}). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is.`;
+        logLine(`  ✋ ${p.id} r${round}: acceptance passed but flagged a REGRESSION and staged nothing → parking its work, halting${contraNote}`);
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next block's blind diff would include
@@ -1553,7 +1590,6 @@ for (const p of pending) {
     const pk = await agent(parkPrompt(p, reviewPath, escalated, parkKind || haltKind, halted), roleOpts('develop', {
       schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
-    const strays = pk?.strays_saved ?? 0;
     // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
     // Null when park wrote nothing. Every later patch mention keys on this, never naming a missing file.
@@ -1562,11 +1598,13 @@ for (const p of pending) {
     rec.parked = true;
     // Only a confirmed clear proves a patchless park had nothing to save.
     rec.parkCleared = pk?.cleared === true;
-    if (strays > 0) rec.strays = parkedNewDir(p.id);
     if (!escalated) rec.status = 'parked (not accepted within round budget)';
+    // A continued block's patchless park leaves its earlier work, if any, in the patch it was continued from.
+    const continuedEmpty = CONTINUE.has(p.id) && !rec.patch && rec.parkCleared;
+    const continuedFrom = `continued from ${parkedPatch(p.id)}, which holds its earlier work only if that file exists: its entry in ${NEEDS_USER} says whether the patch was missing or did not apply`;
     const parkSavedTo = rec.patch || (rec.parkCleared ? 'nothing to save' : pk ? 'nowhere: park confirmed no save or clear' : 'unknown: the park agent returned nothing');
     // Park's notes are the only place an empty park explains itself. Logged, not returned.
-    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (work saved to ${parkSavedTo}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}${strays > 0 ? `, +${strays} stray file(s) in ${parkedNewDir(p.id)}/` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
+    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds`} — PARKED (${continuedEmpty ? `no new patch, ${continuedFrom}` : `work saved to ${parkSavedTo}`}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
     // A tree we could not clear (or a broken build) is unsafe for whatever comes next, so those DO halt
     // even in an unordered run, where a plain park does not.
     if (contradictory) {
@@ -1587,10 +1625,10 @@ for (const p of pending) {
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next.`;
     } else if (halted) {
-      // The run is stopping, so say where the work went (see rec.patch). A patchless park can still hold strays.
+      // The run is stopping, so say where the work went (see rec.patch).
       let savedTo = ' It had NOTHING to save (its working tree was already empty)';
       if (rec.patch) savedTo = ` Its work is SAVED to ${rec.patch}`;
-      else if (rec.strays) savedTo = ` It had no diff to patch, but its new files are SAVED to ${rec.strays}/`;
+      else if (continuedEmpty) savedTo = ` It was ${continuedFrom}. This park wrote no new patch`;
       haltReason += `${savedTo} and the tree is CLEAN; resolve with the user, then resume from this block.`;
     }
   }
@@ -1613,6 +1651,7 @@ for (const p of pending) {
 let sweep = null;
 let sweepFailed = false;   // the sweep RAN and DIED — distinct from the legitimate did-not-run cases
 let sweepFileNote = '';
+let sweepGapCount = null;  // null when the sweep returned no valid count: unknown, never zero
 const goalCovered = !halted && ALL_PLANS
   .filter((p) => p.status !== 'skip')
   .every((p) => p.status === 'done' || doneIds.includes(p.id));
@@ -1633,11 +1672,14 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
   sweepFileNote = sweep?.wrote_file === true
     ? `read ${SWEEP_FILE}`
     : `${SWEEP_FILE} was not written, so the gap count comes from the sweep's return alone`;
+  sweepGapCount = Number.isInteger(sweep?.gap_count) && sweep.gap_count >= 0 ? sweep.gap_count : null;
   logLine(sweepFailed
-    ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: re-run the sweep, or check coverage against the goal yourself.`
+    ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: check coverage against the goal yourself.`
     : sweep.complete
       ? `sweep: no goal-coverage gaps found (suite: ${sweep.suite_result || 'n/a'})`
-      : `sweep: ${(sweep.gaps || []).length} potential gap(s) — ${sweepFileNote}`);
+      : sweepGapCount === null
+        ? `  ⚠ sweep: returned no gap count, so the number of gaps is unknown — ${sweepFileNote}`
+        : `sweep: ${sweepGapCount} potential gap(s) — ${sweepFileNote}`);
 }
 
 // =============================================================================
@@ -1656,11 +1698,13 @@ const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
 const patchedPlans = parkedPlans.filter((r) => r.patch);
 const savedClearedPlans = patchedPlans.filter((r) => r.parkCleared === true);
 const savedUnclearedPlans = patchedPlans.filter((r) => r.parkCleared !== true);
-const emptyParkPlans = parkedPlans.filter((r) => !r.patch && !r.strays && r.parkCleared === true);
+// A continued block's patchless park may still have earlier work in the patch it was continued from.
+const emptyParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared === true && !CONTINUE.has(r.id));
+const continuedEmptyPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared === true && CONTINUE.has(r.id));
 // A patchless park that never confirmed a clear may still hold the work in the tree or a patch file.
 const unclearedParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared !== true);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
-// block stopped by a halt that never parks (dirty-baseline, inventory-empty, passed-unstaged).
+// block stopped by a halt that never parks (dirty-baseline, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 const noChangePlans = blockedPlans.filter((r) => r.status === 'no-changes');
 const haltedPlans = blockedPlans.filter((r) => r.status !== 'no-changes');
@@ -1670,11 +1714,11 @@ const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
-  'inventory-empty': 'BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built)',
   'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',
   'staging-unconfirmed': 'BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)',
   'passed-unstaged': 'BLOCKED (a block passed but was not staged — stage it, then resume)',
+  'passed-regression': 'BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is)',
   'acceptance-regression': 'BLOCKED (a block staged while self-reporting a regression — inspect the staged diff before continuing)',
   'rejected-staged': 'BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)',
   'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)',
@@ -1706,44 +1750,47 @@ return {
   stateDir: STATE_DIR,
   plansDone: doneIds,
   plansTotal: ALL_PLANS.length,
-  sweep: sweep ? { complete: sweep.complete === true, gaps: (sweep.gaps || []).length, suite: sweep.suite_result || '' } : null,
+  sweep: sweep ? { complete: sweep.complete === true, gaps: sweepGapCount, suite: sweep.suite_result || '' } : null,
   // true ONLY when the sweep ran and died. `sweep: null` on its own cannot say whether the check was
   // deliberately skipped (sweep:none, an incomplete goal) or lost — and those need different actions.
   sweepFailed,
-  // Parked blocks: NOT done. patch follows rec.patch. A set strays needs a second restore step.
-  parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, strays: r.strays ?? null, status: r.status })),
+  // Parked blocks: NOT done. patch follows rec.patch.
+  parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, status: r.status })),
   ledger,
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
   // changes. A block the run never reached has none.
   statusSync,
-  // null when a fix verifier returned no count: the file may then hold entries the total would hide.
+  // null when a fix verifier's report was unusable: a file may then hold entries the total would hide.
   newIssues: newIssuesUnknown ? null : newIssues,
+  newIssueFiles: newIssuesUnknown ? null : [...newIssueFiles].sort(),
   reviewTrail,
   followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
-    ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished. `
+    ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — verify coverage against the goal yourself before trusting this as finished. `
     : ''}${needsUserParks.length
     ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
     : ''}${parkedPlans.length
     ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${savedClearedPlans.length
-      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply --3way\` restore command). `
+      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply\` restore command). `
       : ''}${savedUnclearedPlans.length
       ? `Work SAVED but NOT cleared from the tree for: ${savedUnclearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch, and the working tree still holds it). Clear the tree before resuming, and keep the patch until you have. `
       : ''}${emptyParkPlans.length
       ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
+      : ''}${continuedEmptyPlans.length
+      ? `No new patch was written for: ${continuedEmptyPlans.map((r) => `${r.id} (continued from ${parkedPatch(r.id)})`).join(', ')}. That patch holds the block's earlier work only if the file exists. Each block's entry in ${NEEDS_USER} says whether its patch was missing or did not apply. `
       : ''}${unclearedParkPlans.length
       ? `Park did NOT confirm a save or a clear for: ${unclearedParkPlans.map((r) => r.id).join(', ')}. Their work may still be in the working tree or in ${STATE_DIR}/parked-<id>.patch: inspect both before discarding anything. `
-      : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone (sharpen its block in the plan file if needed, flip it to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly), or drop it. `
+      : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone (sharpen its block in the plan file if needed, flip it to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly)${patchedPlans.length ? ', continue it from its patch under full review (the same relaunch, with continueParked naming it)' : ''}, or drop it. `
     : ''}${noChangePlans.length
-    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo. `
+    ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses. `
     : ''}${haltedPlans.length
     ? `${haltedPlans.length} block(s) halted and are NOT done: ${haltedPlans.map((r) => r.id).join(', ')} - the halt reason above says what each needs. `
     : ''}${amendedIds.length
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
-    : ''}${newIssues > 0 || newIssuesUnknown
+    : ''}${newIssueFiles.size || newIssuesUnknown
     ? `${newIssuesUnknown
-      ? `A fix verifier returned no new-issue count, so check ${NEW_ISSUES} for entries.`
-      : `Acceptance recorded ${newIssues} new issue(s) outside the fixes' root causes in ${NEW_ISSUES}.`} Once no parked or blocked block of this run is left to relaunch, move that file to ${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${RUN_ID}-<n>.md, with n one past the highest already there, and give its block an id no other plan uses. Then triage it like a debug issue file. A later run of this runId starts a fresh file instead of appending to the one you build. `
+      ? `A fix verifier returned no usable new-issue report, so check these files for entries: ${[...startedIssueFiles].sort().join(', ')}.`
+      : `Acceptance recorded ${newIssues} new issue(s) outside the fixes' root causes in: ${[...newIssueFiles].sort().join(', ')}.`} Triage each file like a debug issue file once its block's status is done or skip, since a relaunch of a parked or blocked block may still append to it. `
     : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };

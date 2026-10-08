@@ -52,8 +52,10 @@ preamble or another block never reaches it.
    and acceptance confirmed the claim. FAILED in any block → `needs-attention`. FIXED or STALE in a
    block that did not land, or a claim acceptance refuted → `needs-attention` too. SKIPPED keeps
    `open`. The
-   plan file is the selection truth and git staging is the landed truth. Flip `parked`/`blocked` back to
-   `todo` after resolving, then relaunch from step 3. Records are deleted after `cleanupPeriodDays` (30
+   plan file is the selection truth and git staging is the landed truth. After resolving a `parked` or
+   `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's `status:`
+   back to `todo`, then run step 3 again for the launch args. A flip made before the first step 3 is
+   overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
 
 ## 3. Plan-file format
@@ -66,21 +68,32 @@ Gates per mode: `feature` takes `green | build-only`; `section` takes
 defaults to `ordered: true`, `suite: scoped` and `sweep: goal-coverage`. A file whose sweep is
 `goal-coverage` needs a `goal:` line, and `--list` fails without one. A fix block IS an issue inventory: its
 `### [<id>]` entries are what the fix worker verifies and fixes (ACTIONABLE decisions only,
-verify-first, vanished issues marked stale). debug's review.mjs writes these files; hand-authored
-external inventories use the same shape.
+verify-first, vanished issues marked stale). `--list` fails on a `todo` fix block with no `### [<id>]`
+entry. debug's review.mjs writes these files; hand-authored external inventories use the same shape.
 
 ## 4. Pre-run setup (your job — no setup agent)
 
 - **Clean unstaged tree, engine-enforced** on round 1 (halts before any reviewer spawns). Settle a
-  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline, `git stash -u` to
-  set aside. If the dirt is an interrupted develop run's unfinished block, never `git add -A` it (no
-  reviewer passed it): `git stash -u` it and relaunch, or relaunch that run with `resumeFromRunId`.
+  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline, or set the dirt aside
+  without touching the staged index, which holds every accepted block. To set it aside, first remove
+  the untracked build output and caches (they regenerate). If `git status --porcelain` then lists no
+  `??` file and `git diff` is empty, the tree is settled. Otherwise mark each remaining `??` untracked
+  file with `git -C <repo> add -N -- <file>`, save `git -C <repo> diff --binary` to a new patch under
+  the run's state dir, creating that dir if needed (the patch carries the new files too), and confirm
+  the patch exists and is non-empty. Save before you clear: if it does not, stop and clear nothing.
+  Then restore the modified tracked files with `git -C <repo> checkout -- <files>`, drop each
+  intent-to-add file with `git -C <repo> rm -f -q -- <file>`, and confirm `git status --porcelain`
+  lists no `??` file, `git diff` is empty and `git diff --cached` is unchanged. Restore it later with
+  a plain `git -C <repo> apply <patch>`, never `--3way`, which stages what it restores. An unpathed
+  `git reset`, `git rm` or `git stash` touches the staged baseline. If the dirt is an interrupted
+  develop run's unfinished block, never `git add -A` it (no reviewer passed it): set it aside and
+  relaunch. A dirty-baseline halt records its block `blocked`, so after settling the tree run §2
+  step 3, set that block's `status:` back to `todo`, and run step 3 again for the launch args.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool` defaults to
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
   the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
-- **Fresh vs. resume:** for a new run, clear develop's own state files (§8) under the state dir;
-  preserve them on resume. Never clear a plan file, debug's `issues/` or an untriaged
-  `NEW-ISSUES.md`, which may share `runs/<runId>/`.
+- **Fresh vs. resume:** for a new run, clear develop's own state files (§8) under the state dir.
+  Preserve them on resume. Never clear a plan file or debug's `issues/`.
 
 ## 5. Roles
 
@@ -103,14 +116,15 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   changes outside the block's scope. The review file holds no notes section. In fix mode, a harm an
   entry lists whose cause shares no code path with the re-derived root cause is a new issue, never a
   gap. A sibling path with the identical defect stays a residual path. The verifier appends a new issue
-  to `NEW-ISSUES.md`, a fix-mode plan file with every entry `NEEDS_USER`, and the return counts it in
-  `newIssues`. Once no parked or blocked block of the run is left to relaunch, move that file to
-  `<root>/plans/<runId>/NEW-ISSUES-<runId>-<n>.md`, with n one past the highest already there, and give
-  its block an id no other plan uses. Then triage it like a debug issue file. A relaunch
-  before the move dedupes against the file, and one after it would not.
+  to its source block's `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`, a fix-mode plan file with every
+  entry `NEEDS_USER`. The return counts new issues in `newIssues` and names each file in
+  `newIssueFiles`. Triage a block's file like a debug issue file once that block is `done` or `skip`.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
+  Park marks the block's new files intent-to-add, so its one patch carries them. A second park of a
+  block renames the earlier patch to `parked-<id>.prev<n>.patch`. The restore command park writes is
+  a plain `git apply`, which leaves the work unstaged.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep sets `sweepFailed`, never halts.
@@ -126,8 +140,10 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
 passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
-`rejected-staged`, `review-unwritten` and `log-cap`. `rejected-staged` means acceptance failed a block
-but staged it, so inspect `git diff --cached` and unstage that block's files before resuming.
+`rejected-staged`, `review-unwritten`, `passed-regression` and `log-cap`. `rejected-staged` means
+acceptance failed a block but staged it, so inspect `git diff --cached` and unstage that block's files
+before resuming. `passed-regression` means acceptance passed a block but flagged a regression and
+staged nothing. Its work is parked and the block ends `blocked`. Never stage that work as it is.
 `review-unwritten` means a quality reviewer or acceptance verifier failed a block without confirming its
 review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
@@ -138,7 +154,8 @@ then done, so a relaunch has nothing to build, and you verify coverage against t
 leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose park did not confirm a
 clear. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
-`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `NEW-ISSUES.md` and `SWEEP.md`.
+`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, the files in `newIssueFiles` and
+`SWEEP.md`.
 
 ## 7. Resume
 
@@ -147,18 +164,25 @@ args from a fresh `plan-edit.mjs args` (never the previous args object) rebuilds
 with the finished runs already applied — no startAt
 needed in the common case (`runOnly`/`startAt` still work as explicit overrides, unknown ids throw).
 A parked block's work is in `parked-<id>.patch`, not the tree, unless its park halted `park-unsafe`.
-That halt reason and `followups` say where its work is. Sharpen its block, flip it to `todo` and
-relaunch.
+That halt reason and `followups` say where its work is. Sharpen its block, run §2 step 3 (it applies
+the finished run's statuses), set the block's `status:` back to `todo`, then run step 3 again for the
+launch args and relaunch.
+To continue a parked block under full review instead of redoing it, add `continueParked: ["<id>"]` by
+hand to the args `plan-edit.mjs args` prints. That tool does not print it. The block's round-1
+developer restores the patch into the unstaged tree after the clean-baseline check. A patch that no
+longer applies parks the block as `blocked` and leaves its patch untouched, so redo that block. A park
+from an older engine may also hold a `parked-<id>-newfiles/` directory, which `continueParked` does not
+restore. Finish that block by hand or redo it.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
-unreviewed work. Set it aside with `git stash -u` (or save `git diff --binary` plus untracked files to
-the state dir), then relaunch clean. Never `git add -A` it.
+unreviewed work. Set it aside with §4's save-and-clear, which saves it to a patch under the state dir
+and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
-`AMENDED-<id>.md` · `NEEDS-USER.md` · `NEW-ISSUES.md` (never cleared: move it out to triage it, §5) ·
-`parked-<id>.patch` (+ `parked-<id>-newfiles/`) · `SWEEP.md`.
+`AMENDED-<id>.md` · `NEEDS-USER.md` · `parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier
+park of the same block) · `SWEEP.md`.
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 
@@ -177,9 +201,12 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
   per-issue `results` in fix mode) · `statusSync` (the plan-file edits, also logged per block for §2
   step 5) · `sweep` /
-  `sweepFailed` · `newIssues` (fix mode, null when a verifier returned no count) · `followups`.
+  `sweepFailed` · `newIssues` (fix mode, null when a verifier returned no usable report) ·
+  `newIssueFiles` (the sorted new-issues files the verifiers named, null when `newIssues` is null) ·
+  `followups`.
 - **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (every role opus) · `stateDir` · `runOnly`/`startAt`.
+  (every role opus) · `stateDir` · `runOnly`/`startAt` · `continueParked` (block ids whose round 1
+  restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

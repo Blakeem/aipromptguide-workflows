@@ -172,10 +172,8 @@ precise `**Fix:**` — anchoring each behavior-level finding to `file:line` your
 skipped findings with `- decision: SKIP` so the triage is on file. Check it parses:
 `node <plan-block.mjs> <file> --list`. Then playbook step 6 (Build the triaged files with develop).
 
-**The `### [<id>]` heading is a contract, not a style choice.** The round-1 `entries_found`
-precondition counts those entries; a file that uses some other heading reads as an empty inventory and
-halts the run. The threshold is "at least one", never an exact match, so a hand-authored file with extra
-or differently-numbered entries stays safe.
+`--list` rejects a todo fix block with no `### [<id>]` entry, so a file that uses another heading fails
+the parse check above.
 
 Only the `- decision:` line selects what gets fixed, so a LOW entry marked ACTIONABLE is fixed.
 Verify-first makes loose anchors safe — the fixer re-confirms each issue against current code.
@@ -195,7 +193,7 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 - **The issue files are the source of truth for WHAT to fix.** `review.mjs` writes them, and a
   `review.mjs` re-run rewrites each unit file it re-reviews from scratch, triage edits and statuses
   included. Otherwise only you write them, at triage and through `plan-edit.mjs args` before each develop
-  launch. develop's verifier writes only its own `NEW-ISSUES.md`, never these.
+  launch. develop's verifier writes only its own `NEW-ISSUES-<block id>.md` files, never these.
 
 ## State files (`runs/<runId>/`, outside every repo)
 

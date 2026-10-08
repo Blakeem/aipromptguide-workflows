@@ -7,37 +7,39 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | develop | 1 | 1 | 6249 | every block accepts first time |
-| quality | 1 | 1 | 2977 | every block accepts first time |
+| quality | 1 | 1 | 3179 | every block accepts first time |
 | acceptance | 1 | 1 | 6083 | every block accepts first time |
 | develop | 2 | 1 | 6642 | every block accepts first time |
 | acceptance | 2 | 2 | 6364 | every block accepts first time |
-| final-sweep | 1 | 1 | 1946 | every block accepts first time |
+| final-sweep | 1 | 1 | 2071 | every block accepts first time |
 | develop | 3 | 1 | 5739 | quality flags the first round |
-| quality | 2 | 1 | 2801 | quality flags the first round |
+| quality | 2 | 1 | 3003 | quality flags the first round |
 | develop | 4 | 1 | 6132 | quality flags the first round |
 | develop | 5 | 1 | 5737 | acceptance finds gaps, then passes |
 | develop | 6 | 1 | 6130 | acceptance finds gaps, then passes |
 | acceptance | 3 | 1 | 6358 | the developer produced nothing |
 | acceptance | 4 | 2 | 6639 | the developer produced nothing |
 | develop | 7 | 1 | 5701 | the gate never goes green |
-| park | 1 | 1 | 5205 | the gate never goes green |
+| park | 1 | 1 | 5123 | the gate never goes green |
 | develop | 8 | 1 | 6094 | the gate never goes green |
-| park | 2 | 1 | 5149 | a parked block, and the run carries on |
-| park | 3 | 1 | 5200 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 7608 | a fix block closes its issues |
-| acceptance | 5 | 3 | 8513 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 1937 | a fix block closes its issues |
-| develop | 10 | 2 | 7700 | a pass of two fix blocks closes its issues |
-| acceptance | 6 | 3 | 8609 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 1967 | a pass of two fix blocks closes its issues |
-| acceptance | 7 | 3 | 8512 | every issue is already fixed |
-| park | 4 | 1 | 5386 | acceptance stages a rejected block |
-| park | 5 | 1 | 5306 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 5374 | the developer staged its own work |
-| park | 7 | 1 | 5212 | developer never got its block |
-| park | 8 | 1 | 5230 | the developer dies |
-| park | 9 | 1 | 5300 | developer escalates |
-| park | 10 | 1 | 5341 | developer escalates in an ordered run |
+| park | 2 | 1 | 5067 | a parked block, and the run carries on |
+| park | 3 | 1 | 5118 | an ordered run stops at a parked block |
+| develop | 9 | 2 | 7336 | a fix block closes its issues |
+| acceptance | 5 | 3 | 8668 | a fix block closes its issues |
+| final-sweep | 2 | 1 | 2062 | a fix block closes its issues |
+| develop | 10 | 2 | 7428 | a pass of two fix blocks closes its issues |
+| acceptance | 6 | 3 | 8927 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 2092 | a pass of two fix blocks closes its issues |
+| acceptance | 7 | 3 | 8667 | every issue is already fixed |
+| park | 4 | 1 | 5234 | passed with a regression, not staged |
+| park | 5 | 1 | 5304 | acceptance stages a rejected block |
+| park | 6 | 1 | 5224 | the quality reviewer fails a block without its file |
+| park | 7 | 1 | 5292 | the developer staged its own work |
+| park | 8 | 1 | 5130 | developer never got its block |
+| park | 9 | 1 | 5148 | the developer dies |
+| park | 10 | 1 | 5218 | developer escalates |
+| park | 11 | 1 | 5259 | developer escalates in an ordered run |
+| develop | 11 | 1 | 7369 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -222,7 +224,8 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 TARGET REPO: E:/repo
-GATES:
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: npm run build
   test:  npm test
 
@@ -794,7 +797,8 @@ PROCEDURE (read-only except step 4):
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -803,7 +807,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
   "required": [
     "wrote_file",
     "complete",
-    "gaps"
+    "gap_count"
   ],
   "properties": {
     "wrote_file": {
@@ -814,28 +818,9 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
       "type": "boolean",
       "description": "true if no goal-coverage gaps were found"
     },
-    "gaps": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "title",
-          "evidence"
-        ],
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "evidence": {
-            "type": "string",
-            "description": "file:line hits or gate output proving the gap"
-          },
-          "suggested_block": {
-            "type": "string",
-            "description": "a one-line follow-up block that would close it"
-          }
-        }
-      }
+    "gap_count": {
+      "type": "integer",
+      "description": "the number of gaps you wrote to the sweep file, 0 when none"
     },
     "suite_result": {
       "type": "string",
@@ -1022,7 +1007,8 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 TARGET REPO: E:/repo
-GATES:
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: npm run build
   test:  npm test
 
@@ -2089,52 +2075,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -2152,7 +2136,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -2161,10 +2145,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     "patch_bytes": {
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
-    },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -2368,52 +2348,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -2431,7 +2409,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -2440,10 +2418,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     "patch_bytes": {
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
-    },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -2476,52 +2450,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (what acceptance was still failing)
    - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r4.md`
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -2539,7 +2511,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -2548,10 +2520,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     "patch_bytes": {
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
-    },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
     },
     "notes": {
       "type": "string"
@@ -2597,9 +2565,6 @@ If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
-   anything. COUNT the "### [" entries across every block printed and report the count as
-   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -2670,7 +2635,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained",
     "baseline_dirty_files",
     "results",
-    "entries_found",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -2713,10 +2677,6 @@ Return ONLY the decision fields via the schema (no prose report).
           }
         }
       }
-    },
-    "entries_found": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds."
     },
     "build_passed": {
       "type": "boolean"
@@ -2840,16 +2800,18 @@ PROCEDURE:
    itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
-   with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
-   edit was made. Return one fix_check per claimed issue.
+   with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
+   its residual path goes in your review file at step 5. Return one fix_check per claimed issue.
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file. Count it in new_issues and name
+   "block-c" in new_issue_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
-   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
-   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   four lines "## Plan: block-c-new-issues - issues found outside the fixes' root causes",
+   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
+   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
@@ -2897,7 +2859,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "pass",
     "staged",
     "fix_checks",
-    "new_issues"
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -2932,17 +2895,20 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           "actually_fixed": {
             "type": "boolean",
             "description": "for a FIXED claim: the diff CLOSES THE ROOT CAUSE completely (not just the literal edit the issue described). For a STALE claim: you confirmed the defect is absent from the current code"
-          },
-          "note": {
-            "type": "string",
-            "description": "when false: the live residual path or what is still wrong"
           }
         }
       }
     },
     "new_issues": {
       "type": "integer",
-      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
     },
     "regression": {
       "type": "boolean",
@@ -2992,7 +2958,8 @@ PROCEDURE (read-only except step 4):
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -3001,7 +2968,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
   "required": [
     "wrote_file",
     "complete",
-    "gaps"
+    "gap_count"
   ],
   "properties": {
     "wrote_file": {
@@ -3012,28 +2979,9 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
       "type": "boolean",
       "description": "true if no goal-coverage gaps were found"
     },
-    "gaps": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "title",
-          "evidence"
-        ],
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "evidence": {
-            "type": "string",
-            "description": "file:line hits or gate output proving the gap"
-          },
-          "suggested_block": {
-            "type": "string",
-            "description": "a one-line follow-up block that would close it"
-          }
-        }
-      }
+    "gap_count": {
+      "type": "integer",
+      "description": "the number of gaps you wrote to the sweep file, 0 when none"
     },
     "suite_result": {
       "type": "string",
@@ -3081,9 +3029,6 @@ If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: you
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-0. INVENTORY READABLE — do this right after the clean-baseline check above, before editing
-   anything. COUNT the "### [" entries across every block printed and report the count as
-   entries_found. If it is 0, STOP RIGHT THERE: change nothing and return with that count.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -3154,7 +3099,6 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_obtained",
     "baseline_dirty_files",
     "results",
-    "entries_found",
     "build_passed",
     "test_outcome",
     "tests_run_count",
@@ -3197,10 +3141,6 @@ Return ONLY the decision fields via the schema (no prose report).
           }
         }
       }
-    },
-    "entries_found": {
-      "type": "integer",
-      "description": "ROUND 1 ONLY: how many `### [` issue entries you counted across every block printed. 0 HALTS the run. Report -1 on later rounds."
     },
     "build_passed": {
       "type": "boolean"
@@ -3326,16 +3266,20 @@ PROCEDURE:
    itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
-   with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
-   edit was made. Return one fix_check per claimed issue.
+   with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
+   its residual path goes in your review file at step 5. Return one fix_check per claimed issue.
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   new issue only to the file of the block whose entry lists the harm, never to your review file:
+     - i-1 → E:/flow/plans/flow/NEW-ISSUES-block-c.md (block "block-c")
+     - i-2 → E:/flow/plans/flow/NEW-ISSUES-block-d.md (block "block-d")
+   Count it in new_issues and name that block in new_issue_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
-   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
-   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   four lines "## Plan: <that block's id>-new-issues - issues found outside the fixes' root causes",
+   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
+   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
@@ -3383,7 +3327,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "pass",
     "staged",
     "fix_checks",
-    "new_issues"
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -3418,17 +3363,20 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           "actually_fixed": {
             "type": "boolean",
             "description": "for a FIXED claim: the diff CLOSES THE ROOT CAUSE completely (not just the literal edit the issue described). For a STALE claim: you confirmed the defect is absent from the current code"
-          },
-          "note": {
-            "type": "string",
-            "description": "when false: the live residual path or what is still wrong"
           }
         }
       }
     },
     "new_issues": {
       "type": "integer",
-      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
     },
     "regression": {
       "type": "boolean",
@@ -3478,7 +3426,8 @@ PROCEDURE (read-only except step 4):
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
-with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
+with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
+(0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
 ~~~~
 
 ~~~~json
@@ -3487,7 +3436,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
   "required": [
     "wrote_file",
     "complete",
-    "gaps"
+    "gap_count"
   ],
   "properties": {
     "wrote_file": {
@@ -3498,28 +3447,9 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md.
       "type": "boolean",
       "description": "true if no goal-coverage gaps were found"
     },
-    "gaps": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "title",
-          "evidence"
-        ],
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "evidence": {
-            "type": "string",
-            "description": "file:line hits or gate output proving the gap"
-          },
-          "suggested_block": {
-            "type": "string",
-            "description": "a one-line follow-up block that would close it"
-          }
-        }
-      }
+    "gap_count": {
+      "type": "integer",
+      "description": "the number of gaps you wrote to the sweep file, 0 when none"
     },
     "suite_result": {
       "type": "string",
@@ -3595,16 +3525,18 @@ PROCEDURE:
    itself may have under-scoped the bug. A fix counts as landed ONLY if it closes that root cause
    COMPLETELY. If the same mechanism still has a live residual path the diff left open (a sibling code
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
-   with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
-   edit was made. Return one fix_check per claimed issue.
+   with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
+   its residual path goes in your review file at step 5. Return one fix_check per claimed issue.
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file. Count it in new_issues and name
+   "block-c" in new_issue_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
-   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
-   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   four lines "## Plan: block-c-new-issues - issues found outside the fixes' root causes",
+   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
+   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
@@ -3652,7 +3584,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "pass",
     "staged",
     "fix_checks",
-    "new_issues"
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -3687,17 +3620,20 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           "actually_fixed": {
             "type": "boolean",
             "description": "for a FIXED claim: the diff CLOSES THE ROOT CAUSE completely (not just the literal edit the issue described). For a STALE claim: you confirmed the defect is absent from the current code"
-          },
-          "note": {
-            "type": "string",
-            "description": "when false: the live residual path or what is still wrong"
           }
         }
       }
     },
     "new_issues": {
       "type": "integer",
-      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
     },
     "regression": {
       "type": "boolean",
@@ -3716,6 +3652,108 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~
 
 ## park · variant 4 · schema 1
+
+`park:block-a` in "passed with a regression, not staged"
+
+~~~~text
+
+You are PARKING the plan block "block-a", which was halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is. SAVE its work to a patch, then clear it from
+the tree. The run stops after you (only the user can unblock it), so leave the repo in a
+known, buildable state the user can come back to.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+STAGING CONTRACT:
+  • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
+  • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
+  • Nothing is EVER committed.
+
+SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
+An already-empty diff is not a stop: step 1 says what to do.
+
+PROCEDURE:
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
+   (create E:/flow/runs/flow/ if needed):
+     `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
+   `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
+   block's work, and every file it created is in it via `git add -N`.
+   Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
+   Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
+   - one line on why it was parked (acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is)
+   - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r1.md`
+   - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
+   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
+     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
+     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
+Do NOT modify any file outside this block's work.
+Return saved + cleared + gates_green + patch_bytes via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "saved",
+    "cleared",
+    "gates_green"
+  ],
+  "properties": {
+    "saved": {
+      "type": "boolean",
+      "description": "true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree."
+    },
+    "cleared": {
+      "type": "boolean",
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
+    },
+    "gates_green": {
+      "type": "boolean",
+      "description": "true if the BUILD gate passes again after clearing (the tree is safe for what comes next)"
+    },
+    "patch_bytes": {
+      "type": "integer",
+      "description": "size of the written patch file — 0 means nothing was saved"
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
+~~~~
+
+## park · variant 5 · schema 1
 
 `park:block-a` in "acceptance stages a rejected block"
 
@@ -3739,52 +3777,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached` and unstage this block's files)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -3802,7 +3838,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3812,10 +3848,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -3823,7 +3855,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 5 · schema 1
+## park · variant 6 · schema 1
 
 `park:block-a` in "the quality reviewer fails a block without its file"
 
@@ -3847,52 +3879,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (a reviewer reported a failing verdict but did not confirm writing its review file)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -3910,7 +3940,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -3920,10 +3950,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -3931,7 +3957,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 6 · schema 1
+## park · variant 7 · schema 1
 
 `park:block-a` in "the developer staged its own work"
 
@@ -3955,52 +3981,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -4018,7 +4042,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -4028,10 +4052,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -4039,7 +4059,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 7 · schema 1
+## park · variant 8 · schema 1
 
 `park:block-a` in "developer never got its block"
 
@@ -4063,52 +4083,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent could not obtain its plan)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -4126,7 +4144,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -4136,10 +4154,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -4147,7 +4161,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 8 · schema 1
+## park · variant 9 · schema 1
 
 `park:block-a` in "the developer dies"
 
@@ -4171,52 +4185,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent returned nothing (skipped or died))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -4234,7 +4246,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -4244,10 +4256,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -4255,7 +4263,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 9 · schema 1
+## park · variant 10 · schema 1
 
 `park:block-a` in "developer escalates"
 
@@ -4279,52 +4287,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -4342,7 +4348,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -4352,10 +4358,6 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
     }
@@ -4363,7 +4365,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
 }
 ~~~~
 
-## park · variant 10 · schema 1
+## park · variant 11 · schema 1
 
 `park:block-a` in "developer escalates in an ordered run"
 
@@ -4387,52 +4389,50 @@ STAGING CONTRACT:
   • Nothing is EVER committed.
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is and return saved=false, cleared=false.
+produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
+included, and return saved=false, cleared=false.
 An already-empty diff is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. `git -C E:/repo status --porcelain` first. If `git -C E:/repo diff` is already EMPTY there is
-   no patch to write — skip the patch write, return saved=false, patch_bytes=0, with a note saying so,
-   and continue at step 2. Otherwise write the block's work to E:/flow/runs/flow/parked-block-a.patch
+1. SAVE. `git -C E:/repo status --porcelain` first. Mark each `??` untracked path this block created
+   intent-to-add with `git -C E:/repo add -N -- <path>`, so the patch carries it. Skip build output and
+   caches. Only then check `git -C E:/repo diff`. If it is EMPTY there is no patch to write — skip the
+   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
+   Otherwise, if E:/flow/runs/flow/parked-block-a.patch already exists, RENAME it to E:/flow/runs/flow/parked-block-a.prev<n>.patch,
+   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
+   Never overwrite or delete either patch. Then write the block's work to E:/flow/runs/flow/parked-block-a.patch
    (create E:/flow/runs/flow/ if needed):
      `git -C E:/repo diff --binary > E:/flow/runs/flow/parked-block-a.patch`
    `--binary` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and files the developer created are in it via `git add -N`.
+   block's work, and every file it created is in it via `git add -N`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CATCH STRAYS. If `git -C E:/repo status --porcelain` still lists any `??` untracked file this
-   block created (the developer missed its `git add -N`), COPY those files into E:/flow/runs/flow/parked-block-a-newfiles/,
-   preserving relative paths, since the patch CANNOT carry them. Skip build output and caches. Report
-   the count as strays_saved.
-3. CLEAR. Restore every tracked file this block modified to the staged baseline:
-   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED with
-   `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together. Deleting
-   the file alone leaves the entry, and `git diff` stays non-empty. Always name the files:
-   an unpathed `git reset` or `git rm` touches the staged baseline. An intent-to-add file is safe to
-   remove because the step 1 patch carries it. Then delete each `??` stray that step 2 copied. It is
-   safe ONLY because step 2 copied it to E:/flow/runs/flow/parked-block-a-newfiles/. If step 2 did not copy a stray, do
-   NOT delete it.
+2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+   `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file it CREATED, the
+   ones step 1 marked included, with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry
+   and the file together. Deleting the file alone leaves the entry, and `git diff` stays non-empty.
+   Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
+   intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-4. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
-     `git -C E:/repo apply --3way E:/flow/runs/flow/parked-block-a.patch`. When the diff was already empty, in their
-     place: the line "Saved work: none (the tree held no changes)" if step 2 copied no strays, or the
-     line "Saved work: no patch (the diff was empty)" if it did.
-   - **ONLY IF step 2 actually copied stray files**: a line naming `E:/flow/runs/flow/parked-block-a-newfiles/` as holding
-     new files the patch cannot carry, listing them, and telling the user to copy them back into the repo
-     (preserving relative paths) as a SECOND step after the `git apply`, or as the only step when
-     there is no patch. Omit this line entirely when there were no strays.
+     `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
+     files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
+     baseline. When step 1 renamed an earlier patch, one more line naming the `.prev<n>.patch` path
+     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
+     line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
+     a line naming it as this block's earlier saved work.
    - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
      `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
      in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. The ONLY alternative is to
-     apply the patch and finish this block BY HAND, because a resumed run requires a clean unstaged tree
-     and halts on a dirty one. Do NOT tell the user to `git add -A` the restored work: that folds
-     UN-reviewed code into the accepted baseline.
+     developer redo it — the default, with the patch kept for reference. To continue from the patch
+     instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
+     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
+     `git add -A` the restored work: that folds UN-reviewed code into the accepted baseline.
 Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema.
+Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~
 
 ~~~~json
@@ -4450,7 +4450,7 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
     },
     "cleared": {
       "type": "boolean",
-      "description": "true if `git diff` is empty after step 3, including a diff that was already empty"
+      "description": "true if `git diff` is empty after step 2, including a diff that was already empty"
     },
     "gates_green": {
       "type": "boolean",
@@ -4460,12 +4460,193 @@ Return saved + cleared + gates_green + patch_bytes + strays_saved via the schema
       "type": "integer",
       "description": "size of the written patch file — 0 means nothing was saved"
     },
-    "strays_saved": {
-      "type": "integer",
-      "description": "how many untracked files you copied to the -newfiles dir in step 2 (0 if none)"
-    },
     "notes": {
       "type": "string"
+    }
+  }
+}
+~~~~
+
+## develop · variant 11 · schema 1
+
+`develop block-a r1` in "a parked block is continued from its patch"
+
+~~~~text
+
+You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
+never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
+neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+NO scope creep beyond the plan.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+BLOCK: block-a
+ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
+ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+unstaged at the end of this round is judged as YOUR work.
+  `git -C E:/repo diff --name-only` (unstaged tracked edits)
+  `git -C E:/repo status --porcelain`, lines starting `??` (untracked files, which `git diff` OMITS)
+Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
+staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, CONTINUE from this block's
+parked patch instead of implementing it from scratch:
+  a. Run `git -C E:/repo diff --cached --stat` and keep its output.
+  b. Restore the patch with a PLAIN `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`, never with `--3way`,
+     `--index` or `--cached`: each of those stages the restored work into the accepted baseline.
+  c. Run `git -C E:/repo add -N -- <file>` on each new file the patch created
+     (`git -C E:/repo status --porcelain` lists it as `??`).
+  d. Confirm `git -C E:/repo diff --cached --stat` is the same as the output step a kept.
+  e. READ the latest `## Parked block: block-a` entry in E:/flow/runs/flow/NEEDS-USER.md and the review file that entry
+     names, then continue from the restored work.
+The restored diff is THIS block's own unstaged work. Report produced=true.
+If E:/flow/runs/flow/parked-block-a.patch is missing or `git apply` fails, confirm `git -C E:/repo diff` is empty and that
+no file you created remains (a failed plain `git apply` changes nothing). Append an entry to
+E:/flow/runs/flow/NEEDS-USER.md naming E:/flow/runs/flow/parked-block-a.patch and the apply error, set needs_user=true and STOP.
+If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
+block. Do not duplicate or re-litigate an entry.
+
+PROCEDURE:
+1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+   routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
+   Test Strategy.
+2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+   you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
+   it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
+   and HALTS the run.
+4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+  1. Not a real problem / false positive → DROP + LOG.
+  2. Pre-existing in untouched code (not yours) → DROP silently. Never fix it (regression risk).
+  3. Stops the build/tests/verification → FIX (always).
+  4. A real, clear, in-scope fix (local, small) → FIX.
+  5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+  6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
+      reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
+      → FIX it: the verified defect outranks the prescription. LOG an amendment.
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
+      still bind.
+  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
+      → DROP + LOG.
+  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG.
+  8. Anything else (style, medium/low polish, a different block's work) → DROP silently.
+  • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
+    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b. FIX it (4, 5 or
+    6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
+    block's scope.
+
+LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
+  • DROP (1 or 6b): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
+    cite a plan id, block id, issue id or plan clause.
+  • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
+      `## Plan amendment: block-a r1`
+      then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
+      real), and what you built instead.
+    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
+  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
+    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
+    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
+    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
+    and would re-raise your default every round until this block parks.
+This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
+lines you TOUCH a little better, and touch nothing else.
+Return ONLY the decision fields via the schema (no prose report).
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "baseline_dirty_files",
+    "produced",
+    "build_passed",
+    "test_outcome",
+    "tests_run_count",
+    "full_suite_outcome",
+    "unstaged_confirmed",
+    "needs_user",
+    "plan_amendments"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
+    },
+    "baseline_dirty_files": {
+      "type": "integer",
+      "description": "ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds."
+    },
+    "produced": {
+      "type": "boolean",
+      "description": "true if you changed or added at least one file this round"
+    },
+    "build_passed": {
+      "type": "boolean"
+    },
+    "test_outcome": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed",
+        "failed-expected",
+        "failed-unexpected",
+        "not-run"
+      ],
+      "description": "passed = the required verification ran and PASSED. failed = it ran and failed. failed-expected = a red baseline exactly as a test-first block intends. failed-unexpected = failed for a WRONG reason (a real defect / bad fixture). not-run = no verification executed."
+    },
+    "tests_run_count": {
+      "type": "integer",
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+    },
+    "full_suite_outcome": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed",
+        "not-run",
+        "scoped-skip"
+      ],
+      "description": "result of running the FULL test gate to confirm the EXISTING suite is not reddened. \"scoped-skip\" when this run is scoped to each block's own selector."
+    },
+    "verification_method": {
+      "type": "string",
+      "description": "what was actually run to verify (e.g. \"pytest -q\", \"phpunit --filter Bar\", \"curl localhost:3000/health\"); note here if a configured MCP/tool was UNAVAILABLE in this environment"
+    },
+    "unstaged_confirmed": {
+      "type": "boolean",
+      "description": "true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run."
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed"
+    },
+    "dismissed_count": {
+      "type": "integer",
+      "description": "how many review findings you declined and logged to this block's DISMISSED file this round (0 if none)"
+    },
+    "plan_amendments": {
+      "type": "integer",
+      "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
+    },
+    "gate_output": {
+      "type": "string",
+      "description": "tail of failing gate/verification output, or \"\" if green"
     }
   }
 }

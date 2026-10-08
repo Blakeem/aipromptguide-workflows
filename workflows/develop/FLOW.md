@@ -19,11 +19,11 @@ flowchart TD
   t3(["nothing to run (no todo blocks)"])
   t4(["run complete with N block(s) parked"])
   t5(["halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted)"])
-  t6(["BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built)"])
-  t7(["run complete with N block(s) blocked"])
-  t8(["halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)"])
-  t9(["BLOCKED (a block passed but was not staged - stage it, then resume)"])
-  t10(["BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing)"])
+  t6(["run complete with N block(s) blocked"])
+  t7(["halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)"])
+  t8(["BLOCKED (a block passed but was not staged - stage it, then resume)"])
+  t9(["BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing)"])
+  t10(["BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is)"])
   t11(["BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)"])
   t12(["BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)"])
   t13(["BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)"])
@@ -57,7 +57,9 @@ flowchart TD
   x21[/"throw: Invalid slice arg"/]
   x22[/"throw: args.runOnly ... matches no plan id"/]
   x23[/"throw: args.startAt #quot;...#quot; matches no plan id"/]
-  x24[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
+  x24[/"throw: Invalid continueParked arg"/]
+  x25[/"throw: Invalid continueParked id"/]
+  x26[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
   S0 --> a1
   S0 --> t3
   S0 --> x1
@@ -84,13 +86,14 @@ flowchart TD
   S0 --> x22
   S0 --> x23
   S0 --> x24
+  S0 --> x25
+  S0 --> x26
   a1 -.->|"L1 ×4"| a1
   a1 ==>|"next item"| a1
   a1 --> a2
   a1 --> a3
   a1 --> a4
-  a1 --> t6
-  a1 --> t8
+  a1 --> t7
   a1 --> t16
   a2 -.->|"the blind review finds defects (×2)"| a1
   a2 --> a3
@@ -102,14 +105,15 @@ flowchart TD
   a3 --> t1
   a3 --> t2
   a3 --> t4
-  a3 --> t7
+  a3 --> t6
+  a3 --> t8
   a3 --> t9
-  a3 --> t10
   a3 --> t19
   a3 --> t20
   a4 ==>|"next item"| a1
   a4 --> t4
   a4 --> t5
+  a4 --> t10
   a4 --> t11
   a4 --> t12
   a4 --> t13
@@ -148,16 +152,16 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| done (all blocks staged) | every block accepts and the sweep runs · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer changed no files · a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale | derived |
+| done (all blocks staged) | every block accepts and the sweep runs · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer changed no files · a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · continueParked names block-a and every block accepts | derived |
 | partial slice complete | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
 | run complete with N block(s) parked | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run | derived |
 | halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted) | a block parks and ordered is true | derived |
-| BLOCKED (a fix block printed no issue entries - check its planPath and block id; nothing was built) | a fix block printed no issue entries | derived |
 | run complete with N block(s) blocked | a fix block closes nothing and ordered is false | derived |
 | halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there) | a fix block closes nothing and ordered is true | derived |
 | BLOCKED (a block passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
 | BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
+| BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is) | acceptance passes, flags a regression and stages nothing | derived |
 | BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming) | acceptance fails a block but reports staged=true | derived |
 | BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming) | quality finds defects but does not confirm writing its file · acceptance finds gaps but does not confirm writing its file | derived |
 | BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming) | the developer will not confirm its work stayed unstaged | derived |
@@ -187,12 +191,14 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 212) |
 | throw: plans [...] carry no planPath and there is no top-level planPath to default to | no entry and no top-level planPath | throw (line 228) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 239) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 964) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 976) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 983) |
-| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 990) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 999) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 978) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 991) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 998) |
+| throw: args.startAt "..." matches no plan id | startAt is an unknown block id | throw (line 1005) |
+| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1013) |
+| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1019) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1026) |
 
 ## Coverage
 
-61 scenarios · 5/5 roles · 24/24 throw sites · 15/15 halt statuses · 44 terminal states.
+64 scenarios · 5/5 roles · 26/26 throw sites · 15/15 halt statuses · 46 terminal states.
