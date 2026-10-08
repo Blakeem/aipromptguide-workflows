@@ -349,3 +349,26 @@ The Loops table also carries the **full** condition list, where the arrow had be
 - [ ] Engine edited? `node tools/gen-flows.mjs` re-run and the updated `FLOW.md` committed (§7);
       a new agent, guard or terminal state needs a scenario in `tools/flows/<name>.flow.mjs` too
 - [ ] Root `README.md` changelog updated if a user would notice
+- [ ] Merged into `main`, the suite run here, and the worktree and its branch removed (§9)
+
+## 9. Build in a worktree, and remove it when it merges
+
+When this checkout drives runs in other projects, their agents and operators call `tools/` from it
+mid-run: develop's `blockTool`, and `plan-edit.mjs args` between passes. Engines are copied at launch,
+but an edit or branch switch in this working tree reaches a tool call already in flight. So build each
+change in its own worktree off `main`, and point develop's `target.repo` at it:
+
+```
+git worktree add -b aipg/<name> ../aipg-<name> main   # build, gate and commit there
+git -C ../aipg-<name> rebase main
+git merge --ff-only aipg/<name>                         # here, then node tests/run.mjs here
+git worktree remove ../aipg-<name>
+git branch -d aipg/<name>
+```
+
+The last two lines are part of the merge. Left for later, finished worktrees pile up beside the repo.
+Neither can lose work: `worktree remove` refuses a tree with changes or untracked files, and `branch -d`
+refuses a branch `main` does not contain. Run the suite here after the merge, since a worktree holds
+only tracked files (docs/worktree-batches.md, "untracked files"). A detached snapshot worktree that a
+read-only run audits is removed when that run ends, since its findings name the commit. Parallel chains
+use `tools/wt.mjs`, whose `clean` verb is this removal.
