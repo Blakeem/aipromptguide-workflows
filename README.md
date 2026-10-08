@@ -353,7 +353,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   all-skipped block is blocked, never silently done. `resolve-cycle` still works unchanged during
   the transition.
 - **New engine: [refine](workflows/refine/)**, a converging plan review replacing `feature`'s
-  `phase:"refine"` (which never converged, and five runs on one plan kept adding detail). A read-only
+  `phase:"refine"` (which never converged, since five runs on one plan kept adding detail). A read-only
   critic judges every todo block under a fixed defect bar and severity floor, writing findings to a
   critique file. A minimal-fold editor changes nothing a gap does not name, declines to a ledger,
   and re-validates the plan through `plan-block.mjs` after every fold. One clean round ends the
@@ -446,17 +446,17 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   Run several engine runs at once, each chain in its own git worktree (`init`/`prep`), landed one at a
   time into a per-batch integration branch (`land`: index-only accept commit → sync → gate on the merged
   state → merge, serialized by a heartbeat-liveness lock) and cleaned without `--force` so unlanded work
-  is refused, not deleted. A `reference-transaction` hook refuses `git stash` inside `aipg-*` worktrees.
-  `refs/stash` is the one stack every worktree shares, and a stray `pop` would inject one chain's work
+  is refused, not deleted. A `reference-transaction` hook refuses `git stash` inside `aipg-*` worktrees,
+  since `refs/stash` is the one stack every worktree shares. A stray `pop` would inject one chain's work
   into a sibling's blind-review diff. Built from the `worktree-parallelism-1` decide run (E-c). The engines
   are unchanged, since a worktree is just a different `target.repo`.
-- **New principle #15: "A missing result is its own outcome. Fail loud, resume clean."** A dead/null
+- **New principle #15: "A missing result is its own outcome."** A dead/null
   agent must never be conflatable with success, a clean verdict, or an empty result. Every `agent()`
   consumption site states its death policy (solo critical → throw, build loop → park, auxiliary → log +
   record), write-attestations must be consumed, and any failure resumes through the same clean-tree +
   durable-trail mechanism as everything else. A debug run over the engines themselves found and fixed
-  the five engines that violated it (dead-agent visibility guards in review, resolve, enhance and migrate,
-  plus gate and numeric-arg validation).
+  the five engines that violated it (gate and numeric-arg validation, plus dead-agent visibility guards in
+  review, resolve, enhance and migrate).
 - **Plan mode is now the agent's judgment call** (feature + migrate guides). Default INTO plan mode when
   the task is complex, needs the user's answers, or touches something important. Skip it when simple,
   obvious, or already planned. The user always has the final say. A plan authored without plan mode
@@ -469,8 +469,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   old copied `/aipg-*` commands keep working against a checkout but no longer ship.
 - **Run-state moved out of reach of plugin updates.** Installed, the engines live in the version-swapped
   plugin cache. The skills therefore point `root` at the plugin's persistent data dir
-  (`~/.claude/plugins/data/…`), where `runs/<runId>/` and `plans/<runId>/` survive updates. They also stay
-  outside every target repo, where the blind reviewer cannot reach them.
+  (`~/.claude/plugins/data/…`), where `runs/<runId>/` and `plans/<runId>/` survive updates. Those folders also
+  stay outside every target repo, where the blind reviewer cannot reach them.
 - **`feature` and `migrate` take `blockTool`** (optional): the absolute path to `plan-block.mjs` for
   the roadmap/section block command, defaulting to `<root>/tools/plan-block.mjs` as before. Required in
   practice when `root` is not a checkout (the plugin data dir has no `tools/`). The skills pass it
@@ -559,7 +559,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **Work is never discarded.** A feature, section, or fix batch that can't pass is now **parked**: saved to
   `runs/<runId>/parked-<id>.patch`, cleared from the tree, with the `git apply` restore command written
   into `NEEDS-USER.md`. It used to be rolled back and lost. A parked feature no longer stops a `feature`
-  roadmap either. `feature` parks it and builds the next plan. `migrate` still stops, because its sections
+  roadmap either. `feature` parks that plan and builds the next one. `migrate` still stops, because its sections
   depend on each other.
 - **The build engines check your working tree first.** A dirty tree halts before any agent does work,
   naming the two commands that fix it, rather than reviewing your uncommitted changes as its own.
