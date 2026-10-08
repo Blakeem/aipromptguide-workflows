@@ -4,8 +4,8 @@
 //
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
-// a round with nothing to check, forced open on the last round because a determination is due), a
-// contested claim of EACH kind buying another round, and each of the ten throw sites.
+// a later round with nothing to check, forced open on the last round because a determination is due and on
+// a run's first round), a contested claim of EACH kind buying another round, and each of the ten throw sites.
 
 const base = {
   runId: 'flow',
@@ -14,14 +14,13 @@ const base = {
   priorRounds: 0,
 };
 
-// An EMPTY round: nothing found, nothing ruled out, nothing claimed. This one now STALLS the run, so it
-// is the stalled scenario's script and nothing else's.
+// An EMPTY round: nothing found, nothing ruled out, nothing claimed. It STALLS the run, so only the
+// stalled scenarios script it.
 const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'medium', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false, reopened: 0 };
+const CRIT = { wrote_file: true, upheld: [], verified_ids: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false, reopened: 0 };
 const FOUND = { ...INV, new_options: 1, option_ids: ['opt-a'] };
-// A LEARNING round: it qualifies nothing but closes candidates, so the critic gate stays shut and the loop
-// keeps going. This is what a multi-round scenario has to be scripted with now — an all-zero filler round
-// stalls at r1 and the rounds after it never happen.
+// A LEARNING round qualifies nothing but closes candidates, so the loop keeps going. A multi-round
+// scenario needs it, since an all-zero filler round stalls and ends the run.
 const LEARN = { ...INV, disqualified_added: 1 };
 
 export default {
@@ -49,7 +48,7 @@ export default {
       name: 'exhaustion agreed',
       when: 'the critic agrees the search is closed',
       args: base,
-      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
       name: 'no solution verified',
@@ -69,7 +68,7 @@ export default {
       name: 'saturation agreed',
       when: 'the critic agrees the search has run dry',
       args: base,
-      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, upheld: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
       // Its own contest flag, so its own back-edge: a saturation claim waved through by a coverage verdict
@@ -80,18 +79,27 @@ export default {
       respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, contests_saturation: true } },
     },
     {
-      // The backstop, and the one terminal reached WITHOUT a critic ever running: an empty round leaves
-      // the next round nothing to diverge from, so buying one gets the same empty round at full price.
+      // The backstop: an empty round leaves the next round nothing to diverge from, so buying one gets the
+      // same empty round at full price. A run's first round always runs the critic, so this stall is r2's,
+      // reached straight out of the investigator.
       name: 'stalled',
       when: 'a round adds nothing at all',
       args: base,
-      respond: { investigate: INV },
+      respond: { investigate: (label) => (/r1$/.test(label) ? LEARN : INV), critique: CRIT },
     },
     {
-      // Rounds 1..n-1 skip the critic (nothing to check); the LAST round still spawns one, because it
+      // A run's first round always spawns the critic, even a quiet one: an interrupted earlier attempt may
+      // have left option files no critic judged. The stall then leaves the critic, not the investigator.
+      name: 'resumed quiet first round',
+      when: 'a resumed run\'s first round adds nothing',
+      args: { ...base, priorRounds: 2 },
+      respond: { investigate: INV, critique: CRIT },
+    },
+    {
+      // Rounds 2..n-1 skip the critic (nothing to check); the LAST round still spawns one, because it
       // owes a determination and that file is what reaches the user. So this scenario draws BOTH edges
       // out of the investigator — the skip and the gate opening on the final round. It must RULE THINGS
-      // OUT while qualifying nothing: an all-zero round stalls at r1 and there is no r2 to draw.
+      // OUT while qualifying nothing: an all-zero round stalls and there is no later round to draw.
       name: 'quiet rounds',
       when: 'a round only rules candidates out',
       args: base,
@@ -102,7 +110,7 @@ export default {
       name: 'resumed search',
       when: 'a search resumes after round 2',
       args: { ...base, priorRounds: 2 },
-      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
@@ -117,7 +125,7 @@ export default {
       name: 'investigator escalates',
       when: 'the investigator hits a user-only call',
       args: base,
-      respond: { investigate: { ...FOUND, needs_user: true }, critique: { ...CRIT, upheld: ['opt-a'] } },
+      respond: { investigate: { ...FOUND, needs_user: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] } },
     },
     {
       name: 'critic escalates',
@@ -127,15 +135,14 @@ export default {
     },
     {
       // Both escalations above add an option, so the critic gate opens and the halt is drawn leaving the
-      // CRITIC. An investigator that escalates in a QUIET round (nothing found, nothing claimed) skips
-      // the critic entirely and halts straight out of the investigator — probably the commonest shape,
-      // since a criteria contradiction usually surfaces before any candidate does. Nothing can force
-      // this scenario: `BLOCKED (needs user input)` is already covered, so terminal coverage stays green
-      // while the edge is missing from the map.
+      // CRITIC. An investigator that escalates in a QUIET later round (nothing found, nothing claimed)
+      // skips the critic entirely and halts straight out of the investigator. Nothing can force this
+      // scenario: `BLOCKED (needs user input)` is already covered, so terminal coverage stays green while
+      // the edge is missing from the map. r1 is a LEARN round, since a run's first round always runs the critic.
       name: 'investigator escalates in a quiet round',
       when: 'the investigator escalates before finding anything',
       args: base,
-      respond: { investigate: { ...INV, needs_user: true } },
+      respond: { investigate: (label) => (/r1$/.test(label) ? LEARN : { ...INV, needs_user: true }), critique: CRIT },
     },
     {
       // Two routes into one terminal, one per writer, since coverage cannot see the second route.
@@ -168,7 +175,7 @@ export default {
       name: 'dead investigator (round 3)',
       when: 'the investigator dies mid-search',
       args: base,
-      respond: { investigate: (label) => (/r3$/.test(label) ? null : LEARN) },
+      respond: { investigate: (label) => (/r3$/.test(label) ? null : LEARN), critique: CRIT },
     },
     {
       name: 'dead acceptance critic',

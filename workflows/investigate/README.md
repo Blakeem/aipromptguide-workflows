@@ -93,8 +93,10 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 Under `runs/<runId>/`: each option the investigator qualified, with its per-criterion evidence
 (`options/<id>.md`), the full record of what was ruled out and why (`DISQUALIFIED.md`), the ground each
 round covered and what it would try next (`SEARCHED.md`), the critic's round-by-round findings
-(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The file of an option the critic
-disqualified stays in `options/`. The run's `options` result lists only the verified ones.
+(`acceptance-review-rN.md`), and the conclusion (`DETERMINATION.md`). The critic writes its verdict as
+the first line of each option file it judges. The file of an option the critic disqualified stays in
+`options/`. The run's `options` result lists the options whose verdict reads upheld, earlier runs included. It is
+`null` when the run could not learn that set.
 
 **Read the status first.** `exhaustive` means the answer set is complete as far as your criteria reach.
 `not exhaustive (round budget spent)` means the options may be fine but nothing was proved complete — you
@@ -103,9 +105,10 @@ ended, since the critic did not accept that claim. Re-run to continue, since the
 rather than repetitive.
 `stopped on saturation` means the yield collapsed and the critic agreed another round was not worth its
 cost: the options are verified, the search is **open**, and the determination's WHERE NEXT section names
-the avenues left and the premise change that would open new ground. `stalled` means a round produced
-nothing at all — no option, no ruled-out candidate, no claim — so the run stopped instead of buying
-another empty one; nothing was verified and there is no determination.
+the avenues left and the premise change that would open new ground. `stalled` means a round's
+investigator found no option, ruled out no candidate and made no claim, so the run stopped instead of
+buying another empty one. There is no determination. A stall in a run's first round still ran the critic
+over the option files, and that critic may have ruled some of them out.
 
 `DISQUALIFIED.md` is worth reading even on a clean run. It is usually the fastest way to see whether your
 criteria were doing what you meant them to.

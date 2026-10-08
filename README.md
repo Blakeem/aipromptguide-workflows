@@ -159,6 +159,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   lists whose cause shares no code path with the fix's root cause no longer counts against the fix. The
   verifier appends it to `NEW-ISSUES.md` for your triage, and the return counts it in `newIssues`.
   Before, the verifier had no rule for that harm, so it could fail a fix whose own root cause was closed.
+- **investigate reads its answer set from the option files.** The critic writes its verdict as the first
+  line of each option file it judges, `verdict: upheld rN` or `verdict: disqualified rN`. The return's
+  `options` is the list of upheld options from the latest critic that attested its review file, so a
+  resumed run keeps the options earlier runs verified. `options` is `null` when that set is unknown. A
+  run's first round runs the critic unless its investigator stops the run first, so the critic judges any
+  option file an interrupted round left unjudged. After a critic's unattested write, you no longer move
+  its review file aside before the relaunch. The `stalled` status no longer ends with
+  `stopped unverified`, since a stall in a run's first round still ran the critic.
 
 ### 2026-10-04
 

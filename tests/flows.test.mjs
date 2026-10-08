@@ -200,7 +200,7 @@ section('investigate keeps its EIGHT status terminals distinct — asserted by t
     'exhaustive (search closed, critic agreed)',
     'no qualifying option exists (verified)',
     'not exhaustive (round budget spent)',
-    'stalled (a round added nothing new and claimed nothing — stopped unverified)',
+    'stalled (a round added nothing new and claimed nothing)',
     'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)',
     'stopped on token budget (resume where it left off)',
   ].join(' | '), 'and each is the engine\'s own string');
@@ -358,7 +358,9 @@ section('a loop is annotated with the MEASURED round count');
   const inv = nodeByLabel(g, 'investigate');
   const backIn = g.loops.filter((l) => l.to === inv.id);
   ok(backIn.length > 0, 'the round loop produces back-edges into the investigator');
-  ok(backIn.every((l) => l.repeat === 5), 'each reports 5 rounds — read from the trace, not from maxRounds in the source');
+  // A run's first round always runs the critic, so the quiet-rounds self-loop starts at r2 and repeats 4 times.
+  eq(backIn.map((l) => `${l.from === inv.id ? 'self' : 'critique'}×${l.repeat}`).sort().join(), 'critique×5,self×4',
+    'each reports its measured round count — read from the trace, not from maxRounds in the source');
   ok(!edgeBetween(g, 'investigate', 'critique').back,
     'and the loop BODY\'s forward edge is not dotted just because round 2 revisits the critic');
 }

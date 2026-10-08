@@ -43,7 +43,7 @@ section('an arg-validation throw legitimately has no calls at all');
 section('a normal run reports kind:return and the engine\'s own status');
 {
   // Both writers attest their files: an unattested write is its own BLOCKED terminal, not a normal run.
-  const t = await runTrace(INVESTIGATE, { args: { ...invArgs, maxRounds: 1 }, respond: { 'investigate': { wrote_files: true }, 'critique': { wrote_file: true } } });
+  const t = await runTrace(INVESTIGATE, { args: { ...invArgs, maxRounds: 1 }, respond: { 'investigate': { wrote_files: true }, 'critique': { wrote_file: true, verified_ids: [] } } });
   eq(t.terminal.kind, 'return', 'terminal kind');
   eq(t.terminal.status, 'not exhaustive (round budget spent)', 'status');
   eq(t.terminal.status, t.out.status, 'which is out.status verbatim');
@@ -116,7 +116,7 @@ section('phases records every phase() call and where it falls in the call sequen
     args: { ...invArgs, maxRounds: 1 },
     respond: {
       'investigate': { wrote_files: true, new_options: 1, disqualified_added: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: ['o'] },
-      'critique': { wrote_file: true, upheld: ['o'], disqualified: [], contests_exhaustion: false, agree: false, needs_user: false },
+      'critique': { wrote_file: true, upheld: ['o'], verified_ids: ['o'], disqualified: [], contests_exhaustion: false, agree: false, needs_user: false },
     },
   });
   eq(t.phases.map((p) => p.title).join(), 'Investigate,Critique', 'both titles, in order');

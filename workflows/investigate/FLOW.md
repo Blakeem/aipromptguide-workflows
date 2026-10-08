@@ -17,7 +17,7 @@ flowchart TD
   t3(["no qualifying option exists (verified)"])
   t4(["not exhaustive (round budget spent)"])
   t5(["stopped on saturation (diminishing returns, critic agreed - the search is open, not closed)"])
-  t6(["stalled (a round added nothing new and claimed nothing - stopped unverified)"])
+  t6(["stalled (a round added nothing new and claimed nothing)"])
   t7(["stopped on token budget (resume where it left off)"])
   t8(["BLOCKED (needs user input)"])
   t9(["BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)"])
@@ -43,17 +43,18 @@ flowchart TD
   S0 --> x7
   a1 --> t1
   a1 --> x8
-  a2 -.->|"L1 ×5"| a2
+  a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
   a2 --> t9
   a2 --> x9
-  a3 -.->|"the critic contests the coverage claim · +1 more (×5)"| a2
+  a3 -.->|"the critic contests the coverage claim · +5 more (×5)"| a2
   a3 --> t2
   a3 --> t3
   a3 --> t4
   a3 --> t5
+  a3 --> t6
   a3 --> t8
   a3 --> t9
   a3 --> x10
@@ -65,7 +66,7 @@ flowchart TD
 |---|---|
 | Refine | MANDATORY first pass (refine phase only): an independent criteria critic reads the criteria and returns gaps, blocking questions, and any criterion no evidence could settle either way. Writes nothing. |
 | Investigate | ONE investigator per round (sequential, which is what makes a single shared ledger safe): reads the criteria verbatim + the whole DISQUALIFIED.md ledger + the last critique, searches, self-checks every candidate against every criterion, writes options/&lt;id&gt;.md per qualifier, appends each reject to the ledger (marking NEAR-MISS: the ones that failed exactly one criterion), and writes DETERMINATION.md - the options, a comparison over the axes they DIFFER on, which to pick when, the near misses and the coverage evidence - on a terminating round AND on the last round the budget allows, where it is labelled a partial result. |
-| Critique | Adversarial non-blind critic - skipped only in a round that adds no option, claims no termination and owes no determination: verifies each new option against every criterion and each citation against its source, disqualifies what fails (appending to the same ledger), re-checks every NEAR-MISS marker, attacks any exhaustion / no-solution / saturation claim, and checks the determination when one was written. Agreement on a claim ends the loop; a contested claim buys another round. |
+| Critique | Adversarial non-blind critic - skipped only in a round that adds no option, claims no termination, owes no determination and is not this run's first round: verifies each new option and every unverified option file against every criterion and each citation against its source, writes its verdict as the first line of each file it judges, disqualifies what fails (appending to the same ledger), re-checks every NEAR-MISS marker, attacks any exhaustion / no-solution / saturation claim, and checks the determination when one was written. Agreement on a claim ends the loop; a contested claim buys another round. |
 
 ## Loops
 
@@ -82,7 +83,7 @@ flowchart TD
 | no qualifying option exists (verified) | the critic agrees nothing can qualify | derived |
 | not exhaustive (round budget spent) | the critic contests the coverage claim · the critic contests the saturation claim · a round only rules candidates out | derived |
 | stopped on saturation (diminishing returns, critic agreed - the search is open, not closed) | the critic agrees the search has run dry | derived |
-| stalled (a round added nothing new and claimed nothing - stopped unverified) | a round adds nothing at all | derived |
+| stalled (a round added nothing new and claimed nothing) | a round adds nothing at all · a resumed run's first round adds nothing | derived |
 | stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
 | BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId) | the investigator does not confirm writing its files · the critic does not confirm writing its review file | derived |
@@ -93,10 +94,10 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 44) |
 | throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 81) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 91) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 397) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 460) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 503) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 409) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 480) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 524) |
 
 ## Coverage
 
-26 scenarios · 3/3 roles · 10/10 throw sites · 8/8 halt statuses · 19 terminal states.
+27 scenarios · 3/3 roles · 10/10 throw sites · 8/8 halt statuses · 19 terminal states.

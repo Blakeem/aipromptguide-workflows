@@ -112,16 +112,20 @@ agents per run, so a fast tier buys nothing.
   claims **`saturated`** when the yield has collapsed. Escalates a user-only call to `NEEDS-USER.md` —
   **and so may the critic**, for a criteria contradiction; those are two distinct halt paths, not one.
 - **Acceptance Critic** (`critique`) — adversarial, non-blind, **skipped only in a round that adds no
-  option, claims no termination and owes no determination**. Verifies each new option against every
-  criterion and each citation against its source, disqualifies what fails (appending to the same ledger),
-  re-checks every `NEAR-MISS` marker (an over-claimed one poisons the determination), attacks any
-  exhaustion / no-solution / saturation claim, and checks the determination whenever one was written. Only
-  ids it **upholds** reach the caller.
+  option, claims no termination, owes no determination and is not the run's first round**. A run's first
+  round runs it, fresh or resumed, unless its investigator stops the run first. That catches option files an
+  interrupted earlier attempt left unjudged. Verifies each new option and every unverified file in
+  `options/` against every criterion and each citation against its source, disqualifies what fails
+  (appending to the same ledger), re-checks every `NEAR-MISS` marker (an over-claimed one poisons the
+  determination), attacks any exhaustion / no-solution / saturation claim, and checks the determination
+  whenever one was written. It writes its verdict as the first line of each option file it judges:
+  `verdict: upheld rN` or `verdict: disqualified rN`. Only options whose file reads `verdict: upheld` reach
+  the caller.
 
 ## 6. Loop & contracts (keep intact)
 
-`refine (once) → [investigate → (critique, when there is something to check)] × maxRounds`. The loop
-**starts and ends with the investigator**; the critic only ever judges what a round produced.
+`refine (once) → [investigate → (critique, on the run's first round and whenever a round has something to check)] × maxRounds`.
+Every round **starts with the investigator**.
 
 - **The ledger is the convergence mechanism.** One investigator per round, strictly sequential
   (investigator, then critic), is the *only* reason a single append-only file with two writers is safe.
@@ -148,11 +152,16 @@ agents per run, so a fast tier buys nothing.
   collapse against `SEARCHED.md` + the ledger and may set `contests_saturation` — which costs the same
   citation a coverage contest does and buys another round. `exhausted` / `no_solution` **outrank** it
   (both arriving at once logs a ⚠ and the stronger fact wins), and `exhaustive` stays **false**.
-- **A round that adds *nothing* stops the run.** No option, no ledger line, no claim, no escalation and no
-  determination owed → `stalled`, immediately, round 1 included: the next round would have nothing to
-  diverge from. Nothing was verified and no determination was written. A **learning round** — 0 options
-  but candidates ruled out — is *not* a stall and continues, because closing candidates is real progress;
-  neither is the final round, which was ordered to write a determination and keeps its own terminal state.
+- **A round whose investigator adds *nothing* stops the run.** The investigator adds no option, no ledger
+  line, no claim and no escalation, and no determination is owed → `stalled`, immediately, round 1
+  included: the next round would have nothing to diverge from. No determination was written. A stall in
+  the run's first round comes after its critic judged the files in `options/`. That critic may still
+  disqualify files an earlier attempt left and append their ledger lines. The round stalls all the same,
+  since those files are old ground. A stall in a later round ran no critic. Either way, `options` holds the
+  latest critic's verified set, or is `null` when that critic returned no `verified_ids`. A **learning
+  round**, where the investigator rules candidates out but adds 0 options, is *not* a stall and continues,
+  because closing candidates is real progress. The final round is not a stall either, since it was ordered
+  to write a determination and keeps its own terminal state.
 - **`DETERMINATION.md` has a fixed shape** — ANSWER, COMPARISON, WHICH TO PICK WHEN, NEAR MISSES,
   COVERAGE, and **WHERE NEXT** on any *stopped* result (a saturation, a no-solution, or a partial last
   round): the unswept avenues with a confidence each, plus the premise/criteria change that would open
@@ -185,16 +194,21 @@ agents per run, so a fast tier buys nothing.
   | `not exhaustive (round budget spent)` | Options may be valid, but **nothing was proved complete**. |
   | `no qualifying option exists (verified)` | Critic-verified: nothing can meet these criteria. |
   | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid, but the search is **open**. A critic agreed to it as one agrees to exhaustion, so it is the state most easily mistaken for a finished search. |
-  | `stalled (a round added nothing new and claimed nothing — stopped unverified)` | A round produced nothing at all. Unverified, no determination. |
+  | `stalled (a round added nothing new and claimed nothing)` | A round's investigator produced nothing. No determination. In the run's first round the critic still judged the option files and may have disqualified some. |
   | `stopped on token budget (resume where it left off)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
   | `BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)` | The investigator or the critic did not attest its write. Halted before that output was used. No determination is named. |
 
   Only the first is a *finished* search.
 
-- **Nothing unvetted reaches you.** The return carries the critic's **upheld ids only**, never a listing of
-  `options/`. An escalation raised alongside new options still gets those options critiqued *before* the
-  halt is honored.
+- **Nothing unvetted reaches you.** The return's `options` is the `verified_ids` of the latest critic
+  that attested its review file. That set holds every file in `options/` whose first line reads
+  `verdict: upheld`, earlier rounds and earlier runs included. An id that critic also disqualified stays
+  out. So does an id an earlier critic of this run disqualified, unless this round re-proposed it.
+  `options` is `null` when the set is unknown. That happens when the critic returned no `verified_ids`,
+  or when a resumed run ended before any critic attested. A fresh search that ended before any critic
+  attested returns `[]`. An escalation raised alongside new options still gets those options
+  critiqued *before* the halt is honored.
 - **A dead agent throws.** All three roles are solo and critical, so death is never laundered into "found
   nothing, swept everything" — which is exactly the shape of a successful exhaustive search.
 - **No code, no git.** Files only; nothing staged, nothing committed.
@@ -232,13 +246,16 @@ agents per run, so a fast tier buys nothing.
   `exhaustive`. Resume (§8) to continue from the ledger.
 - **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
   `DETERMINATION.md` and lead with its **WHERE NEXT**. The return's `options` is the verified set, and each is a
-  valid answer. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
+  valid answer. `options` is `null` when the latest critic returned no `verified_ids`. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
   option the critic disqualified, so check `determinationDefects` as for `exhaustive`. To continue, pick an avenue WHERE NEXT names and resume
   (§8), or make the premise/criteria change it proposes.
   An unchanged re-run buys another round over the same worked-out ground.
-- **`stalled`** — the run produced nothing this invocation and nothing was verified; there is no
-  determination to relay. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say so plainly,
-  then either resume (§8) to continue from that memory or change the criteria/premise.
+- **`stalled`**: a round's investigator produced nothing, and there is no determination to relay. A stall
+  in the run's first round still ran the critic, which judged the files in `options/` and may have
+  disqualified some. `options` holds the latest critic's verified set, or is `null` when that critic
+  returned no `verified_ids`. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say plainly
+  that the search found nothing new, then either resume (§8) to continue from that memory or change the
+  criteria/premise.
 - **`BLOCKED (needs user input)`**: read `NEEDS-USER.md`, resolve with the user (usually by editing the
   criteria), resume (§8).
 - **`BLOCKED (an agent did not confirm writing its files ...)`**: check the files `haltReason` names,
@@ -256,9 +273,10 @@ intact and the first investigator reads the last run's review. `maxRounds` count
 rounds. The ledger means the search **continues** rather than restarting. A fresh investigator reads
 what is already closed and does not re-walk it. The halts to resolve first are a `needs_user`
 escalation, an unattested write (check the files `haltReason` names), and a token-budget stop (nothing
-to resolve there, just re-invoke). After a critic's unattested write, move its review file aside before
-the relaunch. A re-run round that spawns no critic leaves that file in place, and a later resume hands
-it to the first investigator as an accepted review.
+to resolve there, just re-invoke). After a critic's unattested write, the relaunch re-runs that round as
+its first round. Its critic runs unless that round's investigator stops the run first. That critic
+rewrites the review file and re-judges any verdict line that names the round. The verdicts in the option files carry across runs, so a resumed run's `options` holds
+the options earlier runs upheld once its first critic lists them.
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
 args, `priorRounds` included, and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents
@@ -284,7 +302,10 @@ inline.
 ## 10. State files (`runs/<runId>/`, outside every repo)
 
 - `options/<id>.md` — one per option the investigator qualified: per-criterion evidence with citations,
-  what it buys, what it costs, sources. A critic-disqualified option's file stays on disk.
+  what it buys, what it costs, sources. Once a critic judges it, its first line is the verdict line
+  `verdict: upheld rN` or `verdict: disqualified rN`. Only the critic writes that line. A re-proposed
+  option's file is rewritten without one, so it is unverified again. A critic-disqualified option's file
+  stays on disk.
 - `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate naming the criterion it
   fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. **This is the search's memory** and
   the reason each round diverges from the last.
@@ -293,8 +314,8 @@ inline.
   promising unswept avenue and the confidence in it. The ledger closes candidates; this closes ground, and
   it is what a resumed run reads to avoid re-running the last round's searches.
 - `acceptance-review-rN.md` — the critic's findings for round N: per-option verdicts, near-miss
-  corrections, any contested termination claim, and any defect in the determination. Sparse by design: a
-  round with nothing to check produces none.
+  corrections, any contested termination claim, and any defect in the determination. A run's first round
+  writes one unless its investigator stops the run first. A later round with nothing to check writes none.
 - `DETERMINATION.md` — the run's product file, in the fixed shape of §6, linking to `options/<id>.md`
   rather than restating them (#11). Written on a terminating round **and** on the last round the budget
   allows (labelled a partial result when that round claims no termination). **The return names it
