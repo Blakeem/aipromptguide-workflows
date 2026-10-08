@@ -153,6 +153,57 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-08
+
+- **develop sets a dirty tree aside without touching the staged work.** The guide and the dirty-baseline
+  halt no longer use `git stash -u`, which also stashed the accepted blocks in the index. The set-aside
+  saves the unstaged work to a patch under the run's state dir before it clears anything. A plain
+  `git apply` restores it unstaged.
+- **A parked block keeps its work in one patch.** The park saves new files in the same patch as the
+  edits. A second park of the same block keeps the earlier patch as `parked-<id>.prev<n>.patch`. The
+  park note's restore command is a plain `git apply`. Before, its `git apply --3way` staged unreviewed
+  work.
+- **develop can continue a parked block.** Add `continueParked: ["<id>"]` to the launch args. The
+  block's first developer restores its patch, and the work goes through full review.
+- **develop writes each new issue to its source block's own file.** The file is
+  `plans/<runId>/NEW-ISSUES-<block id>.md`, a fix-mode plan file develop builds as it is. Before, new
+  issues went to one `NEW-ISSUES.md` that you moved and renamed before the next run.
+- **develop's relaunch steps run in a working order.** The guide and the engine's hand-back say to run
+  `plan-edit.mjs args`, set the block back to `todo`, then run `plan-edit.mjs args` again for the launch
+  args. Before, the block was set to `todo` first, so the status fold marked it parked or blocked again.
+- **A fix pass that reports a regression and stages nothing stays open.** Before, it marked its block
+  done and its fixes fixed.
+- **`plan-block.mjs --list` rejects a todo fix block with no `### [<id>]` entry.** Before, develop
+  halted on that block in round 1.
+- **develop's blind reviewer runs at most one targeted test.** It is told the gates already ran.
+- **debug's guide ends with triage and one handoff to develop.** The develop guide holds the build steps.
+  The return's `nextStep` names the failed units to re-review before triage, since a re-review rewrites
+  each re-reviewed unit's issue file.
+- **debug review returns counts only.** The `issues` index is gone from the return, so triage reads the
+  issue files. The verifier no longer writes a `- theme:` line. Issue files written before still parse.
+- **gen-units takes one `--unit-loc` flag.** It replaces `--cap-loc`, `--big-file` and `--pack-loc`.
+  `--no-pack` turns packing off. A retired flag exits 1 and names its replacement. Any other unknown flag
+  exits 1.
+- **enhance's verifier applies the impact floor.** It rejects a proposal below the floor in the lens
+  file's `## Rejected` section, and the return no longer carries `belowFloor`. A defect the verifier finds
+  goes under a new `## Defects to route` section, for the debug workflow.
+- **docs scrubs only web captures.** Repo and local file captures are not scrubbed. A gap-fill round
+  spot-checks only the files it captured. `INDEX.md` lists the files that failed the spot-check and the
+  sources it could not reach.
+- **decide and investigate take the rubric as a file.** Pass its path as `planPath`. The inline
+  `requirements` and `criteria` args are gone.
+- **decide halts when the decider or reviewer does not confirm its write.** Before, the next stage read
+  that path, which could hold an earlier run's file. The hand-back that says to raise `maxRounds` also
+  says to pass `resumeFromRunId`, so the relaunch keeps the finished rounds.
+- **investigate re-judges earlier verdicts on resume.** The first critic of a resumed run re-judges every
+  option file and re-opens every ledger line the current criteria no longer disqualify. So a criteria
+  edit between runs reaches every earlier verdict. A resume after an investigator's escalation re-runs
+  that round, so its investigator reads the review it was handed.
+- **investigate keeps an unlisted option out of `options`.** A verified option that a later critic
+  neither lists nor disqualifies stays out of the answer set, and the log names it. A later critic that
+  lists it restores it. The return no longer counts near misses. The determination's NEAR MISSES section
+  lists them.
+
 ### 2026-10-07
 
 - **develop's fix acceptance records an older, separate harm as a new issue.** A harm an issue entry
