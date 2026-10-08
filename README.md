@@ -32,7 +32,7 @@ Two pairs are worth keeping straight. For `debug` and `enhance`, something the s
 a defect, which debug fixes. Something it could do **better** is an enhancement, which enhance proposes
 and you decide on. For `decide` and `investigate`, decide fits when no established answer exists and the
 work is **weighing trade-offs**. Investigate fits when the answer is already out there and the work is
-**finding it and proving it fits**. The tell is whether missing a requirement is a trade-off or simply
+**finding it and proving it fits**. The tell is whether missing a requirement is a trade-off or
 disqualifying.
 
 All eight share the design rules in **[principles/](principles/)**, the fifteen
@@ -176,6 +176,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **`plan-block.mjs --list` rejects a todo fix block with no `### [<id>]` entry.** Before, develop
   halted on that block in round 1.
 - **develop's blind reviewer runs at most one targeted test.** It is told the gates already ran.
+- **develop's agents read the plan block from a file.** They redirect the `plan-block.mjs` output to a
+  file, since the Bash display cuts long output.
+- **develop's acceptance counts a doc sentence the cycle made false as a regression.** This covers a
+  comment or doc sentence that was true before the cycle. A line number another file cites does not count,
+  since every edit moves lines.
 - **debug's guide ends with triage and one handoff to develop.** The develop guide holds the build steps.
   The return's `nextStep` names the failed units to re-review before triage, since a re-review rewrites
   each re-reviewed unit's issue file.
@@ -203,6 +208,19 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   neither lists nor disqualifies stays out of the answer set, and the log names it. A later critic that
   lists it restores it. The return no longer counts near misses. The determination's NEAR MISSES section
   lists them.
+- **A relaunch keeps its runId.** A runId names one piece of work. A relaunch of that work keeps the runId
+  and passes no `resumeFromRunId`. A replay also passes `resumeFromRunId`, so the finished agents return
+  from cache. New work takes a new runId. No guide says to clear run-state. Its ledgers keep the earlier
+  dismissals that a relaunch reads.
+- **The guides defer the hand-back to the return's `nextStep`.** This covers brainstorm, debug, decide,
+  docs, enhance and investigate. Each `nextStep` now carries the counts and steps its guide held.
+- **The refine guide and README name where to read each halt.** For `needs-answers`, they point at the
+  QUESTIONS section of the last critique. For `dismissal-contested`, they point at the newest entries in
+  `NEEDS-USER.md`, since that file keeps every earlier halt's entries.
+- **refine's critic grades every wrong instruction major or higher.** Before, a wrong instruction the gate
+  would catch went ungraded. Two instructions in one block that cannot both hold count as a wrong
+  instruction. Each critique re-lists every below-floor item that still holds, so the last critique lists
+  all of them.
 
 ### 2026-10-07
 
