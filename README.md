@@ -237,6 +237,28 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   a file the curator wrote is left untouched and reported.
 - **The READMEs and skill descriptions follow the house style.** They have no mid-sentence colons or
   filler words, and every fact is kept.
+- **Every engine returns the same hand-back fields.** Every return carries `nextStep` and `failed`.
+  `nextStep` holds your next action and names every entry in `failed`. `failed` lists each auxiliary
+  agent that died, did not confirm its file or returned a result the engine could not match, as
+  `{ id, stage }`. develop, refine, decide and investigate's run phase also return `status`, `halted` and
+  `haltReason`. A test checks every return of every engine against these rules.
+- **Five return fields are gone.** develop's `followups` is now `nextStep`. develop's `sweepFailed` and
+  docs' `gatherFailed` and `scrubFailed` are now entries in `failed`. A debug review's `failed` entries
+  name the unit as `id`. brainstorm, enhance, decide, debug review and docs no longer return a `phase`.
+- **No status string tells you what to do.** Each status reads `<token> (<meaning>)`. Its steps moved to
+  `nextStep` or `haltReason`.
+- **refine returns `halted`, `haltReason` and `nextStep`.** `halted` is true for its six halt kinds. The
+  refine guide points at `nextStep` for each halt's steps.
+- **enhance names the stage that lost each lens.** A lens lost before its verifier ran is at the `find`
+  stage. A lens lost at its verifier is at the `verify` stage.
+- **A halted decide run names each lens it dropped.** Its `nextStep` says the relaunch with the same args
+  redoes them.
+- **A debug review names each unit whose verifier verdicts did not match its findings.** The returned
+  totals leave those findings out. Its `nextStep` says to triage each such unit from its issue file.
+- **develop throws on `startAt`, a top-level `planPath` and `planContext`.** Each error names the
+  replacement. To continue a run, relaunch with fresh `plan-edit.mjs args`.
+- **`plan-edit.mjs args` reads a finished develop run's statuses from its result.** The runtime never
+  cuts the result, but it cuts a long log line. A log line it cut now fails only the plans it names.
 
 ### 2026-10-07
 
