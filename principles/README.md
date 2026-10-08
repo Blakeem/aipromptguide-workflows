@@ -10,9 +10,9 @@ so they stay in sync.
 
 ## In brief
 
-The goal of every workflow is the simplest, lowest-friction path to the outcome — no fluff, no extra
+The goal of every workflow is the simplest, lowest-friction path to the outcome, with no fluff or extra
 agents. The harness only routes control signals (paths, counts, booleans) and never re-interprets
-content; agents exchange full content verbatim through files. Reviews are staged and escalating (blind
+content. Agents exchange full content verbatim through files. Reviews are staged and escalating (blind
 pure-code review, then plan-aware acceptance), agents stay stateless and unanchored, and the only
 files written are numbered inter-agent messages, ledgers, user notes, and the workflow's own product.
 Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
@@ -20,8 +20,8 @@ Read [`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md) for the full set.
 ## Using them
 
 1. Read `WORKFLOW-PRINCIPLES.md` before you build a new workflow.
-2. After building or modifying a workflow engine, audit it against the principles — e.g. run the
-   debug workflow with `WORKFLOW-PRINCIPLES.md` as a lens — to catch violations and over-engineering.
+2. After building or modifying a workflow engine, audit it against the principles to catch violations
+   and over-engineering. For example, run the debug workflow with `WORKFLOW-PRINCIPLES.md` as a lens.
 
 ## Built with these
 

@@ -6,8 +6,8 @@ An autonomous Claude Code workflow that hardens a codebase as a planned campaign
 verified, effort-scored inventory of real production defects, then, after you triage it, it fixes the
 approved issues with the [develop](../develop/) workflow behind a two-stage review and stages the
 result. You commit. The fix loop also
-accepts an **external inventory** — findings from live/manual testing, a bug bash, or a symptom you
-diagnosed yourself — so you can skip the review pass and go straight to fixing.
+accepts an **external inventory** of findings from live/manual testing, a bug bash, or a symptom you
+diagnosed yourself, so you can skip the review pass and go straight to fixing.
 
 The two stages are the point. You cannot prioritize issues or estimate the work until you have actually
 reviewed, so `review.mjs` is read-only: it sweeps the codebase in bounded units (concurrently, so it is
@@ -16,13 +16,13 @@ Then it stops. You read those files, answer anything flagged for your decision, 
 with. Each issue file is a fix-mode plan file, so develop then builds it. A blind critic and an
 issue-aware verifier review every fix, and each accepted file is staged.
 
-Debug does **not** hunt a reported bug for you — there is no repro/bisect step. If you have a live symptom
+Debug does **not** hunt a reported bug for you. There is no repro/bisect step. If you have a live symptom
 ("X crashes"), diagnose it first, then feed the result in as an external inventory (below).
 
 ### What sets it apart
 
 This is a deliberately **lean** workflow. A default Claude workflow tends to spawn an agent for every
-step; this one engineers those away and follows a strict set of principles:
+step. This one engineers those away and follows a strict set of principles:
 
 - **No busy-work agents.** There is no loader, scribe, baseline, or organizer agent. Setup (the unit
   manifest, triage, a clean baseline) happens up front in the main session. No agent is spawned for a
@@ -36,7 +36,7 @@ step; this one engineers those away and follows a strict set of principles:
   regression.
 - **The fix list is closed.** The fix loop only ever works the inventory you approved. No fresh
   review mid-fix keeps finding "just one more thing", which is what makes fixing medium issues
-  converge instead of spiraling. For the same reason it hunts **defects only** — an improvement list
+  converge instead of spiraling. For the same reason it hunts **defects only**. An improvement list
   never converges, and improvements would be auto-applied here. Those belong in
   [`enhance`](../enhance/).
 - **Staging is the boundary, never a commit.** Accepted fixes are staged. Only the acceptance gate
@@ -53,12 +53,12 @@ This workflow reviews and hardens an existing codebase. It pays off when you wan
 pass over a body of code, not a single targeted change:
 
 - ✅ **Right size:** a production-readiness review of a codebase or a subsystem, where you want the
-  issues found, triaged, and the approved ones fixed safely — or a verified inventory (from
+  issues found, triaged, and the approved ones fixed safely. It also fits a verified inventory (from
   manual testing) you want fixed the same way.
 - ❌ **One bounded feature, or one goal spanning many call sites** (a migration, version upgrade, or
   framework port): write a plan file and build it with [`develop`](../develop/). Large, cross-cutting
   items this tool routes to DEFER make good `section` blocks there.
-- ❌ **Nothing is broken — you want it *better*** (faster, simpler, cheaper, smaller): use
+- ❌ **Nothing is broken and you want it *better*** (faster, simpler, cheaper, smaller): use
   [`enhance`](../enhance/). This workflow reports only what the code gets **wrong**, deliberately: its
   inventory drives an autonomous fixer, so an improvement list here would be auto-applied.
 
@@ -68,26 +68,26 @@ pass over a body of code, not a single targeted change:
 
 This workflow ships in the [AI Prompt Guide workflows](../../README.md) repo. Install the `aipg`
 plugin once (`/plugin marketplace add Blakeem/aipromptguide-workflows` → `/plugin install
-aipg@aipromptguide`), or clone the repo as `aipg/` and drive it by path — then trigger it two ways:
+aipg@aipromptguide`), or clone the repo as `aipg/` and drive it by path. Then trigger it two ways:
 
-- **Skill:** `/aipg:debug` — then *"review this repo for production readiness; build is
-  `<your build command>`, tests are `<your test command>`; start with the review pass."*
+- **Skill:** `/aipg:debug`, then *"review this repo for production readiness. Build is
+  `<your build command>` and tests are `<your test command>`. Start with the review pass."*
 - **Plain pointer:** tell Claude to *use the debug **workflow** in `aipg/workflows/debug/`* to review a
   target, with your build and test commands.
 
 Either way Claude reads `aipg/workflows/debug/CLAUDE.md` and runs `gen-units.mjs`, `review.mjs`, then
-develop's `develop-cycle.mjs` **by path** — the engines are in no global registry, so the folder pointer is how
-they're discovered; nothing to build.
+develop's `develop-cycle.mjs` **by path**. The engines are in no global registry, so the folder pointer
+is how they're discovered. There is nothing to build.
 
 From there Claude drives everything:
 
 1. **Splits the work.** It runs `gen-units.mjs` to divide your source tree into bounded review units,
    and shows you the unit list.
-2. **Reviews it.** Reviewers run over every unit concurrently; a verifier follows only where findings
+2. **Reviews it.** Reviewers run over every unit concurrently. A verifier follows only where findings
    exist (the reviewer marks clean units itself). One issue file per unit lands under
-   `runs/<runId>/issues/`. Then it stops. Optionally you can give the pass one or more **lenses** — a
-   destructiveness audit, a data-loss sweep, a compliance check — to sweep the same code from several
-   angles at once. A lens narrows *which* defects matter; it never turns the pass into a wish list.
+   `runs/<runId>/issues/`. Then it stops. Optionally you can give the pass one or more **lenses** to
+   sweep the same code from several angles at once, such as a destructiveness audit, a data-loss sweep,
+   or a compliance check. A lens narrows *which* defects matter and never turns the pass into a wish list.
 3. **Walks you through triage.** Claude presents the inventory (totals, the hottest areas, every item
    that needs your decision) and helps you decide scope. You approve or skip issues by editing the
    issue files.
@@ -101,7 +101,7 @@ to check cost and quality before letting the rest go.
 
 ### Bring your own findings (skip the review pass)
 
-The fix loop doesn't require the review pass — it only needs the issue files. When the findings come
+The fix loop doesn't require the review pass. It only needs the issue files. When the findings come
 from somewhere other than a code review (a **live testing session**, a bug bash, user reports, or a
 symptom you diagnosed yourself), tell Claude to feed them into the debug workflow's fix loop: it authors
 the per-unit issue files itself in the verifier's format (each finding anchored to `file:line` with a
@@ -133,7 +133,7 @@ parked, with its work saved to a patch and the restore command written into `NEE
 
 ## Reviewing the result
 
-Nothing is committed; everything is staged in your repo. Review it like a PR:
+Nothing is committed. Everything is staged in your repo. Review it like a PR:
 
 ```bash
 cd /path/to/repo
@@ -159,9 +159,9 @@ it has one, and finish by hand, or retry those issues with a sharper fix instruc
 
 - **Claude Code** with the Workflow capability.
 - The target is a **git repository** (staging is how regressions are caught). The working tree must have
-  **no unstaged changes** when the fix loop starts — it checks, and stops before doing any work if you
-  have uncommitted edits, since it would otherwise review them as its own. Commit, stage, or stash first;
-  Claude will ask you which.
-- Commands to **build and test** your project locally. You provide them; the workflow runs them and
+  **no unstaged changes** when the fix loop starts. The fix loop checks this and stops before doing any
+  work if you have uncommitted edits, since it would otherwise review them as its own. Commit, stage, or
+  stash first. Claude will ask you which.
+- Commands to **build and test** your project locally. You provide them. The workflow runs them and
   reads pass/fail. The fix loop only accepts a fix on green gates, so the suite should be green before
   you start.

@@ -5,7 +5,7 @@ node tests/run.mjs              # everything
 node tests/run.mjs migrate      # just files matching "migrate"
 ```
 
-Exit 0 green, 1 red. No dependencies, no config, no network — the whole suite runs in about a second.
+Exit 0 green, 1 red. The suite needs no dependencies, config or network. It runs in about a second.
 
 **This is also the gate.** When you run a workflow *against this repo*, point both gates at it:
 
@@ -18,23 +18,23 @@ Exit 0 green, 1 red. No dependencies, no config, no network — the whole suite 
 
 An engine never runs its agents here. `tests/harness.mjs` loads the engine **as text**, rewrites
 `export const meta` to a plain `const` so it stops being an ES module, and wraps the body in an async
-function with the harness globals injected as parameters — the same shape the real runtime uses. Then it
+function with the harness globals injected as parameters, in the same shape the real runtime uses. Then it
 passes an `agent()` that returns **scripted objects** instead of spawning a model.
 
 That works because of principle #1: *the harness routes control signals and never interprets content*.
 An engine's control plane is therefore a pure function of what its agents return. Script the returns and
-you can drive the engine down any path you like — including ones a real run would take months to hit,
-like an acceptance verifier reporting `pass: true` and `regression: true` in the same breath.
+you can drive the engine down any path you like. That includes paths a real run would take months to
+hit, like an acceptance verifier reporting `pass: true` and `regression: true` in the same breath.
 
-**What this proves:** the engine's logic — which agents it spawns, in what order, what it puts in their
-prompts, what it does with their answers, when it halts, parks, stages, or throws.
+**What this proves:** the engine's logic of which agents it spawns, in what order, what it puts in their
+prompts, what it does with their answers, and when it halts, parks, stages, or throws.
 
 **What it does not:** whether a prompt is any good, or whether a real model would obey it. It tests the
 engine, never the agents. Prompt quality is what the review loops are for.
 
 ## Adding a case
 
-Edit the matching `<engine>.test.mjs`, or drop in a new `*.test.mjs` — the runner finds it.
+Edit the matching `<engine>.test.mjs`, or drop in a new `*.test.mjs` and the runner finds it.
 
 ```js
 import { runEngine, throwsWith, section, ok } from './harness.mjs';
@@ -56,40 +56,40 @@ ok(labels.some((l) => l.includes('plan-b')), 'the roadmap continued');
 
 `respond` keys are matched against the agent's **label** by prefix, longest first. A value can be a
 function `(label, prompt, calls) => response` when the answer depends on the round. An unmatched label
-returns `{}`; an explicit `null` simulates a **dead agent**, which is what `parallel()`/`pipeline()` hand
-back on failure and is worth testing — several real defects lived exactly there.
+returns `{}`. An explicit `null` simulates a **dead agent**, which is what `parallel()`/`pipeline()` hand
+back on failure. A dead agent is worth testing, since several real defects lived there.
 
 `runEngine` returns `{ out, calls, logs, labels, prompt(prefix), byLabel(prefix) }`. Use `prompt()` to
 assert what an agent was actually told, and `byLabel()` when you need a call's `.opts` (its schema, model,
 or phase). `throwsWith()` returns the thrown message for arg-validation cases, or `''` if it did not
 throw.
 
-`runTrace()` takes the same arguments and **never throws** — reach for it when you want the whole path,
+`runTrace()` takes the same arguments and **never throws**. Reach for it when you want the entire path,
 including one that dies halfway. On top of `runEngine`'s shape:
 
-- `calls[i].seq` — 0-based call index.
-- `calls[i].group` — `null` outside a fan-out, else `{ id, kind: 'parallel'|'pipeline', item, stage }`.
+- `calls[i].seq` is the 0-based call index.
+- `calls[i].group` is `null` outside a fan-out, else `{ id, kind: 'parallel'|'pipeline', item, stage }`.
   Several calls may share one `(id, item, stage)` triple: `review.mjs` loops its lenses sequentially
   inside one stage. Compare `item` to tell a sequential repeat from concurrency.
-- `phases` — `[{ title, beforeCall }]` from `phase()`; `beforeCall` is the `seq` the next call will take.
+- `phases` is `[{ title, beforeCall }]` from `phase()`. `beforeCall` is the `seq` the next call will take.
   **`[]` is a correct result** for `debug/review.mjs` and `enhance-cycle.mjs`: they carry the phase on
   each agent's `opts.phase` and never call `phase()`.
-- `groups` — one entry per fan-out, `{ id, kind, items, stages }`.
-- `terminal` — `{ kind: 'return'|'throw', status, message }`. On a throw `out` is `undefined` and
+- `groups` holds one entry per fan-out, `{ id, kind, items, stages }`.
+- `terminal` is `{ kind: 'return'|'throw', status, message }`. On a throw `out` is `undefined` and
   `status` is `''`, but every call made **before** the throw is still in `calls`.
 
 Four readers answer questions about an engine from its **source text**, no run needed, alongside
 `ENGINES` (the eight engine paths):
 
-- `readMeta(src)` — the evaluated `meta` object.
-- `readRoles(src)` — the static label prefixes (an engine's roles) in source order, deduped;
-  `develop-cycle` → `['develop','quality','acceptance','park','final-sweep']`.
-- `readThrows(src)` — `[{ line, prefix }]` per `throw new Error(` site. A message that starts with an
-  interpolation yields `prefix: ''` and is still returned — a dropped site would read as covered.
-- `readHaltStatus(src)` — the evaluated `HALT_STATUS` map, or `{}` for an engine without one.
+- `readMeta(src)` returns the evaluated `meta` object.
+- `readRoles(src)` returns the static label prefixes (an engine's roles) in source order, deduped.
+  For `develop-cycle` it returns `['develop','quality','acceptance','park','final-sweep']`.
+- `readThrows(src)` returns `[{ line, prefix }]` per `throw new Error(` site. A message that starts with
+  an interpolation yields `prefix: ''` and is still returned, since a dropped site would count as covered.
+- `readHaltStatus(src)` returns the evaluated `HALT_STATUS` map, or `{}` for an engine without one.
 
 ## What belongs here
 
-Failure paths, mostly. The happy path is what a real run exercises constantly; the halt, park, dead-agent,
+Failure paths, mostly. The happy path is what a real run exercises constantly. The halt, park, dead-agent,
 contradictory-return and bad-arg paths are the ones that rot silently. Write the case that would have
 caught the bug, and comment **why** it matters when that is not obvious from the assertion.
