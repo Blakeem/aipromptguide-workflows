@@ -433,6 +433,8 @@ if (failed.length) log(`  ⚠ no verified proposal file from: ${failed.join(', '
 
 const total = (k) => live.reduce((s, r) => s + (r.counts[k] || 0), 0);
 const adopt = total('adopt'), roadmap = total('roadmap'), needsUser = total('needs_user');
+const unjudgedTotal = total('unjudged');
+const unjudgedFiles = live.filter((r) => r.counts.unjudged > 0).map((r) => r.file);
 const defects = total('defects');
 log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}`);
 
@@ -440,7 +442,7 @@ return {
   phase: 'enhance',
   runId: RUN_ID,
   proposalsDir: PROPOSALS_DIR,
-  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), unjudged: total('unjudged') },
+  summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), unjudged: unjudgedTotal },
   // Cross-lens overlap is SIGNAL, not duplication: two lenses landing on the same change independently
   // is the strongest evidence in the run. The engine keeps lens files separate and lets the human see
   // the convergence (matching how brainstorm/decide treat their lenses) — no merge agent (#4/#6).
@@ -448,5 +450,5 @@ return {
   failed,
   nextStep: live.length === 0
     ? `NOTHING was audited: every lens failed (${failed.join(', ')}). There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
-    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block (or a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failed.join(', ')} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
+    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failed.join(', ')} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
 };

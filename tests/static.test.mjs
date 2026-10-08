@@ -495,3 +495,24 @@ for (const rel of ENGINES) {
       `${rel} rejects maxRounds ${JSON.stringify(bad)}${/Invalid numeric arg/.test(msg) ? '' : ` — got "${msg.slice(0, 60)}"`}`);
   }
 }
+
+section('no guide tells the operator to clear run-state');
+// A new runId gives the same clean start a cleared state dir did, so a clear only destroys a halted run's
+// ledgers and user notes. Whitespace is collapsed so a phrase wrapped across lines still matches.
+{
+  const CLEAR_PHRASES = [
+    "clear develop's own state files", "clears its engine's own state files", 'clear the folder', 'Clear it only',
+  ];
+  const guides = [
+    'principles/WORKFLOW-PRINCIPLES.md',
+    ...readdirSync(join(REPO_ROOT, 'workflows'), { withFileTypes: true })
+      .filter((d) => d.isDirectory() && readdirSync(join(REPO_ROOT, 'workflows', d.name)).includes('CLAUDE.md'))
+      .map((d) => `workflows/${d.name}/CLAUDE.md`),
+  ];
+  for (const rel of guides) {
+    const text = readFileSync(join(REPO_ROOT, rel), 'utf8').replace(/\s+/g, ' ');
+    const hits = CLEAR_PHRASES.filter((p) => text.includes(p));
+    const verdict = hits.length ? `tells the operator to clear run-state: "${hits.join('", "')}"` : 'never tells the operator to clear run-state';
+    ok(hits.length === 0, `${rel} ${verdict}`);
+  }
+}

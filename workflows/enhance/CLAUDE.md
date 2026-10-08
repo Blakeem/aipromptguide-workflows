@@ -44,12 +44,7 @@ One phase, no mid-run questions — settle everything with the user first:
 2. **Agree what "better" MEANS here** (`goals`) — the north star every lens serves. Without it each lens
    optimizes for its own idea of better and you triage a pile of contradictions.
 3. **Run** the engine. It returns per-lens counts + the proposal file paths.
-4. **PRESENT the proposals** (§7): ADOPT items first by impact, then ROADMAP, then every NEEDS_USER with
-   its options + recommendation. **Call out any change two or more lenses landed on independently** —
-   that convergence is the strongest signal in the run.
-5. **Triage with the user**, then route. ADOPT → a `feature` block. ROADMAP → `section` blocks or a
-   `feature` block of its own. Both go in a `develop-cycle` plan file. Every line under a file's
-   `## Defects to route` → the debug workflow.
+4. **Present and triage** per §7.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -71,7 +66,7 @@ One phase, no mid-run questions — settle everything with the user first:
   you genuinely want the long tail; that is the noise spiral. The verifier rejects a candidate it scores
   below the floor and names it in that lens file's `## Rejected` section. That section is where a thin
   run shows whether the floor or the system thinned it.
-- **Fresh vs. resume.** A re-run with the same `runId` overwrites the proposal file of each lens that
+- **Relaunch vs. new run.** A re-run with the same `runId` overwrites the proposal file of each lens that
   produces one in this run. A lens in `failed` keeps any earlier file, so present only the paths in
   `lenses[].file`. Keep an old batch → new `runId` (or `stateDir`).
 
@@ -137,16 +132,15 @@ noise.
 
 ## 7. Presenting the result (the deliverable is a triage conversation)
 
-The proposal files are the output; the return is an index into them. Read them and walk the user through:
-- **ADOPT** items first, highest impact — each is well-scoped and ready to hand to a builder as-is.
-- **ROADMAP** items — real, but they need planning rather than a single change.
-- **NEEDS_USER** items — a genuine product/design call, each with options + a recommendation. These are
-  the ones that actually need the conversation.
-- **Convergence** — any change two or more lenses found independently.
-- **Every line under a file's `## Defects to route`** — route to the debug workflow, and say so.
+Follow the return's `nextStep`. It names the counts, the files to present, the order to present them
+in, where each decision routes and every caveat. The return's `summary.unjudged` counts the candidates
+the verifier returned no verdict for, which are in no other count.
 
-Then decide scope together. Adopted items become `feature` blocks in a `develop-cycle` plan file.
-A ROADMAP item spanning many call sites becomes `section` blocks.
+What each decision means:
+- **ADOPT**: well-scoped and ready to hand to a builder as-is.
+- **ROADMAP**: real, but it needs planning rather than a single change.
+- **NEEDS_USER**: a genuine product or design call, with options and a recommendation in its block.
+  These are the items that need the conversation.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
@@ -162,13 +156,6 @@ A ROADMAP item spanning many call sites becomes `section` blocks.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.
-
-Report when done: adopt/roadmap/needs-user counts, where the proposals are, the convergent findings, any
-defects to route, any `failed` lenses (not audited, no verified proposal file), and `summary.unjudged`
-when it is non-zero. `summary.unjudged` counts candidates the verifier returned no verdict for, so they
-are in no other count. Check them in that lens's proposal file. When
-every lens failed, nothing was audited, so never report a clean audit. **Nothing is staged or
-committed.**
 
 ## 9. Args reference
 

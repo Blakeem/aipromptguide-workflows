@@ -92,8 +92,11 @@ entry. debug's review.mjs writes these files; hand-authored external inventories
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool` defaults to
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
   the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
-- **Fresh vs. resume:** for a new run, clear develop's own state files (§8) under the state dir.
-  Preserve them on resume. Never clear a plan file or debug's `issues/`.
+- **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
+  `resumeFromRunId`, so its ledgers and `NEEDS-USER.md` carry over. Every develop run of one plan, or
+  of one debug review's issue files, keeps that `runId`. Unrelated new work takes a new `runId`, and so
+  does a block that already landed and is built again from scratch, so its old `DISMISSED-<id>.md`
+  stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 
 ## 5. Roles
 

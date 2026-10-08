@@ -43,12 +43,11 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
 3. **`phase:"refine"`** (MANDATORY, same `runId`) with `planPath` = that file's **absolute** path. An
    independent Criteria Critic returns `gaps` / `questions` / `unfalsifiable` in the tool result and
    **writes nothing**.
-4. **Fold the findings in.** Fix gaps directly in the criteria file; relay each question via
-   `AskUserQuestion`. **Replace every `unfalsifiable` criterion with one evidence can settle** — a
-   criterion nothing can decide keeps every candidate arguable forever and the loop never converges.
+4. **Fold the findings in.** Follow the refine return's `nextStep`. It names the questions to relay, the
+   criteria fixes to fold in and the run launch.
 5. **`phase:"run"`** (same `runId` + `planPath`, `priorRounds: 0`). It loops investigator ⇄ critic and
    returns the qualifying options, the determination, and which terminal state it reached.
-6. **Present** per §7 — and lead with *which* terminal state, because they mean very different things.
+6. **Present** per §7.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -68,8 +67,8 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
   command + result, and the critic re-runs measurements. Keep it read-only by construction and
   **pre-allowlist the commands** — a background run cannot answer permission prompts.
 - **`maxRounds`** (default 5) and **`minRoundBudget`** (default 100k) bound each run of the search — §6.
-- **Fresh vs. resume.** The ledger IS the search's memory, so **preserving `runs/<runId>/` is what makes a
-  resume cheaper than a restart.** Clear it only for a genuinely different question.
+- **Relaunch vs. new run.** The ledger IS the search's memory, so **preserving `runs/<runId>/` is what makes a
+  resume cheaper than a restart.** A different question takes a new runId. Never clear `runs/<runId>/`.
 
 ## 4. Criteria-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -227,47 +226,13 @@ Every round **starts with the investigator**.
 
 ## 7. Presenting the result (lead with the terminal state)
 
-- **`exhaustive`** — relay `DETERMINATION.md` (the options, the comparison, which to pick when, the near
-  misses, the coverage evidence), then the per-criterion evidence in each `options/<id>.md`. Several
-  qualifying options is a normal, good outcome: they are **unranked by design**, because qualification is
-  pass/fail and weighing them is `decide-cycle`'s job. Present the trade-offs and let the user choose —
-  and if they then want them ranked, that is a `decide-cycle` run over this option set, not a re-run here.
-  The return's `determinationDefects` counts the defects the critic found in the determination. When it
-  is above 0, or null because the critic gave no count, read them in the latest `acceptance-review-rN.md`
-  and correct them before you relay it. They deliberately do not change `agree`, since a malformed
-  determination is not an open search.
-- **`no qualifying option exists (verified)`** — this is a real answer, not a failure. Relay the
-  determination and the ledger, and take the criterion it names to the user: **relaxing one criterion is
-  the only thing that changes this result.** **Lead with the determination's NEAR MISSES section** when
-  it lists any: each failed exactly one criterion, so they are precisely what relaxing a criterion would
-  make available, and some are worth doing on their own merits even though they do not qualify. Check
-  `determinationDefects` as for `exhaustive`. Do not re-run unchanged.
-- **`not exhaustive`** — say so plainly. Options found so far may be fine, but **do not present them as a
-  complete answer**. `DETERMINATION.md` exists here too, written on the final round. It is labelled a
-  partial result unless that round claimed termination and the critic did not accept the claim. Such a
-  file asserts the rejected claim and may lack WHERE NEXT, so label it a partial result yourself and add
-  the open avenue from the latest `acceptance-review-rN.md`. Relay it *with that caveat attached*, never
-  on its own. Check `determinationDefects` as for
-  `exhaustive`. Resume (§8) to continue from the ledger.
-- **`stopped on saturation`** — the search **is open**; never present it as exhaustive. Relay
-  `DETERMINATION.md` and lead with its **WHERE NEXT**. The return's `options` is the verified set, and each is a
-  valid answer. `options` is `null` when the latest critic returned no `verified_ids`. Nothing was proved to be all of them. The ANSWER in `DETERMINATION.md` may still link an
-  option the critic disqualified, so check `determinationDefects` as for `exhaustive`. To continue, pick an avenue WHERE NEXT names and resume
-  (§8), or make the premise/criteria change it proposes.
-  An unchanged re-run buys another round over the same worked-out ground.
-- **`stalled`**: a round's investigator produced nothing, and there is no determination to relay. A stall
-  in the run's first round still ran the critic, which judged the files in `options/` and may have
-  disqualified some. `options` holds the latest critic's verified set, or is `null` when that critic
-  returned no `verified_ids`. Read the `r<N> NEXT:` lines in `SEARCHED.md` and the ledger, say plainly
-  that the search found nothing new, then either resume (§8) to continue from that memory or change the
-  criteria/premise.
-- **`BLOCKED (needs user input)`**: read `NEEDS-USER.md`, resolve with the user (usually by editing the
-  criteria), resume (§8).
-- **`BLOCKED (an agent did not confirm writing its files ...)`**: check the files `haltReason` names,
-  then resume (§8) as a fresh run with no `resumeFromRunId`. A `resumeFromRunId` relaunch replays the
-  cached return and halts the same way.
-- Always offer `DISQUALIFIED.md`. What was ruled out and why is often the most useful artifact in the run,
-  and it is what makes a later re-run cheap.
+Follow the return's `nextStep`. It leads with the terminal state (§6 table) and names the files to
+show, the next launch and every caveat.
+
+The return's `determinationDefects` counts the defects the critic found in the determination it last
+checked. It is null when no critic checked a determination or the critic gave no count, and null never
+reads as clean. The defects deliberately do not change `agree`, since a malformed determination is not
+an open search.
 
 ## 8. Resume
 
@@ -337,6 +302,3 @@ inline.
   and it errs the safe way: the field never names a file nothing wrote. When a run halts, look in
   `stateDir` before assuming there is nothing there.
 - `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax.
-
-Report when done: the terminal state **first**, the qualifying options, the determination's NEAR MISSES
-section, where the determination and ledger are, and what was ruled out. **Nothing is staged or committed.**

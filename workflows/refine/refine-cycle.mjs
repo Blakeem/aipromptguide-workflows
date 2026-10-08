@@ -201,13 +201,17 @@ THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from t
 Three rules settle the grade, and each wins over the definitions above:
   - An OMISSION the block's own green gate would catch on its first run is minor. Only the gate counts
     as a catch, never a guess that the developer will notice.
-  - A WRONG INSTRUCTION the gate would not catch is major or higher.
+  - A WRONG INSTRUCTION is major or higher, whether or not the gate would catch it, since the developer
+    can depart from it only through a plan amendment. Two instructions in one block that cannot both
+    hold are a WRONG INSTRUCTION.
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
     gate would not catch is major.
 Gaps graded ${COUNTED.join(' or ')} COUNT: write them in the numbered GAPS section and include them in
 gap_count. ${BELOW.length
     ? `Gaps graded ${BELOW.join(' or ')} are BELOW the floor: list them in a separate
-"## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count.`
+"## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count. Re-list every
+below-floor item that still holds in the current plan text, even when an earlier round's critique listed
+it, so that the last critique's FYI section is complete.`
     : 'No grade sits below this floor, so every gap you find counts.'}
 
 SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line

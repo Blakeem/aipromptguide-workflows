@@ -73,6 +73,8 @@ section('a candidate the verifier judges too risky is rejected, counted, and kep
   eq(out.summary.tooRisky, 1, 'the summary counts it');
   eq(out.lenses[0]?.kept.length, 1, 'and only the safe candidate is kept');
   ok(!out.lenses[0]?.kept.some((k) => k.id.endsWith('-1')), 'the risky one is not among them');
+  ok(out.nextStep.includes('ROADMAP items a section-mode block when they span many call sites'), 'nextStep routes ROADMAP to a section-mode block only across many call sites');
+  ok(!out.nextStep.includes('returned no verdict'), 'and holds no unjudged line when every candidate has a verdict');
 }
 
 section('a verifier that does not attest its proposal file lands its lens in failed');
@@ -190,6 +192,9 @@ section('a submitted candidate with no verdict is counted and named, never silen
   eq(out.lenses[0].counts.unjudged, 1, 'the lens counts the unjudged candidate');
   eq(out.summary.unjudged, 1, 'and so does the summary');
   ok(logs.some((l) => /efficiency: the verifier returned no verdict for efficiency-2 — they are in no count/.test(l)), 'the log names it');
+  ok(out.nextStep.includes('They hold 1 ADOPT, 0 ROADMAP and 0 NEEDS_USER item(s) across 1 lens(es).'), 'nextStep states the counts');
+  ok(out.nextStep.includes('The verifier returned no verdict for 1 candidate(s) (summary.unjudged), so they are in no count: check them in E:/r/runs/t/proposals/efficiency.md before triage.'),
+    'and names the unjudged count and the lens file that holds it');
 }
 
 section('a real candidate below the impact floor keeps is_real=true, and its impact score rejects it');

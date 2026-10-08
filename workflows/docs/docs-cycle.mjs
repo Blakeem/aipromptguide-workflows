@@ -376,22 +376,28 @@ const degradedWarning = gatherFailed.length || scrubFailed.length
     scrubFailed.length ? `these sources' files were NOT scrubbed, so nav chrome or ads may remain: ${scrubFailed.join(', ')}` : '',
   ].filter(Boolean).join('. ')}. `
   : '';
+const foreignWarning = foreignFound
+  ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. `
+  : '';
+const fileCount = curate?.files ?? 0;
+const inconsistencyCount = curate?.inconsistencies ?? 0;
+const unresolvedGaps = (curate?.gaps ?? []).filter((g) => g && g.focus).length;
 
 return {
   phase: 'docs',
   runId: RUN_ID,
   outDir: OUT_DIR,
   index: INDEX_FILE,
-  files: curate?.files ?? 0,
+  files: fileCount,
   rounds,
-  inconsistencies: curate?.inconsistencies ?? 0,
+  inconsistencies: inconsistencyCount,
   fidelity,
   indexWritten: curate?.wrote_index === true,
   foreignContent: foreignFound,
   foreignPaths,
-  unresolvedGaps: (curate?.gaps ?? []).filter((g) => g && g.focus).length,
+  unresolvedGaps,
   gatherFailed,
   scrubFailed,
   stateDir: STATE_DIR,
-  nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}Present the set: read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${fidelity.checked} file(s) compared against their source across all ${rounds} curate round(s), ${fidelity.failures} failed, each failure returned as a recapture gap) — a low or zero check count means the verbatim promise went untested, not that it held. ${foreignFound ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. ` : ''}${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
+  nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}${foreignWarning}Present the set (${fileCount} file(s), ${inconsistencyCount} cross-source inconsistency(ies), ${unresolvedGaps} unresolved gap(s)): read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${fidelity.checked} file(s) compared against their source across all ${rounds} curate round(s), ${fidelity.failures} failed, each failure returned as a recapture gap) — a low or zero check count means the verbatim promise went untested, not that it held. ${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };

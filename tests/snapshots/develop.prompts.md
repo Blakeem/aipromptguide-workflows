@@ -6,31 +6,31 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6249 | every block accepts first time |
+| develop | 1 | 1 | 6364 | every block accepts first time |
 | quality | 1 | 1 | 3179 | every block accepts first time |
-| acceptance | 1 | 1 | 6083 | every block accepts first time |
-| develop | 2 | 1 | 6642 | every block accepts first time |
-| acceptance | 2 | 2 | 6364 | every block accepts first time |
+| acceptance | 1 | 1 | 6392 | every block accepts first time |
+| develop | 2 | 1 | 6757 | every block accepts first time |
+| acceptance | 2 | 2 | 6673 | every block accepts first time |
 | final-sweep | 1 | 1 | 2071 | every block accepts first time |
-| develop | 3 | 1 | 5739 | quality flags the first round |
+| develop | 3 | 1 | 5854 | quality flags the first round |
 | quality | 2 | 1 | 3003 | quality flags the first round |
-| develop | 4 | 1 | 6132 | quality flags the first round |
-| develop | 5 | 1 | 5737 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6130 | acceptance finds gaps, then passes |
-| acceptance | 3 | 1 | 6358 | the developer produced nothing |
-| acceptance | 4 | 2 | 6639 | the developer produced nothing |
-| develop | 7 | 1 | 5701 | the gate never goes green |
+| develop | 4 | 1 | 6247 | quality flags the first round |
+| develop | 5 | 1 | 5852 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6245 | acceptance finds gaps, then passes |
+| acceptance | 3 | 1 | 6667 | the developer produced nothing |
+| acceptance | 4 | 2 | 6948 | the developer produced nothing |
+| develop | 7 | 1 | 5816 | the gate never goes green |
 | park | 1 | 1 | 5123 | the gate never goes green |
-| develop | 8 | 1 | 6094 | the gate never goes green |
+| develop | 8 | 1 | 6209 | the gate never goes green |
 | park | 2 | 1 | 5067 | a parked block, and the run carries on |
 | park | 3 | 1 | 5118 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 7336 | a fix block closes its issues |
-| acceptance | 5 | 3 | 8668 | a fix block closes its issues |
+| develop | 9 | 2 | 7451 | a fix block closes its issues |
+| acceptance | 5 | 3 | 8977 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2062 | a fix block closes its issues |
-| develop | 10 | 2 | 7428 | a pass of two fix blocks closes its issues |
-| acceptance | 6 | 3 | 8927 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 7548 | a pass of two fix blocks closes its issues |
+| acceptance | 6 | 3 | 9241 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2092 | a pass of two fix blocks closes its issues |
-| acceptance | 7 | 3 | 8667 | every issue is already fixed |
+| acceptance | 7 | 3 | 8976 | every issue is already fixed |
 | park | 4 | 1 | 5234 | passed with a regression, not staged |
 | park | 5 | 1 | 5304 | acceptance stages a rejected block |
 | park | 6 | 1 | 5224 | the quality reviewer fails a block without its file |
@@ -39,7 +39,7 @@ this file is stale.
 | park | 9 | 1 | 5148 | the developer dies |
 | park | 10 | 1 | 5218 | developer escalates |
 | park | 11 | 1 | 5259 | developer escalates in an ordered run |
-| develop | 11 | 1 | 7369 | a parked block is continued from its patch |
+| develop | 11 | 1 | 7484 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -48,9 +48,10 @@ this file is stale.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -301,9 +302,10 @@ modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". You judge the work
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -338,7 +340,9 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
 staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
 without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. Count each one, even when this block's own text prescribes the construction that
+not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
+diff made false is a regression. A line number that another file cites is not, since every edit moves
+lines. Count each one, even when this block's own text prescribes the construction that
 causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
 calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
 text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
@@ -446,9 +450,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -624,9 +629,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". You judge the work
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -661,7 +667,9 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
 staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
 without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. Count each one, even when this block's own text prescribes the construction that
+not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
+diff made false is a regression. A line number that another file cites is not, since every edit moves
+lines. Count each one, even when this block's own text prescribes the construction that
 causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
 calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
 text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
@@ -837,9 +845,10 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1081,9 +1090,10 @@ modify source, stage, or commit.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1252,9 +1262,10 @@ Return ONLY the decision fields via the schema (no prose report).
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1419,9 +1430,10 @@ Return ONLY the decision fields via the schema (no prose report).
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1591,9 +1603,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". You judge the work
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1628,7 +1641,9 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
 staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
 without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. Count each one, even when this block's own text prescribes the construction that
+not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
+diff made false is a regression. A line number that another file cites is not, since every edit moves
+lines. Count each one, even when this block's own text prescribes the construction that
 causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
 calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
 text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
@@ -1740,9 +1755,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". You judge the work
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1777,7 +1793,9 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
 staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
 without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. Count each one, even when this block's own text prescribes the construction that
+not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
+diff made false is a regression. A line number that another file cites is not, since every edit moves
+lines. Count each one, even when this block's own text prescribes the construction that
 causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
 calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
 text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
@@ -1891,9 +1909,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -2160,9 +2179,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -2535,9 +2555,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
@@ -2743,9 +2764,10 @@ Return ONLY the decision fields via the schema (no prose report).
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
 the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -2780,7 +2802,9 @@ EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
+sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
+line number that another file cites is not, since every edit moves lines. Count each one,
 even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
@@ -3000,8 +3024,9 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 You are the FIXER. Resolve the verified issues in the output of each command below, one block per command:
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
-Run every one. Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and
-STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
+Run every one, each redirected to its own file outside the target repo, and read those files, since the
+Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
@@ -3209,8 +3234,9 @@ blind code review already passed (or was skipped because the developer changed n
 the output of each command below, one block per command:
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
-Run every one. Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and
-STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
+Run every one, each redirected to its own file outside the target repo, and read those files, since the
+Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -3245,7 +3271,9 @@ EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
+sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
+line number that another file cites is not, since every edit moves lines. Count each one,
 even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
@@ -3468,9 +3496,10 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
 the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -3505,7 +3534,9 @@ EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
+sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
+line number that another file cites is not, since every edit moves lines. Count each one,
 even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
@@ -4474,9 +4505,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at E:/flow/plans/bus.md if you need a
-neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)

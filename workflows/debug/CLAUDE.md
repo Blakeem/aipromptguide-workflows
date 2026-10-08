@@ -122,9 +122,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to
    re-review (Args reference), resume them through step 4 (Resume the review) before step 5 (triage).
-   Then PRESENT the inventory: read the issue files, walk the user through totals by severity/decision,
-   the hot areas, and every NEEDS_USER item with its options + recommendation. This is a scoping
-   conversation.
+   Then follow the return's `nextStep`. It leads with any unit to re-review, then names the files to
+   present and the triage and develop steps after it.
 4. **Resume the review.** Re-run `gen-units.mjs` with `--issues-dir <root>/runs/<runId>/issues`, under
    the same runId. gen-units resolves the flag against your cwd, and run-state hangs off `root`. It
    joins each unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`,
@@ -201,6 +200,10 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 triage doc, verifier-written, user-editable, a fix-mode plan file). The fix loop's files (reviews,
 ledgers, parked patches) land in develop's state dir, listed in `../develop/CLAUDE.md`.
 
+A review that starts over takes a new `runId`, since a `review.mjs` re-run rewrites each unit file it
+re-reviews, triage edits included. The resume in playbook step 4 keeps the `runId`, so it re-reviews
+only the units it names. Never clear `runs/<runId>/`.
+
 ## Args reference
 
 Full schema + defaults: the Config block atop `review.mjs` (the canonical source). Pass `args` inline,
@@ -214,11 +217,12 @@ with `units` from `gen-units.mjs`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
   see Lenses; per-unit override via `unit.lens`).
-- **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. `failed` holds every
-  dead reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer did not attest its
-  marker `{ unit, stage: 'review', marker: false }`, every verifier that did not attest its write
-  `{ unit, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a finding id
-  `{ unit, stage: 'verify', unmatched, unverdicted }`. `unitsReviewed` excludes units with a `failed`
+- **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
+  only the units this run reviewed, so after a resume they leave out the other units' issue files.
+  `failed` holds every dead reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer
+  did not attest its marker `{ unit, stage: 'review', marker: false }`, every verifier that did not
+  attest its write `{ unit, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a
+  finding id `{ unit, stage: 'verify', unmatched, unverdicted }`. `unitsReviewed` excludes units with a `failed`
   entry. Re-review those, except a unit whose entry carries `unmatched` and `unverdicted`. For that unit,
   `inventory` is incomplete, so triage from its issue file.
 - **Throws** when two unit ids map to one issue file or one plan id, naming both.

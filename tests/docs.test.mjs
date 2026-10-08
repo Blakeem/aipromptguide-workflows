@@ -139,3 +139,23 @@ section('a gap-fill curator spot-checks only that round\'s captures, and the ret
   eq(out.fidelity.failures, 1, 'fidelity.failures sums both rounds');
   ok(/across all 2 curate round\(s\)/.test(out.nextStep), `nextStep says the counts cover every round: ${out.nextStep}`);
 }
+
+section('nextStep states the set\'s counts and leads with the foreign-content warning');
+// nextStep is the only hand-back the guide relies on, so it carries the counts and puts every warning
+// ahead of "Present the set", where an operator relaying it in order cannot bury one.
+{
+  const healthy = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
+  ok(healthy.out.nextStep.includes('Present the set (6 file(s), 0 cross-source inconsistency(ies), 0 unresolved gap(s)): read E:/r/runs/t/docs/INDEX.md'),
+    `a healthy nextStep names the counts: ${healthy.out.nextStep.slice(0, 160)}`);
+
+  const FOREIGN = { ...CURATE, foreign_content: true, foreign_paths: ['E:/r/runs/t/docs/old-notes.md'] };
+  const foreign = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': FOREIGN });
+  ok(foreign.out.nextStep.startsWith('WARN THE USER FIRST: E:/r/runs/t/docs held 1 file(s)/folder(s)'),
+    `the foreign-content warning opens nextStep: ${foreign.out.nextStep.slice(0, 120)}`);
+
+  const deadScrub = await run({ 'gather': GATHER, 'scrub': null, 'curate': FOREIGN });
+  const step = deadScrub.out.nextStep;
+  ok(step.startsWith('WARN THE USER FIRST: these sources\' files were NOT scrubbed'), `the death warning still opens nextStep: ${step.slice(0, 120)}`);
+  const foreignAt = step.indexOf('WARN THE USER FIRST: E:/r/runs/t/docs held');
+  ok(foreignAt !== -1 && foreignAt < step.indexOf('Present the set'), 'and the foreign-content warning sits before "Present the set"');
+}

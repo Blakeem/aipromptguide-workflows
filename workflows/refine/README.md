@@ -33,10 +33,12 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
   When `belowFloor` is above 0, read the FYI section of the last critique file first, since those
   findings were never folded into the plan.
 - `needs-answers` means the critic raised something only you can decide, such as a block order or a
-  block to split. Read `NEEDS-USER.md`, change the plan, and run refine again.
+  block to split. Read `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the
+  entries of earlier runs, so the newest entries are at its end.
 - `dismissal-contested` means the critic contested a gap the editor had declined, and the editor passed
-  it to you. Read `NEEDS-USER.md`. Fold the gap into the plan, or add your ruling to `DISMISSED-PLAN.md`
-  as a `USER-RULED:` line, which no later critic contests. Then run refine again.
+  it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
+  your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run
+  refine again.
 - `rounds-exhausted` means the last round's gaps were folded but not checked again. Run refine again to
   confirm.
 - A `BLOCKED` result names what stopped it and how to repair it.

@@ -41,17 +41,10 @@ No mid-run questions — frame it with the user first:
 2. **Run** the engine (`sources` + `brief`/`planPath` + `outDir`). It gathers verbatim, scrubs capture
    junk from web captures, curates + indexes, fills gaps (bounded by `maxRounds`), and returns the
    folder + index paths and counts.
-3. **Present** the set: read `INDEX.md` (including **Coverage notes**) and relay what was gathered, any
-   cross-source inconsistencies, unresolved gaps, and the fidelity spot-check (`fidelity.checked` /
-   `fidelity.failures`, summed over every curate round — a low or zero count means the verbatim
-   promise went *untested*, not that it held). If the return sets `foreignContent`, **warn the user
-   first**: `outDir` was not a dedicated folder (§3). If the return names sources in `gatherFailed` or
-   `scrubFailed`, warn the user first too. A source in `gatherFailed` lost its gatherer, so its
-   coverage may be partial. A source in `scrubFailed` lost its scrubber, so its files may still hold
-   nav chrome or ads. If `indexWritten` is false the curator never confirmed writing `INDEX.md` — say
-   so and check the file exists before relying on the set. Without `outDir` the set sits in gitignored
-   run-state — copy it into the project (or re-run with `outDir`) if it should persist. Point the
-   working agent/plan at the INDEX.
+3. **Present** the set: follow the return's `nextStep`. It names the counts, the files to show and
+   every warning to lead with. A source in `gatherFailed` lost its gatherer, so its coverage may be
+   partial. A source in `scrubFailed` lost its scrubber, so its files may still hold nav chrome or ads.
+   `indexWritten` is false when the curator never confirmed writing `INDEX.md`.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -84,10 +77,10 @@ No mid-run questions — frame it with the user first:
 - **`fidelitySample` (optional, default 3; `0` disables):** after the index is written, the curator
   spot-checks up to N captured files against the source cited in each file's own header (§6). Leave it
   on unless the sources are unreachable — at `0` the verbatim promise is asserted and never tested.
-- **Fresh vs. resume.** A run into a folder that already holds a set (the same `runId` without
-  `outDir`, or the same `outDir` under any `runId`) gathers into and re-curates that set. For a
-  genuinely fresh set, point `outDir` at a new directory or clear the folder. Without `outDir`, a new
-  `runId` also gives a fresh folder.
+- **Relaunch vs. new run.** A run into a folder that already holds a set (the same `runId` without
+  `outDir`, or the same `outDir` under any `runId`) gathers into and re-curates that set. For a new
+  set, point `outDir` at a new directory. Without `outDir`, a new `runId` gives a new folder. Never
+  clear a folder that holds a set.
 
 ## 4. Sources — the doc sets to pull
 
@@ -178,10 +171,3 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
 - `docs/<source-id>/*.md` — the verbatim docs, one file per page/topic, source-headed. The curator may
   reorganize/split these.
 - `docs/INDEX.md` — one line per file + Coverage notes (cross-source inconsistencies, open gaps).
-
-Report when done: the folder + `INDEX.md` paths, file count, rounds run, inconsistencies, unresolved
-gaps, and the fidelity result (`fidelity.checked` / `fidelity.failures`, summed over every round) — then
-relay the Coverage notes.
-Lead with the `foreignContent`, `gatherFailed` and `scrubFailed` warnings when the return carries them.
-**Nothing is staged or committed**;
-copy the set into the project (or re-run with `outDir`) if it should persist.

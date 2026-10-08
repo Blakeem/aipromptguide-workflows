@@ -450,3 +450,15 @@ section('nextStep leads with the re-review when a failed unit has no trustworthy
   const { out: clean } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
   ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run with an attested marker opens on the inventory');
 }
+
+section('nextStep carries the presentation rules the guide held');
+// The playbook defers its presentation step to nextStep, so a rule missing here reaches no operator.
+{
+  const { out: clean } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
+  ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run opens on the inventory');
+  ok(clean.nextStep.includes('totals by severity and decision'), 'the totals are broken down by severity and decision');
+  ok(clean.nextStep.includes('This is a scoping conversation.'), 'the presentation is framed as a scoping conversation');
+
+  const { out: two } = await run({ units: [UNIT, { ...UNIT, id: 'u2' }] }, { 'review': { wrote_clean_marker: true, findings: [] } });
+  ok(two.nextStep.includes('cover only the 2 unit(s) this run reviewed'), `the counts are scoped to this run's units: ${two.nextStep.slice(0, 200)}`);
+}

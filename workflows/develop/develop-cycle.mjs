@@ -246,13 +246,15 @@ for (const path of PLAN_FILES) warnPlanPlacement(path);
 // 'block' lets a parser decide where the block ends: plan bodies use `##` headers, so an agent reading by
 // eye can stop at the first `## Feature` and build a truncated spec. 'full' hands the whole file.
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
-Run it. That output is the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP:
-never guess at a plan you could not read. The full plan file is at ${p.planPath} if you need a
-neighbouring block for context; your block is ONLY "${p.id}"`);
+Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
+display cuts long output. That output is the block, verbatim. If it exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+${p.planPath} if you need a neighbouring block for context; your block is ONLY "${p.id}"`);
 const passRef = (p) => `the output of each command below, one block per command:
 ${p.blocks.map((b) => `  node '${BLOCK_TOOL}' '${b.planPath}' '${b.id}'`).join('\n')}
-Run every one. Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and
-STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
+Run every one, each redirected to its own file outside the target repo, and read those files, since the
+Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
+plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 const planRef = (p) => p.planContext === 'full' && !p.blocks
   ? `the block headed "## Plan: ${p.id}" inside the plan file at ${p.planPath} (read THAT block verbatim; the other blocks are CONTEXT only — your block is ONLY "${p.id}")`
   : blockRef(p);
@@ -719,7 +721,9 @@ EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. Count each one,
+requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
+sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
+line number that another file cites is not, since every edit moves lines. Count each one,
 even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
@@ -831,7 +835,9 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, or a regression. A regression is any behavior the staged baseline (HEAD when nothing is
 staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
 without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. Count each one, even when this block's own text prescribes the construction that
+not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
+diff made false is a regression. A line number that another file cites is not, since every edit moves
+lines. Count each one, even when this block's own text prescribes the construction that
 causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
 calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
 text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once

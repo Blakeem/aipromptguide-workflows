@@ -293,11 +293,15 @@ rules and apply only where they fit.
 - **Preventing review spin.** The `DISMISSED-<id>.md` ledger stops a blind reviewer from re-flagging
   settled findings forever. Reviewers skip ledger items for the stated reason and may contest a clearly
   wrong one once. The developer must fix or escalate a contested item (#5).
-- **Fresh and resumed state directory.** `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative. The
-  per-unit ledgers append across rounds, and `NEEDS-USER.md` is one global file. The main agent clears
-  its engine's own state files in `runs/<id>/` for a fresh feature, never a plan file or debug's
-  `issues/`, and preserves them on resume, so a halted run keeps its ledger and user notes. This is
-  pre-run setup (#4), not an engine job.
+- **Run identity and relaunch.** A `runId` names one piece of work. Every launch of that work keeps
+  it. A plan, its refine runs and every develop run that builds it share one `runId`. A debug review
+  and the develop runs that fix its issue files share one too. A relaunch keeps the `runId` and passes
+  no `resumeFromRunId`. The word "fresh" in an engine status string means a relaunch, never cleared
+  state. A replay is a relaunch that also passes the Workflow tool's `resumeFromRunId`, so agents whose
+  prompts are unchanged return from cache. Unrelated new work takes a new `runId`. Nobody clears
+  run-state, so a halted run keeps its ledgers and user notes, and a new `runId` never reads stale
+  ones. `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative across every launch of one `runId`.
+  Choosing the `runId` is pre-run setup (#4), not an engine job.
 
 ---
 

@@ -89,8 +89,17 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
   ok(p.includes('a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class'),
     'a text edit inside one block is a gap');
   ok(p.includes('An OMISSION the block\'s own green gate would catch on its first run is minor')
-    && p.includes('A WRONG INSTRUCTION the gate would not catch is major or higher'),
+    && p.includes('A WRONG INSTRUCTION is major or higher, whether or not the gate would catch it'),
     'the two grading rules are stated');
+  ok(p.includes('Two instructions in one block that cannot both hold are a WRONG INSTRUCTION'),
+    'a self-contradiction is graded as a wrong instruction');
+  ok(!p.includes('A WRONG INSTRUCTION the gate would not catch'),
+    'a wrong instruction the gate catches is no longer left ungraded');
+  ok(p.includes('Re-list every below-floor item that still holds'),
+    'below the default floor, the critic re-lists every FYI item that still holds');
+  const minorRun = await run({ 'plan-critic': CLEAN }, { ...baseArgs, critiqueSeverity: 'minor' });
+  ok(!minorRun.prompt('plan-critic').replace(/\s+/g, ' ').includes('Re-list every below-floor item'),
+    'the minor floor has no grade below it, so it gains no re-list rule');
   ok(p.includes('EXACTLY ONE smallest change that closes it (never alternatives)')
     && p.includes('every other gap whose change touches the same plan lines'),
     'one fix per gap, with overlapping gaps named');

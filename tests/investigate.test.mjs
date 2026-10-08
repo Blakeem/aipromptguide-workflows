@@ -1,5 +1,5 @@
 // investigate/investigate-cycle.mjs — bounded exhaustive search with memory.
-// Focus: the SEVEN terminal statuses, each asserted as a whole literal. "Ran out of rounds", "ran out of
+// Focus: the EIGHT terminal statuses, each asserted as a whole literal. "Ran out of rounds", "ran out of
 // tokens", "nothing can qualify", "stopped on diminishing returns" and "the round added nothing" are five
 // different facts, and a test that asserts only "the loop ended" passes just as well when the engine
 // reports the wrong one — which is exactly how fatigue would come to masquerade as a proof. After that:
@@ -67,6 +67,13 @@ section('phase:"refine" stops at its critic and writes nothing');
   ok(!JSON.stringify(out).includes('runs/'), 'the return names no written file — refine writes nothing');
   ok(/AskUserQuestion/.test(out.nextStep) && /phase:"run"/.test(out.nextStep),
     'nextStep relays the blocking questions first, then routes back into the criteria file');
+  ok(out.nextStep.includes('REPLACING every unfalsifiable criterion with one that evidence can settle')
+    && out.nextStep.includes('A criterion nothing can decide never converges.'),
+    'beside a question, an unfalsifiable criterion still gets the replace rule');
+  const { out: asked } = await run({
+    'criteria-critic': { gaps: [], questions: [{ question: 'which runtime?' }], unfalsifiable: [] },
+  }, { ...baseArgs, phase: 'refine' });
+  ok(!asked.nextStep.includes('REPLACING'), 'a question with no unfalsifiable criterion carries no replace rule (guard)');
 
   // An unfalsifiable criterion with no blocking question still has to be routed: it is the one finding
   // that makes the search loop unable to converge at all, so it may not fall through as "sound".
@@ -112,6 +119,10 @@ section('an uncontested exhaustion claim ends the loop before the round budget')
   ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
   ok(out.nextStep.includes('The critic found 2 defect(s) in the determination') && out.nextStep.includes(out.reviewFile),
     'nextStep states the count and names the review file that holds them');
+  ok(out.nextStep.startsWith('The search is CLOSED: the critic agreed it is exhaustive. Present the determination:'),
+    'nextStep leads with the terminal state');
+  ok(out.nextStep.includes("The return's `options` holds the verified set of 0 option(s)."), 'nextStep names the verified option set');
+  ok(out.nextStep.includes('run decide-cycle over this option set, not a re-run here'), 'and routes ranking to decide over that set');
 }
 
 section('an agreed saturation claim is a STOPPED search with its own terminal, never a closed one');
@@ -136,6 +147,7 @@ section('an agreed saturation claim is a STOPPED search with its own terminal, n
   ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
   ok(out.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and nextStep states the count');
   ok(/ANSWER may still link an option the critic disqualified/.test(out.nextStep), 'the disqualified-option warning stays');
+  ok(out.nextStep.includes('Offer E:/r/runs/t/DISQUALIFIED.md for what was ruled out and why.'), 'nextStep offers the ledger as an artifact');
 }
 
 section('a contested saturation claim buys another round');
@@ -199,6 +211,8 @@ section('a round that adds NOTHING stalls the run rather than buying another emp
   eq(out.status, 'stalled (a round added nothing new and claimed nothing)', 'status');
   eq(out.rounds, 2, 'two rounds ran');
   ok(/No critic ran in round 2/.test(out.nextStep), 'nextStep says the stalled round had no critic');
+  ok(out.nextStep.includes("No critic ran in round 2, and the return's `options` holds the verified set of 0 option(s)."),
+    'and names the verified option set the last critic left');
   eq(out.determination, '', 'and NO determination is named — nothing was claimed, none was due, none was written');
   ok(/SEARCHED\.md/.test(out.nextStep) && /NEXT:/.test(out.nextStep),
     'nextStep points at the avenue log\'s own NEXT: lines — the only record left of where to go');
@@ -328,6 +342,7 @@ section('a verified no-solution gets its own status, not the round-budget one');
     'nextStep points at the review, the only place a defect the critic found in the determination is recorded');
   ok(out.determinationDefects === 2, 'the critic\'s determination defects are counted on the return');
   ok(out.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and nextStep states the count');
+  ok(out.nextStep.includes('this is a real answer, not a failure'), 'nextStep says a verified dead end is an answer');
 }
 
 section('a determination count of 0 reads as clean, and a missing one as unknown, never as clean');
@@ -349,7 +364,17 @@ section('a determination count of 0 reads as clean, and a missing one as unknown
     ok(unknown.determinationDefects === null, `${name}: an omitted count is null, not 0`);
     ok(unknown.nextStep.includes(unknown.reviewFile) && !/The critic found/.test(unknown.nextStep),
       `${name}: nextStep still points at the review file and claims no count`);
+    ok(unknown.nextStep.includes('correct any defect it notes in the determination before you relay it'),
+      `${name}: nextStep says to correct before relaying`);
   }
+
+  // The round-budget terminal owes a partial determination too, so it states the critic's count.
+  const { out: spent } = await run({
+    'investigate': { ...INV, option_ids: ['o'] },
+    'critique': { ...CRIT, determination_defects: 2 },
+  }, { ...baseArgs, maxRounds: 1 });
+  eq(spent.status, 'not exhaustive (round budget spent)', 'a last round with no claim runs out of rounds');
+  ok(spent.nextStep.includes('The critic found 2 defect(s) in the determination'), 'and its nextStep states the count');
 
   // A critic with no determination due is told to return 0, and that 0 must not read as a checked file.
   const { out: early } = await run({

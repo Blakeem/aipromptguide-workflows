@@ -32,6 +32,11 @@ section('the reviewer agreeing ends the loop inside the round budget');
   ok(out.decisionFile.endsWith('decision-r1.md') && out.reviewFile.endsWith('decision-review-r1.md'),
     'both round files are named');
   eq(out.needsUserFile, '', 'and no escalation file — nothing was escalated');
+  ok(out.nextStep.startsWith('Present the conclusion the decider and reviewer agreed on in round 1:'),
+    'the hand-back names the agreement and its round');
+  const { out: ranked } = await run({ analyst: ANALYST, decide: { ...DECIDE, shortlist: [{ rank: 1, title: 'in-process LRU' }, { rank: 2, title: 'redis' }] }, review: AGREE }, { ...baseArgs, selection: 'ranked' });
+  ok(ranked.nextStep.startsWith('Present the SHORTLIST the decider and reviewer agreed on in round 1:'),
+    'and so does a ranked run\'s');
 }
 
 section('both escalations halt on the same status, and the decider\'s runs no reviewer');

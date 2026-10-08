@@ -1145,8 +1145,10 @@ section('a block reaches developer and acceptance as a plan-block COMMAND, never
     'the command uses the <root>/tools default, this block only, every path quoted');
   ok(!/plan-block\.mjs \S+ \S*block-b/.test(dev), 'and never a sibling block');
   ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
+  ok(dev.includes('Redirect its output to a file outside the target repo'), 'the developer reads its block from a file, since the Bash display cuts long output');
   ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/bus\.md' 'block-a'/.test(prompt('acceptance block-a')),
     'acceptance judges against the same block the developer built to');
+  ok(prompt('acceptance block-a').includes('Redirect its output to a file outside the target repo'), 'and reads it from a file too');
   ok(!/plan-block|bus\.md/.test(prompt('quality block-a')), 'the BLIND reviewer gets no route to any plan (#3)');
 }
 
@@ -1432,6 +1434,8 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     ok(a.includes(mode === 'fix' ? 'EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.' : 'EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
     ok(a.includes('a third-party one included'), `${mode}: a third-party caller's behavior is in the regression bar`);
     ok(a.includes('suite rule allows to be red is not a regression'), `${mode}: a suite-allowed red test is not a regression`);
+    ok(a.includes("this cycle's diff made false is a regression"), `${mode}: a comment or doc sentence the cycle made false is a regression`);
+    ok(a.includes('A line number that another file cites is not'), `${mode}: a cited line number the edit moved is not`);
     ok(a.includes('prescribes the construction that causes it'), `${mode}: a prescribed regression still counts`);
     ok(a.includes('unreached by any current caller'), `${mode}: an unreached regression still counts`);
     ok(a.includes("Those calls are the developer's, never yours."), `${mode}: the call on a counted regression is the developer's`);
@@ -1818,6 +1822,7 @@ section('a pass hands every agent one command per member block, and edits each s
   }, PASS_ARGS);
   const devPrompt = calls.find((c) => c.label.startsWith('develop')).prompt;
   ok(devPrompt.includes("'E:/plans/one.md' 'fix-a'") && devPrompt.includes("'E:/plans/two.md' 'fix-b'"), 'the developer gets a plan-block command per member');
+  ok(devPrompt.includes('each redirected to its own file outside the target repo'), 'and reads each block from its own file, since the Bash display cuts long output');
   ok(calls.find((c) => c.label.startsWith('acceptance')).prompt.includes("'E:/plans/two.md' 'fix-b'"), 'and so does acceptance');
   eq(calls.filter((c) => c.label.startsWith('develop')).length, 1, 'one developer builds the whole pass');
   eq(out.statusSync.map((e) => `${e.planPath.slice(-6)}:${e.id}=${e.value}`).join(','),

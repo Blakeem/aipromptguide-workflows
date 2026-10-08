@@ -48,11 +48,8 @@ No mid-run questions — settle the rubric with the user first:
    lenses surface distinct options; that spread is what the decider then balances.
 4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses`). It diverges
    (analysts) then converges (decider ⇄ reviewer) and returns the chosen conclusion + the file trail.
-5. **Present** the conclusion: relay the return's `decisionFile` (matrix + rationale + why-not-others)
-   and let the user read each `lenses/<lens>.md` to see the source perspectives. To build it, author a
-   plan file from the chosen approach for `develop-cycle`. In `ranked` mode there is deliberately **no winner**: relay the
-   shortlist (what each option buys/costs + the combine-vs-exclusive section) and let the user pick or
-   combine. Several picks become several `feature` blocks in one plan file.
+5. **Present** the result: follow the return's `nextStep`. It names the terminal state, the files to
+   show and every caveat.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -70,7 +67,7 @@ No mid-run questions — settle the rubric with the user first:
   read-only by construction (e.g. `sqlite3 "file:path.db?mode=ro"`, or a copy), and **pre-allowlist the
   commands** in the target project's settings — a background run can't answer permission prompts
   unattended.
-- **Fresh vs. resume.** The engine keeps no state across invocations. A same-runId relaunch with no
+- **Relaunch vs. new run.** The engine keeps no state across invocations. A same-runId relaunch with no
   `resumeFromRunId` re-runs the run from Diverge and round 1. It overwrites the lens files and the round
   files it reaches, and it leaves an earlier run's higher-numbered round files in place. Extending
   finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`, which
@@ -199,16 +196,13 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `decision-review-rN.md` — the adversarial reviewer's gaps (or agreement) for round N.
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
-Report when done: status (agreed / needs-attention / blocked on `NEEDS-USER.md` / blocked on an
-unattested write, §7), the chosen conclusion, where the matrix is (`decisionFile`), the lens files for
-the user to inspect, and every lens in `failed`. The return carries the paths (`decisionFile` /
-`reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), the lenses whose analyst did not
-confirm writing a lens file (a file may still exist on disk) and so were left out of the decision
-(`failed`), the per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured
-fields. `decisionFile` and `reviewFile` name only files whose writer attested, so after a halt either can
-be empty or name an earlier round. A halt also returns its `haltReason`.
+The return carries the paths (`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick
+(`lensPicks`), the lenses whose analyst did not confirm writing a lens file (a file may still exist on
+disk) and so were left out of the decision (`failed`), the per-round gap split (`gapRounds`, §6), two
+agreement flags and `selection` as structured fields. `decisionFile` and `reviewFile` name only files
+whose writer attested, so after a halt either can be empty or name an earlier round. A halt also returns its `haltReason`.
 `contradicted` is true when the reviewer agreed while listing open gaps. `meetsAllRequirements` is false
 when the latest decider reported that its conclusion, or a shortlisted option, misses a requirement. An
 agreed run with either flag raised still ends `decided`, and its hand-back names the file to audit before
 presenting. In `ranked` mode the return adds the ordered `shortlist` index and `chosen` is the rank-1
-option, both from the latest round only. **Nothing is staged or committed.**
+option, both from the latest round only.

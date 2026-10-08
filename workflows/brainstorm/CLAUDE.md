@@ -32,9 +32,8 @@ everything with the user first:
    approve, and pass that file as `planPath` (absolute). All lenses read it verbatim (#2/#11).
 3. **Run** the engine (one shot). It fans out one generator per lens into
    `runs/<runId>/variations/<lens>/` and returns each entry path + a one-line differentiator.
-4. **Present** the variations: open each entry (or relay the summaries), walk the user through each
-   distinct take. Help them pick / hybridize / cherry-pick. To build the chosen direction, author a
-   plan file from it for `develop-cycle`. To have the AI conclude among them, hand the brief to `decide-cycle`.
+4. **Present** the variations: follow the return's `nextStep`. It names how many variations landed,
+   the files to show, every lens that produced nothing and where a chosen direction goes next.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 
@@ -45,9 +44,9 @@ everything with the user first:
   distinct **after slugging** — a collision throws rather than sending two generators into one
   `variations/<lens>/` folder; give near-identical lenses explicit `{ id, focus }`.
 - **`brief` OR `planPath` — one REQUIRED.**
-- **Fresh vs. resume.** A re-run with the same `runId` overwrites same-named files in each lens folder
+- **Relaunch vs. new run.** A re-run with the same `runId` overwrites same-named files in each lens folder
   but leaves unrelated files from an earlier run in place — an old `index.html` survives a re-run that
-  writes `index.md`, and the user can open the stale one. Use a fresh `runId` (or `stateDir`) whenever
+  writes `index.md`, and the user can open the stale one. Use a new `runId` (or `stateDir`) whenever
   `outputFormat`/`kind` changes, when you want a clean folder, or to keep an old batch.
 
 ## 4. Roles (in the engine)
@@ -88,8 +87,3 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
 
 - `variations/<lens>/` — one folder per lens, holding that generator's complete variation (entry +
   any supporting files). These ARE the output; there are no review/status/log files.
-
-Report when done: how many variations landed, where (`variationsDir`), and the one-line differentiator
-of each — **plus every lens in the returned `failed` array** (it produced no output at all): name them
-and offer to re-run just those with the same `runId`. Never report a requested angle as covered when it
-is in `failed`. Then help the user compare and choose. **Nothing is staged or committed.**
