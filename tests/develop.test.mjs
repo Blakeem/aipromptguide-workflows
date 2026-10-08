@@ -845,6 +845,10 @@ section('acceptance that stages while reporting a regression halts the run');
   eq(out.status, 'BLOCKED (a block staged while self-reporting a regression — inspect the staged diff before continuing)', 'status');
   eq(out.plansDone.join(), 'block-a', 'the block itself still counts as done (staged)');
   ok(out.ledger[0].contradicted === true, 'and the ledger flags the self-contradiction');
+  // A relaunch with startAt on the next block never rebuilds a rejected block flipped back to todo.
+  ok(out.haltReason.includes('CLAUDE.md §6'), 'the halt reason points at the keep-or-reject guide');
+  ok(out.haltReason.includes('relaunch without startAt'), 'and says to relaunch without startAt');
+  ok(!out.haltReason.includes('startAt the NEXT'), 'and never says to set startAt to the next block');
 }
 
 section('acceptance that stages while reporting unreachable is only FLAGGED');
@@ -949,6 +953,14 @@ section('only todo blocks are built: done, skip, parked and blocked are never se
   eq(out.status, 'nothing to run (no todo blocks)', 'status');
   ok(out.halted === false, 'and it is not a halt');
   ok(/status back to todo/.test(out.followups), 'followups says how to re-open a block');
+
+  // A halt before the sweep, resolved to done by hand, leaves this relaunch as the only run that can say so.
+  const ALL_DONE = { ...baseArgs, goal: 'g', plans: BLOCKS.map((b) => ({ ...b, status: 'done' })) };
+  const swept = await run({}, { ...ALL_DONE, sweep: 'goal-coverage' });
+  ok(/the sweep runs only at the end of a run that builds a block, so it did not run here/.test(swept.out.followups),
+    'a goal-coverage all-done relaunch says the sweep did not run');
+  const unswept = await run({}, { ...ALL_DONE, sweep: 'none' });
+  ok(!/sweep/.test(unswept.out.followups), 'a sweep:none all-done relaunch never mentions the sweep');
 }
 
 section('gates.test is demanded only for the PENDING set, not for blocks already done');

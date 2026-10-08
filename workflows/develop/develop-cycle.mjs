@@ -1037,6 +1037,14 @@ const reviewTrail = `Numbered review files show every iteration: quality-review-
 // A terminal, not a throw: an all-done relaunch is legitimate, and the caller must tell it from bad args.
 if (!pending.length) {
   logLine(`develop: no todo blocks selected out of ${ALL_PLANS.length} — nothing to run`);
+  // A halt resolved to done by hand (acceptance-regression keep, passed-unstaged, log-cap) leaves no later
+  // run that sweeps, so an all-done relaunch is the last place to say the sweep may never have run.
+  const sweepNeverRan = SWEEP_MODE === 'goal-coverage' && isFullRun && ALL_PLANS
+    .filter((p) => p.status !== 'skip')
+    .every((p) => p.status === 'done');
+  const sweepNote = sweepNeverRan
+    ? ' args.sweep is goal-coverage, but the sweep runs only at the end of a run that builds a block, so it did not run here. If the last run that built blocks halted before its sweep, verify coverage against the goal yourself.'
+    : '';
   return {
     runId: RUN_ID,
     status: 'nothing to run (no todo blocks)',
@@ -1055,7 +1063,7 @@ if (!pending.length) {
     newIssues: 0,
     newIssueFiles: [],
     reviewTrail,
-    followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.`,
+    followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
   };
 }
 
