@@ -47,7 +47,7 @@ flowchart TD
 |---|---|
 | Gather | One gatherer per source (CONCURRENT). Each copies its brief-relevant slice VERBATIM into &lt;outDir&gt;/&lt;source&gt;/ - one file per page/topic, each with a source header (URL or path, version, retrieval date). Subtraction at capture: skip nav, marketing, other versions, features the brief does not touch. Returns thin counts. |
 | Scrub | One scrubber per WEB source (pipelined off its gather - no barrier); repo and files sources skip it, their captures usually being markdown already with no HTML chrome. Cleans the source dir IN PLACE: removes capture junk (nav/menu fragments, cookie banners, feedback widgets, broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure → keep; the curator judges relevance. |
-| Curate | One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set - anything it finds there that this run neither captured nor wrote is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture - wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds). |
+| Curate | One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set - anything it finds there that is neither a source-headed capture for this set (this or an earlier run) nor a curator-written file is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture - wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds). |
 
 ## Terminal states
 
@@ -55,15 +55,15 @@ flowchart TD
 |---|---|---|
 | curated set indexed (no gaps left) | every source captures files and the curator finds no gap · the curator returns a gap the next round fills · a gatherer dies mid-capture · one source reports zero files · a repo source sits beside a web source | declared |
 | gap(s) left open at the round budget | a gap is still open at maxRounds | declared |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 42) |
-| throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 45) |
-| throw: args.root is required | args.root is missing | throw (line 48) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 58) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 88) |
-| throw: args.sources is required | args.sources is empty | throw (line 101) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 105) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 320) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 333) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 43) |
+| throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 46) |
+| throw: args.root is required | args.root is missing | throw (line 49) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 59) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 89) |
+| throw: args.sources is required | args.sources is empty | throw (line 102) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 106) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 321) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 334) |
 
 ## Coverage
 

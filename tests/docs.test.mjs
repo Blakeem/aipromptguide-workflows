@@ -152,6 +152,8 @@ section('nextStep states the set\'s counts and leads with the foreign-content wa
   const foreign = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': FOREIGN });
   ok(foreign.out.nextStep.startsWith('WARN THE USER FIRST: E:/r/runs/t/docs held 1 file(s)/folder(s)'),
     `the foreign-content warning opens nextStep: ${foreign.out.nextStep.slice(0, 120)}`);
+  ok(foreign.out.nextStep.includes('neither a source-headed capture for this set (this or an earlier run) nor a curator-written file'),
+    'the warning names the curator\'s foreign class, since an earlier run\'s captures are deletable, not foreign');
 
   const deadScrub = await run({ 'gather': GATHER, 'scrub': null, 'curate': FOREIGN });
   const step = deadScrub.out.nextStep;

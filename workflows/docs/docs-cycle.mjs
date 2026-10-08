@@ -5,7 +5,7 @@ export const meta = {
   phases: [
     { title: 'Gather', detail: 'One gatherer per source (CONCURRENT). Each copies its brief-relevant slice VERBATIM into <outDir>/<source>/ — one file per page/topic, each with a source header (URL or path, version, retrieval date). Subtraction at capture: skip nav, marketing, other versions, features the brief does not touch. Returns thin counts.' },
     { title: 'Scrub', detail: 'One scrubber per WEB source (pipelined off its gather — no barrier); repo and files sources skip it, their captures usually being markdown already with no HTML chrome. Cleans the source dir IN PLACE: removes capture junk (nav/menu fragments, cookie banners, feedback widgets, broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure → keep; the curator judges relevance.' },
-    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set — anything it finds there that this run neither captured nor wrote is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture — wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds).' },
+    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set — anything it finds there that is neither a source-headed capture for this set (this or an earlier run) nor a curator-written file is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture — wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds).' },
   ],
 };
 
@@ -29,8 +29,9 @@ export const meta = {
 // commits any repo. outDir is ENGINE-OWNED and must be a FRESH directory dedicated to ONE doc set: the
 // curator deletes freely inside it (that whole-set authority is what makes cross-source dedup and
 // re-curation work), so pre-existing hand-authored docs must not live there. The curator leaves content
-// it neither captured nor wrote in place and reports it (foreign_content) — a signal that outDir was
-// pointed at a shared folder, not a guard that makes one safe.
+// that is neither a source-headed capture for this set (this or an earlier run) nor a curator-written
+// file in place and reports it (foreign_content) — a signal that outDir was pointed at a shared folder,
+// not a guard that makes one safe.
 // The main agent frames the brief + sources + a dedicated outDir with the user BEFOREHAND (#4).
 // =============================================================================
 // args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
@@ -359,12 +360,13 @@ while (rounds < MAX_ROUNDS) {
 if (!curate?.wrote_index) log(`  ⚠ curator did not confirm writing ${INDEX_FILE} — check it exists before relying on the set.`);
 
 // outDir is meant to be a fresh directory dedicated to THIS doc set (the curator deletes freely inside
-// it). If the curator found content it neither captured nor wrote, the operator pointed at a shared
-// folder — it was left untouched, but say so loudly: the next run against this outDir may not be so lucky.
+// it). If the curator found content that is neither a source-headed capture for this set nor a
+// curator-written file, the operator pointed at a shared folder — it was left untouched, but say so
+// loudly: the next run against this outDir may not be so lucky.
 const foreignPaths = (curate?.foreign_paths ?? []).filter(Boolean);
 const foreignFound = curate?.foreign_content === true;
 if (foreignFound) {
-  log(`  ⚠⚠ ${OUT_DIR} is NOT a dedicated folder: the curator found content it neither captured nor wrote (left in place, NOT deleted):`);
+  log(`  ⚠⚠ ${OUT_DIR} is NOT a dedicated folder: the curator found content that is neither a source-headed capture for this set nor a curator-written file (left in place, NOT deleted):`);
   for (const p of foreignPaths) log(`       - ${p}`);
   if (!foreignPaths.length) log(`       (the curator reported no paths — inspect the folder yourself)`);
   log(`     Point outDir at a fresh directory per doc set before re-running.`);
@@ -377,7 +379,7 @@ const degradedWarning = gatherFailed.length || scrubFailed.length
   ].filter(Boolean).join('. ')}. `
   : '';
 const foreignWarning = foreignFound
-  ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) this run neither captured nor wrote (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. `
+  ? `WARN THE USER FIRST: ${OUT_DIR} held ${foreignPaths.length || 'some'} file(s)/folder(s) that are neither a source-headed capture for this set (this or an earlier run) nor a curator-written file (${foreignPaths.join(', ') || 'paths not reported'}). They were left alone, but outDir must be a fresh directory dedicated to one doc set — move that content out or pick a different outDir before re-running. `
   : '';
 const fileCount = curate?.files ?? 0;
 const inconsistencyCount = curate?.inconsistencies ?? 0;

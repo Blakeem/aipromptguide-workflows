@@ -70,10 +70,11 @@ No mid-run questions — frame it with the user first:
   decided with the user (§2.1). Point it at a **fresh directory dedicated to this one doc set**
   (`<project>/docs/<system-or-api>/`, created if missing) — never a shared or pre-existing docs folder:
   the curator **deletes freely inside it**, and that whole-set authority is what makes curation, dedup
-  and re-curation work. Anything it finds there that this run neither captured nor wrote is left alone
-  and reported (`foreignContent` + `foreignPaths` in the return) — that report means `outDir` was
-  pointed at the wrong folder; move the content out or pick another dir before re-running. Still never
-  staged or committed. Default without it: `runs/<runId>/docs` (gitignored run-state you copy out later).
+  and re-curation work. Anything it finds there that is neither a source-headed capture for this doc
+  set (from this or an earlier run into `outDir`) nor a curator-written file is left alone and
+  reported (`foreignContent` + `foreignPaths` in the return) — that report means `outDir` was pointed
+  at the wrong folder; move the content out or pick another dir before re-running. Still never staged
+  or committed. Default without it: `runs/<runId>/docs` (gitignored run-state you copy out later).
 - **`fidelitySample` (optional, default 3; `0` disables):** after the index is written, the curator
   spot-checks up to N captured files against the source cited in each file's own header (§6). Leave it
   on unless the sources are unreachable — at `0` the verbatim promise is asserted and never tested.
@@ -117,10 +118,10 @@ code, so every role defaults to a fast tier (override via `models`).
   (one line per file + Coverage notes), then — last, once the index is safe on disk — **spot-checks up
   to `fidelitySample` files against their cited source**. Returns gaps a fresh gather could fix: missing
   coverage **or** a recapture (wrong version pulled, failed spot-check). Reports (never deletes) content
-  in `outDir` it neither captured nor wrote. A dead gatherer is survivable (what it wrote is on disk and
-  still gets curated, and scrubbed first for a web source); a dead **curator throws** — nothing else
-  produces the set, so re-invoke with the same args/`runId` and pass the `Workflow` tool's
-  `resumeFromRunId` to replay from cache.
+  in `outDir` that is neither a source-headed capture for this set nor a curator-written file. A dead
+  gatherer is survivable (what it wrote is on disk and still gets curated, and scrubbed first for a web
+  source); a dead **curator throws** — nothing else produces the set, so re-invoke with the same
+  args/`runId` and pass the `Workflow` tool's `resumeFromRunId` to replay from cache.
 
 ## 6. Contracts (keep intact)
 

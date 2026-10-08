@@ -1507,7 +1507,7 @@ for (const p of pending) {
         if (acc?.regression === true) {
           halted = true;
           haltKind = 'acceptance-regression';
-          haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`; unstage/fix it, then resume with startAt the NEXT block id.`;
+          haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → unstage and set its files aside, then todo), and relaunch without startAt: the plan file selects the todo blocks.`;
           logLine(`  ✋ ${p.id}: staged while self-reporting a REGRESSION → halting the run (inspect git -C ${REPO} diff --cached)`);
         }
         break;

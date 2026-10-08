@@ -86,9 +86,10 @@ if you want to keep it, or pass `outDir` up front.
 
 **Give it its own folder.** The output directory belongs to the run: the curator deletes freely inside
 it, which is what lets it dedup, split, and re-curate the whole set. Point it at a fresh directory per
-doc set (`docs/stripe/`, not `docs/`). Anything in there the run neither captured nor wrote is left
-untouched and reported back. This is a sign the folder was shared and that you should move that content
-out before the next run.
+doc set (`docs/stripe/`, not `docs/`). A run into a folder that already holds a set re-curates that set
+under the new brief and may delete from it. Anything in there that is not a source-headed capture or a
+curator-written file is left untouched and reported back. This is a sign the folder was shared and
+that you should move that content out before the next run.
 
 ---
 

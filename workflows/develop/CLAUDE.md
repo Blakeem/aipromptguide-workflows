@@ -46,7 +46,10 @@ preamble or another block never reaches it.
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
    file's `synced:` key, oldest first, all or nothing. The engine decides every value. An accepted or
    passed-but-unstaged block → `done`, a park within the round budget → `parked`, every other halt or
-   a fix block whose report in round 1 was all SKIPPED or empty → `blocked`. A fix block whose report
+   a fix block whose report in round 1 was all SKIPPED or empty → `blocked`. The exception: an accepted
+   block whose verdict also reported a regression (halt `acceptance-regression`) syncs `blocked` while
+   its work stays staged. Its FIXED and STALE issues sync `needs-attention`, as in a block that did not
+   land, and §6 says how to resolve both. A fix block whose report
    in round 1 was all STALE, or STALE plus SKIPPED, counts as accepted only once acceptance confirms
    each STALE claim. Fix issues map FIXED → `fixed` and STALE → `stale` only when their block landed
    and acceptance confirmed the claim. FAILED in any block → `needs-attention`. FIXED or STALE in a
@@ -54,7 +57,8 @@ preamble or another block never reaches it.
    `open`. The
    plan file is the selection truth and git staging is the landed truth. After resolving a `parked` or
    `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's `status:`
-   back to `todo`, then run step 3 again for the launch args. A flip made before the first step 3 is
+   back to `todo`, then run step 3 again for the launch args. An `acceptance-regression` block whose
+   staged work you keep is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
 
@@ -147,6 +151,12 @@ passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-uncon
 acceptance failed a block but staged it, so inspect `git diff --cached` and unstage that block's files
 before resuming. `passed-regression` means acceptance passed a block but flagged a regression and
 staged nothing. Its work is parked and the block ends `blocked`. Never stage that work as it is.
+`acceptance-regression` means acceptance staged a block while its verdict flagged a regression, so
+inspect `git diff --cached`. To keep the work, run §2 step 3, then set the block's `status:` to `done`.
+Then set each fix issue that the acceptance file named in the halt reason confirmed closed to `fixed`
+or `stale`, as §2 step 5 maps a landed block's issues. To reject it, unstage the block's files, set
+them aside as §4 describes, run §2 step 3, then set the block's `status:` to `todo`. Either way, run
+step 3 again for the launch args, with no `startAt`.
 `review-unwritten` means a quality reviewer or acceptance verifier failed a block without confirming its
 review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
