@@ -134,7 +134,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   a plain `git apply`, which leaves the work unstaged.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
-  full gates, writes `SWEEP.md`. Advisory: a dead sweep sets `sweepFailed`, never halts.
+  full gates, writes `SWEEP.md`. Advisory: a dead sweep is the `failed` entry
+  `{ id: 'sweep', stage: 'sweep' }`, never a halt.
 
 ## 6. Loop, gates & verification
 
@@ -179,7 +180,7 @@ When the run-record fold is unavailable (records past `cleanupPeriodDays`, or `-
 with `runOnly` or by editing the statuses in the plan file. A `resumeFromRunId` replay of a run launched
 with a retired arg throws at launch.
 A parked block's work is in `parked-<id>.patch`, not the tree, unless its park halted `park-unsafe`.
-That halt reason and `followups` say where its work is. Sharpen its block, run §2 step 3 (it applies
+That halt reason and `nextStep` say where its work is. Sharpen its block, run §2 step 3 (it applies
 the finished run's statuses), set the block's `status:` back to `todo`, then run step 3 again for the
 launch args and relaunch.
 To continue a parked block under full review instead of redoing it, add `continueParked: ["<id>"]` by
@@ -215,10 +216,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   with an empty `goal` **throws**.
 - **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
   per-issue `results` in fix mode) · `statusSync` (the plan-file edits, also logged per block for §2
-  step 5) · `sweep` /
-  `sweepFailed` · `newIssues` (fix mode, null when a verifier returned no usable report) ·
-  `newIssueFiles` (the sorted new-issues files the verifiers named, null when `newIssues` is null) ·
-  `followups`.
+  step 5) · `sweep` · `failed` (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else
+  empty, so `sweep: null` with no entry means the sweep did not run) · `newIssues` (fix mode, null when
+  a verifier returned no usable report) · `newIssueFiles` (the sorted new-issues files the verifiers
+  named, null when `newIssues` is null) · `nextStep`.
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`

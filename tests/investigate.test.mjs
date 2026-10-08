@@ -556,7 +556,7 @@ section('the token budget stops cleanly between rounds');
 {
   const { out, calls } = await run({}, baseArgs, { total: 400_000, spent: () => 0, remaining: () => 40_000 });
   eq(calls.length, 0, 'stopped before spawning anything');
-  eq(out.status, 'stopped on token budget (resume where it left off)', 'status');
+  eq(out.status, 'stopped on token budget (rounds remain, and the ledgers carry the search)', 'status');
   ok(/same args and priorRounds: 0/.test(out.haltReason) && /DISQUALIFIED\.md/.test(out.haltReason),
     'halt reason carries the resume hint and names the ledger the resume reads');
 }
@@ -814,7 +814,7 @@ section('an investigator that did not attest its files halts before any critic s
 {
   const { out, labels } = await run({ 'investigate': { ...INV, wrote_files: false, option_ids: ['o'], claim: 'exhausted' }, 'critique': { ...CRIT, agree: true } });
   ok(!labels.some((l) => l.startsWith('critique')), 'no critic spawned');
-  eq(out.status, 'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)', 'status');
+  eq(out.status, 'BLOCKED (an agent did not confirm writing its files)', 'status');
   ok(out.halted === true, 'reported halted');
   ok(/investigator did not confirm writing its files in round 1: .*options\/, .*DISQUALIFIED\.md, .*SEARCHED\.md and .*DETERMINATION\.md/.test(out.haltReason),
     `the reason names every owed file: ${out.haltReason}`);
@@ -831,7 +831,7 @@ section('a critic that did not attest its review file halts before its verdict i
     'investigate': { ...INV, option_ids: ['o'], claim: 'exhausted' },
     'critique': { ...CRIT, wrote_file: false, upheld: ['o'], agree: true },
   }, { ...baseArgs, maxRounds: 3 });
-  eq(out.status, 'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)', 'status');
+  eq(out.status, 'BLOCKED (an agent did not confirm writing its files)', 'status');
   ok(!labels.includes('investigate r2'), 'no next investigator is sent to the unwritten review');
   eq(out.reviewFile, '', 'no review file is named');
   eq(out.determination, '', 'no determination is named');

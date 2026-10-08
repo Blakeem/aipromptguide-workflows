@@ -59,9 +59,9 @@ export default {
       terminal: 'inventory written (the clean unit never reached verify)',
     },
     {
-      // A dead reviewer's lens is pushed to `failed` (review.mjs:416-421), its unit gets no marker (:440)
-      // and is excluded from unitsReviewed (:501). No extra agent spawns, so this declared terminal is the
-      // only place the map can separate it from a clean unit.
+      // A dead reviewer pushes `{ id: <unit id>, stage: 'review', lens }` to `failed` (review.mjs:414-419),
+      // its unit gets no marker (:438) and is excluded from unitsReviewed (:509). No extra agent spawns, so
+      // this declared terminal is the only place the map can separate it from a clean unit.
       name: 'a dead reviewer beside a clean one',
       when: 'a reviewer dies (its unit is reported in failed, unmarked)',
       args: { ...base, units: [unit('u1'), unit('u2')] },

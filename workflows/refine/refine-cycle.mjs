@@ -271,6 +271,7 @@ log(`refine: converging ${PLAN_PATH} against ${REPO} [floor=${SEVERITY}, maxRoun
 
 let round = 0;
 let haltKind = 'rounds';        // the default terminal state: the loop fell through its round budget
+let haltReason = '';            // stays empty on converged and rounds-exhausted, which are not halts
 let openGaps = 0;               // the LAST round's at-or-above-floor gap count
 let questions = 0;              // the LAST round's question count
 let belowFloor = 0;             // the LAST round's FYI count
@@ -302,6 +303,7 @@ while (round < MAX_ROUNDS) {
   // writes nothing, so this fires only when a count says there was something to write.
   if ((openGaps > 0 || questions > 0 || belowFloor > 0) && !wroteCritique) {
     haltKind = 'critique-unwritten';
+    haltReason = `The critic returned ${openGaps} gap(s) + ${questions} question(s) + ${belowFloor} FYI item(s) in round ${round} but did not confirm writing ${critiqueFile(round)}, so the findings exist nowhere.`;
     log(`  ✋ r${round}: critic returned ${openGaps} gap(s) + ${questions} question(s) + ${belowFloor} FYI item(s) but did NOT confirm writing ${critiqueFile(round)} - the findings exist nowhere; halting`);
     break;
   }
@@ -312,6 +314,7 @@ while (round < MAX_ROUNDS) {
   // the minimal-fold editor has no legal edit for either. So does a gap found in an already-done block.
   if (questions > 0) {
     haltKind = 'needs-answers';
+    haltReason = `The critic raised ${questions} question(s) for the operator in round ${round} (see ${critiqueFile(round)} and ${NEEDS_USER}), and the editor has no legal edit for these.`;
     log(`  ✋ r${round}: ${questions} question(s) for the operator (see ${NEEDS_USER}) - the editor has no legal edit for these; halting`);
     break;
   }
@@ -332,7 +335,8 @@ while (round < MAX_ROUNDS) {
   // replays the cached critic and redoes only the fold. (A dead CRITIC throws - nothing survives it.)
   if (!fold) {
     haltKind = 'agent-dead';
-    log(`  ✋ r${round}: plan editor returned nothing (skipped or died) - it may have partly edited ${PLAN_PATH}, so run node '${BLOCK_TOOL}' '${PLAN_PATH}' --list first; relaunch with resumeFromRunId to replay the cached critic and redo the fold from ${critiqueFile(round)}; halting`);
+    haltReason = `The plan editor returned nothing in round ${round} (skipped or died), so it may have partly edited ${PLAN_PATH}, and ${critiqueFile(round)} holds the gaps it was folding.`;
+    log(`  ✋ r${round}: plan editor returned nothing (skipped or died) - it may have partly edited ${PLAN_PATH}; halting`);
     break;
   }
   const folded   = Math.max(0, Number(fold.folded) || 0);
@@ -345,6 +349,7 @@ while (round < MAX_ROUNDS) {
   // reporting folds that never happened.
   if (folded > 0 && fold.wrote_file !== true) {
     haltKind = 'fold-unattested';
+    haltReason = `The editor reported ${folded} folded gap(s) in round ${round} but did not confirm writing ${PLAN_PATH}, so the fold exists nowhere.`;
     log(`  ✋ r${round}: editor reported ${folded} folded gap(s) but did NOT confirm writing ${PLAN_PATH} - the fold exists nowhere; halting`);
     break;
   }
@@ -352,6 +357,7 @@ while (round < MAX_ROUNDS) {
   // their block from it. A broken parse is not recoverable by another round; it is repaired by hand.
   if (fold.plan_parses !== true) {
     haltKind = 'plan-broken';
+    haltReason = `The editor did not confirm ${PLAN_PATH} still parses after the round ${round} fold.`;
     log(`  ✋ r${round}: editor did not confirm ${PLAN_PATH} still parses (node '${BLOCK_TOOL}' '${PLAN_PATH}' --list must exit 0) - halting before another agent builds from it`);
     break;
   }
@@ -360,6 +366,7 @@ while (round < MAX_ROUNDS) {
   // recorded where the next critic reads it, so a relaunch does not contest it again.
   if (fold.needs_user === true) {
     haltKind = 'dismissal-contested';
+    haltReason = `The editor escalated a contested dismissal to the operator in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: editor escalated a contested dismissal to the operator (see ${NEEDS_USER}); halting`);
     break;
   }
@@ -375,21 +382,43 @@ while (round < MAX_ROUNDS) {
 // together is how an unconverged plan gets handed to a build engine as a finished one.
 const HALT_STATUS = {
   'converged':          'converged (one clean round: no gaps at or above the floor, no questions)',
-  'needs-answers':      'needs-answers (the critic raised questions only the operator can settle - restructure the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
-  'dismissal-contested': 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user\'s ruling by folding the gap into the plan or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to DISMISSED-PLAN.md, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
+  'needs-answers':      'needs-answers (the critic raised questions only the operator can settle)',
+  'dismissal-contested': 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)',
   'rounds':             'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)',
-  'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)',
-  'critique-unwritten': 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way) to redo the round)',
-  'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
-  'plan-broken':        'BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way))',
+  'agent-dead':         'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)',
+  'critique-unwritten': 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere)',
+  'fold-unattested':    'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)',
+  'plan-broken':        'BLOCKED (the folded plan file no longer parses - every later consumer reads it)',
 };
 // No silent fallback string: an unmapped haltKind is an engine bug, and reporting it as a plausible
 // terminal state is precisely the collapse this table exists to prevent.
 const status = HALT_STATUS[haltKind] || `halted (unmapped terminal state "${haltKind}" - engine bug)`;
+const halted = haltKind !== 'converged' && haltKind !== 'rounds';
 log(`refine: ${status} after ${round} round(s) - ${openGaps} open gap(s), ${questions} question(s), ${dismissedCount} declined`);
+
+// Every terminal but agent-dead relaunches, since a replay would return the same cached agents and halt the
+// same way. agent-dead replays because its editor never returned, so only the fold runs again.
+const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
+const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}.`;
+const NEXT_STEP = {
+  'converged': `Hand the plan ${PLAN_PATH} to the user for approval.`
+    + (belowFloor > 0 ? ` The user first reads the FYI section of ${lastCritique}, since no editor folded its ${belowFloor} below-floor finding(s).` : '')
+    + ` Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call. Then build the plan with develop, deriving its args with plan-edit.mjs args '${PLAN_PATH}'.`,
+  'rounds': `The last round's gaps were folded but no critic re-read them. Read ${lastCritique}, decide with the user, then relaunch to confirm, raising maxRounds if needed. ${relaunch}`,
+  'needs-answers': `Read the QUESTIONS section of ${lastCritique}, settle the questions with the user and restructure ${PLAN_PATH}, where new blocks take fresh kebab ids. Then relaunch. ${relaunch} A replay returns the cached critic and halts the same way.`,
+  'dismissal-contested': `Read the newest entries at the end of ${NEEDS_USER} and record the user's ruling, by folding the gap into ${PLAN_PATH} or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${DISMISSED}. Then relaunch. ${relaunch}`,
+  'agent-dead': `Run ${listCmd} first, since the editor may have partly edited the plan. Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${critiqueFile(round)} runs again. A relaunch without resumeFromRunId restarts at round 1.`,
+  'critique-unwritten': `Relaunch to redo the round. ${relaunch}`,
+  'fold-unattested': `Inspect ${PLAN_PATH}, then relaunch. ${relaunch}`,
+  'plan-broken': `Repair ${PLAN_PATH} by hand until ${listCmd} exits 0, then relaunch. ${relaunch}`,
+};
+const nextStep = (halted ? `Run halted - ${haltReason} ` : '')
+  + (NEXT_STEP[haltKind] ?? `No next step is mapped for terminal state "${haltKind}" - engine bug.`);
 
 return {
   status,
+  halted,
+  haltReason: halted ? haltReason : '',
   runId: RUN_ID,
   rounds: round,
   // The LAST round's counts. On rounds-exhausted these are the gaps the critic found and the editor then
@@ -404,4 +433,7 @@ return {
   lastCritique: round > 0 ? lastCritique : '',
   planPath: PLAN_PATH,
   stateDir: STATE_DIR,
+  // Both roles are solo: a dead critic throws and a dead editor halts agent-dead, so nothing auxiliary fails.
+  failed: [],
+  nextStep,
 };

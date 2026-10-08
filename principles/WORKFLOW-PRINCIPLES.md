@@ -216,8 +216,8 @@ rules close it:
 - **Every `agent()` consumption site states its death policy.** A solo critical agent, the only
   producer of the run's product, throws, since a dead searcher looks the same as a completed one. An
   agent inside a build loop halts and parks through the same park path any failure takes. An auxiliary
-  agent, such as a sweep or one lens of many, logs the death and records it in the return (`failed`,
-  `sweepFailed`, a needs-attention entry), so degraded coverage is reported and never absorbed.
+  agent, such as a sweep or one lens of many, logs the death and records it in the return's `failed`
+  list, or a needs-attention entry, so degraded coverage is reported and never absorbed.
 - **Success is attested, and the harness reads the attestation.** An agent asked to write a file
   confirms it (`wrote_file`), and the harness reads that field. A required field that nothing reads has
   no effect (#8). The file bus then shows a death by absence, since the stage's expected file does not
@@ -296,12 +296,26 @@ rules and apply only where they fit.
 - **Run identity and relaunch.** A `runId` names one piece of work. Every launch of that work keeps
   it. A plan, its refine runs and every develop run that builds it share one `runId`. A debug review
   and the develop runs that fix its issue files share one too. A relaunch keeps the `runId` and passes
-  no `resumeFromRunId`. The word "fresh" in an engine status string means a relaunch, never cleared
+  no `resumeFromRunId`. An engine hand-back that says "fresh run" means a relaunch, never cleared
   state. A replay is a relaunch that also passes the Workflow tool's `resumeFromRunId`, so agents whose
   prompts are unchanged return from cache. Unrelated new work takes a new `runId`. Nobody clears
   run-state, so a halted run keeps its ledgers and user notes, and a new `runId` never reads stale
   ones. `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative across every launch of one `runId`.
   Choosing the `runId` is pre-run setup (#4), not an engine job.
+- **Shared return fields.** Every return of every engine carries `nextStep` and `failed`.
+  - `nextStep` is a non-empty string holding the operator's next action, such as present, triage,
+    relaunch or replay, with the files and caveats that action needs. It names the id of every `failed`
+    entry, so an operator who reads only `nextStep` still learns what is missing.
+  - `failed` is an array, empty when no auxiliary agent died, failed to attest its file, or returned a
+    result the engine could not fully match. Each entry is `{ id, stage }` plus any keys the engine
+    needs. `id` is the lens, source or unit id the agent served, or the role name of a single agent
+    such as develop's `sweep`. `stage` is the lowercased title of the phase the agent ran under.
+  - An engine or phase that can halt (develop, refine, decide and investigate's run phase) also returns
+    `status`, `halted` and `haltReason` on every return. `status` reads `<token> (<meaning>)`, and the
+    meaning describes the state without instructing the operator. Every instruction lives in
+    `nextStep`. `haltReason` is a non-empty cause when `halted` is true, and an empty string otherwise.
+  - No return carries a field whose value never changes, such as a constant `phase`. investigate's
+    `phase` names which of its two phases ran, so it stays.
 
 ---
 
@@ -336,6 +350,7 @@ Use these as yes/no checks when reviewing any workflow.
       stops for the user, stopping its block immediately on a hard blocker and halting the run only when
       later work depends on that block? (#7)
 - [ ] Do return schemas hold decisions only, with content in files? (#8)
+- [ ] Does every return carry the shared return fields (Mechanics)?
 - [ ] Is there a single staging step, at the end, on pass, and never a commit? (#9)
 - [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved to a patch
       instead of discarded or left unstaged? Is the restore command in the user notes? (#9, Mechanics)

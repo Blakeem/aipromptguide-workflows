@@ -349,10 +349,14 @@ Set wrote_file=true and return all verdicts via the schema.`;
 log(`enhance: ${LENSES.length} lens(es) over ${SCOPE.length} scope path(s) → ${PROPOSALS_DIR} [floor=${MIN_IMPACT_NAME}]`);
 log(`spawn ceiling: ≤ ${LENSES.length * 2} agents (${LENSES.length} finder(s) + ≤${LENSES.length} verifier(s) — verify spawns only where candidates exist)`);
 
+// The phase of the last agent each lens reached. A lost lens reports it as its `failed` stage, so a lens
+// nobody searched reads apart from one whose search went unverified, even when a stage threw.
+const lensStage = {};
 const results = await pipeline(
   LENSES,
   // -- Find: one agent per lens, reading the whole scope --------------------------------------
   async (lens) => {
+    lensStage[lens.id] = 'find';
     // `found`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
     // to the variable its agent return lands in, and `r` is bound five times in this file.
     const found = await agent(findPrompt(lens), roleOpts('find', {
@@ -382,6 +386,7 @@ const results = await pipeline(
       log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
       return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 }, kept: [] };
     }
+    lensStage[lens.id] = 'verify';
     const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
     }));
@@ -428,8 +433,9 @@ const results = await pipeline(
 );
 
 const live = results.filter(Boolean);
-const failed = LENSES.filter((l) => !live.some((r) => r.lens === l.id)).map((l) => l.id);
-if (failed.length) log(`  ⚠ no verified proposal file from: ${failed.join(', ')} (finder or verifier failed) — re-run these lenses`);
+const failed = LENSES.filter((l) => !live.some((r) => r.lens === l.id)).map((l) => ({ id: l.id, stage: lensStage[l.id] }));
+const failedLabels = failed.map((f) => `${f.id} (${f.stage})`).join(', ');
+if (failed.length) log(`  ⚠ no verified proposal file from: ${failedLabels} — re-run these lenses`);
 
 const total = (k) => live.reduce((s, r) => s + (r.counts[k] || 0), 0);
 const adopt = total('adopt'), roadmap = total('roadmap'), needsUser = total('needs_user');
@@ -439,7 +445,6 @@ const defects = total('defects');
 log(`enhance: ${adopt} adopt, ${roadmap} roadmap, ${needsUser} needs-user across ${live.length} lens(es)${defects ? `; ${defects} candidate(s) were defects (debug workflow)` : ''}`);
 
 return {
-  phase: 'enhance',
   runId: RUN_ID,
   proposalsDir: PROPOSALS_DIR,
   summary: { lenses: live.length, adopt, roadmap, needsUser, rejected: total('rejected'), defects, tooRisky: total('tooRisky'), unjudged: unjudgedTotal },
@@ -449,6 +454,6 @@ return {
   lenses: live.map((r) => ({ lens: r.lens, focus: r.focus, file: r.file, counts: r.counts, kept: r.kept })),
   failed,
   nextStep: live.length === 0
-    ? `NOTHING was audited: every lens failed (${failed.join(', ')}). There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
-    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failed.join(', ')} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
+    ? `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
+    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
 };

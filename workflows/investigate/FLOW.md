@@ -18,9 +18,9 @@ flowchart TD
   t4(["not exhaustive (round budget spent)"])
   t5(["stopped on saturation (diminishing returns, critic agreed - the search is open, not closed)"])
   t6(["stalled (a round added nothing new and claimed nothing)"])
-  t7(["stopped on token budget (resume where it left off)"])
+  t7(["stopped on token budget (rounds remain, and the ledgers carry the search)"])
   t8(["BLOCKED (needs user input)"])
-  t9(["BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)"])
+  t9(["BLOCKED (an agent did not confirm writing its files)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, planPath }"/]
   x3[/"throw: args.root is required"/]
@@ -84,9 +84,9 @@ flowchart TD
 | not exhaustive (round budget spent) | the critic contests the coverage claim · the critic contests the saturation claim · a round only rules candidates out | derived |
 | stopped on saturation (diminishing returns, critic agreed - the search is open, not closed) | the critic agrees the search has run dry | derived |
 | stalled (a round added nothing new and claimed nothing) | a round adds nothing at all · a resumed run's first round adds nothing | derived |
-| stopped on token budget (resume where it left off) | too few tokens left to start a round | derived |
+| stopped on token budget (rounds remain, and the ledgers carry the search) | too few tokens left to start a round | derived |
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
-| BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId) | the investigator does not confirm writing its files · the critic does not confirm writing its review file | derived |
+| BLOCKED (an agent did not confirm writing its files) | the investigator does not confirm writing its files · the critic does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 22) |
 | throw: args must include at least { runId, root, planPath } | args carry no runId | throw (line 25) |
 | throw: args.root is required | args.root is missing | throw (line 28) |
@@ -95,8 +95,8 @@ flowchart TD
 | throw: args.planPath is required | args carry no planPath | throw (line 79) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 88) |
 | throw: Criteria critic returned nothing | the criteria critic dies | throw (line 416) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 488) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 516) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 489) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 517) |
 
 ## Coverage
 

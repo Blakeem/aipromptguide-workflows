@@ -29,7 +29,7 @@ export default {
     },
     {
       // A dead agent inside parallel() resolves to null rather than throwing; the lens lands in `failed`
-      // and the run still returns its other variations.
+      // as an `{ id, stage }` entry and the run still returns its other variations.
       name: 'one generator dies',
       when: 'one lens produces nothing',
       args: base,

@@ -414,7 +414,7 @@ const results = await pipeline(
       if (!rev) {
         log(`  ⚠ ${unit.id}${lenses.length > 1 ? `/${lens.id}` : ''}: reviewer returned nothing (agent died or produced no output) — this lens contributed NO coverage; re-review this unit`);
         lensDied = true;
-        failed.push({ unit: unit.id, stage: 'review', lens: lens.id });
+        failed.push({ id: unit.id, stage: 'review', lens: lens.id });
         continue;
       }
       if (cleanEligible && rev?.wrote_clean_marker) markerWritten = true;   // only the final clean pass writes it
@@ -438,7 +438,7 @@ const results = await pipeline(
       else if (lensDied) log(`  ⚠ ${unit.id}: no findings, but a reviewer died — no marker written, resume will re-review it`);
       else {
         log(`  ⚠ ${unit.id}: clean but the reviewer did NOT write ${issueFile(unit.id)} — resume will re-review it`);
-        failed.push({ unit: unit.id, stage: 'review', marker: false });
+        failed.push({ id: unit.id, stage: 'review', marker: false });
       }
       return { unit: unit.id, file: markerWritten ? issueFile(unit.id) : null, counts: { found: 0, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 }, kept: [] };
     }
@@ -453,7 +453,7 @@ const results = await pipeline(
     const verifyWrote = verify?.wrote_file === true;
     if (!verifyWrote) {
       log(`  ⚠ ${unit.id}: verifier did NOT confirm writing ${issueFile(unit.id)} (${verify ? 'no wrote_file' : `agent returned nothing — its ${findings.length} finding(s) were DROPPED`}) — check the file before triaging and re-review this unit`);
-      failed.push({ unit: unit.id, stage: 'verify' });
+      failed.push({ id: unit.id, stage: 'verify' });
     }
     const byId = new Map(items.map((x) => [x.id, x]));
     const counts = { found: findings.length, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 };
@@ -475,7 +475,7 @@ const results = await pipeline(
     const unverdicted = verify ? items.filter((x) => !verdicted.has(x.id)).map((x) => x.id) : [];
     if (unmatched.length || unverdicted.length) {
       log(`  ⚠ ${unit.id}: verifier verdicts do not cover the findings (unmatched: ${unmatched.join(', ') || 'none'}, no verdict: ${unverdicted.join(', ') || 'none'}) — the returned totals are incomplete; read ${issueFile(unit.id)}`);
-      failed.push({ unit: unit.id, stage: 'verify', unmatched, unverdicted });
+      failed.push({ id: unit.id, stage: 'verify', unmatched, unverdicted });
     }
     log(`  ✓ ${unit.id}: ${counts.found} found → ${counts.actionable} actionable, ${counts.needs_user} needs-you, ${counts.deferred} deferred, ${counts.rejected} rejected`);
     return { unit: unit.id, file: verifyWrote ? issueFile(unit.id) : null, counts, kept };
@@ -493,17 +493,20 @@ const areas = {};
 for (const i of all) { const a = area(i.file); (areas[a] ??= { area: a, count: 0, maxSev: 0 }); areas[a].count++; areas[a].maxSev = Math.max(areas[a].maxSev, SEV_RANK[i.severity] ?? 1); }
 const hottest = Object.values(areas).sort((x, y) => y.maxSev - x.maxSev || y.count - x.count).slice(0, 8).map((a) => ({ area: a.area, issues: a.count }));
 
-// A unit whose entry carries `unmatched` is triaged from its issue file. Every other failed unit needs a
-// re-review, which rewrites its issue file, so the re-review comes before any triage edit.
-const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.unit))];
+// A unit whose only entries carry `unmatched` is triaged from its issue file. Every other failed unit needs
+// a re-review, which rewrites its issue file, so the re-review comes before any triage edit.
+const reReviewIds = [...new Set(failed.filter((f) => !('unmatched' in f)).map((f) => f.id))];
 const reReviewStep = reReviewIds.length
   ? `First re-review ${reReviewIds.join(', ')}: re-run gen-units.mjs with --issues-dir ${ISSUES_DIR}, then pass as args.units, under this runId, manifest.staleUnits plus each of these units it lacks (debug CLAUDE.md, playbook step "Resume the review"). Do it before any triage edit, because a re-review rewrites each re-reviewed unit's issue file. `
   : '';
+const triageIds = [...new Set(failed.filter((f) => 'unmatched' in f && !reReviewIds.includes(f.id)).map((f) => f.id))];
+const triageStep = triageIds.length
+  ? `The returned totals also leave out findings of ${triageIds.join(', ')}, whose verifier verdicts did not match every finding id, so triage each from its issue file. `
+  : '';
 
 return {
-  phase: 'review',
   runId: RUN_ID,
-  unitsReviewed: processed.filter((r) => !failed.some((f) => f.unit === r.unit)).length,
+  unitsReviewed: processed.filter((r) => !failed.some((f) => f.id === r.unit)).length,
   failed,
   issuesDir: ISSUES_DIR,
   inventory: {
@@ -516,5 +519,5 @@ return {
   hottest,
   // Which files hold items that need a triage decision (open these to present options).
   needsUserFiles: processed.filter((r) => r.counts.needs_user > 0 && r.file !== null).map((r) => r.file),
-  nextStep: `${reReviewStep}Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation. Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
+  nextStep: `${reReviewStep}Present the inventory: read ${ISSUES_DIR}/*.md. The returned inventory, hottest and needsUserFiles cover only the ${processed.length} unit(s) this run reviewed, so after a resume the other issue files hold findings they leave out. ${triageStep}Walk the user through totals by severity and decision, the hottest areas, and every NEEDS_USER item (open needsUserFiles for its options + recommendation). This is a scoping conversation. Triage by EDITING those files: set a NEEDS_USER item's decision to ACTIONABLE and write the chosen option into its Fix line, or flip any decision to SKIP. Then build the triaged files with develop-cycle.mjs in fix mode, launched with the args \`node tools/plan-edit.mjs args <issue files with findings> --pack <target.repo>\` prints (start with one file to sanity-check cost and quality). Each later \`args\` call folds the finished runs' statuses back first. See develop's CLAUDE.md.`,
 };

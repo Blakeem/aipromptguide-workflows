@@ -128,9 +128,10 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    the same runId. gen-units resolves the flag against your cwd, and run-state hangs off `root`. It
    joins each unit against its issue file's `hash:` frontmatter, tags them `new`/`changed`/`unchanged`,
    and emits `manifest.staleUnits`.
-   - Pass `manifest.staleUnits` as `args.units`, plus every unit the last return's `failed` names for
-     re-review that `staleUnits` lacks. A clean reviewer or a verifier that wrote its file and then did
-     not attest it leaves the unit's real hash, so gen-units reads that unit `unchanged`.
+   - Pass `manifest.staleUnits` as `args.units`, plus the unit of every `id` in the last return's
+     `failed` that needs re-review and that `staleUnits` lacks. A clean reviewer or a verifier that
+     wrote its file and then did not attest it leaves the unit's real hash, so gen-units reads that
+     unit `unchanged`.
    - Run the resume before any triage edit and before develop. A re-review rewrites each re-reviewed
      unit's issue file from scratch, and develop's fixes make every fixed unit read `changed`.
    - `staleUnits` carries gen-units ids and no `unit.lens`. If the run set `unit.lens`, re-attach each
@@ -219,10 +220,11 @@ with `units` from `gen-units.mjs`.
   see Lenses; per-unit override via `unit.lens`).
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
-  `failed` holds every dead reviewer `{ unit, stage: 'review', lens }`, every clean unit whose reviewer
-  did not attest its marker `{ unit, stage: 'review', marker: false }`, every verifier that did not
-  attest its write `{ unit, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a
-  finding id `{ unit, stage: 'verify', unmatched, unverdicted }`. `unitsReviewed` excludes units with a `failed`
-  entry. Re-review those, except a unit whose entry carries `unmatched` and `unverdicted`. For that unit,
-  `inventory` is incomplete, so triage from its issue file.
+  `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every clean unit whose reviewer
+  did not attest its marker `{ id, stage: 'review', marker: false }`, every verifier that did not
+  attest its write `{ id, stage: 'verify' }`, and every verifier whose verdicts miss or miscopy a
+  finding id `{ id, stage: 'verify', unmatched, unverdicted }`. Each `id` is the unit id.
+  `unitsReviewed` excludes units with a `failed` entry. Re-review those, except a unit whose only
+  entry carries `unmatched` and `unverdicted`. For that unit, `inventory` is incomplete, so triage from
+  its issue file.
 - **Throws** when two unit ids map to one issue file or one plan id, naming both.

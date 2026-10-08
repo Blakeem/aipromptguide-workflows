@@ -67,8 +67,8 @@ One phase, no mid-run questions — settle everything with the user first:
   below the floor and names it in that lens file's `## Rejected` section. That section is where a thin
   run shows whether the floor or the system thinned it.
 - **Relaunch vs. new run.** A re-run with the same `runId` overwrites the proposal file of each lens that
-  produces one in this run. A lens in `failed` keeps any earlier file, so present only the paths in
-  `lenses[].file`. Keep an old batch → new `runId` (or `stateDir`).
+  produces one in this run. A lens in `failed`, listed with the stage that dropped it, keeps any earlier
+  file, so present only the paths in `lenses[].file`. Keep an old batch → new `runId` (or `stateDir`).
 
 ## 4. Lenses — the fan-out axis
 
@@ -151,8 +151,10 @@ What each decision means:
   carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring human triage;
   a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO file when
   its finder died, its finder returned no candidate without attesting its marker, its verifier died, or
-  its verifier did not confirm writing the file. Each of those lands the lens in `failed`. The run logs
-  a ⚠ naming the lens in each case. Re-run it.
+  its verifier did not confirm writing the file. Each of those lands the lens in `failed` as
+  `{ id, stage }` with the stage that dropped it: `find` for the two finder cases, `verify` for the two
+  verifier cases. The run logs a ⚠ naming the lens in each case, and `nextStep` names it as
+  `<lens> (<stage>)`. Re-run it.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.

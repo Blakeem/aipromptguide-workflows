@@ -32,24 +32,16 @@ Four things together — remove any one and the plan grows every round instead o
 1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo), the user
    approves it.
 2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
-   a notification turn"). Read the result:
-   - `converged` — hand the final text to the user for approval, then build it with develop, whose
-     args come from `plan-edit.mjs args`. When `belowFloor` is above 0, the user reads the FYI section of
-     `lastCritique` before approving, since no editor folded those findings.
-   - `needs-answers`: read the QUESTIONS section of `lastCritique`, which holds exactly this halt's
-     questions (`NEEDS-USER.md` holds them too, after every earlier halt's entries). The critic raised
-     things only you can settle (a dependency-ordering error or too-big block whose fix restructures
-     blocks, a gap in an already-`done` block). Restructure the plan (new blocks need fresh kebab ids),
-     then relaunch as a fresh run (same runId and stateDir, no resumeFromRunId).
-   - `dismissal-contested`: read the newest entries at the end of `NEEDS-USER.md`. The critic contested
-     a declined gap, and the editor escalated it. Record the user's ruling. Fold the gap into the plan,
-     or append `<block id> - <gap gist> - USER-RULED: <reason>` to `DISMISSED-PLAN.md`. Then relaunch
-     as a fresh run (same runId and stateDir, no resumeFromRunId).
-   - `rounds-exhausted` — the last round's gaps were folded but never re-verified. Read
-     `lastCritique`, decide, relaunch as a fresh run (same runId and stateDir, no resumeFromRunId) to
-     confirm.
-   - A `BLOCKED (...)` status — the halt reason names the repair.
-3. **Audit `DISMISSED-PLAN.md`** before trusting a converge — a declined gap is a judgment call.
+   a notification turn"). Follow the return's `nextStep`, which names the files to read and the relaunch
+   or replay for each terminal. The `status` token says what the state means:
+   - `converged` — one clean round: no gaps at or above the floor, and no questions.
+   - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
+     or too-big block whose fix restructures blocks, or a gap in an already-`done` block.
+   - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
+     `NEEDS-USER.md`.
+   - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
+     converged.
+   - `BLOCKED (...)` — one of the halts §3 names, with its cause in `haltReason`.
 
 The critic judges only blocks whose `status` is `todo` (or absent), so a partially-built roadmap can
 be re-refined without rewriting the spec its staged code was built against.
@@ -63,11 +55,10 @@ be re-refined without rewriting the spec its staged code was built against.
   agent would be byte-identical to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Folds, declines to
   the ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
-  Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited:
-  run the `--list` check first, then relaunch with resumeFromRunId to replay the cached critic and
-  redo the fold, since a relaunch without it restarts at round 1), folded gaps with `wrote_file`
-  false (`fold-unattested`), `plan_parses` false (`plan-broken` — repair by hand), `needs_user` true
-  (`dismissal-contested`, since it escalated a contested dismissal to `NEEDS-USER.md`).
+  Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited),
+  folded gaps with `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken`),
+  `needs_user` true (`dismissal-contested`, since it escalated a contested dismissal to
+  `NEEDS-USER.md`).
 
 ## 4. State files
 
@@ -89,7 +80,9 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `blockTool` (default
   `<root>/tools/plan-block.mjs`, the editor's re-validation command — pre-allowlist it) ·
   `conventions` · `reference` · `models`/`agentTypes` (both roles opus) · `stateDir`.
-- **Return:** `status` · `rounds` · `openGaps`/`questions` (the LAST round's counts — on
-  `rounds-exhausted` they are folded-but-unverified) · `belowFloor` (the LAST round's FYI count) ·
-  `dismissedCount` · `lastCritique` ·
-  `planPath` · `stateDir`.
+- **Return:** `status` · `halted` (true on `needs-answers`, `dismissal-contested` and every
+  `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
+  empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·
+  `openGaps`/`questions` (the LAST round's counts — on `rounds-exhausted` they are
+  folded-but-unverified) · `belowFloor` (the LAST round's FYI count) · `dismissedCount` ·
+  `lastCritique` · `planPath` · `stateDir`.

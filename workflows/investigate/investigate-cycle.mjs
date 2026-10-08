@@ -425,6 +425,7 @@ if (PHASE === 'refine') {
     questions,
     unfalsifiable,
     notes: critique.notes || '',
+    failed: [],
     nextStep: questions.length
       ? `Relay the questions to the user (AskUserQuestion), fold the answers + the gap and unfalsifiable fixes directly into the criteria (planPath)${unfalsifiable.length ? ', REPLACING every unfalsifiable criterion with one that evidence can settle' : ''}, then run phase:"run" with this SAME runId and priorRounds: 0.${unfalsifiable.length ? ' A criterion nothing can decide never converges.' : ''}`
       : (gaps.length || unfalsifiable.length)
@@ -646,9 +647,9 @@ const HALT_STATUS = {
   // mistake for a finished search, since a critic agreed to it just as one agrees to exhaustion.
   'saturated':   'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)',
   'stalled':     'stalled (a round added nothing new and claimed nothing)',
-  'budget':      'stopped on token budget (resume where it left off)',
+  'budget':      'stopped on token budget (rounds remain, and the ledgers carry the search)',
   'needs-user':  'BLOCKED (needs user input)',
-  'write-unattested': 'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)',
+  'write-unattested': 'BLOCKED (an agent did not confirm writing its files)',
 };
 // No silent fallback string: an unmapped haltKind is an engine bug, and reporting it as a plausible
 // terminal state is precisely the collapse this table exists to prevent.
@@ -688,6 +689,7 @@ return {
   reviewFile: reviewPath,
   determinationDefects,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
+  failed: [], // every agent runs solo, and one that returns nothing throws instead
   searchTrail: `${LEDGER} is the full list of what was ruled out and why (lines marked NEAR-MISS: failed exactly one criterion); ${SEARCHED} is the avenue log — which ground each round swept, with the terms used, and the most promising avenue it left unswept; options/<id>.md hold each option the investigator qualified, with its evidence (a critic-disqualified option's file stays on disk, so \`optionFiles\` lists the verified ones); acceptance-review-rN.md in ${STATE_DIR}/ shows each round the critic judged.`,
   nextStep: halted
     ? (haltKind === 'needs-user'

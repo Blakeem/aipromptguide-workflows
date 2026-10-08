@@ -10,8 +10,9 @@
 // The tail is a `final-sweep` that re-greps the whole surface from the goal, and it runs only when
 // the plan file asked for it AND every non-skip block is done. Three of the four end-of-run shapes are
 // invisible to `out.status` — the dead sweep and the switched-off sweep both still say
-// `done (all blocks staged)`, and a partial slice says `partial slice complete` whether a sweep was
-// wanted or not — so only these scenarios can draw them.
+// `done (all blocks staged)`, and a partial slice says
+// `partial slice complete (every selected block staged)` whether a sweep was wanted or not — so only
+// these scenarios can draw them.
 //
 // The develop SELF-LOOP ('the gate never goes green') is the only develop -> develop edge, the only round
 // with NO reviewer spawned at all, and the only route to a park with no review file — parkPrompt's
@@ -164,8 +165,8 @@ export default {
       respond: GREEN_RUN,
     },
     {
-      // A sweep that RAN AND DIED. `out.status` is still `done (all blocks staged)` — only `sweepFailed`
-      // says the goal-coverage check is missing — so this path exists in the map on this scenario alone.
+      // A sweep that RAN AND DIED. `out.status` is still `done (all blocks staged)` — only the sweep entry in
+      // `failed` says the goal-coverage check is missing — so this path exists in the map on this scenario alone.
       name: 'the final sweep dies',
       when: 'the whole-goal sweep dies',
       args: base,

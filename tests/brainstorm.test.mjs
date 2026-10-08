@@ -29,3 +29,11 @@ section('nextStep names how many variations landed and relays each entry with it
   ok(out.nextStep.startsWith('Present the 1 of 2 variation(s)'), 'a failed lens lowers the landed count');
   ok(out.nextStep.includes('these lenses produced NOTHING: playful'), 'the failed-lens clause names the lens');
 }
+
+section('a dead generator lands in failed as one { id, stage } entry, and the return carries no phase');
+{
+  const { out } = await runEngine(ENGINE, { args: baseArgs, respond: { 'generate:playful': null, generate: GEN } });
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'playful', stage: 'generate' }]),
+    'failed holds one entry naming the dead lens and the generate stage');
+  ok(!('phase' in out), 'the return has no phase key');
+}

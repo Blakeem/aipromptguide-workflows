@@ -49,7 +49,7 @@
 //      throw messages interpolate the round number, so a scenario dying in round 1 and another in
 //      round 3 would otherwise mint two nodes for one site — and break byte-stability.
 // Digits in a terminal label are normalized to `N` for identity AND display
-// (`run complete with 1 block(s) parked` -> `... with N block(s) parked`). develop-cycle interpolates
+// (`run complete (1 block(s) parked)` -> `run complete (N block(s) parked)`). develop-cycle interpolates
 // its parked and blocked counts into its status; without this, two scenarios parking different counts
 // mint two terminals for one outcome. The FLOW.md terminal table marks each terminal derived or declared.
 //

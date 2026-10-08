@@ -271,8 +271,7 @@ log(`docs: ${SOURCES.length} source(s) [${SOURCES.map((s) => s.kind).join(', ')}
 if (SOURCES.some((s) => s.kind === 'repo') && !REPO) log(`  ⚠ a "repo" source was given but no target.repo — that gatherer has nothing to read.`);
 
 let curate = null;
-const gatherFailed = [];   // source ids whose gatherer returned nothing, across rounds
-const scrubFailed = [];    // source ids whose scrubber returned nothing, across rounds
+const failed = [];   // { id: source id, stage: 'gather' | 'scrub' } per agent that returned nothing, across rounds
 const fidelity = { checked: 0, failures: 0 };   // summed over rounds: a gap-fill curator samples only its own captures
 let toGather = SOURCES;
 let rounds = 0;
@@ -288,7 +287,7 @@ while (rounds < MAX_ROUNDS) {
         schema: GATHER_SCHEMA, phase: 'Gather', label: `gather:${src.id}`,
       })).then((g) => {
         if (!g) {
-          gatherFailed.push(src.id);
+          failed.push({ id: src.id, stage: 'gather' });
           log(`  ⚠ gather:${src.id} returned nothing (agent skipped or died) — files it wrote, if any, are still curated (and scrubbed first for a web source); re-run this source if coverage is thin`);
         } else {
           log(`  ✓ gathered ${src.id}: ${g.files_written ?? 0} file(s)${g.skipped ? `, ${g.skipped} skipped` : ''}`);
@@ -303,9 +302,9 @@ while (rounds < MAX_ROUNDS) {
           schema: SCRUB_SCHEMA, phase: 'Scrub', label: `scrub:${prev.src.id}`,
         })).then((s) => {
           // Scrub is auxiliary: the curator still indexes what the gatherer wrote, so a death is logged and
-          // recorded in scrubFailed, never reported as a success line.
+          // recorded in failed, never reported as a success line.
           if (!s) {
-            scrubFailed.push(prev.src.id);
+            failed.push({ id: prev.src.id, stage: 'scrub' });
             log(`  ⚠ scrub:${prev.src.id} returned nothing (agent skipped or died) — that source's captured files were NOT scrubbed, so nav chrome/ads may survive into the set; re-run this source or clean them by hand.`);
           } else {
             log(`  ✓ scrubbed ${prev.src.id}: ${s.files_cleaned ?? 0} file(s)`);
@@ -372,10 +371,12 @@ if (foreignFound) {
   log(`     Point outDir at a fresh directory per doc set before re-running.`);
 }
 
-const degradedWarning = gatherFailed.length || scrubFailed.length
+const failedGatherIds = failed.filter((f) => f.stage === 'gather').map((f) => f.id);
+const failedScrubIds = failed.filter((f) => f.stage === 'scrub').map((f) => f.id);
+const degradedWarning = failed.length
   ? `WARN THE USER FIRST: ${[
-    gatherFailed.length ? `these gatherers returned nothing, so coverage may be partial: ${gatherFailed.join(', ')}` : '',
-    scrubFailed.length ? `these sources' files were NOT scrubbed, so nav chrome or ads may remain: ${scrubFailed.join(', ')}` : '',
+    failedGatherIds.length ? `these gatherers returned nothing, so coverage may be partial: ${failedGatherIds.join(', ')}` : '',
+    failedScrubIds.length ? `these sources' files were NOT scrubbed, so nav chrome or ads may remain: ${failedScrubIds.join(', ')}` : '',
   ].filter(Boolean).join('. ')}. `
   : '';
 const foreignWarning = foreignFound
@@ -386,7 +387,6 @@ const inconsistencyCount = curate?.inconsistencies ?? 0;
 const unresolvedGaps = (curate?.gaps ?? []).filter((g) => g && g.focus).length;
 
 return {
-  phase: 'docs',
   runId: RUN_ID,
   outDir: OUT_DIR,
   index: INDEX_FILE,
@@ -398,8 +398,7 @@ return {
   foreignContent: foreignFound,
   foreignPaths,
   unresolvedGaps,
-  gatherFailed,
-  scrubFailed,
+  failed,
   stateDir: STATE_DIR,
   nextStep: `${degradedWarning}${curate?.wrote_index === true ? '' : `WARN THE USER FIRST: the curator did not confirm writing ${INDEX_FILE} — verify it exists before relying on the set. `}${foreignWarning}Present the set (${fileCount} file(s), ${inconsistencyCount} cross-source inconsistency(ies), ${unresolvedGaps} unresolved gap(s)): read ${INDEX_FILE} (including Coverage notes) and relay what was gathered, any cross-source inconsistencies, unresolved gaps, and the fidelity spot-check result (${fidelity.checked} file(s) compared against their source across all ${rounds} curate round(s), ${fidelity.failures} failed, each failure returned as a recapture gap) — a low or zero check count means the verbatim promise went untested, not that it held. ${A.outDir ? '' : `The set lives in gitignored run-state — copy ${OUT_DIR}/ into the project (or re-run with outDir) if it should persist. `}Point the working agent or plan at the INDEX. Nothing is staged or committed.`,
 };

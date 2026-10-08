@@ -127,17 +127,16 @@ const results = await parallel(LENSES.map((lens) => () =>
 
 const variations = results.filter(Boolean).filter((v) => v.entry);
 for (const v of variations) log(`  ✓ ${v.lens}: ${v.entry} — ${v.summary}`);
-const failed = LENSES.filter((l) => !variations.some((v) => v.lens === l.id)).map((l) => l.id);
-if (failed.length) log(`  ⚠ no output from: ${failed.join(', ')}`);
+const failedLensIds = LENSES.filter((l) => !variations.some((v) => v.lens === l.id)).map((l) => l.id);
+if (failedLensIds.length) log(`  ⚠ no output from: ${failedLensIds.join(', ')}`);
 
 return {
-  phase: 'generate',
   runId: RUN_ID,
   variationsDir: VAR_DIR,
   count: variations.length,
   variations: variations.map((v) => ({ lens: v.lens, focus: v.focus, entry: v.entry, summary: v.summary })),
-  failed,
+  failed: failedLensIds.map((id) => ({ id, stage: 'generate' })),
   nextStep: variations.length
-    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failed.length ? ` Tell the user these lenses produced NOTHING: ${failed.join(', ')} — offer to re-run just those with the same runId.` : ''}`
-    : `NOTHING was produced: every generator failed or returned no entry (${failed.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first).`,
+    ? `Present the ${variations.length} of ${LENSES.length} variation(s) that landed under ${VAR_DIR}/: relay each one's entry path with its one-line summary, open the entries as needed, and walk the user through the distinct take of each. This is divergent — there is no winner; the user picks one, asks for a hybrid, or cherry-picks elements. To turn a chosen direction into a built feature, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle; to have the AI conclude among options with a decision matrix, use decide-cycle.${failedLensIds.length ? ` Tell the user these lenses produced NOTHING: ${failedLensIds.join(', ')} — offer to re-run just those with the same runId.` : ''}`
+    : `NOTHING was produced: every generator failed or returned no entry (${failedLensIds.join(', ')}). There is nothing to present — do NOT describe variations. Tell the user the batch produced no output, then re-run those lenses with the same runId (check the brief/planPath is readable and each lens focus is sane first).`,
 };

@@ -32,7 +32,7 @@ section('a dead scrubber is logged as a death, never as "0 file(s)"');
   ok(!!dead, `the death is logged and names the source: ${dead}`);
   ok(/skipped or died/.test(dead || ''), 'and says the agent skipped or died');
   ok(/NOT scrubbed/.test(dead || ''), 'and says what that costs the set');
-  ok(out.scrubFailed.join() === 'api-reference', 'the death is recorded in the return');
+  ok(JSON.stringify(out.failed) === JSON.stringify([{ id: 'api-reference', stage: 'scrub' }]), `the death is recorded in the return: ${JSON.stringify(out.failed)}`);
   ok(/^WARN THE USER FIRST: these sources' files were NOT scrubbed, so nav chrome or ads may remain: api-reference\./.test(out.nextStep),
     `and nextStep warns before presenting the set: ${out.nextStep.slice(0, 120)}`);
 }
@@ -43,13 +43,24 @@ section('a dead gatherer is logged as a death, never as "0 file(s)", and recorde
   const { logs, out } = await run({ 'gather': null, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
   ok(!logs.some((l) => /✓ gathered/.test(l)), 'no success line for a gatherer that never returned');
   ok(logs.some((l) => /gather:api-reference returned nothing \(agent skipped or died\)/.test(l)), 'the death is logged and names the source');
-  ok(out.gatherFailed.join() === 'api-reference', 'the death is recorded in the return');
+  ok(JSON.stringify(out.failed) === JSON.stringify([{ id: 'api-reference', stage: 'gather' }]), `the death is recorded in the return, and the live scrubber is not: ${JSON.stringify(out.failed)}`);
   ok(/^WARN THE USER FIRST: these gatherers returned nothing, so coverage may be partial: api-reference\./.test(out.nextStep), 'and nextStep warns');
-  ok(out.scrubFailed.length === 0, 'a live scrubber is not recorded');
 
   const healthy = await run({ 'gather': GATHER, 'scrub': { files_cleaned: 1 }, 'curate': CURATE });
-  ok(healthy.out.gatherFailed.length === 0 && healthy.out.scrubFailed.length === 0, 'a healthy run records no death');
+  ok(Array.isArray(healthy.out.failed) && healthy.out.failed.length === 0, 'a healthy run records no death');
+  ok(!('phase' in healthy.out), 'the return carries no phase');
   ok(!/WARN THE USER FIRST: these/.test(healthy.out.nextStep), 'and its nextStep carries no death warning');
+}
+
+section('a web source whose gatherer and scrubber both die holds one failed entry per stage');
+// The scrubber runs after a dead gatherer, so one source can lose both agents, and the operator needs
+// both costs: partial coverage and unscrubbed files.
+{
+  const { out } = await run({ 'gather': null, 'scrub': null, 'curate': CURATE });
+  ok(JSON.stringify(out.failed) === JSON.stringify([{ id: 'api-reference', stage: 'gather' }, { id: 'api-reference', stage: 'scrub' }]),
+    `failed holds the gather entry, then the scrub entry: ${JSON.stringify(out.failed)}`);
+  ok(/^WARN THE USER FIRST: these gatherers returned nothing, so coverage may be partial: api-reference\. these sources' files were NOT scrubbed, so nav chrome or ads may remain: api-reference\./.test(out.nextStep),
+    `nextStep opens with both warnings: ${out.nextStep.slice(0, 200)}`);
 }
 
 section('a scrubber that legitimately cleaned nothing still reads as a success');
@@ -105,7 +116,7 @@ section('only a web source gets a scrubber');
   ok(labels.includes('scrub:api-reference'), 'the web source is scrubbed');
   ok(!labels.includes('scrub:sdk-readme'), 'the repo source spawns no scrubber');
   ok(!labels.includes('scrub:local-notes'), 'the files source spawns no scrubber');
-  ok(out.scrubFailed.join() === 'api-reference', `scrubFailed can name only a web source: ${out.scrubFailed.join()}`);
+  ok(JSON.stringify(out.failed) === JSON.stringify([{ id: 'api-reference', stage: 'scrub' }]), `a scrub entry can name only a web source: ${JSON.stringify(out.failed)}`);
 }
 
 section('the scrub prompt carries the verbatim rule and the write boundary, never the brief');

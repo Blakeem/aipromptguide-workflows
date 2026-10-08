@@ -151,14 +151,14 @@ the decider that one file's path next round; the decider revises rather than res
   `combines_with`/`excludes`); the matrices, buys/costs, and reasoning live in the files. An analyst
   whose `wrote_file` is not true is dropped: a `✗` in the log, listed in `failed`, left out of the
   decision, and the run throws when no analyst confirms (§7). An unconfirmed decider or reviewer write
-  halts the run on `BLOCKED (an agent did not confirm writing its file ...)` (§7), unless that agent
+  halts the run on `BLOCKED (an agent did not confirm writing its file)` (§7), unless that agent
   escalated, because the next agent and the return would otherwise name a path a stale file can hold.
 
 ## 7. Resume
 
 Two halts. The decider or reviewer writes a user-only call to `NEEDS-USER.md`
 (`BLOCKED (needs user input)`), or it does not confirm writing its file (`BLOCKED (an agent did not
-confirm writing its file ...)`). For an escalation, read `NEEDS-USER.md`, resolve it with the user
+confirm writing its file)`). For an escalation, read `NEEDS-USER.md`, resolve it with the user
 (usually by editing the requirements file), then relaunch with the same args and no `resumeFromRunId`.
 A `resumeFromRunId` replay sends the same prompts, which name the requirements file by path, so it
 replays the cached returns and halts the same way. The relaunch re-runs the run from Diverge and round 1
@@ -198,8 +198,8 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 
 The return carries the paths (`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick
 (`lensPicks`), the lenses whose analyst did not confirm writing a lens file (a file may still exist on
-disk) and so were left out of the decision (`failed`), the per-round gap split (`gapRounds`, §6), two
-agreement flags and `selection` as structured fields. `decisionFile` and `reviewFile` name only files
+disk) and so were left out of the decision (`failed`, one `{ id, stage: 'diverge' }` entry per lens),
+the per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured fields. `decisionFile` and `reviewFile` name only files
 whose writer attested, so after a halt either can be empty or name an earlier round. A halt also returns its `haltReason`.
 `contradicted` is true when the reviewer agreed while listing open gaps. `meetsAllRequirements` is false
 when the latest decider reported that its conclusion, or a shortlisted option, misses a requirement. An

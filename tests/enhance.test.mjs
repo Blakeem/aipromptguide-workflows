@@ -32,13 +32,15 @@ section('a dead verifier lands its lens in failed, never in the audited count');
       verify: VERIFIED,
     },
   });
-  eq(out.failed.join(), 'efficiency', 'the dead verifier\'s lens is reported failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'verify' }]), 'the dead verifier\'s lens is reported failed at the verify stage');
   ok(!out.lenses.some((l) => l.lens === 'efficiency'), 'and no proposal-file path is reported for it');
   eq(out.summary.lenses, 1, 'only the verified lens counts as audited');
   ok(out.lenses.some((l) => l.lens === 'simplification' && /simplification\.md$/.test(l.file)),
     'the live lens is unaffected');
   ok(logs.some((l) => /efficiency: the verifier DIED/.test(l)), 'the log names the lens that must be re-run');
-  ok(/TELL THE USER these lenses were NOT audited and produced no verified proposal file: efficiency/.test(out.nextStep), 'and nextStep names it');
+  ok(/TELL THE USER these lenses were NOT audited and produced no verified proposal file: efficiency \(verify\) /.test(out.nextStep), 'and nextStep names it with its stage');
+  ok(logs.some((l) => /no verified proposal file from: efficiency \(verify\) /.test(l)), 'and so does the log line after the pipeline');
+  ok(!('phase' in out), 'the return has no phase key');
   ok(/not presented until the lens is re-run/.test(out.nextStep), 'and says a file on disk for it is not presented');
   // A re-run with the same runId leaves a failed lens's earlier file on disk, so "present the directory" would present it.
   ok(/PRESENT them to the user: E:\/r\/runs\/t\/proposals\/simplification\.md\./.test(out.nextStep), 'nextStep names the live lens\'s file');
@@ -51,7 +53,7 @@ section('a dead finder does the same — the two guards stay symmetric');
     args: baseArgs,
     respond: { 'find:efficiency': null, find: FOUND, verify: VERIFIED },
   });
-  eq(out.failed.join(), 'efficiency', 'the dead finder\'s lens is reported failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the dead finder\'s lens is reported failed at the find stage');
   eq(out.summary.lenses, 1, 'and is not counted as audited');
 }
 
@@ -84,7 +86,7 @@ section('a verifier that does not attest its proposal file lands its lens in fai
     args: baseArgs,
     respond: { find: FOUND, 'verify:efficiency': { wrote_file: false, verdicts: [] }, verify: VERIFIED },
   });
-  eq(out.failed.join(), 'efficiency', 'the unattested lens is reported failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'verify' }]), 'the unattested lens is reported failed at the verify stage');
   ok(!out.lenses.some((l) => l.lens === 'efficiency'), 'and no proposal-file path is reported for it');
   eq(out.summary.lenses, 1, 'only the attested lens counts as audited');
   ok(logs.some((l) => /efficiency: the verifier did NOT confirm writing .*efficiency\.md — this lens was NOT verified\. Re-run it\./.test(l)),
@@ -111,7 +113,7 @@ section('a finder with no candidate and no attested marker lands its lens in fai
     args: baseArgs,
     respond: { 'find:efficiency': { wrote_clean_marker: false, candidates: [] }, find: FOUND, verify: VERIFIED },
   });
-  eq(out.failed.join(), 'efficiency', 'the unattested lens is reported failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the unattested lens is reported failed at the find stage');
   ok(!out.lenses.some((l) => l.lens === 'efficiency'), 'and out.lenses has no entry for it');
   ok(logs.some((l) => /efficiency: the finder did NOT confirm writing its marker — this lens was NOT audited \(no candidates, and any .*efficiency\.md on disk is unverified\)\. Re-run it\./.test(l)),
     'the log says why and what to do');
@@ -124,7 +126,7 @@ section('a clean finder that attests its marker reports its proposal file');
     respond: { find: { wrote_clean_marker: true, candidates: [] } },
   });
   ok(/proposals\/efficiency\.md$/.test(out.lenses[0]?.file), 'the marker path is reported');
-  eq(out.failed.length, 0, 'and the lens is not a failure');
+  eq(JSON.stringify(out.failed), '[]', 'and the lens is not a failure');
 }
 
 section('ENV lets both roles cite out-of-scope evidence, and the verifier states its own reading rule');
@@ -230,7 +232,9 @@ section('the verdict schema holds decisions only, and the prompt points every no
 section('a run where every lens failed says NOTHING was audited, never presents proposals');
 {
   const { out } = await runEngine(ENGINE, { args: baseArgs, respond: { find: null } });
-  eq(out.failed.join(), 'efficiency,simplification', 'every lens failed');
-  ok(/^NOTHING was audited: every lens failed \(efficiency, simplification\)/.test(out.nextStep), 'nextStep says nothing was audited');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }, { id: 'simplification', stage: 'find' }]),
+    'every lens failed at the find stage');
+  ok(/^NOTHING was audited: every lens failed: efficiency \(find\), simplification \(find\)\./.test(out.nextStep),
+    'nextStep says nothing was audited and names each lens with its stage');
   ok(!/PRESENT them/.test(out.nextStep), 'and never says to present proposals');
 }

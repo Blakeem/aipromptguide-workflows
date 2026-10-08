@@ -196,9 +196,9 @@ Every round **starts with the investigator**.
   | `no qualifying option exists (verified)` | Critic-verified: nothing can meet these criteria. |
   | `stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)` | Diminishing returns, verified. Options found are valid, but the search is **open**. A critic agreed to it as one agrees to exhaustion, so it is the state most easily mistaken for a finished search. |
   | `stalled (a round added nothing new and claimed nothing)` | A round's investigator produced nothing. No determination. In the run's first round the critic still judged the option files and may have disqualified some. |
-  | `stopped on token budget (resume where it left off)` | Clean stop between rounds; the ledger resumes it. |
+  | `stopped on token budget (rounds remain, and the ledgers carry the search)` | Clean stop between rounds; the ledger resumes it. |
   | `BLOCKED (needs user input)` | Criteria contradiction or a user-only call. Halted. |
-  | `BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)` | The investigator or the critic did not attest its write. Halted before that output was used. No determination is named. |
+  | `BLOCKED (an agent did not confirm writing its files)` | The investigator or the critic did not attest its write. Halted before that output was used. No determination is named. |
 
   Only the first is a *finished* search.
 

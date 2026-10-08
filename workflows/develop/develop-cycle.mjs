@@ -1051,14 +1051,14 @@ if (!pending.length) {
     plansDone: [],
     plansTotal: ALL_PLANS.length,
     sweep: null,
-    sweepFailed: false,
+    failed: [],
     parked: [],
     ledger: [],
     statusSync: [],
     newIssues: 0,
     newIssueFiles: [],
     reviewTrail,
-    followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
+    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
   };
 }
 
@@ -1627,12 +1627,12 @@ for (const p of pending) {
     } else if (pk.cleared !== true) {
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `Block ${p.id} could not be cleared from the working tree${pk.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next.`;
+      haltReason = `Block ${p.id} could not be cleared from the working tree${pk.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
     } else if (pk?.gates_green === false) {
       // A cleared tree with a red build is not safe to resume into.
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next.`;
+      haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
     } else if (halted) {
       // The run is stopping, so say where the work went (see rec.patch).
       let savedTo = ' It had NOTHING to save (its working tree was already empty)';
@@ -1658,7 +1658,7 @@ for (const p of pending) {
 // derives pending from the todo blocks, so a full-run test would read false on every relaunch.
 // =============================================================================
 let sweep = null;
-let sweepFailed = false;   // the sweep RAN and DIED — distinct from the legitimate did-not-run cases
+let sweepDied = false;     // the sweep RAN and DIED, which the return's `failed` entry reports
 let sweepFileNote = '';
 let sweepGapCount = null;  // null when the sweep returned no valid count: unknown, never zero
 const goalCovered = !halted && ALL_PLANS
@@ -1676,13 +1676,13 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
     schema: SWEEP_SCHEMA, phase: 'Sweep', label: 'final-sweep',
   }));
   // A dead sweep is not a clean sweep. It does not halt: every block is staged, and the sweep is advisory.
-  sweepFailed = !sweep;
+  sweepDied = !sweep;
   // The sweep file is cited only when the sweep attested writing it.
   sweepFileNote = sweep?.wrote_file === true
     ? `read ${SWEEP_FILE}`
     : `${SWEEP_FILE} was not written, so the gap count comes from the sweep's return alone`;
   sweepGapCount = Number.isInteger(sweep?.gap_count) && sweep.gap_count >= 0 ? sweep.gap_count : null;
-  logLine(sweepFailed
+  logLine(sweepDied
     ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: check coverage against the goal yourself.`
     : sweep.complete
       ? `sweep: no goal-coverage gaps found (suite: ${sweep.suite_result || 'n/a'})`
@@ -1725,27 +1725,27 @@ const HALT_STATUS = {
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
   'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',
-  'staging-unconfirmed': 'BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)',
-  'passed-unstaged': 'BLOCKED (a block passed but was not staged — stage it, then resume)',
-  'passed-regression': 'BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is)',
-  'acceptance-regression': 'BLOCKED (a block staged while self-reporting a regression — inspect the staged diff before continuing)',
-  'rejected-staged': 'BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)',
-  'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)',
+  'staging-unconfirmed': 'BLOCKED (the developer did not confirm its work stayed out of the staged index, which neither reviewer reads)',
+  'passed-unstaged': 'BLOCKED (a block passed but was not staged)',
+  'passed-regression': 'BLOCKED (a block passed but flagged a regression and was not staged - its work is parked)',
+  'acceptance-regression': 'BLOCKED (a block staged while self-reporting a regression)',
+  'rejected-staged': 'BLOCKED (acceptance failed a block but staged it)',
+  'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file)',
   'parked':          'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)',
-  'park-unsafe':     'BLOCKED (a parked block left the tree unsafe — inspect before resuming)',
-  'budget':          'stopped on token budget (resume where it left off)',
-  'log-cap':         'stopped on the runtime log line cap (resume where it left off)',
+  'park-unsafe':     'BLOCKED (a parked block left the tree unsafe)',
+  'budget':          'stopped on token budget (fewer tokens remain than minPlanBudget)',
+  'log-cap':         'stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps)',
 };
 const status = halted
   ? (HALT_STATUS[haltKind] || 'halted (a block needs attention)')
   : allDone
     ? 'done (all blocks staged)'
     : parkedPlans.length || blockedPlans.length
-      ? `run complete with ${[
+      ? `run complete (${[
         parkedPlans.length ? `${parkedPlans.length} block(s) parked` : '',
         blockedPlans.length ? `${blockedPlans.length} block(s) blocked` : '',
-      ].filter(Boolean).join(' and ')}`
-      : 'partial slice complete';
+      ].filter(Boolean).join(' and ')})`
+      : 'partial slice complete (every selected block staged)';
 
 logLine(`develop: ${status} — ${doneIds.length}/${pending.length} block(s) done [${ledger.reduce((s, r) => s + r.qualityRounds, 0)} quality pass(es)]`);
 
@@ -1760,9 +1760,9 @@ return {
   plansDone: doneIds,
   plansTotal: ALL_PLANS.length,
   sweep: sweep ? { complete: sweep.complete === true, gaps: sweepGapCount, suite: sweep.suite_result || '' } : null,
-  // true ONLY when the sweep ran and died. `sweep: null` on its own cannot say whether the check was
-  // deliberately skipped (sweep:none, an incomplete goal) or lost — and those need different actions.
-  sweepFailed,
+  // The sweep is develop's one auxiliary agent: its entry means it died, and `sweep: null` with no entry
+  // means it did not run (sweep:none, an incomplete goal, or a halt).
+  failed: sweepDied ? [{ id: 'sweep', stage: 'sweep' }] : [],
   // Parked blocks: NOT done. patch follows rec.patch.
   parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, status: r.status })),
   ledger,
@@ -1773,7 +1773,7 @@ return {
   newIssues: newIssuesUnknown ? null : newIssues,
   newIssueFiles: newIssuesUnknown ? null : [...newIssueFiles].sort(),
   reviewTrail,
-  followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
+  nextStep: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepDied
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — verify coverage against the goal yourself before trusting this as finished. `
     : ''}${needsUserParks.length
     ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `

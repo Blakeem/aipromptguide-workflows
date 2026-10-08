@@ -195,14 +195,14 @@ section('investigate keeps its EIGHT status terminals distinct — asserted by t
   const derived = g.terminals.filter((t) => t.source === 'derived').map((t) => t.label).sort();
   eq(derived.length, 8, 'eight derived terminals');
   eq(derived.join(' | '), [
-    'BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)',
+    'BLOCKED (an agent did not confirm writing its files)',
     'BLOCKED (needs user input)',
     'exhaustive (search closed, critic agreed)',
     'no qualifying option exists (verified)',
     'not exhaustive (round budget spent)',
     'stalled (a round added nothing new and claimed nothing)',
     'stopped on saturation (diminishing returns, critic agreed — the search is open, not closed)',
-    'stopped on token budget (resume where it left off)',
+    'stopped on token budget (rounds remain, and the ledgers carry the search)',
   ].join(' | '), 'and each is the engine\'s own string');
   eq(g.coverage.statuses.uncovered.length, 0, 'every HALT_STATUS entry was reached by some scenario');
 }
@@ -273,7 +273,7 @@ section('terminals differing only in a number fold into one N-form node');
   const g = await buildGraph(develop);
   const parked = g.terminals.filter((t) => t.label.includes('block(s) parked'));
   eq(parked.length, 1, 'one terminal, not one per count');
-  eq(parked[0].label, 'run complete with N block(s) parked', 'digits normalized for identity and display');
+  eq(parked[0].label, 'run complete (N block(s) parked)', 'digits normalized for identity and display');
   eq(parked[0].scenarios.join(', '), 'the gate never goes green, a parked block, and the run carries on, developer escalates',
     'every parking scenario reached it');
 }

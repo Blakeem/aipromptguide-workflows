@@ -15,25 +15,25 @@ flowchart TD
   a4["park · opus"]
   a5["final-sweep · opus<br/>Sweep"]
   t1(["done (all blocks staged)"])
-  t2(["partial slice complete"])
+  t2(["partial slice complete (every selected block staged)"])
   t3(["nothing to run (no todo blocks)"])
-  t4(["run complete with N block(s) parked"])
+  t4(["run complete (N block(s) parked)"])
   t5(["halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted)"])
-  t6(["run complete with N block(s) blocked"])
+  t6(["run complete (N block(s) blocked)"])
   t7(["halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)"])
-  t8(["BLOCKED (a block passed but was not staged - stage it, then resume)"])
-  t9(["BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing)"])
-  t10(["BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is)"])
-  t11(["BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming)"])
-  t12(["BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming)"])
-  t13(["BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming)"])
+  t8(["BLOCKED (a block passed but was not staged)"])
+  t9(["BLOCKED (a block staged while self-reporting a regression)"])
+  t10(["BLOCKED (a block passed but flagged a regression and was not staged - its work is parked)"])
+  t11(["BLOCKED (acceptance failed a block but staged it)"])
+  t12(["BLOCKED (a reviewer failed a block without confirming its review file)"])
+  t13(["BLOCKED (the developer did not confirm its work stayed out of the staged index, which neither reviewer reads)"])
   t14(["BLOCKED (an agent could not obtain its plan - nothing was built from a guess)"])
   t15(["BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)"])
   t16(["BLOCKED (working tree was not clean - nothing was built)"])
   t17(["BLOCKED (needs user input)"])
-  t18(["BLOCKED (a parked block left the tree unsafe - inspect before resuming)"])
-  t19(["stopped on token budget (resume where it left off)"])
-  t20(["stopped on the runtime log line cap (resume where it left off)"])
+  t18(["BLOCKED (a parked block left the tree unsafe)"])
+  t19(["stopped on token budget (fewer tokens remain than minPlanBudget)"])
+  t20(["stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
   x3[/"throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] }"/]
@@ -157,25 +157,25 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | Terminal | Reached when | Source |
 |---|---|---|
 | done (all blocks staged) | every block accepts and the sweep runs · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer changed no files · a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · continueParked names block-a and every block accepts | derived |
-| partial slice complete | runOnly builds a subset of the blocks | derived |
+| partial slice complete (every selected block staged) | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
-| run complete with N block(s) parked | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run | derived |
+| run complete (N block(s) parked) | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run | derived |
 | halted (a block was parked - its work is saved to a patch; the blocks after it were not attempted) | a block parks and ordered is true | derived |
-| run complete with N block(s) blocked | a fix block closes nothing and ordered is false | derived |
+| run complete (N block(s) blocked) | a fix block closes nothing and ordered is false | derived |
 | halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there) | a fix block closes nothing and ordered is true | derived |
-| BLOCKED (a block passed but was not staged - stage it, then resume) | acceptance passes without staging | derived |
-| BLOCKED (a block staged while self-reporting a regression - inspect the staged diff before continuing) | acceptance stages while reporting a regression | derived |
-| BLOCKED (a block passed but flagged a regression and was not staged - its work is parked, never stage it as it is) | acceptance passes, flags a regression and stages nothing | derived |
-| BLOCKED (acceptance failed a block but staged it - inspect git diff --cached and unstage that block before resuming) | acceptance fails a block but reports staged=true | derived |
-| BLOCKED (a reviewer failed a block without confirming its review file - check that file before resuming) | quality finds defects but does not confirm writing its file · acceptance finds gaps but does not confirm writing its file | derived |
-| BLOCKED (the developer did not confirm its work stayed unstaged - the staged index is surface neither reviewer checks; inspect git diff --cached before resuming) | the developer will not confirm its work stayed unstaged | derived |
+| BLOCKED (a block passed but was not staged) | acceptance passes without staging | derived |
+| BLOCKED (a block staged while self-reporting a regression) | acceptance stages while reporting a regression | derived |
+| BLOCKED (a block passed but flagged a regression and was not staged - its work is parked) | acceptance passes, flags a regression and stages nothing | derived |
+| BLOCKED (acceptance failed a block but staged it) | acceptance fails a block but reports staged=true | derived |
+| BLOCKED (a reviewer failed a block without confirming its review file) | quality finds defects but does not confirm writing its file · acceptance finds gaps but does not confirm writing its file | derived |
+| BLOCKED (the developer did not confirm its work stayed out of the staged index, which neither reviewer reads) | the developer will not confirm its work stayed unstaged | derived |
 | BLOCKED (an agent could not obtain its plan - nothing was built from a guess) | the developer reports plan_obtained=false · the acceptance verifier reports plan_obtained=false | derived |
 | BLOCKED (an agent returned nothing - it was skipped or died; its work is parked) | the developer agent dies · the blind quality reviewer dies · the acceptance verifier dies | derived |
 | BLOCKED (working tree was not clean - nothing was built) | the tree was not clean on round 1 | derived |
 | BLOCKED (needs user input) | the developer hits a user-only blocker in an ordered run | derived |
-| BLOCKED (a parked block left the tree unsafe - inspect before resuming) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
-| stopped on token budget (resume where it left off) | too few tokens left to start the next block | derived |
-| stopped on the runtime log line cap (resume where it left off) | the next status line could fall past the runtime's 1,000 kept log lines · the last block's status lines fell past the runtime's 1,000 kept log lines | derived |
+| BLOCKED (a parked block left the tree unsafe) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
+| stopped on token budget (fewer tokens remain than minPlanBudget) | too few tokens left to start the next block | derived |
+| stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps) | the next status line could fall past the runtime's 1,000 kept log lines · the last block's status lines fell past the runtime's 1,000 kept log lines | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
 | throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the plan-edit.mjs args object is nested under plans | throw (line 28) |
 | throw: args must include at least { runId, root, target, gates, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |

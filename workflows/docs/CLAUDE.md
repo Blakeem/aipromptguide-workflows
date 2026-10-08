@@ -42,9 +42,10 @@ No mid-run questions — frame it with the user first:
    junk from web captures, curates + indexes, fills gaps (bounded by `maxRounds`), and returns the
    folder + index paths and counts.
 3. **Present** the set: follow the return's `nextStep`. It names the counts, the files to show and
-   every warning to lead with. A source in `gatherFailed` lost its gatherer, so its coverage may be
-   partial. A source in `scrubFailed` lost its scrubber, so its files may still hold nav chrome or ads.
-   `indexWritten` is false when the curator never confirmed writing `INDEX.md`.
+   every warning to lead with. `failed` holds one `{ id, stage }` entry per source and stage whose
+   agent returned nothing. A `gather` entry means the source lost its gatherer, so its coverage may be
+   partial. A `scrub` entry means the web source lost its scrubber, so its files may still hold nav
+   chrome or ads. `indexWritten` is false when the curator never confirmed writing `INDEX.md`.
 
 ## 3. Pre-run setup (your job — no setup agent, #4)
 

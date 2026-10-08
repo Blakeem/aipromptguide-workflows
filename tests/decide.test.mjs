@@ -61,7 +61,7 @@ section('both escalations halt on the same status, and the decider\'s runs no re
 section('an unattested decider or reviewer write halts, and the return names only attested files');
 // A same-runId re-run restarts at round 1, so an earlier run's file can sit at the path an unattested write names.
 {
-  const UNATTESTED = 'BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)';
+  const UNATTESTED = 'BLOCKED (an agent did not confirm writing its file)';
   const { out, labels } = await run({ analyst: ANALYST, decide: { ...DECIDE, wrote_file: false }, review: AGREE });
   eq(out.status, UNATTESTED, 'an unattested decision halts on its own status');
   ok(out.halted === true && out.agreed === false, 'reported halted, never agreed');
@@ -71,6 +71,7 @@ section('an unattested decider or reviewer write halts, and the return names onl
   eq(out.chosen, '', 'nor a chosen option from the unattested round');
   eq(out.needsUserFile, '', 'nothing was escalated');
   ok(/no resumeFromRunId: a resume replays the cached return/.test(out.nextStep), 'nextStep relaunches with no resumeFromRunId and says why');
+  ok(/Check that file, then relaunch with the same args/.test(out.nextStep), 'nextStep holds the check the status no longer gives');
 
   const { out: rev, labels: revLabels } = await run({
     analyst: ANALYST, decide: DECIDE,
@@ -254,7 +255,8 @@ section('a dead lens analyst is recorded in the return and named in the hand-bac
 // One lens of many is auxiliary (#15): its death must not read as a full run that converged over every lens.
 {
   const { out } = await run({ analyst: ANALYST, 'analyst:simplest': null, decide: DECIDE, review: AGREE });
-  eq(JSON.stringify(out.failed), '["simplest"]', 'the dead lens is in failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'simplest', stage: 'diverge' }]), 'the dead lens is in failed at the diverge stage');
+  ok(!('phase' in out), 'the return has no phase key');
   eq(out.lensFiles.length, 1, 'and only the surviving lens file is listed');
   ok(/left out of the decision: simplest\./.test(out.nextStep), `nextStep names the dropped lens: ${out.nextStep.slice(-120)}`);
   // No arg selects lenses to redo, and a same-runId relaunch overwrites the decision this nextStep presents.
@@ -264,6 +266,15 @@ section('a dead lens analyst is recorded in the return and named in the hand-bac
   const { out: full } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
   eq(JSON.stringify(full.failed), '[]', 'a full run has an empty failed list');
   ok(!/left out of the decision/.test(full.nextStep), 'and no dropped-lens sentence');
+
+  // A halt's relaunch reruns every lens, so the agreed and stalled terminals' relay-first advice does not apply.
+  for (const decide of [{ ...DECIDE, needs_user: true }, { ...DECIDE, wrote_file: false }]) {
+    const { out: halt } = await run({ analyst: ANALYST, 'analyst:simplest': null, decide, review: AGREE });
+    ok(halt.halted === true, 'a run that drops a lens can still halt');
+    ok(/left out of the decision: simplest\./.test(halt.nextStep), `a halt's nextStep names the dropped lens: ${halt.nextStep.slice(-200)}`);
+    ok(/relaunch with the same args redoes them/.test(halt.nextStep), 'and says the halt\'s relaunch redoes it');
+    ok(!/Relay this run's decision first|new runId/.test(halt.nextStep), 'and never sends a halt to relay first or to a new runId');
+  }
 }
 
 section('a one-round stall gets no churn diagnosis: the decider never had a round to address a gap');

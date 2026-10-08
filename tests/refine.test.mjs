@@ -29,14 +29,26 @@ const FOLD_OK   = { wrote_file: true, folded: 2, declined: 0, plan_parses: true 
 // Every terminal state is its own fact, so each is asserted verbatim rather than by a substring: folding
 // any pair of them together is how an unconverged plan gets handed to a build engine as a finished one.
 const CONVERGED     = 'converged (one clean round: no gaps at or above the floor, no questions)';
-const FRESH         = 'relaunch as a FRESH run (same runId and stateDir, NO resumeFromRunId - a resume replays the cached return and halts the same way)';
-const NEEDS_ANSWERS = `needs-answers (the critic raised questions only the operator can settle - restructure the plan, then ${FRESH})`;
-const CONTESTED     = `dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md - record the user's ruling by folding the gap into the plan or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to DISMISSED-PLAN.md, then ${FRESH})`;
+const NEEDS_ANSWERS = 'needs-answers (the critic raised questions only the operator can settle)';
+const CONTESTED     = 'dismissal-contested (the editor escalated a contested dismissal to NEEDS-USER.md)';
 const EXHAUSTED     = 'rounds-exhausted (gaps were still being found at the round budget - the plan is NOT converged)';
-const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file; run the plan-block --list check on it first, then relaunch with the same args plus the Workflow tool\'s resumeFromRunId to replay the cached critic and redo the fold - a relaunch without it restarts at round 1)';
-const NO_CRITIQUE   = `BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere; ${FRESH} to redo the round)`;
-const NO_FOLD       = `BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere; inspect the plan, then ${FRESH})`;
-const PLAN_BROKEN   = `BLOCKED (the folded plan file no longer parses - every later consumer reads it, so repair it by hand, then ${FRESH})`;
+const EDITOR_DEAD   = 'BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)';
+const NO_CRITIQUE   = 'BLOCKED (the critic returned findings but did not confirm writing its critique file - the findings exist nowhere)';
+const NO_FOLD       = 'BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere)';
+const PLAN_BROKEN   = 'BLOCKED (the folded plan file no longer parses - every later consumer reads it)';
+
+// Each terminal's instructions live in nextStep, never in status, so its clauses are asserted with
+// baseArgs' real paths.
+const STATE    = 'E:/r/runs/t-refine';
+const LIST     = `node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' --list`;
+const RELAUNCH = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${STATE}/DISMISSED-PLAN.md.`;
+const handBack = (out, halted, clauses, where) => {
+  eq(out.halted, halted, `${where}: halted`);
+  ok(halted ? /\bround \d+\b/.test(out.haltReason) : out.haltReason === '',
+    `${where}: haltReason ${halted ? 'names the round it halted in' : 'is empty'} (got ${JSON.stringify(out.haltReason)})`);
+  for (const c of clauses) ok(String(out.nextStep).includes(c), `${where}: nextStep says "${c.slice(0, 70)}"`);
+  eq(JSON.stringify(out.failed), '[]', `${where}: failed is empty`);
+};
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 
@@ -52,6 +64,12 @@ section('a clean first round converges, and is the one path that spawns no edito
   eq(out.rounds, 1, 'on round 1');
   eq(out.openGaps, 0, 'with no open gaps');
   eq(out.lastCritique, '', 'and no critique file named — a clean round legitimately writes none');
+  handBack(out, false, [
+    'Hand the plan E:/plans/bus.md to the user for approval.',
+    `Audit ${STATE}/DISMISSED-PLAN.md before trusting the converge, since each declined gap is a judgment call.`,
+    `Then build the plan with develop, deriving its args with plan-edit.mjs args 'E:/plans/bus.md'.`,
+  ], 'converged');
+  ok(typeof out.nextStep === 'string' && !/FYI|relaunch/.test(out.nextStep),'a converge with no below-floor findings sends nobody to an FYI section and relaunches nothing');
 }
 
 section('an FYI-only round writes its critique file and still converges, naming that file');
@@ -69,6 +87,10 @@ section('an FYI-only round writes its critique file and still converges, naming 
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for below-floor findings');
   eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the FYI file is named as the last critique');
   eq(out.belowFloor, 2, 'and the return carries the FYI count, so the operator knows that file holds findings');
+  handBack(out, false, [
+    `The user first reads the FYI section of ${STATE}/plan-critique-1.md, since no editor folded its 2 below-floor finding(s).`,
+    'Hand the plan E:/plans/bus.md to the user for approval.',
+  ], 'converged with FYI items');
 }
 
 section('belowFloor is the LAST round\'s FYI count, never a run total');
@@ -144,6 +166,11 @@ section('questions end the run on any round, and the editor never sees them');
   eq(out.status, NEEDS_ANSWERS, 'status on round 1');
   eq(out.questions, 1, 'the count is handed back');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'nothing was folded');
+  handBack(out, true, [
+    `Read the QUESTIONS section of ${STATE}/plan-critique-1.md, settle the questions with the user and restructure E:/plans/bus.md, where new blocks take fresh kebab ids. Then relaunch.`,
+    RELAUNCH,
+    'A replay returns the cached critic and halts the same way.',
+  ], 'needs-answers');
 
   const { out: later, byLabel } = await run({ 'plan-critic': firstRound(GAPS, QUESTIONS), 'plan-editor': FOLD_OK });
   eq(later.status, NEEDS_ANSWERS, 'a question raised after a fold lands on the same status');
@@ -160,6 +187,10 @@ section('an editor that escalates a contested dismissal ends the run dismissal-c
   ok(prompt('plan-editor').includes('needs_user=true'), 'the editor is told which field reports the escalation');
   eq(out.status, CONTESTED, 'status');
   eq(out.rounds, 1, 'on the round the editor escalated');
+  handBack(out, true, [
+    `Read the newest entries at the end of ${STATE}/NEEDS-USER.md and record the user's ruling, by folding the gap into E:/plans/bus.md or by appending "<block id> - <gap gist> - USER-RULED: <reason>" to ${STATE}/DISMISSED-PLAN.md. Then relaunch.`,
+    RELAUNCH,
+  ], 'dismissal-contested');
   eq(byLabel('plan-critic').length, 1, 'and no second critic ran to report a clean round over the open question');
   ok(/A line marked `USER-RULED:` is the user's\s+own ruling: never contest it\./.test(prompt('plan-critic')), 'the critic is told a USER-RULED line is never contested');
 }
@@ -192,6 +223,11 @@ section('the round budget runs out carrying the LAST round\'s gaps and critique 
   eq(out.openGaps, 3, 'the last round\'s gaps — folded, but never re-critiqued');
   eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-2.md',
     'and the file named is the last round\'s, under the -refine state dir that keeps it out of develop\'s');
+  handBack(out, false, [
+    'The last round\'s gaps were folded but no critic re-read them.',
+    `Read ${STATE}/plan-critique-2.md, decide with the user, then relaunch to confirm, raising maxRounds if needed.`,
+    RELAUNCH,
+  ], 'rounds-exhausted');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -218,6 +254,11 @@ section('a dead editor halts instead, because the round\'s critique file survive
   eq(out.rounds, 1, 'it halts in the round it died in, not at the budget');
   eq(byLabel('plan-critic').length, 1, 'and no further critic re-read a plan nothing folded into');
   ok(out.lastCritique.endsWith('plan-critique-1.md'), 'the file a relaunch resumes the fold from is named');
+  handBack(out, true, [
+    `Run ${LIST} first, since the editor may have partly edited the plan.`,
+    `Then replay with the same args and runId plus the Workflow tool's resumeFromRunId, so the cached critic returns and only the fold of ${STATE}/plan-critique-1.md runs again.`,
+    'A relaunch without resumeFromRunId restarts at round 1.',
+  ], 'agent-dead');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -229,6 +270,7 @@ section('a critic that reports findings it never wrote halts before the editor')
   eq(out.status, NO_CRITIQUE, 'status');
   ok(!labels.some((l) => l.startsWith('plan-editor')), 'the editor is never spawned against a file that does not exist');
   eq(out.lastCritique, '', 'and no file is named — nothing confirmed writing one');
+  handBack(out, true, ['Relaunch to redo the round.', RELAUNCH], 'critique-unwritten');
 
   const { out: asked } = await run({ 'plan-critic': { wrote_file: false, gap_count: 0, question_count: 1 } });
   eq(asked.status, NO_CRITIQUE, 'an unwritten QUESTION halts the same way, ahead of the needs-answers branch');
@@ -247,9 +289,11 @@ section('an editor that reports folds it never wrote halts, and a broken parse h
   const { out } = await run({ 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, wrote_file: false } });
   eq(out.status, NO_FOLD, 'the fold exists nowhere, so the next critic would re-find the same gaps');
   eq(out.rounds, 1, 'halted on the round that claimed it');
+  handBack(out, true, ['Inspect E:/plans/bus.md, then relaunch.', RELAUNCH], 'fold-unattested');
 
   const { out: broken } = await run({ 'plan-critic': GAPS, 'plan-editor': { ...FOLD_OK, plan_parses: false } });
   eq(broken.status, PLAN_BROKEN, 'a file every later consumer reads is repaired by hand, not by another round');
+  handBack(broken, true, [`Repair E:/plans/bus.md by hand until ${LIST} exits 0, then relaunch.`, RELAUNCH], 'plan-broken');
 
   // The guard is scoped to a NONZERO fold: an editor that declined every gap wrote nothing to the plan
   // file, and reporting that honestly must not be read as an unattested fold.

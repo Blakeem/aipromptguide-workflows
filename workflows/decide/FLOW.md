@@ -15,7 +15,7 @@ flowchart TD
   t1(["decided (decider + reviewer agree)"])
   t2(["needs-attention (no agreement within round budget)"])
   t3(["BLOCKED (needs user input)"])
-  t4(["BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)"])
+  t4(["BLOCKED (an agent did not confirm writing its file)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, lenses, planPath }"/]
   x3[/"throw: args.root is required"/]
@@ -65,7 +65,7 @@ flowchart TD
 | decided (decider + reviewer agree) | the reviewer agrees the conclusion holds · one analyst produces no lens file | derived |
 | needs-attention (no agreement within round budget) | the reviewer keeps finding gaps | derived |
 | BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
-| BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId) | the decider does not confirm writing its decision file · the reviewer does not confirm writing its review file | derived |
+| BLOCKED (an agent did not confirm writing its file) | the decider does not confirm writing its decision file · the reviewer does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
 | throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 30) |
 | throw: args.root is required | args.root is missing | throw (line 33) |

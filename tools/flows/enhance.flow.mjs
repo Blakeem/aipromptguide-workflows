@@ -7,9 +7,9 @@
 // `find`: straight to a terminal, or on through `verify`. The engine returns no `status`, so every
 // non-throwing scenario declares its `terminal`.
 //
-// A dead finder, and a finder with no candidate and no attested marker, each land the lens in `failed`,
-// like brainstorm's dead generator. Neither spawns an extra agent, so its own declared terminal is the only
-// place the map can tell it apart from a clean lens.
+// A dead finder, and a finder with no candidate and no attested marker, each land the lens in `failed` with
+// stage `find`, like brainstorm's dead generator. Neither spawns an extra agent, so its own declared
+// terminal is the only place the map can tell it apart from a clean lens.
 
 const base = {
   runId: 'flow',
@@ -60,12 +60,13 @@ export default {
       terminal: 'proposals written',
     },
     {
-      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`.
+      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`
+      // as `{ id, stage: 'find' }`.
       name: 'a dead finder',
-      when: 'the finder dies (the lens is reported in failed)',
+      when: 'the finder dies (the lens is reported in failed at stage find)',
       args: { ...base, lenses: ['efficiency'] },
       respond: { find: null },
-      terminal: 'lens NOT audited (finder died, lens reported in failed)',
+      terminal: 'lens NOT audited (finder died, lens in failed at stage find)',
     },
     {
       name: 'a clean lens',
@@ -79,7 +80,7 @@ export default {
       when: 'the finder returns no candidate and does not attest its marker',
       args: { ...base, lenses: ['efficiency'] },
       respond: { find: { wrote_clean_marker: false, candidates: [] } },
-      terminal: 'lens NOT audited (no marker attested, lens reported in failed)',
+      terminal: 'lens NOT audited (no marker attested, lens in failed at stage find)',
     },
 
     // ---- the eight throw sites, in the order the engine checks them ------------------------------

@@ -291,8 +291,8 @@ for (const a of ready) log(`  ✓ ${a.lens}: favours "${a.top}"`);
 if (!ready.length) throw new Error('No analyst produced a lens file — cannot converge. Check the requirements/lenses and re-run.');
 // Converge only over lenses whose file exists; a dropped lens is logged, never silently assumed.
 const LIVE = LENSES.filter((l) => ready.some((a) => a.lens === l.id));
-const failed = LENSES.filter((l) => !LIVE.includes(l)).map((l) => l.id);
-for (const id of failed) log(`  ✗ ${id}: no lens file (analyst failed/skipped) — dropped from convergence`);
+const failedLensIds = LENSES.filter((l) => !LIVE.includes(l)).map((l) => l.id);
+for (const id of failedLensIds) log(`  ✗ ${id}: no lens file (analyst failed/skipped) — dropped from convergence`);
 
 // =============================================================================
 // CONVERGE — decider ⇄ non-blind reviewer, until they agree or the round budget is spent.
@@ -398,7 +398,7 @@ while (round < MAX_ROUNDS) {
 }
 
 const halted = haltKind !== '';
-const status = haltKind === 'write-unattested' ? 'BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)'
+const status = haltKind === 'write-unattested' ? 'BLOCKED (an agent did not confirm writing its file)'
   : halted ? 'BLOCKED (needs user input)' : agreed ? 'decided (decider + reviewer agree)' : 'needs-attention (no agreement within round budget)';
 log(`decide: ${status} after ${round} round(s)`);
 
@@ -420,13 +420,15 @@ const agreeCaveats = [
   contradicted ? `The reviewer agreed while listing open gaps: audit ${decisionReviewFile(round)} before presenting. ` : '',
   agreed && !lastMeetsAll ? `The decider itself reported that ${RANKED ? 'a shortlisted option' : 'the conclusion'} does not meet every requirement: check ${decisionFile(round)} before presenting. ` : '',
 ].join('');
-const droppedLenses = failed.length
-  ? ` These lenses did not confirm a lens file and were left out of the decision: ${failed.join(', ')}. The engine cannot re-run single lenses. Bringing them in takes a full relaunch with the full lens list and no resumeFromRunId, which redoes every lens and round. Relay this run's decision first, then relaunch under a new runId so this run's files stay intact.`
-  : '';
+// A halt's relaunch already redoes every lens and leaves no decision to relay, so it gets the short form.
+const droppedLenses = !failedLensIds.length
+  ? ''
+  : ` These lenses did not confirm a lens file and were left out of the decision: ${failedLensIds.join(', ')}.` + (halted
+    ? ' The relaunch with the same args redoes them.'
+    : ' The engine cannot re-run single lenses. Bringing them in takes a full relaunch with the full lens list and no resumeFromRunId, which redoes every lens and round. Relay this run\'s decision first, then relaunch under a new runId so this run\'s files stay intact.');
 const relaunchFromStart = 'The relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files.';
 
 return {
-  phase: 'decide',
   runId: RUN_ID,
   status,
   agreed,
@@ -442,12 +444,12 @@ return {
   reviewFile: lastReviewFile,
   needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
   lensFiles: LIVE.map((l) => lensFile(l.id)),
-  failed,
+  failed: failedLensIds.map((id) => ({ id, stage: 'diverge' })),
   lensPicks: LIVE.map((l) => ({ lens: l.id, focus: l.focus, top: ready.find((a) => a.lens === l.id)?.top || '' })),
   contradicted,
   meetsAllRequirements: lastMeetsAll,
   reviewTrail: `Lens analyses in ${LENS_DIR}/, and decision-rN.md / decision-review-rN.md in ${STATE_DIR}/ show every round.`,
-  nextStep: halted
+  nextStep: (halted
     ? (haltKind === 'needs-user'
       ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then relaunch with the same args and no resumeFromRunId. ${relaunchFromStart}`
       : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)
@@ -455,5 +457,5 @@ return {
       ? agreeCaveats + (RANKED
         ? `Present the SHORTLIST the decider and reviewer agreed on in round ${round}: relay ${decisionFile(round)} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
         : `Present the conclusion the decider and reviewer agreed on in round ${round}: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`) + droppedLenses,
+      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`)) + droppedLenses,
 };

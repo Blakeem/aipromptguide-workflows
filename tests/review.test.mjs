@@ -162,7 +162,7 @@ section('a DEAD lens reviewer is named, not silently counted as a clean lens');
   ok(!calls[1].prompt.includes('CLEAN-UNIT MARKER'), 'the surviving final lens is not offered the marker');
   ok(prompt('verify').includes('\nhash: incomplete\n'), 'the inventory is stamped incomplete, so hash resume re-reviews the unit');
   ok(!prompt('verify').includes(`hash: ${UNIT.hash}\n`), 'and never with the real unit hash');
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead lens is in the return');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead lens is in the return');
   eq(out.unitsReviewed, 0, 'a unit with a dead lens is not counted as reviewed');
 }
 
@@ -185,7 +185,7 @@ section('a dead SOLE reviewer is not reported as a clean unit');
   const { out, calls, logs } = await run({ lens: DESTRUCT }, { 'review': null });
   eq(calls.length, 1, 'no verifier — there are no findings to verify');
   ok(/⚠ u1: reviewer returned nothing/.test(logs.join('\n')), 'the death is logged before the clean-unit line');
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead reviewer is in the return');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'review', lens: 'destructive' }]), 'the dead reviewer is in the return');
   eq(out.unitsReviewed, 0, 'and the unit is not counted as reviewed');
 }
 
@@ -215,7 +215,7 @@ section('a DEAD verifier is named and says how many findings were dropped');
   ok(/⚠ u1: verifier did NOT confirm writing/.test(text), 'the dead verifier is named');
   ok(text.includes('agent returned nothing — its 2 finding(s) were DROPPED'), `the drop count is stated: ${text}`);
   eq(out.inventory.total, 0, 'no verdicts, so nothing is kept');
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify' }]), 'the dead verifier is in the return');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'verify' }]), 'the dead verifier is in the return');
   eq(out.unitsReviewed, 0, 'and its unit is not counted as reviewed');
 }
 
@@ -228,7 +228,7 @@ section('a verifier that did not attest its write never names that file in needs
   });
   eq(out.inventory.needsUser, 1, 'the NEEDS_USER verdict is counted');
   eq(out.needsUserFiles.length, 0, 'but no unwritten path is handed out');
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify' }]), 'the unattested write is in the return');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'verify' }]), 'the unattested write is in the return');
 }
 
 section('the return carries no issues index, and the verifier is asked for no theme');
@@ -405,7 +405,7 @@ section('a mis-copied verdict id is logged and recorded, not silently dropped fr
   });
   ok(logs.some((l) => /⚠ u1: verifier verdicts do not cover the findings \(unmatched: u-2, no verdict: u1-2\) — the returned totals are incomplete; read E:\/r\/runs\/t\/issues\/u1\.md/.test(l)),
     'the gap is logged with both id lists and the issue file');
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'verify', unmatched: ['u-2'], unverdicted: ['u1-2'] }]), 'and recorded in failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'verify', unmatched: ['u-2'], unverdicted: ['u1-2'] }]), 'and recorded in failed');
   eq(out.unitsReviewed, 0, 'so the unit is not counted as fully reviewed');
 
   const { out: full } = await run({}, {
@@ -419,7 +419,7 @@ section('a clean reviewer that did not attest its marker is recorded in failed')
 // Unrecorded, the unit counted as reviewed while a prior run's issue file stayed in issues/ as current.
 {
   const { out } = await run({}, { 'review': NO_FINDINGS });
-  eq(JSON.stringify(out.failed), JSON.stringify([{ unit: 'u1', stage: 'review', marker: false }]), 'the unattested marker is in failed');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'u1', stage: 'review', marker: false }]), 'the unattested marker is in failed');
   eq(out.unitsReviewed, 0, 'and the unit is not counted as reviewed');
 
   const { out: marked } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
@@ -448,9 +448,21 @@ section('nextStep leads with the re-review when a failed unit has no trustworthy
   });
   eq(unmatchedOnly.failed.length, 1, 'the only failed entry is the unmatched one');
   ok(unmatchedOnly.nextStep.startsWith('Present the inventory'), 'an unmatched-only failure is triaged from its issue file, not re-reviewed');
+  ok(unmatchedOnly.nextStep.includes('The returned totals also leave out findings of u1, whose verifier verdicts did not match every finding id, so triage each from its issue file.'),
+    `nextStep names the unmatched unit and sends it to its issue file: ${unmatchedOnly.nextStep.slice(0, 400)}`);
+
+  // An unwritten issue file is re-reviewed, so the same unit's unmatched entry must not send it to triage.
+  const { out: unwrittenUnmatched } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: false, verdicts: [keep('u-1')] },
+  });
+  ok(unwrittenUnmatched.nextStep.startsWith('First re-review u1:'), 'an unwritten issue file leads with the re-review');
+  ok(!unwrittenUnmatched.nextStep.includes('leave out findings of u1'), 'and is not sent to triage from that file');
 
   const { out: clean } = await run({}, { 'review': { wrote_clean_marker: true, findings: [] } });
   ok(clean.nextStep.startsWith('Present the inventory'), 'a clean run with an attested marker opens on the inventory');
+  ok(!clean.nextStep.includes('leave out findings of'), 'a clean run names no unit to triage from its issue file');
+  ok(!('phase' in clean), 'the return carries no constant phase');
 }
 
 section('nextStep carries the presentation rules the guide held');
