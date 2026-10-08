@@ -5,6 +5,7 @@ import { runTrace, section, ok } from './harness.mjs';
 
 const HALTING = ['develop', 'refine', 'decide'];
 const RETIRED_KEYS = ['followups', 'gatherFailed', 'scrubFailed', 'sweepFailed'];
+const STATUS_FORM = /^[^()]+ \(.+\)$/;
 const INSTRUCTION = /\b(?:relaunch|resum|replay|re-?run|re-?invoke|inspect|check|unstage|repair|restructure)\w*|\bstage (?:it|that|its)\b|\bnever stage\b/i;
 
 // No engine list, so a new engine's flow spec is checked without an edit here.
@@ -44,6 +45,7 @@ for (const spec of specs) {
     ok(typeof out.halted === 'boolean', `${where}: halted is a boolean`);
     ok(typeof out.haltReason === 'string', `${where}: haltReason is a string`);
     ok(out.halted === (out.haltReason !== ''), `${where}: halted is true exactly when haltReason is non-empty`);
+    ok(STATUS_FORM.test(String(out.status ?? '')), `${where}: status reads "<token> (<meaning>)" (got ${JSON.stringify(out.status)})`);
     ok(!INSTRUCTION.test(String(out.status ?? '')), `${where}: status carries no instruction (got ${JSON.stringify(out.status)})`);
   }
 

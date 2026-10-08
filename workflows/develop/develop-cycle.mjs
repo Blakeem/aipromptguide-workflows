@@ -1527,9 +1527,9 @@ for (const p of pending) {
         break;
       }
       // Passed but NOT staged: the staging boundary is broken — the next block's blind diff would include
-      // this block's unstaged work. Do NOT advance; halt for manual staging, then resume.
+      // this block's unstaged work. Do NOT advance; halt for manual staging, then relaunch.
       halted = true;
-      rec.status = 'done-unstaged (verifier passed but did NOT stage — stage manually, then resume)';
+      rec.status = 'done-unstaged (verifier passed but did NOT stage)';
       haltKind = 'passed-unstaged';
       haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done.`;
       logLine(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);

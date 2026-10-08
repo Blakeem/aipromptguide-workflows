@@ -137,11 +137,13 @@ measures the real bounding boxes instead of guessing.
 suite has to stay runnable anywhere. Run it by hand after anything that affects layout. Raise the spacing
 constants in `gen-flows.mjs` before shortening label text — room is free, dropped information is not.
 
-## The two gates these feed
+## The gates these feed
 
 - `tests/flows.test.mjs` — the emitter's own rules (determinism, concurrency, loop counts, escaping).
 - `tests/flow-coverage.test.mjs` — every role, throw site and terminal state reached by some scenario,
   `meta.phases` agreement, and map freshness.
+- `tests/returns.test.mjs` — every returning scenario's `out` against the Shared return fields in
+  `principles/WORKFLOW-PRINCIPLES.md` Mechanics.
 
 Full working notes, including what the coverage gate structurally *cannot* see, are in
 [`../tests/CLAUDE.md`](../tests/CLAUDE.md) §7.
