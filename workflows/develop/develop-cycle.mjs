@@ -477,6 +477,7 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.

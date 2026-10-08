@@ -7,11 +7,11 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | review | 1 | 1 | 3138 | a clean unit beside one with findings |
-| verify | 1 | 1 | 5171 | a clean unit beside one with findings |
+| verify | 1 | 1 | 5311 | a clean unit beside one with findings |
 | review | 2 | 1 | 2724 | two lenses per unit |
 | review | 3 | 1 | 2850 | two lenses per unit |
-| verify | 2 | 1 | 5483 | two lenses per unit |
-| verify | 3 | 1 | 5483 | two lenses per unit |
+| verify | 2 | 1 | 5623 | two lenses per unit |
+| verify | 3 | 1 | 5623 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -209,7 +209,8 @@ ROUTING (apply in order; first match wins):
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified.
+narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
 
@@ -671,7 +672,8 @@ ROUTING (apply in order; first match wins):
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified.
+narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
 
@@ -878,7 +880,8 @@ ROUTING (apply in order; first match wins):
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
-narrow a suggested fix to the part you verified.
+narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
+its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
 

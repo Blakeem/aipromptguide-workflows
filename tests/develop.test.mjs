@@ -1371,6 +1371,15 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
   }
 }
 
+section('MATRIX case 5 owns a piece the plan leaves out, so the fix takes no amendment');
+// Read as a conflict, an omission routed to 6a and reached the user, or not, on the developer's reading.
+{
+  for (const [mode, id, r] of FRAMES.filter(([m]) => m !== 'section')) {
+    ok(flat(r.prompt(`develop ${id}`)).includes("A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment."),
+      `${mode}: an omission in the plan's text routes to case 5, not 6a`);
+  }
+}
+
 section('an amendment is RECORDED in a per-block AMENDED file, with a pointer line for the user');
 {
   for (const [mode, id, r] of FRAMES) {

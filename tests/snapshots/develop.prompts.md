@@ -6,28 +6,28 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 6364 | every block accepts first time |
+| develop | 1 | 1 | 6472 | every block accepts first time |
 | quality | 1 | 1 | 3179 | every block accepts first time |
 | acceptance | 1 | 1 | 6392 | every block accepts first time |
-| develop | 2 | 1 | 6757 | every block accepts first time |
+| develop | 2 | 1 | 6865 | every block accepts first time |
 | acceptance | 2 | 2 | 6673 | every block accepts first time |
 | final-sweep | 1 | 1 | 2071 | every block accepts first time |
-| develop | 3 | 1 | 5854 | quality flags the first round |
+| develop | 3 | 1 | 5962 | quality flags the first round |
 | quality | 2 | 1 | 3003 | quality flags the first round |
-| develop | 4 | 1 | 6247 | quality flags the first round |
-| develop | 5 | 1 | 5852 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 6245 | acceptance finds gaps, then passes |
+| develop | 4 | 1 | 6355 | quality flags the first round |
+| develop | 5 | 1 | 5960 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 6353 | acceptance finds gaps, then passes |
 | acceptance | 3 | 1 | 6667 | the developer produced nothing |
 | acceptance | 4 | 2 | 6948 | the developer produced nothing |
-| develop | 7 | 1 | 5816 | the gate never goes green |
+| develop | 7 | 1 | 5924 | the gate never goes green |
 | park | 1 | 1 | 5123 | the gate never goes green |
-| develop | 8 | 1 | 6209 | the gate never goes green |
+| develop | 8 | 1 | 6317 | the gate never goes green |
 | park | 2 | 1 | 5067 | a parked block, and the run carries on |
 | park | 3 | 1 | 5118 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 7451 | a fix block closes its issues |
+| develop | 9 | 2 | 7559 | a fix block closes its issues |
 | acceptance | 5 | 3 | 8977 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2062 | a fix block closes its issues |
-| develop | 10 | 2 | 7548 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 7656 | a pass of two fix blocks closes its issues |
 | acceptance | 6 | 3 | 9241 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2092 | a pass of two fix blocks closes its issues |
 | acceptance | 7 | 3 | 8976 | every issue is already fixed |
@@ -39,7 +39,7 @@ this file is stale.
 | park | 9 | 1 | 5148 | the developer dies |
 | park | 10 | 1 | 5218 | developer escalates |
 | park | 11 | 1 | 5259 | developer escalates in an ordered run |
-| develop | 11 | 1 | 7484 | a parked block is continued from its patch |
+| develop | 11 | 1 | 7592 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -92,6 +92,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -498,6 +499,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -883,6 +885,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1132,6 +1135,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1300,6 +1304,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1472,6 +1477,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1947,6 +1953,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -2221,6 +2228,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -2610,6 +2618,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -3078,6 +3087,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -4561,6 +4571,7 @@ PROCEDURE:
   3. Stops the build/tests/verification → FIX (always).
   4. A real, clear, in-scope fix (local, small) → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
+      A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.

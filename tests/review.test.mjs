@@ -264,6 +264,8 @@ section('the verdict schema holds decisions only, and the prompt points every fi
   ok(!v.includes('options + recommendation'), 'and no options + recommendation pair');
   ok(!v.includes('duplicate of <id>') && !v.includes('note why'), 'and asks for no note on a rejected duplicate or scope-creep verdict');
   ok(v.includes('**Fix:** line'), 'it points the fix at the file\'s **Fix:** line');
+  ok(v.replace(/\s+/g, ' ').includes('covers every file, string or path its **What:** names as wrong'),
+    'the **Fix:** line covers every surface its **What:** names as wrong');
 }
 
 section('the verifier writes a fix-mode PLAN block, and its own template parses as one');
