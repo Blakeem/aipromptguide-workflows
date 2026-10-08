@@ -65,7 +65,7 @@ const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
 // doc files"), so their rows script the returns their per-engine table already uses.
 const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
 const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_count: 0, gap_ids: [], needs_user: false };
+const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
 const GATHER  = { files_written: 6, skipped: 2 };
 const SCRUB   = { files_cleaned: 4 };
 const CURATE  = { wrote_index: true, files: 11, deleted: 1, inconsistencies: 0, fidelity_checked: 3,
@@ -117,9 +117,9 @@ const SWEEP = [
   {
     engine: 'workflows/decide/decide-cycle.mjs',
     baseArgs: { runId: 't', root: 'E:/r', lenses: ['efficiency', 'simplest'],
-      requirements: '## Decision\nWhich cache layer?\n## Weighted criteria\n- latency (weight 3)' },
+      planPath: 'E:/r/plans/t/requirements.md' },
     respond: { analyst: ANALYST, decide: DECIDE, review: AGREE },
-    required: ['runId', 'root', 'requirements', 'lenses'],
+    required: ['runId', 'root', 'planPath', 'lenses'],
   },
   {
     engine: 'workflows/docs/docs-cycle.mjs',
@@ -137,9 +137,9 @@ const SWEEP = [
   },
   {
     engine: 'workflows/investigate/investigate-cycle.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', criteria: '## Question\nQ\n## Acceptance Criteria\n- c1', priorRounds: 0 },
+    baseArgs: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 },
     respond: {},
-    required: ['runId', 'root', 'criteria', 'priorRounds'],
+    required: ['runId', 'root', 'planPath', 'priorRounds'],
   },
 ];
 

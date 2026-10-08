@@ -54,8 +54,9 @@ Pick a `runId`; reuse it for every phase. `Workflow` loads by path: `scriptPath`
 
 - **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
   aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir).
-- **`criteria` (inline) OR `planPath` — one REQUIRED.** The pass/fail rubric (§4). The guard is
-  unconditional: it fires for `refine` as well as `run`.
+- **`planPath` REQUIRED:** the absolute path to the pass/fail rubric file (§4). There is no inline
+  `criteria` arg. A rubric written without plan mode goes to `plans/<runId>/` under `root` first. The
+  guard is unconditional: it fires for `refine` as well as `run`.
 - **`sources` (optional but useful):** a starting set of avenues (strings, or `{ id, focus }`). It is
   deliberately **not** a fan-out key — one investigator per round sweeps them all, and it is explicitly an
   opening list, not a closed one. An avenue the investigator finds itself counts just as much. One it
@@ -120,7 +121,10 @@ agents per run, so a fast tier buys nothing.
   determination), attacks any exhaustion / no-solution / saturation claim, and checks the determination
   whenever one was written. It writes its verdict as the first line of each option file it judges:
   `verdict: upheld rN` or `verdict: disqualified rN`. Only options whose file reads `verdict: upheld` reach
-  the caller.
+  the caller. A resumed run's first critic instead judges every file in `options/` against the criteria
+  as they read now, whatever its verdict line, and re-opens every ledger line whose named failing
+  criterion no longer disqualifies, so a criteria edit between runs reaches every earlier verdict. That
+  round's investigator re-proposes those candidates.
 
 ## 6. Loop & contracts (keep intact)
 
@@ -138,7 +142,7 @@ Every round **starts with the investigator**.
   last one's searches with the same terms and calls the same candidates new. The critic reads it; only the
   investigator writes it.
 - **Exhaustion must be evidenced and survives an attack.** `exhausted` requires naming which avenues were
-  swept and why what remains cannot hold a qualifier. The critic may set `contests_exhaustion`, which buys
+  swept and why what remains cannot hold a qualifier. The critic may set `contests_claim`, which buys
   another round. That contest is what makes "these are all of them" worth anything — and it **costs a
   citation**: the contest must name the missed avenue with a source and locator connecting it to the
   criterion or search-space bound it puts back in play. A bare "you missed something" fits any search that
@@ -149,9 +153,10 @@ Every round **starts with the investigator**.
   actively check for diminishing returns against its own trajectory: nothing genuinely new this round, or
   a yield collapse to well under half the best round while the best unswept avenue is at most `medium`. It
   then writes the determination as a *stopped* result and claims `saturated`. The critic verifies the
-  collapse against `SEARCHED.md` + the ledger and may set `contests_saturation` — which costs the same
-  citation a coverage contest does and buys another round. `exhausted` / `no_solution` **outrank** it
-  (both arriving at once logs a ⚠ and the stronger fact wins), and `exhaustive` stays **false**.
+  collapse against `SEARCHED.md` + the ledger and may set `contests_claim`, which costs the same
+  citation a coverage contest does and buys another round. The investigator returns one `claim`. Its
+  prompt tells it to claim exhaustion or no-solution instead whenever it can evidence either.
+  `exhaustive` stays **false**.
 - **A round whose investigator adds *nothing* stops the run.** The investigator adds no option, no ledger
   line, no claim and no escalation, and no determination is owed → `stalled`, immediately, round 1
   included: the next round would have nothing to diverge from. No determination was written. A stall in
@@ -173,17 +178,14 @@ Every round **starts with the investigator**.
   too, labelled a **partial result** when that round claims no termination, since a search that ran out
   of rounds still owes its comparison and near misses.
 - **Near misses are first-class.** A candidate failing **exactly one** criterion gets a `NEAR-MISS:` ledger
-  line with the shortfall in numbers, its own determination section, and a count in the return. On a
+  line with the shortfall in numbers and its own determination section. On a
   no-solution or round-budget run it is often the only actionable thing the search produced, and one line
   among hundreds in the ledger is where it would otherwise die. The marker is a **fact** — two failed
   criteria is not a near miss.
-  **Both writers mark and count**, so an option the critic itself knocks out on one criterion counts too.
-  The critic also re-checks
-  the investigator's markers, but its corrections land in the **review file and the ledger, not in the
-  count** — `nearMisses` is a tally of ledger markers, not a critic-verified figure. Read the latest
-  `acceptance-review-rN.md` before quoting the number. It counts **this invocation's** markers, while
-  `DISQUALIFIED.md` is cumulative across resumes — a resumed run reporting 2 against a ledger holding 9 is
-  correct, not a bug.
+  **Both writers mark them**, so an option the critic itself knocks out on one criterion counts too.
+  The critic re-checks the investigator's markers in its review file and the ledger. It counts as a
+  determination defect any `NEAR-MISS:` line it appended that the NEAR MISSES section lacks, so the
+  operator corrects that section before relaying it.
 - **Eight terminal states, never folded together.** "Ran out of rounds", "ran out of tokens", "nothing can
   qualify", "the yield collapsed" and "the round produced nothing" are five different facts, and
   collapsing any pair is how a *stopped* search gets reported as a *finished* one:
@@ -236,9 +238,9 @@ Every round **starts with the investigator**.
   determination is not an open search.
 - **`no qualifying option exists (verified)`** — this is a real answer, not a failure. Relay the
   determination and the ledger, and take the criterion it names to the user: **relaxing one criterion is
-  the only thing that changes this result.** **Lead with the near misses** when `nearMisses` is non-zero:
-  each failed exactly one criterion, so they are precisely what relaxing a criterion would make available,
-  and some are worth doing on their own merits even though they do not qualify. Check
+  the only thing that changes this result.** **Lead with the determination's NEAR MISSES section** when
+  it lists any: each failed exactly one criterion, so they are precisely what relaxing a criterion would
+  make available, and some are worth doing on their own merits even though they do not qualify. Check
   `determinationDefects` as for `exhaustive`. Do not re-run unchanged.
 - **`not exhaustive`** — say so plainly. Options found so far may be fine, but **do not present them as a
   complete answer**. `DETERMINATION.md` exists here too, written on the final round. It is labelled a
@@ -270,16 +272,22 @@ Every round **starts with the investigator**.
 ## 8. Resume
 
 Preserve `runs/<runId>/` and re-invoke `phase:"run"` with the same args and `priorRounds` set to the
-value the last return's `nextStep` names. After an unattested write that value is `rounds - 1`, so the
-halted round re-runs. The round numbers then continue, so the earlier review files and `r<N>` lines stay
-intact and the first investigator reads the last run's review. `maxRounds` counts only the new run's
+value the last return's `nextStep` names. After an unattested write, or an investigator's escalation
+after round 1, that value is `rounds - 1`, so the halted round re-runs and its investigator re-reads any
+review it was handed. After a critic's escalation it is `rounds`, since that critic wrote the round's
+review. After an investigator's escalation in round 1 it is `rounds` too: round 1 was handed no review
+and its critic always runs, so the relaunch loses nothing and its first critic re-judges as below. The
+round numbers then continue, so the earlier review files and `r<N>` lines stay intact and the first
+investigator reads the last run's review. `maxRounds` counts only the new run's
 rounds. The ledger means the search **continues** rather than restarting. A fresh investigator reads
 what is already closed and does not re-walk it. The halts to resolve first are a `needs_user`
 escalation, an unattested write (check the files `haltReason` names), and a token-budget stop (nothing
 to resolve there, just re-invoke). After a critic's unattested write, the relaunch re-runs that round as
 its first round. Its critic runs unless that round's investigator stops the run first. That critic
-rewrites the review file and re-judges any verdict line that names the round. The verdicts in the option files carry across runs, so a resumed run's `options` holds
-the options earlier runs upheld once its first critic lists them.
+rewrites the review file and re-judges any verdict line that names the round. A resumed run's first
+critic re-judges every option file and re-opens every ledger line the current criteria no longer
+disqualify, so a criteria edit between runs reaches every earlier verdict, and `options` then holds the
+files it upheld.
 
 The run can also stop by **throwing**: any of the three agents returned nothing. Re-invoke with the same
 args, `priorRounds` included, and pass the `Workflow` tool's `resumeFromRunId` to replay completed agents
@@ -289,8 +297,8 @@ from cache.
 
 Full schema + defaults: the Config block atop `investigate-cycle.mjs` (the canonical source). Pass `args`
 inline.
-- **Required:** `runId` · `root` (§3) · `criteria` (inline) **or** `planPath` (absolute path to the
-  criteria file) · `priorRounds` on `phase:"run"` (0 for a new search, the value the last
+- **Required:** `runId` · `root` (§3) · `planPath` (absolute path to the criteria file) ·
+  `priorRounds` on `phase:"run"` (0 for a new search, the value the last
   return's `nextStep` names on a resume, §8).
 - **Optional:** `phase` (`refine` | `run`, default `run`, and any other value **throws**) ·
   `sources` (starting avenues — §3) · `context`
@@ -330,5 +338,5 @@ inline.
   `stateDir` before assuming there is nothing there.
 - `NEEDS-USER.md` — escalations; on a verified no-solution, which criterion the user might relax.
 
-Report when done: the terminal state **first**, the qualifying options, `nearMisses` if non-zero, where the
-determination and ledger are, and what was ruled out. **Nothing is staged or committed.**
+Report when done: the terminal state **first**, the qualifying options, the determination's NEAR MISSES
+section, where the determination and ledger are, and what was ruled out. **Nothing is staged or committed.**

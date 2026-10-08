@@ -79,9 +79,10 @@ lenses, then runs `decide-cycle.mjs` **by path**.
 ## Reviewing the result
 
 Under `runs/<runId>/`: the per-lens analyses (`lenses/<lens>.md`), the decider's matrix and conclusion
-(`decision-rN.md`), and the reviewer's objections each round (`decision-review-rN.md`). Read the latest
-decision file and skim the lens files to see the trade-offs that shaped it. Then build the chosen
-approach from a [`develop-cycle`](../develop/) plan file.
+(`decision-rN.md`), and the reviewer's objections each round (`decision-review-rN.md`). Since a re-run
+can leave an earlier run's files with higher round numbers in that folder, read the decision file that
+the run's result names. Also skim the lens files to see the trade-offs that shaped it. Then build the
+chosen approach from a [`develop-cycle`](../develop/) plan file.
 
 ---
 

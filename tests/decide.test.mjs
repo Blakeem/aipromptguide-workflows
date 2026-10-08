@@ -12,16 +12,16 @@ const ENGINE = 'workflows/decide/decide-cycle.mjs';
 const baseArgs = {
   runId: 't',
   root: 'E:/r',
-  requirements: '## Decision\nWhich cache layer?\n## Non-negotiables\n- no new paid dependency\n## Weighted criteria\n- latency (weight 3)',
+  planPath: 'E:/r/plans/t/requirements.md',
   lenses: ['efficiency', 'simplest'],
 };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
 const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_count: 0, gap_ids: [], needs_user: false };
+const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
 // A non-agreeing review carrying exactly the gaps it names — the shape the schema asks for.
-const gaps = (...ids) => ({ ...AGREE, agree: false, gap_count: ids.length, gap_ids: ids });
+const gaps = (...ids) => ({ ...AGREE, agree: false, gap_ids: ids });
 
 section('the reviewer agreeing ends the loop inside the round budget');
 {
@@ -45,6 +45,58 @@ section('both escalations halt on the same status, and the decider\'s runs no re
   eq(byReviewer.status, 'BLOCKED (needs user input)', 'the reviewer\'s escalation lands on the same status');
   ok(revLabels.includes('review r1'), 'but by a different route — the reviewer ran');
   ok(byReviewer.needsUserFile.endsWith('NEEDS-USER.md'), 'and names the same file');
+  // The engine keeps no state across invocations, so a relaunch restarts, and a resume replays the halt.
+  for (const halt of [out, byReviewer]) {
+    ok(/relaunch with the same args and no resumeFromRunId/.test(halt.nextStep) && /round 1 and overwrites the round files/.test(halt.nextStep),
+      `the halt relaunches with no resumeFromRunId and says it restarts: ${halt.nextStep.slice(-200)}`);
+    ok(!/to continue/.test(halt.nextStep), 'and never promises to continue the halted run');
+  }
+}
+
+section('an unattested decider or reviewer write halts, and the return names only attested files');
+// A same-runId re-run restarts at round 1, so an earlier run's file can sit at the path an unattested write names.
+{
+  const UNATTESTED = 'BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)';
+  const { out, labels } = await run({ analyst: ANALYST, decide: { ...DECIDE, wrote_file: false }, review: AGREE });
+  eq(out.status, UNATTESTED, 'an unattested decision halts on its own status');
+  ok(out.halted === true && out.agreed === false, 'reported halted, never agreed');
+  ok(!labels.some((l) => l.startsWith('review')), 'no reviewer judges a decision file nobody attested');
+  ok(/decision-r1\.md/.test(out.haltReason), `haltReason names the file: ${out.haltReason}`);
+  eq(out.decisionFile, '', 'and the return names no decision file');
+  eq(out.chosen, '', 'nor a chosen option from the unattested round');
+  eq(out.needsUserFile, '', 'nothing was escalated');
+  ok(/no resumeFromRunId: a resume replays the cached return/.test(out.nextStep), 'nextStep relaunches with no resumeFromRunId and says why');
+
+  const { out: rev, labels: revLabels } = await run({
+    analyst: ANALYST, decide: DECIDE,
+    review: (label) => (/r1$/.test(label) ? gaps('p99-unproven') : { ...gaps('p99-unproven'), wrote_file: false }),
+  }, { ...baseArgs, maxRounds: 3 });
+  eq(rev.status, UNATTESTED, 'an unattested review halts on the same status');
+  ok(!revLabels.includes('decide r3'), 'before any decider is sent to the unwritten review');
+  ok(rev.reviewFile.endsWith('decision-review-r1.md'), `the return names the last attested review: ${rev.reviewFile}`);
+  ok(rev.decisionFile.endsWith('decision-r2.md'), 'and the attested round-2 decision');
+  ok(/decision-review-r2\.md/.test(rev.haltReason), 'haltReason names the unattested review');
+  eq(rev.gapRounds.length, 1, 'the unattested review\'s gaps are never recorded');
+
+  const { out: esc } = await run({ analyst: ANALYST, decide: { ...DECIDE, wrote_file: false, needs_user: true }, review: AGREE });
+  eq(esc.status, 'BLOCKED (needs user input)', 'a decider escalation keeps its own terminal');
+  eq(esc.decisionFile, '', 'and still names no unattested decision file');
+}
+
+section('the rubric is a planPath only: an inline requirements arg throws, and every role names the file');
+{
+  const { planPath, ...noRubric } = baseArgs;
+  const PLANPATH_REQUIRED = /^args\.planPath is required/;
+  const inline = await throwsWith(ENGINE, { args: { ...noRubric, requirements: '## Decision\nWhich cache layer?' }, respond: {} });
+  ok(PLANPATH_REQUIRED.test(inline), `an inline requirements arg with no planPath throws the planPath message: ${inline.slice(0, 60)}`);
+  const neither = await throwsWith(ENGINE, { args: noRubric, respond: {} });
+  ok(PLANPATH_REQUIRED.test(neither), `no rubric at all throws the same message: ${neither.slice(0, 60)}`);
+
+  const { prompt } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
+  for (const role of ['analyst', 'decide', 'review']) {
+    ok(prompt(role).includes(`the requirements at ${planPath}`), `the ${role} prompt names the planPath`);
+    ok(!prompt(role).includes('the requirements below'), `the ${role} prompt carries no inline rubric`);
+  }
 }
 
 section('a solo agent that dies throws — it must never read as a decision nobody made');
@@ -169,21 +221,19 @@ section('every concern the reviewer writes counts, in both selections');
   }
 }
 
-section('a gap_count that contradicts the ids is logged, and garbage ids are filtered');
-// Self-contradictory, but the harm does not compound (tests/CLAUDE.md §3): the slugs drive the split and
-// the count is only printed, so this is flagged, never a halt.
+section('the gap ids are the only gap count, and garbage ids are filtered');
 {
-  const { out, logs } = await run({
-    analyst: ANALYST, decide: DECIDE,
-    review: { ...AGREE, agree: false, gap_count: 5, gap_ids: ['p99-unproven'] },
-  }, { ...baseArgs, maxRounds: 1 });
-  ok(logs.some((l) => /gap_count=5 but 1 gap id/.test(l)), 'the contradiction is flagged rather than silently reconciled');
-  eq(out.gapRounds?.[0]?.gaps, 1, 'and the ids win — they are what the split is computed from');
-  eq(out.status, 'needs-attention (no agreement within round budget)', 'the run is not halted over it');
+  const { calls, logs } = await run({ analyst: ANALYST, decide: DECIDE, review: gaps('a', 'b') }, { ...baseArgs, maxRounds: 2 });
+  ok(logs.some((l) => /r1: reviewer found 2 gap\(s\)/.test(l)), 'round 1 logs the number of ids it was given');
+  ok(logs.some((l) => /r2: 2 gap\(s\).*still open at round budget/.test(l)), 'and the last round logs it beside the round budget');
+  const review = calls.find((c) => c.label === 'review r1');
+  ok(!('gap_count' in review.opts.schema.properties) && !review.opts.schema.required.includes('gap_count'),
+    'the review schema neither has nor requires gap_count');
+  ok(!review.prompt.includes('gap_count'), 'and the review prompt never names it');
 
   const { out: junk } = await run({
     analyst: ANALYST, decide: DECIDE,
-    review: { ...AGREE, agree: false, gap_count: 3, gap_ids: ['ok-slug', '', 42, null, 'ok-slug'] },
+    review: { ...AGREE, agree: false, gap_ids: ['ok-slug', '', 42, null, 'ok-slug'] },
   }, { ...baseArgs, maxRounds: 1 });
   eq(junk.gapRounds?.[0]?.gaps, 1, 'blanks, non-strings and a slug repeated inside ONE review all collapse to the one real gap');
 
@@ -202,6 +252,9 @@ section('a dead lens analyst is recorded in the return and named in the hand-bac
   eq(JSON.stringify(out.failed), '["simplest"]', 'the dead lens is in failed');
   eq(out.lensFiles.length, 1, 'and only the surviving lens file is listed');
   ok(/left out of the decision: simplest\./.test(out.nextStep), `nextStep names the dropped lens: ${out.nextStep.slice(-120)}`);
+  // No arg selects lenses to redo, and a same-runId relaunch overwrites the decision this nextStep presents.
+  ok(/relaunch under a new runId/.test(out.nextStep), 'nextStep sends the relaunch to a new runId');
+  ok(!/Re-run them with the same runId/.test(out.nextStep), 'and never to a per-lens same-runId re-run');
 
   const { out: full } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
   eq(JSON.stringify(full.failed), '[]', 'a full run has an empty failed list');
@@ -213,7 +266,11 @@ section('a one-round stall gets no churn diagnosis: the decider never had a roun
   const { out } = await run({ analyst: ANALYST, decide: DECIDE, review: gaps('p99-unproven') }, { ...baseArgs, maxRounds: 1 });
   ok(!/UNDER-SPECIFIED/.test(out.nextStep), 'not UNDER-SPECIFIED');
   ok(!/not RESOLVING/.test(out.nextStep), 'not "not RESOLVING" either');
-  ok(/Refine the requirements and re-run, or raise maxRounds/.test(out.nextStep), 'the plain stall text remains');
+  // The two remedies need opposite cache modes: a resume never reads an edited rubric, a restart drops the finished rounds.
+  ok(/Refine the requirements, then relaunch with the same args and no resumeFromRunId/.test(out.nextStep)
+    && /a resume would replay the cached returns and never read the edit/.test(out.nextStep), 'refining relaunches with no resumeFromRunId');
+  ok(/raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId/.test(out.nextStep)
+    && /continues past round 1\./.test(out.nextStep), 'raising maxRounds resumes from cache past the finished round');
 }
 
 section('an empty ranked shortlist or a blank chosen replaces the earlier round\'s, never carries it over');
@@ -241,9 +298,6 @@ section('an agree that lists open gaps is flagged, not trusted silently');
   ok(logs.some((l) => /reviewer AGREES but lists 1 open gap\(s\) — self-contradictory; audit .*decision-review-r1\.md/.test(l)), 'the contradiction is logged');
   eq(out.contradicted, true, 'and returned');
   ok(/^The reviewer agreed while listing open gaps: audit .*decision-review-r1\.md before presenting\./.test(out.nextStep), 'nextStep leads with the audit');
-
-  const { out: count } = await run({ analyst: ANALYST, decide: DECIDE, review: { ...AGREE, gap_count: 2 } });
-  eq(count.contradicted, true, 'a positive gap_count with no ids is the same contradiction');
 
   const { out: clean } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
   eq(clean.contradicted, false, 'a clean agree is not flagged');

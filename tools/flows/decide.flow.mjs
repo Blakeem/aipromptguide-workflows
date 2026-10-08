@@ -2,24 +2,23 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs decide`; `--check` fails the gate while FLOW.md is stale.
 //
-// Coverage aimed at here: all three terminal states, the agree-gate ending the loop versus a review that
+// Coverage aimed at here: all four terminal states, the agree-gate ending the loop versus a review that
 // buys another round, BOTH needs-user escalations (the decider's and the reviewer's — two separate exits
-// landing on ONE status string, so terminal coverage alone leaves half the engine undrawn), a PARTIAL
+// landing on ONE status string, so terminal coverage alone leaves half the engine undrawn), BOTH
+// unattested-write halts (the decider's and the reviewer's, for the same reason), a PARTIAL
 // analyst failure the run survives on the remaining lenses, and each of the ten throw sites.
 
 const base = {
   runId: 'flow',
   root: 'E:/flow',
-  requirements: '## Decision\nWhich cache layer?\n## Non-negotiables\n- no new paid dependency\n## Weighted criteria\n- latency (weight 3)',
+  planPath: 'E:/flow/plans/flow/requirements.md',
   lenses: ['efficiency', 'simplest', 'robustness'],
 };
 
 const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
 const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_count: 0, gap_ids: [], needs_user: false };
-// The ids must MATCH gap_count: a review returning a count with no slugs behind it is self-contradictory,
-// and the engine logs a ⚠ for it — in two scenarios here, over a return that is meant to be well-formed.
-const GAPS    = { ...AGREE, agree: false, gap_count: 2, gap_ids: ['slug-a', 'slug-b'] };
+const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
+const GAPS    = { ...AGREE, agree: false, gap_ids: ['slug-a', 'slug-b'] };
 
 export default {
   engine: 'workflows/decide/decide-cycle.mjs',
@@ -53,6 +52,19 @@ export default {
       when: 'the reviewer finds a requirement contradiction',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: { ...GAPS, needs_user: true } },
+    },
+    {
+      // One terminal, two writers: each halt names a different file, so each needs its own edge.
+      name: 'decider does not attest its file',
+      when: 'the decider does not confirm writing its decision file',
+      args: base,
+      respond: { analyst: ANALYST, decide: { ...DECIDE, wrote_file: false }, review: AGREE },
+    },
+    {
+      name: 'reviewer does not attest its file',
+      when: 'the reviewer does not confirm writing its review file',
+      args: base,
+      respond: { analyst: ANALYST, decide: DECIDE, review: { ...GAPS, wrote_file: false } },
     },
 
     // ---- survivable failure ---------------------------------------------------------------------
@@ -93,7 +105,7 @@ export default {
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'bad selection', when: 'selection is neither single nor ranked', args: { runId: 'flow', root: 'E:/flow', selection: 'best' } },
-    { name: 'no requirements', when: 'neither requirements nor planPath', args: { runId: 'flow', root: 'E:/flow' } },
+    { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'one lens only', when: 'fewer than two lenses', args: { ...base, lenses: ['efficiency'] } },
     { name: 'colliding lens ids', when: 'two lenses slug to one file', args: { ...base, lenses: ['Fast path', 'fast-path'] } },
   ],

@@ -6,19 +6,21 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| criteria-critic | 1 | 1 | 1311 | refine the criteria |
-| investigate | 1 | 1 | 6004 | exhaustion agreed |
-| critique | 1 | 1 | 5195 | exhaustion agreed |
-| critique | 2 | 1 | 5208 | no solution verified |
-| investigate | 2 | 1 | 7088 | exhaustion contested |
-| investigate | 3 | 1 | 7453 | exhaustion contested |
-| critique | 3 | 1 | 5503 | saturation agreed |
-| critique | 4 | 1 | 3987 | stalled |
-| investigate | 4 | 1 | 7215 | resumed quiet first round |
-| investigate | 5 | 1 | 6891 | quiet rounds |
-| investigate | 6 | 1 | 7256 | quiet rounds |
-| critique | 5 | 1 | 4631 | quiet rounds |
-| critique | 6 | 1 | 3974 | investigator escalates |
+| criteria-critic | 1 | 1 | 1297 | refine the criteria |
+| investigate | 1 | 1 | 6102 | exhaustion agreed |
+| critique | 1 | 1 | 5329 | exhaustion agreed |
+| critique | 2 | 1 | 5342 | no solution verified |
+| investigate | 2 | 1 | 7149 | exhaustion contested |
+| investigate | 3 | 1 | 7514 | exhaustion contested |
+| critique | 3 | 1 | 5637 | saturation agreed |
+| critique | 4 | 1 | 3918 | stalled |
+| investigate | 4 | 1 | 7498 | resumed quiet first round |
+| critique | 5 | 1 | 4150 | resumed quiet first round |
+| investigate | 5 | 1 | 6952 | quiet rounds |
+| investigate | 6 | 1 | 7317 | quiet rounds |
+| critique | 6 | 1 | 4741 | quiet rounds |
+| critique | 7 | 1 | 5561 | resumed search |
+| critique | 8 | 1 | 3905 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -29,13 +31,7 @@ this file is stale.
 You are an INDEPENDENT CRITERIA CRITIC (read-only). A search is about to be judged ENTIRELY against these
 criteria. Find what would make that judgement impossible or wrong, not what would make the criteria
 prettier. An empty result is a GOOD outcome.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -137,13 +133,7 @@ Return via the schema.
 You are the INVESTIGATOR (round 1 of at most 5). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -183,11 +173,13 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -219,14 +211,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -234,17 +223,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -260,28 +248,19 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
-    },
-    "option_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }
@@ -296,13 +275,7 @@ Return via the schema, option_ids included.
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, and above all a claim that the search is finished when an avenue is still open. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -322,7 +295,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -335,15 +308,17 @@ CHECK:
    Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
    qualifier, and CITE it: the source plus the exact locator, and which criterion or search-space bound
-   that source puts back in play. An UNCITED contest is not a contest. Set contests_exhaustion=true only
+   that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
 6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
    ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
    Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
-   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
+   appended to the ledger this round: the investigator wrote the determination before you appended, so
+   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
+   round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
@@ -365,9 +340,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -399,17 +372,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",
@@ -440,13 +405,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, and above all a claim that the search is finished when an avenue is still open. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -466,7 +425,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -479,15 +438,17 @@ CHECK:
    Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
    Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
    qualifier, and CITE it: the source plus the exact locator, and which criterion or search-space bound
-   that source puts back in play. An UNCITED contest is not a contest. Set contests_exhaustion=true only
+   that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
    with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
    and cannot: agreeing asserts nothing else is there.
 6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
    ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
    Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
-   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
+   appended to the ledger this round: the investigator wrote the determination before you appended, so
+   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
+   round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
@@ -509,9 +470,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -543,17 +502,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",
@@ -584,13 +535,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 You are the INVESTIGATOR (round 2 of at most 5). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -633,19 +578,21 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
      avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
-     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
-     claim that and leave saturated false: never both.
+     claim that.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -677,14 +624,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -692,17 +636,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -718,28 +661,19 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
-    },
-    "option_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }
@@ -754,13 +688,7 @@ Return via the schema, option_ids included.
 You are the INVESTIGATOR (round 5 of at most 5). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -803,19 +731,21 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
      avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
-     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
-     claim that and leave saturated false: never both.
+     claim that.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -850,14 +780,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -865,17 +792,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -891,28 +817,19 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
-    },
-    "option_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }
@@ -927,13 +844,7 @@ Return via the schema, option_ids included.
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, and above all a claim that the search has run dry when a promising avenue is still open. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -953,7 +864,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -969,15 +880,17 @@ CHECK:
    obvious phrasing never tried, last round's r<N> NEXT: avenue never swept?
    Contest it exactly ONE way: name an unswept avenue that is CITED (the source plus the exact locator),
    CONNECTED to a criterion or a search-space bound, and plausibly worth a whole round.
-   An UNCITED contest is not a contest. Set contests_saturation=true only with that citation written into
+   An UNCITED contest is not a contest. Set contests_claim=true only with that citation written into
    your review file. Set agree=true to accept the stop: the run reports an OPEN, STOPPED search, never an
    exhaustive one.
 6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
    ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
    Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
-   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
+   appended to the ledger this round: the investigator wrote the determination before you appended, so
+   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
+   round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
@@ -999,9 +912,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -1033,17 +944,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",
@@ -1074,13 +977,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, a candidate promoted on assertion rather than evidence. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -1100,7 +997,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -1109,8 +1006,7 @@ CHECK:
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
-5. No termination was claimed this round: leave agree, contests_exhaustion and contests_saturation
-   false.
+5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
@@ -1133,9 +1029,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -1167,17 +1061,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",
@@ -1208,19 +1094,15 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 You are the INVESTIGATOR (round 3 of at most 7). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
-    re-opens it. Do NOT re-walk an avenue it closes.
+    re-opens it. Do NOT re-walk an avenue it closes. This search resumes after round 2, and the criteria
+    may have changed since: a line whose named failing criterion no longer disqualifies the candidate as
+    the criteria read now is OPEN, so re-propose that candidate.
   • E:/flow/runs/flow/SEARCHED.md — every AVENUE already swept, with its terms and yield. Do not re-run a search recorded
     here with the same terms. Pick up from its last `NEXT:` line, or say what you are doing differently.
   • E:/flow/runs/flow/options/ — one file per option written so far. A critic records its verdict as a file's FIRST
@@ -1258,19 +1140,21 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
      avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
-     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
-     claim that and leave saturated false: never both.
+     claim that.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -1302,14 +1186,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -1317,17 +1198,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -1343,28 +1223,138 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
+    }
+  }
+}
+~~~~
+
+## critique · variant 5 · schema 1
+
+`critique r3` in "resumed quiet first round"
+
+~~~~text
+
+You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
+misses a criterion, a citation that does not say what it is cited for, a candidate promoted on assertion rather than evidence. Uphold an option only when you
+genuinely cannot break it.
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
+EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
+"close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
+passage/locator that supports it. An uncited claim is not evidence.
+THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
+  (the investigator named no new option this round)
+Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
+criteria as they read now, because the criteria may have changed since an earlier run judged it.
+THE VERDICT LINE — make it the FIRST line of each option file you judge, replacing any verdict line there,
+exactly `verdict: upheld r3` or `verdict: disqualified r3`.
+THE LEDGER (read it, then APPEND to it, never rewrite it): E:/flow/runs/flow/DISQUALIFIED.md
+THE AVENUE LOG (the investigator's record of the GROUND it swept, the terms it used, and what it says is
+left. Read it before you judge any coverage claim. Do not write to it): E:/flow/runs/flow/SEARCHED.md
+
+CHECK:
+1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
+   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
+   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
+   from it. A citation that does not check out fails the criterion it was offered for, so an option
+   standing on one is disqualified, not merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
+   your review file (the next investigator reads it). Count them in reopened.
+   This search resumes after round 2, and the criteria may have changed since. So read EVERY
+   line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
+   disqualifies the candidate as the criteria read now, and count each in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
+   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
+   should carry the marker and does not.
+5. No termination was claimed this round: leave agree and contests_claim false.
+6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
+   on disk: it is not this round's output. Set determination_defects to 0.
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
+claim: the avenue still open WITH its citation, or that the claim holds.
+Do NOT modify any repo, stage, or commit.
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
+needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
+no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
+does not state.
+Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/runs/flow/options/ whose first line reads
+`verdict: upheld` once your own writes are done, earlier rounds and earlier runs included.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "upheld",
+    "verified_ids",
+    "disqualified",
+    "contests_claim",
+    "agree",
+    "needs_user",
+    "determination_defects",
+    "reopened"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your round review file"
     },
-    "option_ids": {
+    "upheld": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
+      "description": "ids of THIS round's new options that survive your verification — every criterion met, every citation checked out. verified_ids carries the full upheld set"
+    },
+    "verified_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every file in options/ whose first line reads \"verdict: upheld\" once your own verdict writes are done, earlier rounds and earlier runs included"
+    },
+    "disqualified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
+    },
+    "contests_claim": {
+      "type": "boolean",
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true if you accept this round's termination claim (step 5)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
     }
   }
 }
@@ -1379,13 +1369,7 @@ Return via the schema, option_ids included.
 You are the INVESTIGATOR (round 3 of at most 5). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -1426,19 +1410,21 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
      avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
-     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
-     claim that and leave saturated false: never both.
+     claim that.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -1470,14 +1456,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -1485,17 +1468,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -1511,28 +1493,19 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
-    },
-    "option_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }
@@ -1547,13 +1520,7 @@ Return via the schema, option_ids included.
 You are the INVESTIGATOR (round 5 of at most 5). Find an answer that ALREADY EXISTS and
 meets every criterion. You are SEARCHING, not designing: prefer what is documented, shipped and citable
 over anything you could invent.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -1594,19 +1561,21 @@ PROCEDURE:
    `confidence: none` means NO unswept avenue remains. That is step 7's exhaustion claim, so write it
    only with the evidence step 7 demands. Return the same value as next_avenue_confidence.
    Append only: never rewrite, reorder or prune it.
-7. TERMINATION — claim it only when you can EVIDENCE it. The critic will attack the evidence.
+7. TERMINATION — claim it only when you can EVIDENCE it, and return it in claim (none when you claim
+   nothing). The critic will attack the evidence.
    • exhausted = the search space is closed, evidenced in the COVERAGE section of step 8. "I did not find
-     more" is not exhaustion.
+     more" is not exhaustion. Return claim=exhausted.
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
-     stronger fact than finding none. Say which criterion every candidate died on.
+     stronger fact than finding none. Say which criterion every candidate died on. Return
+     claim=no_solution.
    • saturated = DIMINISHING RETURNS. CHECK FOR it every round: before you finish, weigh what THIS round
      genuinely added against the r<N> trajectory in E:/flow/runs/flow/SEARCHED.md. Claim it when this round added nothing
      genuinely new, OR its yield collapsed to well under half the best round so far AND the best unswept
      avenue is at most `medium` confidence. The claim TERMINATES this round: write E:/flow/runs/flow/DETERMINATION.md,
      OPEN it with the words "stopped on saturation — the search is OPEN, not closed", give it the WHERE
-     NEXT section, and return saturated=true. It is the WEAKEST claim: another round is not worth its
+     NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
-     claim that and leave saturated false: never both.
+     claim that.
 8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
@@ -1641,14 +1610,11 @@ Return via the schema, option_ids included.
   "type": "object",
   "required": [
     "wrote_files",
-    "new_options",
+    "option_ids",
     "disqualified_added",
-    "near_misses",
     "rediscovered",
     "next_avenue_confidence",
-    "exhausted",
-    "no_solution",
-    "saturated",
+    "claim",
     "needs_user"
   ],
   "properties": {
@@ -1656,17 +1622,16 @@ Return via the schema, option_ids included.
       "type": "boolean",
       "description": "true if you wrote every file steps 4 to 8 call for this round"
     },
-    "new_options": {
-      "type": "integer",
-      "description": "QUALIFYING options you wrote to options/ THIS round (0 is a legitimate round)"
+    "option_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the ids of the options you wrote to options/ THIS round, re-proposals included (file names, not content). [] is a legitimate round"
     },
     "disqualified_added": {
       "type": "integer",
       "description": "candidates you appended to the DISQUALIFIED ledger this round"
-    },
-    "near_misses": {
-      "type": "integer",
-      "description": "of those, how many you marked NEAR-MISS: (never more than disqualified_added)"
     },
     "rediscovered": {
       "type": "integer",
@@ -1682,34 +1647,25 @@ Return via the schema, option_ids included.
       ],
       "description": "the confidence on this round's r<N> NEXT: line (step 6)"
     },
-    "exhausted": {
-      "type": "boolean",
-      "description": "true if you claim the search space is closed (step 7)"
-    },
-    "no_solution": {
-      "type": "boolean",
-      "description": "true if you claim no candidate can meet the criteria (step 7)"
-    },
-    "saturated": {
-      "type": "boolean",
-      "description": "leave false unless you claim saturation (step 7)"
+    "claim": {
+      "type": "string",
+      "enum": [
+        "none",
+        "exhausted",
+        "no_solution",
+        "saturated"
+      ],
+      "description": "this round's termination claim (step 7): none unless you can evidence one"
     },
     "needs_user": {
       "type": "boolean",
       "description": "true ONLY if a criteria contradiction or a user-only call blocks you before you can claim anything; you wrote a full entry to NEEDS-USER.md and cannot proceed. A no_solution claim resting on a contradiction is not one: leave this false"
-    },
-    "option_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "the ids of the options you wrote THIS round (file names, not content) — the critic verifies exactly these"
     }
   }
 }
 ~~~~
 
-## critique · variant 5 · schema 1
+## critique · variant 6 · schema 1
 
 `critique r5` in "quiet rounds"
 
@@ -1718,13 +1674,7 @@ Return via the schema, option_ids included.
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, a candidate promoted on assertion rather than evidence. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -1744,7 +1694,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -1753,14 +1703,15 @@ CHECK:
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
-5. No termination was claimed this round: leave agree, contests_exhaustion and contests_saturation
-   false.
+5. No termination was claimed this round: leave agree and contests_claim false.
 6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
    ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
    Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
    COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
-   not match the marked ledger lines, or read as answers. On any STOPPED result (a saturation, a
-   no_solution, or a partial last round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
+   appended to the ledger this round: the investigator wrote the determination before you appended, so
+   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
+   round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
 WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
@@ -1782,9 +1733,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -1816,17 +1765,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",
@@ -1848,7 +1789,139 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 }
 ~~~~
 
-## critique · variant 6 · schema 1
+## critique · variant 7 · schema 1
+
+`critique r3` in "resumed search"
+
+~~~~text
+
+You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
+misses a criterion, a citation that does not say what it is cited for, and above all a claim that the search is finished when an avenue is still open. Uphold an option only when you
+genuinely cannot break it.
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
+EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
+"close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
+passage/locator that supports it. An uncited claim is not evidence.
+THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
+  - E:/flow/runs/flow/options/opt-a.md
+Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
+criteria as they read now, because the criteria may have changed since an earlier run judged it.
+THE VERDICT LINE — make it the FIRST line of each option file you judge, replacing any verdict line there,
+exactly `verdict: upheld r3` or `verdict: disqualified r3`.
+THE LEDGER (read it, then APPEND to it, never rewrite it): E:/flow/runs/flow/DISQUALIFIED.md
+THE AVENUE LOG (the investigator's record of the GROUND it swept, the terms it used, and what it says is
+left. Read it before you judge any coverage claim. Do not write to it): E:/flow/runs/flow/SEARCHED.md
+
+CHECK:
+1. Each option you judge against EVERY criterion. On a miss, append its line to E:/flow/runs/flow/DISQUALIFIED.md
+   (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
+   and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
+   this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
+2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
+   from it. A citation that does not check out fails the criterion it was offered for, so an option
+   standing on one is disqualified, not merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
+   your review file (the next investigator reads it). Count them in reopened.
+   This search resumes after round 2, and the criteria may have changed since. So read EVERY
+   line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
+   disqualifies the candidate as the criteria read now, and count each in reopened.
+4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
+   criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
+   should carry the marker and does not.
+5. ATTACK THE COVERAGE CLAIM, the check that matters most. The investigator says the search is closed.
+   Check that first against E:/flow/runs/flow/SEARCHED.md, its record of the ground swept.
+   Name ONE avenue, source, phrasing or adjacent domain it did not sweep that could plausibly hold a
+   qualifier, and CITE it: the source plus the exact locator, and which criterion or search-space bound
+   that source puts back in play. An UNCITED contest is not a contest. Set contests_claim=true only
+   with that citation written into your review file. Set agree=true ONLY when you have genuinely tried
+   and cannot: agreeing asserts nothing else is there.
+6. THE DETERMINATION (E:/flow/runs/flow/DETERMINATION.md), the run's product file. Read it for these defects. Its
+   ANSWER links an option whose file, after your own verdict writes, does not read `verdict: upheld`.
+   Its ANSWER omits an option whose file reads `verdict: upheld` after your verdict writes. Its
+   COMPARISON tables the criteria every qualifier passes instead of the axes they DIFFER on. Its WHICH TO PICK WHEN smuggles in a ranking (the options are unranked). Its NEAR MISSES do
+   not match the marked ledger lines, or read as answers. Its NEAR MISSES lack a `NEAR-MISS:` line you
+   appended to the ledger this round: the investigator wrote the determination before you appended, so
+   each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
+   round), its WHERE NEXT is missing or empty. This does NOT change agree.
+   Write each defect in your review file and count them in determination_defects.
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
+claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
+Do NOT modify any repo, stage, or commit.
+If a criteria contradiction only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set
+needs_user=true. The exception is a contradiction this round's termination claim already rests on (a
+no_solution): judge that claim through agree, and set needs_user=true only for a contradiction the claim
+does not state.
+Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/runs/flow/options/ whose first line reads
+`verdict: upheld` once your own writes are done, earlier rounds and earlier runs included.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "upheld",
+    "verified_ids",
+    "disqualified",
+    "contests_claim",
+    "agree",
+    "needs_user",
+    "determination_defects",
+    "reopened"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote your round review file"
+    },
+    "upheld": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ids of THIS round's new options that survive your verification — every criterion met, every citation checked out. verified_ids carries the full upheld set"
+    },
+    "verified_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every file in options/ whose first line reads \"verdict: upheld\" once your own verdict writes are done, earlier rounds and earlier runs included"
+    },
+    "disqualified": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
+    },
+    "contests_claim": {
+      "type": "boolean",
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true if you accept this round's termination claim (step 5)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a criteria contradiction only the USER can resolve that this round's termination claim does not state; you wrote it to NEEDS-USER.md. A contradiction the claim rests on is judged through agree"
+    },
+    "determination_defects": {
+      "type": "integer",
+      "description": "defects you found in the determination under step 6 and wrote in your review file. 0 when none, or when no determination was due. They never change agree"
+    },
+    "reopened": {
+      "type": "integer",
+      "description": "ledger candidates you flagged for re-opening under step 3, 0 if none"
+    }
+  }
+}
+~~~~
+
+## critique · variant 8 · schema 1
 
 `critique r1` in "investigator escalates"
 
@@ -1857,13 +1930,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
 You are the ACCEPTANCE CRITIC, adversarial and non-blind. Try to BREAK this round's result: an option that
 misses a criterion, a citation that does not say what it is cited for, a candidate promoted on assertion rather than evidence. Uphold an option only when you
 genuinely cannot break it.
-THE QUESTION + CRITERIA: the criteria below:
------
-## Question
-Which library qualifies?
-## Acceptance Criteria
-- runs on Node 24
------
+THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
 passage/locator that supports it. An uncited claim is not evidence.
@@ -1883,7 +1950,7 @@ CHECK:
    (`<candidate> — FAILS <criterion> — <≤15-word why> — <source>`), write its disqualified verdict line,
    and list its id in disqualified. Give each option you could not break its upheld verdict line, and list
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
-   prefix it `NEAR-MISS: `, give the shortfall in numbers, and count it in near_misses.
+   prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
    from it. A citation that does not check out fails the criterion it was offered for, so an option
    standing on one is disqualified, not merely flagged.
@@ -1892,8 +1959,7 @@ CHECK:
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
-5. No termination was claimed this round: leave agree, contests_exhaustion and contests_saturation
-   false.
+5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
 WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
@@ -1916,9 +1982,7 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
     "upheld",
     "verified_ids",
     "disqualified",
-    "near_misses",
-    "contests_exhaustion",
-    "contests_saturation",
+    "contests_claim",
     "agree",
     "needs_user",
     "determination_defects",
@@ -1950,17 +2014,9 @@ Return via the schema. Its verified_ids lists the id of EVERY file in E:/flow/ru
       },
       "description": "ids you knocked out; you appended a ledger line for each, naming the criterion it fails. An id listed here is dropped from the answer set even if an earlier round upheld it"
     },
-    "near_misses": {
-      "type": "integer",
-      "description": "of the lines YOU appended, how many you marked NEAR-MISS: (0 if you appended none)"
-    },
-    "contests_exhaustion": {
+    "contests_claim": {
       "type": "boolean",
-      "description": "true if you contest the exhaustion or no-solution claim with a cited avenue (step 5)"
-    },
-    "contests_saturation": {
-      "type": "boolean",
-      "description": "true if you contest the saturation claim with a cited avenue (step 5)"
+      "description": "true if you contest THIS round's termination claim with a cited avenue (step 5)"
     },
     "agree": {
       "type": "boolean",

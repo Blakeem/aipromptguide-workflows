@@ -48,7 +48,7 @@ No mid-run questions — settle the rubric with the user first:
    lenses surface distinct options; that spread is what the decider then balances.
 4. **Run** the engine (`planPath` = the plan-mode file's **absolute** path, plus `lenses`). It diverges
    (analysts) then converges (decider ⇄ reviewer) and returns the chosen conclusion + the file trail.
-5. **Present** the conclusion: relay the latest `decision-rN.md` (matrix + rationale + why-not-others)
+5. **Present** the conclusion: relay the return's `decisionFile` (matrix + rationale + why-not-others)
    and let the user read each `lenses/<lens>.md` to see the source perspectives. To build it, author a
    plan file from the chosen approach for `develop-cycle`. In `ranked` mode there is deliberately **no winner**: relay the
    shortlist (what each option buys/costs + the combine-vs-exclusive section) and let the user pick or
@@ -58,7 +58,8 @@ No mid-run questions — settle the rubric with the user first:
 
 - **`root` — REQUIRED:** the absolute base run-state hangs off (this checkout — or, from the installed
   aipg plugin, the persistent data dir the skill resolves, never the version-swapped install dir).
-- **`requirements` (inline) OR `planPath` — one REQUIRED.** The rubric (§4).
+- **`planPath` REQUIRED:** the absolute path to the rubric file (§4). There is no inline `requirements`
+  arg. A rubric written without plan mode goes to `plans/<runId>/` under `root` first.
 - **`lenses` — REQUIRED:** the perspectives from §2 (strings or `{ id, focus }`); ids that collide after
   slugging throw, since two analysts would write the same `lenses/<lens>.md`.
 - **`target.repo` (optional):** pass it for a decision about existing code — all three roles (analysts,
@@ -69,8 +70,13 @@ No mid-run questions — settle the rubric with the user first:
   read-only by construction (e.g. `sqlite3 "file:path.db?mode=ro"`, or a copy), and **pre-allowlist the
   commands** in the target project's settings — a background run can't answer permission prompts
   unattended.
-- **Fresh vs. resume.** `NEEDS-USER.md` is cumulative. A re-run with the same `runId` overwrites the
-  round files; clear `runs/<runId>/` for a genuinely fresh decision, preserve it on resume.
+- **Fresh vs. resume.** The engine keeps no state across invocations. A same-runId relaunch with no
+  `resumeFromRunId` re-runs the run from Diverge and round 1. It overwrites the lens files and the round
+  files it reaches, and it leaves an earlier run's higher-numbered round files in place. Extending
+  finished rounds is a relaunch with `maxRounds` raised plus the Workflow tool's `resumeFromRunId`, which
+  replays the finished agents from cache. Starting over takes a new runId, so the earlier run's files
+  stay intact. Never clear `runs/<runId>/`. `NEEDS-USER.md` is cumulative. Relay the return's
+  `decisionFile`, never the highest-numbered file.
 
 ## 4. Requirements-file shape (you write it; agents read it VERBATIM, #2)
 
@@ -144,15 +150,27 @@ the decider that one file's path next round; the decider revises rather than res
 - **No code, no git.** Decide produces files only; it never stages or commits. The conclusion feeds
   a plan file's design section, which `develop-cycle` builds next.
 - **Thin returns (#8).** Schemas carry only `chosen` / `meets_all_requirements` / `agree` / counts, a
-  `wrote_file` write confirmation per role (unconfirmed ⇒ a `⚠` in the log, never a halt — open that
-  file before relaying it) — plus, in `ranked` mode, the shortlist **index** (rank + title +
-  `combines_with`/`excludes`); the matrices, buys/costs, and reasoning live in the files.
+  `wrote_file` write confirmation per role — plus, in `ranked` mode, the shortlist **index** (rank + title +
+  `combines_with`/`excludes`); the matrices, buys/costs, and reasoning live in the files. An analyst
+  whose `wrote_file` is not true is dropped: a `✗` in the log, listed in `failed`, left out of the
+  decision, and the run throws when no analyst confirms (§7). An unconfirmed decider or reviewer write
+  halts the run on `BLOCKED (an agent did not confirm writing its file ...)` (§7), unless that agent
+  escalated, because the next agent and the return would otherwise name a path a stale file can hold.
 
 ## 7. Resume
 
-Halts only when the decider or reviewer writes a user-only call to `NEEDS-USER.md`. Resume: read it,
-resolve with the user (usually by editing the requirements file), preserve `runs/<runId>/`, re-invoke
-with the same args.
+Two halts. The decider or reviewer writes a user-only call to `NEEDS-USER.md`
+(`BLOCKED (needs user input)`), or it does not confirm writing its file (`BLOCKED (an agent did not
+confirm writing its file ...)`). For an escalation, read `NEEDS-USER.md`, resolve it with the user
+(usually by editing the requirements file), then relaunch with the same args and no `resumeFromRunId`.
+A `resumeFromRunId` replay sends the same prompts, which name the requirements file by path, so it
+replays the cached returns and halts the same way. The relaunch re-runs the run from Diverge and round 1
+(§3). For an unattested write, check the file `haltReason` names, then relaunch the same way: a resume
+replays the cached return and halts the same way.
+
+A `needs-attention` run takes one of two relaunches. After refining the requirements, relaunch with the
+same args and no `resumeFromRunId`, since a resume would never read the edit. After raising `maxRounds`,
+relaunch with `resumeFromRunId`, so the finished rounds replay from cache and the loop continues past them.
 
 The run can also stop by **throwing**. If no analyst produced a lens file, check the requirements and
 lenses and re-run without `resumeFromRunId`. If the decider or reviewer returned nothing (agent skipped
@@ -163,8 +181,7 @@ replay completed agents from cache, as the thrown message says.
 
 Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` inline.
 - **Required:** `runId` · `root` (§3) · `lenses` (array of ≥2 perspectives, distinct ids — both
-  enforced) · `requirements`
-  (inline) **or** `planPath` (absolute path to the rubric file).
+  enforced) · `planPath` (absolute path to the rubric file).
 - **Optional:** `selection` (`"single"` default | `"ranked"` — §1/§6; anything else throws) ·
   `shortlist` (ranked only: how many options to carry, default 5; **throws** below 2 or non-numeric) ·
   `context` (extra framing / domain facts) · `testbed` (how to empirically test claims —
@@ -182,11 +199,14 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
 - `decision-review-rN.md` — the adversarial reviewer's gaps (or agreement) for round N.
 - `NEEDS-USER.md` — user-only escalations; a hard blocker here halted the run.
 
-Report when done: status (agreed / needs-attention / blocked), the chosen conclusion, where the matrix
-is (`decisionFile`), the lens files for the user to inspect, and every lens in `failed`. The return
-carries the paths (`decisionFile` / `reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`),
-the lenses whose analyst wrote no lens file and so were left out of the decision (`failed`), the
-per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured fields.
+Report when done: status (agreed / needs-attention / blocked on `NEEDS-USER.md` / blocked on an
+unattested write, §7), the chosen conclusion, where the matrix is (`decisionFile`), the lens files for
+the user to inspect, and every lens in `failed`. The return carries the paths (`decisionFile` /
+`reviewFile` / `needsUserFile`), each lens's top pick (`lensPicks`), the lenses whose analyst did not
+confirm writing a lens file (a file may still exist on disk) and so were left out of the decision
+(`failed`), the per-round gap split (`gapRounds`, §6), two agreement flags and `selection` as structured
+fields. `decisionFile` and `reviewFile` name only files whose writer attested, so after a halt either can
+be empty or name an earlier round. A halt also returns its `haltReason`.
 `contradicted` is true when the reviewer agreed while listing open gaps. `meetsAllRequirements` is false
 when the latest decider reported that its conclusion, or a shortlisted option, misses a requirement. An
 agreed run with either flag raised still ends `decided`, and its hand-back names the file to audit before

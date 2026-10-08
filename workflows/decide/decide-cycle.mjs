@@ -27,7 +27,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, lenses, requirements|planPath }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, lenses, planPath }; got typeof=' + (typeof args));
 }
 if (!A.root) {
   throw new Error('args.root is required: pass the ABSOLUTE path the run-state should hang off (normally this workflow tool\'s own directory).');
@@ -86,13 +86,12 @@ const NEEDS_USER  = `${STATE_DIR}/NEEDS-USER.md`;          // user-only escalati
 
 // Requirements: the FIXED rubric — non-negotiable constraints + weighted criteria — read verbatim
 // (#2/#11) by the analysts, the decider, AND the reviewer. The single source of truth that makes the
-// loop converge. Either a plan-mode file (planPath) or an inline string.
-const PLAN_PATH   = A.planPath ? abs(A.planPath) : '';
-const REQ         = (!PLAN_PATH && A.requirements) ? String(A.requirements) : '';
-if (!PLAN_PATH && !REQ) {
-  throw new Error('Provide the requirements (the rubric both the decider and reviewer judge against): either planPath (a plan-mode file) or requirements (an inline string with the non-negotiable constraints + weighted criteria + the decision to be made).');
+// loop converge. It lives in a file (planPath).
+if (typeof A.planPath !== 'string' || !A.planPath.trim()) {
+  throw new Error('args.planPath is required: pass the ABSOLUTE path to the requirements FILE (the rubric both the decider and reviewer judge against). There is no inline `requirements` arg. A rubric written without plan mode goes to plans/<runId>/ under root first.');
 }
-const REQ_REF     = PLAN_PATH ? `the requirements at ${PLAN_PATH} (read them verbatim: the fixed rubric)` : `the requirements below:\n-----\n${REQ}\n-----`;
+const PLAN_PATH   = abs(A.planPath);
+const REQ_REF     = `the requirements at ${PLAN_PATH} (read them verbatim: the fixed rubric)`;
 
 // Lenses — the evaluation perspectives. Each becomes ONE analyst → ONE file. Accept strings or {id, focus}.
 const LENSES = (Array.isArray(A.lenses) ? A.lenses : []).map((l, i) => {
@@ -150,11 +149,10 @@ const DECIDE_SCHEMA = {
 
 const REVIEW_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'agree', 'gap_count', 'gap_ids', 'needs_user'],
+  required: ['wrote_file', 'agree', 'gap_ids', 'needs_user'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true if you wrote the review file' },
     agree:      { type: 'boolean', description: 'true ONLY if your CHECK found no gap: every requirement met, matrix sound' },
-    gap_count:  { type: 'integer', description: 'number of gaps/objections written to the review file (0 when you agree)' },
     gap_ids:    { type: 'array', items: { type: 'string' }, description: 'one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. "p99-unproven", "lru-citation-stretched"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap' },
     needs_user: { type: 'boolean', description: 'true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md' },
   },
@@ -265,7 +263,7 @@ WRITE ${decisionReviewFile(round)} (create ${STATE_DIR}/ if needed): each gap/ob
 requirement or lens evidence it rests on, or, if sound, ${RANKED
     ? '"Shortlist holds: every listed option meets the non-negotiables, the order is supported, and the combine/exclude claims check out."'
     : '"Conclusion holds: every requirement met, matrix sound."'}
-A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
 agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
 the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
 or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
@@ -299,9 +297,11 @@ for (const id of failed) log(`  ✗ ${id}: no lens file (analyst failed/skipped)
 // =============================================================================
 // CONVERGE — decider ⇄ non-blind reviewer, until they agree or the round budget is spent.
 // =============================================================================
-let round = 0, agreed = false, halted = false, haltReason = '';
+let round = 0, agreed = false, haltReason = '';
+let haltKind = '';              // '' (not halted) | 'needs-user' | 'write-unattested'
 let reviewPath = '';            // latest review the decider must address (control: a path only)
-let lastReviewFile = '';        // latest review written, agreeing or not (surfaced in the return)
+let lastReviewFile = '';        // latest review whose writer attested it, agreeing or not (surfaced in the return)
+let lastDecisionFile = '';      // latest decision whose writer attested it: a same-runId re-run can leave stale ones
 let lastChosen = '';
 let lastShortlist = [];         // ranked mode: the ordered index the decider returned (reasoning is in the file)
 let lastMeetsAll = false;       // the decider's own rubric attestation for the latest decision file
@@ -325,16 +325,24 @@ while (round < MAX_ROUNDS) {
     schema: DECIDE_SCHEMA, phase: 'Decide', label: `decide r${round}`,
   }));
   if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
-  if (dec.wrote_file !== true) log(`  ⚠ r${round}: decider did NOT confirm writing ${decisionFile(round)} — check it before relaying`);
-  // Per round, no carry-over: an empty shortlist is a valid ranked return and must not pair an older
-  // round's options with this round's decision file.
-  lastChosen = typeof dec.chosen === 'string' ? dec.chosen : '';
-  if (RANKED) {
-    lastShortlist = Array.isArray(dec.shortlist) ? [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)) : [];
+  // The reviewer and the return would name this path, and a same-runId re-run can leave a stale file there.
+  if (dec.wrote_file !== true && dec.needs_user !== true) {
+    haltKind = 'write-unattested'; haltReason = `The decider did not confirm writing ${decisionFile(round)} in round ${round}.`;
+    log(`  ✋ r${round}: decider did NOT confirm writing ${decisionFile(round)} → halting before the reviewer`);
+    break;
   }
-  lastMeetsAll = dec.meets_all_requirements === true;
+  // Per round, no carry-over: an empty shortlist is a valid ranked return and must not pair an older
+  // round's options with this round's decision file. Set together, so they describe the file named.
+  if (dec.wrote_file === true) {
+    lastDecisionFile = decisionFile(round);
+    lastChosen = typeof dec.chosen === 'string' ? dec.chosen : '';
+    if (RANKED) {
+      lastShortlist = Array.isArray(dec.shortlist) ? [...dec.shortlist].sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)) : [];
+    }
+    lastMeetsAll = dec.meets_all_requirements === true;
+  }
   if (dec.needs_user === true) {
-    halted = true; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
+    haltKind = 'needs-user'; haltReason = `Decider escalated a user-only call in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: decider escalated → halting (see ${NEEDS_USER})`);
     break;
   }
@@ -351,17 +359,17 @@ while (round < MAX_ROUNDS) {
     schema: REVIEW_SCHEMA, phase: 'Review', label: `review r${round}`,
   }));
   if (!rev) throw new Error(`Reviewer returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
-  if (rev.wrote_file !== true) log(`  ⚠ r${round}: reviewer did NOT confirm writing ${decisionReviewFile(round)} — check it before relaying`);
-  lastReviewFile = decisionReviewFile(round);
+  // The next decider and the return would name this path, so its verdict must not be read either.
+  if (rev.wrote_file !== true && rev.needs_user !== true) {
+    haltKind = 'write-unattested'; haltReason = `The reviewer did not confirm writing ${decisionReviewFile(round)} in round ${round}.`;
+    log(`  ✋ r${round}: reviewer did NOT confirm writing ${decisionReviewFile(round)} → halting before its verdict is read`);
+    break;
+  }
+  if (rev.wrote_file === true) lastReviewFile = decisionReviewFile(round);
 
   // Slugs are control plane, so they are filtered like one: non-strings and blanks are dropped, and a
   // slug listed twice inside ONE review is one gap, not a repeat of itself.
   const gapIds = [...new Set((Array.isArray(rev.gap_ids) ? rev.gap_ids : []).filter((id) => typeof id === 'string' && id))];
-  if (Number.isInteger(rev.gap_count) && rev.gap_count !== gapIds.length) {
-    // Self-contradictory, but the harm does not compound: the ids drive the split, the count is only
-    // printed. Flag it and carry on rather than halting a review that may be entirely sound.
-    log(`  ⚠ r${round}: reviewer returned gap_count=${rev.gap_count} but ${gapIds.length} gap id(s) — self-contradictory; the ids drive the new/repeated split`);
-  }
   const repeatedIds = gapIds.filter((id) => gapFirstRound.has(id));
   for (const id of gapIds) if (!gapFirstRound.has(id)) gapFirstRound.set(id, round);
   gapRounds.push({ round, gaps: gapIds.length, new: gapIds.length - repeatedIds.length, repeated: repeatedIds.length });
@@ -369,28 +377,29 @@ while (round < MAX_ROUNDS) {
   const split = gapIds.length ? ` — ${gapIds.length - repeatedIds.length} new, ${repeatedIds.length} repeated` : '';
 
   if (rev.needs_user === true) {
-    halted = true; haltReason = `Reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
+    haltKind = 'needs-user'; haltReason = `Reviewer surfaced a requirement contradiction only the user can resolve in round ${round} (see ${NEEDS_USER}).`;
     log(`  ✋ r${round}: reviewer escalated → halting (see ${NEEDS_USER})`);
     break;
   }
   if (rev.agree === true) {
     agreed = true;
     // Flagged, not halted: the decision is the run's last step, so the contradiction cannot compound.
-    const openGaps = Math.max(gapIds.length, Number.isInteger(rev.gap_count) ? rev.gap_count : 0);
-    if (openGaps > 0) {
+    if (gapIds.length > 0) {
       contradicted = true;
-      log(`  ⚠ r${round}: reviewer AGREES but lists ${openGaps} open gap(s) — self-contradictory; audit ${decisionReviewFile(round)}`);
+      log(`  ⚠ r${round}: reviewer AGREES but lists ${gapIds.length} open gap(s) — self-contradictory; audit ${decisionReviewFile(round)}`);
     }
     if (!lastMeetsAll) log(`  ⚠ r${round}: reviewer AGREES but the decider reported meets_all_requirements=false — audit ${decisionFile(round)}`);
     log(`  ✓ r${round}: reviewer AGREES — conclusion holds`);
     break;
   }
   reviewPath = decisionReviewFile(round);
-  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${rev.gap_count ?? '?'} gap(s)${split} still open at round budget (see ${reviewPath})`); break; }
-  log(`  ↻ r${round}: reviewer found ${rev.gap_count ?? '?'} gap(s)${split} → decider revises (addresses ${reviewPath})`);
+  if (round >= MAX_ROUNDS) { log(`  ⚠ r${round}: ${gapIds.length} gap(s)${split} still open at round budget (see ${reviewPath})`); break; }
+  log(`  ↻ r${round}: reviewer found ${gapIds.length} gap(s)${split} → decider revises (addresses ${reviewPath})`);
 }
 
-const status = halted ? 'BLOCKED (needs user input)' : agreed ? 'decided (decider + reviewer agree)' : 'needs-attention (no agreement within round budget)';
+const halted = haltKind !== '';
+const status = haltKind === 'write-unattested' ? 'BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)'
+  : halted ? 'BLOCKED (needs user input)' : agreed ? 'decided (decider + reviewer agree)' : 'needs-attention (no agreement within round budget)';
 log(`decide: ${status} after ${round} round(s)`);
 
 // WHY there was no agreement, read off the last review's slugs. Mostly REPEATS: the decider is not
@@ -412,8 +421,9 @@ const agreeCaveats = [
   agreed && !lastMeetsAll ? `The decider itself reported that ${RANKED ? 'a shortlisted option' : 'the conclusion'} does not meet every requirement: check ${decisionFile(round)} before presenting. ` : '',
 ].join('');
 const droppedLenses = failed.length
-  ? ` These lenses produced no lens file and were left out of the decision: ${failed.join(', ')}. Re-run them with the same runId.`
+  ? ` These lenses did not confirm a lens file and were left out of the decision: ${failed.join(', ')}. The engine cannot re-run single lenses. Bringing them in takes a full relaunch with the full lens list and no resumeFromRunId, which redoes every lens and round. Relay this run's decision first, then relaunch under a new runId so this run's files stay intact.`
   : '';
+const relaunchFromStart = 'The relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files.';
 
 return {
   phase: 'decide',
@@ -427,9 +437,10 @@ return {
   rounds: round,
   gapRounds,
   stateDir: STATE_DIR,
-  decisionFile: round ? decisionFile(round) : '',
+  haltReason: halted ? haltReason : '',
+  decisionFile: lastDecisionFile,
   reviewFile: lastReviewFile,
-  needsUserFile: halted ? NEEDS_USER : '',
+  needsUserFile: haltKind === 'needs-user' ? NEEDS_USER : '',
   lensFiles: LIVE.map((l) => lensFile(l.id)),
   failed,
   lensPicks: LIVE.map((l) => ({ lens: l.id, focus: l.focus, top: ready.find((a) => a.lens === l.id)?.top || '' })),
@@ -437,10 +448,12 @@ return {
   meetsAllRequirements: lastMeetsAll,
   reviewTrail: `Lens analyses in ${LENS_DIR}/, and decision-rN.md / decision-review-rN.md in ${STATE_DIR}/ show every round.`,
   nextStep: halted
-    ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then re-invoke with the same runId to continue.`
+    ? (haltKind === 'needs-user'
+      ? `Run halted — ${haltReason} Read ${NEEDS_USER}, resolve it with the user, then relaunch with the same args and no resumeFromRunId. ${relaunchFromStart}`
+      : `Run halted — ${haltReason} Check that file, then relaunch with the same args and no resumeFromRunId: a resume replays the cached return and halts the same way. ${relaunchFromStart}`)
     : (agreed
       ? agreeCaveats + (RANKED
         ? `Present the SHORTLIST: relay ${decisionFile(round)} (the matrix + the ranked options with what each buys/costs + the combine-vs-exclusive section) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. There is deliberately NO single winner — the user picks, or combines the options marked as composable. To build what they pick, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle (several picks become several blocks of one plan file).`
         : `Present the conclusion: relay ${decisionFile(round)} (the matrix + rationale + why-not-others) and let the user read each lens file in ${LENS_DIR}/ to see the source perspectives. To build the chosen approach, author it as a plan file, refine it with refine-cycle, then build it with develop-cycle.`)
-      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements and re-run, or raise maxRounds.`) + droppedLenses,
+      : `No agreement within ${MAX_ROUNDS} rounds. ${churn}Read the latest ${decisionFile(round)} + ${decisionReviewFile(round)} with the user, starting with that review's WHERE NEXT section — the requirement axis the rubric does not settle, and the change that would let a decision converge. Refine the requirements, then relaunch with the same args and no resumeFromRunId: the relaunch re-runs the run from the lens analyses and round 1 and overwrites the round files, while a resume would replay the cached returns and never read the edit. Or raise maxRounds and relaunch with the same args plus the Workflow tool's resumeFromRunId: the finished rounds replay from cache and the loop continues past round ${round}.`) + droppedLenses,
 };

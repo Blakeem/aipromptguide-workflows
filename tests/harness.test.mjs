@@ -12,7 +12,7 @@ const BRAINSTORM  = 'workflows/brainstorm/brainstorm-cycle.mjs';
 const REVIEW      = 'workflows/debug/review.mjs';
 
 const srcOf = (rel) => readFileSync(`${REPO_ROOT}/${rel}`, 'utf8');
-const invArgs = { runId: 't', root: 'E:/r', criteria: '## Question\nQ', priorRounds: 0 };
+const invArgs = { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0 };
 const unit = (id, extra = {}) => ({ id, hash: 'h', files: [{ path: `${id}.js`, loc: 10 }], ...extra });
 const reviewArgs = (units) => ({ runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units });
 const FINDING = { file: 'a.js', line: '1', category: 'correctness', severity: 'high', title: 'T', detail: 'd' };
@@ -115,8 +115,8 @@ section('phases records every phase() call and where it falls in the call sequen
   const t = await runTrace(INVESTIGATE, {
     args: { ...invArgs, maxRounds: 1 },
     respond: {
-      'investigate': { wrote_files: true, new_options: 1, disqualified_added: 0, exhausted: false, no_solution: false, needs_user: false, option_ids: ['o'] },
-      'critique': { wrote_file: true, upheld: ['o'], verified_ids: ['o'], disqualified: [], contests_exhaustion: false, agree: false, needs_user: false },
+      'investigate': { wrote_files: true, disqualified_added: 0, claim: 'none', needs_user: false, option_ids: ['o'] },
+      'critique': { wrote_file: true, upheld: ['o'], verified_ids: ['o'], disqualified: [], contests_claim: false, agree: false, needs_user: false },
     },
   });
   eq(t.phases.map((p) => p.title).join(), 'Investigate,Critique', 'both titles, in order');

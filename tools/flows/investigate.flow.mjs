@@ -10,15 +10,15 @@
 const base = {
   runId: 'flow',
   root: 'E:/flow',
-  criteria: '## Question\nWhich library qualifies?\n## Acceptance Criteria\n- runs on Node 24',
+  planPath: 'E:/flow/plans/flow/criteria.md',
   priorRounds: 0,
 };
 
 // An EMPTY round: nothing found, nothing ruled out, nothing claimed. It STALLS the run, so only the
 // stalled scenarios script it.
-const INV = { wrote_files: true, new_options: 0, disqualified_added: 0, near_misses: 0, rediscovered: 0, next_avenue_confidence: 'medium', exhausted: false, no_solution: false, saturated: false, needs_user: false, option_ids: [] };
-const CRIT = { wrote_file: true, upheld: [], verified_ids: [], disqualified: [], near_misses: 0, contests_exhaustion: false, contests_saturation: false, agree: false, needs_user: false, reopened: 0 };
-const FOUND = { ...INV, new_options: 1, option_ids: ['opt-a'] };
+const INV = { wrote_files: true, disqualified_added: 0, rediscovered: 0, next_avenue_confidence: 'medium', claim: 'none', needs_user: false, option_ids: [] };
+const CRIT = { wrote_file: true, upheld: [], verified_ids: [], disqualified: [], contests_claim: false, agree: false, needs_user: false, reopened: 0 };
+const FOUND = { ...INV, option_ids: ['opt-a'] };
 // A LEARNING round qualifies nothing but closes candidates, so the loop keeps going. A multi-round
 // scenario needs it, since an all-zero filler round stalls and ends the run.
 const LEARN = { ...INV, disqualified_added: 1 };
@@ -48,19 +48,19 @@ export default {
       name: 'exhaustion agreed',
       when: 'the critic agrees the search is closed',
       args: base,
-      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, claim: 'exhausted' }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
       name: 'no solution verified',
       when: 'the critic agrees nothing can qualify',
       args: base,
-      respond: { investigate: { ...INV, no_solution: true }, critique: { ...CRIT, agree: true } },
+      respond: { investigate: { ...INV, claim: 'no_solution' }, critique: { ...CRIT, agree: true } },
     },
     {
       name: 'exhaustion contested',
       when: 'the critic contests the coverage claim',
       args: base,
-      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, contests_exhaustion: true } },
+      respond: { investigate: { ...FOUND, claim: 'exhausted' }, critique: { ...CRIT, contests_claim: true } },
     },
     {
       // Saturation is a STOPPED search, not a closed one, and it has its own terminal for exactly that
@@ -68,15 +68,15 @@ export default {
       name: 'saturation agreed',
       when: 'the critic agrees the search has run dry',
       args: base,
-      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, claim: 'saturated' }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
-      // Its own contest flag, so its own back-edge: a saturation claim waved through by a coverage verdict
-      // would be a stop nobody checked.
+      // Its own back-edge comes from its own step 5 branch of the critic prompt, not from its own flag:
+      // both claim kinds set contests_claim, but each is attacked against different evidence.
       name: 'saturation contested',
       when: 'the critic contests the saturation claim',
       args: base,
-      respond: { investigate: { ...FOUND, saturated: true }, critique: { ...CRIT, contests_saturation: true } },
+      respond: { investigate: { ...FOUND, claim: 'saturated' }, critique: { ...CRIT, contests_claim: true } },
     },
     {
       // The backstop: an empty round leaves the next round nothing to diverge from, so buying one gets the
@@ -110,7 +110,7 @@ export default {
       name: 'resumed search',
       when: 'a search resumes after round 2',
       args: { ...base, priorRounds: 2 },
-      respond: { investigate: { ...FOUND, exhausted: true }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
+      respond: { investigate: { ...FOUND, claim: 'exhausted' }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'], agree: true } },
     },
     {
       // Without a budget the harness default is unlimited, which makes the floor dead code and this
@@ -193,7 +193,7 @@ export default {
     { name: 'unknown phase', when: 'phase is neither refine nor run', args: { ...base, phase: 'Refine' } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
-    { name: 'no criteria', when: 'neither criteria nor planPath', args: { runId: 'flow', root: 'E:/flow' } },
-    { name: 'no priorRounds', when: 'phase:"run" without priorRounds', args: { runId: 'flow', root: 'E:/flow', criteria: base.criteria } },
+    { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
+    { name: 'no priorRounds', when: 'phase:"run" without priorRounds', args: { runId: 'flow', root: 'E:/flow', planPath: base.planPath } },
   ],
 };

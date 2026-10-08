@@ -476,7 +476,7 @@ section('every engine with a round loop REJECTS a garbage bound instead of absor
 const NUM_ARGS = {
   runId: 'num', root: 'E:/r', target: { repo: 'E:/repo' },
   plans: [{ id: 'x', planPath: 'p.md', mode: 'feature', gate: 'build-only' }],
-  planPath: 'p.md', criteria: 'c', requirements: 'r', brief: 'b', conventions: 'c',
+  planPath: 'p.md', brief: 'b', conventions: 'c',
   lenses: ['alpha', 'beta'], sources: ['s'], scope: ['x'],
   units: [{ id: 'u', files: ['f'] }],
   issues: [{ id: 'i', unit: 'u', file: 'f', decision: 'ACTIONABLE', severity: 'high' }],

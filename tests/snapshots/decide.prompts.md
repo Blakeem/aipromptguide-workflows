@@ -6,14 +6,14 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| analyst | 1 | 1 | 1272 | reviewer agrees |
-| decide | 1 | 1 | 2091 | reviewer agrees |
-| review | 1 | 1 | 2471 | reviewer agrees |
-| decide | 2 | 1 | 2315 | gaps to the round budget |
-| review | 2 | 1 | 2790 | gaps to the round budget |
-| review | 3 | 1 | 3161 | gaps to the round budget |
-| decide | 3 | 1 | 2028 | one lens dies |
-| review | 4 | 1 | 2431 | one lens dies |
+| analyst | 1 | 1 | 1213 | reviewer agrees |
+| decide | 1 | 1 | 2032 | reviewer agrees |
+| review | 1 | 1 | 2398 | reviewer agrees |
+| decide | 2 | 1 | 2256 | gaps to the round budget |
+| review | 2 | 1 | 2717 | gaps to the round budget |
+| review | 3 | 1 | 3088 | gaps to the round budget |
+| decide | 3 | 1 | 1969 | one lens dies |
+| review | 4 | 1 | 2358 | one lens dies |
 
 ## analyst · variant 1 · schema 1
 
@@ -23,15 +23,7 @@ this file is stale.
 
 You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answer your lens can offer.
 Push that perspective hard and do NOT pre-compromise: the decider balances lenses later.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -75,15 +67,7 @@ Return via the schema.
 ~~~~text
 
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -153,15 +137,7 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
 Agree (agree=true) only when you genuinely cannot.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -179,7 +155,7 @@ CHECK, against the requirements rubric:
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
 requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
 agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
 the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
 or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
@@ -195,7 +171,6 @@ Return via the schema.
   "required": [
     "wrote_file",
     "agree",
-    "gap_count",
     "gap_ids",
     "needs_user"
   ],
@@ -207,10 +182,6 @@ Return via the schema.
     "agree": {
       "type": "boolean",
       "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
-    },
-    "gap_count": {
-      "type": "integer",
-      "description": "number of gaps/objections written to the review file (0 when you agree)"
     },
     "gap_ids": {
       "type": "array",
@@ -234,15 +205,7 @@ Return via the schema.
 ~~~~text
 
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -313,15 +276,7 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
 Agree (agree=true) only when you genuinely cannot.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -343,7 +298,7 @@ CHECK, against the requirements rubric:
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
 requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
 agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
 the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
 or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
@@ -359,7 +314,6 @@ Return via the schema.
   "required": [
     "wrote_file",
     "agree",
-    "gap_count",
     "gap_ids",
     "needs_user"
   ],
@@ -371,10 +325,6 @@ Return via the schema.
     "agree": {
       "type": "boolean",
       "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
-    },
-    "gap_count": {
-      "type": "integer",
-      "description": "number of gaps/objections written to the review file (0 when you agree)"
     },
     "gap_ids": {
       "type": "array",
@@ -399,15 +349,7 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
 Agree (agree=true) only when you genuinely cannot.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -429,7 +371,7 @@ CHECK, against the requirements rubric:
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
 requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
 agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
 the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
 or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
@@ -449,7 +391,6 @@ Return via the schema.
   "required": [
     "wrote_file",
     "agree",
-    "gap_count",
     "gap_ids",
     "needs_user"
   ],
@@ -461,10 +402,6 @@ Return via the schema.
     "agree": {
       "type": "boolean",
       "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
-    },
-    "gap_count": {
-      "type": "integer",
-      "description": "number of gaps/objections written to the review file (0 when you agree)"
     },
     "gap_ids": {
       "type": "array",
@@ -488,15 +425,7 @@ Return via the schema.
 ~~~~text
 
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -565,15 +494,7 @@ Return via the schema.
 
 You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
 Agree (agree=true) only when you genuinely cannot.
-THE DECISION + RUBRIC: the requirements below:
------
-## Decision
-Which cache layer?
-## Non-negotiables
-- no new paid dependency
-## Weighted criteria
-- latency (weight 3)
------
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
@@ -591,7 +512,7 @@ CHECK, against the requirements rubric:
 4. The "why not others" honest, or does it strawman the runners-up?
 WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
 requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_count and gap_ids, and it blocks
+A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
 agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
 the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
 or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
@@ -607,7 +528,6 @@ Return via the schema.
   "required": [
     "wrote_file",
     "agree",
-    "gap_count",
     "gap_ids",
     "needs_user"
   ],
@@ -619,10 +539,6 @@ Return via the schema.
     "agree": {
       "type": "boolean",
       "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
-    },
-    "gap_count": {
-      "type": "integer",
-      "description": "number of gaps/objections written to the review file (0 when you agree)"
     },
     "gap_ids": {
       "type": "array",

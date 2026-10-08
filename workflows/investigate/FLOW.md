@@ -22,11 +22,11 @@ flowchart TD
   t8(["BLOCKED (needs user input)"])
   t9(["BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, criteria#124;planPath }"/]
+  x2[/"throw: args must include at least { runId, root, planPath }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Invalid phase"/]
   x5[/"throw: Invalid numeric arg"/]
-  x6[/"throw: Provide the acceptance criteria the search qualifies candidates against"/]
+  x6[/"throw: args.planPath is required"/]
   x7[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
   x8[/"throw: Criteria critic returned nothing"/]
   x9[/"throw: Investigator returned nothing in round ..."/]
@@ -88,15 +88,15 @@ flowchart TD
 | BLOCKED (needs user input) | the investigator hits a user-only call · the critic finds a criteria contradiction · the investigator escalates before finding anything | derived |
 | BLOCKED (an agent did not confirm writing its files - check them, then relaunch fresh with the same runId and no resumeFromRunId) | the investigator does not confirm writing its files · the critic does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 22) |
-| throw: args must include at least { runId, root, criteria\|planPath } | args carry no runId | throw (line 25) |
+| throw: args must include at least { runId, root, planPath } | args carry no runId | throw (line 25) |
 | throw: args.root is required | args.root is missing | throw (line 28) |
 | throw: Invalid phase | phase is neither refine nor run | throw (line 33) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 44) |
-| throw: Provide the acceptance criteria the search qualifies candidates against | neither criteria nor planPath | throw (line 81) |
-| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 91) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 409) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 482) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 526) |
+| throw: args.planPath is required | args carry no planPath | throw (line 79) |
+| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 88) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 416) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 488) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 516) |
 
 ## Coverage
 

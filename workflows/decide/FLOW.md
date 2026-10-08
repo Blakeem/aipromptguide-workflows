@@ -15,12 +15,13 @@ flowchart TD
   t1(["decided (decider + reviewer agree)"])
   t2(["needs-attention (no agreement within round budget)"])
   t3(["BLOCKED (needs user input)"])
+  t4(["BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, lenses, requirements#124;planPath }"/]
+  x2[/"throw: args must include at least { runId, root, lenses, planPath }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Invalid numeric arg"/]
   x5[/"throw: args.selection must be 'single'"/]
-  x6[/"throw: Provide the requirements"/]
+  x6[/"throw: args.planPath is required"/]
   x7[/"throw: args.lenses requires >=2 evaluation perspectives"/]
   x8[/"throw: lens ids collide after slugging"/]
   x9[/"throw: No analyst produced a lens file"/]
@@ -39,11 +40,13 @@ flowchart TD
   a1 --> x9
   a2 --> a3
   a2 --> t3
+  a2 --> t4
   a2 --> x10
   a3 -.->|"the reviewer keeps finding gaps (×3)"| a2
   a3 --> t1
   a3 --> t2
   a3 --> t3
+  a3 --> t4
   a3 --> x11
 ```
 
@@ -62,18 +65,19 @@ flowchart TD
 | decided (decider + reviewer agree) | the reviewer agrees the conclusion holds · one analyst produces no lens file | derived |
 | needs-attention (no agreement within round budget) | the reviewer keeps finding gaps | derived |
 | BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
+| BLOCKED (an agent did not confirm writing its file - check it, then relaunch with the same runId and no resumeFromRunId) | the decider does not confirm writing its decision file · the reviewer does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
-| throw: args must include at least { runId, root, lenses, requirements\|planPath } | args carry no runId | throw (line 30) |
+| throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 30) |
 | throw: args.root is required | args.root is missing | throw (line 33) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 45) |
 | throw: args.selection must be 'single' | selection is neither single nor ranked | throw (line 63) |
-| throw: Provide the requirements | neither requirements nor planPath | throw (line 93) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 104) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 108) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 293) |
+| throw: args.planPath is required | args carry no planPath | throw (line 91) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 103) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 107) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 291) |
 | throw: Decider returned nothing in round ... | the decider dies | throw (line 327) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 353) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 361) |
 
 ## Coverage
 
-16 scenarios · 3/3 roles · 11/11 throw sites · 0/0 halt statuses · 14 terminal states.
+18 scenarios · 3/3 roles · 11/11 throw sites · 0/0 halt statuses · 15 terminal states.

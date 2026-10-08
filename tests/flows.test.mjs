@@ -463,7 +463,7 @@ section('spec validation rejects what would produce a silently wrong map');
     engine: 'workflows/investigate/investigate-cycle.mjs',
     out: 'x.md',
     title: 'v',
-    scenarios: [{ name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', criteria: 'c', priorRounds: 0, maxRounds: 1 }, terminal: 'all good' }],
+    scenarios: [{ name: 'n', when: 'w', args: { runId: 't', root: 'E:/r', planPath: 'E:/r/plans/t/criteria.md', priorRounds: 0, maxRounds: 1 }, terminal: 'all good' }],
   }));
   ok(/never override derived truth/.test(contradiction), 'a declared terminal contradicting a non-empty out.status');
 }
