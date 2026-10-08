@@ -82,9 +82,12 @@ run to `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it en
 completed, failed or stopped run alike. `args` reads every develop record newer than the plan's
 `synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest run
 applied, so an operator's later edit is never overwritten. The record format is Claude Code's and
-undocumented. A changed develop record fails `args` loudly, `--expect <wf-id>` fails when a known run's
-record is missing, and `tests/plan-bus.test.mjs` checks the newest records on the machine on every
-suite run. Records expire after `cleanupPeriodDays` (30 by default).
+undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped
+run's come from its log lines, and the runtime cuts a long line short: a cut line that names a plan being
+folded fails `args`, and one that names none is skipped with a note. A changed develop record fails
+`args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
+`tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records expire
+after `cleanupPeriodDays` (30 by default).
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`

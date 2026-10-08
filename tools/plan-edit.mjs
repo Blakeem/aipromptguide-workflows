@@ -317,7 +317,13 @@ export function envelopeFaults(data) {
   ].filter(Boolean);
 }
 
-/** A develop run's record as { path, runId, status, time, edits }, or null for any other workflow. */
+// The runtime keeps a long log line's head and tail and replaces its middle with this marker.
+const CUT_MARK = /\n\n\.\.\. \[\d+ characters truncated\] \.\.\.\n\n/;
+
+/**
+ * A develop run's record as { path, runId, status, time, edits, cut }, or null for any other workflow. `cut`
+ * holds each status line the runtime cut short, which no longer parses.
+ */
 export function readRunRecord(path) {
   let data = null;
   try {
@@ -330,14 +336,48 @@ export function readRunRecord(path) {
   const faults = envelopeFaults(data);
   if (faults.length) throw new Error(`${path} has no valid ${faults.join(', ')} — ${FORMAT_CHANGED}`);
 
-  const edits = data.logs.filter((l) => l.startsWith(STATUS_LOG)).flatMap((l) => JSON.parse(l.slice(STATUS_LOG.length)));
+  // A completed run returns every edit uncut. A failed or stopped run has no result, so its edits come from
+  // the per-block log lines, which the runtime may cut.
+  const fromResult = Array.isArray(data.result?.statusSync);
+  const edits = fromResult ? [...data.result.statusSync] : [];
+  const cut = [];
+  const lines = fromResult ? [] : data.logs.filter((l) => l.startsWith(STATUS_LOG));
+  for (const line of lines) {
+    if (CUT_MARK.test(line)) {
+      cut.push(line);
+      continue;
+    }
+    let parsed = null;
+    try {
+      parsed = JSON.parse(line.slice(STATUS_LOG.length));
+    } catch {
+      throw new Error(`${path} has a status line that is not JSON — ${FORMAT_CHANGED}`);
+    }
+    edits.push(...[].concat(parsed));
+  }
   edits.forEach((e, i) => {
     const typed = e && ['planPath', 'id', 'key', 'value'].every((k) => typeof e[k] === 'string');
     if (!typed || !isAbsolute(e.planPath)) {
       throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value }: ${JSON.stringify(e)}`);
     }
   });
-  return { path, runId: data.runId, status: data.status, time: Date.parse(data.timestamp), edits };
+  return { path, runId: data.runId, status: data.status, time: Date.parse(data.timestamp), edits, cut };
+}
+
+/**
+ * Whether the surviving text of a cut status line names *planPath*: a whole `planPath` value that resolves to
+ * the same file, or the path's text in any slash direction or case, as the log escapes it.
+ */
+function namesPlan(line, planPath) {
+  const key = fileKey(planPath);
+  const resolved = [...line.matchAll(/"planPath":("(?:[^"\\]|\\.)*")/g)].some((m) => {
+    try {
+      return fileKey(JSON.parse(m[1])) === key;
+    } catch { return false; }
+  });
+  const spellings = [planPath, key].flatMap((p) => [p, p.replace(/\\/g, '/'), p.replace(/\//g, '\\')]);
+  const haystack = line.toLowerCase();
+  return resolved || spellings.some((p) => haystack.includes(JSON.stringify(p).slice(1, -1).toLowerCase()));
 }
 
 // =============================================================================
@@ -384,6 +424,15 @@ function withSyncedSet(plan, iso) {
 function foldRecords(plan, records, note) {
   const marker = Date.parse(parseFileKeys(plan.text).values.synced ?? '') || 0;
   const key = fileKey(plan.path);
+  const [lost] = records
+    .filter((r) => r.time > marker && r.cut.some((line) => namesPlan(line, plan.path)))
+    .sort((a, b) => a.time - b.time);
+  if (lost) {
+    const iso = new Date(lost.time).toISOString();
+    const older = records.filter((r) => r.time > marker && r.time < lost.time && r.edits.some((e) => fileKey(e.planPath) === key));
+    const skipped = older.length ? ` after applying by hand the edits of the older run(s) ${older.map((r) => r.runId).join(', ')}, which that key also skips` : '';
+    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, then set the plan's "synced:" file key to ${iso}${skipped}`);
+  }
   const fresh = records
     .filter((r) => r.time > marker)
     .map((r) => ({ ...r, edits: r.edits.filter((e) => fileKey(e.planPath) === key) }))
@@ -511,6 +560,9 @@ function runArgs(argv, note) {
   // Process — every file is folded in memory first, so a fault in the LAST file still writes none.
   if (expect && !records.some((r) => r.runId === expect)) {
     throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
+  }
+  for (const r of records.filter((x) => x.cut.length && !plans.some((p) => x.cut.some((line) => namesPlan(line, p.path))))) {
+    note(`skipped ${r.cut.length} status line(s) the runtime cut short in run ${r.runId} (${r.path}), since their surviving text names no plan given here\n`);
   }
   const folded = plans.map((p) => foldRecords(p, records, note));
   const merged = mergeArgs(folded);

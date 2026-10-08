@@ -573,6 +573,70 @@ section('args reads only develop records, and only the edits that name the plans
   ok(!empty.err && JSON.parse(empty.out).plans.length === 3, `a config dir with no projects folder is a plain launch: ${empty.err ?? ''}`);
 }
 
+section('a status line the runtime cut short blocks only the plans it names');
+// The runtime keeps a long log line's head and tail and drops its middle, so one oversized status line from
+// another project's run must not stop every launch on the machine. A cut line that still names a plan being
+// folded fails, since its edits would be lost. A completed run's result carries every edit uncut.
+{
+  const plan = fixture();
+  const other = fixture(DEST, 'inbox.md');
+  // develop logs forward-slash paths, so the fixtures' native paths are respelled the way it writes them.
+  const logged = (path) => path.replace(/\\/g, '/');
+  const cutLine = (edits) => {
+    const full = `status-sync ${JSON.stringify(edits)}`;
+    const head = full.indexOf('","id"') + 6;
+    return `${full.slice(0, head)}\n\n... [${full.length - head - 40} characters truncated] ...\n\n${full.slice(-40)}`;
+  };
+  const withCut = (cutEdits, { good = [], runId = 'wf_cut', timestamp, result = null } = {}) => ({
+    ...record({ runId, timestamp }),
+    logs: ['develop: 2/2 block(s) to build', ...(good.length ? [`status-sync ${JSON.stringify(good)}`] : []), cutLine(cutEdits)],
+    result,
+  });
+  const many = (planPath, ids) => ids.map((id) => status(id, 'done', logged(planPath)));
+
+  const foreign = argsWith(configWith([withCut(many(other, ['inbox', 'later', 'old-one']), { good: [status('bus-parser', 'done', plan)] })]), plan);
+  ok(!foreign.err, `a cut line naming only another plan is skipped: ${foreign.err ?? ''}`);
+  ok(read(plan).includes('status: done'), 'and the run\'s whole lines still apply');
+  ok(/skipped 1 status line\(s\) the runtime cut short in run wf_cut/.test(foreign.notes), `the note names the run: ${foreign.notes.trim().split('\n')[0]}`);
+
+  const own = fixture(PLAN, 'own.md');
+  const bystander = fixture(DEST, 'bystander.md');
+  const [ownBefore, bystanderBefore] = [read(own), read(bystander)];
+  const cutOwn = withCut(many(own, ['bus-parser', 'triage', 'inventory']), { good: [status('inbox', 'done', bystander)] });
+  const failed = argsWith(configWith([cutOwn]), bystander, own);
+  ok(/run wf_cut \(.*, 2026-09-25T10:00:00\.000Z\) .*cut short, and it names .*own\.md.*"synced:" file key to 2026-09-25T10:00:00\.000Z/.test(failed.err ?? ''), `a cut line naming a plan fails, naming the run's timestamp: ${(failed.err ?? 'no error').slice(0, 140)}`);
+  eq(read(own) + read(bystander), ownBefore + bystanderBefore, 'and writes neither plan, not even the one it could fold');
+
+  const older = record({ runId: 'wf_older', timestamp: '2026-09-25T09:00:00.000Z', blocks: [[status('bus-parser', 'parked', own)]] });
+  const both = argsWith(configWith([cutOwn, older]), own);
+  ok(/older run\(s\) wf_older, which that key also skips/.test(both.err ?? ''), `an older unapplied run that names the plan is listed: ${(both.err ?? 'no error').slice(-90)}`);
+
+  const synced = fixture(`synced: 2026-09-25T11:00:00.000Z\n\n${PLAN}`, 'synced.md');
+  const past = argsWith(configWith([withCut(many(synced, ['bus-parser', 'triage', 'inventory']))]), synced);
+  ok(!past.err, `a cut run the synced key already covers is skipped: ${past.err ?? ''}`);
+
+  const newer = withCut(many(own, ['bus-parser', 'triage', 'inventory']), { runId: 'wf_cut_newer', timestamp: '2026-09-25T12:00:00.000Z' });
+  const pair = argsWith(configWith([newer, cutOwn]), own);
+  ok(/^run wf_cut \(/.test(pair.err ?? ''), `of two cut runs naming the plan, the older one is named: ${(pair.err ?? 'no error').slice(0, 60)}`);
+
+  // A dot-dot spelling only resolves to the plan, and a path cut before its closing quote only matches as
+  // text, in a different case.
+  const dir = join(own, '..');
+  mkdirSync(join(dir, 'sub'), { recursive: true });
+  const dotted = withCut([status('bus-parser', 'done', logged(join(dir, 'sub', '..', 'own.md'))), status('triage', 'done', logged(own))]);
+  ok(/cut short, and it names .*own\.md/.test(argsWith(configWith([dotted]), own).err ?? ''), 'a logged path that resolves to the plan is matched');
+  const quoteCut = { ...record({ runId: 'wf_quote' }), logs: [`status-sync [{"planPath":"${logged(own).toUpperCase()}\n\n... [900 characters truncated] ...\n\n","value":"done"}]`] };
+  ok(/run wf_quote .*cut short, and it names .*own\.md/.test(argsWith(configWith([quoteCut]), own).err ?? ''), 'a path cut before its closing quote still matches as text, in any case');
+
+  const done = fixture(PLAN, 'done.md');
+  const completed = withCut(many(done, ['bus-parser', 'triage', 'inventory']), { result: { statusSync: many(done, ['bus-parser']) } });
+  const fromResult = argsWith(configWith([completed]), done);
+  ok(!fromResult.err && read(done).includes('status: done'), `a completed run folds from its uncut result, past its cut logs: ${fromResult.err ?? ''}`);
+
+  const broken = { ...record({ runId: 'wf_bad' }), logs: ['status-sync [{"planPath": nope'] };
+  ok(/wf_bad\.json has a status line that is not JSON — the Claude Code run-record format changed/.test(argsWith(configWith([broken]), plan).err ?? ''), 'a status line broken without the cut marker still fails as a format change');
+}
+
 section('args writes the synced key under frontmatter, and keeps a BOM and CRLF endings');
 {
   const bare = fixture(`---\ntitle: x\n---\n\n${DEST}`, 'fm.md');
