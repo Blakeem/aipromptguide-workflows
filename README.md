@@ -1,6 +1,6 @@
 # AI Prompt Guide Workflows
 
-**[aipromptguide.com](https://aipromptguide.com)** · A collection of production-grade **Claude Code
+**[aipromptguide.com](https://aipromptguide.com)** · A collection of production ready **Claude Code
 dynamic workflows** and the design principles they're built to. The workflows hold the prompts and
 orchestration that *guide the AI* through real engineering work.
 
@@ -599,7 +599,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   collapse before the run ends. The search is reported **open**, not closed. **`stalled`**: a round that
   adds nothing at all (no option, ledger line or claim) stops the run immediately instead of buying
   another empty round. A round that rules candidates out is still progress and keeps going.
-- **`investigate` remembers which ground it swept, not just which candidates died.** A second append-only
+- **`investigate` remembers which ground it swept as well as which candidates died.** A second append-only
   file, `SEARCHED.md`, records every avenue each round covered, with the search terms it used and what
   they yielded. It also records the most promising avenue still untried. Until now that survived only in the
   *terminating* round's determination, so every other round was free to re-run the last one's searches with
@@ -621,7 +621,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   misses, and the coverage evidence. It is written even when the search runs out of rounds (labelled
   a partial result) instead of leaving you a folder of option files with no comparison. Options stay
   **unranked** on purpose: qualification is pass/fail, and ranking is `decide`'s job.
-- **`investigate` keeps near misses.** A candidate that failed *exactly one* criterion is marked in the
+- **`investigate` keeps near misses.** A candidate that failed *only one* criterion is marked in the
   ledger with the shortfall in numbers and gets its own section in the determination. When nothing
   qualifies, that is usually the most useful thing the run found, since it is what relaxing a criterion
   would put back on the table.
@@ -641,7 +641,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   block, so the other units never enter its context.
 - **Flow maps render reliably.** Self-loop conditions moved into a Loops table below the diagram, so a long
   label can no longer land on a neighbouring box. All nine render clean on both the current Mermaid and the
-  version GitHub serves.
+  version GitHub uses.
 
 ### 2026-07-27
 
