@@ -177,7 +177,8 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
   into `runs/<runId>/gate/`; the issue files live at the run-state root, off every path it is handed,
   and the prompt still forbids reading any inventory/issue file as defense-in-depth.
 - **The issue files are the source of truth for WHAT to fix.** The engines never write them. Only
-  you do, at triage and through `plan-edit.mjs args` before each develop launch.
+  you do, at triage and through `plan-edit.mjs args` before each develop launch. develop's verifier
+  writes only its own `NEW-ISSUES.md`, never these.
 
 ## State files (`runs/<runId>/`, outside every repo)
 

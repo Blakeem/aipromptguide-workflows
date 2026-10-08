@@ -56,7 +56,8 @@ directly.
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
 acceptance reviews, the quality reviews under `gate/`, each block's declined findings
 (`gate/DISMISSED-<id>.md`), any plan amendment (`AMENDED-<id>.md`), the notes for you
-(`NEEDS-USER.md`), each parked patch, and the sweep result (`SWEEP.md`).
+(`NEEDS-USER.md`), the new issues a fix pass found for you to triage (`NEW-ISSUES.md`), each parked
+patch, and the sweep result (`SWEEP.md`).
 
 ## Requirements
 

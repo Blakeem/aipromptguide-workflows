@@ -153,6 +153,13 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-07
+
+- **develop's fix acceptance records an older, separate harm as a new issue.** A harm an issue entry
+  lists whose cause shares no code path with the fix's root cause no longer counts against the fix. The
+  verifier appends it to `NEW-ISSUES.md` for your triage, and the return counts it in `newIssues`.
+  Before, the verifier had no rule for that harm, so it could fail a fix whose own root cause was closed.
+
 ### 2026-10-04
 
 - **develop halts when a reviewer breaks its contract.** An acceptance verifier that fails a block but

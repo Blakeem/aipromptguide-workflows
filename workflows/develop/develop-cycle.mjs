@@ -269,6 +269,8 @@ const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
 const parkedNewDir   = (id) => `${STATE_DIR}/parked-${slug(id)}-newfiles`; // untracked files the patch could not carry (rare)
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
+// A closed inventory is what lets a fix loop converge, so an issue found mid-run waits for the user's triage.
+const NEW_ISSUES     = `${STATE_DIR}/NEW-ISSUES.md`;
 
 // Settled decisions, never prior reviews, which would anchor them (#5). canContest=true is the blind
 // reviewer: the contest channel and DISMISSED alone (see GATE_DIR). Acceptance overrides instead.
@@ -378,7 +380,7 @@ const acceptanceSchema = (mode) => {
   return {
     type: 'object',
     required: mode === 'fix'
-      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks']
+      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'fix_checks', 'new_issues']
       : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
     properties: {
       plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it, or (ONLY when handed a plan file rather than a command) you read that file. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
@@ -399,6 +401,7 @@ const acceptanceSchema = (mode) => {
             },
           },
         },
+        new_issues: { type: 'integer', description: 'entries you appended to NEW-ISSUES.md this round (0 if none)' },
       } : {
         reachable:   { type: 'boolean', description: terms.reachable },
         criteria_total: { type: 'integer', description: `acceptance criteria you enumerated from ${terms.criteriaFrom} (0 means you enumerated none — never a legitimate pass)` },
@@ -698,8 +701,8 @@ instruction was amended against the AMENDED behavior, not the superseded one, an
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
 
-EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
-unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
+(actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
@@ -708,8 +711,8 @@ even when an entry's **Fix:** prescribes the construction that causes it, and ev
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
 the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
-or non-blocking section.
+OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
+file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -725,6 +728,16 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
    edit was made. Return one fix_check per claimed issue.
+   A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
+   root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
+   branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
+   new issue to ${NEW_ISSUES} only, never to your review file, and count it in new_issues. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
+   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
+   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
+   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
+   triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
 ${claimedStale.map((id) => `     - ${id}`).join('\n') || '     (none reported stale)'}
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -1006,6 +1019,7 @@ if (!pending.length) {
     parked: [],
     ledger: [],
     statusSync: [],
+    newIssues: 0,
     reviewTrail,
     followups: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : A.startAt ? ` at or after startAt "${A.startAt}"` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.`,
   };
@@ -1017,6 +1031,8 @@ const ledger = [];               // in-memory, returned to the orchestrator (NOT
 // Also logged per block as one or more STATUS_LOG lines: run logs survive a failed or stopped run, and
 // `plan-edit.mjs args` folds them into the plan file.
 const statusSync = [];
+let newIssues = 0;
+let newIssuesUnknown = false;    // a fix verifier returned no count, so NEW-ISSUES.md may hold entries
 let halted = false;
 let haltReason = '';
 // A value, so the status line never parses haltReason prose. Every halt site sets it.
@@ -1417,6 +1433,8 @@ for (const p of pending) {
       haltKind = 'agent-dead';
       haltReason = `Acceptance verifier for block ${p.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a gap verdict, and nothing was staged. ${DEAD_AGENT_RECOVERY}`;
       rec.status = 'BLOCKED (agent died)';
+      // It may have appended a new issue before it died.
+      if (fix) newIssuesUnknown = true;
       logLine(`  ✋ ${p.id} r${round}: acceptance verifier returned nothing (agent skipped or died) → halting`);
       break;
     }
@@ -1431,6 +1449,11 @@ for (const p of pending) {
       break;
     }
     if (acc?.regression === true) rec.regression = true;
+    if (fix) {
+      if (Number.isInteger(acc.new_issues) && acc.new_issues >= 0) newIssues += acc.new_issues;
+      else newIssuesUnknown = true;
+      if (acc.new_issues > 0) logLine(`  ⓘ ${p.id} r${round}: acceptance recorded ${acc.new_issues} new issue(s) in ${NEW_ISSUES}`);
+    }
     // Per mode: a fix schema has no criteria or reachability, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
     rec.criteria = verdict.criteria;
@@ -1693,6 +1716,8 @@ return {
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
   // changes. A block the run never reached has none.
   statusSync,
+  // null when a fix verifier returned no count: the file may then hold entries the total would hide.
+  newIssues: newIssuesUnknown ? null : newIssues,
   reviewTrail,
   followups: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepFailed
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — re-run it or verify coverage against the goal yourself before trusting this as finished. `
@@ -1716,5 +1741,9 @@ return {
     ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
+    : ''}${newIssues > 0 || newIssuesUnknown
+    ? `${newIssuesUnknown
+      ? `A fix verifier returned no new-issue count, so check ${NEW_ISSUES} for entries.`
+      : `Acceptance recorded ${newIssues} new issue(s) outside the fixes' root causes in ${NEW_ISSUES}.`} Once no parked or blocked block of this run is left to relaunch, move that file to ${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${RUN_ID}-<n>.md, with n one past the highest already there, and give its block an id no other plan uses. Then triage it like a debug issue file. A later run of this runId starts a fresh file instead of appending to the one you build. `
     : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };

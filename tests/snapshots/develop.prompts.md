@@ -25,12 +25,12 @@ this file is stale.
 | park | 2 | 1 | 5149 | a parked block, and the run carries on |
 | park | 3 | 1 | 5200 | an ordered run stops at a parked block |
 | develop | 9 | 2 | 7608 | a fix block closes its issues |
-| acceptance | 5 | 3 | 7462 | a fix block closes its issues |
+| acceptance | 5 | 3 | 8513 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 1937 | a fix block closes its issues |
 | develop | 10 | 2 | 7700 | a pass of two fix blocks closes its issues |
-| acceptance | 6 | 3 | 7558 | a pass of two fix blocks closes its issues |
+| acceptance | 6 | 3 | 8609 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 1967 | a pass of two fix blocks closes its issues |
-| acceptance | 7 | 3 | 7461 | every issue is already fixed |
+| acceptance | 7 | 3 | 8512 | every issue is already fixed |
 | park | 4 | 1 | 5386 | acceptance stages a rejected block |
 | park | 5 | 1 | 5306 | the quality reviewer fails a block without its file |
 | park | 6 | 1 | 5374 | the developer staged its own work |
@@ -2815,8 +2815,8 @@ instruction was amended against the AMENDED behavior, not the superseded one, an
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
 
-EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
-unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
+(actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
@@ -2825,8 +2825,8 @@ even when an entry's **Fix:** prescribes the construction that causes it, and ev
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
 the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
-or non-blocking section.
+OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
+file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2842,6 +2842,16 @@ PROCEDURE:
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
    edit was made. Return one fix_check per claimed issue.
+   A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
+   root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
+   branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
+   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
+   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
+   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
+   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
+   triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -2886,7 +2896,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "wrote_file",
     "pass",
     "staged",
-    "fix_checks"
+    "fix_checks",
+    "new_issues"
   ],
   "properties": {
     "plan_obtained": {
@@ -2928,6 +2939,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           }
         }
       }
+    },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
     },
     "regression": {
       "type": "boolean",
@@ -3285,8 +3300,8 @@ instruction was amended against the AMENDED behavior, not the superseded one, an
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
 
-EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
-unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
+(actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
@@ -3295,8 +3310,8 @@ even when an entry's **Fix:** prescribes the construction that causes it, and ev
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
 the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
-or non-blocking section.
+OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
+file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3313,6 +3328,16 @@ PROCEDURE:
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
    edit was made. Return one fix_check per claimed issue.
+   A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
+   root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
+   branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
+   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
+   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
+   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
+   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
+   triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -3357,7 +3382,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "wrote_file",
     "pass",
     "staged",
-    "fix_checks"
+    "fix_checks",
+    "new_issues"
   ],
   "properties": {
     "plan_obtained": {
@@ -3399,6 +3425,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           }
         }
       }
+    },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
     },
     "regression": {
       "type": "boolean",
@@ -3540,8 +3570,8 @@ instruction was amended against the AMENDED behavior, not the superseded one, an
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
 
-EVERY DEFECT YOU WRITE COUNTS. A gap is a claimed fix with a residual path (actually_fixed=false), an
-unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
+EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
+(actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, or a regression. A
 regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
 third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
@@ -3550,8 +3580,8 @@ even when an entry's **Fix:** prescribes the construction that causes it, and ev
 path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
 The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
 the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently. Your file holds no notes, observations
-or non-blocking section.
+OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
+file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3567,6 +3597,16 @@ PROCEDURE:
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false with a concrete note — EVEN IF the described
    edit was made. Return one fix_check per claimed issue.
+   A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
+   root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
+   branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
+   new issue to E:/flow/runs/flow/NEW-ISSUES.md only, never to your review file, and count it in new_issues. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
+   four lines "## Plan: new-issues - issues found outside the fixes' root causes", "mode: fix",
+   "gate: green" and "status: todo", then a blank line. Read an existing file first and never append a harm it already
+   holds. Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
+   (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
+   triages it before anything fixes it.
    The developer reports these issues STALE (already absent from the current code):
      - i-1
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -3611,7 +3651,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "wrote_file",
     "pass",
     "staged",
-    "fix_checks"
+    "fix_checks",
+    "new_issues"
   ],
   "properties": {
     "plan_obtained": {
@@ -3653,6 +3694,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
           }
         }
       }
+    },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended to NEW-ISSUES.md this round (0 if none)"
     },
     "regression": {
       "type": "boolean",

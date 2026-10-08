@@ -79,8 +79,8 @@ external inventories use the same shape.
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
   the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
 - **Fresh vs. resume:** for a new run, clear develop's own state files (§8) under the state dir;
-  preserve them on resume. Never clear a plan file or debug's `issues/`, which may share
-  `runs/<runId>/`.
+  preserve them on resume. Never clear a plan file, debug's `issues/` or an untriaged
+  `NEW-ISSUES.md`, which may share `runs/<runId>/`.
 
 ## 5. Roles
 
@@ -97,10 +97,17 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   block the staged baseline already satisfies passes without inventing changes). When no blind review
   has run for a feature or section block, any unstaged or untracked change fails acceptance. In fix
   mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. Every defect it
-  writes counts as a gap, including a regression the block prescribes or no current caller reaches.
+  writes in its review file counts as a gap, including a regression the block prescribes or no current caller reaches.
   The developer never dismisses a regression. It fixes the regression, with an
   amendment when the block prescribes it, or escalates it with a default when the fix needs major
-  changes outside the block's scope. The review file holds no notes section.
+  changes outside the block's scope. The review file holds no notes section. In fix mode, a harm an
+  entry lists whose cause shares no code path with the re-derived root cause is a new issue, never a
+  gap. A sibling path with the identical defect stays a residual path. The verifier appends a new issue
+  to `NEW-ISSUES.md`, a fix-mode plan file with every entry `NEEDS_USER`, and the return counts it in
+  `newIssues`. Once no parked or blocked block of the run is left to relaunch, move that file to
+  `<root>/plans/<runId>/NEW-ISSUES-<runId>-<n>.md`, with n one past the highest already there, and give
+  its block an id no other plan uses. Then triage it like a debug issue file. A relaunch
+  before the move dedupes against the file, and one after it would not.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
@@ -131,7 +138,7 @@ then done, so a relaunch has nothing to build, and you verify coverage against t
 leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose park did not confirm a
 clear. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
-`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md` and `SWEEP.md`.
+`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `NEW-ISSUES.md` and `SWEEP.md`.
 
 ## 7. Resume
 
@@ -150,7 +157,8 @@ the state dir), then relaunch clean. Never `git add -A` it.
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
-`AMENDED-<id>.md` · `NEEDS-USER.md` · `parked-<id>.patch` (+ `parked-<id>-newfiles/`) · `SWEEP.md`.
+`AMENDED-<id>.md` · `NEEDS-USER.md` · `NEW-ISSUES.md` (never cleared: move it out to triage it, §5) ·
+`parked-<id>.patch` (+ `parked-<id>-newfiles/`) · `SWEEP.md`.
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 
@@ -169,7 +177,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
   per-issue `results` in fix mode) · `statusSync` (the plan-file edits, also logged per block for §2
   step 5) · `sweep` /
-  `sweepFailed` · `followups`.
+  `sweepFailed` · `newIssues` (fix mode, null when a verifier returned no count) · `followups`.
 - **Optional:** `blockTool` · `planContext` per entry (`block` default | `full`) · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`

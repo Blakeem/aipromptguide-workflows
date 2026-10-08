@@ -60,7 +60,7 @@ const devFix = (results, extra) => ({ ...DEV_OK, produced: undefined, entries_fo
 const FIX_DONE   = devFix([{ issue_id: 'i-1', status: 'FIXED' }]);
 const FIX_STALE  = devFix([{ issue_id: 'i-1', status: 'STALE' }]);
 const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
-const ACC_FIX    = { wrote_file: true, pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], gap_count: 0, suite_result: 'green' };
+const ACC_FIX    = { wrote_file: true, pass: true, staged: true, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, gap_count: 0, suite_result: 'green' };
 
 // The clean full run every "what changes" scenario is a one-key edit of.
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };

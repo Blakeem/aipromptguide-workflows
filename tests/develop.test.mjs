@@ -180,7 +180,7 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
   const { out, prompt, logs } = await run({
     develop: firstRound(DEV_FIXED, DEV_STALE),
     quality: firstRound(FLAGGED, CLEAN),
-    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [] },
+    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [], new_issues: 0 },
   }, FIX_BLOCK);
   ok(/- i-1/.test(prompt('acceptance')), 'round 2 still hands acceptance the id claimed FIXED in round 1');
   ok(!/none claimed fixed/.test(prompt('acceptance')), 'the claim list did not empty on the downgrade');
@@ -201,8 +201,60 @@ const FIX_ONE = { ...baseArgs, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green'
 // flag in would let every case below pass on the one field the engine must ignore there.
 const { produced, ...DEV_FIX } = DEV_OK;
 const fixDev = (results, extra = {}) => ({ ...DEV_FIX, entries_found: 1, results, ...extra });
-const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }] };
-const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [] };
+const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0 };
+const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [], new_issues: 0 };
+
+section('fix acceptance records a harm with a separate cause as a new issue, never a gap');
+// A fix loop converges because its inventory is closed at triage, so the verifier routes such a harm to a
+// file the user triages instead of failing a fix whose own root cause is closed.
+{
+  const DEV_FIXED = fixDev([{ issue_id: 'i-1', status: 'FIXED' }]);
+  const ran = (r) => r.labels.some((l) => l.startsWith('acceptance'));
+  const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, new_issues: 2 } }, FIX_ONE);
+  const acc = found.prompt('acceptance').replace(/\s+/g, ' ');
+  ok(acc.includes('E:/r/runs/t/NEW-ISSUES.md only, never to your review file') && acc.includes('"- decision: NEEDS_USER"')
+    && acc.includes('"## Plan: new-issues - '),
+    'the verifier is told where a new issue goes, that it stays out of the review file, and how the file is shaped');
+  ok(acc.includes('a cause that shares no code path with the root cause you re-derived')
+    && acc.includes('A sibling path, caller or branch with the identical defect is always a residual path, and when unsure, treat it as one.'),
+    'the boundary keeps a sibling path with the same defect a residual path');
+  ok(acc.includes('It sets no fix_check false, and it never excuses a regression or an unsatisfied gate.'),
+    'a new issue never outranks a regression or the gate');
+  ok(acc.includes('EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.'), 'only the review file\'s defects count');
+  eq(found.out.newIssues, 2, 'the return counts the new issues');
+  ok(found.logs.some((l) => /acceptance recorded 2 new issue\(s\) in E:\/r\/runs\/t\/NEW-ISSUES\.md/.test(l)), 'and the round logs them');
+  ok(/Acceptance recorded 2 new issue\(s\) outside the fixes' root causes in E:\/r\/runs\/t\/NEW-ISSUES\.md\. Once no parked or blocked block of this run is left to relaunch, move that file to E:\/r\/plans\/t\/NEW-ISSUES-t-<n>\.md, with n one past the highest already there/.test(found.out.followups),
+    'and the followups say to move the file out once the run is finished, before triage');
+
+  const summed = await run({
+    develop: DEV_FIXED, quality: CLEAN, park: PARK_OK,
+    acceptance: firstRound({ ...FIX_GAP, new_issues: 1 }, { ...FIX_PASS, new_issues: 2 }),
+  }, FIX_ONE);
+  eq(summed.out.newIssues, 3, 'every round\'s count is summed, not only the last one');
+
+  const none = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  ok(ran(none), 'the no-new-issue case ran its verifier');
+  eq(none.out.newIssues, 0, 'a run that found none reports 0');
+  ok(!/NEW-ISSUES/.test(none.out.followups), 'and its followups never mention the file');
+
+  const { new_issues: _, ...NO_COUNT } = FIX_PASS;
+  const unknown = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: NO_COUNT }, FIX_ONE);
+  eq(unknown.out.newIssues, null, 'a missing count is unknown, never 0');
+  ok(/returned no new-issue count, so check E:\/r\/runs\/t\/NEW-ISSUES\.md for entries/.test(unknown.out.followups),
+    'and the followups send the operator to the file');
+
+  const dead = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: null, park: PARK_OK }, FIX_ONE);
+  eq(dead.out.newIssues, null, 'a dead verifier may have appended before it died, so the count is unknown');
+  ok(/NEW-ISSUES\.md for entries/.test(dead.out.followups), 'and the followups send the operator to the file');
+
+  const feature = await run(GREEN_RUN);
+  ok(ran(feature), 'the feature case ran its verifier');
+  eq(feature.out.newIssues, 0, 'a feature block has no new-issue channel and reports 0');
+  ok(!/NEW-ISSUES/.test(feature.prompt('acceptance')), 'and its verifier is never told of one');
+
+  const idle = await run({}, { ...FIX_ONE, plans: [{ id: 'fix-a', mode: 'fix', gate: 'green', status: 'done' }] });
+  eq(idle.out.newIssues, 0, 'a nothing-to-run return carries the field too');
+}
 
 section('mode fix takes gate green ONLY: build-only and red-baseline throw at launch');
 // A fix block's entries are defects in WORKING code, so both other gates would stage a "closed" issue on
@@ -1155,7 +1207,7 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
 {
   for (const [mode, id, r] of FRAMES) {
     const a = flat(r.prompt(`acceptance ${id}`));
-    ok(a.includes('EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
+    ok(a.includes(mode === 'fix' ? 'EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.' : 'EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
     ok(a.includes('a third-party one included'), `${mode}: a third-party caller's behavior is in the regression bar`);
     ok(a.includes('suite rule allows to be red is not a regression'), `${mode}: a suite-allowed red test is not a regression`);
     ok(a.includes('prescribes the construction that causes it'), `${mode}: a prescribed regression still counts`);
@@ -1166,7 +1218,8 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     ok(flat(r.prompt(`develop ${id}`)).includes('A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b.'),
       `${mode}: the developer's MATRIX never drops a counted regression`);
     ok(a.includes('the OVERRIDE rule above governs it'), `${mode}: a ledgered one falls to the OVERRIDE rule`);
-    ok(a.includes('Drop any other concern silently.'), `${mode}: anything below the bar is dropped`);
+    ok(a.includes(mode === 'fix' ? 'Drop any other concern silently, except a new issue (step 1).' : 'Drop any other concern silently.'),
+      `${mode}: anything below the bar is dropped${mode === 'fix' ? ', except a new issue' : ''}`);
     ok(a.includes('Your file holds no notes, observations or non-blocking section.'), `${mode}: the review file has no uncounted section`);
     if (mode !== 'fix') continue;
     // The gap list ends in "drop silently", so a fail condition a step states but the list omits passes.
