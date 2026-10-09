@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 6663 | a clean first round |
+| plan-critic | 1 | 1 | 6846 | a clean first round |
 | plan-editor | 1 | 1 | 1971 | gaps folded, then a clean round |
-| plan-critic | 2 | 1 | 6737 | gaps folded, then a clean round |
+| plan-critic | 2 | 1 | 6920 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -74,7 +74,9 @@ Four rules settle the grade, and each wins over the definitions above:
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
     gate would not catch is major.
   - An existing sentence that the block's steps make false, and that the block leaves unchanged, is an
-    OMISSION graded minor, since develop's acceptance counts it as a regression.
+    OMISSION graded minor, since develop's acceptance counts it as a regression. When a LATER block
+    rewrites that sentence, it is a DEPENDENCY-ORDERING ERROR graded major instead, since the earlier
+    block's acceptance counts it before the later block runs.
 Gaps graded blocking or major COUNT: write them in the numbered GAPS section and include them in
 gap_count. Gaps graded minor are BELOW the floor: list them in a separate
 "## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count. Re-list every
@@ -267,7 +269,9 @@ Four rules settle the grade, and each wins over the definitions above:
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
     gate would not catch is major.
   - An existing sentence that the block's steps make false, and that the block leaves unchanged, is an
-    OMISSION graded minor, since develop's acceptance counts it as a regression.
+    OMISSION graded minor, since develop's acceptance counts it as a regression. When a LATER block
+    rewrites that sentence, it is a DEPENDENCY-ORDERING ERROR graded major instead, since the earlier
+    block's acceptance counts it before the later block runs.
 Gaps graded blocking or major COUNT: write them in the numbered GAPS section and include them in
 gap_count. Gaps graded minor are BELOW the floor: list them in a separate
 "## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count. Re-list every

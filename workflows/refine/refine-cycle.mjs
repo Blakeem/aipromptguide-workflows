@@ -212,7 +212,9 @@ Four rules settle the grade, and each wins over the definitions above:
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
     gate would not catch is major.
   - An existing sentence that the block's steps make false, and that the block leaves unchanged, is an
-    OMISSION graded minor, since develop's acceptance counts it as a regression.
+    OMISSION graded minor, since develop's acceptance counts it as a regression. When a LATER block
+    rewrites that sentence, it is a DEPENDENCY-ORDERING ERROR graded major instead, since the earlier
+    block's acceptance counts it before the later block runs.
 Gaps graded ${COUNTED.join(' or ')} COUNT: write them in the numbered GAPS section and include them in
 gap_count. ${BELOW.length
     ? `Gaps graded ${BELOW.join(' or ')} are BELOW the floor: list them in a separate

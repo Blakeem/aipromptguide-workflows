@@ -20,7 +20,9 @@ Four things together — remove any one and the plan grows every round instead o
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
   output on an input the repo or the plan accepts is major, unless it is an omission the block's own
   green gate catches on its first run. The size of the fix never lowers a grade. An existing sentence
-  the block makes false and leaves unchanged grades minor.
+  the block makes false and leaves unchanged grades minor. When a later block rewrites that sentence,
+  it is a dependency-ordering error graded major instead, since develop's acceptance counts it against
+  the earlier block.
   Below-floor findings land in the critique file's FYI section. They never block convergence, and
   `belowFloor` returns their count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips

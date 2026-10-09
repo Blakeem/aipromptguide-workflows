@@ -196,7 +196,9 @@ against (halt); an unreachable feature does not (flag).
   covers assertions on new or changed behavior. An assertion that guards kept behavior passes on both
   versions and needs no red run. An assertion that reads a field the change adds or renames reads it
   defensively, such as `String(out.nextStep ?? '')`, so the old code fails that one assertion early and
-  visibly instead of throwing and hiding every assertion after it.
+  visibly instead of throwing and hiding every assertion after it. An absence assertion on new
+  behavior, such as a new prompt that must not name some file, passes on the old code by construction.
+  Prove it against a mutant that adds what it forbids.
 - **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
   grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
   validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that

@@ -141,6 +141,8 @@ section('the critic judges text the block tells the developer to write as output
   const gradeRules = p.slice(p.indexOf('Four rules settle the grade'), p.indexOf('Gaps graded'));
   ok(gradeRules.includes('An existing sentence that the block\'s steps make false, and that the block leaves unchanged, is an OMISSION graded minor, since develop\'s acceptance counts it as a regression.'),
     'a stale sentence the block leaves unchanged is a minor omission, among the four grade rules');
+  ok(gradeRules.includes('When a LATER block rewrites that sentence, it is a DEPENDENCY-ORDERING ERROR graded major instead, since the earlier block\'s acceptance counts it before the later block runs.'),
+    'a stale sentence a later block rewrites is a major ordering error, so the default floor cannot hide it');
   ok(!p.includes('Three rules settle the grade'), 'no line still counts three grade rules');
 }
 
