@@ -102,9 +102,10 @@ Every engine takes two separate paths, and they are deliberately **not** the sam
 ```
 E:/myproject/          ← target.repo   the project itself, the folder holding .git
 ├── .git/
-├── src/
-└── aipg/              ← root          run-state lands at aipg/runs/<runId>/
-    └── workflows/
+└── src/
+E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>/
+├── runs/
+└── workflows/
 ```
 
 - **`target.repo`** is the repo being worked on. Agents run `git -C <target.repo> …` against it, and it
