@@ -280,6 +280,18 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   the old code. An assertion that guards kept behavior is exempt.
 - **The one-checkout diagram puts root beside the project.** It showed the run-state root inside the
   target repo, which the engines warn against.
+- **decide reviews by focus, then verifies the decider's fixes.** Round 1 runs three focused reviewers
+  at once. Each later round runs one verifier that checks the decider's fixes and judges the text they
+  changed. Before, one fresh reviewer read the entire decision every round.
+- **A decide gap blocks only when it breaks the choice.** That covers a broken non-negotiable, a
+  correctness defect, a wrong choice or a missed better option. Every other real gap is a caveat that
+  goes to your plan. A run that agrees with caveats ends `decided with caveats`. Before, every concern
+  blocked agreement, so most runs ended `needs-attention`.
+- **decide states its trade-off and flip check.** The decision lists what the winner gives up against
+  the runner-up. Its flip check names the smallest change that would swap the winner and grades the
+  choice `dominant`, `robust` or `fragile`. The return carries the grade as `flip`.
+- **decide's return lists every review file.** `reviewFile` is now `reviewFiles`. The return adds
+  `caveats` and `caveatFiles`, and each `gapRounds` entry adds a `caveats` count.
 
 ### 2026-10-07
 
