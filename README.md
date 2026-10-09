@@ -260,6 +260,26 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   replacement. To continue a run, relaunch with fresh `plan-edit.mjs args`.
 - **`plan-edit.mjs args` reads a finished develop run's statuses from its result.** The runtime never
   cuts the result, but it cuts a long log line. A log line it cut now fails only the plans it names.
+- **Principle #16 says how to rule something out.** A judge cites the evidence inside the scope it
+  checked. A claim no evidence decides stays open, and a gate that needs proof records it as unproven.
+  Each ruling names the observation that would reverse it.
+- **refine's critic grades a false sentence a block tells the developer to write.** It counts as a wrong
+  instruction. An existing sentence the block makes false grades minor. A defect in a file key, such as
+  the goal, is a question for you.
+- **debug's verifier records each finding it rejects.** Each one gets a line under `## Rejected` with
+  what refutes it. A finding the code neither confirms nor refutes goes to you as NEEDS_USER.
+- **develop's blind reviewer flags a new sentence the code contradicts.** A finding the developer
+  drops as a false positive cites the line that refutes it.
+- **investigate and enhance mark an unproven claim as UNPROVEN.** investigate writes it in place of
+  FAILS for a criterion no source decides. enhance writes it for a cost it cannot substantiate.
+- **decide's decider cites what rules out each option it rejects.** It also names what would reverse
+  that.
+- **develop's ledger statuses read like its run status.** Each reads `<token> (<meaning>)`, and the
+  engine no longer branches on a status string.
+- **The test rule says what a red run proves.** An assertion on new or changed behavior must fail on
+  the old code. An assertion that guards kept behavior is exempt.
+- **The one-checkout diagram puts root beside the project.** It showed the run-state root inside the
+  target repo, which the engines warn against.
 
 ### 2026-10-07
 
