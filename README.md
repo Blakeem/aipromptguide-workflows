@@ -292,6 +292,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   choice `dominant`, `robust` or `fragile`. The return carries the grade as `flip`.
 - **decide's return lists every review file.** `reviewFile` is now `reviewFiles`. The return adds
   `caveats` and `caveatFiles`, and each `gapRounds` entry adds a `caveats` count.
+- **refine grades a stale sentence a later block rewrites as major.** It is an ordering error, since
+  develop's acceptance counts the sentence against the earlier block. Before, it graded minor and the
+  run could converge with it.
+- **The test rule covers absence assertions.** An assertion that new behavior lacks something passes on
+  the old code, so a mutant that adds that thing proves it.
 
 ### 2026-10-07
 
