@@ -9,13 +9,17 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 %%{init: {"flowchart": {"nodeSpacing": 80, "rankSpacing": 200}}}%%
 flowchart TD
   S0(["args"])
+  subgraph p3["Review"]
+    a3["review r1 · opus<br/>Review<br/>×3 concurrent"]
+    a4["review · opus"]
+  end
   a1["analyst · sonnet<br/>Diverge<br/>×3 concurrent"]
   a2["decide · opus"]
-  a3["review · opus"]
-  t1(["decided (decider + reviewer agree)"])
-  t2(["needs-attention (no agreement within round budget)"])
-  t3(["BLOCKED (needs user input)"])
-  t4(["BLOCKED (an agent did not confirm writing its file)"])
+  t1(["decided (decider + reviewers agree)"])
+  t2(["decided with caveats (no blocking gap, and the reviews list caveats for the plan)"])
+  t3(["needs-attention (no agreement within round budget)"])
+  t4(["BLOCKED (needs user input)"])
+  t5(["BLOCKED (an agent did not confirm writing its file)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, lenses, planPath }"/]
   x3[/"throw: args.root is required"/]
@@ -39,15 +43,18 @@ flowchart TD
   a1 --> a2
   a1 --> x9
   a2 --> a3
-  a2 --> t3
+  a2 --> a4
   a2 --> t4
+  a2 --> t5
   a2 --> x10
-  a3 -.->|"the reviewer keeps finding gaps (×3)"| a2
+  a3 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
   a3 --> t1
   a3 --> t2
-  a3 --> t3
   a3 --> t4
+  a3 --> t5
   a3 --> x11
+  a4 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
+  a4 --> t3
 ```
 
 ## Phases
@@ -55,17 +62,18 @@ flowchart TD
 | Phase | What happens |
 |---|---|
 | Diverge | One analyst per lens (CONCURRENT). Each reads the requirements (verbatim) + its lens, generates 2-4 options, scores them under its lens, recommends one, and writes lenses/&lt;lens&gt;.md. Returns a thin index. |
-| Decide | The decider reads the requirements + every lens file (+ the latest review), combines the best elements, builds a GLOBAL weighted decision matrix enforcing the non-negotiables - every cell citing its lens evidence or marked own-judgment - picks the winner, and writes decision-rN.md. Returns the choice + a meets-all-requirements flag. |
-| Review | A NON-BLIND adversarial reviewer reads the decision + requirements + lens files, checks every requirement is met and the matrix is sound (each citation verified against its lens file, no unsupported leap, no better option overlooked), and writes decision-review-rN.md. Agreement ends the loop; gaps drive another Decide round. |
+| Decide | The decider reads the requirements + every lens file (+ every review file of the previous round), combines the best elements, builds a GLOBAL weighted decision matrix enforcing the non-negotiables - every cell citing its lens evidence or marked own-judgment - picks the winner, and writes decision-rN.md. Returns the choice + a meets-all-requirements flag. |
+| Review | NON-BLIND adversarial reviewers read the decision + requirements + lens files. Round 1 runs three focused reviewers CONCURRENTLY (single: choice, requirements, design; ranked: order, requirements, combine), each writing decision-review-r1-&lt;focus&gt;.md. Each later round runs one verifier that reads every review file of the previous round, checks each blocking gap was closed or rebutted, judges every changed passage, and writes decision-review-rN.md. Every gap is BLOCKING (non-negotiable violation, correctness defect, wrong choice, missed option) or a CAVEAT. No blocking gap ends the loop; blocking gaps drive another Decide round. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| decided (decider + reviewer agree) | the reviewer agrees the conclusion holds · one analyst produces no lens file | derived |
-| needs-attention (no agreement within round budget) | the reviewer keeps finding gaps | derived |
-| BLOCKED (needs user input) | the decider hits a user-only call · the reviewer finds a requirement contradiction | derived |
-| BLOCKED (an agent did not confirm writing its file) | the decider does not confirm writing its decision file · the reviewer does not confirm writing its review file | derived |
+| decided (decider + reviewers agree) | every reviewer agrees: no blocking gap, no caveat · one analyst produces no lens file | derived |
+| decided with caveats (no blocking gap, and the reviews list caveats for the plan) | every reviewer agrees and one lists a caveat | derived |
+| needs-attention (no agreement within round budget) | the reviewers keep finding blocking gaps | derived |
+| BLOCKED (needs user input) | the decider hits a user-only call · a reviewer finds a requirement contradiction | derived |
+| BLOCKED (an agent did not confirm writing its file) | the decider does not confirm writing its decision file · a reviewer does not confirm writing its review file | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 27) |
 | throw: args must include at least { runId, root, lenses, planPath } | args carry no runId | throw (line 30) |
 | throw: args.root is required | args.root is missing | throw (line 33) |
@@ -74,10 +82,10 @@ flowchart TD
 | throw: args.planPath is required | args carry no planPath | throw (line 91) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 103) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 107) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 292) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 328) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 362) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 376) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 416) |
+| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 454) |
 
 ## Coverage
 
-18 scenarios · 3/3 roles · 11/11 throw sites · 0/0 halt statuses · 15 terminal states.
+19 scenarios · 4/4 roles · 11/11 throw sites · 0/0 halt statuses · 16 terminal states.

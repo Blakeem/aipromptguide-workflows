@@ -276,8 +276,10 @@ rules and apply only where they fit.
   requirements it is judged against, since a reviewer blind to the decision can't evaluate it.
   Blindness (#3) guards against code-regression anchoring and is wrong for evaluating an argument. Each
   of the three shapes converges on something different:
-  - **Argument** (decide) converges when reviewer and decider agree against a fixed requirements rubric,
-    bounded by `maxRounds`. One up-front fan-out fixes the candidate set.
+  - **Argument** (decide) converges when no reviewer holds a blocking gap against a fixed requirements
+    rubric, bounded by `maxRounds`. Only a gap that breaks a non-negotiable, the design's correctness or
+    the choice blocks. Every other real gap is a caveat carried into the plan. One up-front fan-out fixes
+    the candidate set.
   - **Plan review** (refine) converges on one round in which a read-only critic finds no gap at or above
     a fixed defect floor. Its editor changes only the plan file, and only what a gap names.
   - **Search** (investigate) converges on coverage, an evidenced claim that nothing qualifying was left

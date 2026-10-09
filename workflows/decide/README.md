@@ -7,8 +7,9 @@ It weighs real trade-offs through several perspectives and defends the choice wi
 
 You write the requirements (the non-negotiables and the weighted criteria) and name the lenses to judge
 through. Claude runs one analyst per lens to surface and score options. A **decider** funnels them into a
-single conclusion and pulls in the best elements of each where they compose. Then a **non-blind
-adversarial reviewer** tries to break it. They loop until they agree.
+single conclusion and pulls in the best elements of each where they compose. In round 1, three
+**focused reviewers** attack the decision at once. Each later round runs one **verifier** that checks the
+decider's fixes. The loop ends when no reviewer holds a blocking gap.
 
 ### What sets it apart
 
@@ -18,21 +19,29 @@ A **diverge-then-converge** workflow built on the shared [Workflow Principles](.
   balances them in a global weighted matrix. Non-negotiables are pass/fail, the simplest adequate
   option is preferred, and every runner-up is explicitly disqualified.
 - **A fixed rubric both sides judge against.** The requirements file is the single source of truth for
-  the decider *and* the reviewer. This is what makes the loop converge instead of bikeshedding.
-- **Adversarial, non-blind review.** Unlike a code review, the reviewer *must* see the decision to judge
-  it, so it's non-blind by design. It attacks the conclusion against the requirements rather than
-  rubber-stamping it.
+  the decider *and* the reviewers. This is what makes the loop converge instead of bikeshedding.
+- **Adversarial, non-blind review.** Unlike a code review, the reviewers *must* see the decision to judge
+  it, so the review is non-blind by design. In round 1 each of three reviewers attacks one focus, such as
+  the choice, the requirements or the design. From round 2 a verifier reads the earlier reviews and
+  checks each fix the decider made.
+- **Blocking gaps and caveats.** A gap blocks agreement only when it shows a broken non-negotiable, a
+  correctness defect, a wrong choice or a missed better option. Every other real gap is a caveat. A
+  caveat never blocks, and the run hands it to your plan. A run that agrees with caveats ends
+  `decided with caveats`.
+- **Trade-off and flip check.** The decision states what the winner gives up against the runner-up,
+  criterion by criterion. Its flip check names the smallest change that would swap the winner. The
+  decider grades the choice `dominant`, `robust` or `fragile`, and you settle a `fragile` one.
 - **One winner, or a ranked shortlist.** The default is a single justified conclusion. When the honest
   answer is a *portfolio* ("give me the best N, I'll pick or combine"), the `ranked` mode returns an
   ordered shortlist instead. The shortlist states what each option buys, what it costs, and which of them
   safely combine (and which are mutually exclusive). It is held to the same matrix and the same
   adversarial review.
-- **Non-convergence diagnoses itself.** Every reviewer gap carries a stable slug, and the run tracks
+- **Non-convergence diagnoses itself.** Every blocking gap carries a stable slug, and the run tracks
   which gaps are new and which are repeats across rounds. A run that ends without agreement after two or
   more rounds says which failure it was. Either the same gaps repeat (the decider is not resolving them),
-  or fresh gaps appear every round (the rubric is under-specified). The final review ends with a
-  **WHERE NEXT**, which names the requirement axis the rubric does not settle and the change that would
-  let a decision converge.
+  or fresh gaps appear every round. Fresh gaps mean the fixes open new defects or the rubric is
+  under-specified. The final review ends with a **WHERE NEXT** section that says which. For a rubric
+  gap it names the one requirement change that would let a decision converge.
 - **A conclusion, not code.** Nothing is staged or committed. The decision feeds
   a plan file that [`develop-cycle`](../develop/) builds next.
 
@@ -71,18 +80,19 @@ lenses, then runs `decide-cycle.mjs` **by path**.
 1. **Frames the rubric.** The rubric written in plan mode states the decision, the non-negotiables and
    the weighted criteria.
 2. **Diverges.** One analyst per lens generates and scores options.
-3. **Converges.** The decider builds the matrix and concludes. The reviewer attacks it, and they loop
-   to agreement.
+3. **Converges.** The decider builds the matrix and concludes. Three focused reviewers attack it in
+   round 1, and a verifier checks each later revision.
 4. **Presents.** Relays the matrix + rationale, and the lens files so you can see the source views.
 
 ---
 
 ## Reviewing the result
 
-`runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`), the decider's matrix and conclusion
-(`decision-rN.md`), and the reviewer's objections each round (`decision-review-rN.md`). Since a re-run
-can leave an earlier run's files with higher round numbers in that folder, read the decision file that
-the run's result names. Also skim the lens files to see the trade-offs that shaped it. Then build the
+`runs/<runId>/` holds the per-lens analyses (`lenses/<lens>.md`) and the decider's matrix and
+conclusion (`decision-rN.md`). It also holds the round-1 focused reviews (`decision-review-r1-<focus>.md`)
+and each later verification (`decision-review-rN.md`). Each review lists its blocking gaps and its
+caveats. Carry the caveats into the plan you build from. Since a re-run can leave an earlier run's
+files with higher round numbers in that folder, read the decision file that the run's result names. Also skim the lens files to see the trade-offs that shaped it. Then build the
 chosen approach from a [`develop-cycle`](../develop/) plan file.
 
 ---

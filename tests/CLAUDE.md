@@ -46,8 +46,8 @@ Real examples, all from one week:
 `investigate` is the family's odd member: its candidates are *found* round by round rather than fanned
 out once, so its loop state lives in a ledger (`DISQUALIFIED.md`) instead of an up-front id array. When
 fixing a loop defect in `decide`, check whether investigate's round loop has the same shape — and note
-that the reverse is often NOT true, since decide's two-variable `reviewPath`/`lastReviewFile` split
-(`decide-cycle.mjs:304-305`) is correct there only because it has an agree-gate investigate lacks.
+that the reverse is often NOT true, since decide's two-variable `reviewPaths`/`lastReviewFiles` split
+is correct there only because it has an agree-gate investigate lacks.
 
 **Do it by grep, not memory.** `grep -n "TARGET.repo" workflows/*/*.mjs` finds in seconds what a reviewer
 cannot find at all. Then fix each in its own file with parallel wording — never by extracting a shared

@@ -6,14 +6,19 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| analyst | 1 | 1 | 1213 | reviewer agrees |
-| decide | 1 | 1 | 2179 | reviewer agrees |
-| review | 1 | 1 | 2398 | reviewer agrees |
-| decide | 2 | 1 | 2403 | gaps to the round budget |
-| review | 2 | 1 | 2717 | gaps to the round budget |
-| review | 3 | 1 | 3088 | gaps to the round budget |
-| decide | 3 | 1 | 2116 | one lens dies |
-| review | 4 | 1 | 2358 | one lens dies |
+| analyst | 1 | 1 | 1455 | reviewer agrees |
+| decide | 1 | 1 | 3287 | reviewer agrees |
+| review r1 | 1 | 1 | 4278 | reviewer agrees |
+| review r1 | 2 | 1 | 4094 | reviewer agrees |
+| review r1 | 3 | 1 | 4273 | reviewer agrees |
+| decide | 2 | 1 | 4839 | gaps to the round budget |
+| review | 1 | 1 | 4818 | gaps to the round budget |
+| decide | 3 | 1 | 4724 | gaps to the round budget |
+| review | 2 | 1 | 5340 | gaps to the round budget |
+| decide | 4 | 1 | 3224 | one lens dies |
+| review r1 | 4 | 1 | 4238 | one lens dies |
+| review r1 | 5 | 1 | 4054 | one lens dies |
+| review r1 | 6 | 1 | 4233 | one lens dies |
 
 ## analyst · variant 1 · schema 1
 
@@ -25,6 +30,8 @@ You are an ANALYST evaluating the decision THROUGH ONE LENS. Find the best answe
 Push that perspective hard and do NOT pre-compromise: the decider balances lenses later.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 YOUR LENS: efficiency
@@ -32,8 +39,8 @@ YOUR LENS: efficiency
 PROCEDURE:
 1. Generate 2–4 DISTINCT options that address the decision, including a simple baseline.
 2. Score each option 0–10 FROM YOUR LENS (a non-negotiable violation = 0).
-3. Recommend the one option your lens favours, and name the ELEMENTS of it worth keeping even if another
-   option wins (so the decider can build a hybrid).
+3. Recommend the one option your lens favours, say what it gives up against your runner-up, and name
+   the ELEMENTS of it worth keeping even if another option wins (so the decider can build a hybrid).
 WRITE E:/flow/runs/flow/lenses/efficiency.md (create E:/flow/runs/flow/lenses/ if needed): per option a short block with title,
 description, and your 0–10 lens score + why. For your pick, add the keep-worthy elements. Be concrete and
 terse. Do NOT modify any repo, stage, or commit.
@@ -69,13 +76,14 @@ Return via the schema.
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
   - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
-
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -89,8 +97,18 @@ PROCEDURE:
    and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x score gap, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
+open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
 Return via the schema.
@@ -103,6 +121,7 @@ Return via the schema.
     "wrote_file",
     "chosen",
     "meets_all_requirements",
+    "flip",
     "needs_user"
   ],
   "properties": {
@@ -118,6 +137,15 @@ Return via the schema.
       "type": "boolean",
       "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
     },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
     "open_questions": {
       "type": "integer",
       "description": "count of unresolved points you noted in the decision file (0 if none)"
@@ -130,37 +158,55 @@ Return via the schema.
 }
 ~~~~
 
-## review · variant 1 · schema 1
+## review r1 · variant 1 · schema 1
 
-`review r1` in "reviewer agrees"
+`review r1 choice` in "reviewer agrees"
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
-Agree (agree=true) only when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the CHOICE. Verify every matrix cell's citation against its lens file, re-derive every
+total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
+low-confidence cells). Look for a stronger option or hybrid the decider dismissed or never considered, a
+"why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
-Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
 
-CHECK, against the requirements rubric:
-1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
-   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
-   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
-   score that looks generous.
-3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
-4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
-agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
-the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
-or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
-concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Return via the schema.
@@ -173,6 +219,7 @@ Return via the schema.
     "wrote_file",
     "agree",
     "gap_ids",
+    "caveat_ids",
     "needs_user"
   ],
   "properties": {
@@ -182,14 +229,211 @@ Return via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
     },
     "gap_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
+    }
+  }
+}
+~~~~
+
+## review r1 · variant 2 · schema 1
+
+`review r1 requirements` in "reviewer agrees"
+
+~~~~text
+
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the REQUIREMENTS. Check the winner's design against every non-negotiable, path by
+path, and check every weighted criterion is addressed. The choice reviewer re-derives the matrix, so do
+not.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
+THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
+
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
+only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "agree",
+    "gap_ids",
+    "caveat_ids",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the review file"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
+    },
+    "gap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
+    }
+  }
+}
+~~~~
+
+## review r1 · variant 3 · schema 1
+
+`review r1 design` in "reviewer agrees"
+
+~~~~text
+
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the DESIGN the conclusion specifies: does it work as written? Walk every input the
+requirements accept, the edge and failure paths included. Look for a rule that contradicts another rule,
+the requirements, a step that depends on something built later, and a
+claim the conclusion rests on that the design does not deliver. The choice reviewer re-derives the
+matrix, so do not.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
+THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
+
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
+only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "agree",
+    "gap_ids",
+    "caveat_ids",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the review file"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
+    },
+    "gap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
     },
     "needs_user": {
       "type": "boolean",
@@ -208,14 +452,34 @@ Return via the schema.
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
   - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
-The reviewer did NOT yet agree. READ E:/flow/runs/flow/decision-review-r1.md and resolve every gap/objection it raises.
-Revise your prior decision at E:/flow/runs/flow/decision-r1.md. Start over only if a gap is fundamental.
+The reviewers did NOT yet agree. READ every review file of round 1:
+  - E:/flow/runs/flow/decision-review-r1-choice.md
+  - E:/flow/runs/flow/decision-review-r1-requirements.md
+  - E:/flow/runs/flow/decision-review-r1-design.md
+Each holds a BLOCKING section and a CAVEATS section. REVISE your decision at E:/flow/runs/flow/decision-r1.md
+into a complete new file:
+- For each BLOCKING gap, fold in the SMALLEST change that closes it, or rebut it under a `## Rebuttals`
+  heading with evidence: a lens claim, a file:line, a measurement or the requirements text. A rebuttal
+  without evidence is not one, and agreeing with a gap you cannot refute is the honest move.
+- You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
+  carry it to the user.
+- A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
+  fold repairs one option against a defect another option shares, repair that option the same way and
+  keep it scored in the matrix. But an option or hybrid a reviewer raised as missed in two rounds goes
+  into the matrix, scored.
+- Before you write a fold, test it against one hostile input of each kind it touches, such as a failure,
+  a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a
+  value an older version stored), or an edit by another program that no scan has seen yet, so the fold
+  does not open a new defect.
+- Change nothing a gap does not name. Then redo the totals, the trade-off and the flip check.
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -229,8 +493,18 @@ PROCEDURE:
    and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x score gap, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it.
 WRITE E:/flow/runs/flow/decision-r2.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
+open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
 Return via the schema.
@@ -243,6 +517,7 @@ Return via the schema.
     "wrote_file",
     "chosen",
     "meets_all_requirements",
+    "flip",
     "needs_user"
   ],
   "properties": {
@@ -257,6 +532,229 @@ Return via the schema.
     "meets_all_requirements": {
       "type": "boolean",
       "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
+    },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
+    "open_questions": {
+      "type": "integer",
+      "description": "count of unresolved points you noted in the decision file (0 if none)"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if a genuine choice/contradiction only the USER can resolve blocks you; you wrote a full entry to NEEDS-USER.md and cannot proceed"
+    }
+  }
+}
+~~~~
+
+## review · variant 1 · schema 1
+
+`review r2` in "gaps to the round budget"
+
+~~~~text
+
+You are an ADVERSARIAL DECISION REVIEWER. The decider revised E:/flow/runs/flow/decision-r1.md into E:/flow/runs/flow/decision-r2.md to address the review files of
+round 1:
+  - E:/flow/runs/flow/decision-review-r1-choice.md
+  - E:/flow/runs/flow/decision-review-r1-requirements.md
+  - E:/flow/runs/flow/decision-review-r1-design.md
+VERIFY THE REVISION:
+1. Each BLOCKING gap in those files: closed by the revision, or rebutted under `## Rebuttals` with
+   evidence that holds? One that is neither stays BLOCKING under its slug.
+2. Every passage the revision changed or added (compare the two decision files): judge it in full.
+3. Re-derive the totals, the trade-off and the flip check.
+In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
+you notice there is a caveat. List only NEW caveats: one an earlier review raised stays on record there,
+so do not re-list it.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r2.md
+THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
+Gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue as one
+of those, reuse its slug verbatim. Otherwise mint a new short kebab-case one.
+
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
+only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "agree",
+    "gap_ids",
+    "caveat_ids",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the review file"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
+    },
+    "gap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
+    }
+  }
+}
+~~~~
+
+## decide · variant 3 · schema 1
+
+`decide r3` in "gaps to the round budget"
+
+~~~~text
+
+You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+LENS ANALYSES — read each VERBATIM:
+  - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
+  - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
+  - E:/flow/runs/flow/lenses/robustness.md  (lens: robustness)
+The reviewers did NOT yet agree. READ every review file of round 2:
+  - E:/flow/runs/flow/decision-review-r2.md
+Each holds a BLOCKING section and a CAVEATS section. REVISE your decision at E:/flow/runs/flow/decision-r2.md
+into a complete new file:
+- For each BLOCKING gap, fold in the SMALLEST change that closes it, or rebut it under a `## Rebuttals`
+  heading with evidence: a lens claim, a file:line, a measurement or the requirements text. A rebuttal
+  without evidence is not one, and agreeing with a gap you cannot refute is the honest move.
+- You MAY fold a CAVEAT whose fix is one sentence. Leave every other caveat alone: the review files
+  carry it to the user.
+- A repair patches the option it repairs. Never add a repaired variant as a new rival option. When a
+  fold repairs one option against a defect another option shares, repair that option the same way and
+  keep it scored in the matrix. But an option or hybrid a reviewer raised as missed in two rounds goes
+  into the matrix, scored.
+- Before you write a fold, test it against one hostile input of each kind it touches, such as a failure,
+  a concurrent edit, a human-set value, state saved before the change (a legacy row, a migration, a
+  value an older version stored), or an edit by another program that no scan has seen yet, so the fold
+  does not open a new defect.
+- Change nothing a gap does not name. Then redo the totals, the trade-off and the flip check.
+
+PROCEDURE:
+1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
+   of the best elements of several, but only where they genuinely compose (no Frankenstein).
+2. Take the weighted CRITERIA and their weights from the requirements. Build a decision matrix: each
+   candidate (incl. any hybrid) scored 0–10 per weighted criterion, non-negotiable violations forced to
+   0, weighted total computed. The highest defensible total wins.
+   GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
+   exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
+   citation. Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out
+   and names the one observation that would reverse that.
+3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
+   satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x score gap, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it.
+WRITE E:/flow/runs/flow/decision-r3.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
+open questions. Do NOT modify any repo, stage, or commit.
+If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
+full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "chosen",
+    "meets_all_requirements",
+    "flip",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the decision file"
+    },
+    "chosen": {
+      "type": "string",
+      "description": "short title of the chosen conclusion (may be a hybrid)"
+    },
+    "meets_all_requirements": {
+      "type": "boolean",
+      "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
+    },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
     },
     "open_questions": {
       "type": "integer",
@@ -272,118 +770,70 @@ Return via the schema.
 
 ## review · variant 2 · schema 1
 
-`review r2` in "gaps to the round budget"
-
-~~~~text
-
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
-Agree (agree=true) only when you genuinely cannot.
-THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
-NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
-Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
-justify why the simpler one is inadequate.
-THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r2.md
-THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
-Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-Gaps earlier reviews raised, AS SLUGS (ids only. Do not go looking for their content):
-slug-a, slug-b. If a gap you find is the SAME issue as one of those, reuse its slug verbatim in
-gap_ids. Otherwise mint a new short kebab-case one. Do not stretch a slug to fit, and do not withhold one
-because it was raised before.
-
-CHECK, against the requirements rubric:
-1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
-   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
-   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
-   score that looks generous.
-3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
-4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r2.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
-agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
-the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
-or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
-concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
-Do NOT modify any repo, stage, or commit. If a requirement contradiction
-only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-Return via the schema.
-~~~~
-
-~~~~json
-{
-  "type": "object",
-  "required": [
-    "wrote_file",
-    "agree",
-    "gap_ids",
-    "needs_user"
-  ],
-  "properties": {
-    "wrote_file": {
-      "type": "boolean",
-      "description": "true if you wrote the review file"
-    },
-    "agree": {
-      "type": "boolean",
-      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
-    },
-    "gap_ids": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
-    },
-    "needs_user": {
-      "type": "boolean",
-      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
-    }
-  }
-}
-~~~~
-
-## review · variant 3 · schema 1
-
 `review r3` in "gaps to the round budget"
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
-Agree (agree=true) only when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. The decider revised E:/flow/runs/flow/decision-r2.md into E:/flow/runs/flow/decision-r3.md to address the review files of
+round 2:
+  - E:/flow/runs/flow/decision-review-r2.md
+VERIFY THE REVISION:
+1. Each BLOCKING gap in those files: closed by the revision, or rebutted under `## Rebuttals` with
+   evidence that holds? One that is neither stays BLOCKING under its slug.
+2. Every passage the revision changed or added (compare the two decision files): judge it in full.
+3. Re-derive the totals, the trade-off and the flip check.
+In text the revision left unchanged, report only a NON-NEGOTIABLE VIOLATION as blocking. Anything else
+you notice there is a caveat. List only NEW caveats: one an earlier review raised stays on record there,
+so do not re-list it.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r3.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md, E:/flow/runs/flow/lenses/robustness.md
-Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
-Gaps earlier reviews raised, AS SLUGS (ids only. Do not go looking for their content):
-slug-a, slug-b. If a gap you find is the SAME issue as one of those, reuse its slug verbatim in
-gap_ids. Otherwise mint a new short kebab-case one. Do not stretch a slug to fit, and do not withhold one
-because it was raised before.
+Gaps earlier reviews raised, AS SLUGS: slug-a, slug-b. If a gap you find is the SAME issue as one
+of those, reuse its slug verbatim. Otherwise mint a new short kebab-case one.
 
-CHECK, against the requirements rubric:
-1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
-   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
-   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
-   score that looks generous.
-3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
-4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
-agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
-the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
-or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
-concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r3.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
-This is the run's LAST round: no decider round follows. If you do NOT agree, END that file with a
-`## WHERE NEXT` section: the ONE requirement axis the rubric does not settle (the trade-off you and the
-decider keep landing on opposite sides of), and the ONE change to the requirements (a weight, a
-non-negotiable, a missing criterion) that would let a decision converge.
+This is the run's LAST round: no decider round follows.
+Before you write, walk every non-negotiable over the entire design, unchanged text included.
+If you do NOT agree, END that file with a `## WHERE NEXT` section. Say whether the open blocking gaps
+sit in text the latest revision changed, so the folds open new defects, or in a requirement the rubric
+does not settle, such as how far a non-negotiable reaches or a trade-off you and the decider land on
+opposite sides of. For a requirement, name the ONE requirement and the ONE change to it (a weight, a
+non-negotiable's depth, a missing criterion) that would let a decision converge.
 Return via the schema.
 ~~~~
 
@@ -394,6 +844,7 @@ Return via the schema.
     "wrote_file",
     "agree",
     "gap_ids",
+    "caveat_ids",
     "needs_user"
   ],
   "properties": {
@@ -403,14 +854,21 @@ Return via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
     },
     "gap_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
     },
     "needs_user": {
       "type": "boolean",
@@ -420,7 +878,7 @@ Return via the schema.
 }
 ~~~~
 
-## decide · variant 3 · schema 1
+## decide · variant 4 · schema 1
 
 `decide r1` in "one lens dies"
 
@@ -429,12 +887,13 @@ Return via the schema.
 You are the DECIDER. Converge the lensed analyses into ONE justified conclusion via a global weighted decision matrix.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 LENS ANALYSES — read each VERBATIM:
   - E:/flow/runs/flow/lenses/efficiency.md  (lens: efficiency)
   - E:/flow/runs/flow/lenses/simplest.md  (lens: simplest)
-
 
 PROCEDURE:
 1. Consolidate the options across all lens files and dedupe near-identical ones. You MAY build a hybrid
@@ -448,8 +907,18 @@ PROCEDURE:
    and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
+4. TRADE-OFF: the winner against the runner-up as two columns, GAINS and GIVES UP, one row per criterion
+   where they differ, written as weight x score gap, so the columns net to the difference in totals. An
+   empty GIVES UP column means the winner dominates: say so. A consideration the requirements have no
+   criterion for goes below the table, unweighted and marked outside the rubric.
+5. FLIP CHECK: the smallest single change to one cell or one weight that changes the winner (from, to),
+   and the joint effect of moving every low-confidence cell by its uncertainty together. Grade the choice
+   DOMINANT when the GIVES UP column is empty, ROBUST when the smallest flip is larger than the uncertainty
+   of the input it moves, FRAGILE when it is not. For FRAGILE, name the input that decides it and the
+   evidence or user call that would settle it.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
-with its rationale, the why-not-others, and any open questions. Do NOT modify any repo, stage, or commit.
+with its rationale, the why-not-others, a `## Trade-off` section, a `## Flip check` section, and any
+open questions. Do NOT modify any repo, stage, or commit.
 If a genuine contradiction in the requirements (or a choice only the user can make) blocks you, append a
 full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true (the run HALTS).
 Return via the schema.
@@ -462,6 +931,7 @@ Return via the schema.
     "wrote_file",
     "chosen",
     "meets_all_requirements",
+    "flip",
     "needs_user"
   ],
   "properties": {
@@ -477,6 +947,15 @@ Return via the schema.
       "type": "boolean",
       "description": "true if the conclusion satisfies every non-negotiable + criterion in the requirements (your own honest assessment)"
     },
+    "flip": {
+      "type": "string",
+      "enum": [
+        "robust",
+        "fragile",
+        "dominant"
+      ],
+      "description": "your flip-check grade from the decision file: dominant = the winner gives up nothing against the runner-up, robust = the smallest flip is larger than the uncertainty of the input it moves, fragile = it is not"
+    },
     "open_questions": {
       "type": "integer",
       "description": "count of unresolved points you noted in the decision file (0 if none)"
@@ -489,37 +968,55 @@ Return via the schema.
 }
 ~~~~
 
-## review · variant 4 · schema 1
+## review r1 · variant 4 · schema 1
 
-`review r1` in "one lens dies"
+`review r1 choice` in "one lens dies"
 
 ~~~~text
 
-You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion against the CHECK below.
-Agree (agree=true) only when you genuinely cannot.
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the CHOICE. Verify every matrix cell's citation against its lens file, re-derive every
+total, the trade-off and the flip check (the single smallest flip AND the joint effect of the
+low-confidence cells). Look for a stronger option or hybrid the decider dismissed or never considered, a
+"why not" that strawmans a runner-up, and a ruling-out whose premise the evidence contradicts.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
 THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
 NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
 Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
 justify why the simpler one is inadequate.
 THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
 THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md
-Do NOT read earlier decision-review files — judge THIS decision fresh against the requirements.
 
-CHECK, against the requirements rubric:
-1. Every non-negotiable satisfied? (a single violation ⇒ NOT agree.)
-2. Every weighted criterion addressed, and every matrix cell's citation VERIFIED: spot-read the lens files
-   to confirm the cited claim exists and supports that score. Cells marked "own judgment, low-confidence"
-   are legitimate. A stretched or fabricated citation, or an unmarked assertion, is a gap. Re-derive any
-   score that looks generous.
-3. A clearly stronger option (or a better hybrid) the decider dismissed or never considered?
-4. The "why not others" honest, or does it strawman the runners-up?
-WRITE E:/flow/runs/flow/decision-review-r1.md (create E:/flow/runs/flow/ if needed): each gap/objection with the
-requirement or lens evidence it rests on, or, if sound, "Conclusion holds: every requirement met, matrix sound."
-A concern you write about the decision is a gap. It counts in gap_ids, and it blocks
-agree. A check you ran that holds is evidence, not a concern, and so is a re-derived score that leaves
-the verdict standing while the cell's cited claim still supports the score the cell gives. A stretched
-or fabricated citation or an unmarked assertion stays a gap whatever its effect on the verdict. A
-concern too small to block agree you drop silently. The file holds no notes or not-a-gap section.
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-choice.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
 Do NOT modify any repo, stage, or commit. If a requirement contradiction
 only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Return via the schema.
@@ -532,6 +1029,7 @@ Return via the schema.
     "wrote_file",
     "agree",
     "gap_ids",
+    "caveat_ids",
     "needs_user"
   ],
   "properties": {
@@ -541,14 +1039,211 @@ Return via the schema.
     },
     "agree": {
       "type": "boolean",
-      "description": "true ONLY if your CHECK found no gap: every requirement met, matrix sound"
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
     },
     "gap_ids": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "one SHORT kebab-case slug per gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"lru-citation-stretched\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
+    }
+  }
+}
+~~~~
+
+## review r1 · variant 5 · schema 1
+
+`review r1 requirements` in "one lens dies"
+
+~~~~text
+
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the REQUIREMENTS. Check the winner's design against every non-negotiable, path by
+path, and check every weighted criterion is addressed. The choice reviewer re-derives the matrix, so do
+not.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
+THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md
+
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-requirements.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
+only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "agree",
+    "gap_ids",
+    "caveat_ids",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the review file"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
+    },
+    "gap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
+    },
+    "needs_user": {
+      "type": "boolean",
+      "description": "true ONLY if you found a requirement contradiction only the USER can resolve; you wrote it to NEEDS-USER.md"
+    }
+  }
+}
+~~~~
+
+## review r1 · variant 6 · schema 1
+
+`review r1 design` in "one lens dies"
+
+~~~~text
+
+You are an ADVERSARIAL DECISION REVIEWER. Try to BREAK the conclusion on ONE focus: the DESIGN the conclusion specifies: does it work as written? Walk every input the
+requirements accept, the edge and failure paths included. Look for a rule that contradicts another rule,
+the requirements, a step that depends on something built later, and a
+claim the conclusion rests on that the design does not deliver. The choice reviewer re-derives the
+matrix, so do not.
+Other reviewers cover the other focuses at the same time, so go deep on yours.
+THE DECISION + RUBRIC: the requirements at E:/flow/plans/flow/requirements.md (read them verbatim: the fixed rubric)
+NON-NEGOTIABLES are pass/fail: an option that violates one scores 0 on that axis and cannot win.
+Judge each non-negotiable at the depth the requirements state. Where they state none, judge it on the
+DEFAULT PATH: the default configuration and the paths the design runs with no operator action.
+Prefer the SIMPLEST option that meets all requirements. If a more complex option wins, the matrix must
+justify why the simpler one is inadequate.
+THE DECISION TO REVIEW (read it verbatim): E:/flow/runs/flow/decision-r1.md
+THE LENS ANALYSES it drew on (cross-check its claims against these): E:/flow/runs/flow/lenses/efficiency.md, E:/flow/runs/flow/lenses/simplest.md
+
+SEVERITY: every gap is BLOCKING or a CAVEAT. A gap is BLOCKING only when it is one of these:
+  1. A NON-NEGOTIABLE VIOLATION by the winner, judged at the depth the requirements state, or on
+     the default path where they state none. Normal use, an edit by another program or tool, and a
+     failure such as an outage, a timeout or a locked file are all on the default path. Operator
+     action means only a deliberate configuration change or command by the user that the requirements
+     neither list as a scenario nor require the decision to provide. A path they list or require, such
+     as a human commit, a revert or a manual apply path, is on the default path.
+  2. A CORRECTNESS DEFECT in the winner's design: as written it fails, loses or corrupts data, or
+     contradicts itself, the requirements, on an input the requirements accept.
+     Size does not matter: a small defect that voids a claim the conclusion rests on blocks. A
+     condition the decision states, such as "this holds once X" or "assuming X", is a claim it rests
+     on, so an X the design does not deliver is a correctness defect.
+  Rules 1 and 2 judge the winner's design on its own: a defect the runner-up shares, or one
+  with no measured instance on an input the requirements accept, still blocks.
+  3. A WRONG CHOICE: apply ALL your evidenced score and citation corrections TOGETHER and re-derive the
+     totals, and the winner changes by more than the uncertainty of the cells you moved. Your
+     own judgment against the decider's own judgment on the same cell is inside that uncertainty.
+  4. A MISSED OPTION: an option or hybrid the decider dismissed or never considered that, scored with
+     evidence, beats the winner by more than that uncertainty.
+Every other real gap is a CAVEAT: an addition the design needs but does not get wrong, a wording
+problem, a citation that does not move the outcome, a dispute inside the fragile margin of the flip
+check, a breach reachable only through operator action or non-default configuration, or a value
+judgment the requirements leave open. A caveat never blocks agree.
+EVERY gap, blocking or caveat, carries its evidence: a lens claim, a file:line, a measurement or the
+requirements text. No evidence, no gap. A check you ran that holds is evidence, not a gap.
+WRITE E:/flow/runs/flow/decision-review-r1-design.md (create E:/flow/runs/flow/ if needed) with a `## Blocking` section and a
+`## Caveats` section: each gap with its slug, its evidence and, for a blocking gap, the smallest change
+that closes it. An empty section says "None." Return the blocking slugs in gap_ids and the caveat slugs in
+caveat_ids. Agree (agree=true) exactly when the Blocking section is empty.
+Do NOT modify any repo, stage, or commit. If a requirement contradiction
+only the user can resolve surfaces, append it to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
+Return via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "agree",
+    "gap_ids",
+    "caveat_ids",
+    "needs_user"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true if you wrote the review file"
+    },
+    "agree": {
+      "type": "boolean",
+      "description": "true ONLY if your review holds no BLOCKING gap. Caveats never block agree"
+    },
+    "gap_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per BLOCKING gap in your review file, naming the ISSUE and not the round (e.g. \"p99-unproven\", \"reopen-deletes-human-row\"). [] when you agree. Re-raising THAT SAME issue as a slug listed from an earlier round: reuse it verbatim. Mint a new one only for a genuinely new gap"
+    },
+    "caveat_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "one SHORT kebab-case slug per CAVEAT in your review file. [] when there is none"
     },
     "needs_user": {
       "type": "boolean",

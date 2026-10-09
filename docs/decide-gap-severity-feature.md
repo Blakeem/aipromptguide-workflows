@@ -1,6 +1,7 @@
 # Decide: gap severity + "accepted with notes" — feature notes
 
-**Status: PLANNED (2026-07-29). Nothing implemented.** Evidence is from decide run
+**Status: BUILT (2026-10-08) as `decided with caveats`.** See `workflows/decide/CLAUDE.md` §5 and §6.
+The design sketch below is the original proposal. Evidence is from decide run
 `worktree-parallelism-1` (first real run after the stop-criteria work). `runs/` is gitignored, so the
 key numbers are recorded here.
 
@@ -46,14 +47,9 @@ from "additive" in prose, but the schema cannot carry that distinction.
 - **Anti-scope:** no numeric grades or thresholds — severity is a claim the reviewer makes and defends,
   not a score. Keep the hard cap. Keep the loop non-blind.
 
-## Rubric-side learning (no engine change — apply when authoring decide rubrics)
+## Rubric-side learning
 
-When non-negotiables are pass/fail with no enforcement standard, every round re-litigates "is this
-residual disqualifying?". The run's WHERE NEXT produced the working template: **violated = breachable on
-the default path** (agents/engines/design commands, default repo config); residuals reachable only via
-operator action or non-default config score under a weighted criterion instead — **but an unnamed
-residual IS a violation** (the completeness teeth that make the loop terminate). Worth folding into
-`workflows/decide/CLAUDE.md` §4 as rubric-authoring guidance when this feature is built.
+Folded into `workflows/decide/CLAUDE.md` §4 as rubric-authoring guidance.
 
 ## Trigger
 

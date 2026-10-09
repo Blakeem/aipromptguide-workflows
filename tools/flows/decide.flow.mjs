@@ -2,11 +2,12 @@
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs decide`; `--check` fails the gate while FLOW.md is stale.
 //
-// Coverage aimed at here: all four terminal states, the agree-gate ending the loop versus a review that
-// buys another round, BOTH needs-user escalations (the decider's and the reviewer's — two separate exits
-// landing on ONE status string, so terminal coverage alone leaves half the engine undrawn), BOTH
-// unattested-write halts (the decider's and the reviewer's, for the same reason), a PARTIAL
-// analyst failure the run survives on the remaining lenses, and each of the ten throw sites.
+// Coverage aimed at here: all five terminal states (agreement splits into decided and decided with
+// caveats), the agree-gate ending the loop versus a review that buys another round, the round-1 focused
+// reviewers versus the later-round verifier, BOTH needs-user escalations (the decider's and the
+// reviewers' — two separate exits landing on ONE status string, so terminal coverage alone leaves half the
+// engine undrawn), BOTH unattested-write halts (the decider's and the reviewers', for the same reason), a
+// PARTIAL analyst failure the run survives on the remaining lenses, and each of the ten throw sites.
 
 const base = {
   runId: 'flow',
@@ -16,8 +17,8 @@ const base = {
 };
 
 const ANALYST = { wrote_file: true, top_pick: 'in-process LRU' };
-const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, open_questions: 0, needs_user: false };
-const AGREE   = { wrote_file: true, agree: true, gap_ids: [], needs_user: false };
+const DECIDE  = { wrote_file: true, chosen: 'in-process LRU', meets_all_requirements: true, flip: 'robust', open_questions: 0, needs_user: false };
+const AGREE   = { wrote_file: true, agree: true, gap_ids: [], caveat_ids: [], needs_user: false };
 const GAPS    = { ...AGREE, agree: false, gap_ids: ['slug-a', 'slug-b'] };
 
 export default {
@@ -25,31 +26,38 @@ export default {
   out: 'workflows/decide/FLOW.md',
   title: 'decide-cycle',
   scenarios: [
-    // ---- the three terminal states --------------------------------------------------------------
+    // ---- the terminal states --------------------------------------------------------------------
     {
       name: 'reviewer agrees',
-      when: 'the reviewer agrees the conclusion holds',
+      when: 'every reviewer agrees: no blocking gap, no caveat',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: AGREE },
     },
     {
+      // A second agreed terminal: no reviewer blocks, but one review lists a caveat for the plan.
+      name: 'agrees with caveats',
+      when: 'every reviewer agrees and one lists a caveat',
+      args: base,
+      respond: { analyst: ANALYST, decide: DECIDE, review: AGREE, 'review r1 design': { ...AGREE, caveat_ids: ['slug-c'] } },
+    },
+    {
       name: 'gaps to the round budget',
-      when: 'the reviewer keeps finding gaps',
+      when: 'the reviewers keep finding blocking gaps',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: GAPS },
     },
     {
-      // The decider's escalation: it breaks BEFORE the reviewer runs.
+      // The decider's escalation: it breaks BEFORE the reviewers run.
       name: 'decider escalates',
       when: 'the decider hits a user-only call',
       args: base,
       respond: { analyst: ANALYST, decide: { ...DECIDE, needs_user: true }, review: AGREE },
     },
     {
-      // The reviewer's escalation: a different exit, a different halt reason, the SAME status string.
+      // The reviewers' escalation: a different exit, a different halt reason, the SAME status string.
       // Without this scenario the diagram would show one edge into BLOCKED and hide the other.
       name: 'reviewer escalates',
-      when: 'the reviewer finds a requirement contradiction',
+      when: 'a reviewer finds a requirement contradiction',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: { ...GAPS, needs_user: true } },
     },
@@ -62,7 +70,7 @@ export default {
     },
     {
       name: 'reviewer does not attest its file',
-      when: 'the reviewer does not confirm writing its review file',
+      when: 'a reviewer does not confirm writing its review file',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: { ...GAPS, wrote_file: false } },
     },
@@ -95,7 +103,7 @@ export default {
     },
     {
       name: 'dead reviewer',
-      when: 'the reviewer dies',
+      when: 'a reviewer dies',
       args: base,
       respond: { analyst: ANALYST, decide: DECIDE, review: null },
     },
