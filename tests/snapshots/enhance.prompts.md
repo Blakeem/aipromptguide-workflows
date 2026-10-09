@@ -7,8 +7,8 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | find | 1 | 1 | 3763 | two lenses propose |
-| verify | 1 | 1 | 7181 | two lenses propose |
-| verify | 2 | 1 | 7209 | two lenses propose |
+| verify | 1 | 1 | 7423 | two lenses propose |
+| verify | 2 | 1 | 7451 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -219,7 +219,9 @@ mechanism does and not only by the candidate's words.
 REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1–3:
   1. THE SYSTEM ALREADY DOES THIS, the find pass's most common failure. Check every candidate against
      the current code before anything else.
-  2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A benefit that holds
+  2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A cost the code refutes
+     is NOT REAL: cite the code that refutes it. A cost you cannot substantiate is UNPROVEN: its Rejected
+     line starts `UNPROVEN:` and names the evidence that would substantiate it. A benefit that holds
      only under an assumption the code does not make is not a benefit.
   3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
@@ -285,7 +287,7 @@ candidate and every defect half split from a kept candidate. A rejected defect g
 also under Rejected. Write this section only when it has a line.)
 
 ## Rejected
-(one line each: `<title>: <why>`)
+(one line each: `<title>: <why, with the file:line it rests on>`)
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
 moderate impact floor." followed by the Defects to route section when it has a line, then the
@@ -422,7 +424,9 @@ mechanism does and not only by the candidate's words.
 REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1–3:
   1. THE SYSTEM ALREADY DOES THIS, the find pass's most common failure. Check every candidate against
      the current code before anything else.
-  2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A benefit that holds
+  2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A cost the code refutes
+     is NOT REAL: cite the code that refutes it. A cost you cannot substantiate is UNPROVEN: its Rejected
+     line starts `UNPROVEN:` and names the evidence that would substantiate it. A benefit that holds
      only under an assumption the code does not make is not a benefit.
   3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
@@ -488,7 +492,7 @@ candidate and every defect half split from a kept candidate. A rejected defect g
 also under Rejected. Write this section only when it has a line.)
 
 ## Rejected
-(one line each: `<title>: <why>`)
+(one line each: `<title>: <why, with the file:line it rests on>`)
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
 moderate impact floor." followed by the Defects to route section when it has a line, then the

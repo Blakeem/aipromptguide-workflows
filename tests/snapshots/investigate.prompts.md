@@ -6,21 +6,21 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| criteria-critic | 1 | 1 | 1297 | refine the criteria |
-| investigate | 1 | 1 | 6102 | exhaustion agreed |
-| critique | 1 | 1 | 5329 | exhaustion agreed |
-| critique | 2 | 1 | 5342 | no solution verified |
-| investigate | 2 | 1 | 7149 | exhaustion contested |
-| investigate | 3 | 1 | 7514 | exhaustion contested |
-| critique | 3 | 1 | 5637 | saturation agreed |
-| critique | 4 | 1 | 3918 | stalled |
-| investigate | 4 | 1 | 7498 | resumed quiet first round |
-| critique | 5 | 1 | 4150 | resumed quiet first round |
-| investigate | 5 | 1 | 6952 | quiet rounds |
-| investigate | 6 | 1 | 7317 | quiet rounds |
-| critique | 6 | 1 | 4741 | quiet rounds |
-| critique | 7 | 1 | 5561 | resumed search |
-| critique | 8 | 1 | 3905 | investigator escalates |
+| criteria-critic | 1 | 1 | 1539 | refine the criteria |
+| investigate | 1 | 1 | 6344 | exhaustion agreed |
+| critique | 1 | 1 | 5795 | exhaustion agreed |
+| critique | 2 | 1 | 5808 | no solution verified |
+| investigate | 2 | 1 | 7391 | exhaustion contested |
+| investigate | 3 | 1 | 7756 | exhaustion contested |
+| critique | 3 | 1 | 6103 | saturation agreed |
+| critique | 4 | 1 | 4384 | stalled |
+| investigate | 4 | 1 | 7740 | resumed quiet first round |
+| critique | 5 | 1 | 4616 | resumed quiet first round |
+| investigate | 5 | 1 | 7194 | quiet rounds |
+| investigate | 6 | 1 | 7559 | quiet rounds |
+| critique | 6 | 1 | 5207 | quiet rounds |
+| critique | 7 | 1 | 6027 | resumed search |
+| critique | 8 | 1 | 4371 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -34,7 +34,9 @@ prettier. An empty result is a GOOD outcome.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 
 PROCEDURE — three failure modes, and only these:
 1. GAPS: a constraint the question plainly implies but no criterion states, a missing EVIDENCE STANDARD
@@ -136,7 +138,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes.
@@ -278,7 +282,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -297,10 +303,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -408,7 +417,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -427,10 +438,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -538,7 +552,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes.
@@ -691,7 +707,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes.
@@ -847,7 +865,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -866,10 +886,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -980,7 +1003,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -999,10 +1024,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -1097,7 +1125,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes. This search resumes after round 2, and the criteria
@@ -1253,7 +1283,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
@@ -1271,10 +1303,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
    This search resumes after round 2, and the criteria may have changed since. So read EVERY
    line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
    disqualifies the candidate as the criteria read now, and count each in reopened.
@@ -1372,7 +1407,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes.
@@ -1523,7 +1560,9 @@ over anything you could invent.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 SEARCH MEMORY — read ALL THREE before you search:
   • E:/flow/runs/flow/DISQUALIFIED.md — every candidate already disqualified, and why. Do NOT re-propose one unless a critique
     re-opens it. Do NOT re-walk an avenue it closes.
@@ -1677,7 +1716,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   (the investigator named no new option this round)
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -1696,10 +1737,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.
@@ -1801,7 +1845,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then EVERY other file in E:/flow/runs/flow/options/, whatever verdict line it carries: judge each against the
@@ -1819,10 +1865,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
    This search resumes after round 2, and the criteria may have changed since. So read EVERY
    line of E:/flow/runs/flow/DISQUALIFIED.md, re-open in your review file every line whose named failing criterion no longer
    disqualifies the candidate as the criteria read now, and count each in reopened.
@@ -1933,7 +1982,9 @@ genuinely cannot break it.
 THE QUESTION + CRITERIA: the criteria at E:/flow/plans/flow/criteria.md (read them verbatim: the fixed pass/fail rubric)
 EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.
 THE OPTIONS TO JUDGE — read each VERBATIM. First this round's new options:
   - E:/flow/runs/flow/options/opt-a.md
 Then every other file in E:/flow/runs/flow/options/ that is UNVERIFIED: its first line is not a verdict line, or its
@@ -1952,10 +2003,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it `NEAR-MISS: ` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.
 4. NEAR-MISS MARKERS: check every `NEAR-MISS: ` line this round added. One whose candidate fails a second
    criterion is mismarked: append a corrected line naming the additional criterion. Flag a line that
    should carry the marker and does not.

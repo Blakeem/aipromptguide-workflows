@@ -503,6 +503,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
+    A false-positive reason cites the file:line that refutes the finding.
   • AMEND (6a): append ONE entry to ${amendedFile(id)}:
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -678,10 +679,11 @@ data-integrity/error-handling/resource/concurrency/api-contract bugs, or anythin
 build or tests. DROP silently: anything pre-existing in the baseline, style, naming, medium/low
 polish, speculation, redesigns. An EMPTY result is the normal, GOOD outcome.
 
-A hunk that changes ONLY comments, string text or documentation has three checkable defects: a change
+A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
 to executable code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact tokens), a path, command,
-identifier or file the new text names that does not exist, and a sentence the change removed that other
-text still refers to. Whether the wording reads well is out of scope.
+identifier or file the new text names that does not exist, a sentence the change removed that other
+text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
+cited by line. Whether the wording reads well is out of scope.
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed): one section per defect
 — file:line, what's wrong, why it's production-blocking, a concrete fix. If none, write exactly
@@ -1077,6 +1079,8 @@ let haltReason = '';
 // A value, so the status line never parses haltReason prose. Every halt site sets it.
 let haltKind = '';
 const doneIds = [];
+// Fix blocks that ended on the round-1 no-changes terminal. A value, so the result never parses a status.
+const noChangeIds = [];
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
 // tree. The only honest recoveries are a clean relaunch or finishing the parked patch by hand.
 const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. Once `plan-edit.mjs args` has applied the statuses of this run, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
@@ -1381,7 +1385,8 @@ for (const p of pending) {
         logLine(`  ${p.id}: ${claim} — no diff, so acceptance confirms each claim without a blind review`);
       } else {
         fixTerminal = 'no-changes';
-        rec.status = fixTerminal;
+        noChangeIds.push(p.id);
+        rec.status = 'no-changes (the fix block closed no issue: every entry was skipped or none was reported)';
         logLine(`  ⚠ ${p.id}: no changes produced — ${results.length ? 'every entry was skipped' : 'the developer reported no entries at all'}; the block is NOT done and its issues stay open`);
         if (ORDERED) {
           halted = true;
@@ -1715,8 +1720,8 @@ const unclearedParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared !
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
 // block stopped by a halt that never parks (dirty-baseline, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
-const noChangePlans = blockedPlans.filter((r) => r.status === 'no-changes');
-const haltedPlans = blockedPlans.filter((r) => r.status !== 'no-changes');
+const noChangePlans = blockedPlans.filter((r) => noChangeIds.includes(r.id));
+const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id));
 // An ordered needs-user halt already says this in its halt text.
 const needsUserParks = haltKind === 'needs-user' ? [] : ledger.filter((r) => r.needsUser);
 const HALT_STATUS = {

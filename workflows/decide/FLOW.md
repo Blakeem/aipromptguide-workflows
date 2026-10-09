@@ -74,9 +74,9 @@ flowchart TD
 | throw: args.planPath is required | args carry no planPath | throw (line 91) |
 | throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 103) |
 | throw: lens ids collide after slugging | two lenses slug to one file | throw (line 107) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 291) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 327) |
-| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 361) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 292) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 328) |
+| throw: Reviewer returned nothing in round ... | the reviewer dies | throw (line 362) |
 
 ## Coverage
 

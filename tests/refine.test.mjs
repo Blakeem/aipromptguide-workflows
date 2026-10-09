@@ -130,11 +130,26 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
   ok(!p.includes('six classes'), 'no line still counts six classes');
 }
 
+section('the critic judges text the block tells the developer to write as output');
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  const textIsOutput = p.indexOf('Text the block tells the developer to write, such as a principle, a guide or README sentence or a comment, is output: a sentence the repo contradicts once the plan\'s steps are applied is wrong output and a WRONG INSTRUCTION.');
+  ok(textIsOutput > p.indexOf('7. A FAILURE ON ACCEPTED INPUT')
+    && textIsOutput < p.indexOf('IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE'),
+    'a false sentence the block prescribes is a wrong instruction, stated as class 7\'s continuation');
+  const gradeRules = p.slice(p.indexOf('Four rules settle the grade'), p.indexOf('Gaps graded'));
+  ok(gradeRules.includes('An existing sentence that the block\'s steps make false, and that the block leaves unchanged, is an OMISSION graded minor, since develop\'s acceptance counts it as a regression.'),
+    'a stale sentence the block leaves unchanged is a minor omission, among the four grade rules');
+  ok(!p.includes('Three rules settle the grade'), 'no line still counts three grade rules');
+}
+
 section('the critic grades by impact on accepted input, never by fix size');
 {
   const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
   const prompts = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('SETTLED DECISIONS'));
+  // The re-list sentence names the previous round's critique file, so the bar stops before it.
+  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('Re-list every'));
   eq(prompts.length, 2, 'two critic rounds ran');
   ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
     'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
@@ -145,6 +160,19 @@ section('the critic grades by impact on accepted input, never by fix size');
   ok(!prompts[0].includes('blast radius is one line'), 'minor is no longer defined by the size of the fix');
   ok(bar(prompts[0]).length > 0 && bar(prompts[0]) === bar(prompts[1]),
     'every round\'s critic grades under the same bar');
+}
+
+section('from round 2 the critic is told which file holds the earlier FYI items, and a file-key defect is a question');
+{
+  const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
+  const [r1, r2] = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
+  ok(r2.includes(`even when an earlier round's critique listed it (${STATE}/plan-critique-1.md holds the earlier FYI items), so that`),
+    'the round-2 re-list sentence names the round-1 critique file');
+  ok(!r1.includes('holds the earlier FYI items') && !r1.includes('plan-critique-0'),
+    'the round-1 prompt names no earlier critique');
+  ok(r1.includes('SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a gap, since no block\'s text holds it.')
+    && r1.indexOf('SCOPE RULE 4') > r1.indexOf('SCOPE RULE 3'),
+    'a file-key defect is a question, stated after SCOPE RULE 3');
 }
 
 section('a gapped round then a clean one converges on round 2, with exactly one editor');

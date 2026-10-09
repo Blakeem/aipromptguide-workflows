@@ -7,12 +7,12 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | analyst | 1 | 1 | 1213 | reviewer agrees |
-| decide | 1 | 1 | 2032 | reviewer agrees |
+| decide | 1 | 1 | 2179 | reviewer agrees |
 | review | 1 | 1 | 2398 | reviewer agrees |
-| decide | 2 | 1 | 2256 | gaps to the round budget |
+| decide | 2 | 1 | 2403 | gaps to the round budget |
 | review | 2 | 1 | 2717 | gaps to the round budget |
 | review | 3 | 1 | 3088 | gaps to the round budget |
-| decide | 3 | 1 | 1969 | one lens dies |
+| decide | 3 | 1 | 2116 | one lens dies |
 | review | 4 | 1 | 2358 | one lens dies |
 
 ## analyst · variant 1 · schema 1
@@ -85,7 +85,8 @@ PROCEDURE:
    0, weighted total computed. The highest defensible total wins.
    GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
    exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
-   citation.
+   citation. Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out
+   and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
@@ -224,7 +225,8 @@ PROCEDURE:
    0, weighted total computed. The highest defensible total wins.
    GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
    exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
-   citation.
+   citation. Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out
+   and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r2.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion
@@ -442,7 +444,8 @@ PROCEDURE:
    0, weighted total computed. The highest defensible total wins.
    GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
    exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
-   citation.
+   citation. Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out
+   and names the one observation that would reverse that.
 3. State the WINNER, WHY it wins, and WHY NOT each runner-up (the disqualifying trade-offs). Confirm it
    satisfies every non-negotiable and criterion. Note any residual risk or follow-up.
 WRITE E:/flow/runs/flow/decision-r1.md (create E:/flow/runs/flow/ if needed): the matrix (table), the chosen conclusion

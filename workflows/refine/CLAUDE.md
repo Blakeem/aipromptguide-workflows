@@ -13,12 +13,14 @@ Four things together — remove any one and the plan grows every round instead o
 - **The defect bar.** A gap must name something that would build wrong or fail: a missing wiring
   point, a wrong or absent file, a criterion with no implementing step, a dependency-ordering error,
   a block too big for one develop pass, a reference the block states only outside itself, a failure on
-  an input the repo or the plan accepts. Improvements, alternatives, and style are excluded
-  unconditionally.
+  an input the repo or the plan accepts. Text a block tells the developer to write is output, so a
+  sentence the repo contradicts is a wrong instruction. Improvements, alternatives, and style are
+  excluded unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
   output on an input the repo or the plan accepts is major, unless it is an omission the block's own
-  green gate catches on its first run. The size of the fix never lowers a grade.
+  green gate catches on its first run. The size of the fix never lowers a grade. An existing sentence
+  the block makes false and leaves unchanged grades minor.
   Below-floor findings land in the critique file's FYI section. They never block convergence, and
   `belowFloor` returns their count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
@@ -36,7 +38,8 @@ Four things together — remove any one and the plan grows every round instead o
    or replay for each terminal. The `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
    - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
-     or too-big block whose fix restructures blocks, or a gap in an already-`done` block.
+     or too-big block whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
+     file key (`goal`, `ordered`, `suite`, `sweep`).
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not

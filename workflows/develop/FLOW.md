@@ -198,12 +198,12 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 216) |
 | throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 231) |
 | throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 242) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 988) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1000) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1007) |
-| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1014) |
-| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1020) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1027) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 990) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1002) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1009) |
+| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1016) |
+| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1022) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1029) |
 
 ## Coverage
 

@@ -5,7 +5,7 @@ writing up, not nits. It fans out one **finder per lens** across the WHOLE scope
 slices — cross-cutting enhancements are the point), then a **verifier per lens** that kills anything the
 system already does, scores impact × effort, routes each survivor, and writes one verbatim
 `proposals/<lens>.md`. Then it **STOPS**. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
-*generative* workflow honoring the core (#1–4, #6, #8, #11–15); it writes no code, stages nothing, and
+*generative* workflow honoring the core (#1–4, #6, #8, #11–16); it writes no code, stages nothing, and
 never commits.
 
 **There is deliberately NO fix-mode output.** Nothing here is ever applied automatically. That is not an
@@ -147,7 +147,8 @@ What each decision means:
 - `proposals/<lens>.md` — one per lens (non-alphanumerics in the lens id become underscores:
   `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals, a
   `## Defects to route` section (one line per defect, written only when it has one) and a `## Rejected`
-  section (one line each). This IS the deliverable. A verifier-written file (a lens that had candidates)
+  section (one line each, and a rejection for a cost the verifier cannot substantiate starts `UNPROVEN:`
+  and names the evidence that would substantiate it). This IS the deliverable. A verifier-written file (a lens that had candidates)
   carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring human triage;
   a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO file when
   its finder died, its finder returned no candidate without attesting its marker, its verifier died, or

@@ -6,7 +6,7 @@ import { runTrace, section, ok } from './harness.mjs';
 const HALTING = ['develop', 'refine', 'decide'];
 const RETIRED_KEYS = ['followups', 'gatherFailed', 'scrubFailed', 'sweepFailed'];
 const STATUS_FORM = /^[^()]+ \(.+\)$/;
-const INSTRUCTION = /\b(?:relaunch|resum|replay|re-?run|re-?invoke|inspect|check|unstage|repair|restructure)\w*|\bstage (?:it|that|its)\b|\bnever stage\b/i;
+const INSTRUCTION = /\b(?:relaunch|resum|replay|re-?run|re-?invoke|inspect|check|unstage(?!d)|repair|restructure)\w*|\bstage (?:it|that|its)\b|\bnever stage\b/i;
 
 // No engine list, so a new engine's flow spec is checked without an edit here.
 const specs = await loadSpecs();
@@ -39,6 +39,11 @@ for (const spec of specs) {
     ok(!retired.length, `${where}: the return carries no retired key${retired.length ? ` (got ${retired.join(', ')})` : ''}`);
     ok(!failed.some((e) => e && typeof e === 'object' && 'unit' in e), `${where}: no failed entry has a unit key`);
     if (spec.name !== 'investigate') ok(!('phase' in out), `${where}: the return carries no phase key`);
+    for (const entry of Array.isArray(out.ledger) ? out.ledger : []) {
+      const status = String(entry?.status ?? '');
+      ok(STATUS_FORM.test(status), `${where}: ledger ${entry?.id} status reads "<token> (<meaning>)" (got ${JSON.stringify(entry?.status)})`);
+      ok(!INSTRUCTION.test(status), `${where}: ledger ${entry?.id} status carries no instruction (got ${JSON.stringify(entry?.status)})`);
+    }
     if (!halts) continue;
 
     ok(typeof out.status === 'string' && out.status !== '', `${where}: status is a non-empty string`);

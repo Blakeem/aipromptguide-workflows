@@ -7,11 +7,11 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | review | 1 | 1 | 3138 | a clean unit beside one with findings |
-| verify | 1 | 1 | 5311 | a clean unit beside one with findings |
+| verify | 1 | 1 | 5788 | a clean unit beside one with findings |
 | review | 2 | 1 | 2724 | two lenses per unit |
 | review | 3 | 1 | 2850 | two lenses per unit |
-| verify | 2 | 1 | 5623 | two lenses per unit |
-| verify | 3 | 1 | 5623 | two lenses per unit |
+| verify | 2 | 1 | 6100 | two lenses per unit |
+| verify | 3 | 1 | 6100 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -213,6 +213,11 @@ narrow a suggested fix to the part you verified. The **Fix:** line covers every 
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
+Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
+duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
+would settle it.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -251,6 +256,7 @@ the slug of the unit id, not the unit id.
 The `- file:` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
 the frontmatter above, then `# Review: u2`, then the single line "No issues found."
+The `## Rejected` section follows that line when you rejected anything.
 Set wrote_file=true and return all verdicts via the schema.
 ~~~~
 
@@ -676,6 +682,11 @@ narrow a suggested fix to the part you verified. The **Fix:** line covers every 
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
+Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
+duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
+would settle it.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -714,6 +725,7 @@ the slug of the unit id, not the unit id.
 The `- file:` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
 the frontmatter above, then `# Review: u1`, then the single line "No issues found."
+The `## Rejected` section follows that line when you rejected anything.
 Set wrote_file=true and return all verdicts via the schema.
 ~~~~
 
@@ -884,6 +896,11 @@ narrow a suggested fix to the part you verified. The **Fix:** line covers every 
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
+Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
+duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
+would settle it.
 
 WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
 -----
@@ -922,6 +939,7 @@ the slug of the unit id, not the unit id.
 The `- file:` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO `## Plan:` header at all — the file is the clean marker instead:
 the frontmatter above, then `# Review: u2`, then the single line "No issues found."
+The `## Rejected` section follows that line when you rejected anything.
 Set wrote_file=true and return all verdicts via the schema.
 ~~~~
 

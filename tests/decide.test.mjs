@@ -227,6 +227,16 @@ section('every concern the reviewer writes counts, in both selections');
   }
 }
 
+section('the decider cites what rules out each option it rejects, and what would reverse it, in both selections');
+{
+  const RULE = 'Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out and names the one observation that would reverse that.';
+  for (const args of [baseArgs, { ...baseArgs, selection: 'ranked' }]) {
+    const { byLabel } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE }, args);
+    const p = byLabel('decide')[0].prompt.replace(/\s+/g, ' ');
+    ok(p.includes(RULE), `${args.selection ?? 'single'}: the decider is told to cite and reverse each ruled-out option`);
+  }
+}
+
 section('the gap ids are the only gap count, and garbage ids are filtered');
 {
   const { calls, logs } = await run({ analyst: ANALYST, decide: DECIDE, review: gaps('a', 'b') }, { ...baseArgs, maxRounds: 2 });

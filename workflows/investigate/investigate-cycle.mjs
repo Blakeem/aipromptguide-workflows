@@ -187,9 +187,13 @@ const CRITERIA_SCHEMA = {
 // =============================================================================
 const ENV = `THE QUESTION + CRITERIA: ${CRITERIA_REF}
 ${REPO ? `CODEBASE (read-only context — fit / feasibility only; do NOT modify): ${REPO}  (lang=${TARGET.lang ?? '?'}, framework=${TARGET.framework ?? '?'})\n` : ''}${CONTEXT ? `EXTRA CONTEXT: ${CONTEXT}\n` : ''}${SOURCES.length ? `WHERE TO LOOK (a starting set, NOT a closed list: an avenue you find yourself counts equally, and one you rule out is logged in ${SEARCHED}, never in ${LEDGER}):\n${SOURCES.map((s) => `  - ${s}`).join('\n')}\n` : ''}${TESTBED ? `TESTBED — ground claims EMPIRICALLY where you can: ${TESTBED}\nPrefer MEASURED evidence over reasoning: run the check and cite the exact command + result, so the
-other role can re-run it. Treat the testbed as READ-ONLY unless it says otherwise. Leave no artifacts.\n` : ''}EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
+other role can re-run it. Treat the testbed as READ-ONLY unless it says otherwise. Leave no artifacts.
+A measured difference smaller than the spread across repeated runs settles nothing: the criterion it bears
+on is UNPROVEN.\n` : ''}EVERY criterion is PASS/FAIL. A candidate that misses ONE is DISQUALIFIED: no weighted total, no
 "close enough". Every claim that a criterion is met carries a CITATION: the source plus the exact
-passage/locator that supports it. An uncited claim is not evidence.`;
+passage/locator that supports it. An uncited claim is not evidence. A criterion no checked source settles
+either way is UNPROVEN, not failed: its ledger line reads \`UNPROVEN\` in place of \`FAILS\` and names the
+source that would settle it. For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.`;
 
 // =============================================================================
 // Role prompts
@@ -330,10 +334,13 @@ CHECK:
    this round's new ones in upheld. A line for a candidate that fails EXACTLY ONE criterion is a NEAR MISS:
    prefix it \`NEAR-MISS: \` and give the shortfall in numbers.
 2. VERIFY every citation: open the cited source and confirm the passage exists AND supports the claim made
-   from it. A citation that does not check out fails the criterion it was offered for, so an option
-   standing on one is disqualified, not merely flagged.
-3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. Say so in
-   your review file (the next investigator reads it). Count them in reopened.${resumedRound(round)
+   from it. A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS
+   it when the cited passage contradicts the claim, so an option standing on one is disqualified, not
+   merely flagged.
+3. Check the ledger for a candidate disqualified on a WRONG reading that should be re-opened. A re-open
+   cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads
+   now. An uncited re-open is not one. Say so in your review file (the next investigator reads it). Count
+   them in reopened.${resumedRound(round)
     ? `
    This search resumes after round ${PRIOR_ROUNDS}, and the criteria may have changed since. So read EVERY
    line of ${LEDGER}, re-open in your review file every line whose named failing criterion no longer

@@ -20,10 +20,10 @@ A **bounded exhaustive search** built on the shared [Workflow Principles](../../
 - **Pass/fail, not weighted.** Every criterion is a gate. Miss one and a candidate is out, however strong
   it is elsewhere. There is no weighted total or "close enough".
 - **A ledger that makes the search learn.** Every rejection is appended to `DISQUALIFIED.md` with the
-  criterion it failed, and every later round reads it first. That memory is what turns repeated searching
-  into converging rather than repeating. A second file, `SEARCHED.md`, does the same for **ground**. It records
-  which avenues were swept, with what search terms, and the most promising one still untried. Closed candidates
-  do not come back, and neither do closed searches.
+  criterion it failed or could not prove, and every later round reads it first. That memory is what turns
+  repeated searching into converging rather than repeating. A second file, `SEARCHED.md`, does the same
+  for **ground**. It records which avenues were swept, with what search terms, and the most promising one
+  still untried. Closed candidates do not come back, and neither do closed searches.
 - **Exhaustion has to survive an attack.** Claiming the search is complete requires naming which avenues
   were swept and why what remains cannot hold an answer. The critic can contest a thin claim and buy
   another round. That is what makes "these are all of them" worth trusting.

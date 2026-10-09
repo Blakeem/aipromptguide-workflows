@@ -192,7 +192,11 @@ against (halt); an unreachable feature does not (flag).
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one
   defect shape.
 - **Verify a regression test fails against the old code** before trusting it. Reintroduce the bug, watch
-  it go red, put it back. A green test that would never have caught the bug is worse than none.
+  it go red, put it back. A green test that would never have caught the bug is worse than none. The rule
+  covers assertions on new or changed behavior. An assertion that guards kept behavior passes on both
+  versions and needs no red run. An assertion that reads a field the change adds or renames reads it
+  defensively, such as `String(out.nextStep ?? '')`, so the old code fails that one assertion early and
+  visibly instead of throwing and hiding every assertion after it.
 - **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
   grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
   validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that

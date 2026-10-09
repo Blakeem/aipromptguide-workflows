@@ -110,9 +110,10 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. **Must attest `unstaged_confirmed`. A
   missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
   surface neither reviewer checks).
-- **Quality Reviewer** — blind by placement (`gate/` only). Skipped ONLY when no work is owed a review
-  (`reviewOwed`). A round that only re-runs a red gate, drops every finding or answers a failed
-  acceptance cannot skip it past unreviewed, flagged or rejected code.
+- **Quality Reviewer** — blind by placement (`gate/` only). It also flags a new sentence that the
+  repo's code contradicts. Skipped ONLY when no work is owed a review (`reviewOwed`). A round that
+  only re-runs a red gate, drops every finding or answers a failed acceptance cannot skip it past
+  unreviewed, flagged or rejected code.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the staged baseline already satisfies passes without inventing changes). When no blind review
   has run for a feature or section block, any unstaged or untracked change fails acceptance. In fix
@@ -214,12 +215,12 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
-- **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with
-  per-issue `results` in fix mode) · `statusSync` (the plan-file edits, also logged per block for §2
-  step 5) · `sweep` · `failed` (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else
-  empty, so `sweep: null` with no entry means the sweep did not run) · `newIssues` (fix mode, null when
-  a verifier returned no usable report) · `newIssueFiles` (the sorted new-issues files the verifiers
-  named, null when `newIssues` is null) · `nextStep`.
+- **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with a
+  status of the form `<token> (<meaning>)`, and per-issue `results` in fix mode) · `statusSync` (the
+  plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
+  (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
+  entry means the sweep did not run) · `newIssues` (fix mode, null when a verifier returned no usable report) · `newIssueFiles`
+  (the sorted new-issues files the verifiers named, null when `newIssues` is null) · `nextStep`.
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
   garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`

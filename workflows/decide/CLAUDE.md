@@ -5,7 +5,7 @@ lensed analyst per perspective (each finds + scores the best option through its 
 via a **decider** that builds a global weighted decision matrix pulling in the best of each, gated by a
 **non-blind adversarial reviewer** — looped until decider and reviewer agree against fixed requirements.
 Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A *convergence* workflow: it honors the core (#1–4,
-#6, #8, #11–15) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
+#6, #8, #11–16) and runs a review loop in the **spirit of #5 but non-blind by design** — the reviewer
 must see the decision and the rubric to judge them (#3 guards code-regression anchoring, not argument
 evaluation). It produces a conclusion, **not code**: nothing is staged or committed.
 
@@ -103,8 +103,9 @@ The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). 
   scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`.
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ the latest review);
   consolidates options, may build a hybrid, scores a **global weighted matrix** (non-negotiables forced
-  to 0, **every cell citing its lens evidence or marked "own judgment, low-confidence"**, #14), picks
-  the winner with why-not-others, writes `decision-rN.md`. Escalates a user-only call to `NEEDS-USER.md`
+  to 0, **every cell citing its lens evidence or marked "own judgment, low-confidence"**, #14), cites
+  for **each option it rules out** what rules it out and the one observation that would reverse that,
+  picks the winner with why-not-others, writes `decision-rN.md`. Escalates a user-only call to `NEEDS-USER.md`
   (halts on a hard blocker) — **and so may the reviewer**, for a requirement contradiction (§7); those are
   two distinct halt paths, not one. In `ranked` mode it instead ranks the strongest options (up to `shortlist`), each
   with what it **buys**, what it **costs**, its rank rationale, plus a **combine / exclude** section —

@@ -94,9 +94,9 @@ flowchart TD
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 44) |
 | throw: args.planPath is required | args carry no planPath | throw (line 79) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 88) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 416) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 489) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 517) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 423) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 496) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 524) |
 
 ## Coverage
 

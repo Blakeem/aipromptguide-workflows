@@ -178,8 +178,20 @@ section('the triage doc template holds no em dash in its Rejected format or its 
   });
   const verifyText = prompt('verify');
   const noteLine = verifyText.split('\n').find((l) => l.startsWith('note: ')) || '';
-  ok(/\(one line each: `<title>: <why>`\)/.test(verifyText), 'the Rejected format reads <title>: <why>');
+  ok(/\(one line each: `<title>: <why, with the file:line it rests on>`\)/.test(verifyText), 'the Rejected format reads <title>: <why, with the file:line it rests on>');
   ok(noteLine.length > 0 && !/[—;]/.test(noteLine), `the note line holds no em dash and no semicolon (got "${noteLine}")`);
+}
+
+section('the verifier records a cost it cannot substantiate as UNPROVEN, apart from a refuted one');
+{
+  const { prompt } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: { find: FOUND, verify: VERIFIED },
+  });
+  const flatVerify = prompt('verify').replace(/\s+/g, ' ');
+  ok(flatVerify.includes('A cost the code refutes is NOT REAL: cite the code that refutes it.'), 'rule 2 cites the code that refutes a cost');
+  ok(flatVerify.includes('A cost you cannot substantiate is UNPROVEN: its Rejected line starts `UNPROVEN:` and names the evidence that would substantiate it.'),
+    'rule 2 records an unsubstantiated cost as UNPROVEN with the evidence that would substantiate it');
 }
 
 section('a submitted candidate with no verdict is counted and named, never silently dropped');

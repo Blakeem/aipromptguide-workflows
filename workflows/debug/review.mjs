@@ -315,6 +315,11 @@ narrow a suggested fix to the part you verified. The **Fix:** line covers every 
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
+Write each REJECT as one line under a closing \`## Rejected\` heading, the clean marker included:
+\`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>\`.
+An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
+duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
+would settle it.
 
 WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed) in EXACTLY this format:
 -----
@@ -353,6 +358,7 @@ the slug of the unit id, not the unit id.
 The \`- file:\` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
 If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
 the frontmatter above, then \`# Review: ${unit.id}\`, then the single line "No issues found."
+The \`## Rejected\` section follows that line when you rejected anything.
 Set wrote_file=true and return all verdicts via the schema.`; };
 
 // =============================================================================

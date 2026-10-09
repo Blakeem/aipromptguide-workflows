@@ -7,7 +7,7 @@ it re-reads at the top of the next round — so each round diverges from what al
 circling — and an adversarial **non-blind critic** verifies each new option (and each citation against its
 source) before it counts. The loop ends when the investigator can **evidence** that no avenues remain and
 the critic agrees, not when the first answer works. Built to `../../principles/WORKFLOW-PRINCIPLES.md`. A
-*convergence* workflow of the **search** shape: it honors the core (#1–4, #6, #8, #11–15) and runs a review
+*convergence* workflow of the **search** shape: it honors the core (#1–4, #6, #8, #11–16) and runs a review
 loop in the **spirit of #5 but non-blind by design** — a critic that cannot see the option or the criteria
 cannot verify either. It produces a determination, **not code**: nothing is staged or committed.
 
@@ -145,7 +145,8 @@ Every round **starts with the investigator**.
   another round. That contest is what makes "these are all of them" worth anything — and it **costs a
   citation**: the contest must name the missed avenue with a source and locator connecting it to the
   criterion or search-space bound it puts back in play. A bare "you missed something" fits any search that
-  ever ended, so it settles nothing and still buys a round. A reopen flag buys a round too. While the
+  ever ended, so it settles nothing and still buys a round. A reopen flag buys a round too, so it costs a
+  citation of the misread passage, or, on a resumed search, of the criterion as it reads now. While the
   critic flags a ledger candidate for reopening (`reopened` above 0) or returns no count, no termination
   claim ends the run, even with `agree` set.
 - **Saturation is a STOP, not a close — and it never dresses as one.** From round 2 the investigator must
@@ -283,8 +284,9 @@ inline.
   option's file is rewritten without one, so it is unverified again. A critic-disqualified option's file
   stays on disk.
 - `DISQUALIFIED.md` — the append-only ledger: one terse line per rejected candidate naming the criterion it
-  fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. **This is the search's memory** and
-  the reason each round diverges from the last.
+  fails, with `NEAR-MISS: ` prefixing the ones that failed exactly one. A line reads `UNPROVEN` in place of
+  `FAILS` when no checked source settles the criterion, and names the source that would. **This is the
+  search's memory** and the reason each round diverges from the last.
 - `SEARCHED.md` — the append-only **avenue** log: an `r<N> SWEPT:` line per avenue swept, carrying the
   search terms used and what it yielded, and exactly one `r<N> NEXT:` line per round naming the most
   promising unswept avenue and the confidence in it. The ledger closes candidates; this closes ground, and

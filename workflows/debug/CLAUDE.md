@@ -48,7 +48,9 @@ triaged files to develop, and verify ground truth at the end.
 - **Verifier** (opus) — spawned ONLY for units with findings; **ONE per unit regardless of lens count**.
   Confirms each against the real code, corrects inflated severity, folds duplicates (across lenses or within one), routes via
   the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
-  units never reach it — the reviewer already wrote their marker.
+  units never reach it — the reviewer already wrote their marker. It writes every rejected finding as
+  one line under a closing `## Rejected` heading with what refutes it, and routes a finding it can
+  neither confirm nor refute to NEEDS_USER.
 
 Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../develop/CLAUDE.md`.
 
@@ -65,8 +67,8 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
   `## Plan: <slug(unit.id)>` block (preamble `mode: fix`, `gate: green`, `status: todo`) holding the
   `### [<id>]` entries, each with a `- status: open` line — so `issues/<unit>.md` parses under
   `tools/plan-block.mjs` and `develop-cycle` can build it directly. The clean marker keeps its old
-  format (a clean unit is not a plan). Frontmatter (`unit:`/`hash:`/`reviewed:`) is unchanged, so
-  gen-units' hash resume still joins.
+  format (a clean unit is not a plan). It may end with a `## Rejected` section, and is still not a
+  plan. Frontmatter (`unit:`/`hash:`/`reviewed:`) is unchanged, so gen-units' hash resume still joins.
 - **The issue file is the contract between the engines.** `review.mjs` writes it. develop's fix
   developer and acceptance verifier read it through `tools/plan-block.mjs` and parse the `- ` header
   lines. No `issues.json` — the per-unit markdown files ARE the inventory.
@@ -144,6 +146,11 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      line to encode that option precisely
    - a DEFER the user still wants → ACTIONABLE only if genuinely batchable. Large cross-cutting work
      belongs in its own plan file as `section` blocks.
+   - a rejected finding the user wants after all → add it back as an entry in the verifier format, above
+     the `## Rejected` heading. An entry below that heading still counts as an entry, such as one
+     `plan-edit.mjs move` appended at the end of the file. Only the one-line rejections under the heading
+     are rejected. In a clean-marker file, first add the `## Plan: <slug>` header and its mode/gate/status
+     preamble in the verifier format.
    - regroup lopsided files with `node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>`.
 6. **Build the triaged files with develop.**
    - Each triaged issue file with findings is one fix-mode block.

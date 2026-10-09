@@ -312,6 +312,14 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   eq(blocks[0].issues.length, 1, 'the entry parses as a fix-mode issue');
   eq(blocks[0].issues[0].values.status, 'open', 'and carries status open');
   eq(blocks[0].issues[0].values.file, 'a.js:1', 'the file:line value survives its own colon');
+
+  // The verifier closes the file with its rejections, which the fix bus must read as body, not entries.
+  const REJECTED = '\n\n## Rejected\n\nworkflows-debug-p1-2: a.js:3\nworkflows-debug-p1-3: workflows-debug-p1-1\n';
+  const rejectedBlocks = validate(parseBlocks(fixture + REJECTED), 'verifier template + rejected');
+  const lastRun = (bs) => JSON.stringify(bs[0].issues.at(-1).keys);
+  eq(rejectedBlocks[0].issues.map((i) => i.id).join(), blocks[0].issues.map((i) => i.id).join(), 'a trailing ## Rejected section adds no entry');
+  eq(lastRun(rejectedBlocks), lastRun(blocks), 'and leaves the last entry\'s - key run unchanged');
+  eq(emitList(rejectedBlocks, 'verifier template + rejected', parseFileKeys(fixture + REJECTED)), emitList(blocks, 'verifier template + rejected', parseFileKeys(fixture)), '--list accepts it and lists the same block');
 }
 
 section('a verifier with zero kept verdicts writes the clean-marker bytes, never a plan header');
@@ -327,6 +335,19 @@ section('a verifier with zero kept verdicts writes the clean-marker bytes, never
   const v = prompt('verify');
   ok(v.includes('write NO `## Plan:` header at all'), 'the verifier is told the zero-verdict file is not a plan');
   ok(v.includes('then `# Review: u1`, then the single line "No issues found."'), 'and is given the clean-marker bytes verbatim');
+}
+
+section('the verifier writes each rejection with what refutes it, and routes an unsettled finding to the user');
+// The inventory is closed after review, so a wrongly refuted defect is otherwise lost with no record of why.
+{
+  const { prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const v = prompt('verify').replace(/\s+/g, ' ');
+  ok(v.includes("nearest the unit's files. Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included: `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`."), 'every rejection is written with what refutes it, after the design-choice check');
+  ok(v.includes('An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that would settle it.'), 'an unsettled finding goes to the user, never to REJECT');
+  ok(v.includes('then the single line "No issues found." The `## Rejected` section follows that line when you rejected anything.'), 'the clean marker allows the rejections after its line');
 }
 
 section('the clean-marker rule is relative to the severity floor');

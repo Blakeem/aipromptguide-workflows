@@ -228,11 +228,34 @@ rules close it:
   files, and ledgers, and nothing is lost. If a failure needs bespoke cleanup to resume, the exit path
   is wrong, not the resume.
 
+### 16. Ruling out
+Proving a negative needs a bound. A judge that rules something out, such as a claim it calls false, a
+finding it rejects or an option it disqualifies, cites what rules it out. That is an item inside the
+checked scope that contradicts the claim, cited by locator, or a complete search of that scope that found
+no support. A judge that chose its own search area names it, such as the files, sources or search terms
+it covered. Absence outside the checked scope is unknown, not false.
+
+A claim that no evidence decides either way is open. The judge records it as open, with its confidence, and
+never as false. A gate that requires proof, such as develop's acceptance or investigate's qualification,
+still withholds its pass from an open claim, and records it as unproven, never as refuted. A measured
+difference smaller than the spread across repeated measurements decides nothing, so the claim it bears
+on stays open.
+
+Every ruling names its flip, the one observation that would reverse it, so the next checker knows what
+to look for. A ruling that prescribes a fix needs no separate flip, since the fix is that observation. A
+ruling that cites the item contradicting the claim needs none either, since that item is what the next
+checker re-reads. A sentence about the project is judged against the project's code and docs.
+
+A choice among options has a flip too. It is the smallest change to one input, such as a score, a weight
+or a measurement, that changes the winner. The choice is ROBUST when that change is larger than the
+input's uncertainty, and FRAGILE when it is not. A dispute inside a fragile margin, such as one point between
+two variants of the winner, is a close call that another round cannot decide without new evidence.
+
 ---
 
 ## Scope
 
-Principles #1 to #4, #6, #8, and #11 to #15 are core, and every workflow honors them. The rest are build-loop
+Principles #1 to #4, #6, #8, and #11 to #16 are core, and every workflow honors them. The rest are build-loop
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
@@ -313,7 +336,9 @@ rules and apply only where they fit.
   - An engine or phase that can halt (develop, refine, decide and investigate's run phase) also returns
     `status`, `halted` and `haltReason` on every return. `status` reads `<token> (<meaning>)`, and the
     meaning describes the state without instructing the operator. Every instruction lives in
-    `nextStep`. `haltReason` is a non-empty cause when `halted` is true, and an empty string otherwise.
+    `nextStep`. A per-block status a return carries, such as each develop `ledger` entry's `status`,
+    reads `<token> (<meaning>)` the same way. `haltReason` is a non-empty cause when `halted` is true,
+    and an empty string otherwise.
   - No return carries a field whose value never changes, such as a constant `phase`. investigate's
     `phase` names which of its two phases ran, so it stays.
 
@@ -371,3 +396,5 @@ Use these as yes/no checks when reviewing any workflow.
       read every write-attestation field? (#15)
 - [ ] Can a run that lost an agent at any stage resume through the same mechanism as a normal resume
       (clean tree and durable trail), with no bespoke recovery step and nothing lost? (#15)
+- [ ] Does every ruling-out verdict cite its evidence, keep an unsettled claim open and name its flip?
+      (#16)

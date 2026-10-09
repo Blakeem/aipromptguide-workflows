@@ -400,16 +400,17 @@ section('a round-1 fix block that closed nothing is NOT done, and `ordered` deci
 {
   const skipped = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, FIX_ONE);
   eq(skipped.calls.length, 1, 'no reviewer and no park on an empty diff');
-  eq(skipped.out.ledger[0].status, 'no-changes', 'the ledger names the terminal');
+  eq(skipped.out.ledger[0].status, 'no-changes (the fix block closed no issue: every entry was skipped or none was reported)', 'the ledger names the terminal');
   eq(skipped.out.plansDone.length, 0, 'the block is NOT done — its issues stay open');
   ok(skipped.out.halted === false, 'an unordered run does not halt on it');
 
   const empty = await run({ develop: fixDev([]) }, FIX_ONE);
-  eq(empty.out.ledger[0].status, 'no-changes', 'an EMPTY results array is the same terminal, never all-stale');
+  eq(empty.out.ledger[0].status, 'no-changes (the fix block closed no issue: every entry was skipped or none was reported)', 'an EMPTY results array is the same terminal, never all-stale');
   eq(empty.out.plansDone.length, 0, 'and never counts done either');
 
   const stop = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }]) }, { ...FIX_ONE, ordered: true });
   eq(stop.out.status, 'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)', 'ordered status');
+  ok(/closed NO issue and are NOT done: fix-a\./.test(stop.out.nextStep), 'the ordered nextStep names it in the no-changes sentence');
   ok(!stop.labels.some((l) => l.startsWith('park')), 'still nothing to park');
   ok(/The tree is clean/.test(stop.out.haltReason), 'and the reason says the tree is clean');
 
@@ -1440,11 +1441,15 @@ section('a dismissal reason and a prose-only diff are both judged from the code 
     const drop = r.prompt(`develop ${id}`).split('• DROP (1 or 6b):')[1]?.split('• AMEND (6a)')[0] ?? '';
     ok(/decidable from the code alone: never\s+cite a plan id, block id, issue id or plan clause/.test(drop),
       `${mode}: a DROP reason never cites the plan`);
+    ok(flat(drop).includes('A false-positive reason cites the file:line that refutes the finding.'),
+      `${mode}: a false-positive DROP reason cites the line that refutes the finding`);
   }
   const q = (await run(GREEN_RUN)).prompt('quality block-a');
-  ok(/A hunk that changes ONLY comments, string text or documentation has three checkable defects/.test(q)
+  ok(/A hunk that changes ONLY comments, string text or documentation has four checkable defects/.test(q)
     && q.includes('git -C E:/repo diff --word-diff') && /Whether the wording reads well is out of scope/.test(q),
     'the blind reviewer has a bar for a comment, string or documentation hunk');
+  ok(flat(q).includes("and a claim the new text makes about this repo's code that the code contradicts, cited by line."),
+    'the blind reviewer flags a new sentence the code contradicts');
 }
 
 section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');

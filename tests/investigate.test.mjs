@@ -673,6 +673,30 @@ section('a coverage contest costs a citation — an uncited one is not a contest
   ok(/contests_claim=true only\s+with that citation/.test(crit), 'and the contest flag is gated on that citation');
 }
 
+section('a criterion no source settles is UNPROVEN, not FAILS, and a re-open costs a citation');
+// A FAILS line closes the candidate for every later round, so an unsettled criterion logged as one stops
+// anyone looking for the missing source. A re-open buys a round, so it carries a citation like a contest.
+{
+  const flat = (p) => p.replace(/\s+/g, ' ');
+  const UNPROVEN = 'A criterion no checked source settles either way is UNPROVEN, not failed: its ledger line reads `UNPROVEN` in place of `FAILS` and names the source that would settle it.';
+  const NEAR = 'For the NEAR-MISS marker, an UNPROVEN criterion counts as a failed one.';
+  const NOISE = 'A measured difference smaller than the spread across repeated runs settles nothing: the criterion it bears on is UNPROVEN.';
+  const script = { 'investigate': { ...INV, option_ids: ['opt-a'] }, 'critique': { ...CRIT, upheld: ['opt-a'] } };
+  const plain = await run(script, { ...baseArgs, maxRounds: 1 });
+  const bench = await run(script, { ...baseArgs, maxRounds: 1, testbed: 'node bench.mjs' });
+  const [inv, crit] = [flat(plain.prompt('investigate')), flat(plain.prompt('critique'))];
+  ok(inv.includes(UNPROVEN) && crit.includes(UNPROVEN), 'both roles read the UNPROVEN rule in the shared fragment');
+  ok(inv.includes(NEAR) && crit.includes(NEAR), 'and both count an UNPROVEN criterion toward the NEAR-MISS marker');
+  ok(!inv.includes(NOISE) && !crit.includes(NOISE), 'with no testbed there is no measurement to call noise (guard)');
+  ok(flat(bench.prompt('investigate')).includes(NOISE) && flat(bench.prompt('critique')).includes(NOISE),
+    'with a testbed, a difference inside the run-to-run spread settles nothing');
+  ok(crit.includes('A citation that does not check out leaves the criterion it was offered for UNPROVEN, or FAILS it when the cited passage contradicts the claim, so an option standing on one is disqualified'),
+    'CHECK item 2 calls an unchecked citation unproven, and still disqualifies the option');
+  ok(!crit.includes('fails the criterion it was offered for'), 'the old wording is gone');
+  ok(crit.includes('should be re-opened. A re-open cites the passage the original reading got wrong, or, on a resumed search, the criterion as it reads now. An uncited re-open is not one.'),
+    'CHECK item 3 gives a re-open the same citation bar as a contest');
+}
+
 section('saturation is a standing instruction from round 2 — round 1 has nothing to compare against');
 {
   const { byLabel } = await run({ 'investigate': LEARN, 'critique': CRIT }, { ...baseArgs, maxRounds: 2 });

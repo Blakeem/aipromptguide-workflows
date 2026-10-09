@@ -208,7 +208,8 @@ PROCEDURE:
    0, weighted total computed. The highest defensible total wins.
    GROUND every cell: cite the lens evidence behind the score (lens + the specific claim). Where none
    exists (a legitimate cross-lens synthesis), mark it "own judgment, low-confidence". Never fabricate a
-   citation.
+   citation. Each option you rule out, by a non-negotiable or as a runner-up, cites what rules it out
+   and names the one observation that would reverse that.
 ${RANKED
     ? `3. RANK the strongest options by weighted total, best first, up to ${SHORTLIST_N}. An option that
    violates a non-negotiable is OFF the list, never ranked last. Do NOT pad: three real options beat

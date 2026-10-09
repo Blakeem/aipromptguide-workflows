@@ -1,7 +1,7 @@
 export const meta = {
   name: 'refine-cycle',
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (only what would build wrong or fail counts - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then folds each gap into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
-  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error or a too-big block whose fix splits, merges, adds or reorders blocks, or a gap in an already-done block) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
+  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error or a too-big block whose fix splits, merges, adds or reorders blocks, a gap in an already-done block, or a defect in a file key) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor folds each gap into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
@@ -173,6 +173,9 @@ THE DEFECT BAR - a gap must name something that would build wrong or fail. Exact
      instruction the block relies on but states only in the file preamble or another block is missing.
   7. A FAILURE ON ACCEPTED INPUT: built as written, the block crashes, loses or corrupts data, or gives
      wrong output on an input the repo or the plan accepts.
+     Text the block tells the developer to write, such as a principle, a guide or README sentence or a
+     comment, is output: a sentence the repo contradicts once the plan's steps are applied is wrong
+     output and a WRONG INSTRUCTION.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries file:line evidence - the plan line it is about, and the repo line that contradicts it.
@@ -191,6 +194,8 @@ SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) or a BLOCK TOO BIG (class 5
 merges, adds or reorders blocks is reported as a QUESTION, never as a gap. It ends the run so the
 operator can restructure.
 SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
+SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a
+gap, since no block's text holds it.
 
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
@@ -198,7 +203,7 @@ THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from t
              code crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan
              accepts.
   minor    - any other real defect.
-Three rules settle the grade, and each wins over the definitions above:
+Four rules settle the grade, and each wins over the definitions above:
   - An OMISSION the block's own green gate would catch on its first run is minor. Only the gate counts
     as a catch, never a guess that the developer will notice.
   - A WRONG INSTRUCTION is major or higher, whether or not the gate would catch it, since the developer
@@ -206,12 +211,14 @@ Three rules settle the grade, and each wins over the definitions above:
     hold are a WRONG INSTRUCTION.
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
     gate would not catch is major.
+  - An existing sentence that the block's steps make false, and that the block leaves unchanged, is an
+    OMISSION graded minor, since develop's acceptance counts it as a regression.
 Gaps graded ${COUNTED.join(' or ')} COUNT: write them in the numbered GAPS section and include them in
 gap_count. ${BELOW.length
     ? `Gaps graded ${BELOW.join(' or ')} are BELOW the floor: list them in a separate
 "## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count. Re-list every
 below-floor item that still holds in the current plan text, even when an earlier round's critique listed
-it, so that the last critique's FYI section is complete.`
+it${round > 1 ? ` (${critiqueFile(round - 1)} holds the earlier FYI items)` : ''}, so that the last critique's FYI section is complete.`
     : 'No grade sits below this floor, so every gap you find counts.'}
 
 SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line
@@ -309,9 +316,9 @@ while (round < MAX_ROUNDS) {
   }
   log(`  r${round}: ${openGaps} gap(s) at or above ${SEVERITY}, ${belowFloor} below it, ${questions} question(s)`);
 
-  // Questions END the run. Both classes that produce one - an ordering error between blocks and a block
-  // too big for one develop pass - change the block STRUCTURE and the operator's derived plans array, and
-  // the minimal-fold editor has no legal edit for either. So does a gap found in an already-done block.
+  // Questions END the run, since the minimal-fold editor has no legal edit for any of them: an ordering
+  // error or too-big block changes the block STRUCTURE and the operator's derived plans array, and a gap
+  // in an already-done block or a defect in a file key lies outside every todo block.
   if (questions > 0) {
     haltKind = 'needs-answers';
     haltReason = `The critic raised ${questions} question(s) for the operator in round ${round} (see ${critiqueFile(round)} and ${NEEDS_USER}), and the editor has no legal edit for these.`;
