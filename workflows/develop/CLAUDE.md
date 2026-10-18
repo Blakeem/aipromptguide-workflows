@@ -107,17 +107,25 @@ entry. debug's review.mjs writes these files; hand-authored external inventories
 Same roles and contracts as the engines it replaces, with these merge-specific points:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
-  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. **Must attest `unstaged_confirmed`. A
+  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. It fixes clear wins at every tier, a finding
+  below the threshold included, and weighs the rest against their cost. It logs every finding it does
+  not fix, so none is dropped silently. When it fixes a finding, it fixes every sibling path with the
+  same mechanism inside the block's scope, and logs one outside it. **Must attest `unstaged_confirmed`. A
   missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
   surface neither reviewer checks).
-- **Quality Reviewer** — blind by placement (`gate/` only). It also flags a new sentence that the
+- **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
+  at the run's severity threshold (`reviewSeverity`) through a reach step over callers, siblings,
+  duplicates and describing text, and a lens checklist. It dives below the threshold, down to nit,
+  only when its hunt found something at or above it. It also flags a new sentence that the
   repo's code contradicts. Skipped ONLY when no work is owed a review (`reviewOwed`). A round that
   only re-runs a red gate, drops every finding or answers a failed acceptance cannot skip it past
   unreviewed, flagged or rejected code.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the staged baseline already satisfies passes without inventing changes). When no blind review
   has run for a feature or section block, any unstaged or untracked change fails acceptance. In fix
-  mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. Every defect it
+  mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. It reads every
+  earlier review file of its block and counts an earlier finding as a gap unless the code closes it on
+  every sibling path or the dismissal ledger declines it. Every defect it
   writes in its review file counts as a gap, including a regression the block prescribes or no current caller reaches.
   The developer never dismisses a regression. It fixes the regression, with an
   amendment when the block prescribes it, or escalates it with a default when the fix needs major
@@ -140,8 +148,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 ## 6. Loop, gates & verification
 
-`develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 4) per
-block. Gate semantics per block: `green` = build + the block's verification passed
+`develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 5) per
+block. A finding below the review threshold never sends a block back on its own, unless the developer
+neither fixed nor logged it, which acceptance counts as a gap. Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
 too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected in a migration).
 `red-baseline` (section mode) = authored tests fail for the right reason, count 0 fails.
@@ -222,8 +231,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   entry means the sweep did not run) · `newIssues` (fix mode, null when a verifier returned no usable report) · `newIssueFiles`
   (the sorted new-issues files the verifiers named, null when `newIssues` is null) · `nextStep`.
 - **Optional:** `blockTool` · `conventions` ·
-  `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, **throws** on
-  garbage) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
+  `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
+  garbage) · `reviewSeverity` (`low|medium|high|critical`, default `medium`, any other value
+  **throws**) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (every role opus) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
   restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).
 - **Retired:** `startAt`, a top-level `planPath` and `planContext` are retired and **throw**.

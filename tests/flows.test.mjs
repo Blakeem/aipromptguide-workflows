@@ -309,9 +309,9 @@ section('one node pair carrying BOTH shapes stays TWO edges, marked and captionl
   ok(md.includes(`\n  ${from} ==> ${to}\n`), 'the advance renders thick');
   ok(!md.includes(`${from} ==>|`), 'and CAPTION-LESS — nothing left to stack on the marker');
   // Bounded BY CONSTRUCTION: the marker plus the measured repeat count, no authored text and no budget.
-  // A block that never accepts enters develop its full maxRounds of 4 times — the ×N form the self-loops
+  // A block that never accepts enters develop its full maxRounds of 5 times — the ×N form the self-loops
   // already use, unparenthesised.
-  ok(md.includes(`${from} -.->|"E1 ×4"| ${to}`), 'the retry renders dotted, marked and bounded');
+  ok(md.includes(`${from} -.->|"E1 ×5"| ${to}`), 'the retry renders dotted, marked and bounded');
   ok(!md.includes('-.->|"acceptance finds gaps'), 'with no authored text left on the arrow to collide');
 
   // Moving text off an arrow is only half the fix — assert the destination, or it lands nowhere. Both
@@ -419,7 +419,7 @@ section('the round count is per LANE — fan-out width and roadmap length never 
   const dev = nodeByLabel(dg, 'develop');
   const retry = dg.edges.filter((e) => e.fromId === acc.id && e.toId === dev.id && e.back);
   eq(retry.length, 1, 'exactly one of the two acceptance -> develop edges is the retry');
-  eq(retry[0].repeat, 4, 'and a block that never accepts still measures its full maxRounds of 4');
+  eq(retry[0].repeat, 5, 'and a block that never accepts still measures its full maxRounds of 5');
 
   // One ungrouped call looping back into a fan-out of k lanes walks the edge ONCE for the round, not k times.
   const twoGaps = [{ kind: 'web', focus: 'webhooks' }, { kind: 'web', focus: 'rate limits' }];

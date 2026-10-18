@@ -10,7 +10,9 @@
 // dead-agent sweep (dead-agent.test.mjs), and role/throw/terminal coverage (flow-coverage.test.mjs).
 // The dead-agent cases kept below assert what that sweep cannot see: guard ordering, the next round
 // never spawning, and a round-2 death.
-import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { REPO_ROOT, runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/develop/develop-cycle.mjs';
 
@@ -28,10 +30,10 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 
 // Mirrors tools/flows/develop.flow.mjs, so "a healthy return" has one definition per engine.
 const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
-const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
-const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
+const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, minor_count: 0, contested_dismissals: 0 };
+const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, minor_count: 0, contested_dismissals: 0 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
@@ -210,7 +212,7 @@ section('fix mode: a later round cannot withdraw an earlier round\'s claimed fix
   const { out, prompt, logs } = await run({
     develop: firstRound(DEV_FIXED, DEV_STALE),
     quality: firstRound(FLAGGED, CLEAN),
-    acceptance: { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [], new_issues: 0, new_issue_blocks: [] },
+    acceptance: { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 1, regression: false, gap_count: 0, fix_checks: [], new_issues: 0, new_issue_blocks: [] },
   }, FIX_BLOCK);
   ok(/- i-1/.test(prompt('acceptance')), 'round 2 still hands acceptance the id claimed FIXED in round 1');
   ok(!/none claimed fixed/.test(prompt('acceptance')), 'the claim list did not empty on the downgrade');
@@ -231,8 +233,8 @@ const FIX_ONE = { ...baseArgs, plans: [onBus({ id: 'fix-a', mode: 'fix', gate: '
 // flag in would let every case below pass on the one field the engine must ignore there.
 const { produced, ...DEV_FIX } = DEV_OK;
 const fixDev = (results, extra = {}) => ({ ...DEV_FIX, results, ...extra });
-const FIX_PASS = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, new_issue_blocks: [] };
-const FIX_GAP  = { wrote_file: true, pass: false, staged: false, regression: false, gap_count: 1, fix_checks: [], new_issues: 0, new_issue_blocks: [] };
+const FIX_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, gap_count: 0, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, new_issue_blocks: [] };
+const FIX_GAP  = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, regression: false, gap_count: 1, fix_checks: [], new_issues: 0, new_issue_blocks: [] };
 
 const PASS = { id: 'fix-a-plus-1', mode: 'fix', gate: 'green', blocks: [
   { id: 'fix-a', planPath: 'E:/plans/one.md', issues: ['i-1', 'i-2'] },
@@ -1392,8 +1394,8 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
       `${mode}: and the frame carries that scope line above it: "${quoted}"`);
     ok(/Everywhere else the plan and the conventions\s+still bind/.test(dev), `${mode}: the override is confined to that clause`);
     ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), `${mode}: 6b keeps the unverified case a DROP`);
-    ok(dev.includes(`DROP (1 or 6b): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
-      `${mode}: LOGGING routes the DROP at 6b, not the whole of 6`);
+    ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
+      `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
     ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
   }
 }
@@ -1404,6 +1406,32 @@ section('MATRIX case 5 owns a piece the plan leaves out, so the fix takes no ame
   for (const [mode, id, r] of FRAMES.filter(([m]) => m !== 'section')) {
     ok(flat(r.prompt(`develop ${id}`)).includes("A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment."),
       `${mode}: an omission in the plan's text routes to case 5, not 6a`);
+  }
+}
+
+section('the developer fixes clear wins at every tier, weighs the rest and accounts for every finding, in every mode');
+// A silent drop left a minor finding in code the developer was already in, and acceptance counts one neither closed nor ledgered.
+{
+  const flaggedBus = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS });
+  const flaggedFix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
+  const laterRound = { 'block-a': flaggedBus, 'block-b': flaggedBus, 'fix-a': flaggedFix };
+  for (const [mode, id, r] of FRAMES) {
+    const dev = flat(r.prompt(`develop ${id}`));
+    ok(dev.includes('2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).'),
+      `${mode}: rule 2 logs a pre-existing finding`);
+    ok(dev.includes('4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression risk, and no conflict with the plan → FIX.'),
+      `${mode}: rule 4 fixes a clear win at any tier`);
+    ok(dev.includes("8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it) against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not clearly ahead, or a different block's work → DROP + LOG."),
+      `${mode}: rule 8 weighs benefit against cost and logs a drop`);
+    ok(dev.includes('Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7). None is dropped silently.'),
+      `${mode}: every finding is accounted for`);
+    ok(dev.includes("When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope with its file:line."),
+      `${mode}: a fix covers every sibling path with the same mechanism`);
+    ok(dev !== '' && !dev.includes('medium/low polish') && !dev.includes('DROP silently'), `${mode}: no rule drops a finding silently`);
+    const later = flat(laterRound[id].prompt(`develop ${id} r2`));
+    ok(later.includes(`A prior review flagged issues — READ ${STATE}/gate/quality-review-${id}-r1.md and address every finding or gap in it, at every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`),
+      `${mode}: a later round addresses every finding in the review file`);
+    ok(later !== '' && !later.includes('resolve exactly those'), `${mode}: a later round no longer narrows to the flagged issues`);
   }
 }
 
@@ -1438,7 +1466,7 @@ section('a dismissal reason and a prose-only diff are both judged from the code 
 // The blind reviewer reads the DISMISSED ledger but never the plan, so a reason citing a plan id is opaque.
 {
   for (const [mode, id, r] of FRAMES) {
-    const drop = r.prompt(`develop ${id}`).split('• DROP (1 or 6b):')[1]?.split('• AMEND (6a)')[0] ?? '';
+    const drop = r.prompt(`develop ${id}`).split('• DROP (1, 2, 6b or 8):')[1]?.split('• AMEND (6a)')[0] ?? '';
     ok(/decidable from the code alone: never\s+cite a plan id, block id, issue id or plan clause/.test(drop),
       `${mode}: a DROP reason never cites the plan`);
     ok(flat(drop).includes('A false-positive reason cites the file:line that refutes the finding.'),
@@ -1446,7 +1474,8 @@ section('a dismissal reason and a prose-only diff are both judged from the code 
   }
   const q = (await run(GREEN_RUN)).prompt('quality block-a');
   ok(/A hunk that changes ONLY comments, string text or documentation has four checkable defects/.test(q)
-    && q.includes('git -C E:/repo diff --word-diff') && /Whether the wording reads well is out of scope/.test(q),
+    && q.includes('git -C E:/repo diff --word-diff')
+    && flat(q).includes('Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.'),
     'the blind reviewer has a bar for a comment, string or documentation hunk');
   ok(flat(q).includes("and a claim the new text makes about this repo's code that the code contradicts, cited by line."),
     'the blind reviewer flags a new sentence the code contradicts');
@@ -1462,6 +1491,62 @@ section('the blind reviewer never hears of an amendment; only it carries CONTEST
     ok(/CONTESTS DISMISSAL/.test(q), `${mode}: the blind reviewer, whose schema carries a contest count, keeps the paragraph`);
     ok(!/CONTESTS DISMISSAL/.test(r.prompt(`acceptance ${id}`)), `${mode}: acceptance does not`);
   }
+}
+
+section('acceptance re-checks every earlier review file of its block, and only the blind reviewer is kept from them');
+// Reading a prior review anchors the blind reviewer (#5). Acceptance reads them after its own first check,
+// so a finding that reopened, or closed on one path only, still counts as a gap.
+{
+  const earlierList = (a) => (a.match(/judgment stays\s+fresh:\n([\s\S]*?)\n\s+For each finding/)?.[1] ?? '')
+    .split('\n').map((l) => l.trim()).filter(Boolean).join(', ');
+  for (const [mode, id, r] of FRAMES) {
+    const q = r.prompt(`quality ${id}`);
+    const a = r.prompt(`acceptance ${id}`);
+    const schema = r.calls.find((c) => c.label.startsWith(`acceptance ${id}`))?.opts.schema;
+    ok(/Do NOT read prior review files/.test(q), `${mode}: the blind prompt still forbids prior review files`);
+    ok(a !== '' && !/Do NOT read prior review files/.test(a), `${mode}: the acceptance prompt no longer does`);
+    ok(flat(q).includes('Review the CURRENT diff FRESH, catching new or nearby issues.'), `${mode}: the blind prompt keeps the fresh-review sentence`);
+    ok(!/re-verifying earlier fixes/.test(q + a), `${mode}: neither prompt keeps the re-verify clause`);
+    eq(earlierList(a), '(none: no review in this run has flagged this block)', `${mode}: round 1 lists no earlier review file`);
+    ok(/an earlier finding that is neither closed\s+nor declined/.test(a), `${mode}: an open earlier finding counts as a gap`);
+    ok(/the earlier-findings\s+result/.test(a) && /BEFORE step 7/.test(a) && !/BEFORE step 6/.test(a),
+      `${mode}: the WRITE step records it and points at the renumbered DECIDE step`);
+    ok(/every earlier finding closed or declined,[^•]*no regression →/.test(flat(a)), `${mode}: the pass branch requires it`);
+    ok(schema?.required?.includes('earlier_reviews_read') && schema.properties.earlier_reviews_read?.type === 'integer',
+      `${mode}: earlier_reviews_read is a required integer`);
+    ok(String(schema?.properties?.pass?.description ?? '').includes('every earlier finding is closed or declined'),
+      `${mode}: the pass description requires it too`);
+  }
+  const accPrompts = [...bus.byLabel('acceptance '), ...fixBus.byLabel('acceptance ')].map((c) => flat(c.prompt));
+  ok(accPrompts.length > 0 && accPrompts.every((p) => p.includes('Review the CURRENT diff FRESH, catching new or nearby issues. '
+    + 'Read prior review files only at your EARLIER FINDINGS step below.')),
+    'every acceptance prompt keeps the fresh-review sentence and points at its EARLIER FINDINGS step');
+  ok(/residual path goes in your review file at step 6\./.test(fixBus.prompt('acceptance fix-a')),
+    'fix: step 1 points at the renumbered WRITE step');
+
+  // r1 quality flags, r2 acceptance fails, r3 passes: each acceptance lists every file routed so far.
+  const Q1 = `${STATE}/gate/quality-review-block-a-r1.md`;
+  const A2 = `${STATE}/acceptance-review-block-a-r2.md`;
+  const chain = await run({
+    develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN),
+    acceptance: (label) => (/r2$/.test(label) ? ACC_FAIL : { ...ACC_PASS, earlier_reviews_read: 2 }),
+  }, ONE_BLOCK);
+  eq(earlierList(chain.prompt('acceptance block-a r2')), Q1, 'round 2 lists the quality file that flagged round 1');
+  eq(earlierList(chain.prompt('acceptance block-a r3')), `${Q1}, ${A2}`, 'round 3 adds the failed acceptance file, in round order');
+  eq(chain.out.status, 'done (all blocks staged)', 'and the block stages on its round-3 pass');
+  const fixChain = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
+  eq(earlierList(fixChain.prompt('acceptance fix-a r2')), `${STATE}/gate/quality-review-fix-a-r1.md`, 'the fix frame lists it too');
+
+  // A short read is an audit flag like a thin pass, so the block still stages.
+  const shortRead = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_PASS }, ONE_BLOCK);
+  ok(shortRead.logs.some((l) => l.includes(`block-a r2: acceptance read 0 of 1 earlier review file(s) — audit ${STATE}/acceptance-review-block-a-r2.md`)),
+    'reading fewer files than listed logs the warning');
+  eq(shortRead.out.status, 'done (all blocks staged)', 'and the block still stages');
+  const missing = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: { ...ACC_PASS, earlier_reviews_read: undefined } }, ONE_BLOCK);
+  ok(missing.logs.some((l) => /acceptance read undefined of 1 earlier review file\(s\)/.test(l)), 'a missing count warns, never reading as a full read');
+  const fullRead = await run({ develop: DEV_OK, quality: firstRound(FLAGGED, CLEAN), acceptance: { ...ACC_PASS, earlier_reviews_read: 1 } }, ONE_BLOCK);
+  ok(!fullRead.logs.some((l) => /earlier review file\(s\)/.test(l)), 'a full read logs no warning');
+  ok(!bus.logs.some((l) => /earlier review file\(s\)/.test(l)), 'nor does a round with no earlier review file');
 }
 
 section('acceptance judges an amended criterion against the AMENDED behavior, with evidence or not at all');
@@ -1493,7 +1578,7 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     ok(a.includes("Those calls are the developer's, never yours."), `${mode}: the call on a counted regression is the developer's`);
     ok(a.includes("escalates it when the fix needs major changes outside this block's scope"), `${mode}: the developer's only waiver is an escalation`);
     ok(!a.includes('dismiss or escalate'), `${mode}: a counted regression is never the developer's to dismiss`);
-    ok(flat(r.prompt(`develop ${id}`)).includes('A REGRESSION the acceptance review counted is a bug, so never DROP it under 1 or 6b.'),
+    ok(flat(r.prompt(`develop ${id}`)).includes('A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8.'),
       `${mode}: the developer's MATRIX never drops a counted regression`);
     ok(a.includes('the OVERRIDE rule above governs it'), `${mode}: a ledgered one falls to the OVERRIDE rule`);
     ok(a.includes(mode === 'fix' ? 'Drop any other concern silently, except a new issue (step 1).' : 'Drop any other concern silently.'),
@@ -1503,7 +1588,7 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     // The gap list ends in "drop silently", so a fail condition a step states but the list omits passes.
     ok(a.includes('an ACTIONABLE entry reported SKIPPED, a touched entry'), 'fix: an ACTIONABLE entry reported SKIPPED is a gap');
     ok(a.includes('a non-empty diff with no FIXED claim'), 'fix: a non-empty diff with no FIXED claim is a gap');
-    ok(a.includes('a gate not satisfied, or a regression'), 'fix: an unsatisfied gate, unavailable tool included, is a gap');
+    ok(a.includes('a gate not satisfied, an earlier finding that is neither closed nor declined, or a regression'), 'fix: an unsatisfied gate, unavailable tool included, is a gap');
   }
 }
 
@@ -2010,6 +2095,72 @@ section('a quality clean:true that carries findings or contests is NOT clean');
     ok(byLabel('develop block-a r2')[0]?.prompt.includes('quality-review-block-a-r1.md'), `${what}: the next developer is sent to the quality file`);
     ok(logs.some((l) => /quality returned clean=true with issue_count=\d+ and contested_dismissals=\d+ — self-contradictory/.test(l)), `${what}: the contradiction is logged`);
   }
+}
+
+section('the blind reviewer judges at reviewSeverity, which defaults to medium and rejects nit');
+{
+  const { prompt, byLabel } = await run(GREEN_RUN, { ...ONE_BLOCK, conventions: 'two-space indent' });
+  const q = prompt('quality block-a');
+  ok(q.includes('THRESHOLD: medium. A finding at or above it blocks this block. A finding below it never blocks.'), 'the threshold defaults to medium');
+  ok(q.includes('exactly "No findings at or above medium."'), 'the empty review names the threshold');
+  ok(flat(q).includes('a DISMISSED reason is WRONG and the finding is at or above the medium threshold'), 'the contest bar is the threshold');
+  ok(q.includes('CONVENTIONS (judge against these): two-space indent'), 'the reviewer receives the conventions');
+  ok(flat(q).includes('REACH: for every function, constant, field, string or rule the diff changes, grep its callers and consumers'), 'the REACH step');
+  ok(flat(q).includes('STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold'), 'stage 1');
+  ok(flat(q).includes('STAGE 2, DIVE. Only when stage 1 found at least one finding'), 'stage 2 runs only beside a stage-1 finding');
+  ok(q.includes('\n  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.'), 'the nit line');
+  ok(!/production-blocking/.test(q), 'no "production-blocking" bar is left');
+  ok(String(byLabel('quality block-a r1')[0]?.opts?.schema?.required ?? '').includes('minor_count'), 'minor_count is a required return');
+
+  const high = await run(GREEN_RUN, { ...ONE_BLOCK, reviewSeverity: 'high' });
+  ok(high.prompt('quality block-a').includes('THRESHOLD: high.'), 'reviewSeverity high sets the threshold');
+  for (const bad of ['nit', 'severe']) {
+    const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, reviewSeverity: bad } });
+    ok(msg.startsWith('Invalid args.reviewSeverity: it must be one of low, medium, high, critical') && msg.includes(JSON.stringify(bad)),
+      `reviewSeverity ${bad} throws naming the value: ${msg.slice(0, 90)}`);
+  }
+}
+
+section('develop\'s SEVERITY_SCALE opens with debug\'s six lines');
+// Neither engine is an importable module, so both are read as text.
+{
+  const scaleOf = (path) => {
+    const src = readFileSync(join(REPO_ROOT, path), 'utf8');
+    const open = 'const SEVERITY_SCALE = `';
+    const at = src.indexOf(open);
+    return at < 0 ? [] : src.slice(at + open.length, src.indexOf('`', at + open.length)).split('\n');
+  };
+  const develop = scaleOf(ENGINE);
+  const debug = scaleOf('workflows/debug/review.mjs');
+  eq(debug.length, 6, 'debug\'s scale is six lines');
+  eq(develop.slice(0, 6).join('\n'), debug.join('\n'), 'develop\'s first six lines match debug\'s byte for byte');
+  ok(develop[6]?.startsWith('  nit      - '), 'then the nit line');
+}
+
+section('a quality review routes on its threshold count and logs its below-threshold count');
+// A finding below the threshold never drives a round on its own.
+{
+  const strayMinor = await run({ ...GREEN_RUN, quality: { wrote_file: true, clean: true, issue_count: 0, minor_count: 2 } }, ONE_BLOCK);
+  ok(strayMinor.labels.includes('acceptance block-a r1'), 'a clean review with stage-2 findings reaches acceptance');
+  ok(strayMinor.logs.some((l) => /quality ran stage 2 with nothing at or above medium, so its 2 finding\(s\) below the threshold are not routed/.test(l)),
+    'and logs the stage-2 warning');
+
+  const both = await run({ ...GREEN_RUN, quality: firstRound({ wrote_file: true, clean: false, issue_count: 1, minor_count: 3 }, CLEAN) }, ONE_BLOCK);
+  ok(!both.labels.includes('acceptance block-a r1') && both.byLabel('develop block-a r2')[0]?.prompt.includes('quality-review-block-a-r1.md'),
+    'a threshold finding sends the block back to the developer');
+  ok(both.logs.some((l) => /quality review found 1 issue\(s\) at or above medium and 3 below → develop addresses .*quality-review-block-a-r1\.md/.test(l)),
+    'and the log line names both counts');
+
+  const contradicts = await run({ ...GREEN_RUN, quality: firstRound({ wrote_file: true, clean: false, issue_count: 0, minor_count: 0 }, CLEAN) }, ONE_BLOCK);
+  ok(!contradicts.labels.includes('acceptance block-a r1') && contradicts.labels.includes('develop block-a r2'),
+    'clean=false with nothing at the threshold still goes back to the developer');
+  ok(contradicts.logs.some((l) => /quality returned clean=false with nothing at or above medium and no contest — self-contradictory; treated as NOT clean/.test(l)),
+    'and logs the self-contradiction');
+
+  const budget = await run({ ...GREEN_RUN, quality: { ...FLAGGED, minor_count: 1 }, park: PARK_OK }, ONE_BLOCK);
+  ok(budget.labels.includes('develop block-a r5') && !budget.labels.includes('develop block-a r6'), 'maxRounds defaults to 5');
+  ok(budget.logs.some((l) => /r5: quality review left 2 issue\(s\) at or above medium and 1 below open at round budget/.test(l)),
+    'the round-budget line names both counts');
 }
 
 section('a failing reviewer that did not attest its review file halts instead of routing a missing path');

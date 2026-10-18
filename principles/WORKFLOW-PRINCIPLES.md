@@ -55,8 +55,8 @@ cap, so no agent or operator ever handles a cut line.
 
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
-1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits for
-   real defects, then
+1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits
+   against the run's severity threshold, then
 2. a plan-aware acceptance review, which verifies every requirement is met, the feature is reachable, and
    nothing regressed.
 
@@ -67,13 +67,16 @@ each round would otherwise re-flag every finding the developer declined on purpo
 re-litigation never converges. So the blind reviewer reads the dismissed-findings ledger. Per #3, it
 reads the ledger from its own `gate/` directory, the only run-state path its prompt discloses. User
 notes, amendments, critiques, and every plan-adjacent file live outside that directory. The plan-aware
-acceptance stage reads the ledger and the user-notes file (#6). Neither stage reads the prior review
-files. Reading the last review anchors a reviewer to that one finding, and it misses the similar bug two
-lines away. Reading only the dismissed list lets it re-review the entire current diff fresh, so it skips
-settled noise and independently re-verifies prior fixes, catching nearby or similar issues.
+acceptance stage reads the ledger and the user-notes file (#6). The blind stage never reads the prior
+review files. Reading the last review anchors a reviewer to that one finding, and it misses the similar
+bug two lines away. Reading only the dismissed list lets it re-review the entire current diff fresh, so
+it skips settled noise and catches nearby or similar issues. The acceptance stage reads every earlier
+review file of its block after its own first check. It confirms each earlier finding stays closed on
+every sibling path or sits in the ledger, so it is the block's regression check and the blind stage
+stays lean.
 
-A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) for a
-production-blocking defect. The developer must then fix or escalate it and never silently re-dismiss it.
+A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) for a finding at
+or above the run's severity threshold. The developer must then fix or escalate it and never silently re-dismiss it.
 This bounds the loop and keeps a wrongly dismissed real defect from being suppressed.
 
 ### 6. Only messages, ledgers, user notes, and product are written
@@ -260,7 +263,9 @@ rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9).
+  end (#9). develop's blind reviewer reports a finding below the run's severity threshold only beside
+  one at or above it, so a minor finding rides along with work already owed and never drives a round on
+  its own, unless the developer neither fixed nor logged it, which acceptance counts as a gap.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, enhance). They write no code, stage nothing, and never commit, so #7 and
   #9 don't apply. The user is the judge, and there is no AI review gate unless the workflow needs one.
@@ -369,8 +374,9 @@ Use these as yes/no checks when reviewing any workflow.
       and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and `NEW-ISSUES-<id>.md`, a parked patch)? Any
       status, summary, progress, or "what I did" file is narration and a violation, including one
       that restates numbers the harness already has. (#6)
-- [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3), and the
-      acceptance stage the ledger and user notes, with neither reading the prior review files? (#5)
+- [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
+      review file, and the acceptance stage the ledger, user notes and every earlier review file of its
+      block? (#5)
 - [ ] Can a reviewer contest a wrong dismissal, and must the developer then fix or escalate it and never
       silently re-dismiss it? (#5)
 - [ ] Does the developer own ambiguity resolution and log declines tersely? Is it the only thing that
