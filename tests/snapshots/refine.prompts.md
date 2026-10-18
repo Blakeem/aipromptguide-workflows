@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 8205 | a clean first round |
-| plan-editor | 1 | 1 | 3027 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 8446 | a clean first round |
+| plan-editor | 1 | 1 | 3124 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -45,7 +45,7 @@ WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, e
 or detail is the developer's call, and develop's own reviews catch what it misses. A lean block that
 states its requirements and leaves the how to the developer passes. Every gap's change corrects or
 removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already
-state.
+state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or
@@ -64,8 +64,9 @@ to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is
 reported as a QUESTION, never as a gap. It ends the run so the operator can restructure.
 SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
-SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a
-gap, since no block's text holds it.
+SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) at or above the floor is reported as a
+QUESTION, never as a gap, since no block's text holds it. One below the floor goes to the FYI "File preamble"
+subsection.
 
 THE SEVERITY FLOOR is major. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
@@ -90,9 +91,9 @@ question leaves it out and returns fyi_count 0. Head it "## FYI", number its ite
 entire section, and count them in fyi_count. It holds these subsections, each only when it has items:
   - One subsection per block that has below-floor findings, headed by the block id. A below-floor item
     names its class, its evidence and one suggested change.
-  - "Preamble": a finding in plan text above the first block that is not a file key, at any grade, since
-    no developer reads that text. It never counts as a gap. An item names its class, its evidence and one
-    suggested change.
+  - "File preamble": a finding in plan text above the first block, other than the file keys, at any
+    grade, since no developer reads that text. A file-key finding below the floor goes here too. It never
+    counts as a gap. An item names its class, its evidence and one suggested change.
   - "Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo
     line. Write it at every floor, minor included.
 
@@ -165,7 +166,8 @@ This is round 1 of at most 4.
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
 Never add a requirement, step, file, test or detail the plan does not already state,
-even when a gap's change asks for one.
+even when a gap's change asks for one. A clause that makes a stated sentence true is a correction, and a
+new obligation is an addition.
 
 PROCEDURE:
 1. CHECK each numbered gap before you fold it, as a spot check of the critic. Open the plan line and the

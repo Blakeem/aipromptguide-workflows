@@ -31,11 +31,12 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 ## Results
 
 - `converged` means the last round found no gap or question. The plan is ready for your approval.
-  That round also writes an FYI section to the last critique file, and `belowFloor` counts its items.
-  No editor folds those items, so read the section with the plan. It has a subsection for each block
-  with findings below the severity floor, then `Preamble` for findings in plan text above the first
-  block that is not a file key, then `Outside the plan` for repo defects that no plan text holds. Items
-  are numbered F1, F2 and so on. You can add an item to a block before you approve.
+  When that round has FYI items, it writes them as an FYI section in the last critique file.
+  `belowFloor` counts them. No editor folds those items, so read the section with the plan. It has a
+  subsection for each block with findings below the severity floor. A `File preamble` subsection holds
+  findings in plan text above the first block, other than the file keys, and file-key findings below
+  the floor. An `Outside the plan` subsection holds repo defects that no plan text holds. Items are
+  numbered F1, F2 and so on. You can add an item to a block before you approve.
 - `needs-answers` means the critic raised something only you can decide, such as a block order. Read
   `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
   so the newest entries are at its end.

@@ -109,13 +109,14 @@ section('the critic writes the FYI section only in a round with no gap and no qu
     'no sentence tells the critic to re-list an earlier FYI item or points at a previous critique file');
   ok(fyi.includes('Head it "## FYI", number its items F1, F2 across the entire section, and count them in fyi_count.'),
     'the section is headed FYI, numbered F1, F2 across the entire section, and counted in fyi_count');
-  const at = ['One subsection per block that has below-floor findings, headed by the block id.', '"Preamble":', '"Outside the plan":'].map((s) => fyi.indexOf(s));
+  const at = ['One subsection per block that has below-floor findings, headed by the block id.', '"File preamble":', '"Outside the plan":'].map((s) => fyi.indexOf(s));
   ok(at.every((i) => i > 0) && at.every((i, n) => n === 0 || i > at[n - 1]),
-    'the subsections run per block, then Preamble, then Outside the plan');
+    'the subsections run per block, then File preamble, then Outside the plan');
   ok(fyi.includes('A below-floor item names its class, its evidence and one suggested change.'),
     'a below-floor item names its class, its evidence and one suggested change');
-  ok(fyi.includes('"Preamble": a finding in plan text above the first block that is not a file key, at any grade, since no developer reads that text.'),
-    'a finding in plan text above the first block that is not a file key goes in Preamble at any grade');
+  ok(fyi.includes('"File preamble": a finding in plan text above the first block, other than the file keys, at any grade, since no developer reads that text. A file-key finding below the floor goes here too.'),
+    'a finding in plan text above the first block, other than the file keys, goes in File preamble at any grade, and so does a file-key finding below the floor');
+  ok(!/"Preamble"/.test(p), 'no subsection is named bare Preamble, which the block metadata paragraph already uses for a block\'s key run');
   ok(fyi.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
     'Outside the plan holds repo defects no plan text holds, each with its repo line, at every floor');
   ok(!p.includes('A gap never invites the editor to fold an FYI item.') && !p.includes('then the FYI section, then a QUESTIONS section'),
@@ -130,8 +131,8 @@ section('at the minor floor the critic has no below-floor subsection and still w
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
   ok(p.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
     'a minor-floor critic is told to write Outside the plan');
-  ok(p.includes('"Preamble": a finding in plan text above the first block that is not a file key, at any grade'),
-    'and Preamble');
+  ok(p.includes('"File preamble": a finding in plan text above the first block, other than the file keys, at any grade'),
+    'and File preamble');
   ok(p.includes('No grade sits below this floor, so every gap you find counts.')
     && !p.includes('Below-floor findings are') && !p.includes('One subsection per block'),
     'but no grade sits below the minor floor, so it has no below-floor finding and no per-block subsection');
@@ -152,8 +153,7 @@ section('the fyi_count schema description and the Critique phase detail say when
 }
 
 section('belowFloor is the LAST round\'s FYI count, never a run total');
-// A fold rewrites the lines an earlier FYI item cited, so only the final critic's count describes the
-// plan the operator is about to approve.
+// Only the converged round writes FYI items, so an earlier round's count is never carried.
 {
   const { out } = await run({ 'plan-critic': firstRound({ ...GAPS, fyi_count: 3 }, CLEAN), 'plan-editor': FOLD_OK });
   eq(out.status, CONVERGED, 'status');
@@ -201,6 +201,8 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
     'the never-a-gap paragraph sits after the class list and before the out-of-scope paragraph');
   ok(p.includes('Every gap\'s change corrects or removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already state.'),
     'a gap\'s change corrects or removes text and never adds to the plan');
+  ok(p.includes('never adds a requirement, step, file, test or detail the plan does not already state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.'),
+    'the critic bar calls a clause that makes a stated sentence true a correction and a new obligation an addition, as the editor guard does');
   ok(p.includes('A command, flag, or library, tool or API behavior the block prescribes counts too. Confirm each one the repo does not already use the same way, against the dependency\'s own docs or source, or a probe in a temporary directory outside the repo and the state dir. A confirmed prescription needs no source cited in the plan.'),
     'a prescribed command or dependency behavior is confirmed against its docs, source or a probe');
   ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
@@ -258,9 +260,9 @@ section('a round-2 critic is pointed at no earlier critique file, and a file-key
     'the round-2 prompt names only its own critique file, never the round-1 file');
   ok(!r1.includes('plan-critique-0') && !r1.includes('plan-critique-2'),
     'the round-1 prompt names no other round\'s critique');
-  ok(r1.includes('SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a gap, since no block\'s text holds it.')
+  ok(r1.includes('SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) at or above the floor is reported as a QUESTION, never as a gap, since no block\'s text holds it. One below the floor goes to the FYI "File preamble" subsection.')
     && r1.indexOf('SCOPE RULE 4') > r1.indexOf('SCOPE RULE 3'),
-    'a file-key defect is a question, stated after SCOPE RULE 3');
+    'a file-key defect at or above the floor is a question and one below it is an FYI item, stated after SCOPE RULE 3');
 }
 
 section('a gapped round then a clean one converges on round 2, with exactly one editor');
@@ -286,6 +288,8 @@ section('the editor checks every gap against the plan and the repo before it fol
     const guard = p.slice(guardAt, procedureAt);
     ok(guard.includes('Never add a requirement, step, file, test or detail the plan does not already state, even when a gap\'s change asks for one.'),
       `${r}: the guard forbids adding to the plan even when a gap's change asks for it`);
+    ok(guard.includes('A clause that makes a stated sentence true is a correction, and a new obligation is an addition.'),
+      `${r}: the guard calls a clause that makes a stated sentence true a correction and a new obligation an addition`);
     ok(guard.includes('not an extra step you think a block needs, and not a criterion you would have phrased differently.'),
       `${r}: the guard's list of changes the editor may not make ends on the criterion`);
     ok(!/FYI/i.test(p), `${r}: the editor prompt never mentions an FYI section, since no round the editor reads holds one`);

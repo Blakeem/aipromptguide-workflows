@@ -1454,6 +1454,10 @@ section('MATRIX case 5 owns a piece the plan leaves out, so the fix takes no ame
     ok(flat(r.prompt(`develop ${id}`)).includes("A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment."),
       `${mode}: an omission in the plan's text routes to case 5, not 6a`);
   }
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`develop ${id}`)).includes('An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.'),
+      `${mode}: an exception to a rule the plan states is a conflict, never a left-out piece`);
+  }
 }
 
 section('the developer fixes clear wins at every tier, weighs the rest and accounts for every finding, in every mode');
@@ -1959,12 +1963,16 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   ok(/a later stage re-runs them before anything is staged/.test(r1), 'and a later stage re-runs them');
   ok(/Never run them in full/.test(r1), 'running them in full is forbidden');
   ok(/test command only for ONE targeted test/.test(r1), 'one targeted test is allowed');
+  ok(flat(r1).includes('Any other command that writes nothing in the repo, such as a tool\'s check mode, and a probe script in a temporary folder outside the repo are allowed.'),
+    'any other command that writes nothing and a probe script outside the repo are allowed');
+  ok(r1.indexOf('test:  t\n') < r1.indexOf('Any other command that writes nothing'), 'the allowance follows the gate command list, so it excludes the gate commands');
   ok(/anything that breaks the\s+build or tests/.test(r1), 'a build or test break stays a defect class');
   ok(/READ every untracked file \(`\?\?`\)/.test(r1) && !/`\?\?`\/`A`/.test(r1), 'new files are the untracked ?? entries, not a staged A');
   ok(/staged half of an `AM` or `MM` file is baseline/.test(r1), 'an AM/MM file\'s staged half is baseline');
   ok(/diff --stat/.test(r1), 'a large diff starts from --stat');
-  ok(/In round 1 it exists only if the developer already declined something/.test(r1), 'round 1 explains an absent ledger');
-  ok(r2 !== '' && !/In round 1 it exists only/.test(r2), 'round 2 drops the round-1 note');
+  const absentLedger = 'It exists only once the developer has declined something, so a missing file means nothing is settled yet. Do not search for it elsewhere.';
+  ok(r2 !== '' && flat(r1).includes(absentLedger) && flat(r2).includes(absentLedger), 'every round explains an absent ledger');
+  ok(flat(prompt('acceptance block-a')).includes(absentLedger), 'and so does acceptance, which reads the same ledger');
   ok(r2.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'and still points at the ledger');
   eq(stateRefsOutsideGate(r1 + r2).join(', '), '', 'no run-state path outside gate/ in either round');
 }
@@ -1991,6 +1999,8 @@ section('tests_run_count counts what the runner reports, and a section block sco
   const { calls, prompt } = await run({ ...GREEN_RUN }, { ...baseArgs, plans: [onBus({ id: 'sec', mode: 'section', gate: 'green' })] });
   const desc = calls.find((c) => c.label.startsWith('develop sec')).opts.schema.properties.tests_run_count.description;
   ok(/tests, or of assertions/.test(desc) && /0 = nothing ran = a FALSE green/.test(desc), 'the field covers assertion-counting runners and keeps the 0 rule');
+  ok(desc.includes('When you ran both this block\'s verification and the full test gate, report the count of this block\'s verification: its `test_selector:` run when the block has one, else the test gate.'),
+    'a developer that ran both reports its own block\'s verification count, so the 0-count guard sees a selector that matched nothing');
   ok(/use the block's `test_selector:` line when it has one, else the test gate/.test(prompt('develop sec')),
     'the developer is told where the selector comes from');
 }
@@ -2027,6 +2037,11 @@ section('fix acceptance and the sweep return decisions only, never a prose field
     'the sweep greps every guide and README for what the goal moves or renames');
   ok(sweepText.includes('Run each distinct gate command once (build and test may be the same command) and record the real outcome.'),
     'the sweep runs each distinct gate command once');
+  ok(sweepText.includes(`Before step 1, READ ${STATE}/DECISIONS.md and every ${STATE}/AMENDED-<id>.md (list ${STATE}/ to find them), each only if it exists. A recorded amendment or decision is never a gap.`)
+    && sweepText.indexOf('Before step 1, READ') < sweepText.indexOf('PROCEDURE'),
+    'the sweep reads the decisions and amendments before step 1, and a recorded one is never a gap');
+  ok(sweepText.includes('Where a block\'s text explicitly excludes something the goal line covers, the block\'s text decides. A goal hit that no block\'s text names or excludes is still a gap.'),
+    'an explicit exclusion in a block\'s text decides, and a goal hit no block names or excludes stays a gap');
 }
 
 section('the fix developer is never asked to count its entries');
@@ -2244,6 +2259,11 @@ section('a block\'s first blind review judges at low, every later one at reviewS
   ok(q.includes('CONVENTIONS (judge against these): two-space indent'), 'the reviewer receives the conventions');
   ok(flat(q).includes('REACH: for every function, constant, field, string or rule the diff changes, grep its callers and consumers'), 'the REACH step');
   ok(flat(q).includes('STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold'), 'stage 1');
+  ok(flat(q).includes('A finding at medium or above names the concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie to a concrete input or path grades low at most.'),
+    'stage 1 asks a concrete input only of a medium or higher finding, so a low at the low threshold is kept');
+  ok(!/grades below the threshold/.test(flat(q)), 'and no sentence grades an untied finding below the threshold');
+  ok(flat(q).includes('the input or path and the harm (for a finding at medium or above), and a concrete fix'),
+    'the review file asks the input or path and the harm only of a medium or higher finding');
   ok(flat(q).includes('STAGE 2, DIVE. Only when stage 1 found at least one finding'), 'stage 2 runs only beside a stage-1 finding');
   ok(q.includes('\n  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.'), 'the nit line');
   ok(!/production-blocking/.test(q), 'no "production-blocking" bar is left');

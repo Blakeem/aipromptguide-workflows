@@ -20,7 +20,8 @@ Four things together — remove any one and the plan grows every round instead o
   dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
   What the plan does not say is never a gap: a missing step, test, wiring point, edge case, file or
   detail is the developer's call, so a lean block passes. A gap's change corrects or removes the wrong
-  text and never adds a requirement, step, file, test or detail the plan does not already state.
+  text and never adds a requirement, step, file, test or detail the plan does not already state. A
+  clause that makes a stated sentence true is a correction, and a new obligation is an addition.
   Improvements, alternatives, and style are excluded unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
@@ -48,7 +49,7 @@ Four things together — remove any one and the plan grows every round instead o
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
    - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
      whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
-     file key (`goal`, `ordered`, `suite`, `sweep`).
+     file key (`goal`, `ordered`, `suite`, `sweep`) at or above the floor.
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
@@ -69,10 +70,11 @@ own single refine run. One develop launch takes both files when their file keys 
 
 - **Critic** (opus, read-only on the repo) — writes `plan-critique-<round>.md` (gaps with file:line
   evidence, no evidence no gap; questions). In a round with no gap and no question, the converged
-  round, it writes the FYI section instead. That section has one subsection per block with
-  below-floor findings, then `Preamble` (plan text above the first block that is not a file key, at
-  any grade), then `Outside the plan` (repo defects no plan text holds, at every floor). Its items are
-  numbered F1, F2 across the section. No editor reads it, and the user reads it with the plan. Returns
+  round, it writes the FYI section when it has items, and writes no file when it has none. That section
+  has one subsection per block with below-floor findings, then `File preamble` (plan text above the
+  first block, other than the file keys, at any grade, plus a file-key finding below the floor), then
+  `Outside the plan` (repo defects no plan text holds, at every floor). Its items are numbered F1, F2
+  across the section. No editor reads it, and the user reads it with the plan. Returns
   counts plus a `wrote_file` attestation, nothing else — content crosses through the file. Nonzero
   counts with `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
   agent would be byte-identical to convergence.

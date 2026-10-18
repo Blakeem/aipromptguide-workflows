@@ -303,10 +303,10 @@ const newIssuesFile  = (id) => `${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${slug(id)}.m
 
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. Only it
 // forbids prior reviews, which would anchor it (#5). Acceptance overrides instead.
-const SETTLED = (id, canContest, round = 0, threshold) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
-  • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.${round === 1 ? `
-    In round 1 it exists only if the developer already declined something (or on a resume). A missing
-    file means nothing is settled yet, so do not search for it elsewhere.` : ''}${canContest ? '' : `
+const SETTLED = (id, canContest, threshold) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
+  • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.${canContest ? '' : `
   • ${NEEDS_USER} — items already escalated to the user.
   • ${DECISIONS} — defaults the developer took and plan amendment pointers, a record.`}
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
@@ -360,7 +360,7 @@ const developSchema = (mode) => ({
     }),
     build_passed:      { type: 'boolean' },
     test_outcome:      { type: 'string', enum: ['passed', 'failed', 'failed-expected', 'failed-unexpected', 'not-run'], description: 'passed = the required verification ran and PASSED. failed = it ran and failed. failed-expected = a red baseline exactly as a test-first block intends. failed-unexpected = failed for a WRONG reason (a real defect / bad fixture). not-run = no verification executed.' },
-    tests_run_count:   { type: 'integer', description: 'the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block\'s run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)' },
+    tests_run_count:   { type: 'integer', description: 'the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block\'s run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block\'s verification and the full test gate, report the count of this block\'s verification: its `test_selector:` run when the block has one, else the test gate.' },
     full_suite_outcome:{ type: 'string', enum: ['passed', 'failed', 'not-run', 'scoped-skip'], description: 'result of running the FULL test gate to confirm the EXISTING suite is not reddened. "scoped-skip" when this run is scoped to each block\'s own selector.' },
     verification_method:{ type: 'string', description: 'what was actually run to verify (e.g. "pytest -q", "phpunit --filter Bar", "curl localhost:3000/health"); note here if a configured MCP/tool was UNAVAILABLE in this environment' },
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run.' },
@@ -509,6 +509,7 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -607,9 +608,9 @@ const ACCEPTANCE_CHECKS = {
   section: 'After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block\'s gate meets its expectation.',
   fix: 'After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.',
 };
-// The developer meets the blind reviewer's bar first, so no round is spent on a finding it could catch.
 const PATTERN_STEP = `PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.`;
+// The developer meets the blind reviewer's bar first, so no round is spent on a finding it could catch.
 const SELF_CHECK = (mode) => `SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
@@ -779,9 +780,11 @@ GATES — already ran before you were spawned, and a later stage re-runs them be
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo are allowed.
 CONVENTIONS (judge against these): ${CONVENTIONS}
 
-${SETTLED(p.id, true, round, threshold)}
+${SETTLED(p.id, true, threshold)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff\`: unstaged tracked changes, the work to review. On a large diff run
@@ -804,9 +807,9 @@ ${CHECKLIST}
 Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
-above the threshold through the checklist and the REACH step. Each one names the concrete input or
-path that reaches it and its harm, cited by file:line. A finding you cannot tie to a concrete input
-or path grades below the threshold. An EMPTY stage 1 is the normal, GOOD outcome.
+above the threshold through the checklist and the REACH step. A finding at medium or above names the
+concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
+to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
 
 STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
 below the threshold, down to nit, so the developer fixes them while it works in this code. When
@@ -822,7 +825,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at or above the threshold), and a concrete fix. When stage 1 found nothing, write
+harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
 exactly "No findings at or above ${threshold}." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
 above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
@@ -1124,6 +1127,10 @@ this role, and for this role "the files this block touches" means the files the 
 every file in the staged diff, and every file a step-1 grep hits): ${PLAN_FILES.join(' , ')}.
 ${ENV}
 COMPLETED BLOCKS: ${doneIds.join(', ')}
+Before step 1, READ ${DECISIONS} and every ${STATE_DIR}/AMENDED-<id>.md (list ${STATE_DIR}/ to find them), each
+only if it exists. A recorded amendment or decision is never a gap.
+Where a block's text explicitly excludes something the goal line covers, the block's text decides. A goal
+hit that no block's text names or excludes is still a gap.
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal

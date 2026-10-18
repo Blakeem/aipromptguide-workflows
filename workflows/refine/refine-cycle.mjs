@@ -1,7 +1,7 @@
 export const meta = {
   name: 'refine-cycle',
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
-  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in an already-done block, or a defect in a file key) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
+  whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in an already-done block, or a defect in a file key at or above the floor) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
     { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions) and returns counts plus a wrote_file attestation, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
@@ -185,7 +185,7 @@ WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, e
 or detail is the developer's call, and develop's own reviews catch what it misses. A lean block that
 states its requirements and leaves the how to the developer passes. Every gap's change corrects or
 removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already
-state.
+state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
 EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or
@@ -204,8 +204,9 @@ to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is
 reported as a QUESTION, never as a gap. It ends the run so the operator can restructure.
 SCOPE RULE 3 - a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class.
-SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a
-gap, since no block's text holds it.
+SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) at or above the floor is reported as a
+QUESTION, never as a gap, since no block's text holds it. One below the floor goes to the FYI "File preamble"
+subsection.
 
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
@@ -232,9 +233,9 @@ question leaves it out and returns fyi_count 0. Head it "## FYI", number its ite
 entire section, and count them in fyi_count. It holds these subsections, each only when it has items:
 ${BELOW.length ? `  - One subsection per block that has below-floor findings, headed by the block id. A below-floor item
     names its class, its evidence and one suggested change.
-` : ''}  - "Preamble": a finding in plan text above the first block that is not a file key, at any grade, since
-    no developer reads that text. It never counts as a gap. An item names its class, its evidence and one
-    suggested change.
+` : ''}  - "File preamble": a finding in plan text above the first block, other than the file keys, at any
+    grade, since no developer reads that text. A file-key finding below the floor goes here too. It never
+    counts as a gap. An item names its class, its evidence and one suggested change.
   - "Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo
     line. Write it at every floor, minor included.
 
@@ -268,7 +269,8 @@ This is round ${round} of at most ${MAX_ROUNDS}.
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
 not an extra step you think a block needs, and not a criterion you would have phrased differently.
 Never add a requirement, step, file, test or detail the plan does not already state,
-even when a gap's change asks for one.
+even when a gap's change asks for one. A clause that makes a stated sentence true is a correction, and a
+new obligation is an addition.
 
 PROCEDURE:
 1. CHECK each numbered gap before you fold it, as a spot check of the critic. Open the plan line and the

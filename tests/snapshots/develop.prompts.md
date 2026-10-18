@@ -6,38 +6,38 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 12612 | every block accepts first time |
-| quality | 1 | 1 | 7916 | every block accepts first time |
-| acceptance | 1 | 1 | 8070 | every block accepts first time |
-| develop | 2 | 1 | 13020 | every block accepts first time |
-| acceptance | 2 | 2 | 8351 | every block accepts first time |
-| final-sweep | 1 | 1 | 2557 | every block accepts first time |
-| develop | 3 | 1 | 12175 | quality flags the first round |
-| quality | 2 | 2 | 7749 | quality flags the first round |
-| acceptance | 3 | 1 | 8069 | quality flags the first round |
-| develop | 4 | 1 | 12583 | quality flags the first round |
-| acceptance | 4 | 2 | 8350 | quality flags the first round |
-| develop | 5 | 1 | 12173 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 8067 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 12581 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 8348 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 8345 | the developer produced nothing |
-| acceptance | 8 | 2 | 8626 | the developer produced nothing |
-| develop | 7 | 1 | 12064 | the gate never goes green |
+| develop | 1 | 1 | 12707 | every block accepts first time |
+| quality | 1 | 1 | 8046 | every block accepts first time |
+| acceptance | 1 | 1 | 8216 | every block accepts first time |
+| develop | 2 | 1 | 13115 | every block accepts first time |
+| acceptance | 2 | 2 | 8497 | every block accepts first time |
+| final-sweep | 1 | 1 | 2930 | every block accepts first time |
+| develop | 3 | 1 | 12270 | quality flags the first round |
+| quality | 2 | 2 | 8055 | quality flags the first round |
+| acceptance | 3 | 1 | 8215 | quality flags the first round |
+| develop | 4 | 1 | 12678 | quality flags the first round |
+| acceptance | 4 | 2 | 8496 | quality flags the first round |
+| develop | 5 | 1 | 12268 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 8213 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 12676 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 8494 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 8491 | the developer produced nothing |
+| acceptance | 8 | 2 | 8772 | the developer produced nothing |
+| develop | 7 | 1 | 12159 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 12472 | the gate never goes green |
-| acceptance | 9 | 1 | 8122 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 8177 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 8232 | a parked block, and the run carries on |
+| develop | 8 | 1 | 12567 | the gate never goes green |
+| acceptance | 9 | 1 | 8268 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 8323 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 8378 | a parked block, and the run carries on |
 | park | 2 | 1 | 5200 | a parked block, and the run carries on |
 | park | 3 | 1 | 5251 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 13745 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10738 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 2548 | a fix block closes its issues |
-| develop | 10 | 2 | 13841 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 11022 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 2578 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10737 | every issue is already fixed |
+| develop | 9 | 2 | 13840 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10884 | a fix block closes its issues |
+| final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
+| develop | 10 | 2 | 13936 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 11168 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
+| acceptance | 14 | 3 | 10883 | every issue is already fixed |
 | park | 4 | 1 | 5367 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
 | park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 13732 | a parked block is continued from its patch |
+| develop | 11 | 1 | 13827 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -153,6 +153,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -250,7 +251,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -307,12 +308,14 @@ GATES — already ran before you were spawned, and a later stage re-runs them be
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: npm run build
   test:  npm test
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo are allowed.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    In round 1 it exists only if the developer already declined something (or on a resume). A missing
-    file means nothing is settled yet, so do not search for it elsewhere.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 If you are confident a DISMISSED reason is WRONG and the finding is at or above the low threshold,
@@ -373,9 +376,9 @@ CHECKLIST:
 Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
-above the threshold through the checklist and the REACH step. Each one names the concrete input or
-path that reaches it and its harm, cited by file:line. A finding you cannot tie to a concrete input
-or path grades below the threshold. An EMPTY stage 1 is the normal, GOOD outcome.
+above the threshold through the checklist and the REACH step. A finding at medium or above names the
+concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
+to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
 
 STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
 below the threshold, down to nit, so the developer fixes them while it works in this code. When
@@ -391,7 +394,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at or above the threshold), and a concrete fix. When stage 1 found nothing, write
+harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
 exactly "No findings at or above low." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
 above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
@@ -461,6 +464,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -702,6 +707,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -799,7 +805,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -868,6 +874,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -1025,6 +1033,10 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-a, block-b
+Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
+only if it exists. A recorded amendment or decision is never a gap.
+Where a block's text explicitly excludes something the goal line covers, the block's text decides. A goal
+hit that no block's text names or excludes is still a gap.
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
@@ -1173,6 +1185,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1270,7 +1283,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -1327,10 +1340,14 @@ GATES — already ran before you were spawned, and a later stage re-runs them be
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
   build: npm run build
   test:  npm test
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo are allowed.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 If you are confident a DISMISSED reason is WRONG and the finding is at or above the medium threshold,
@@ -1391,9 +1408,9 @@ CHECKLIST:
 Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
-above the threshold through the checklist and the REACH step. Each one names the concrete input or
-path that reaches it and its harm, cited by file:line. A finding you cannot tie to a concrete input
-or path grades below the threshold. An EMPTY stage 1 is the normal, GOOD outcome.
+above the threshold through the checklist and the REACH step. A finding at medium or above names the
+concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
+to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
 
 STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
 below the threshold, down to nit, so the developer fixes them while it works in this code. When
@@ -1409,7 +1426,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at or above the threshold), and a concrete fix. When stage 1 found nothing, write
+harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
 exactly "No findings at or above medium." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
 above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
@@ -1479,6 +1496,8 @@ This is round 2 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -1715,6 +1734,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -1812,7 +1832,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -1881,6 +1901,8 @@ This is round 2 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -2116,6 +2138,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -2213,7 +2236,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -2282,6 +2305,8 @@ This is round 2 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -2518,6 +2543,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -2615,7 +2641,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -2684,6 +2710,8 @@ This is round 2 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -2848,6 +2876,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -3012,6 +3042,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -3249,6 +3281,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -3346,7 +3379,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -3592,6 +3625,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -3689,7 +3723,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -3758,6 +3792,8 @@ This is round 3 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -3920,6 +3956,8 @@ This is round 4 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -4083,6 +4121,8 @@ This is round 5 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -4540,6 +4580,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -4659,7 +4700,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -4729,6 +4770,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -4937,6 +4980,10 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-c
+Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
+only if it exists. A recorded amendment or decision is never a gap.
+Where a block's text explicitly excludes something the goal line covers, the block's text decides. A goal
+hit that no block's text names or excludes is still a gap.
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
@@ -5102,6 +5149,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -5221,7 +5269,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
@@ -5292,6 +5340,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -5503,6 +5553,10 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-c-plus-1
+Before step 1, READ E:/flow/runs/flow/DECISIONS.md and every E:/flow/runs/flow/AMENDED-<id>.md (list E:/flow/runs/flow/ to find them), each
+only if it exists. A recorded amendment or decision is never a gap.
+Where a block's text explicitly excludes something the goal line covers, the block's text decides. A goal
+hit that no block's text names or excludes is still a gap.
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
@@ -5581,6 +5635,8 @@ This is round 1 of at most 5. Round numbers count develop rounds, so a later sta
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
@@ -6708,6 +6764,7 @@ CHECKLIST:
       → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
+      An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
@@ -6805,7 +6862,7 @@ Return ONLY the decision fields via the schema (no prose report).
     },
     "tests_run_count": {
       "type": "integer",
-      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification)"
+      "description": "the count of tests, or of assertions for a runner that counts those, the runner REPORTS as executed for this block's run (0 = nothing ran = a FALSE green; -1 = N/A, e.g. manual/MCP verification). When you ran both this block's verification and the full test gate, report the count of this block's verification: its `test_selector:` run when the block has one, else the test gate."
     },
     "full_suite_outcome": {
       "type": "string",
