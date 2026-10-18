@@ -111,7 +111,8 @@ The developer's only outputs besides code are four append files:
   It is an inter-agent message from the developer to the acceptance stage. It is kept outside `gate/`
   because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
 - **`NEEDS-USER.md`**, the user-facing notes of blockers and questions only the user can answer. These
-  may be as full as the user needs to decide. A hard blocker also stops its block (#7).
+  may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
+  also appends each parked block's record to it.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
   plan amendment pointer. The user reads it at run end, and the acceptance stage reads it. It is never a
   question. A flag-and-proceed item is recorded here, and the developer continues with a defensible

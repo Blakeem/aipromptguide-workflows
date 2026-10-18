@@ -6,37 +6,37 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 8140 | every block accepts first time |
+| develop | 1 | 1 | 8144 | every block accepts first time |
 | quality | 1 | 1 | 7588 | every block accepts first time |
 | acceptance | 1 | 1 | 7826 | every block accepts first time |
-| develop | 2 | 1 | 8533 | every block accepts first time |
+| develop | 2 | 1 | 8537 | every block accepts first time |
 | acceptance | 2 | 2 | 8107 | every block accepts first time |
-| final-sweep | 1 | 1 | 2398 | every block accepts first time |
-| develop | 3 | 1 | 7703 | quality flags the first round |
+| final-sweep | 1 | 1 | 2557 | every block accepts first time |
+| develop | 3 | 1 | 7707 | quality flags the first round |
 | quality | 2 | 1 | 7412 | quality flags the first round |
 | acceptance | 3 | 1 | 7825 | quality flags the first round |
-| develop | 4 | 1 | 8096 | quality flags the first round |
+| develop | 4 | 1 | 8100 | quality flags the first round |
 | acceptance | 4 | 2 | 8106 | quality flags the first round |
-| develop | 5 | 1 | 7701 | acceptance finds gaps, then passes |
+| develop | 5 | 1 | 7705 | acceptance finds gaps, then passes |
 | acceptance | 5 | 1 | 7823 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 8094 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 8098 | acceptance finds gaps, then passes |
 | acceptance | 6 | 2 | 8104 | acceptance finds gaps, then passes |
 | acceptance | 7 | 1 | 8101 | the developer produced nothing |
 | acceptance | 8 | 2 | 8382 | the developer produced nothing |
-| develop | 7 | 1 | 7592 | the gate never goes green |
+| develop | 7 | 1 | 7596 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 7985 | the gate never goes green |
+| develop | 8 | 1 | 7989 | the gate never goes green |
 | acceptance | 9 | 1 | 7878 | a parked block, and the run carries on |
 | acceptance | 10 | 1 | 7933 | a parked block, and the run carries on |
 | acceptance | 11 | 1 | 7988 | a parked block, and the run carries on |
 | park | 2 | 1 | 5200 | a parked block, and the run carries on |
 | park | 3 | 1 | 5251 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 9227 | a fix block closes its issues |
+| develop | 9 | 2 | 9231 | a fix block closes its issues |
 | acceptance | 12 | 3 | 10403 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 2389 | a fix block closes its issues |
-| develop | 10 | 2 | 9323 | a pass of two fix blocks closes its issues |
+| final-sweep | 2 | 1 | 2548 | a fix block closes its issues |
+| develop | 10 | 2 | 9327 | a pass of two fix blocks closes its issues |
 | acceptance | 13 | 3 | 10687 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 2419 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 2578 | a pass of two fix blocks closes its issues |
 | acceptance | 14 | 3 | 10402 | every issue is already fixed |
 | park | 4 | 1 | 5367 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 9260 | a parked block is continued from its patch |
+| develop | 11 | 1 | 9264 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -150,7 +150,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -658,7 +658,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -932,7 +932,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
 repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
 Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
-this role): E:/flow/plans/bus.md.
+this role, and for this role "the files this block touches" means the files the goal or the plan names,
+every file in the staged diff, and every file a step-1 grep hits): E:/flow/plans/bus.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -1089,7 +1090,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -1590,7 +1591,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -1952,7 +1953,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -2315,7 +2316,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -3027,7 +3028,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -3321,7 +3322,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -4250,7 +4251,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -4587,7 +4588,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
 repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
 Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
-this role): E:/flow/plans/bus.md.
+this role, and for this role "the files this block touches" means the files the goal or the plan names,
+every file in the staged diff, and every file a step-1 grep hits): E:/flow/plans/bus.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -4761,7 +4763,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
@@ -5102,7 +5104,8 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
 repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
 Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
-this role): E:/flow/plans/one.md , E:/flow/plans/two.md.
+this role, and for this role "the files this block touches" means the files the goal or the plan names,
+every file in the staged diff, and every file a step-1 grep hits): E:/flow/plans/one.md , E:/flow/plans/two.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -6315,7 +6318,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
-    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.

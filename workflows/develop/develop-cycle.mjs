@@ -551,7 +551,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       ${dismissedFile(id)} in the DROP shape above, its reason
       \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${DECISIONS}
       and would re-raise your default every round until this block parks.
-    ${NEEDS_USER} holds only questions the user must answer before a block can finish. Never write an
+    Write to ${NEEDS_USER} only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.`;
@@ -1080,7 +1080,8 @@ const sweepPrompt = (doneIds) => `
 You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
 repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
 Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
-this role): ${PLAN_FILES.join(' , ')}.
+this role, and for this role "the files this block touches" means the files the goal or the plan names,
+every file in the staged diff, and every file a step-1 grep hits): ${PLAN_FILES.join(' , ')}.
 ${ENV}
 COMPLETED BLOCKS: ${doneIds.join(', ')}
 

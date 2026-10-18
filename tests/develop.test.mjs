@@ -1079,6 +1079,8 @@ section('the sweep runs on the pre-done + this-run union, with skips excluded');
   const { labels, prompt } = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, MIX);
   eq(labels.filter((l) => l === 'final-sweep').length, 1, 'exactly one sweep, after the last block');
   ok(/COMPLETED BLOCKS: block-todo/.test(prompt('final-sweep')), 'it names the blocks this run staged');
+  ok(prompt('final-sweep').replace(/\s+/g, ' ').includes('for this role "the files this block touches" means the files the goal or the plan names, every file in the staged diff, and every file a step-1 grep hits'),
+    'the sweep redefines ENV\'s readable files as the goal, the plan, the staged diff and the step-1 grep hits');
 
   const OPEN = { ...MIX, plans: [...MIX.plans, onBus({ id: 'block-open', mode: 'feature', gate: 'build-only', status: 'blocked' })] };
   const open = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, OPEN);
@@ -1516,8 +1518,8 @@ section('case 7 proceeding also writes an ESCALATED: line to the ledger the blin
       && esc.includes('and set needs_user=true'), `${mode}: the blocking branch writes NEEDS-USER and stops`);
     ok(esc.includes(`You can proceed with a defensible default: append an entry to ${STATE}/DECISIONS.md (the choice, the options, the default you took and why), leave needs_user=false`),
       `${mode}: the proceeding branch writes DECISIONS`);
-    ok(esc.includes(`${STATE}/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an informational note, a test observation, a chore or a default you took to it.`),
-      `${mode}: NEEDS-USER holds only questions`);
+    ok(esc.includes(`Write to ${STATE}/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an informational note, a test observation, a chore or a default you took to it.`),
+      `${mode}: the developer writes only questions to NEEDS-USER`);
     ok(r.prompt(`acceptance ${id}`).includes(`${STATE}/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.`),
       `${mode}: acceptance reads DECISIONS as a settled-decision record`);
     const q = r.prompt(`quality ${id}`);
