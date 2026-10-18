@@ -38,8 +38,9 @@ Before your final structured return, write a short note to ${notes}/\${slug}.md 
 needed; if the file exists, append a new section) about the WORKFLOW from your seat, not about the
 code you judged: instructions that were unclear, contradictory or missing; commands or tools that
 failed; files you were pointed at that did not exist; schema fields that did not fit what you had to
-report; effort the instructions made you waste; what would make this role more effective. Cite
-evidence (the instruction text, the command and its output). At most 20 lines. Write
+report; effort the instructions made you waste; what would make this role more effective.
+That note file is the one write allowed beyond the writes your task allows.
+Cite evidence (the instruction text, the command and its output). At most 20 lines. Write
 "No workflow issues." if there were none. Never read any other file in that directory.\`, opts);
 }
 `;

@@ -53,7 +53,7 @@ flowchart TD
 | Phase | What happens |
 |---|---|
 | Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else. |
-| Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor folds each gap into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
+| Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
 
@@ -67,14 +67,14 @@ flowchart TD
 | BLOCKED (the editor reported folded gaps but did not confirm writing the plan file - the fold exists nowhere) | the editor reports folds it did not write | derived |
 | BLOCKED (the folded plan file no longer parses - every later consumer reads it) | the plan file stops parsing after the fold | derived |
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 28) |
-| throw: args must include at least { runId, root, planPath, target:{repo} } | args.runId is missing | throw (line 31) |
-| throw: args.root is required | args.root is missing | throw (line 36) |
-| throw: args.planPath is required | args.planPath is missing | throw (line 42) |
-| throw: args.target.repo is required | args.target.repo is missing | throw (line 48) |
-| throw: Invalid numeric arg | maxRounds is not a number | throw (line 61) |
-| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 72) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 304) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 29) |
+| throw: args must include at least { runId, root, planPath, target:{repo} } | args.runId is missing | throw (line 32) |
+| throw: args.root is required | args.root is missing | throw (line 37) |
+| throw: args.planPath is required | args.planPath is missing | throw (line 43) |
+| throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
+| throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
+| throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 73) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 322) |
 
 ## Coverage
 

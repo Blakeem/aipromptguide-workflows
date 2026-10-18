@@ -12,29 +12,30 @@ Two agents take turns, up to `maxRounds`.
 
 1. A **critic** reads the repo and judges each `todo` block. It writes every gap it finds, with file and
    line evidence, to a critique file for that round.
-2. An **editor** folds each gap into the plan file with the smallest edit that closes it. It declines a
-   gap it disagrees with and records the reason in `DISMISSED-PLAN.md`. Then it checks that the plan
-   still parses.
+2. An **editor** checks each gap against the plan and the code. It folds a gap that passes into the plan
+   file with the smallest edit that closes it. It declines a gap that fails the check or that it
+   disagrees with. It records the reason in `DISMISSED-PLAN.md`. Then it checks that the plan still
+   parses.
 
 A plan review that keeps adding detail never ends. Four rules make this one finish.
 
-- **Defects only.** A gap must name something that would build wrong or fail, such as a missing wiring
-  point, a wrong file, a criterion with no step, a block order error, a block too big for one pass, or a
-  crash or wrong output on an input the plan accepts.
-  Improvements, alternatives and style are not gaps.
+- **Defects only.** A gap names plan text that is wrong, such as a contradiction, an instruction that
+  builds broken code, a prescribed bad practice, or a wrong block order.
+  A missing detail, an improvement, an alternative or a style choice is not a gap.
 - **A severity floor.** Gaps below `critiqueSeverity` (default `major`) are listed for reference and
   count for nothing.
 - **A dismissal ledger.** A declined gap stays declined. The critic may contest one once.
-- **A minimal editor.** The editor changes nothing a gap does not name.
+- **A minimal editor.** The editor checks each gap before folding it. It changes nothing a gap does not
+  name.
 
 ## Results
 
 - `converged` means the last round found no gap or question. The plan is ready for your approval.
   When `belowFloor` is above 0, read the FYI section of the last critique file first, since those
   findings were never folded into the plan.
-- `needs-answers` means the critic raised something only you can decide, such as a block order or a
-  block to split. Read `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the
-  entries of earlier runs, so the newest entries are at its end.
+- `needs-answers` means the critic raised something only you can decide, such as a block order. Read
+  `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
+  so the newest entries are at its end.
 - `dismissal-contested` means the critic contested a gap the editor had declined, and the editor passed
   it to you. Read the newest entries at the end of `NEEDS-USER.md`. Fold the gap into the plan, or add
   your ruling to `DISMISSED-PLAN.md` as a `USER-RULED:` line, which no later critic contests. Then run

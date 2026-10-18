@@ -128,8 +128,9 @@ sequential, which is the only reason a shared append-only file is safe.
 The developer writes no "what I did" report, since its code is its output (#8). Reviewers write only
 their numbered review files. The one exception is develop's fix-mode acceptance verifier, which
 appends a harm with a separate cause to its source block's `NEW-ISSUES-<id>.md` in the plan directory,
-an untriaged issue inventory the user triages like debug's `issues/`. Nothing outside this list is
-written.
+an untriaged issue inventory the user triages like debug's `issues/`. A critic or verifier may write
+one scratch probe beside the listed files. Its temporary directory sits outside the repo and the
+run-state dir. Nothing outside this list is written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -291,7 +292,10 @@ rules and apply only where they fit.
     the choice blocks. Every other real gap is a caveat carried into the plan. One up-front fan-out fixes
     the candidate set.
   - **Plan review** (refine) converges on one round in which a read-only critic finds no gap at or above
-    a fixed defect floor. Its editor changes only the plan file, and only what a gap names.
+    a fixed defect floor. The critic judges only whether the plan's text is correct, so what the plan
+    does not say never counts. Its editor checks each gap against the plan and the repo before folding
+    it, and declines one that fails the check. The editor changes only the plan file, and only what a
+    gap names.
   - **Search** (investigate) converges on coverage, an evidenced claim that nothing qualifying was left
     unsearched, which an adversarial critic may contest. Candidates are found round by round instead of
     generated up front. The ledger of what already failed makes each round diverge instead of circling.

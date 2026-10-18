@@ -110,13 +110,13 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
     'read-only is defined as never editing, with read-only commands allowed');
   ok(p.includes('a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class'),
     'a text edit inside one block is a gap');
-  ok(p.includes('An OMISSION the block\'s own green gate would catch on its first run is minor')
-    && p.includes('A WRONG INSTRUCTION is major or higher, whether or not the gate would catch it'),
-    'the two grading rules are stated');
-  ok(p.includes('Two instructions in one block that cannot both hold are a WRONG INSTRUCTION'),
-    'a self-contradiction is graded as a wrong instruction');
-  ok(!p.includes('A WRONG INSTRUCTION the gate would not catch'),
-    'a wrong instruction the gate catches is no longer left ungraded');
+  ok(p.includes('A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it'),
+    'a wrong prescription is major whether or not the gate catches it');
+  ok(!p.includes('An OMISSION the block\'s own green gate') && !p.includes('Only the gate counts as a catch'),
+    'an omission the gate catches is no longer a grade rule, since an omission is no gap');
+  ok(p.includes('1. A CONTRADICTION: two statements in the plan that cannot both hold'),
+    'a self-contradiction is a CONTRADICTION');
+  ok(!p.includes('WRONG INSTRUCTION'), 'no line still names a WRONG INSTRUCTION');
   ok(p.includes('Re-list every below-floor item that still holds'),
     'below the default floor, the critic re-lists every FYI item that still holds');
   const minorRun = await run({ 'plan-critic': CLEAN }, { ...baseArgs, critiqueSeverity: 'minor' });
@@ -125,25 +125,55 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
   ok(p.includes('EXACTLY ONE smallest change that closes it (never alternatives)')
     && p.includes('every other gap whose change touches the same plan lines'),
     'one fix per gap, with overlapping gaps named');
-  ok(p.includes('7. A FAILURE ON ACCEPTED INPUT') && p.includes('Exactly seven classes qualify'),
-    'a failure on accepted input is a defect class of its own');
-  ok(!p.includes('six classes'), 'no line still counts six classes');
+  ok(p.includes('Exactly four classes qualify') && !p.includes('seven classes') && !p.includes('six classes'),
+    'the bar counts four classes, and no line still counts six or seven');
+}
+
+section('the critic judges only whether the plan\'s text is correct, and a lean block passes');
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  ok(p.includes('THE DEFECT BAR - the plan states what the user wants. Judge only whether what it SAYS is correct. A gap names plan text that is wrong. Exactly four classes qualify:'),
+    'the bar opens on the plan as what the user wants');
+  const classes = ['1. A CONTRADICTION:', '2. A WRONG PRESCRIPTION:', '3. A BAD PRACTICE BY PRESCRIPTION:', '4. A DEPENDENCY-ORDERING ERROR between blocks:'];
+  const at = classes.map((c) => p.indexOf(c));
+  ok(at.every((i) => i > 0) && at.every((i, n) => n === 0 || i > at[n - 1]),
+    'the four classes are listed in order');
+  for (const gone of ['WIRING POINT', 'BLOCK TOO BIG', 'REFERENCE OUTSIDE THE BLOCK', 'ACCEPTANCE CRITERION WITH NO IMPLEMENTING STEP', 'FAILURE ON ACCEPTED INPUT', 'WRONG or ABSENT FILE']) {
+    ok(!p.includes(gone), `the completeness class "${gone}" is gone`);
+  }
+  const neverGap = p.indexOf('WHAT THE PLAN DOES NOT SAY IS NEVER A GAP. A missing step, test, wiring point, edge case, file, doc update or detail is the developer\'s call, and develop\'s own reviews catch what it misses. A lean block that states its requirements and leaves the how to the developer passes.');
+  ok(neverGap > at[3] && neverGap < p.indexOf('IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE'),
+    'the never-a-gap paragraph sits after the class list and before the out-of-scope paragraph');
+  ok(p.includes('Every gap\'s change corrects or removes the wrong text. It never adds a requirement, step, file, test or detail the plan does not already state.'),
+    'a gap\'s change corrects or removes text and never adds to the plan');
+  ok(p.includes('A command, flag, or library, tool or API behavior the block prescribes counts too. Confirm each one the repo does not already use the same way, against the dependency\'s own docs or source, or a probe in a temporary directory outside the repo and the state dir. A confirmed prescription needs no source cited in the plan.'),
+    'a prescribed command or dependency behavior is confirmed against its docs, source or a probe');
+  ok(p.includes('You write only your critique file, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
+    'the write list names the probe\'s temporary directory');
+  ok(p.includes('Judge the plan file against the REAL repo and find plan text that is wrong.') && !p.includes('find what would BUILD WRONG'),
+    'the opener looks for wrong plan text');
+  ok(p.includes('EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP.'),
+    'evidence may be a plan line, a dependency doc or a probe output');
+  ok(p.includes('SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is reported as a QUESTION'),
+    'only an ordering error becomes a structural question');
+  ok(p.includes('which of the four classes it is') && p.includes('The one change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan line the change makes stale. A gap never invites the editor to fold an FYI item.'),
+    'the write list asks for one of four classes and one change that names what it makes stale');
 }
 
 section('the critic judges text the block tells the developer to write as output');
 {
   const { prompt } = await run({ 'plan-critic': CLEAN });
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
-  const textIsOutput = p.indexOf('Text the block tells the developer to write, such as a principle, a guide or README sentence or a comment, is output: a sentence the repo contradicts once the plan\'s steps are applied is wrong output and a WRONG INSTRUCTION.');
-  ok(textIsOutput > p.indexOf('7. A FAILURE ON ACCEPTED INPUT')
-    && textIsOutput < p.indexOf('IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE'),
-    'a false sentence the block prescribes is a wrong instruction, stated as class 7\'s continuation');
-  const gradeRules = p.slice(p.indexOf('Four rules settle the grade'), p.indexOf('Gaps graded'));
-  ok(gradeRules.includes('An existing sentence that the block\'s steps make false, and that the block leaves unchanged, is an OMISSION graded minor, since develop\'s acceptance counts it as a regression.'),
-    'a stale sentence the block leaves unchanged is a minor omission, among the four grade rules');
-  ok(gradeRules.includes('When a LATER block rewrites that sentence, it is a DEPENDENCY-ORDERING ERROR graded major instead, since the earlier block\'s acceptance counts it before the later block runs.'),
+  const textIsOutput = p.indexOf('Text the block tells the developer to write, such as an engine prompt sentence, a principle, a guide or README sentence or a comment, is output: a sentence the repo contradicts once the plan\'s steps are applied is wrong output and a WRONG PRESCRIPTION.');
+  ok(textIsOutput > p.indexOf('2. A WRONG PRESCRIPTION:')
+    && textIsOutput < p.indexOf('3. A BAD PRACTICE BY PRESCRIPTION:'),
+    'a false sentence the block prescribes is a wrong prescription, stated as class 2\'s continuation');
+  const gradeRules = p.slice(p.indexOf('Three rules settle the grade'), p.indexOf('Gaps graded'));
+  ok(gradeRules.includes('When an earlier block\'s steps make an existing sentence false and a LATER block rewrites it, that is a DEPENDENCY-ORDERING ERROR graded major, since the earlier block\'s acceptance counts the sentence before the later block runs.'),
     'a stale sentence a later block rewrites is a major ordering error, so the default floor cannot hide it');
-  ok(!p.includes('Three rules settle the grade'), 'no line still counts three grade rules');
+  ok(!p.includes('OMISSION graded minor'), 'a stale sentence the block leaves unchanged is no longer a graded omission');
+  ok(!p.includes('Four rules settle the grade'), 'no line still counts four grade rules');
 }
 
 section('the critic grades by impact on accepted input, never by fix size');
@@ -155,10 +185,13 @@ section('the critic grades by impact on accepted input, never by fix size');
   eq(prompts.length, 2, 'two critic rounds ran');
   ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
     'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
-  ok(prompts[0].includes('Only the gate counts as a catch'), 'a guess that a developer will notice is never a catch');
+  ok(prompts[0].includes('the plan contradicts itself or the repo on what to build, or it prescribes a bad practice'),
+    'a contradiction about what to build and a prescribed bad practice are major by definition');
+  ok(!prompts[0].includes('a named acceptance criterion or wiring point is not met'),
+    'an unmet criterion or wiring point no longer defines major');
   ok(prompts[0].includes('The size of the fix never lowers a grade'), 'a one-line fix does not make a crash minor');
   ok(prompts[0].includes('a crash on an accepted input that the gate would not catch is major'),
-    'the crash example yields to the gate-catch rule');
+    'the crash example stays major');
   ok(!prompts[0].includes('blast radius is one line'), 'minor is no longer defined by the size of the fix');
   ok(bar(prompts[0]).length > 0 && bar(prompts[0]) === bar(prompts[1]),
     'every round\'s critic grades under the same bar');
@@ -185,6 +218,45 @@ section('a gapped round then a clean one converges on round 2, with exactly one 
   eq(out.status, CONVERGED, 'status');
   ok(out.lastCritique.endsWith('plan-critique-1.md'),
     'and lastCritique names the last file a critic CONFIRMED writing, not the last round');
+}
+
+section('the editor checks every gap against the plan and the repo before it folds one, in every round');
+{
+  const { byLabel } = await run(
+    { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 2 });
+  const prompts = byLabel('plan-editor').map((c) => c.prompt.replace(/\s+/g, ' '));
+  eq(prompts.length, 2, 'two editor rounds ran');
+  for (const [n, p] of prompts.entries()) {
+    const r = `round ${n + 1}`;
+    const [guardAt, procedureAt] = [p.indexOf('THE ONE GUARD THAT MATTERS'), p.indexOf('PROCEDURE:')];
+    ok(guardAt >= 0 && procedureAt > guardAt, `${r}: the guard paragraph sits before the PROCEDURE`);
+    const guard = p.slice(guardAt, procedureAt);
+    ok(guard.includes('Never add a requirement, step, file, test or detail the plan does not already state, even when a gap\'s change asks for one.'),
+      `${r}: the guard forbids adding to the plan even when a gap's change asks for it`);
+    const steps = ['1. CHECK each numbered gap before you fold it, as a spot check of the critic.',
+      '2. For each numbered gap, make the smallest edit to E:/plans/bus.md that closes it',
+      '3. A gap you DECLINE (it is wrong, it names something the block already covers, or it fails the CHECK step) gets ONE line',
+      '4. A gap prefixed "CONTESTS DISMISSAL:" may NOT be declined a second time.',
+      '5. MANDATORY FINAL STEP'];
+    const at = steps.map((s) => p.indexOf(s));
+    ok(at.every((i) => i > 0) && at.every((i, k) => k === 0 || i > at[k - 1]),
+      `${r}: the CHECK step is step 1, before the fold step, and the later steps are renumbered in order`);
+    const check = p.slice(at[0], at[1]);
+    for (const c of ['Open the plan line and the evidence it cites (a repo line, a plan line, a dependency doc or a probe output) and confirm each says what the gap claims.',
+      'Confirm the gap names text the plan states, never text it lacks.',
+      'Confirm its change only corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
+      'Run a probe the critic ran when you doubt its result.',
+      `Put its files in a temporary directory outside the target repo and the state dir ${STATE}.`,
+      `A gap that fails any check is DECLINED, its reason naming the check it failed, except a gap prefixed "CONTESTS DISMISSAL:", which goes to ${STATE}/NEEDS-USER.md under the contested-dismissal step.`]) {
+      ok(check.includes(c), `${r}: the CHECK step says "${c.slice(0, 60)}"`);
+    }
+    ok(p.slice(at[1], at[2]).includes('The critique\'s plan line numbers predate this round\'s edits, so find each cited plan line by its quoted text.'),
+      `${r}: the fold step finds each cited plan line by its quoted text`);
+  }
+  for (const [n, c] of byLabel('plan-critic').entries()) {
+    ok(c.prompt.replace(/\s+/g, ' ').includes('its evidence with the plan line quoted verbatim'),
+      `critic round ${n + 1}: each gap quotes its plan line, so the editor can find it after earlier folds`);
+  }
 }
 
 // ---------------------------------------------------------------------------------------------

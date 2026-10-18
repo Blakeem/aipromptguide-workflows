@@ -4,7 +4,7 @@
 //
 // READ THIS BESIDE tools/flows/investigate.flow.mjs — the same non-blind bounded-round shape, and the same
 // rule that every terminal is its OWN fact. Nothing here builds, stages, parks or commits, so there is no
-// park scenario and no PARK_* script to fill in: refine's whole exit surface is the seven HALT_STATUS
+// park scenario and no PARK_* script to fill in: refine's whole exit surface is the eight HALT_STATUS
 // values plus the dead-critic throw.
 //
 // TWO scenarios reach `converged` and both are load-bearing. The round-1 clean round is the only path that
@@ -75,8 +75,8 @@ export default {
       respond: { 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK },
     },
     {
-      // An ordering error, an oversized block, or a gap in an already-done block: the minimal-fold editor
-      // has no legal edit for any of them, so the run ends for the operator to restructure.
+      // An ordering error or a gap in an already-done block: the minimal-fold editor has no legal edit for
+      // either, so the run ends for the operator to restructure.
       name: 'questions for the operator',
       when: 'the critic raises a question',
       args: base,

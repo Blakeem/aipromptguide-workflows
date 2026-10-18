@@ -29,6 +29,8 @@ for (const flow of [developFlow, brainstormFlow]) {
     eq(frozen.calls.map((c) => c.label).join(), plain.calls.map((c) => c.label).join(), `${flow.engine}: the same agents run in the same order`);
     ok(frozen.calls.length > 0 && frozen.calls.every((c, i) => c.prompt.startsWith(plain.calls[i].prompt) && c.prompt.includes('write a short note to E:/state/notes/')),
       `${flow.engine}: each prompt is the original plus the note naming the notes directory`);
+    ok(frozen.calls.length > 0 && frozen.calls.every((c) => /more effective\.\s+That note file is the one write allowed beyond the writes your task allows\./.test(c.prompt)),
+      `${flow.engine}: each prompt names the notes file as the one extra write, right after the notes-file sentence`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

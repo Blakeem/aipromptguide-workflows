@@ -10,26 +10,31 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 ## 1. What converges it (do not weaken these)
 
 Four things together — remove any one and the plan grows every round instead of settling:
-- **The defect bar.** A gap must name something that would build wrong or fail: a missing wiring
-  point, a wrong or absent file, a criterion with no implementing step, a dependency-ordering error,
-  a block too big for one develop pass, a reference the block states only outside itself, a failure on
-  an input the repo or the plan accepts. Text a block tells the developer to write is output, so a
-  sentence the repo contradicts is a wrong instruction. Improvements, alternatives, and style are
-  excluded unconditionally.
+- **The defect bar.** The plan states what the user wants, and the critic judges only whether its
+  text is correct. A gap names plan text that is wrong, in one of four classes: a contradiction within
+  the plan or with the repo, a wrong prescription (built as written, the code crashes, loses or
+  corrupts data, or gives wrong output on an input the repo or the plan accepts), a bad practice the
+  text prescribes, or a dependency-ordering error. Text a block tells the developer to write is
+  output, so a sentence the repo contradicts is a wrong prescription. The critic confirms a prescribed
+  command, flag or dependency behavior the repo does not already use the same way, against the
+  dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
+  What the plan does not say is never a gap: a missing step, test, wiring point, edge case, file or
+  detail is the developer's call, so a lean block passes. A gap's change corrects or removes the wrong
+  text and never adds to the plan. Improvements, alternatives, and style are excluded unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
-  output on an input the repo or the plan accepts is major, unless it is an omission the block's own
-  green gate catches on its first run. The size of the fix never lowers a grade. An existing sentence
-  the block makes false and leaves unchanged grades minor. When a later block rewrites that sentence,
-  it is a dependency-ordering error graded major instead, since develop's acceptance counts it against
-  the earlier block.
+  output on an input the repo or the plan accepts is major, and so is a contradiction about what to
+  build or a prescribed bad practice. The size of the fix never lowers a grade. When an earlier block
+  makes an existing sentence false and a later block rewrites it, that is a dependency-ordering error
+  graded major, since develop's acceptance counts the sentence against the earlier block.
   Below-floor findings land in the critique file's FYI section. They never block convergence, and
   `belowFloor` returns their count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
   settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
   the user's own ruling.
-- **The minimal-fold editor.** It changes NOTHING a gap does not name, and re-validates the file
-  through the plan-block tool after every fold.
+- **The minimal-fold editor.** It checks each gap against the plan and the repo first, and declines
+  one that fails the check. It changes NOTHING a gap does not name, and re-validates the file through
+  the plan-block tool after every fold.
 
 ## 2. The flow
 
@@ -40,7 +45,7 @@ Four things together — remove any one and the plan grows every round instead o
    or replay for each terminal. The `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
    - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
-     or too-big block whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
+     whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
      file key (`goal`, `ordered`, `suite`, `sweep`).
    - `dismissal-contested` — the critic contested a declined gap, and the editor escalated it to
      `NEEDS-USER.md`.
@@ -65,8 +70,9 @@ own single refine run. One develop launch takes both files when their file keys 
   `wrote_file` attestation, nothing else — content crosses through the file. Nonzero counts with
   `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
   agent would be byte-identical to convergence.
-- **Editor** (opus) — runs only on a round with countable gaps and no questions. Folds, declines to
-  the ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
+- **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
+  against the plan and the repo first, and declines one that fails the check. Folds, declines to the
+  ledger, then re-runs `node '<blockTool>' '<planPath>' --list` and attests `plan_parses`.
   Halts: dead editor (`agent-dead` — the critique file survives, but the plan may be partly edited),
   folded gaps with `wrote_file` false (`fold-unattested`), `plan_parses` false (`plan-broken`),
   `needs_user` true (`dismissal-contested`, since it escalated a contested dismissal to
