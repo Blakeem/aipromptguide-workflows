@@ -3,7 +3,7 @@ export const meta = {
   description: 'Converging plan review, file-bus design: a read-only CRITIC judges every todo block of ONE plan file against the REAL repo under a fixed DEFECT BAR (it judges only whether the plan\'s text is correct, and what the plan does not say is never a gap - improvements, alternatives and style are excluded unconditionally), grades each gap against a severity FLOOR, and writes its findings verbatim to plan-critique-<round>.md; a minimal-fold EDITOR then checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it and changes NOTHING a gap does not name, declining to DISMISSED-PLAN.md and re-validating the file through the plan-block tool. The loop ends on ONE clean round. The harness routes only counts, paths and an explicit halt kind.',
   whenToUse: 'Converge a plan file BEFORE develop-cycle builds from it: the plan is authored and user-approved, and you want its gaps closed until a critic finds none. It is built to converge: a refine loop without its defect bar, floor, dismissal ledger and minimal-fold editor, run five times on one plan, keeps adding code and detail and never stops. Questions (a dependency-ordering error whose fix splits, merges, adds or reorders blocks, a gap in an already-done block, or a defect in a file key) END the run needs-answers for the operator to restructure, because the editor has no legal edit for any of them. Nothing here builds, stages or commits.',
   phases: [
-    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else.' },
+    { title: 'Critique', detail: 'A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-<round>.md (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions) and returns counts plus a wrote_file attestation, nothing else.' },
     { title: 'Fold', detail: 'Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses.' },
   ],
 };
@@ -65,9 +65,9 @@ const num = (v, name, min, dflt, max = 1_000_000) => {
 };
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 4, 50);    // critic -> editor rounds before rounds-exhausted
 
-// THE SEVERITY FLOOR - which grades COUNT as gaps. Below-floor findings are still written (an FYI section
-// of the critique file) but are excluded from gap_count, so they neither drive a fold nor keep the loop
-// alive. A typed illegal value must THROW: a floor that coerces silently changes what "clean" means.
+// THE SEVERITY FLOOR - which grades COUNT as gaps. Below-floor findings are written only in the converged
+// round (an FYI section of the critique file) and are excluded from gap_count, so they neither drive a fold
+// nor keep the loop alive. A typed illegal value must THROW: a floor that coerces silently changes what "clean" means.
 const VALID_SEVERITY = ['blocking', 'major', 'minor'];
 if (A.critiqueSeverity != null && !VALID_SEVERITY.includes(A.critiqueSeverity)) {
   throw new Error(`Invalid severity floor: args.critiqueSeverity must be blocking | major | minor; got ${JSON.stringify(A.critiqueSeverity)}. It decides which gaps COUNT and which are demoted to the critique file's FYI section, so it must never coerce.`);
@@ -130,7 +130,7 @@ const CRITIC_SCHEMA = {
     wrote_file:     { type: 'boolean', description: 'true if you wrote this round\'s critique file' },
     gap_count:      { type: 'integer', description: 'gaps AT OR ABOVE the severity floor (the numbered GAPS section). 0 with question_count 0 ends the run: the plan converged' },
     question_count: { type: 'integer', description: 'questions written to your critique file AND in full to NEEDS-USER.md' },
-    fyi_count:      { type: 'integer', description: 'items in the FYI (below floor) section. They never drive a fold and never block convergence' },
+    fyi_count:      { type: 'integer', description: 'items in the FYI section, which you write only in a round with no gaps and no questions (0 in any other round). They never drive a fold and never block convergence' },
   },
 };
 
@@ -158,7 +158,7 @@ ${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFER
 // Role prompts
 // =============================================================================
 const criticPrompt = (round) => `
-You are an INDEPENDENT PLAN CRITIC. You write only your critique file, ${NEEDS_USER}, and a probe's files
+You are an INDEPENDENT PLAN CRITIC. You write only your critique file ${critiqueFile(round)}, ${NEEDS_USER}, and a probe's files
 in a temporary directory outside the target repo and the state dir ${STATE_DIR}. You MAY run read-only
 commands, including a build or test command you find in the repo. Judge the plan file against the REAL
 repo and find plan text that is wrong. An EMPTY result is a GOOD outcome and ends the run.
@@ -214,19 +214,29 @@ THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from t
              prescribes a bad practice.
   minor    - any other real defect.
 Three rules settle the grade, and each wins over the definitions above:
-  - A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it, since the developer
-    can depart from it only through a plan amendment.
+  - A WRONG PRESCRIPTION is major or higher, since the developer can depart from it only through a plan
+    amendment.
   - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input is major.
   - When an earlier block's steps make an existing sentence false and a LATER block rewrites it, that is
     a DEPENDENCY-ORDERING ERROR graded major, since the earlier block's acceptance counts the sentence
     before the later block runs.
 Gaps graded ${COUNTED.join(' or ')} COUNT: write them in the numbered GAPS section and include them in
 gap_count. ${BELOW.length
-    ? `Gaps graded ${BELOW.join(' or ')} are BELOW the floor: list them in a separate
-"## FYI (below floor)" section and EXCLUDE them from gap_count. Count them in fyi_count. Re-list every
-below-floor item that still holds in the current plan text, even when an earlier round's critique listed
-it${round > 1 ? ` (${critiqueFile(round - 1)} holds the earlier FYI items)` : ''}, so that the last critique's FYI section is complete.`
+    ? `Below-floor findings are wrong plan text graded ${BELOW.join(' or ')}, never an omission. EXCLUDE them from
+gap_count and write them only in the FYI section.`
     : 'No grade sits below this floor, so every gap you find counts.'}
+
+THE FYI SECTION is for the user, who reads it with the plan before approving. Write it ONLY in a round with
+no gap at or above the floor and no question, which is the converged round. A round with any gap or
+question leaves it out and returns fyi_count 0. Head it "## FYI", number its items F1, F2 across the
+entire section, and count them in fyi_count. It holds these subsections, each only when it has items:
+${BELOW.length ? `  - One subsection per block that has below-floor findings, headed by the block id. A below-floor item
+    names its class, its evidence and one suggested change.
+` : ''}  - "Preamble": a finding in plan text above the first block that is not a file key, at any grade, since
+    no developer reads that text. It never counts as a gap. An item names its class, its evidence and one
+    suggested change.
+  - "Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo
+    line. Write it at every floor, minor included.
 
 SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line
 each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
@@ -235,12 +245,12 @@ WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole r
 own ruling: never contest it.
 
 WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed) and put EVERYTHING there VERBATIM, since it
-is your ONLY channel to the editor: a numbered GAPS section, then the FYI section, then a QUESTIONS
-section. Per gap: the block id, which of the four classes it is, its grade, its evidence with the plan line
-quoted verbatim, EXACTLY ONE smallest change that closes it (never alternatives), and the number of every
-other gap whose change touches the same plan lines, so the editor folds them together. The one change may touch several lines of
-one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names
-every plan line the change makes stale. A gap never invites the editor to fold an FYI item.
+is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section. Per gap: the block
+id, which of the four classes it is, its grade, its evidence with the plan line quoted verbatim, EXACTLY ONE
+smallest change that closes it (never alternatives), and the number of every other gap whose change touches
+the same plan lines, so the editor folds them together. The one change may touch several lines of one block,
+such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan
+line the change makes stale.
 QUESTIONS also go to ${NEEDS_USER} IN FULL (append, create it if needed).
 ONE RULE decides whether you write the file: write it when you have ANY gap, FYI item or question, and
 return wrote_file=true. A round with FYI items and no gaps or questions writes the file with its FYI
@@ -256,8 +266,8 @@ THE GAPS TO FOLD (read it verbatim): ${critiquePath}
 This is round ${round} of at most ${MAX_ROUNDS}.
 
 THE ONE GUARD THAT MATTERS: you may change ONLY what a numbered gap NAMES. Not a wording improvement,
-not an extra step you think a block needs, not a criterion you would have phrased differently, and not
-the FYI section. Never add a requirement, step, file, test or detail the plan does not already state,
+not an extra step you think a block needs, and not a criterion you would have phrased differently.
+Never add a requirement, step, file, test or detail the plan does not already state,
 even when a gap's change asks for one.
 
 PROCEDURE:
@@ -334,7 +344,7 @@ while (round < MAX_ROUNDS) {
     log(`  ✋ r${round}: critic returned ${openGaps} gap(s) + ${questions} question(s) + ${belowFloor} FYI item(s) but did NOT confirm writing ${critiqueFile(round)} - the findings exist nowhere; halting`);
     break;
   }
-  log(`  r${round}: ${openGaps} gap(s) at or above ${SEVERITY}, ${belowFloor} below it, ${questions} question(s)`);
+  log(`  r${round}: ${openGaps} gap(s) at or above ${SEVERITY}, ${belowFloor} FYI item(s), ${questions} question(s)`);
 
   // Questions END the run, since the minimal-fold editor has no legal edit for any of them: an ordering
   // error changes the block STRUCTURE and the operator's derived plans array, and a gap in an already-done
@@ -429,7 +439,7 @@ const listCmd  = `node '${BLOCK_TOOL}' '${PLAN_PATH}' --list`;
 const relaunch = `A relaunch takes the same args and runId and no resumeFromRunId, which keeps the stateDir and its ledger ${DISMISSED}.`;
 const NEXT_STEP = {
   'converged': `Hand the plan ${PLAN_PATH} to the user for approval.`
-    + (belowFloor > 0 ? ` The user first reads the FYI section of ${lastCritique}, since no editor folded its ${belowFloor} below-floor finding(s).` : '')
+    + (belowFloor > 0 ? ` Show the user the FYI section of ${lastCritique} with the plan, since no editor folded its ${belowFloor} item(s). The user can add an item to a block before approving.` : '')
     + ` Audit ${DISMISSED} before trusting the converge, since each declined gap is a judgment call. Then build the plan with develop, deriving its args with plan-edit.mjs args '${PLAN_PATH}'.`,
   'rounds': `The last round's gaps were folded but no critic re-read them. Read ${lastCritique}, decide with the user, then relaunch to confirm, raising maxRounds if needed. ${relaunch}`,
   'needs-answers': `Read the QUESTIONS section of ${lastCritique}, settle the questions with the user and restructure ${PLAN_PATH}, where new blocks take fresh kebab ids. Then relaunch. ${relaunch} A replay returns the cached critic and halts the same way.`,

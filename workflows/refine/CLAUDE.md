@@ -28,8 +28,9 @@ Four things together — remove any one and the plan grows every round instead o
   build or a prescribed bad practice. The size of the fix never lowers a grade. When an earlier block
   makes an existing sentence false and a later block rewrites it, that is a dependency-ordering error
   graded major, since develop's acceptance counts the sentence against the earlier block.
-  Below-floor findings land in the critique file's FYI section. They never block convergence, and
-  `belowFloor` returns their count.
+  Below-floor findings never block convergence and no editor folds them. The critic writes them in the
+  FYI section of the converged round only, beside the repo defects outside the plan, and the user reads
+  that section with the plan. `belowFloor` returns the section's item count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
   settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
   the user's own ruling.
@@ -67,9 +68,13 @@ own single refine run. One develop launch takes both files when their file keys 
 ## 3. Roles
 
 - **Critic** (opus, read-only on the repo) — writes `plan-critique-<round>.md` (gaps with file:line
-  evidence, no evidence no gap; a below-floor FYI section; questions). Returns counts plus a
-  `wrote_file` attestation, nothing else — content crosses through the file. Nonzero counts with
-  `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
+  evidence, no evidence no gap; questions). In a round with no gap and no question, the converged
+  round, it writes the FYI section instead. That section has one subsection per block with
+  below-floor findings, then `Preamble` (plan text above the first block that is not a file key, at
+  any grade), then `Outside the plan` (repo defects no plan text holds, at every floor). Its items are
+  numbered F1, F2 across the section. No editor reads it, and the user reads it with the plan. Returns
+  counts plus a `wrote_file` attestation, nothing else — content crosses through the file. Nonzero
+  counts with `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
   agent would be byte-identical to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
   against the plan and the repo first, and declines one that fails the check. Folds, declines to the
@@ -103,5 +108,5 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
   `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
   empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·
   `openGaps`/`questions` (the LAST round's counts — on `rounds-exhausted` they are
-  folded-but-unverified) · `belowFloor` (the LAST round's FYI count) · `dismissedCount` ·
-  `lastCritique` · `planPath` · `stateDir`.
+  folded-but-unverified) · `belowFloor` (the LAST round's FYI item count, written only in a converged
+  round) · `dismissedCount` · `lastCritique` · `planPath` · `stateDir`.

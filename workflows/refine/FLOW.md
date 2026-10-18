@@ -52,7 +52,7 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md (gaps with file:line evidence, a below-floor FYI section, questions) and returns counts plus a wrote_file attestation, nothing else. |
+| Critique | A read-only critic reads the plan file verbatim, greps the target repo, and judges every todo block against the defect bar and the severity floor. Writes plan-critique-&lt;round&gt;.md (gaps with file:line evidence, questions, and an FYI section only in a round with no gaps and no questions) and returns counts plus a wrote_file attestation, nothing else. |
 | Fold | Runs only when the round returned at-or-above-floor gaps and no questions. The editor checks each gap against the plan and the repo first, folds each gap that passes into the plan file with the smallest edit that closes it, changes nothing a gap does not name, declines to DISMISSED-PLAN.md, and re-runs the plan-block tool to prove the file still parses. |
 
 ## Terminal states
@@ -74,7 +74,7 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
 | throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 73) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 321) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 331) |
 
 ## Coverage
 

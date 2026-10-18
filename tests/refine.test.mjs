@@ -9,7 +9,8 @@
 // from: the per-role dead-agent sweep (dead-agent.test.mjs), the numeric-bound sweep (static.test.mjs),
 // and role/throw/terminal coverage (flow-coverage.test.mjs). What the arg cases below add is the ROUND
 // ordering those tables cannot see — the throw lands before the first opus critic is ever spawned.
-import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
+import { readFileSync } from 'node:fs';
+import { runEngine, runTrace, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
 
 const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
@@ -82,15 +83,72 @@ section('an FYI-only round writes its critique file and still converges, naming 
     'the critic is told an FYI-only round writes the file');
   ok(p.includes('A round with nothing at all writes NOTHING'),
     'and that a round with nothing at all writes nothing');
-  ok(p.includes('Count them in fyi_count'), 'the critic is told to count its below-floor items');
+  ok(p.includes('and count them in fyi_count'), 'the critic is told to count its FYI items');
   eq(out.status, CONVERGED, 'status');
-  ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for below-floor findings');
+  ok(!labels.some((l) => l.startsWith('plan-editor')), 'with no editor spawned for FYI items');
   eq(out.lastCritique, 'E:/r/runs/t-refine/plan-critique-1.md', 'and the FYI file is named as the last critique');
   eq(out.belowFloor, 2, 'and the return carries the FYI count, so the operator knows that file holds findings');
   handBack(out, false, [
-    `The user first reads the FYI section of ${STATE}/plan-critique-1.md, since no editor folded its 2 below-floor finding(s).`,
+    `Show the user the FYI section of ${STATE}/plan-critique-1.md with the plan, since no editor folded its 2 item(s).`,
+    'The user can add an item to a block before approving.',
     'Hand the plan E:/plans/bus.md to the user for approval.',
   ], 'converged with FYI items');
+}
+
+section('the critic writes the FYI section only in a round with no gap and no question, grouped by location');
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  const fyi = p.slice(p.indexOf('THE FYI SECTION'), p.indexOf('SETTLED DECISIONS'));
+  ok(fyi.length > 0, 'the prompt has an FYI section paragraph before the settled decisions');
+  ok(p.includes('Below-floor findings are wrong plan text graded minor, never an omission. EXCLUDE them from gap_count and write them only in the FYI section.'),
+    'a below-floor finding is wrong plan text, never an omission, and stays out of gap_count');
+  ok(fyi.includes('Write it ONLY in a round with no gap at or above the floor and no question, which is the converged round. A round with any gap or question leaves it out and returns fyi_count 0.'),
+    'the FYI section is written only in the converged round, and any other round returns fyi_count 0');
+  ok(!p.includes('Re-list') && !p.includes('earlier FYI') && !p.includes('plan-critique-0'),
+    'no sentence tells the critic to re-list an earlier FYI item or points at a previous critique file');
+  ok(fyi.includes('Head it "## FYI", number its items F1, F2 across the entire section, and count them in fyi_count.'),
+    'the section is headed FYI, numbered F1, F2 across the entire section, and counted in fyi_count');
+  const at = ['One subsection per block that has below-floor findings, headed by the block id.', '"Preamble":', '"Outside the plan":'].map((s) => fyi.indexOf(s));
+  ok(at.every((i) => i > 0) && at.every((i, n) => n === 0 || i > at[n - 1]),
+    'the subsections run per block, then Preamble, then Outside the plan');
+  ok(fyi.includes('A below-floor item names its class, its evidence and one suggested change.'),
+    'a below-floor item names its class, its evidence and one suggested change');
+  ok(fyi.includes('"Preamble": a finding in plan text above the first block that is not a file key, at any grade, since no developer reads that text.'),
+    'a finding in plan text above the first block that is not a file key goes in Preamble at any grade');
+  ok(fyi.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
+    'Outside the plan holds repo defects no plan text holds, each with its repo line, at every floor');
+  ok(!p.includes('A gap never invites the editor to fold an FYI item.') && !p.includes('then the FYI section, then a QUESTIONS section'),
+    'the critique file layout puts no FYI section beside the gaps the editor reads');
+  ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files'),
+    'the opening write list names the critique file by its path');
+}
+
+section('at the minor floor the critic has no below-floor subsection and still writes Outside the plan');
+{
+  const { prompt } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, critiqueSeverity: 'minor' });
+  const p = prompt('plan-critic').replace(/\s+/g, ' ');
+  ok(p.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
+    'a minor-floor critic is told to write Outside the plan');
+  ok(p.includes('"Preamble": a finding in plan text above the first block that is not a file key, at any grade'),
+    'and Preamble');
+  ok(p.includes('No grade sits below this floor, so every gap you find counts.')
+    && !p.includes('Below-floor findings are') && !p.includes('One subsection per block'),
+    'but no grade sits below the minor floor, so it has no below-floor finding and no per-block subsection');
+}
+
+section('the fyi_count schema description and the Critique phase detail say when the FYI section is written');
+{
+  const { byLabel } = await run({ 'plan-critic': CLEAN });
+  const description = String(byLabel('plan-critic')[0]?.opts?.schema?.properties?.fyi_count?.description ?? '');
+  ok(description.includes('which you write only in a round with no gaps and no questions (0 in any other round)'),
+    'the fyi_count description says the FYI section is written only with no gaps and no questions');
+  ok(!description.includes('below floor'), 'and no longer calls the section a below-floor section');
+  const critique = (readMeta(readFileSync(`${REPO_ROOT}/${ENGINE}`, 'utf8'))?.phases ?? []).find((ph) => ph.title === 'Critique');
+  const detail = String(critique?.detail ?? '');
+  ok(detail.includes('an FYI section only in a round with no gaps and no questions'),
+    'the Critique phase detail says the same');
+  ok(!detail.includes('a below-floor FYI section'), 'and no longer lists a below-floor FYI section beside the gaps');
 }
 
 section('belowFloor is the LAST round\'s FYI count, never a run total');
@@ -110,18 +168,14 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
     'read-only is defined as never editing, with read-only commands allowed');
   ok(p.includes('a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class'),
     'a text edit inside one block is a gap');
-  ok(p.includes('A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it'),
-    'a wrong prescription is major whether or not the gate catches it');
+  ok(p.includes('A WRONG PRESCRIPTION is major or higher, since the developer can depart from it only through a plan amendment.'),
+    'a wrong prescription is major, with no clause about the gate');
+  ok(!p.includes('whether or not the gate would catch it'), 'and no grade rule names the gate');
   ok(!p.includes('An OMISSION the block\'s own green gate') && !p.includes('Only the gate counts as a catch'),
     'an omission the gate catches is no longer a grade rule, since an omission is no gap');
   ok(p.includes('1. A CONTRADICTION: two statements in the plan that cannot both hold'),
     'a self-contradiction is a CONTRADICTION');
   ok(!p.includes('WRONG INSTRUCTION'), 'no line still names a WRONG INSTRUCTION');
-  ok(p.includes('Re-list every below-floor item that still holds'),
-    'below the default floor, the critic re-lists every FYI item that still holds');
-  const minorRun = await run({ 'plan-critic': CLEAN }, { ...baseArgs, critiqueSeverity: 'minor' });
-  ok(!minorRun.prompt('plan-critic').replace(/\s+/g, ' ').includes('Re-list every below-floor item'),
-    'the minor floor has no grade below it, so it gains no re-list rule');
   ok(p.includes('EXACTLY ONE smallest change that closes it (never alternatives)')
     && p.includes('every other gap whose change touches the same plan lines'),
     'one fix per gap, with overlapping gaps named');
@@ -149,15 +203,15 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
     'a gap\'s change corrects or removes text and never adds to the plan');
   ok(p.includes('A command, flag, or library, tool or API behavior the block prescribes counts too. Confirm each one the repo does not already use the same way, against the dependency\'s own docs or source, or a probe in a temporary directory outside the repo and the state dir. A confirmed prescription needs no source cited in the plan.'),
     'a prescribed command or dependency behavior is confirmed against its docs, source or a probe');
-  ok(p.includes('You write only your critique file, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
-    'the write list names the probe\'s temporary directory');
+  ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files in a temporary directory outside the target repo and the state dir E:/r/runs/t-refine.'),
+    'the write list names the critique file by its path and the probe\'s temporary directory');
   ok(p.includes('Judge the plan file against the REAL repo and find plan text that is wrong.') && !p.includes('find what would BUILD WRONG'),
     'the opener looks for wrong plan text');
   ok(p.includes('EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP.'),
     'evidence may be a plan line, a dependency doc or a probe output');
   ok(p.includes('SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is reported as a QUESTION'),
     'only an ordering error becomes a structural question');
-  ok(p.includes('which of the four classes it is') && p.includes('The one change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan line the change makes stale. A gap never invites the editor to fold an FYI item.'),
+  ok(p.includes('which of the four classes it is') && p.includes('The one change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan line the change makes stale.'),
     'the write list asks for one of four classes and one change that names what it makes stale');
 }
 
@@ -180,8 +234,7 @@ section('the critic grades by impact on accepted input, never by fix size');
 {
   const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
   const prompts = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  // The re-list sentence names the previous round's critique file, so the bar stops before it.
-  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('Re-list every'));
+  const bar = (p) => p.slice(p.indexOf('THE SEVERITY FLOOR'), p.indexOf('THE FYI SECTION'));
   eq(prompts.length, 2, 'two critic rounds ran');
   ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
     'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
@@ -197,14 +250,14 @@ section('the critic grades by impact on accepted input, never by fix size');
     'every round\'s critic grades under the same bar');
 }
 
-section('from round 2 the critic is told which file holds the earlier FYI items, and a file-key defect is a question');
+section('a round-2 critic is pointed at no earlier critique file, and a file-key defect is a question');
 {
   const { byLabel } = await run({ 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK });
   const [r1, r2] = byLabel('plan-critic').map((c) => c.prompt.replace(/\s+/g, ' '));
-  ok(r2.includes(`even when an earlier round's critique listed it (${STATE}/plan-critique-1.md holds the earlier FYI items), so that`),
-    'the round-2 re-list sentence names the round-1 critique file');
-  ok(!r1.includes('holds the earlier FYI items') && !r1.includes('plan-critique-0'),
-    'the round-1 prompt names no earlier critique');
+  ok(!r2.includes(`${STATE}/plan-critique-1.md`) && r2.includes(`${STATE}/plan-critique-2.md`),
+    'the round-2 prompt names only its own critique file, never the round-1 file');
+  ok(!r1.includes('plan-critique-0') && !r1.includes('plan-critique-2'),
+    'the round-1 prompt names no other round\'s critique');
   ok(r1.includes('SCOPE RULE 4 - a defect in a file key (goal, ordered, suite, sweep) is reported as a QUESTION, never as a gap, since no block\'s text holds it.')
     && r1.indexOf('SCOPE RULE 4') > r1.indexOf('SCOPE RULE 3'),
     'a file-key defect is a question, stated after SCOPE RULE 3');
@@ -233,6 +286,9 @@ section('the editor checks every gap against the plan and the repo before it fol
     const guard = p.slice(guardAt, procedureAt);
     ok(guard.includes('Never add a requirement, step, file, test or detail the plan does not already state, even when a gap\'s change asks for one.'),
       `${r}: the guard forbids adding to the plan even when a gap's change asks for it`);
+    ok(guard.includes('not an extra step you think a block needs, and not a criterion you would have phrased differently.'),
+      `${r}: the guard's list of changes the editor may not make ends on the criterion`);
+    ok(!/FYI/i.test(p), `${r}: the editor prompt never mentions an FYI section, since no round the editor reads holds one`);
     const steps = ['1. CHECK each numbered gap before you fold it, as a spot check of the critic.',
       '2. For each numbered gap, make the smallest edit to E:/plans/bus.md that closes it',
       '3. A gap you DECLINE (it is wrong, it names something the block already covers, or it fails the CHECK step) gets ONE line',

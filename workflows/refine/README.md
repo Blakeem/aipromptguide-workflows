@@ -22,8 +22,8 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 - **Defects only.** A gap names plan text that is wrong, such as a contradiction, an instruction that
   builds broken code, a prescribed bad practice, or a wrong block order.
   A missing detail, an improvement, an alternative or a style choice is not a gap.
-- **A severity floor.** Gaps below `critiqueSeverity` (default `major`) are listed for reference and
-  count for nothing.
+- **A severity floor.** Gaps below `critiqueSeverity` (default `major`) are never folded and count for
+  nothing.
 - **A dismissal ledger.** A declined gap stays declined. The critic may contest one once.
 - **A minimal editor.** The editor checks each gap before folding it. It changes nothing a gap does not
   name.
@@ -31,8 +31,11 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 ## Results
 
 - `converged` means the last round found no gap or question. The plan is ready for your approval.
-  When `belowFloor` is above 0, read the FYI section of the last critique file first, since those
-  findings were never folded into the plan.
+  That round also writes an FYI section to the last critique file, and `belowFloor` counts its items.
+  No editor folds those items, so read the section with the plan. It has a subsection for each block
+  with findings below the severity floor, then `Preamble` for findings in plan text above the first
+  block that is not a file key, then `Outside the plan` for repo defects that no plan text holds. Items
+  are numbered F1, F2 and so on. You can add an item to a block before you approve.
 - `needs-answers` means the critic raised something only you can decide, such as a block order. Read
   `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
   so the newest entries are at its end.
