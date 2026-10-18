@@ -183,9 +183,10 @@ NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
 BLOCK METADATA is part of what you judge. Each \`## Plan: <id>\` block opens with a preamble run of
 \`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | parked |
-blocked), plus informational \`test_selector\` and \`depends_on\`. A \`gate\` ILLEGAL for its block's mode is
-a gap (feature takes green | build-only; section takes green | red-baseline | build-only; fix takes
-green). File keys \`goal\` / \`ordered\` / \`suite\` / \`sweep\` sit above the first block.
+blocked), \`model\` (opus | sonnet), plus informational \`test_selector\` and \`depends_on\`. A \`gate\`
+ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
+red-baseline | build-only; fix takes green). File keys \`goal\` / \`ordered\` / \`suite\` / \`sweep\` sit above
+the first block.
 
 SCOPE RULE 1 - you judge only blocks whose \`status\` is \`todo\` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to ${NEEDS_USER} as a QUESTION and NEVER

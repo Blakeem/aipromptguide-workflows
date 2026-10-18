@@ -529,6 +529,42 @@ section('an omitted gate takes the green default, never a throw');
   eq(out.status, 'done (all blocks staged)', 'and the block builds under it');
 }
 
+section('a block\'s model picks its developer and park agent, and the reviews keep the run\'s models');
+// A block's model buys a cheaper or a stronger developer. The blind reviewer is the floor every block is
+// held to, so it never follows the block.
+{
+  const modelOf = (calls, prefix) => calls.filter((c) => c.label.startsWith(prefix)).map((c) => c.opts.model).join(',');
+  const SONNET_ROW = { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], model: 'sonnet' }] };
+  const set = await run(GREEN_RUN, SONNET_ROW);
+  eq(modelOf(set.calls, 'develop'), 'sonnet', 'a row with model sonnet runs its developer on sonnet');
+  eq(`${modelOf(set.calls, 'quality')}|${modelOf(set.calls, 'acceptance')}`, 'opus|opus', 'while its blind reviewer and acceptance stay on opus');
+  eq(String(set.out.ledger[0]?.model ?? ''), 'sonnet', 'the ledger row records the developer model');
+  ok(set.logs.some((l) => l.startsWith('▶ block block-a [mode=feature, gate=build-only, model=sonnet]')), 'the block-start line names the model');
+
+  const unset = await run(GREEN_RUN, ONE_BLOCK);
+  eq(modelOf(unset.calls, 'develop'), 'opus', 'a row without model runs its developer on models.develop, opus by default');
+  eq(String(unset.out.ledger[0]?.model ?? ''), 'opus', 'and the ledger records that default');
+  ok(unset.logs.some((l) => l.startsWith('▶ block block-a [mode=feature, gate=build-only]')), 'the block-start line names no model the row did not set');
+
+  const runDefault = await run(GREEN_RUN, { ...ONE_BLOCK, models: { develop: 'sonnet' } });
+  eq(modelOf(runDefault.calls, 'develop'), 'sonnet', 'models.develop changes the default for a row without model');
+  const override = await run(GREEN_RUN, { ...SONNET_ROW, models: { develop: 'opus', quality: 'sonnet' } });
+  eq(`${modelOf(override.calls, 'develop')}|${modelOf(override.calls, 'quality')}`, 'sonnet|sonnet', 'a row\'s model outranks models.develop, and quality follows models.quality alone');
+
+  const parked = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, { ...SONNET_ROW, ordered: true });
+  eq(modelOf(parked.calls, 'park'), 'sonnet', 'the park agent runs on the block\'s developer model');
+
+  const pass = await run({
+    develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-3', status: 'FIXED' }]),
+    quality: CLEAN,
+    acceptance: { ...FIX_PASS, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-3', actually_fixed: true }] },
+  }, { ...PASS_ARGS, plans: [{ ...PASS, model: 'sonnet' }] });
+  eq(`${modelOf(pass.calls, 'develop')}|${modelOf(pass.calls, 'quality')}`, 'sonnet|opus', 'a pass row\'s model applies to the pass\'s developer alone');
+
+  const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], model: 'gpt' }] }, respond: {} });
+  ok(/plan model\(s\) \[block-a: "gpt"\]/.test(msg) && /opus \| sonnet/.test(msg), `model gpt throws naming the row and the legal values: ${msg.slice(0, 60)}`);
+}
+
 section('a gate that never goes green surfaces the developer\'s own diagnostics');
 // The developer re-runs the gate live, so once the round budget is gone the run log holds the only copy of
 // why it was red. Without these the operator has to re-run the gate to find out.

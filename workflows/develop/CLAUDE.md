@@ -74,7 +74,8 @@ preamble or another block never reaches it.
 
 The grammar lives with the tool (`tools/CLAUDE.md`): optional frontmatter, file keys
 (`goal`/`ordered`/`suite`/`sweep`), a `## Plan: <id> - <title>` header per block with a preamble run
-(`mode`/`gate`/`status`, plus informational `test_selector`/`depends_on`), bodies read verbatim.
+(`mode`/`gate`/`status`/`model`, where `model` is `opus | sonnet`, the block's developer model, plus
+informational `test_selector`/`depends_on`), bodies read verbatim.
 Gates per mode: `feature` takes `green | build-only`; `section` takes
 `green | red-baseline | build-only`; `fix` takes `green` only. A file holding any section-mode block
 defaults to `ordered: true`, `suite: scoped` and `sweep: goal-coverage`. A file whose sweep is
@@ -82,6 +83,15 @@ defaults to `ordered: true`, `suite: scoped` and `sweep: goal-coverage`. A file 
 `### [<id>]` entries are what the fix worker verifies and fixes (ACTIONABLE decisions only,
 verify-first, vanished issues marked stale). `--list` fails on a `todo` fix block with no `### [<id>]`
 entry. debug's review.mjs writes these files; hand-authored external inventories use the same shape.
+
+**Choosing a block's developer model.** Set `model:` on each block while writing the plan. The user may
+override it. Judge by how many layers of abstraction the block crosses and how much logic it holds.
+`sonnet` takes common work: backend changes, minor frontend changes, interface or design changes that
+are not major, a new API endpoint or MCP tool, simple interface features or updates, and fixes from a
+debug inventory. `opus` takes complex logic, security work, mission-critical code, and changes that need
+an understanding of deeper layers of abstraction. When unsure, leave the line out, so the run's
+`models.develop` applies. The blind reviewer, acceptance and the sweep always run on the run's review
+models. Show each block's model in the approval summary.
 
 ## 4. Pre-run setup (your job — no setup agent)
 
@@ -234,17 +244,18 @@ that share a prefix get separate files.
 ## 9. Args reference
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
-- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath, mode, gate, status }`
-  rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status, blocks:
-  [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no `planPath`
-  **throws** naming it.) · `target.repo` (**throws** if missing) ·
+- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath, mode, gate, status,
+  model? }` rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status,
+  model?, blocks: [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no
+  `planPath` **throws** naming it. A `model` outside `opus | sonnet` **throws** naming the row.) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
 - **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with a
-  status of the form `<token> (<meaning>)`, and per-issue `results` in fix mode) · `statusSync` (the
+  status of the form `<token> (<meaning>)`, the developer `model` it ran on, and per-issue `results` in
+  fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
   entry means the sweep did not run) · `newIssues` (fix mode, null when a verifier returned no usable report) · `newIssueFiles`
@@ -253,7 +264,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `reviewSeverity` (`low|medium|high|critical`, default `medium`, any other value
   **throws**) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (every role opus) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
+  (every role opus. A block's `model:` line overrides `models.develop` for that block's developer and
+  park agent, §3) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
   restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).
 - **Retired:** `startAt`, a top-level `planPath` and `planContext` are retired and **throw**.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

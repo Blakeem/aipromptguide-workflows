@@ -54,15 +54,16 @@ flowchart TD
   x18[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
   x19[/"throw: pass entries [...] are malformed"/]
   x20[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
-  x21[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; parked #124; blocked"/]
-  x22[/"throw: plans [...] carry no planPath"/]
-  x23[/"throw: duplicate plan id(s) [...] in args.plans"/]
-  x24[/"throw: args.gates.build is required"/]
-  x25[/"throw: Invalid slice arg"/]
-  x26[/"throw: args.runOnly ... matches no plan id"/]
-  x27[/"throw: Invalid continueParked arg"/]
-  x28[/"throw: Invalid continueParked id"/]
-  x29[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
+  x21[/"throw: plan model(s) [...] are not one of opus #124; sonnet"/]
+  x22[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; parked #124; blocked"/]
+  x23[/"throw: plans [...] carry no planPath"/]
+  x24[/"throw: duplicate plan id(s) [...] in args.plans"/]
+  x25[/"throw: args.gates.build is required"/]
+  x26[/"throw: Invalid slice arg"/]
+  x27[/"throw: args.runOnly ... matches no plan id"/]
+  x28[/"throw: Invalid continueParked arg"/]
+  x29[/"throw: Invalid continueParked id"/]
+  x30[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
   S0 --> a1
   S0 --> t3
   S0 --> x1
@@ -94,6 +95,7 @@ flowchart TD
   S0 --> x27
   S0 --> x28
   S0 --> x29
+  S0 --> x30
   a1 -.->|"L1 ×5"| a1
   a1 ==>|"next item"| a1
   a1 --> a2
@@ -198,16 +200,17 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 195) |
 | throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 206) |
 | throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 214) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 222) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 237) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 248) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 1087) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1099) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1106) |
-| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1113) |
-| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1119) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1126) |
+| throw: plan model(s) [...] are not one of opus \| sonnet | a block names a model outside opus \| sonnet | throw (line 222) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 230) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 246) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 257) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 1096) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1108) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1115) |
+| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1122) |
+| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1128) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1135) |
 
 ## Coverage
 
-67 scenarios · 5/5 roles · 29/29 throw sites · 15/15 halt statuses · 49 terminal states.
+68 scenarios · 5/5 roles · 30/30 throw sites · 15/15 halt statuses · 50 terminal states.

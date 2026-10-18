@@ -325,6 +325,7 @@ section('every set failure exits 1 naming the problem, with the file\'s bytes un
     [['set', file, 'bus-parser', ' status=done'], /unknown preamble key " status"/, 'a key with a leading space'],
     [['set', file, 'bus-parser', 'status=nearly'], /illegal preamble key "status: nearly"/, 'an illegal block enum names the key AND the value'],
     [['set', file, 'bus-parser', 'mode=fixup'], /illegal preamble key "mode: fixup"/, 'an illegal mode'],
+    [['set', file, 'bus-parser', 'model=gpt'], /illegal preamble key "model: gpt" — model takes opus \| sonnet/, 'an illegal developer model'],
     [['set', file, 'null-deref', 'severity=urgent'], /illegal issue key "severity: urgent"/, 'an illegal issue enum'],
     [['set', file, 'null-deref', 'decision=MAYBE'], /illegal issue key "decision: MAYBE"/, 'an illegal decision'],
     [['set', file, 'null-deref', 'status=nearly'], /illegal issue key "status: nearly"/, 'and an illegal issue status — the enums differ by run'],
@@ -650,6 +651,17 @@ section('args writes the synced key under frontmatter, and keeps a BOM and CRLF 
     .replace('gate: build-only', 'gate: build-only\r\nstatus: done'), 'only the two appended lines differ, in the file\'s own ending');
 }
 
+section('set writes a block\'s model line, and args passes it into that block\'s row only');
+{
+  const plan = fixture();
+  const before = read(plan);
+  eq(fails('set', plan, 'bus-parser', 'model=sonnet'), '', 'set model=sonnet succeeds');
+  eq(read(plan), before.replace('gate: build-only\n', 'gate: build-only\nmodel: sonnet\n'), 'and appends the line to the block\'s preamble');
+  const { out, err } = argsWith(configWith([]), plan);
+  const rows = err ? [] : JSON.parse(out).plans;
+  eq(rows.map((r) => `${r.id}=${r.model ?? '-'}`).join(','), 'bus-parser=sonnet,inventory=-,triage=-', `args carries the model on its block's row: ${err ?? ''}`);
+}
+
 section('several plans make one args object, and plans that disagree on a file key fail');
 {
   const a = fixture(DEST, 'a.md');
@@ -725,6 +737,21 @@ section('--pack leaves out what it cannot pack, and reads a file\'s lines when n
   const { out, notes } = packed(configWith([]), dir, 4000, big, small, skipped);
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'big,small,skipped', 'a block over the cap alone is its own row, and so is one with nothing open and ACTIONABLE');
   ok(/not packed: skipped has no open ACTIONABLE entry/.test(notes), 'the note names the block with nothing to build');
+}
+
+section('--pack never puts two developer models, or a model beside none, in one pass');
+{
+  const dir = tmpDir();
+  const withModel = (path, model) => { writeFileSync(path, read(path).replace('gate: green\n', `gate: green\nmodel: ${model}\n`)); return path; };
+  const sa = withModel(inventory(dir, 'sa', [{ id: 'sa-1', file: 'src/a.js', loc: 10 }]), 'sonnet');
+  const op = withModel(inventory(dir, 'op', [{ id: 'op-1', file: 'src/a.js', loc: 10 }]), 'opus');
+  const none = inventory(dir, 'none', [{ id: 'none-1', file: 'src/a.js', loc: 10 }]);
+  const sb = withModel(inventory(dir, 'sb', [{ id: 'sb-1', file: 'src/b.js', loc: 10 }]), 'sonnet');
+  const { out, notes, err } = packed(configWith([]), dir, 3000, sa, op, none, sb);
+  const plans = err ? [] : JSON.parse(out).plans;
+  eq(plans.map((r) => `${r.id}:${r.model ?? '-'}`).join(','), 'sa-plus-1:sonnet,op:opus,none:-',
+    `the opus block and the block with no model each stay alone, and the pass of sonnet blocks carries model sonnet: ${err ?? notes.trim()}`);
+  eq(plans[0]?.blocks?.map((m) => m.id).join(','), 'sa,sb', 'that pass holds both sonnet blocks, though other blocks share their first file');
 }
 
 section('--pack refuses an ordered plan set and a bad cap');

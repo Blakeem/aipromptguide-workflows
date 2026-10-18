@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 6846 | a clean first round |
+| plan-critic | 1 | 1 | 6871 | a clean first round |
 | plan-editor | 1 | 1 | 1971 | gaps folded, then a clean round |
-| plan-critic | 2 | 1 | 6920 | gaps folded, then a clean round |
+| plan-critic | 2 | 1 | 6945 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -45,9 +45,10 @@ NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
 BLOCK METADATA is part of what you judge. Each `## Plan: <id>` block opens with a preamble run of
 `key: value` lines: `mode` (feature | section | fix), `gate`, `status` (todo | done | skip | parked |
-blocked), plus informational `test_selector` and `depends_on`. A `gate` ILLEGAL for its block's mode is
-a gap (feature takes green | build-only; section takes green | red-baseline | build-only; fix takes
-green). File keys `goal` / `ordered` / `suite` / `sweep` sit above the first block.
+blocked), `model` (opus | sonnet), plus informational `test_selector` and `depends_on`. A `gate`
+ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
+red-baseline | build-only; fix takes green). File keys `goal` / `ordered` / `suite` / `sweep` sit above
+the first block.
 
 SCOPE RULE 1 - you judge only blocks whose `status` is `todo` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to E:/flow/runs/flow-refine/NEEDS-USER.md as a QUESTION and NEVER
@@ -240,9 +241,10 @@ NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
 BLOCK METADATA is part of what you judge. Each `## Plan: <id>` block opens with a preamble run of
 `key: value` lines: `mode` (feature | section | fix), `gate`, `status` (todo | done | skip | parked |
-blocked), plus informational `test_selector` and `depends_on`. A `gate` ILLEGAL for its block's mode is
-a gap (feature takes green | build-only; section takes green | red-baseline | build-only; fix takes
-green). File keys `goal` / `ordered` / `suite` / `sweep` sit above the first block.
+blocked), `model` (opus | sonnet), plus informational `test_selector` and `depends_on`. A `gate`
+ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
+red-baseline | build-only; fix takes green). File keys `goal` / `ordered` / `suite` / `sweep` sit above
+the first block.
 
 SCOPE RULE 1 - you judge only blocks whose `status` is `todo` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to E:/flow/runs/flow-refine/NEEDS-USER.md as a QUESTION and NEVER

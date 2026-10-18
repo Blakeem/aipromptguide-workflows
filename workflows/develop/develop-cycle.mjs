@@ -214,6 +214,14 @@ if (BAD_GATES.length) {
   throw new Error(`plan gate(s) [${BAD_GATES.join(', ')}] are not legal for their block's mode. A gate decides what "done" MEANS for its block, so an unrecognized value must never coerce. Omit the field entirely to take the green default.`);
 }
 
+// A typed model the runtime may not know would fail the developer call mid-run, after earlier blocks staged.
+const VALID_MODELS = new Set(['opus', 'sonnet']);
+const BAD_MODELS = RAW.filter((p) => p.model != null && !VALID_MODELS.has(p.model))
+  .map((p) => `${p.id}: ${JSON.stringify(p.model)}`);
+if (BAD_MODELS.length) {
+  throw new Error(`plan model(s) [${BAD_MODELS.join(', ')}] are not one of opus | sonnet. A model picks its block's developer, so an unrecognized value must never coerce. Omit the field entirely to take the run's models.develop.`);
+}
+
 // `status` is what the todo filter selects on, so a typo is a block silently skipped (or, worse, a
 // finished one rebuilt over its own staged baseline). Omitted keeps the 'todo' default.
 const BAD_STATUS = RAW.filter((p) => p.status != null && !VALID_STATUS.has(p.status))
@@ -228,6 +236,7 @@ const ALL_PLANS = RAW.map((p) => ({
   mode: p.mode,
   gate: p.gate ?? 'green',
   status: p.status ?? 'todo',
+  model: p.model ?? null,
   blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues })) : null,
 }));
 
@@ -1336,8 +1345,10 @@ for (const p of pending) {
     break;
   }
 
-  logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
+  // A block's model picks its developer and park agent only. Reviews stay on the run's models.
+  const devModel = p.model ?? M.develop;
+  logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   if (fix) for (const b of p.blocks ?? [p]) startedIssueFiles.add(newIssuesFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
@@ -1366,7 +1377,7 @@ for (const p of pending) {
     // ---- DEVELOP -----------------------------------------------------------
     phase('Develop');
     const dev = await agent(developPrompt(p, round, reviewPath), roleOpts('develop', {
-      schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
+      model: devModel, schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
     }));
 
     // ---- PRECONDITION: the developer AGENT itself came back -----------------------------------------
@@ -1716,7 +1727,7 @@ for (const p of pending) {
     phase('Park');
     // reviewPath passes through empty or not: see its declaration.
     const pk = await agent(parkPrompt(p, reviewPath, escalated, parkKind || haltKind, halted), roleOpts('develop', {
-      schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
+      model: devModel, schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;

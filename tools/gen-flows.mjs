@@ -341,7 +341,7 @@ export async function buildGraph(spec) {
   const coveredRoles = new Set();
   const coveredStatuses = new Set();
 
-  // Phase and model are taken from the FIRST call that reached a role — one role runs under one of each.
+  // A role's node shows the phase and model of its FIRST call. develop's developer model can differ by block.
   const agentNode = (role, call) => {
     let node = agents.get(role);
     if (!node) {

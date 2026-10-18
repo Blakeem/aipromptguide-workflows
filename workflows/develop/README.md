@@ -13,6 +13,9 @@ Each `## Plan:` block names its `mode`, and the mode picks the instructions the 
 | `section` | One slice of a goal that spans many call sites, such as a migration or upgrade | The criteria are met and every call site the block owns is converted |
 | `fix` | One triaged issue inventory from debug or your own testing | Each ACTIONABLE issue is fixed at its root cause and no other entry was touched |
 
+A block can also name its developer model in a `model:` line, picked by how complex the block is. The
+reviewers always use the run's review models, which default to Opus.
+
 ## How it works
 
 Every block runs the same loop, up to `maxRounds`.

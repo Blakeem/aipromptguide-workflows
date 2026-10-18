@@ -138,6 +138,7 @@ export default {
     // A gate is legal only for its OWN mode: red-baseline is a section gate, and a feature block that got
     // it would be judged by a rule its frame never applies.
     { name: 'block gate is illegal for its mode', when: 'a feature block asks for gate red-baseline', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] } },
+    { name: 'block model is not a known model', when: 'a block names a model outside opus | sonnet', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', model: 'gpt' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
     { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
     // Every block's body lives in a plan FILE, addressed by id. A row with no path would hand the developer

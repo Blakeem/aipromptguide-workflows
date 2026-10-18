@@ -333,6 +333,21 @@ section('every metadata fault exits 1 naming the offending key, value or id');
     'and two entries sharing an id across blocks');
 }
 
+section('a preamble model line names the block\'s developer, and its --list row carries it only when set');
+{
+  const SONNET = ONE('gate: green\nmodel: sonnet\n');
+  let text = '';
+  try { text = emitList(validate(parseBlocks(SONNET), 'test'), 'test', parseFileKeys(SONNET)); } catch (e) { text = e.message; }
+  ok(/"status": "todo", "model": "sonnet" \}/.test(text), 'a model: sonnet block parses, and --list prints "model" after "status"');
+  eq(String(planFails(SONNET) || listOf(SONNET).blocks[0].model), 'sonnet', 'and the parsed row carries model: sonnet');
+
+  const fault = planFails(ONE('gate: green\nmodel: gpt\n'));
+  ok(/illegal preamble key "model: gpt" — model takes opus \| sonnet/.test(fault), `an unknown model fails loudly, naming the key and the legal values: ${fault}`);
+
+  const plain = emitList(validate(parseBlocks(ONE()), 'test'), 'test');
+  ok(!Object.hasOwn(listOf(ONE()).blocks[0], 'model') && !/"model"/.test(plain), 'a block without the line has no model field in its row');
+}
+
 section('every scanner reports positions into the RAW bytes — a splice cannot corrupt a BOM or a CRLF');
 {
   const PLAN = ['goal: ship it', 'ordered: true', '', '## Plan: a - t', 'mode: fix', 'gate: green', '',

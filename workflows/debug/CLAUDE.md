@@ -159,6 +159,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      are rejected. In a clean-marker file, first add the `## Plan: <slug>` header and its mode/gate/status
      preamble in the verifier format.
    - regroup lopsided files with `node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>`.
+   - set each issue file's developer model with `node tools/plan-edit.mjs set <file> <block-id>
+     model=<sonnet|opus>`, judged as develop guide §3 ("Choosing a block's developer model") says.
 6. **Build the triaged files with develop.**
    - Each triaged issue file with findings is one fix-mode block.
      `node tools/plan-edit.mjs args <issueFile> [<issueFile> ...] --pack <target.repo>` prints one args

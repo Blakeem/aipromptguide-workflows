@@ -32,10 +32,11 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 ```
 
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
-`sweep`), a block preamble (`mode`, `gate`, `status`, plus informational
-`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `--list` emits the
-file keys plus a `blocks` array of `{ id, title, mode, gate, status }`, defaults applied. Each
-metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
+`sweep`), a block preamble (`mode`, `gate`, `status`, `model`, plus informational
+`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `model` takes
+`opus | sonnet` and names the block's developer model. `--list` emits the file keys plus a `blocks`
+array of `{ id, title, mode, gate, status }`, defaults applied, and a row carries `model` only when
+its block sets one. Each metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
 blank line above a run is crossed to find it, never to continue one, and body prose never registers
 as metadata. Every block's gate is its preamble `gate:` line. A bare plan-name resolves
 against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.
@@ -91,11 +92,12 @@ after `cleanupPeriodDays` (30 by default).
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`
-line, else the file in `<repo>`, else 200. Blocks are sorted by the first file they touch and filled up
-to `--loc-cap` (default 5000, scaled from resolve's 3000-line batches of about 150-200k tokens). A block
+line, else the file in `<repo>`, else 200. Blocks are sorted by `model`, then by the first file they
+touch, and filled up to `--loc-cap` (default 5000, scaled from resolve's 3000-line batches of about
+150-200k tokens). A pass never mixes two models, or a block with a model and one without. A block
 over the cap, or one with nothing open and ACTIONABLE, stays its own row. A pass row is
-`{ id: <first>-plus-<n>, mode: fix, blocks: [{ id, planPath, issues }] }`, and develop writes each
-member's status and each issue's into the file that holds it. Packing regroups blocks, so an
+`{ id: <first>-plus-<n>, mode: fix, model?, blocks: [{ id, planPath, issues }] }`, and develop writes
+each member's status and each issue's into the file that holds it. Packing regroups blocks, so an
 `ordered: true` file is refused.
 
 ## gen-flows.mjs
