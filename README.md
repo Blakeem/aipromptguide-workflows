@@ -154,6 +154,23 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-17
+
+- **develop's blind reviewer judges against a severity threshold.** Set it with `reviewSeverity`
+  (`low`, `medium`, `high` or `critical`, default `medium`). The reviewer grades on debug's severity
+  scale plus a nit tier. Before, it reported only production-blocking defects.
+- **The blind reviewer gets the project's conventions and a checklist.** It also checks the callers,
+  sibling paths and docs of everything the diff changes.
+- **The blind reviewer lists smaller findings only beside a blocking one.** This way the developer
+  fixes them while it is already in that code. A finding below the threshold never sends a block back
+  on its own.
+- **develop's developer accounts for every finding.** It fixes clear wins at any severity, weighs the
+  rest against their cost and logs each one it does not fix. When it fixes a finding, it also fixes
+  each sibling path with the same defect.
+- **develop's acceptance rechecks earlier findings.** It reads every earlier review of its block. It
+  counts a finding as a gap unless the code closes it on every sibling path or the developer logged it.
+- **develop's `maxRounds` defaults to 5.** It was 4.
+
 ### 2026-10-08
 
 - **develop sets a dirty tree aside without touching the staged work.** The guide and the dirty-baseline
