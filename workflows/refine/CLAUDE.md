@@ -20,7 +20,8 @@ Four things together — remove any one and the plan grows every round instead o
   dependency's docs or source or a probe in a temporary directory outside the repo and the stateDir.
   What the plan does not say is never a gap: a missing step, test, wiring point, edge case, file or
   detail is the developer's call, so a lean block passes. A gap's change corrects or removes the wrong
-  text and never adds to the plan. Improvements, alternatives, and style are excluded unconditionally.
+  text and never adds a requirement, step, file, test or detail the plan does not already state.
+  Improvements, alternatives, and style are excluded unconditionally.
 - **The severity floor** (`critiqueSeverity`: `blocking | major | minor`, default `major`).
   The critic grades a gap by what the built code would do. A crash, lost or corrupted data, or wrong
   output on an input the repo or the plan accepts is major, and so is a contradiction about what to

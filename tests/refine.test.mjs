@@ -190,8 +190,8 @@ section('the critic grades by impact on accepted input, never by fix size');
   ok(!prompts[0].includes('a named acceptance criterion or wiring point is not met'),
     'an unmet criterion or wiring point no longer defines major');
   ok(prompts[0].includes('The size of the fix never lowers a grade'), 'a one-line fix does not make a crash minor');
-  ok(prompts[0].includes('a crash on an accepted input that the gate would not catch is major'),
-    'the crash example stays major');
+  ok(prompts[0].includes('A one-word fix to a crash on an accepted input is major.'), 'the crash example stays major');
+  ok(!prompts[0].includes('that the gate would not catch'), 'the fix-size rule no longer names a gate-catch condition');
   ok(!prompts[0].includes('blast radius is one line'), 'minor is no longer defined by the size of the fix');
   ok(bar(prompts[0]).length > 0 && bar(prompts[0]) === bar(prompts[1]),
     'every round\'s critic grades under the same bar');

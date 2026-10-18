@@ -2,7 +2,12 @@
 // Focus: the record SURVIVES a throw (a run that dies halfway must still hand back every call it made),
 // the fan-out stamping matches what the REAL engines do rather than a fixture, and the static readers
 // prove they found every site against the source instead of against a pinned number.
-import { readFileSync } from 'node:fs';
+// A failed `ok()` also fails a test file run on its own.
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   runTrace, readMeta, readRoles, readThrows, readHaltStatus, ENGINES, REPO_ROOT, section, ok, eq,
 } from './harness.mjs';
@@ -215,4 +220,27 @@ section('readHaltStatus evaluates the map where there is one, and {} where there
     'the values are the engine\'s own strings');
   eq(Object.keys(readHaltStatus(srcOf(BRAINSTORM))).length, 0,
     'brainstorm has no HALT_STATUS — {}, not a throw');
+}
+
+section('a test file run alone exits 1 after a failed assertion and 0 after only passing ones');
+// run.mjs sets its own exit code, so only the harness can fail a file run directly.
+{
+  const harnessUrl = pathToFileURL(`${REPO_ROOT}/tests/harness.mjs`).href;
+  const runAlone = (body) => {
+    const dir = mkdtempSync(join(tmpdir(), 'aipg-harness-exit-'));
+    try {
+      const file = join(dir, 'scratch.test.mjs');
+      writeFileSync(file, `import { section, ok } from ${JSON.stringify(harnessUrl)};\nsection('scratch');\n${body}\n`);
+      return spawnSync(process.execPath, [file], { encoding: 'utf8' });
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+
+  const failing = runAlone("ok(true, 'passes');\nok(false, 'fails');");
+  eq(failing.status, 1, 'a file with one failing assertion exits 1');
+  ok(failing.stdout.includes('✗ FAIL fails'), 'and it printed the failing assertion');
+
+  const passing = runAlone("ok(true, 'passes');");
+  eq(passing.status, 0, 'a file with only passing assertions exits 0');
 }

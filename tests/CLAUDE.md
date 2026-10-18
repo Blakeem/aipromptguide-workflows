@@ -191,14 +191,27 @@ against (halt); an unreachable feature does not (flag).
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one
   defect shape.
-- **Verify a regression test fails against the old code** before trusting it. Reintroduce the bug, watch
-  it go red, put it back. A green test that would never have caught the bug is worse than none. The rule
-  covers assertions on new or changed behavior. An assertion that guards kept behavior passes on both
-  versions and needs no red run. An assertion that reads a field the change adds or renames reads it
-  defensively, such as `String(out.nextStep ?? '')`, so the old code fails that one assertion early and
-  visibly instead of throwing and hiding every assertion after it. An absence assertion on new
-  behavior, such as a new prompt that must not name some file, passes on the old code by construction.
-  Prove it against a mutant that adds what it forbids.
+- **Verify a regression test fails against the old code** before trusting it. Run it against the old
+  code with the recipe below and watch it go red. A green test that would never have caught the bug is
+  worse than none. The rule covers assertions on new or changed behavior. An assertion that guards kept
+  behavior passes on both versions and needs no red run. An assertion that reads a field the change adds
+  or renames reads it defensively, such as `String(out.nextStep ?? '')`, so the old code fails that one
+  assertion early and visibly instead of throwing and hiding every assertion after it. An absence
+  assertion on new behavior, such as a new prompt that must not name some file, passes on the old code by
+  construction. Prove it against a mutant that adds what it forbids.
+- **The red-run recipe.** Export the code under test at its old version into a NEW, empty scratch folder
+  outside the repo. `checkout-index` never overwrites a file that exists, so a reused folder holds stale
+  code and the run passes silently. Export the staged version with
+  `git -C <repo> checkout-index -a --prefix=<scratch>/`. It is the old code when the index holds earlier
+  accepted work and your change is unstaged. Export the committed version with
+  `git -C <repo> archive HEAD | tar -x -C <scratch>` only when your own change is staged. Copy the new
+  test files over the export and run `node <scratch>/tests/run.mjs <filter>`. For an absence assertion,
+  also copy the changed code files over the export and apply the mutant to those copies. Never swap
+  files in the working tree for a red run.
+- **Edit engine template text with the Edit tool or a script file written by the Write tool**, never
+  through a Bash heredoc. The shell can alter backslashes and backticks in the text, and the
+  exact-match replacement it feeds then finds nothing. The Edit tool edits only a file the Read tool has
+  read, so a Bash `cat` does not unlock it.
 - **A cross-engine sweep must RUN each engine, not grep it.** The numeric-bound sweep started as a source
   grep for `Number.isFinite` and was a false gate: the pattern was satisfied by a *different* arg's
   validator in the same file, so an engine could reintroduce `Number(A.maxRounds)` on the arg that

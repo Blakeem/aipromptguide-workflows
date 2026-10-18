@@ -1281,6 +1281,9 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
   // Blindness is placement AND instruction: a fix block's plan file IS an issue inventory.
   ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
     'and it is told never to open a plan file, an inventory or run-state outside gate/');
+  // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read.
+  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Read only ${STATE}/gate/DISMISSED-block-a.md there.`),
+    'and it is told gate/ holds other blocks\' files and to read only its own DISMISSED file there');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/NEEDS-USER.md`)
     && a.includes(`${STATE}/DECISIONS.md`),
@@ -1539,6 +1542,20 @@ section('a dismissal reason and a prose-only diff are both judged from the code 
     'the blind reviewer has a bar for a comment, string or documentation hunk');
   ok(flat(q).includes("and a claim the new text makes about this repo's code that the code contradicts, cited by line."),
     'the blind reviewer flags a new sentence the code contradicts');
+  ok(flat(q).includes('A prompt template or other text an agent or a program acts on is behavior, not string text. '
+    + 'Review it with the full checklist, and grade a contradiction in it by what an agent that follows it would do.'),
+    'the blind reviewer reviews a prompt template as behavior, not under the four-check prose bar');
+}
+
+section('the developer is told the staged index holds blocks this run already accepted');
+// From the second block on, git status shows earlier accepted blocks staged, and a developer cannot tell
+// them from its own.
+{
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`develop ${id}`)).includes('Anything YOU stage is reviewed by nobody and HALTS the run. '
+      + 'The staged index already holds the blocks this run accepted before this one. They are not yours, so leave them as they are.'),
+      `${mode}: the staging step says the staged entries are earlier accepted blocks, not the developer's`);
+  }
 }
 
 section('the blind reviewer never hears of an amendment; only it carries CONTESTS DISMISSAL');
@@ -1568,6 +1585,9 @@ section('acceptance re-checks every earlier review file of its block, and only t
     ok(flat(q).includes('Review the CURRENT diff FRESH, catching new or nearby issues.'), `${mode}: the blind prompt keeps the fresh-review sentence`);
     ok(!/re-verifying earlier fixes/.test(q + a), `${mode}: neither prompt keeps the re-verify clause`);
     eq(earlierList(a), '(none: no review in this run has flagged this block)', `${mode}: round 1 lists no earlier review file`);
+    ok(flat(a).includes('A blind review that came back clean is never on this list, since it found nothing at or above the threshold. '
+      + "That includes this round's blind review, when one ran."),
+      `${mode}: the earlier-findings step says a clean blind review is never a source`);
     ok(/an earlier finding that is neither closed\s+nor declined/.test(a), `${mode}: an open earlier finding counts as a gap`);
     ok(/the earlier-findings\s+result/.test(a) && /BEFORE step 7/.test(a) && !/BEFORE step 6/.test(a),
       `${mode}: the WRITE step records it and points at the renumbered DECIDE step`);
@@ -1967,6 +1987,14 @@ section('fix acceptance and the sweep return decisions only, never a prose field
   ok(sweepSchema.required.includes('gap_count') && sweepSchema.properties.gap_count?.type === 'integer', 'the sweep schema requires an integer gap_count');
   ok(!('gaps' in sweepSchema.properties) && !sweepSchema.required.includes('gaps'), 'and declares no gaps list');
   ok(/gap_count/.test(swept.prompt('final-sweep')), 'the sweep prompt names gap_count');
+  ok(sweepSchema.required.includes('suite_result') && sweepSchema.properties.suite_result?.type === 'string',
+    'the sweep schema requires suite_result, since step 2 makes the suite outcome mandatory');
+  const sweepText = flat(swept.prompt('final-sweep'));
+  ok(sweepText.includes("Also grep every guide and README in the repo, sibling workflows' included, for each file name, "
+    + 'phrase or behavior the goal moves or renames.'),
+    'the sweep greps every guide and README for what the goal moves or renames');
+  ok(sweepText.includes('Run each distinct gate command once. When build and test are the same command, run it once.'),
+    'the sweep runs each distinct gate command once');
 }
 
 section('the fix developer is never asked to count its entries');

@@ -6,38 +6,38 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 7676 | every block accepts first time |
-| quality | 1 | 1 | 7248 | every block accepts first time |
-| acceptance | 1 | 1 | 7437 | every block accepts first time |
-| develop | 2 | 1 | 8069 | every block accepts first time |
-| acceptance | 2 | 2 | 7718 | every block accepts first time |
-| final-sweep | 1 | 1 | 2071 | every block accepts first time |
-| develop | 3 | 1 | 7239 | quality flags the first round |
-| quality | 2 | 1 | 7072 | quality flags the first round |
-| acceptance | 3 | 1 | 7436 | quality flags the first round |
-| develop | 4 | 1 | 7632 | quality flags the first round |
-| acceptance | 4 | 2 | 7717 | quality flags the first round |
-| develop | 5 | 1 | 7237 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 7434 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 7630 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 7715 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 7712 | the developer produced nothing |
-| acceptance | 8 | 2 | 7993 | the developer produced nothing |
-| develop | 7 | 1 | 7128 | the gate never goes green |
+| develop | 1 | 1 | 7803 | every block accepts first time |
+| quality | 1 | 1 | 7588 | every block accepts first time |
+| acceptance | 1 | 1 | 7604 | every block accepts first time |
+| develop | 2 | 1 | 8196 | every block accepts first time |
+| acceptance | 2 | 2 | 7885 | every block accepts first time |
+| final-sweep | 1 | 1 | 2313 | every block accepts first time |
+| develop | 3 | 1 | 7366 | quality flags the first round |
+| quality | 2 | 1 | 7412 | quality flags the first round |
+| acceptance | 3 | 1 | 7603 | quality flags the first round |
+| develop | 4 | 1 | 7759 | quality flags the first round |
+| acceptance | 4 | 2 | 7884 | quality flags the first round |
+| develop | 5 | 1 | 7364 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 7601 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 7757 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 7882 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 7879 | the developer produced nothing |
+| acceptance | 8 | 2 | 8160 | the developer produced nothing |
+| develop | 7 | 1 | 7255 | the gate never goes green |
 | park | 1 | 1 | 5123 | the gate never goes green |
-| develop | 8 | 1 | 7521 | the gate never goes green |
-| acceptance | 9 | 1 | 7489 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 7544 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 7599 | a parked block, and the run carries on |
+| develop | 8 | 1 | 7648 | the gate never goes green |
+| acceptance | 9 | 1 | 7656 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 7711 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 7766 | a parked block, and the run carries on |
 | park | 2 | 1 | 5067 | a parked block, and the run carries on |
 | park | 3 | 1 | 5118 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8763 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10014 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 2062 | a fix block closes its issues |
-| develop | 10 | 2 | 8860 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 10299 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 2092 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10013 | every issue is already fixed |
+| develop | 9 | 2 | 8890 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10181 | a fix block closes its issues |
+| final-sweep | 2 | 1 | 2304 | a fix block closes its issues |
+| develop | 10 | 2 | 8987 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 10466 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 2334 | a pass of two fix blocks closes its issues |
+| acceptance | 14 | 3 | 10180 | every issue is already fixed |
 | park | 4 | 1 | 5234 | passed with a regression, not staged |
 | park | 5 | 1 | 5304 | acceptance stages a rejected block |
 | park | 6 | 1 | 5224 | the quality reviewer fails a block without its file |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5148 | the developer dies |
 | park | 10 | 1 | 5218 | developer escalates |
 | park | 11 | 1 | 5259 | developer escalates in an ordered run |
-| develop | 11 | 1 | 8796 | a parked block is continued from its patch |
+| develop | 11 | 1 | 8923 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -92,7 +92,8 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -246,6 +247,8 @@ Return ONLY the decision fields via the schema (no prose report).
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
+E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -329,6 +332,8 @@ to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact to
 identifier or file the new text names that does not exist, a sentence the change removed that other
 text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
 cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
@@ -449,7 +454,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -589,7 +595,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -810,7 +817,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -929,7 +937,10 @@ COMPLETED BLOCKS: block-a, block-b
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   phrase or behavior the goal moves or renames.
+2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
+   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
    green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
    vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
@@ -947,7 +958,8 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
   "required": [
     "wrote_file",
     "complete",
-    "gap_count"
+    "gap_count",
+    "suite_result"
   ],
   "properties": {
     "wrote_file": {
@@ -1009,7 +1021,8 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -1163,6 +1176,8 @@ Return ONLY the decision fields via the schema (no prose report).
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
+E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -1244,6 +1259,8 @@ to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact to
 identifier or file the new text names that does not exist, a sentence the change removed that other
 text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
 cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
@@ -1364,7 +1381,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -1499,7 +1517,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -1720,7 +1739,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -1854,7 +1874,8 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -2075,7 +2096,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -2210,7 +2232,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -2431,7 +2454,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -2602,7 +2626,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -2773,7 +2798,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -2909,7 +2935,8 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -3198,7 +3225,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -3420,7 +3448,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -3590,7 +3619,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -3761,7 +3791,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -4112,7 +4143,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -4378,7 +4410,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -4515,7 +4548,10 @@ COMPLETED BLOCKS: block-c
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   phrase or behavior the goal moves or renames.
+2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
+   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
    green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
    vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
@@ -4533,7 +4569,8 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
   "required": [
     "wrote_file",
     "complete",
-    "gap_count"
+    "gap_count",
+    "suite_result"
   ],
   "properties": {
     "wrote_file": {
@@ -4612,7 +4649,8 @@ PROCEDURE:
 4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -4882,7 +4920,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -5019,7 +5058,10 @@ COMPLETED BLOCKS: block-c-plus-1
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   phrase or behavior the goal moves or renames.
+2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
+   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
    green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
    vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
@@ -5037,7 +5079,8 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
   "required": [
     "wrote_file",
     "complete",
-    "gap_count"
+    "gap_count",
+    "suite_result"
   ],
   "properties": {
     "wrote_file": {
@@ -5159,7 +5202,8 @@ PROCEDURE:
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -6144,7 +6188,8 @@ PROCEDURE:
 3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a

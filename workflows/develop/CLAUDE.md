@@ -115,8 +115,8 @@ models. Show each block's model in the approval summary.
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
   the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
-  `resumeFromRunId`, so its ledgers and `NEEDS-USER.md` carry over. Every develop run of one plan, or
-  of one debug review's issue files, keeps that `runId`. Unrelated new work takes a new `runId`, and so
+  `resumeFromRunId`, so its ledgers, `NEEDS-USER.md` and `DECISIONS.md` carry over. Every develop run
+  of one plan, or of one debug review's issue files, keeps that `runId`. Unrelated new work takes a new `runId`, and so
   does a block that already landed and is built again from scratch, so its old `DISMISSED-<id>.md`
   stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 

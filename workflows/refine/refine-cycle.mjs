@@ -216,8 +216,7 @@ THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from t
 Three rules settle the grade, and each wins over the definitions above:
   - A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it, since the developer
     can depart from it only through a plan amendment.
-  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
-    gate would not catch is major.
+  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input is major.
   - When an earlier block's steps make an existing sentence false and a LATER block rewrites it, that is
     a DEPENDENCY-ORDERING ERROR graded major, since the earlier block's acceptance counts the sentence
     before the later block runs.

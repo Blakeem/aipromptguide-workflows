@@ -74,7 +74,7 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
 | throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 73) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 322) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 321) |
 
 ## Coverage
 

@@ -174,8 +174,10 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    - After the run, add `git status --porcelain` and a spot-read of the riskiest fixes to develop §6's
      ground-truth checks.
    - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, what
-     is staged (`git diff --cached --stat`), any NEEDS-USER items, and every parked block with its patch
-     path and the user's options, and **never commit**: the user reviews and commits.
+     is staged (`git diff --cached --stat`), the NEEDS-USER questions after the research step in
+     `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
+     each), the entries in `DECISIONS.md`, and every parked block with its patch path and the user's
+     options, and **never commit**: the user reviews and commits.
 
 ## External inventory (skip `review.mjs`)
 

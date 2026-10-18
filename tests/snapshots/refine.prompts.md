@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 7532 | a clean first round |
+| plan-critic | 1 | 1 | 7498 | a clean first round |
 | plan-editor | 1 | 1 | 3048 | gaps folded, then a clean round |
-| plan-critic | 2 | 1 | 7606 | gaps folded, then a clean round |
+| plan-critic | 2 | 1 | 7572 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -77,8 +77,7 @@ THE SEVERITY FLOOR is major. Grade every gap by what the code built from the blo
 Three rules settle the grade, and each wins over the definitions above:
   - A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it, since the developer
     can depart from it only through a plan amendment.
-  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
-    gate would not catch is major.
+  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input is major.
   - When an earlier block's steps make an existing sentence false and a LATER block rewrites it, that is
     a DEPENDENCY-ORDERING ERROR graded major, since the earlier block's acceptance counts the sentence
     before the later block runs.
@@ -290,8 +289,7 @@ THE SEVERITY FLOOR is major. Grade every gap by what the code built from the blo
 Three rules settle the grade, and each wins over the definitions above:
   - A WRONG PRESCRIPTION is major or higher, whether or not the gate would catch it, since the developer
     can depart from it only through a plan amendment.
-  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input that the
-    gate would not catch is major.
+  - The size of the fix never lowers a grade. A one-word fix to a crash on an accepted input is major.
   - When an earlier block's steps make an existing sentence false and a LATER block rewrites it, that is
     a DEPENDENCY-ORDERING ERROR graded major, since the earlier block's acceptance counts the sentence
     before the later block runs.

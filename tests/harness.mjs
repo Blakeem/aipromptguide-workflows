@@ -53,6 +53,7 @@ export function ok(cond, msg) {
     console.log(`    ✓ ${msg}`);
   } else {
     results.failed++;
+    process.exitCode = 1;   // a test file run alone has no run.mjs to set the exit code
     results.failures.push(`${currentFile} :: ${currentSection} :: ${msg}`);
     console.log(`    ✗ FAIL ${msg}`);
   }

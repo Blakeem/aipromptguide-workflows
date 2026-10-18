@@ -126,11 +126,11 @@ covered. They are the run's convergence mechanism, not a record of it. Their wri
 sequential, which is the only reason a shared append-only file is safe.
 
 The developer writes no "what I did" report, since its code is its output (#8). Reviewers write only
-their numbered review files. The one exception is develop's fix-mode acceptance verifier, which
+their numbered review files. One exception is develop's fix-mode acceptance verifier, which
 appends a harm with a separate cause to its source block's `NEW-ISSUES-<id>.md` in the plan directory,
-an untriaged issue inventory the user triages like debug's `issues/`. A critic or verifier may write
-one scratch probe beside the listed files. Its temporary directory sits outside the repo and the
-run-state dir. Nothing outside this list is written.
+an untriaged issue inventory the user triages like debug's `issues/`. A critic, an editor or a verifier
+may write one scratch probe beside the listed files. Its temporary directory sits outside the repo and
+the run-state dir. Nothing outside this list is written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -339,8 +339,8 @@ rules and apply only where they fit.
   state. A replay is a relaunch that also passes the Workflow tool's `resumeFromRunId`, so agents whose
   prompts are unchanged return from cache. Unrelated new work takes a new `runId`. Nobody clears
   run-state, so a halted run keeps its ledgers and user notes, and a new `runId` never reads stale
-  ones. `DISMISSED-<id>.md` and `NEEDS-USER.md` are cumulative across every launch of one `runId`.
-  Choosing the `runId` is pre-run setup (#4), not an engine job.
+  ones. `DISMISSED-<id>.md`, `NEEDS-USER.md` and `DECISIONS.md` are cumulative across every launch of
+  one `runId`. Choosing the `runId` is pre-run setup (#4), not an engine job.
 - **Shared return fields.** Every return of every engine carries `nextStep` and `failed`.
   - `nextStep` is a non-empty string holding the operator's next action, such as present, triage,
     relaunch or replay, with the files and caveats that action needs. It names the id of every `failed`

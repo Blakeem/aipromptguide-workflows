@@ -458,7 +458,7 @@ const PARK_SCHEMA = {
 
 const SWEEP_SCHEMA = {
   type: 'object',
-  required: ['wrote_file', 'complete', 'gap_count'],
+  required: ['wrote_file', 'complete', 'gap_count', 'suite_result'],
   properties: {
     wrote_file: { type: 'boolean', description: 'true ONLY if you wrote the sweep file' },
     complete: { type: 'boolean', description: 'true if no goal-coverage gaps were found' },
@@ -683,7 +683,8 @@ block. Do not duplicate or re-litigate an entry.`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run.`;
+   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
+   They are not yours, so leave them as they are.`;
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
@@ -708,6 +709,8 @@ const qualityPrompt = (p, round) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
+${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
+Read only ${dismissedFile(p.id)} there.
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -771,6 +774,8 @@ to executable code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact 
 identifier or file the new text names that does not exist, a sentence the change removed that other
 text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
 cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
@@ -797,7 +802,8 @@ ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no rev
    ${dismissedFile(p.id)} holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    with no line in ${dismissedFile(p.id)} keeps the same mechanism, and one neither closed nor declined
-   each count as a gap.`;
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above the threshold. That includes this round's blind review, when one ran.`;
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
@@ -1077,7 +1083,10 @@ COMPLETED BLOCKS: ${doneIds.join(', ')}
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-2. Run the FULL gates (GATES above) once and record the real outcome. If the GOAL implies whole-suite
+   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   phrase or behavior the goal moves or renames.
+2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
+   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
    green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
    vs surprising.
 3. Spot-check the staged diff (\`git -C ${REPO} diff --staged --stat\`): does it plausibly cover every
