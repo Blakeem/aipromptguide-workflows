@@ -166,7 +166,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   on its own.
 - **develop's developer accounts for every finding.** It fixes clear wins at any severity, weighs the
   rest against their cost and logs each one it does not fix. When it fixes a finding, it also fixes
-  each sibling path with the same defect.
+  each sibling path with the same defect inside the block's scope. It logs each sibling path outside
+  that scope.
 - **develop's acceptance rechecks earlier findings.** It reads every earlier review of its block. It
   counts a finding as a gap unless the code closes it on every sibling path or the developer logged it.
 - **develop's `maxRounds` defaults to 5.** It was 4.

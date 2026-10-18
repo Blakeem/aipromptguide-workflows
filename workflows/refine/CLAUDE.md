@@ -47,9 +47,16 @@ Four things together — remove any one and the plan grows every round instead o
    - `rounds-exhausted` — the last round's gaps were folded but never re-verified, so the plan is not
      converged.
    - `BLOCKED (...)` — one of the halts §3 names, with its cause in `haltReason`.
+3. **Run refine once per plan.** A `converged` plan goes to the user for approval, never back into
+   refine. A relaunch of a converged plan tends to find new detail to fold, so repeated relaunches keep
+   growing the plan. Relaunch only to finish a terminal that is not `converged`: after the user settles
+   `needs-answers` or `dismissal-contested`, after `rounds-exhausted`, or after the repair a `BLOCKED`
+   halt names.
 
-The critic judges only blocks whose `status` is `todo` (or absent), so a partially-built roadmap can
-be re-refined without rewriting the spec its staged code was built against.
+The critic judges only blocks whose `status` is `todo` (or absent), so a relaunch never re-judges a
+block develop already built. Blocks added after a plan converged go in a new plan file, which gets its
+own single refine run. One develop launch takes both files when their file keys agree (develop guide
+§2 step 3).
 
 ## 3. Roles
 

@@ -25,9 +25,9 @@ preamble or another block never reaches it.
 1. **Author the plan file** in the plan-bus format (§3), at `<root>/plans/<runId>/` — never inside
    `target.repo`, never under `runs/<runId>/`. Plan mode or direct authoring. A fix-mode file from
    debug's review skips to its triage (debug guide), then step 3.
-2. **Refine it, then get approval.** Run the refine workflow on the file (`workflows/refine/CLAUDE.md`)
-   until it converges, then the user approves the FINAL text. Approval comes after refine so the user
-   signs off on what develop builds.
+2. **Refine it, then get approval.** Run the refine workflow on the file until it returns `converged`,
+   under the run-once rule in `workflows/refine/CLAUDE.md` §2 step 3, then the user approves the FINAL
+   text. Approval comes after refine so the user signs off on what develop builds.
 3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
    It first folds every finished develop run's statuses into the plan files (below), then prints
    `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread that
