@@ -154,6 +154,37 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-18
+
+- **develop's NEEDS-USER.md holds only real questions.** The developer escalates a choice only when it
+  changes user-visible behavior, stored data or a public contract, and nothing it can read or check
+  answers it. A blocker it cannot resolve also goes there, and so does each parked block's record.
+- **develop records its defaults in DECISIONS.md.** A default the developer took and each plan amendment
+  pointer land there for you to read. Acceptance reads it too.
+- **Claude researches NEEDS-USER questions before asking you.** develop's hand-back tells Claude to
+  check each question against the code and the docs, with a web research agent for an outside fact.
+  You get the rest, each with a recommendation.
+- **The develop guide adds a research pass before a plan for novel work.** This covers a new
+  dependency, an external API, a technique the repo does not use yet, and security or data work.
+- **A plan block can name its developer's model.** Add `model: sonnet` or `model: opus` to the block.
+  A block without it uses the run's default, which is Opus. Reviews stay on the run's review models.
+  Claude picks the model by how many layers and how much logic the task holds, and the run ledger
+  records it.
+- **refine checks that a plan is correct, never that it is complete.** A gap names plan text that
+  contradicts itself or the code, a prescription that builds wrong, a bad practice the text
+  prescribes, or a block order error. A missing detail is never a gap, and a gap's fix never adds one.
+- **refine confirms the commands and API behavior a plan prescribes.** The critic checks each one
+  against its docs, its source or a probe.
+- **refine's editor checks each gap before folding it.** It declines a gap whose evidence does not hold.
+  The run's `dismissedCount` shows how often that happens.
+- **debug's verifier confirms what each Fix line prescribes.** A fix it cannot confirm goes to you as
+  NEEDS_USER.
+- **Each debug finding records its lens.** A lensed run writes a `- lens:` line on every entry.
+- **develop keeps scratch files out of the blind reviewer's folder.** An agent had written a plan block
+  into `gate/`. Agents now write the plan block and test logs under `runs/<runId>/scratch/`.
+- **A test file run alone exits 1 when an assertion fails.** Before, only `node tests/run.mjs` set the
+  exit code.
+
 ### 2026-10-17
 
 - **develop's blind reviewer judges against a severity threshold.** Set it with `reviewSeverity`
