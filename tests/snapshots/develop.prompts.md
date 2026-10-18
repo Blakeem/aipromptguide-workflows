@@ -6,38 +6,38 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 8144 | every block accepts first time |
-| quality | 1 | 1 | 7588 | every block accepts first time |
-| acceptance | 1 | 1 | 7826 | every block accepts first time |
-| develop | 2 | 1 | 8537 | every block accepts first time |
-| acceptance | 2 | 2 | 8107 | every block accepts first time |
+| develop | 1 | 1 | 12612 | every block accepts first time |
+| quality | 1 | 1 | 7916 | every block accepts first time |
+| acceptance | 1 | 1 | 8070 | every block accepts first time |
+| develop | 2 | 1 | 13020 | every block accepts first time |
+| acceptance | 2 | 2 | 8351 | every block accepts first time |
 | final-sweep | 1 | 1 | 2557 | every block accepts first time |
-| develop | 3 | 1 | 7707 | quality flags the first round |
-| quality | 2 | 1 | 7412 | quality flags the first round |
-| acceptance | 3 | 1 | 7825 | quality flags the first round |
-| develop | 4 | 1 | 8100 | quality flags the first round |
-| acceptance | 4 | 2 | 8106 | quality flags the first round |
-| develop | 5 | 1 | 7705 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 7823 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 8098 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 8104 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 8101 | the developer produced nothing |
-| acceptance | 8 | 2 | 8382 | the developer produced nothing |
-| develop | 7 | 1 | 7596 | the gate never goes green |
+| develop | 3 | 1 | 12175 | quality flags the first round |
+| quality | 2 | 2 | 7749 | quality flags the first round |
+| acceptance | 3 | 1 | 8069 | quality flags the first round |
+| develop | 4 | 1 | 12583 | quality flags the first round |
+| acceptance | 4 | 2 | 8350 | quality flags the first round |
+| develop | 5 | 1 | 12173 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 8067 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 12581 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 8348 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 8345 | the developer produced nothing |
+| acceptance | 8 | 2 | 8626 | the developer produced nothing |
+| develop | 7 | 1 | 12064 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 7989 | the gate never goes green |
-| acceptance | 9 | 1 | 7878 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 7933 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 7988 | a parked block, and the run carries on |
+| develop | 8 | 1 | 12472 | the gate never goes green |
+| acceptance | 9 | 1 | 8122 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 8177 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 8232 | a parked block, and the run carries on |
 | park | 2 | 1 | 5200 | a parked block, and the run carries on |
 | park | 3 | 1 | 5251 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 9231 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10403 | a fix block closes its issues |
+| develop | 9 | 2 | 13745 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10738 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2548 | a fix block closes its issues |
-| develop | 10 | 2 | 9327 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 10687 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 13841 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 11022 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2578 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10402 | every issue is already fixed |
+| acceptance | 14 | 3 | 10737 | every issue is already fixed |
 | park | 4 | 1 | 5367 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
 | park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 9264 | a parked block is continued from its patch |
+| develop | 11 | 1 | 13732 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -72,6 +72,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -85,19 +86,65 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.
-2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+3. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -123,7 +170,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -132,7 +179,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -252,6 +301,7 @@ spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
 Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -263,9 +313,9 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
     In round 1 it exists only if the developer already declined something (or on a resume). A missing
     file means nothing is settled yet, so do not search for it elsewhere.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
 diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG and the finding is at or above the medium threshold,
+If you are confident a DISMISSED reason is WRONG and the finding is at or above the low threshold,
 raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
@@ -291,7 +341,7 @@ CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighb
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
 no named constant; small duplication inside the diff; a redundant line or condition; control flow
 nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
-THRESHOLD: medium. A finding at or above it blocks this block. A finding below it never blocks.
+THRESHOLD: low. A finding at or above it blocks this block. A finding below it never blocks.
 
 Report only what this diff introduces or exposes, at every tier. Drop silently anything
 pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
@@ -301,7 +351,7 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff.
 
-CHECKLIST — apply it in both stages:
+CHECKLIST:
   - build and tests: anything that breaks the build or tests;
   - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
     numeric inputs, platform path forms, and a value computed right but reported wrong;
@@ -320,6 +370,7 @@ CHECKLIST — apply it in both stages:
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
+Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
 above the threshold through the checklist and the REACH step. Each one names the concrete input or
@@ -341,7 +392,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at or above the threshold), and a concrete fix. When stage 1 found nothing, write
-exactly "No findings at or above medium." Then return wrote_file (true ONLY if you wrote that
+exactly "No findings at or above low." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
 above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.
@@ -363,11 +414,11 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
     },
     "clean": {
       "type": "boolean",
-      "description": "true if no finding at or above the run's severity threshold and no contest"
+      "description": "true if no finding at or above this review's low threshold and no contest"
     },
     "issue_count": {
       "type": "integer",
-      "description": "findings at or above the run's severity threshold written to the review file"
+      "description": "findings at or above this review's low threshold written to the review file"
     },
     "minor_count": {
       "type": "integer",
@@ -406,12 +457,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -446,21 +498,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -495,8 +546,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -523,14 +572,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -577,6 +618,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -590,22 +632,68 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
-2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
+3. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -631,7 +719,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -640,7 +728,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -774,12 +864,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
@@ -814,21 +905,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-b.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -866,8 +956,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -894,14 +982,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -1017,6 +1097,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
@@ -1025,19 +1106,65 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.
-2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+3. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -1063,7 +1190,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -1072,7 +1199,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -1181,7 +1310,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## quality · variant 2 · schema 1
+## quality · variant 2 · schema 2
 
 `quality block-a r2` in "quality flags the first round"
 
@@ -1192,6 +1321,7 @@ spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
 Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -1201,7 +1331,7 @@ CONVENTIONS (judge against these): (none supplied — infer from the surrounding
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-Skip anything listed there FOR THE STATED REASON. Do NOT read prior review files. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 If you are confident a DISMISSED reason is WRONG and the finding is at or above the medium threshold,
 raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
@@ -1239,7 +1369,7 @@ and consumers, its sibling paths with the same mechanism, duplicates of the same
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff.
 
-CHECKLIST — apply it in both stages:
+CHECKLIST:
   - build and tests: anything that breaks the build or tests;
   - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
     numeric inputs, platform path forms, and a value computed right but reported wrong;
@@ -1258,6 +1388,7 @@ CHECKLIST — apply it in both stages:
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
+Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
 above the threshold through the checklist and the REACH step. Each one names the concrete input or
@@ -1301,11 +1432,11 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
     },
     "clean": {
       "type": "boolean",
-      "description": "true if no finding at or above the run's severity threshold and no contest"
+      "description": "true if no finding at or above this review's medium threshold and no contest"
     },
     "issue_count": {
       "type": "integer",
-      "description": "findings at or above the run's severity threshold written to the review file"
+      "description": "findings at or above this review's medium threshold written to the review file"
     },
     "minor_count": {
       "type": "integer",
@@ -1344,12 +1475,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -1384,21 +1516,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -1433,8 +1564,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -1461,14 +1590,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -1515,6 +1636,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
@@ -1523,22 +1645,68 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
-2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
+3. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -1564,7 +1732,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -1573,7 +1741,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -1707,12 +1877,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
@@ -1747,21 +1918,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-b.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -1799,8 +1969,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -1827,14 +1995,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -1880,6 +2040,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-a-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
@@ -1888,19 +2049,65 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.
-2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+3. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -1926,7 +2133,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -1935,7 +2142,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -2069,12 +2278,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -2109,21 +2319,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -2158,8 +2367,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -2186,14 +2393,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -2240,6 +2439,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-b-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
@@ -2248,22 +2448,68 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
-2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
+3. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -2289,7 +2535,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -2298,7 +2544,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -2432,12 +2680,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
@@ -2472,21 +2721,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-b.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -2524,8 +2772,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -2552,14 +2798,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -2606,12 +2844,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -2646,21 +2885,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -2698,8 +2936,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -2726,14 +2962,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -2780,12 +3008,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
@@ -2820,21 +3049,20 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-b.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
@@ -2875,8 +3103,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -2903,14 +3129,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -2956,6 +3174,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -2963,19 +3182,65 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.
-2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+3. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -3001,7 +3266,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -3010,7 +3275,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -3247,6 +3514,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -3254,22 +3522,68 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.
-2. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
+3. RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-3. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -3295,7 +3609,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -3304,7 +3618,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -3438,12 +3754,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -3478,22 +3795,21 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -3528,8 +3844,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -3556,14 +3870,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -3610,12 +3916,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -3650,10 +3957,9 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
@@ -3661,12 +3967,12 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -3701,8 +4007,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -3729,14 +4033,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -3783,12 +4079,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
@@ -3823,10 +4120,9 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
    fresh:
@@ -3835,12 +4131,12 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-a.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
 4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
@@ -3875,8 +4171,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "staged",
     "earlier_reviews_read",
     "reachable",
-    "criteria_total",
-    "criteria_met",
     "evidence_recorded"
   ],
   "properties": {
@@ -3903,14 +4197,6 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
     "reachable": {
       "type": "boolean",
       "description": "the feature is actually wired in / reachable from the app entry points"
-    },
-    "criteria_total": {
-      "type": "integer",
-      "description": "acceptance criteria you enumerated from THIS block (0 means you enumerated none — never a legitimate pass)"
-    },
-    "criteria_met": {
-      "type": "integer",
-      "description": "of those, how many you found concrete evidence for"
     },
     "evidence_recorded": {
       "type": "boolean",
@@ -4165,6 +4451,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -4183,22 +4470,68 @@ PROCEDURE:
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified.
-2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
+2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+3. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
    NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
    Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
    warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
    disable lint rules.
-3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
+4. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -4224,7 +4557,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -4233,7 +4566,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -4390,12 +4725,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
@@ -4461,12 +4797,12 @@ PROCEDURE:
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-c.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -4677,6 +5013,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -4695,22 +5032,68 @@ PROCEDURE:
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified.
-2. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
+2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+3. FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other entry (SKIP,
    NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
    Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
    warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
    disable lint rules.
-3. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
+4. RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
-4. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -4736,7 +5119,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -4745,7 +5128,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -4903,12 +5288,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
@@ -4977,12 +5363,12 @@ PROCEDURE:
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -5191,12 +5577,13 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
   • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
-Skip anything listed there FOR THE STATED REASON. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
@@ -5262,12 +5649,12 @@ PROCEDURE:
    fresh:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in E:/flow/runs/flow/gate/DISMISSED-block-c.md, or (b)
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
    E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md keeps the same mechanism, and one neither closed nor declined
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. TRIAGE HELD. Confirm the diff touched NOTHING on behalf of an entry whose `- decision:` is not
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
@@ -6228,6 +6615,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -6253,19 +6641,65 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.
-2. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
+3. RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
+4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
       finding you FIX → DROP + LOG. Never fix it (regression risk).
@@ -6291,7 +6725,7 @@ PROCEDURE:
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -6300,7 +6734,9 @@ PROCEDURE:
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
-      `<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+      `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.

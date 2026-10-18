@@ -22,8 +22,10 @@ Every block runs the same loop, up to `maxRounds`.
 
 1. A **developer** builds the block and runs the gates. It leaves its work unstaged.
 2. A **blind quality reviewer** judges the unstaged diff on its own merits. It never sees the plan.
-   It first hunts findings at or above the run's severity threshold. Only when it finds one does it
-   also list smaller findings for the developer to fix in the same pass.
+   A block's first review in a launch hunts findings at low severity or above, so that a later round
+   fixes them. Every other review hunts at the run's severity threshold or above, and so does a first
+   review in the last round. Only when a review finds one does it also list smaller findings for the
+   developer to fix in the same pass.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass.
    It also rechecks every finding raised earlier in the block.
 4. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so

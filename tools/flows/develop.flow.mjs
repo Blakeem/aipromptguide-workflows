@@ -53,8 +53,8 @@ const base = {
 const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, minor_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, minor_count: 0, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 

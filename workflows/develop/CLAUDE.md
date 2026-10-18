@@ -18,7 +18,12 @@ acceptance criteria or fix entries, so name each doc change a block owes in one 
 files, such as a flow map regenerated from an engine a block changes, belong to that block. Locate code
 in a block body by section title or grep pattern, not line number, since earlier blocks shift lines.
 Make each block self-contained. Every agent reads only its own block, so a path or instruction stated only in the file
-preamble or another block never reaches it.
+preamble or another block never reaches it. A block states the goal, the user's decisions, and the choices that must
+agree across blocks or with the repo that a developer working one block cannot see, such as names, data shapes, file
+locations and which existing pattern to follow. Everything else is the developer's call. Split work into blocks whose
+code is complete on its own, such as a new key together with the code that reads it. Never split by layer, where an
+earlier block adds code only a later block uses. That block's blind reviewer flags the half-built behavior as
+incomplete, and the developer cannot dismiss it with a reason the code shows.
 
 ## 2. The flow
 
@@ -125,9 +130,12 @@ models. Show each block's model in the approval summary.
 Same roles and contracts as the engines it replaces, with these merge-specific points:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
-  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`, `DECISIONS.md`. It fixes clear wins at every
+  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`, `DECISIONS.md`. It follows the repo's existing
+  patterns before it writes, and checks its own diff with the blind reviewer's severity scale, reach step
+  and checklist before handoff. It fixes clear wins at every
   tier, a finding below the threshold included, and weighs the rest against their cost. It logs every
-  finding it does not fix, so none is dropped silently. It escalates only a choice that changes
+  finding it does not fix, so none is dropped silently. A dismissal names one place or the class of places
+  it covers, and its reason holds for every place it names. It escalates only a choice that changes
   user-visible behavior, stored data or a public contract and that nothing it can read or check settles,
   or a blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
   default it took goes to `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding,
@@ -136,8 +144,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
   surface neither reviewer checks).
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
-  at the run's severity threshold (`reviewSeverity`) through a reach step over callers, siblings,
-  duplicates and describing text, and a lens checklist. It dives below the threshold, down to nit,
+  at a severity threshold: `low` on a block's first review in a launch when a later round remains, so
+  that round fixes its lows, and `reviewSeverity` on every other review. It works through a reach step
+  over callers, siblings, duplicates and describing text, and a lens checklist. It dives below the threshold, down to nit,
   only when its hunt found something at or above it. It also flags a new sentence that the
   repo's code contradicts. Skipped ONLY when no work is owed a review (`reviewOwed`). A round that
   only re-runs a red gate, drops every finding or answers a failed acceptance cannot skip it past
@@ -171,7 +180,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 ## 6. Loop, gates & verification
 
 `develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 5) per
-block. A finding below the review threshold never sends a block back on its own, unless the developer
+block. The review threshold is `low` on a block's first review in a launch when a later round remains,
+and `reviewSeverity` on every other review. A finding below a review's threshold never sends a block back on its own, unless the developer
 neither fixed nor logged it, which acceptance counts as a gap. Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
 too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected in a migration).
@@ -264,7 +274,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `reviewSeverity` (`low|medium|high|critical`, default `medium`, any other value
-  **throws**) · `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
+  **throws**. The threshold of every blind review but a block's first in a launch, which uses `low`
+  when a later round remains) ·
+  `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (every role opus. A block's `model:` line overrides `models.develop` for that block's developer and
   park agent, §3) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
   restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).

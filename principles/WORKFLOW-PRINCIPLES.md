@@ -56,7 +56,8 @@ cap, so no agent or operator ever handles a cut line.
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
 1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits
-   against the run's severity threshold, then
+   against a severity threshold: `low` on a block's first review in a launch when a later round
+   remains, and the run's threshold on every other review, then
 2. a plan-aware acceptance review, which verifies every requirement is met, the feature is reachable, and
    nothing regressed.
 
@@ -76,7 +77,7 @@ every sibling path or sits in the ledger, so it is the block's regression check 
 stays lean.
 
 A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) for a finding at
-or above the run's severity threshold. The developer must then fix or escalate it and never silently re-dismiss it.
+or above its own review's severity threshold. The developer must then fix or escalate it and never silently re-dismiss it.
 This bounds the loop and keeps a wrongly dismissed real defect from being suppressed.
 
 ### 6. Only messages, ledgers, user notes, and product are written
@@ -104,8 +105,9 @@ The developer's only outputs besides code are four append files:
 - **`DISMISSED-<id>.md`**, the dismissed-findings ledger, one per plan, section, or batch. It holds one
   terse line per review finding the developer declined (false positive, intentional, conflicts with
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
-  is `<file:line> — <gist> — SKIPPED: <≤15-word reason>`. The ledger is an inter-agent message from the
-  developer to the reviewers and the user's end-of-run audit of every judgment call.
+  is `<file:line, or the class of places it covers> — <gist> — SKIPPED: <≤15-word reason>`, and its
+  reason holds for every place it names. The ledger is an inter-agent message from the developer to the
+  reviewers and the user's end-of-run audit of every judgment call.
 - **`AMENDED-<id>.md`**, one entry per plan clause the developer overrode because it prescribes a real
   defect. Each entry quotes the clause, names the defect's file:line, and says what was built instead.
   It is an inter-agent message from the developer to the acceptance stage. It is kept outside `gate/`
@@ -270,9 +272,11 @@ rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9). develop's blind reviewer reports a finding below the run's severity threshold only beside
-  one at or above it, so a minor finding rides along with work already owed and never drives a round on
-  its own, unless the developer neither fixed nor logged it, which acceptance counts as a gap.
+  end (#9). develop's blind reviewer uses threshold `low` on a block's first review in a launch when a
+  later round remains, and the run's severity threshold on every other review. It reports a finding
+  below its review's threshold only beside one at or above it, so a minor finding rides along with work
+  already owed and never drives a round on its own, unless the developer neither fixed nor logged it,
+  which acceptance counts as a gap.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, enhance). They write no code, stage nothing, and never commit, so #7 and
   #9 don't apply. The user is the judge, and there is no AI review gate unless the workflow needs one.

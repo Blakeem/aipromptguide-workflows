@@ -32,8 +32,8 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, minor_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, minor_count: 0, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, criteria_total: 3, criteria_met: 3, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, criteria_total: 3, criteria_met: 1, evidence_recorded: true, gap_count: 2 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
@@ -476,7 +476,7 @@ section('a FIXED round that passes acceptance stages, and the ledger record carr
   eq(out.ledger[0].status, 'done (staged)', 'the ledger says staged');
   eq(JSON.stringify(out.ledger[0].results), JSON.stringify([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'SKIPPED' }]),
     'every reported id and its status, SKIPPED entries included');
-  eq(out.ledger[0].criteria, null, 'a fix block enumerates no plan criteria, so none are invented');
+  ok(!('criteria' in out.ledger[0]), 'the ledger row of a fix block carries no criteria count');
   ok(out.ledger[0].thinEvidence === false, 'one fix_check per claimed fix is not thin');
   ok(out.ledger[0].contradicted === false, 'and a closed check does not contradict the pass');
 }
@@ -966,15 +966,12 @@ section('acceptance that passed with a regression but staged nothing parks, and 
 
 section('a pass resting on assertion rather than evidence is flagged THIN, never failed');
 // Acceptance already staged by the time the flag is computed, so this is an operator audit signal (#14),
-// not a gate. A pass with no criteria enumerated at all is the same defect one step further on.
+// not a gate.
 {
   const thin = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, evidence_recorded: false } }, ONE_BLOCK);
   ok(thin.out.ledger[0].thinEvidence === true, 'missing locators flag the pass');
   ok(thin.logs.some((l) => /THIN EVIDENCE \(evidence_recorded=false\)/.test(l)), 'and the log names the audit file');
   eq(thin.out.status, 'done (all blocks staged)', 'without failing the block');
-
-  const none = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, criteria_total: 0, criteria_met: 0 } }, ONE_BLOCK);
-  ok(none.out.ledger[0].thinEvidence === true, 'enumerating no criteria is never a clean pass either');
 
   ok((await run(GREEN_RUN, ONE_BLOCK)).out.ledger[0].thinEvidence === false,
     'an evidenced pass is NOT flagged, so the flag means something');
@@ -1479,8 +1476,8 @@ section('the developer fixes clear wins at every tier, weighs the rest and accou
       `${mode}: rule 8 weighs benefit against cost and logs a drop`);
     ok(dev.includes('Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7). None is dropped silently.'),
       `${mode}: every finding is accounted for`);
-    ok(dev.includes("When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope with its file:line."),
-      `${mode}: a fix covers every sibling path with the same mechanism`);
+    ok(dev.includes("When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to."),
+      `${mode}: a fix covers every sibling path with the same mechanism, and an outside one is logged by place or class`);
     ok(dev !== '' && !dev.includes('medium/low polish') && !dev.includes('DROP silently'), `${mode}: no rule drops a finding silently`);
     const later = flat(laterRound[id].prompt(`develop ${id} r2`));
     ok(later.includes(`A prior review flagged issues — READ ${STATE}/gate/quality-review-${id}-r1.md and address every finding or gap in it, at every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`),
@@ -1587,6 +1584,24 @@ section('the blind reviewer never hears of an amendment; only it carries CONTEST
   }
 }
 
+section('acceptance returns no criteria count, and its pass log line and ledger row carry none');
+// The engine never checked a self-reported count, so evidence_recorded alone marks a thin pass.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const schema = r.calls.find((c) => c.label.startsWith(`acceptance ${id}`))?.opts.schema;
+    for (const field of ['criteria_total', 'criteria_met']) {
+      ok(!(field in (schema?.properties ?? {})) && !(schema?.required ?? []).includes(field),
+        `${mode}: the acceptance schema no longer lists ${field}`);
+      ok(!r.prompt(`acceptance ${id}`).includes(field), `${mode}: and its prompt no longer names ${field}`);
+    }
+    const passLine = r.logs.find((l) => l.includes(`${id}: acceptance PASSED`)) ?? '';
+    ok(/acceptance PASSED(?: — \d+ fix check\(s\))? — STAGED \(/.test(passLine) && !/criteria/.test(passLine),
+      `${mode}: the pass log line carries no criteria count`);
+    ok(!('criteria' in (r.out.ledger.find((row) => row.id === id) ?? { criteria: null })),
+      `${mode}: the ledger row carries no criteria count`);
+  }
+}
+
 section('acceptance re-checks every earlier review file of its block, and only the blind reviewer is kept from them');
 // Reading a prior review anchors the blind reviewer (#5). Acceptance reads them after its own first check,
 // so a finding that reopened, or closed on one path only, still counts as a gap.
@@ -1602,9 +1617,9 @@ section('acceptance re-checks every earlier review file of its block, and only t
     ok(flat(q).includes('Review the CURRENT diff FRESH, catching new or nearby issues.'), `${mode}: the blind prompt keeps the fresh-review sentence`);
     ok(!/re-verifying earlier fixes/.test(q + a), `${mode}: neither prompt keeps the re-verify clause`);
     eq(earlierList(a), '(none: no review in this run has flagged this block)', `${mode}: round 1 lists no earlier review file`);
-    ok(flat(a).includes('A blind review that came back clean is never on this list, since it found nothing at or above the threshold. '
+    ok(flat(a).includes('A blind review that came back clean is never on this list, since it found nothing at or above its own threshold. '
       + "That includes this round's blind review, when one ran."),
-      `${mode}: the earlier-findings step says a clean blind review is never a source`);
+      `${mode}: the earlier-findings step says a clean blind review found nothing at or above its own threshold`);
     ok(/an earlier finding that is neither closed\s+nor declined/.test(a), `${mode}: an open earlier finding counts as a gap`);
     ok(/the earlier-findings\s+result/.test(a) && /BEFORE step 7/.test(a) && !/BEFORE step 6/.test(a),
       `${mode}: the WRITE step records it and points at the renumbered DECIDE step`);
@@ -2209,13 +2224,23 @@ section('a quality clean:true that carries findings or contests is NOT clean');
   }
 }
 
-section('the blind reviewer judges at reviewSeverity, which defaults to medium and rejects nit');
+section('a block\'s first blind review judges at low, every later one at reviewSeverity, which defaults to medium and rejects nit');
 {
-  const { prompt, byLabel } = await run(GREEN_RUN, { ...ONE_BLOCK, conventions: 'two-space indent' });
+  const { prompt, byLabel } = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...ONE_BLOCK, conventions: 'two-space indent' });
   const q = prompt('quality block-a');
-  ok(q.includes('THRESHOLD: medium. A finding at or above it blocks this block. A finding below it never blocks.'), 'the threshold defaults to medium');
-  ok(q.includes('exactly "No findings at or above medium."'), 'the empty review names the threshold');
-  ok(flat(q).includes('a DISMISSED reason is WRONG and the finding is at or above the medium threshold'), 'the contest bar is the threshold');
+  const thresholdOf = (label) => {
+    const call = byLabel(label)[0];
+    const props = call?.opts?.schema?.properties ?? {};
+    return { prompt: call?.prompt ?? '', clean: String(props.clean?.description ?? ''), issues: String(props.issue_count?.description ?? '') };
+  };
+  for (const [label, level] of [['quality block-a r1', 'low'], ['quality block-a r2', 'medium']]) {
+    const t = thresholdOf(label);
+    ok(t.prompt.includes(`THRESHOLD: ${level}. A finding at or above it blocks this block. A finding below it never blocks.`), `${label}: the threshold is ${level}`);
+    ok(t.prompt.includes(`exactly "No findings at or above ${level}."`), `${label}: the empty review names ${level}`);
+    ok(flat(t.prompt).includes(`a DISMISSED reason is WRONG and the finding is at or above the ${level} threshold`), `${label}: the contest bar is ${level}`);
+    ok(t.clean.includes(`at or above this review's ${level} threshold`) && t.issues.includes(`at or above this review's ${level} threshold`),
+      `${label}: the schema's clean and issue_count descriptions name ${level}`);
+  }
   ok(q.includes('CONVENTIONS (judge against these): two-space indent'), 'the reviewer receives the conventions');
   ok(flat(q).includes('REACH: for every function, constant, field, string or rule the diff changes, grep its callers and consumers'), 'the REACH step');
   ok(flat(q).includes('STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold'), 'stage 1');
@@ -2224,8 +2249,28 @@ section('the blind reviewer judges at reviewSeverity, which defaults to medium a
   ok(!/production-blocking/.test(q), 'no "production-blocking" bar is left');
   ok(String(byLabel('quality block-a r1')[0]?.opts?.schema?.required ?? '').includes('minor_count'), 'minor_count is a required return');
 
-  const high = await run(GREEN_RUN, { ...ONE_BLOCK, reviewSeverity: 'high' });
-  ok(high.prompt('quality block-a').includes('THRESHOLD: high.'), 'reviewSeverity high sets the threshold');
+  for (const [severity, later] of [['high', 'high'], ['low', 'low']]) {
+    const r = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, { ...ONE_BLOCK, reviewSeverity: severity });
+    ok(r.prompt('quality block-a r1').includes('THRESHOLD: low.') && r.prompt('quality block-a r2').includes(`THRESHOLD: ${later}.`),
+      `reviewSeverity ${severity}: the first review uses low and the second ${later}`);
+  }
+  // Round 1 ran no review, so round 2's review is the block's first.
+  for (const [what, develop, acceptance] of [
+    ['round 1 produced nothing', firstRound({ ...DEV_OK, produced: false }, DEV_OK), firstRound(ACC_FAIL, ACC_PASS)],
+    ['round 1\'s gate was red', firstRound({ ...DEV_OK, build_passed: false }, DEV_OK), ACC_PASS],
+  ]) {
+    const r = await run({ develop, quality: CLEAN, acceptance }, ONE_BLOCK);
+    ok(!r.labels.includes('quality block-a r1') && r.prompt('quality block-a r2').includes('THRESHOLD: low.'),
+      `${what}: the block's first review, in round 2, uses low`);
+  }
+  // No later round could fix a low finding, so a first review in the last round keeps reviewSeverity.
+  const oneRound = await run({ ...GREEN_RUN, quality: { ...FLAGGED, issue_count: 1 }, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1, reviewSeverity: 'high' });
+  ok(oneRound.prompt('quality block-a r1').includes('THRESHOLD: high.')
+    && oneRound.logs.some((l) => /r1: quality review left 1 issue\(s\) at or above high and 0 below open at round budget/.test(l)),
+    'maxRounds 1: the first review, in the last round, uses reviewSeverity high');
+  const redUntilLast = await run({ ...GREEN_RUN, develop: (label) => (/r5$/.test(label) ? DEV_OK : { ...DEV_OK, build_passed: false }) }, ONE_BLOCK);
+  ok(!redUntilLast.labels.includes('quality block-a r4') && redUntilLast.prompt('quality block-a r5').includes('THRESHOLD: medium.'),
+    'red gates in rounds 1 to 4: the first review, in round 5, uses medium');
   for (const bad of ['nit', 'severe']) {
     const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, reviewSeverity: bad } });
     ok(msg.startsWith('Invalid args.reviewSeverity: it must be one of low, medium, high, critical') && msg.includes(JSON.stringify(bad)),
@@ -2250,29 +2295,33 @@ section('develop\'s SEVERITY_SCALE opens with debug\'s six lines');
 }
 
 section('a quality review routes on its threshold count and logs its below-threshold count');
-// A finding below the threshold never drives a round on its own.
+// A finding below the threshold never drives a round on its own. Each log line names its own review's
+// threshold: low on the block's first review in round 1, medium after it.
 {
   const strayMinor = await run({ ...GREEN_RUN, quality: { wrote_file: true, clean: true, issue_count: 0, minor_count: 2 } }, ONE_BLOCK);
   ok(strayMinor.labels.includes('acceptance block-a r1'), 'a clean review with stage-2 findings reaches acceptance');
-  ok(strayMinor.logs.some((l) => /quality ran stage 2 with nothing at or above medium, so its 2 finding\(s\) below the threshold are not routed/.test(l)),
+  ok(strayMinor.logs.some((l) => /quality ran stage 2 with nothing at or above low, so its 2 finding\(s\) below the threshold are not routed/.test(l)),
     'and logs the stage-2 warning');
 
   const both = await run({ ...GREEN_RUN, quality: firstRound({ wrote_file: true, clean: false, issue_count: 1, minor_count: 3 }, CLEAN) }, ONE_BLOCK);
   ok(!both.labels.includes('acceptance block-a r1') && both.byLabel('develop block-a r2')[0]?.prompt.includes('quality-review-block-a-r1.md'),
     'a threshold finding sends the block back to the developer');
-  ok(both.logs.some((l) => /quality review found 1 issue\(s\) at or above medium and 3 below → develop addresses .*quality-review-block-a-r1\.md/.test(l)),
+  ok(both.logs.some((l) => /quality review found 1 issue\(s\) at or above low and 3 below → develop addresses .*quality-review-block-a-r1\.md/.test(l)),
     'and the log line names both counts');
 
   const contradicts = await run({ ...GREEN_RUN, quality: firstRound({ wrote_file: true, clean: false, issue_count: 0, minor_count: 0 }, CLEAN) }, ONE_BLOCK);
   ok(!contradicts.labels.includes('acceptance block-a r1') && contradicts.labels.includes('develop block-a r2'),
     'clean=false with nothing at the threshold still goes back to the developer');
-  ok(contradicts.logs.some((l) => /quality returned clean=false with nothing at or above medium and no contest — self-contradictory; treated as NOT clean/.test(l)),
+  ok(contradicts.logs.some((l) => /quality returned clean=false with nothing at or above low and no contest — self-contradictory; treated as NOT clean/.test(l)),
     'and logs the self-contradiction');
 
   const budget = await run({ ...GREEN_RUN, quality: { ...FLAGGED, minor_count: 1 }, park: PARK_OK }, ONE_BLOCK);
   ok(budget.labels.includes('develop block-a r5') && !budget.labels.includes('develop block-a r6'), 'maxRounds defaults to 5');
   ok(budget.logs.some((l) => /r5: quality review left 2 issue\(s\) at or above medium and 1 below open at round budget/.test(l)),
     'the round-budget line names both counts');
+  ok(budget.logs.some((l) => /r1: quality review found 2 issue\(s\) at or above low and 1 below/.test(l))
+    && budget.logs.some((l) => /r2: quality review found 2 issue\(s\) at or above medium and 1 below/.test(l)),
+    'the first review\'s line names low and the second\'s names medium');
 }
 
 section('a failing reviewer that did not attest its review file halts instead of routing a missing path');
@@ -2351,4 +2400,94 @@ section('an acceptance pass with gap_count above 0 is flagged as contradicting i
   eq(out.status, 'done (all blocks staged)', 'flag only: the block still lands');
   const clean = await run(GREEN_RUN, ONE_BLOCK);
   eq(clean.out.ledger[0].contradicted, false, 'gap_count 0 is not flagged');
+}
+
+section('every develop prompt states its round and why a later stage can lack a file for a round');
+// An agent that globbed for a round's review file read a missing one as a defect, when an earlier stage
+// had sent that round back.
+{
+  const maxRounds = 3;
+  const why = 'Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.';
+  const plan = await run({ develop: DEV_OK, quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...baseArgs, maxRounds });
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, { ...FIX_ONE, maxRounds });
+  for (const [mode, id, r] of [['feature', 'block-a', plan], ['section', 'block-b', plan], ['fix', 'fix-a', fix]]) {
+    for (const stage of ['develop', 'quality', 'acceptance']) {
+      for (const round of [1, 2]) {
+        ok(flat(r.prompt(`${stage} ${id} r${round}`)).includes(`This is round ${round} of at most ${maxRounds}. ${why}`),
+          `${mode} ${stage} r${round}: the prompt states its round of at most ${maxRounds} and the missing-file sentence`);
+      }
+    }
+  }
+}
+
+section('the DROP line names one place or the class of places it covers, and its reason holds for each');
+{
+  for (const [mode, id, r] of FRAMES) {
+    const dev = flat(r.prompt(`develop ${id}`));
+    ok(dev.includes('`<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`'),
+      `${mode}: the line shape allows the class form`);
+    ok(dev.includes('Name one place by its file:line, or the class of places the line covers, such as every caller of a function. The reason must hold for every place the line names.'),
+      `${mode}: the class names its scope and the reason must hold for every place`);
+  }
+}
+
+section('both SETTLED variants say a DISMISSED line covers exactly what it names');
+{
+  const coverage = 'A DISMISSED line covers exactly what it names: one place, or every place in the class it names.';
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`quality ${id}`)).includes(coverage), `${mode}: the blind reviewer is told what a DISMISSED line covers`);
+    ok(flat(r.prompt(`acceptance ${id}`)).includes(coverage), `${mode}: acceptance is told what a DISMISSED line covers`);
+  }
+}
+
+section('acceptance counts a sibling path as a gap only when no DISMISSED line covers it');
+// A class line has no line of its own per place, so an own-line test would count every covered caller as a gap.
+{
+  for (const [mode, id, r] of FRAMES) {
+    const acc = flat(r.prompt(`acceptance ${id}`));
+    const ledger = `${STATE}/gate/DISMISSED-${id}.md`;
+    ok(!acc.includes('without its own line'), `${mode}: the sibling-path check no longer asks for a line of its own`);
+    ok(acc.includes(`the same mechanism and that no line in ${ledger} covers`),
+      `${mode}: step 2 (a) counts only a sibling path that no DISMISSED line covers`);
+    ok(acc.includes(`that no line in ${ledger} covers keeps the same mechanism`),
+      `${mode}: the gap rule counts only a sibling path that no DISMISSED line covers`);
+  }
+}
+
+section('every developer frame follows the repo\'s patterns, then checks its diff with the blind reviewer\'s bar');
+// The blind reviewer flagged what the developer could have caught with the same scale, reach step and checklist.
+{
+  const between = (s, from, to) => {
+    const at = s.indexOf(from);
+    const end = at < 0 ? -1 : s.indexOf(to, at);
+    return end < 0 ? '' : s.slice(at, end);
+  };
+  const q = flat(bus.prompt('quality block-a'));
+  const scale = between(q, 'SEVERITY - grade by impact', 'THRESHOLD:');
+  const reachAndChecklist = between(q, 'REACH: for every function', 'Apply the CHECKLIST in both stages below.');
+  ok(scale.includes('nit - not wrong and no effect on behavior') && scale.includes('NITS include:'), 'qualityPrompt still carries the severity scale');
+  ok(reachAndChecklist.includes('comment or doc that describes the old behavior.')
+    && reachAndChecklist.includes('CHECKLIST: - build and tests: anything that breaks the build or tests;')
+    && reachAndChecklist.includes('- maintainability: the nit list in the scale above.'),
+    'qualityPrompt still carries the reach step and the checklist, and applies the checklist in both stages');
+
+  const pattern = 'PATTERNS: before you write code, find how the repo already does the same kind of thing, such as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.';
+  const selfCheck = 'SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your unstaged diff, new files included. Route every finding the diff introduces or exposes, at every tier, through the DECISION MATRIX below, and re-run the gate after each fix.';
+  const writesCode = { feature: "Implement the plan's steps.", section: "Implement this block's steps.", fix: 'FIX ONLY the entries' };
+  const accepts = {
+    feature: 'that the feature is reachable from real entry points',
+    section: 'that every call site this block owns is converted',
+    fix: 'that each FIXED entry closes its root cause on every sibling path',
+  };
+  for (const [mode, id, r] of FRAMES) {
+    const dev = flat(r.prompt(`develop ${id}`));
+    const at = (s) => (dev.includes(s) ? dev.indexOf(s) : NaN);
+    ok(at(pattern) < at(writesCode[mode]), `${mode}: the pattern step comes before the step that writes code`);
+    ok(at('RUN THE GATE') < at(selfCheck) && at(selfCheck) < at('DECISION MATRIX —'), `${mode}: the self-check follows the gate and precedes the decision matrix`);
+    ok(scale !== '' && dev.includes(scale), `${mode}: the developer carries the blind reviewer's severity scale`);
+    ok(reachAndChecklist !== '' && dev.includes(reachAndChecklist), `${mode}: and its reach step and checklist`);
+    ok(dev.includes(`${selfCheck} After the blind review, acceptance checks `)
+      && Object.entries(accepts).every(([m, s]) => (m === mode) === dev.includes(s)),
+      `${mode}: the self-check says what ${mode} acceptance checks, and no other mode's`);
+  }
 }

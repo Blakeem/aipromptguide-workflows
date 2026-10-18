@@ -4,7 +4,7 @@ export const meta = {
   whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode → the user approves), and the operator derives the args with `tools/plan-edit.mjs args <planPath>` and spreads the object it prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, never committed. Reuse one runId across resumes.',
   phases: [
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues; implements minimally, runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
-    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags findings at or above the run\'s severity threshold (reviewSeverity), and findings below it only beside one at or above it, writes quality-review-<id>-rN.md. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
+    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags findings at or above its review\'s severity threshold (low on a block\'s first review in a launch when a later round remains, reviewSeverity on every other one), and findings below it only beside one at or above it, writes quality-review-<id>-rN.md. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression. Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add, never commit) — the accepted baseline advances.' },
     { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
     { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory — a dead sweep never halts.' },
@@ -61,6 +61,9 @@ const REVIEW_SEVERITY = A.reviewSeverity ?? 'medium';
 if (!VALID_REVIEW_SEVERITY.has(REVIEW_SEVERITY)) {
   throw new Error(`Invalid args.reviewSeverity: it must be one of low, medium, high, critical; got ${JSON.stringify(A.reviewSeverity)}. It is not coerced, and nit is never a threshold, since a finding below the threshold never blocks.`);
 }
+// A block's first review in a launch uses low so a later round fixes its lows. The last round has none
+// left, so its review keeps reviewSeverity like every later review and the loop stops at that bar.
+const FIRST_REVIEW_SEVERITY = 'low';
 
 // Retired args throw, never ignored: each served only a hand-built payload, which skips the status fold
 // `plan-edit.mjs args` applies. Below num(): the cross-engine bound sweep passes refine's top-level planPath.
@@ -300,15 +303,15 @@ const newIssuesFile  = (id) => `${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${slug(id)}.m
 
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. Only it
 // forbids prior reviews, which would anchor it (#5). Acceptance overrides instead.
-const SETTLED = (id, canContest = true, round = 0) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
+const SETTLED = (id, canContest, round = 0, threshold) => `Before reviewing, READ ${canContest ? 'this if it exists. It holds' : 'these if they exist. They hold'} the settled decisions:
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.${round === 1 ? `
     In round 1 it exists only if the developer already declined something (or on a resume). A missing
     file means nothing is settled yet, so do not search for it elsewhere.` : ''}${canContest ? '' : `
   • ${NEEDS_USER} — items already escalated to the user.
   • ${DECISIONS} — defaults the developer took and plan amendment pointers, a record.`}
-Skip anything listed there FOR THE STATED REASON. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
-If you are confident a DISMISSED reason is WRONG and the finding is at or above the ${REVIEW_SEVERITY} threshold,
+If you are confident a DISMISSED reason is WRONG and the finding is at or above the ${threshold} threshold,
 raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ` Read prior review files only at your
 EARLIER FINDINGS step below.`}`;
 
@@ -369,17 +372,17 @@ const developSchema = (mode) => ({
   },
 });
 
-const QUALITY_SCHEMA = {
+const qualitySchema = (threshold) => ({
   type: 'object',
   required: ['wrote_file', 'clean', 'issue_count', 'minor_count'],
   properties: {
     wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
-    clean:       { type: 'boolean', description: 'true if no finding at or above the run\'s severity threshold and no contest' },
-    issue_count: { type: 'integer', description: 'findings at or above the run\'s severity threshold written to the review file' },
+    clean:       { type: 'boolean', description: `true if no finding at or above this review's ${threshold} threshold and no contest` },
+    issue_count: { type: 'integer', description: `findings at or above this review's ${threshold} threshold written to the review file` },
     minor_count: { type: 'integer', description: 'findings below the threshold written in stage 2 (0 when stage 2 did not run)' },
     contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round (0 if none)' },
   },
-};
+});
 
 const acceptanceSchema = (mode) => {
   // Per mode, because the descriptions are each frame's acceptance contract.
@@ -389,14 +392,12 @@ const acceptanceSchema = (mode) => {
       pass: 'true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, and nothing regressed',
       staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
       reachable: 'the feature is actually wired in / reachable from the app entry points',
-      criteriaFrom: 'THIS block',
       suite: 'observed outcome of running the FULL gates',
     },
     section: {
       pass: 'true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, every earlier finding is closed or declined, and nothing regressed',
       staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
       reachable: 'this block\'s change is actually wired in / reachable — every call site converted, route mounted, symbol exported',
-      criteriaFrom: 'THIS block',
       suite: 'observed outcome of running the block gate (and, where the goal expects it, the full gates)',
     },
     fix: {
@@ -409,7 +410,7 @@ const acceptanceSchema = (mode) => {
     type: 'object',
     required: mode === 'fix'
       ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'fix_checks', 'new_issues', 'new_issue_blocks']
-      : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'reachable', 'criteria_total', 'criteria_met', 'evidence_recorded'],
+      : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'reachable', 'evidence_recorded'],
     properties: {
       plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
       wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
@@ -433,8 +434,6 @@ const acceptanceSchema = (mode) => {
         new_issue_blocks: { type: 'array', items: { type: 'string' }, description: 'the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)' },
       } : {
         reachable:   { type: 'boolean', description: terms.reachable },
-        criteria_total: { type: 'integer', description: `acceptance criteria you enumerated from ${terms.criteriaFrom} (0 means you enumerated none — never a legitimate pass)` },
-        criteria_met:   { type: 'integer', description: 'of those, how many you found concrete evidence for' },
         evidence_recorded: { type: 'boolean', description: 'true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file' },
       }),
       regression:  { type: 'boolean', description: 'true if the unstaged diff regressed previously-staged/accepted behavior' },
@@ -490,6 +489,9 @@ const ACC_SUITE_LINE = SUITE === 'green'
   ? 'The EXISTING suite must still be green — reddening it is a regression, not an accepted block.'
   : 'Do NOT treat the intentionally-red rest of the suite as a failure: judge THIS block on its own selector.';
 
+// Names the round so an agent that finds no file for a round does not take the gap for an error.
+const ROUND_NOTE = (round) => `This is round ${round} of at most ${MAX_ROUNDS}. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.`;
+
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
 // PRECEDENCE must quote the frame's own scope line, or 6a outranks nothing.
@@ -524,7 +526,7 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope with its file:line.
+    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -533,7 +535,9 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)}:
-      \`<file:line> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
+      \`<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>\`
+    Name one place by its file:line, or the class of places the line covers, such as every caller of a
+    function. The reason must hold for every place the line names.
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
@@ -556,6 +560,67 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.`;
 
+// The first six lines copy debug/review.mjs's SEVERITY_SCALE, so a grade means the same in both engines.
+const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff; a redundant line or condition; control flow
+nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.`;
+
+// Shared by the blind reviewer and the developer's self-check, so both judge a diff by one bar.
+const REACH = `REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.`;
+const CHECKLIST = `CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.`;
+
+// Mirrors what each ACCEPTANCE_FRAME prompt checks. A change to one needs the same change to the other.
+const ACCEPTANCE_CHECKS = {
+  feature: 'After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.',
+  section: 'After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block\'s gate meets its expectation.',
+  fix: 'After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.',
+};
+// The developer meets the blind reviewer's bar first, so no round is spent on a finding it could catch.
+const PATTERN_STEP = `PATTERNS: before you write code, find how the repo already does the same kind of thing, such
+   as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.`;
+const SELF_CHECK = (mode) => `SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
+   and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
+   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   ${ACCEPTANCE_CHECKS[mode]}
+${SEVERITY_SCALE}
+
+${REACH}
+
+${CHECKLIST}`;
+
 // =============================================================================
 // Role prompts. DEVELOP_FRAME and ACCEPTANCE_FRAME switch on mode. The blind critic sees no plan.
 // =============================================================================
@@ -564,18 +629,21 @@ You are the DEVELOPER. Implement ${blockRef(p)}. Build it minimally and surgical
 ${SCOPE_LINE.feature}.
 ${ENV}
 BLOCK: ${p.id}
+${ROUND_NOTE(round)}
 ${opening}
 ${ledgerNote}
 
 PROCEDURE:
-1. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
+1. ${PATTERN_STEP}
+2. Implement the plan's steps. WIRE IT IN so the feature is actually reachable (registered/exported/
    routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests per the plan's
    Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
-2. RUN THE GATE until it is ${p.gate === 'build-only' ? 'GREEN (build-only: the build must pass; this block has no verification to run)' : 'GREEN'} — build: ${GATES.build ?? '(none)'} ; verification: per
+3. RUN THE GATE until it is ${p.gate === 'build-only' ? 'GREEN (build-only: the build must pass; this block has no verification to run)' : 'GREEN'} — build: ${GATES.build ?? '(none)'} ; verification: per
    the plan's Test Strategy (${GATES.test ?? 'no test gate configured'}). ${SUITE_LINE} Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
-3. ${staging}
-4. ${MATRIX(p.id, round, p.mode)}
+4. ${SELF_CHECK(p.mode)}
+5. ${staging}
+6. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
 const sectionDevelop = (p, round, { opening, ledgerNote, staging }) => {
@@ -590,21 +658,24 @@ conventions; ${SCOPE_LINE.section}.
 ${ENV}
 BLOCK: ${p.id}
 GATE EXPECTATION: ${gateExpectation}
+${ROUND_NOTE(round)}
 ${opening}
 ${ledgerNote}
 
 PROCEDURE:
-1. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
+1. ${PATTERN_STEP}
+2. Implement this block's steps. WIRE IT IN so the change is actually reachable — convert EVERY call
    site / occurrence this block owns (registered/exported/routed/bound/flagged); a half-converted block
    is NOT done. Author/extend tests per the block's Test Strategy.${GATES.testSetup ? ` If the harness is missing: ${GATES.testSetup}.` : ''}
-2. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
+3. RUN THE GATE until it satisfies the expectation above — build: ${GATES.build ?? '(none)'} ; tests
    scoped to this block (use the block's \`test_selector:\` line when it has one, else the test gate):
    ${GATES.test ?? '(no test gate configured)'}. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-3. ${SUITE_LINE} Build/lint must always pass.
-4. ${staging}
-5. ${MATRIX(p.id, round, p.mode)}
+4. ${SUITE_LINE} Build/lint must always pass.
+5. ${SELF_CHECK(p.mode)}
+6. ${staging}
+7. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report).`;
 };
 
@@ -618,6 +689,7 @@ refactors, ${SCOPE_LINE.fix}.
 ${ENV}
 BLOCK: ${p.id}
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
+${ROUND_NOTE(round)}
 ${opening}
 ${ledgerNote}
 
@@ -627,17 +699,19 @@ PROCEDURE:
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
    verified.
-2. FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Leave every other entry (SKIP,
+2. ${PATTERN_STEP}
+3. FIX ONLY the entries whose \`- decision:\` line says ACTIONABLE. Leave every other entry (SKIP,
    NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the user's call.
    Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style. Where a fix
    warrants a pinning test, write it. Never weaken or delete existing tests to make the gate pass. Never
    disable lint rules.
-3. RUN THE GATE until it is GREEN — build: ${GATES.build ?? '(none)'} ; verification: ${GATES.test ?? '(no test gate configured)'}.
+4. RUN THE GATE until it is GREEN — build: ${GATES.build ?? '(none)'} ; verification: ${GATES.test ?? '(no test gate configured)'}.
    ${SUITE_LINE} SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
-4. ${staging}
-5. ${MATRIX(p.id, round, p.mode)}
+5. ${SELF_CHECK(p.mode)}
+6. ${staging}
+7. ${MATRIX(p.id, round, p.mode)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
@@ -692,29 +766,14 @@ block. Do not duplicate or re-litigate an entry.`;
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
-// The first six lines copy debug/review.mjs's SEVERITY_SCALE, so a grade means the same in both engines.
-const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
-  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
-  high     - crashes or gives wrong output on an input the code accepts.
-  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
-             result the caller can detect.
-  low      - a real defect with no effect on any input the code accepts today.
-  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
-A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
-higher by what the misled reader would do. It is never a nit.
-NITS include: an overlong comment, or one that restates the code; a comment that breaks the
-CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
-diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.`;
-
 // BLIND: no plan, spec, goal or criteria, so one frame serves every mode.
-const qualityPrompt = (p, round) => `
+const qualityPrompt = (p, round, threshold) => `
 You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 ${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
 Read only ${dismissedFile(p.id)} there.
+${ROUND_NOTE(round)}
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -722,7 +781,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   test:  ${GATES.test ?? '(none)'}
 CONVENTIONS (judge against these): ${CONVENTIONS}
 
-${SETTLED(p.id, true, round)}
+${SETTLED(p.id, true, round, threshold)}
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff\`: unstaged tracked changes, the work to review. On a large diff run
@@ -734,35 +793,15 @@ SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff --staged\` is the ACCEPTED baseline — context only, do NOT review it.
 
 ${SEVERITY_SCALE}
-THRESHOLD: ${REVIEW_SEVERITY}. A finding at or above it blocks this block. A finding below it never blocks.
+THRESHOLD: ${threshold}. A finding at or above it blocks this block. A finding below it never blocks.
 
 Report only what this diff introduces or exposes, at every tier. Drop silently anything
 pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
 
-REACH: for every function, constant, field, string or rule the diff changes, grep its callers
-and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
-comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
-counts as introduced by this diff.
+${REACH}
 
-CHECKLIST — apply it in both stages:
-  - build and tests: anything that breaks the build or tests;
-  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
-    numeric inputs, platform path forms, and a value computed right but reported wrong;
-  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
-    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
-  - error contract: an expected failure that escapes the project's error path, a failure returned in
-    a success shape, a message that hides the cause or the way to recover;
-  - consistency: the same concept shaped differently from its established counterpart in the repo
-    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
-  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
-    a container, an enum value, a domain or a cleanup step;
-  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
-    that replaces the behavior under test, a risky path the diff adds with no test;
-  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
-    contradicts or that now misleads;
-  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+${CHECKLIST}
+Apply the CHECKLIST in both stages below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
 above the threshold through the checklist and the REACH step. Each one names the concrete input or
@@ -784,7 +823,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at or above the threshold), and a concrete fix. When stage 1 found nothing, write
-exactly "No findings at or above ${REVIEW_SEVERITY}." Then return wrote_file (true ONLY if you wrote that
+exactly "No findings at or above ${threshold}." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
 above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
@@ -802,12 +841,12 @@ const earlierFindingsStep = (p, earlierReviews) => `EARLIER FINDINGS. Read each 
    fresh:
 ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no review in this run has flagged this block)'}
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
-   sibling path that carries the same mechanism without its own line in ${dismissedFile(p.id)}, or (b)
+   sibling path that carries the same mechanism and that no line in ${dismissedFile(p.id)} covers, or (b)
    ${dismissedFile(p.id)} holds a line for it, with the OVERRIDE rule above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
-   with no line in ${dismissedFile(p.id)} keeps the same mechanism, and one neither closed nor declined
+   that no line in ${dismissedFile(p.id)} covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
-   nothing at or above the threshold. That includes this round's blind review, when one ran.`;
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.`;
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
@@ -818,6 +857,7 @@ ${blockRef(p)}. Each block printed IS an inventory: one "### [<id>]" entry per i
 instruction. You judge the work against it; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
+${ROUND_NOTE(round)}
 
 ${SETTLED(p.id, false)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
@@ -934,6 +974,7 @@ passed (or was skipped because the developer changed nothing). Read ${blockRef(p
 against that block; you never implement it.
 ${ENV}
 BLOCK: ${p.id}   (mode: ${p.mode}, gate: ${p.gate})
+${ROUND_NOTE(round)}
 
 ${SETTLED(p.id, false)}
 OVERRIDE: ${dismissedFile(p.id)} entries are the developer's judgment calls. A dismissed item that
@@ -968,10 +1009,9 @@ SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).
 
 PROCEDURE:
-1. ENUMERATE THIS block's acceptance criteria FIRST, numbered — that count is criteria_total (never 0 for
-   a real block). For EACH, find concrete evidence it holds (a diff hunk, a passing test, an observed
-   behavior) and mark it met / not-met with a file:line / test-name / command-output LOCATOR;
-   criteria_met = how many hold. evidence_recorded=true only if EVERY met criterion carries such a
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
    locator in your review file. A criterion asserted without one is not met.
 2. ${earlierFindingsStep(p, earlierReviews)}
 3. ${reachStep}
@@ -1263,7 +1303,6 @@ function fixTracker(p) {
       const staleIds = stale();
       const claimedCount = claimed().length;
       return {
-        criteria: null,
         reachable: null,
         thin: checks.length < claimedCount + staleIds.length,
         open: openChecks > 0,
@@ -1292,17 +1331,15 @@ function fixTracker(p) {
   };
 }
 
-/** A feature or section verdict: its criteria, reachability, and what makes a pass thin or self-contradicting. */
+/** A feature or section verdict: its reachability, and what makes a pass thin or self-contradicting. */
 function judgePlanAcceptance(acc) {
-  const criteria = { met: Number(acc?.criteria_met) || 0, total: Number(acc?.criteria_total) || 0 };
   return {
-    criteria,
     reachable: acc?.reachable === true,
-    thin: criteria.total === 0 || criteria.met < criteria.total || acc?.evidence_recorded !== true,
+    thin: acc?.evidence_recorded !== true,
     open: acc?.reachable !== true,
     evidence: `evidence_recorded=${acc?.evidence_recorded}`,
     contraDetail: `reachable=${acc?.reachable}`,
-    score: `${criteria.met}/${criteria.total} criteria`,
+    score: '',
     reachNote: `reachable=${acc?.reachable}, `,
   };
 }
@@ -1361,7 +1398,7 @@ for (const p of pending) {
   // A block's model picks its developer and park agent only. Reviews stay on the run's models.
   const devModel = p.model ?? M.develop;
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, criteria: null, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   if (fix) for (const b of p.blocks ?? [p]) startedIssueFiles.add(newIssuesFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
@@ -1525,9 +1562,10 @@ for (const p of pending) {
     // the claim.
     if (reviewOwed) {
       phase('Quality');
+      const reviewThreshold = rec.qualityRounds === 0 && round < MAX_ROUNDS ? FIRST_REVIEW_SEVERITY : REVIEW_SEVERITY;
       rec.qualityRounds++;
-      const quality = await agent(qualityPrompt(p, round), roleOpts('quality', {
-        schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
+      const quality = await agent(qualityPrompt(p, round, reviewThreshold), roleOpts('quality', {
+        schema: qualitySchema(reviewThreshold), phase: 'Quality', label: `quality ${p.id} r${round}`,
       }));
       // A dead reviewer is not a clean review, and the next round would read a review file nobody wrote.
       if (!quality) {
@@ -1550,7 +1588,7 @@ for (const p of pending) {
         logLine(`  ⚠ ${p.id} r${round}: quality returned clean=true with issue_count=${quality.issue_count} and contested_dismissals=${quality.contested_dismissals} — self-contradictory; treated as NOT clean`);
       }
       if (quality.clean === false && !(Number(quality.issue_count) > 0) && !(Number(quality.contested_dismissals) > 0)) {
-        logLine(`  ⚠ ${p.id} r${round}: quality returned clean=false with nothing at or above ${REVIEW_SEVERITY} and no contest — self-contradictory; treated as NOT clean`);
+        logLine(`  ⚠ ${p.id} r${round}: quality returned clean=false with nothing at or above ${reviewThreshold} and no contest — self-contradictory; treated as NOT clean`);
       }
       if (!qualityClean) {
         // An unwritten review file would send the next developer, and park, to a path nobody wrote.
@@ -1566,7 +1604,7 @@ for (const p of pending) {
         reviewOwed = true;
         reviewPath = qualityFile(p.id, round);
         earlierReviews.add(reviewPath);
-        const qualityCounts = `${quality.issue_count ?? '?'} issue(s) at or above ${REVIEW_SEVERITY} and ${quality.minor_count ?? '?'} below`;
+        const qualityCounts = `${quality.issue_count ?? '?'} issue(s) at or above ${reviewThreshold} and ${quality.minor_count ?? '?'} below`;
         if (round >= MAX_ROUNDS) { logLine(`  ⚠ ${p.id} r${round}: quality review left ${qualityCounts} open at round budget (see ${reviewPath})`); break; }
         logLine(`  ↻ ${p.id} r${round}: quality review found ${qualityCounts} → develop addresses ${reviewPath}`);
         continue;
@@ -1574,7 +1612,7 @@ for (const p of pending) {
       reviewOwed = false;
       // A clean review sends nothing back to the developer, so stage-2 findings beside it go unaddressed.
       if (Number(quality.minor_count) > 0) {
-        logLine(`  ⚠ ${p.id} r${round}: quality ran stage 2 with nothing at or above ${REVIEW_SEVERITY}, so its ${quality.minor_count} finding(s) below the threshold are not routed`);
+        logLine(`  ⚠ ${p.id} r${round}: quality ran stage 2 with nothing at or above ${reviewThreshold}, so its ${quality.minor_count} finding(s) below the threshold are not routed`);
       }
       if (quality.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: quality reviewer did not confirm writing ${qualityFile(p.id, round)}`);
       logLine(`  ✓ ${p.id} r${round}: quality review clean`);
@@ -1631,22 +1669,22 @@ for (const p of pending) {
         newIssuesUnknown = true;
       }
     }
-    // Per mode: a fix schema has no criteria or reachability, which would flag every fix pass as thin.
+    // Per mode: a fix schema has no evidence_recorded or reachable, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
-    rec.criteria = verdict.criteria;
     if (acc?.pass === true) {
       rec.reachable = verdict.reachable;
       // A thin pass (#14) is flagged for audit, not failed: acceptance already staged.
       rec.thinEvidence = verdict.thin;
       // Flag every contradiction. Halt only on the regression: staged work becomes every later baseline.
       rec.contradicted = acc?.regression === true || verdict.open || Number(acc?.gap_count) > 0;
+      const scoreNote = verdict.score ? ` — ${verdict.score}` : '';
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${verdict.evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
       const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}, gap_count=${acc?.gap_count}) — audit ${acceptanceFile(p.id, round)}` : '';
       if (acc.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)}`);
       if (acc?.staged === true) {
         accepted = true;
         rec.staged = true;
-        logLine(`  ✓ ${p.id}: acceptance PASSED — ${verdict.score} — STAGED (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
+        logLine(`  ✓ ${p.id}: acceptance PASSED${scoreNote} — STAGED (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
         // Halt, not re-round (the next blind diff cannot see staged work) and not park (park never
         // touches the baseline). The block stays "done (staged)".
         if (acc?.regression === true) {
