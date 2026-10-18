@@ -271,11 +271,18 @@ Return findings via the schema. An empty array (a clean unit) is a normal, good 
 // `**Fix:**` line) is a plan-bus fix-mode plan file that develop's fixer + acceptance read through
 // tools/plan-block.mjs and tools/plan-edit.mjs args writes statuses back into.
 // `lensDied` stamps `hash: incomplete`, which gen-units reads as `changed`, so resume re-runs the dead lens.
-const verifyPrompt = (unit, items, lensDied) => { const lenses = lensesOf(unit); const multi = lenses.length > 1; return `
-You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else. For
-each candidate finding below, inspect the ACTUAL code to confirm it is real, correct its severity, then
-route it with the decision matrix. Reject false positives and gold-plating ruthlessly, in particular
-anything the code ALREADY does and anything that is a preference rather than a defect.
+const verifyPrompt = (unit, items, lensDied) => {
+  const lenses = lensesOf(unit);
+  const multi = lenses.length > 1;
+  const lensLine = !lenses[0].isSet ? '' : `- lens: ${multi ? "<the lens id, without brackets, from the kept candidate's line>" : lenses[0].id}\n`;
+  return `
+You are the VERIFIER, read-only on SOURCE: you write exactly one inventory file and nothing else, except
+a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone
+(such as \`mktemp -d\`), outside the target repo and the run-state dir ${STATE_DIR}, and remove that
+directory before you return. For each candidate finding below, inspect the ACTUAL code to confirm it
+is real, correct its severity, then route it with the decision matrix. Reject false positives and
+gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
+rather than a defect.
 ${SEVERITY_SCALE}
 ${ENV}
 UNIT: ${unit.id}
@@ -313,6 +320,11 @@ ROUTING (apply in order; first match wins):
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
+When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not
+already use the same way, confirm that behavior against the dependency's own docs or source, or a probe
+in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not
+confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER.
+Its **Options:** line names that behavior and the check that would settle it.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
 Write each REJECT as one line under a closing \`## Rejected\` heading, the clean marker included:
@@ -344,7 +356,7 @@ status: todo
 - loc: <that file's LOC from UNIT FILES>
 - severity: <your confirmed severity>
 - category: <category>
-- effort: <matrix effort>
+${lensLine}- effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>
@@ -356,7 +368,7 @@ The \`## Plan:\` line, the three preamble lines under it, and every entry's \`- 
 REQUIRED: without them the file is not a plan the fixer can build. Write the header id exactly as shown. It is
 the slug of the unit id, not the unit id.
 The \`- file:\` line takes ONE line number. For a range or a list ("840-842, 880"), write its first line (840).
-If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
+${multi ? "A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.\n" : ''}If there are NO kept verdicts, write NO \`## Plan:\` header at all — the file is the clean marker instead:
 the frontmatter above, then \`# Review: ${unit.id}\`, then the single line "No issues found."
 The \`## Rejected\` section follows that line when you rejected anything.
 Set wrote_file=true and return all verdicts via the schema.`; };

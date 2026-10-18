@@ -25,6 +25,14 @@ preamble or another block never reaches it.
 1. **Author the plan file** in the plan-bus format (§3), at `<root>/plans/<runId>/` — never inside
    `target.repo`, never under `runs/<runId>/`. Plan mode or direct authoring. A fix-mode file from
    debug's review skips to its triage (debug guide), then step 3.
+
+   **Research novel work first.** Before writing the blocks for work that adds a dependency, calls an
+   external API, uses a technique the repo does not use yet, or touches security or data integrity,
+   send a research subagent. Each block it informs records, in that block, what the repo already does
+   (its file and a section title or grep pattern, never a line number, per §1), the library or method
+   chosen with its source, and each command or API behavior the block prescribes with its source or a
+   probe. Routine work in an existing repo pattern skips this. A large open question goes to the
+   investigate or docs workflow first.
 2. **Refine it, then get approval.** Run the refine workflow on the file until it returns `converged`,
    under the run-once rule in `workflows/refine/CLAUDE.md` §2 step 3, then the user approves the FINAL
    text. Approval comes after refine so the user signs off on what develop builds.
@@ -107,10 +115,14 @@ entry. debug's review.mjs writes these files; hand-authored external inventories
 Same roles and contracts as the engines it replaces, with these merge-specific points:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
-  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`. It fixes clear wins at every tier, a finding
-  below the threshold included, and weighs the rest against their cost. It logs every finding it does
-  not fix, so none is dropped silently. When it fixes a finding, it fixes every sibling path with the
-  same mechanism inside the block's scope, and logs one outside it. **Must attest `unstaged_confirmed`. A
+  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`, `DECISIONS.md`. It fixes clear wins at every
+  tier, a finding below the threshold included, and weighs the rest against their cost. It logs every
+  finding it does not fix, so none is dropped silently. It escalates only a choice that changes
+  user-visible behavior, stored data or a public contract and that nothing it can read or check settles,
+  or a blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
+  default it took goes to `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding,
+  it fixes every sibling path with the same mechanism inside the block's scope, and logs one outside
+  it. **Must attest `unstaged_confirmed`. A
   missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
   surface neither reviewer checks).
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
@@ -178,8 +190,15 @@ then done, so a relaunch has nothing to build, and you verify coverage against t
 leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose park did not confirm a
 clear. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
-`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, the files in `newIssueFiles` and
-`SWEEP.md`.
+`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `DECISIONS.md`, the files in
+`newIssueFiles` and `SWEEP.md`.
+
+**Research NEEDS-USER before asking.** For each unanswered question the blocks named in `nextStep`
+wrote to `NEEDS-USER.md`, park records under `## Parked block: <id>` excluded, read the code, the docs
+and the conventions it touches, and send a research subagent to the web when the answer rests on an
+outside fact. Settle each question the evidence settles, and record the evidence. Ask the user only
+the rest, each with a recommendation. Show the settled ones too, with their evidence, so the user can
+overrule them.
 
 ## 7. Resume
 
@@ -207,8 +226,8 @@ and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
-`AMENDED-<id>.md` · `NEEDS-USER.md` · `parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier
-park of the same block) · `SWEEP.md`.
+`AMENDED-<id>.md` · `NEEDS-USER.md` · `DECISIONS.md` · `parked-<id>.patch` ·
+`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `SWEEP.md`.
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 

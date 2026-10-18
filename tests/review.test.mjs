@@ -268,6 +268,50 @@ section('the verdict schema holds decisions only, and the prompt points every fi
     'the **Fix:** line covers every surface its **What:** names as wrong');
 }
 
+section('the verifier confirms a behavior a **Fix:** line prescribes, and its one other write is a temporary probe');
+// develop's fixer builds the **Fix:** line as written, so an unconfirmed flag or API behavior reaches code as fact.
+{
+  const { prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const v = prompt('verify').replace(/\s+/g, ' ');
+  ok(v.includes("When a **Fix:** line prescribes a command, flag, or library, tool or API behavior the repo does not already use the same way, confirm that behavior against the dependency's own docs or source, or a probe in a temporary directory outside the repo, before you write it. Never prescribe a behavior you did not confirm."),
+    'the prescription check follows the **Fix:** coverage rule');
+  ok(v.includes('An otherwise ACTIONABLE finding whose fix rests on a behavior you cannot confirm is NEEDS_USER. Its **Options:** line names that behavior and the check that would settle it.'),
+    'a fix that rests on an unconfirmable behavior routes to NEEDS_USER');
+  // Verifiers run concurrently, so two probes in one shared directory would overwrite each other.
+  ok(v.includes('you write exactly one inventory file and nothing else, except a probe that confirms a **Fix:** line. Make that probe in a fresh directory you create for it alone (such as `mktemp -d`), outside the target repo and the run-state dir E:/r/runs/t, and remove that directory before you return.'),
+    'the write sentence names the probe, its fresh temporary directory and its removal');
+}
+
+section('each entry records the lens that found it, and only when the lenses are set');
+// A lens id is the only trace of which brief raised a finding once the verifier folds candidates.
+{
+  const LENS_LINE = "\n- category: <category>\n- lens: <the lens id, without brackets, from the kept candidate's line>\n- effort:";
+  const FOLD = "A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.";
+  const two = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
+    'review:u1/destructive':  { wrote_clean_marker: false, findings: [finding({ category: 'data-loss' })] },
+    'review:u1/control-flow': { wrote_clean_marker: false, findings: [finding({ category: 'control-flow' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2')] },
+  });
+  ok(two.prompt('verify').includes(LENS_LINE), 'two set lenses: the template takes the kept candidate\'s lens id after the category');
+  ok(two.prompt('verify').includes(FOLD), 'and a fold across lenses lists each lens id');
+
+  const one = await run({ lens: DESTRUCT }, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'data-loss' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  ok(one.prompt('verify').includes('\n- category: <category>\n- lens: destructive\n- effort:'), 'one set lens: the template names its id');
+  ok(!one.prompt('verify').includes(FOLD), 'and carries no fold rule, since one lens cannot fold across lenses');
+
+  const unset = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  ok(!unset.prompt('verify').includes('- lens:'), 'unset lenses: the template has no lens line, since the default id means nothing');
+}
+
 section('the verifier writes a fix-mode PLAN block, and its own template parses as one');
 // The issue file IS the plan file develop consumes through tools/plan-block.mjs, so the `## Plan:`
 // header, its mode/gate/status preamble and every entry's `- status: open` are contract. The unit id is

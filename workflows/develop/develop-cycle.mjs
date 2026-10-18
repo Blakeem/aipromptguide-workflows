@@ -268,12 +268,14 @@ Run every one, each redirected to its own file outside the target repo, and read
 Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
 plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 
-// Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files and
-// NEEDS-USER, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
+// Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files,
+// NEEDS-USER and DECISIONS, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
 const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
 const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
+// Defaults the developer took and plan amendment pointers, for the user to read, never a question.
+const DECISIONS      = `${STATE_DIR}/DECISIONS.md`;
 const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
 // MATRIX 6a overrides, read by acceptance only. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
@@ -291,7 +293,8 @@ const SETTLED = (id, canContest = true, round = 0) => `Before reviewing, READ ${
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.${round === 1 ? `
     In round 1 it exists only if the developer already declined something (or on a resume). A missing
     file means nothing is settled yet, so do not search for it elsewhere.` : ''}${canContest ? '' : `
-  • ${NEEDS_USER} — items already escalated to the user.`}
+  • ${NEEDS_USER} — items already escalated to the user.
+  • ${DECISIONS} — defaults the developer took and plan amendment pointers, a record.`}
 Skip anything listed there FOR THE STATED REASON. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the finding is at or above the ${REVIEW_SEVERITY} threshold,
@@ -475,7 +478,7 @@ const ACC_SUITE_LINE = SUITE === 'green'
   ? 'The EXISTING suite must still be green — reddening it is a regression, not an accepted block.'
   : 'Do NOT treat the intentionally-red rest of the suite as a failure: judge THIS block on its own selector.';
 
-// Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees NEEDS-USER (see
+// Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
 // PRECEDENCE must quote the frame's own scope line, or 6a outranks nothing.
 const SCOPE_LINE = {
@@ -485,10 +488,11 @@ const SCOPE_LINE = {
 };
 const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -499,8 +503,9 @@ const MATRIX = (id, round, mode) => `DECISION MATRIX — for each ambiguity or r
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -524,14 +529,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to ${NEEDS_USER}: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to ${DECISIONS}: the block id, the round, the defect's file:line, and
     the path ${amendedFile(id)}, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to ${NEEDS_USER} (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to ${dismissedFile(id)} in the DROP shape above, its reason
-    \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${NEEDS_USER}
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to ${NEEDS_USER} (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to ${DECISIONS} (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      ${dismissedFile(id)} in the DROP shape above, its reason
+      \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${DECISIONS}
+      and would re-raise your default every round until this block parks.
+    ${NEEDS_USER} holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.`;
 
@@ -1744,11 +1753,13 @@ for (const p of pending) {
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
     } else if (halted) {
-      // The run is stopping, so say where the work went (see rec.patch).
+      // The run is stopping, so say where the work went (see rec.patch). An escalated block's nextStep line
+      // carries its own research-first instruction, so the suffix stops at the tree state.
       let savedTo = ' It had NOTHING to save (its working tree was already empty)';
       if (rec.patch) savedTo = ` Its work is SAVED to ${rec.patch}`;
       else if (continuedEmpty) savedTo = ` It was ${continuedFrom}. This park wrote no new patch`;
-      haltReason += `${savedTo} and the tree is CLEAN; resolve with the user, then resume from this block.`;
+      const resumeHint = rec.needsUser ? '.' : '; resolve with the user, then resume from this block.';
+      haltReason += `${savedTo} and the tree is CLEAN${resumeHint}`;
     }
   }
   // Guards a future exit that sets no status: a leaked 'pending' reads as "still working".
@@ -1829,6 +1840,7 @@ const noChangePlans = blockedPlans.filter((r) => noChangeIds.includes(r.id));
 const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id));
 // An ordered needs-user halt already says this in its halt text.
 const needsUserParks = haltKind === 'needs-user' ? [] : ledger.filter((r) => r.needsUser);
+const RESEARCH_FIRST = 'research each question in it first (develop guide §6), then put the rest to the user with a recommendation each';
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
@@ -1883,10 +1895,10 @@ return {
   newIssues: newIssuesUnknown ? null : newIssues,
   newIssueFiles: newIssuesUnknown ? null : [...newIssueFiles].sort(),
   reviewTrail,
-  nextStep: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepDied
+  nextStep: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, ${RESEARCH_FIRST}, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepDied
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — verify coverage against the goal yourself before trusting this as finished. `
     : ''}${needsUserParks.length
-    ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, resolve with the user, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
+    ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, ${RESEARCH_FIRST}, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
     : ''}${parkedPlans.length
     ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${savedClearedPlans.length
       ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply\` restore command). `
@@ -1904,12 +1916,12 @@ return {
     : ''}${haltedPlans.length
     ? `${haltedPlans.length} block(s) halted and are NOT done: ${haltedPlans.map((r) => r.id).join(', ')} - the halt reason above says what each needs. `
     : ''}${amendedIds.length
-    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${NEEDS_USER}) before you commit, and fold anything you agree with back into the plan file. `
+    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${DECISIONS}) before you commit, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
     : ''}${newIssueFiles.size || newIssuesUnknown
     ? `${newIssuesUnknown
       ? `A fix verifier returned no usable new-issue report, so check these files for entries: ${[...startedIssueFiles].sort().join(', ')}.`
       : `Acceptance recorded ${newIssues} new issue(s) outside the fixes' root causes in: ${[...newIssueFiles].sort().join(', ')}.`} Triage each file like a debug issue file once its block's status is done or skip, since a relaunch of a parked or blocked block may still append to it. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took or a plan amendment. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };

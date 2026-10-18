@@ -316,6 +316,12 @@ section('every metadata fault exits 1 naming the offending key, value or id');
   ok(/unknown issue key "sevrity"/.test(planFails(fix('### [x-y] t\n- sevrity: high'))), 'an unknown issue key');
   ok(/illegal issue key "severity: urgent"/.test(planFails(fix('### [x-y] t\n- severity: urgent'))),
     'an illegal issue enum');
+  eq(planFails(fix('### [x-y] t\n- severity: high\n- lens: bugs\n- decision: ACTIONABLE')), '', 'an entry with a `- lens:` line parses');
+  let lensValue = '';
+  try { lensValue = parseBlocks(fix('### [x-y] t\n- lens: bugs'))[0].issues[0].values.lens; } catch (e) { lensValue = e.message; }
+  eq(lensValue, 'bugs', 'and its lens value is read');
+  ok(/illegal issue key "severity: urgent"/.test(planFails(fix('### [x-y] t\n- lens: bugs\n- severity: urgent'))),
+    'a `- lens:` line leaves the entry\'s other keys validated');
   ok(/issue id "Not Kebab".*kebab/.test(planFails(fix('### [Not Kebab] t'))), 'a non-kebab entry id');
   ok(/heading id and the id key disagree/.test(planFails(fix('### [x-y] t\n- id: z-w'))),
     'an `- id:` that contradicts its heading');

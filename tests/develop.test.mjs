@@ -617,6 +617,8 @@ section('the `ordered` file key decides whether a parked block stops the run');
   eq(stop.out.status, 'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)', 'ordered status');
   ok(/is SAVED to/.test(stop.out.haltReason) && /tree is CLEAN/.test(stop.out.haltReason),
     'halt reason states saved + clean');
+  ok(/tree is CLEAN; resolve with the user, then resume from this block\./.test(stop.out.haltReason),
+    'a budget park halt, which has no needs-user nextStep, keeps its resume instruction');
 }
 
 section('a developer escalation parks first, then stops an ordered run');
@@ -635,6 +637,10 @@ section('a developer escalation parks first, then stops an ordered run');
   eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
   ok(/The tree is clean/.test(out.nextStep) && !/still holds/.test(out.nextStep),
     'nextStep says the tree is clean, never that it still holds the work');
+  ok(/research each question in it first \(develop guide §6\), then put the rest to the user with a recommendation each/.test(out.nextStep),
+    'nextStep sends the operator to research each question before asking the user');
+  ok(/and the tree is CLEAN\.$/.test(out.haltReason), `the park suffix ends at the tree state: ${out.haltReason}`);
+  ok(!/resolve with the user/.test(out.nextStep), 'and no part of nextStep says to resolve it with the user');
   ok(/was halted: the developer escalated a user-only decision \(see .*NEEDS-USER\.md\)/.test(prompt('park')),
     'park prompt uses the escalation wording');
   // An escalation park has no review path, yet a reviewer may have run: the fallback must claim neither.
@@ -801,8 +807,9 @@ section('an unordered run parks a needs-user block and continues');
     'park is told the run continues');
   ok(/was halted: the developer escalated a user-only decision/.test(prompt('park')), 'with the needs-user reason');
   // The parked-block followup offers only restore, re-run or drop, so the escalated question needs its own line.
-  ok(/1 block\(s\) escalated a user-only decision: block-a\. .*resolve with the user.*relaunch it with runOnly/.test(out.nextStep),
-    'nextStep names the block and says to resolve it with the user');
+  ok(/1 block\(s\) escalated a user-only decision: block-a\. .*research each question in it first \(develop guide §6\), then put the rest to the user with a recommendation each.*relaunch it with runOnly/.test(out.nextStep),
+    'nextStep names the block and sends the operator to research each question before asking the user');
+  ok(!/resolve with the user/.test(out.nextStep), 'and no longer says to resolve it with the user');
 }
 {
   // Every other escalation still stops an unordered run, and park must be told so.
@@ -1218,7 +1225,8 @@ const STATE = 'E:/r/runs/t';
  * Every run-state path the BLIND quality reviewer's prompt discloses must sit under `runs/<runId>/gate/`.
  * Naming the state dir at all discloses everything IN it: `acceptance-review-<id>-rN.md` enumerates the
  * block's acceptance criteria, `AMENDED-<id>.md` quotes the overridden plan clause verbatim, and
- * NEEDS-USER.md carries the pointer line naming that file. #3 forbids relying on "please don't read X".
+ * DECISIONS.md carries the pointer line naming that file and the escalated default. #3 forbids relying
+ * on "please don't read X".
  * The trailing segment is OPTIONAL on purpose: the BARE state dir is the disclosure that matters most
  * (one `ls` reaches all three files), and a pattern demanding a `/` after it cannot see that leak.
  */
@@ -1231,15 +1239,16 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
   ok(q !== '', 'the blind reviewer ran');
   ok(q.includes(`${STATE}/gate/DISMISSED-block-a.md`), 'it IS given the anti-spin ledger (#5)');
   ok(q.includes(`${STATE}/gate/quality-review-block-a-r1.md`), 'and its own output path, gate-scoped too');
-  ok(!q.includes('NEEDS-USER.md'),
-    'but NOT NEEDS-USER: its amendment pointer line names the AMENDED file, which quotes the plan verbatim');
+  ok(!q.includes('NEEDS-USER.md') && !q.includes('DECISIONS.md'),
+    'but NOT NEEDS-USER or DECISIONS: the DECISIONS amendment pointer line names the AMENDED file, which quotes the plan verbatim');
   eq(stateRefsOutsideGate(q).join(', '), '', 'and no run-state path outside gate/');
   // Blindness is placement AND instruction: a fix block's plan file IS an issue inventory.
   ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
     'and it is told never to open a plan file, an inventory or run-state outside gate/');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
-  ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/NEEDS-USER.md`),
-    'while the plan-aware verifier still reads both settled-decision files');
+  ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/NEEDS-USER.md`)
+    && a.includes(`${STATE}/DECISIONS.md`),
+    'while the plan-aware verifier still reads every settled-decision file');
 }
 
 section('two block ids that share their first 60 characters get distinct run-state files');
@@ -1396,7 +1405,7 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
     ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), `${mode}: 6b keeps the unverified case a DROP`);
     ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
       `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
-    ok(/7\. A genuine DESIGN\/BUSINESS choice only the USER can make/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
+    ok(/7\. A choice that changes user-visible behavior, stored data or a public contract/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
   }
 }
 
@@ -1417,10 +1426,14 @@ section('the developer fixes clear wins at every tier, weighs the rest and accou
   const laterRound = { 'block-a': flaggedBus, 'block-b': flaggedBus, 'fix-a': flaggedFix };
   for (const [mode, id, r] of FRAMES) {
     const dev = flat(r.prompt(`develop ${id}`));
-    ok(dev.includes('2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).'),
-      `${mode}: rule 2 logs a pre-existing finding`);
-    ok(dev.includes('4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression risk, and no conflict with the plan → FIX.'),
+    ok(dev.includes('2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX → DROP + LOG. Never fix it (regression risk).'),
+      `${mode}: rule 2 logs a pre-existing finding and leaves a sibling path to the sibling rule`);
+    ok(dev.includes('4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan → FIX.'),
       `${mode}: rule 4 fixes a clear win at any tier`);
+    ok(dev !== '' && !dev.includes('a finding below the threshold included'), `${mode}: rule 4 names no threshold the developer never sees`);
+    ok(dev.includes('7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan, the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.'),
+      `${mode}: rule 7 escalates only a choice nothing the developer can read or check settles`);
+    ok(dev !== '' && !dev.includes('A genuine DESIGN/BUSINESS choice'), `${mode}: the old rule 7 bar is gone`);
     ok(dev.includes("8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it) against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not clearly ahead, or a different block's work → DROP + LOG."),
       `${mode}: rule 8 weighs benefit against cost and logs a drop`);
     ok(dev.includes('Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7). None is dropped silently.'),
@@ -1443,22 +1456,33 @@ section('an amendment is RECORDED in a per-block AMENDED file, with a pointer li
     ok(dev.includes(`## Plan amendment: ${id} r1`), `${mode}: the entry heading carries the round`);
     ok(/QUOTED verbatim/.test(dev) && /file:line \+ one line on why it is\s+real/.test(dev) && /what you built instead/.test(dev),
       `${mode}: the entry demands the overridden clause, the defect evidence and what was built`);
-    ok(dev.includes(`ONE POINTER line to ${STATE}/NEEDS-USER.md`) && /NO plan text/.test(dev),
-      `${mode}: NEEDS-USER gets a pointer line only, no plan text`);
+    ok(dev.includes(`ONE POINTER line to ${STATE}/DECISIONS.md`) && /NO plan text/.test(dev),
+      `${mode}: DECISIONS gets a pointer line only, no plan text`);
+    ok(dev !== '' && !dev.includes(`ONE POINTER line to ${STATE}/NEEDS-USER.md`), `${mode}: NEEDS-USER gets no pointer line`);
     ok(/Count every entry you wrote in plan_amendments/.test(dev), `${mode}: the count is reported through the schema`);
   }
 }
 
 section('case 7 proceeding also writes an ESCALATED: line to the ledger the blind reviewer reads');
-// The blind reviewer is not handed NEEDS-USER.md, so without this line it flags the developer's default
-// every round and a block that should accept parks.
+// The blind reviewer is not handed DECISIONS.md, which holds the escalated default, so without this line
+// it flags the developer's default every round and a block that should accept parks.
 {
   for (const [mode, id, r] of FRAMES) {
     const dev = r.prompt(`develop ${id}`);
-    const esc = dev.slice(dev.indexOf('ESCALATE (7):'));
+    const esc = flat(dev.slice(dev.indexOf('ESCALATE (7)'), dev.indexOf('This is NOT a general code review.')));
     ok(esc.includes(`append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`), `${mode}: case 7 writes the gate-scoped ledger`);
     ok(/ESCALATED: <the default you took/.test(esc), `${mode}: the line states the default taken`);
-    ok(esc.includes(`the blind reviewer is NOT shown ${STATE}/NEEDS-USER.md`), `${mode}: with the reason attached`);
+    ok(esc.includes(`the blind reviewer is NOT shown ${STATE}/DECISIONS.md`), `${mode}: with the reason attached`);
+    ok(esc.includes(`You CANNOT proceed without the answer: append a FULL, self-contained entry to ${STATE}/NEEDS-USER.md`)
+      && esc.includes('and set needs_user=true'), `${mode}: the blocking branch writes NEEDS-USER and stops`);
+    ok(esc.includes(`You can proceed with a defensible default: append an entry to ${STATE}/DECISIONS.md (the choice, the options, the default you took and why), leave needs_user=false`),
+      `${mode}: the proceeding branch writes DECISIONS`);
+    ok(esc.includes(`${STATE}/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an informational note, a test observation, a chore or a default you took to it.`),
+      `${mode}: NEEDS-USER holds only questions`);
+    ok(r.prompt(`acceptance ${id}`).includes(`${STATE}/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.`),
+      `${mode}: acceptance reads DECISIONS as a settled-decision record`);
+    const q = r.prompt(`quality ${id}`);
+    ok(q !== '' && !q.includes('NEEDS-USER.md') && !q.includes('DECISIONS.md'), `${mode}: the blind reviewer is handed neither file`);
   }
 }
 
@@ -1601,6 +1625,8 @@ section('a recorded amendment is logged, summed into the ledger and named in nex
     'the amendment is logged with the file that holds it');
   eq(one.out.ledger[0].planAmendments, 1, 'counted into the block\'s ledger record');
   ok(/PLAN AMENDED for: block-a, block-b/.test(one.out.nextStep), 'and nextStep names every amended block');
+  ok(String(one.out.nextStep ?? '').includes('(and the pointer lines in E:/r/runs/t/DECISIONS.md) before you commit'),
+    'and points at the DECISIONS pointer lines');
 
   const summed = await run({
     develop: firstRound({ ...DEV_OK, plan_amendments: 1 }, { ...DEV_OK, plan_amendments: 2 }),
@@ -1612,6 +1638,8 @@ section('a recorded amendment is logged, summed into the ledger and named in nex
   ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing');
   eq(none.out.ledger[0].planAmendments, 0, 'the ledger record still carries the field');
   ok(!/PLAN AMENDED/.test(none.out.nextStep), 'and nextStep says nothing about amendments');
+  ok(String(none.out.nextStep ?? '').includes('auditing every declined finding. Show the user each entry in E:/r/runs/t/DECISIONS.md if it exists, since each is a default the developer took or a plan amendment.'),
+    'the closing sentence still names DECISIONS, since an escalated default lands there with no amendment');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -2011,6 +2039,8 @@ section('a developer that escalates AND will not confirm its work stayed unstage
   ok(!labels.some((l) => /block-b/.test(l)), 'block-b never started');
   ok(/also escalated a user-only decision \(see .*NEEDS-USER\.md\)/.test(out.haltReason), 'the halt reason also names the escalation');
   eq(out.ledger[0].needsUser, true, 'and the ledger records it');
+  ok(/research each question in it first \(develop guide §6\)/.test(out.nextStep), 'nextStep sends the operator to research the escalation first');
+  ok(!/resolve with the user/.test(out.nextStep), `and no park suffix sends it straight to the user: ${out.nextStep}`);
 }
 
 section('acceptance that FAILS a block but reports staged=true halts, never re-rounds over the index');

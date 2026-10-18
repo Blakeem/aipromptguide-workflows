@@ -55,6 +55,7 @@ const ISSUE_KEYS = {
   loc: null,
   severity: ['critical', 'high', 'medium', 'low'],
   category: null,
+  lens: null,
   effort: null,
   decision: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'SKIP'],
   theme: null,

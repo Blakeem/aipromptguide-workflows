@@ -100,7 +100,7 @@ cannot be stretched to license a status file. For this reason the retired `resol
 grep and produces findings no per-block agent could reach. Resolve's sweep only retold the harness's own
 accounting.
 
-The developer's only outputs besides code are three append files:
+The developer's only outputs besides code are four append files:
 - **`DISMISSED-<id>.md`**, the dismissed-findings ledger, one per plan, section, or batch. It holds one
   terse line per review finding the developer declined (false positive, intentional, conflicts with
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
@@ -109,10 +109,13 @@ The developer's only outputs besides code are three append files:
 - **`AMENDED-<id>.md`**, one entry per plan clause the developer overrode because it prescribes a real
   defect. Each entry quotes the clause, names the defect's file:line, and says what was built instead.
   It is an inter-agent message from the developer to the acceptance stage. It is kept outside `gate/`
-  because it quotes plan text (#3). `NEEDS-USER.md` gets a pointer line to it.
-- **`NEEDS-USER.md`**, the user-facing notes of blockers, questions, and decisions only the user can
-  make. These may be as full as the user needs to decide. A hard blocker also stops its block (#7). A
-  flag-and-proceed item is recorded, and the developer continues with a defensible default.
+  because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
+- **`NEEDS-USER.md`**, the user-facing notes of blockers and questions only the user can answer. These
+  may be as full as the user needs to decide. A hard blocker also stops its block (#7).
+- **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
+  plan amendment pointer. The user reads it at run end, and the acceptance stage reads it. It is never a
+  question. A flag-and-proceed item is recorded here, and the developer continues with a defensible
+  default.
 
 A search-shaped workflow carries two more ledgers on the same terms, investigate's **`DISQUALIFIED.md`**
 and **`SEARCHED.md`**. `DISQUALIFIED.md` holds one terse line per rejected candidate, naming the
@@ -131,9 +134,11 @@ written.
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
 declined finding tersely to `DISMISSED-<id>.md` (#6) so that reviewers don't re-raise it. It must fix or
-escalate a contested dismissal (#5). Only a choice no agent can make, such as a real design or business
-decision or an unresolvable blocker, goes to `NEEDS-USER.md`. If the developer cannot proceed without
-the answer, its block stops immediately and is parked. The run halts only when later work depends on
+escalate a contested dismissal (#5). It escalates only a choice that changes user-visible behavior,
+stored data or a public contract and that the plan, the code, the conventions and a quick check cannot
+settle, or a blocker it cannot resolve in scope. If the developer cannot proceed without the answer, the
+question goes to `NEEDS-USER.md`, and its block stops immediately and is parked. A default the
+developer can proceed with goes to `DECISIONS.md`. The run halts only when later work depends on
 that block (an ordered run), and independent blocks continue. Reviewers report to the developer through
 their review files and never halt the run.
 
@@ -369,8 +374,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs? (#5)
 - [ ] Are the only files written the numbered inter-agent reviews, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
-      `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, and the workflow's own product
-      (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
+      `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, `DECISIONS.md`, and the workflow's own
+      product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
       and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and `NEW-ISSUES-<id>.md`, a parked patch)? Any
       status, summary, progress, or "what I did" file is narration and a violation, including one
       that restates numbers the harness already has. (#6)

@@ -50,7 +50,10 @@ triaged files to develop, and verify ground truth at the end.
   the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
   units never reach it — the reviewer already wrote their marker. It writes every rejected finding as
   one line under a closing `## Rejected` heading with what refutes it, and routes a finding it can
-  neither confirm nor refute to NEEDS_USER.
+  neither confirm nor refute to NEEDS_USER. Before a **Fix:** line prescribes a command, flag or API
+  behavior the repo does not already use the same way, it confirms that behavior in the dependency's docs
+  or source, or with a probe in a fresh temporary directory outside the repo and the run-state dir, which
+  it removes before it returns. A fix that rests on a behavior it cannot confirm routes to NEEDS_USER.
 
 Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../develop/CLAUDE.md`.
 
@@ -58,6 +61,7 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
 
 - **`review.mjs` is read-only.** One writer per unit file — the reviewer writes it when the unit is
   clean, the verifier when it has findings; never both, only ever its own unit's file (parallel-safe).
+  The verifier's one other write is its own temporary probe directory, outside the repo and run-state.
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
   verifiers would race); `NEEDS-USER.md` is only for develop's fix-phase escalations (sequential).
 - **The inventory is CLOSED after `review.mjs`.** develop's fix mode never re-reviews — it only works the
@@ -98,6 +102,9 @@ floor wording.
   issue file behind ONE verifier. Use it to sweep the same code from genuinely different angles in one
   pass. The engine does not dedup, so two lenses may both report the same file+category — that's the
   point, and the verifier folds true duplicates.
+- **Each entry from a lensed run records the lens that found it** on a `- lens:` line after
+  `- category:`. A fold across lenses lists each lens id, comma-separated. Unset, an entry has no lens line.
+  A set lens with no `id` records its default `lens<N>`, so give each lens an `id`.
 - **Fan out by lens instead of file-slice** for a small codebase: pass the same files as N units with
   distinct ids and a different `unit.lens` each → one issue file per lens, reviewed concurrently.
 - Agent ceiling per unit: one reviewer per lens + at most one verifier. It's logged at run start.

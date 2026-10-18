@@ -6,38 +6,38 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 7153 | every block accepts first time |
+| develop | 1 | 1 | 7676 | every block accepts first time |
 | quality | 1 | 1 | 7248 | every block accepts first time |
-| acceptance | 1 | 1 | 7333 | every block accepts first time |
-| develop | 2 | 1 | 7546 | every block accepts first time |
-| acceptance | 2 | 2 | 7614 | every block accepts first time |
+| acceptance | 1 | 1 | 7437 | every block accepts first time |
+| develop | 2 | 1 | 8069 | every block accepts first time |
+| acceptance | 2 | 2 | 7718 | every block accepts first time |
 | final-sweep | 1 | 1 | 2071 | every block accepts first time |
-| develop | 3 | 1 | 6716 | quality flags the first round |
+| develop | 3 | 1 | 7239 | quality flags the first round |
 | quality | 2 | 1 | 7072 | quality flags the first round |
-| acceptance | 3 | 1 | 7332 | quality flags the first round |
-| develop | 4 | 1 | 7109 | quality flags the first round |
-| acceptance | 4 | 2 | 7613 | quality flags the first round |
-| develop | 5 | 1 | 6714 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 7330 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 7107 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 7611 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 7608 | the developer produced nothing |
-| acceptance | 8 | 2 | 7889 | the developer produced nothing |
-| develop | 7 | 1 | 6605 | the gate never goes green |
+| acceptance | 3 | 1 | 7436 | quality flags the first round |
+| develop | 4 | 1 | 7632 | quality flags the first round |
+| acceptance | 4 | 2 | 7717 | quality flags the first round |
+| develop | 5 | 1 | 7237 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 7434 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 7630 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 7715 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 7712 | the developer produced nothing |
+| acceptance | 8 | 2 | 7993 | the developer produced nothing |
+| develop | 7 | 1 | 7128 | the gate never goes green |
 | park | 1 | 1 | 5123 | the gate never goes green |
-| develop | 8 | 1 | 6998 | the gate never goes green |
-| acceptance | 9 | 1 | 7385 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 7440 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 7495 | a parked block, and the run carries on |
+| develop | 8 | 1 | 7521 | the gate never goes green |
+| acceptance | 9 | 1 | 7489 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 7544 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 7599 | a parked block, and the run carries on |
 | park | 2 | 1 | 5067 | a parked block, and the run carries on |
 | park | 3 | 1 | 5118 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8240 | a fix block closes its issues |
-| acceptance | 12 | 3 | 9910 | a fix block closes its issues |
+| develop | 9 | 2 | 8763 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10014 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2062 | a fix block closes its issues |
-| develop | 10 | 2 | 8337 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 10195 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 8860 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 10299 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2092 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 9909 | every issue is already fixed |
+| acceptance | 14 | 3 | 10013 | every issue is already fixed |
 | park | 4 | 1 | 5234 | passed with a regression, not staged |
 | park | 5 | 1 | 5304 | acceptance stages a rejected block |
 | park | 6 | 1 | 5224 | the quality reviewer fails a block without its file |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5148 | the developer dies |
 | park | 10 | 1 | 5218 | developer escalates |
 | park | 11 | 1 | 5259 | developer escalates in an ordered run |
-| develop | 11 | 1 | 8273 | a parked block is continued from its patch |
+| develop | 11 | 1 | 8796 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -95,10 +95,11 @@ PROCEDURE:
    and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -109,8 +110,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -134,14 +136,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -394,6 +400,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -585,10 +592,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -599,8 +607,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -624,14 +633,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -748,6 +761,7 @@ BLOCK: block-b   (mode: section, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -998,10 +1012,11 @@ PROCEDURE:
    and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -1012,8 +1027,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -1037,14 +1053,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -1295,6 +1315,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -1481,10 +1502,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -1495,8 +1517,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -1520,14 +1543,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -1644,6 +1671,7 @@ BLOCK: block-b   (mode: section, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -1829,10 +1857,11 @@ PROCEDURE:
    and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -1843,8 +1872,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -1868,14 +1898,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -1992,6 +2026,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2178,10 +2213,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -2192,8 +2228,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -2217,14 +2254,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -2341,6 +2382,7 @@ BLOCK: block-b   (mode: section, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2511,6 +2553,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2681,6 +2724,7 @@ BLOCK: block-b   (mode: section, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2868,10 +2912,11 @@ PROCEDURE:
    and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -2882,8 +2927,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -2907,14 +2953,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -3151,10 +3201,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -3165,8 +3216,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -3190,14 +3242,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-b.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -3314,6 +3370,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -3482,6 +3539,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -3651,6 +3709,7 @@ BLOCK: block-a   (mode: feature, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -4056,10 +4115,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -4070,8 +4130,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -4095,14 +4156,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-c.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -4242,6 +4307,7 @@ BLOCK: block-c   (mode: fix, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -4549,10 +4615,11 @@ PROCEDURE:
    and HALTS the run.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -4563,8 +4630,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -4588,14 +4656,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-c-plus-1 r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-c-plus-1.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
@@ -4736,6 +4808,7 @@ BLOCK: block-c-plus-1   (mode: fix, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -5015,6 +5088,7 @@ BLOCK: block-c   (mode: fix, gate: green)
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
 Skip anything listed there FOR THE STATED REASON. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -6073,10 +6147,11 @@ PROCEDURE:
    and HALTS the run.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in untouched code (not yours) → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
+      finding you FIX → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier, a finding below the threshold included: real, local, small, low regression
-      risk, and no conflict with the plan → FIX.
+  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
@@ -6087,8 +6162,9 @@ PROCEDURE:
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
       → DROP + LOG.
-  7. A genuine DESIGN/BUSINESS choice only the USER can make, OR a blocker you cannot resolve in scope
-      → ESCALATE + LOG.
+  7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
+      the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
+      → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
   8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
@@ -6112,14 +6188,18 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
-    Then append ONE POINTER line to E:/flow/runs/flow/NEEDS-USER.md: the block id, the round, the defect's file:line, and
+    Then append ONE POINTER line to E:/flow/runs/flow/DECISIONS.md: the block id, the round, the defect's file:line, and
     the path E:/flow/runs/flow/AMENDED-block-a.md, with NO plan text. Count every entry you wrote in plan_amendments.
-  • ESCALATE (7): append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all the detail the user needs
-    to decide). If you CANNOT proceed without the answer, set needs_user=true (this block stops and is parked).
-    If you can proceed with a defensible default, record it there too, leave needs_user=false, AND
-    append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
-    `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/NEEDS-USER.md
-    and would re-raise your default every round until this block parks.
+  • ESCALATE (7), in one of two branches:
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to E:/flow/runs/flow/NEEDS-USER.md (all
+      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
+      options, the default you took and why), leave needs_user=false, AND append ONE terse line to
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
+      and would re-raise your default every round until this block parks.
+    E:/flow/runs/flow/NEEDS-USER.md holds only questions the user must answer before a block can finish. Never write an
+    informational note, a test observation, a chore or a default you took to it.
 This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
 lines you TOUCH a little better, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
