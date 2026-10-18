@@ -267,15 +267,17 @@ for (const path of PLAN_FILES.filter((f) => REPO && (f === REPO || f.startsWith(
 // A parser decides where the block ends: plan bodies use `##` headers, so an agent reading the file by eye
 // can stop at the first `## Feature` and build a truncated spec.
 const blockRef = (p) => (p.blocks ? passRef(p) : `the output of:  node '${BLOCK_TOOL}' '${p.planPath}' '${p.id}'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under ${STATE_DIR}/scratch/ (create it if needed), never inside the
+target repo or ${GATE_DIR}/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 ${p.planPath} if you need a neighbouring block for context; your block is ONLY "${p.id}"`);
 const passRef = (p) => `the output of each command below, one block per command:
 ${p.blocks.map((b) => `  node '${BLOCK_TOOL}' '${b.planPath}' '${b.id}'`).join('\n')}
-Run every one, each redirected to its own file outside the target repo, and read those files, since the
-Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
+Run every one, each redirected to its own file under ${STATE_DIR}/scratch/ (create it if needed), never
+inside the target repo or ${GATE_DIR}/, and read those files, since the Bash display cuts long output.
+Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
+guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 
 // Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files,
 // NEEDS-USER and DECISIONS, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
@@ -477,7 +479,8 @@ GATES (the commands that define "it works"):
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
-restate large files back.`;
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.`;
 
 // A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
 const SUITE_LINE = SUITE === 'green'
@@ -684,7 +687,8 @@ block. Do not duplicate or re-litigate an entry.`;
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.`;
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.`;
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, staging });
 };
 
@@ -1083,12 +1087,11 @@ COMPLETED BLOCKS: ${doneIds.join(', ')}
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
-2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
-   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
-   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
-   vs surprising.
+2. Run each distinct gate command once (build and test may be the same command) and record the real
+   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (\`git -C ${REPO} diff --staged --stat\`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested

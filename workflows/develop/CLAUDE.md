@@ -237,7 +237,8 @@ and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
 `AMENDED-<id>.md` · `NEEDS-USER.md` · `DECISIONS.md` · `parked-<id>.patch` ·
-`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `SWEEP.md`.
+`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `SWEEP.md` · `scratch/` (the agents' plan
+block copies and test logs, never in `gate/`).
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 

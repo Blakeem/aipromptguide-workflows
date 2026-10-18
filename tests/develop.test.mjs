@@ -1210,10 +1210,10 @@ section('a block reaches developer and acceptance as a plan-block COMMAND, never
     'the command uses the <root>/tools default, this block only, every path quoted');
   ok(!/plan-block\.mjs \S+ \S*block-b/.test(dev), 'and never a sibling block');
   ok(/plan_obtained=false and STOP/.test(dev), 'a non-zero exit is reported through the schema, not guessed around');
-  ok(dev.includes('Redirect its output to a file outside the target repo'), 'the developer reads its block from a file, since the Bash display cuts long output');
+  ok(dev.includes('Redirect its output to a file under E:/r/runs/t/scratch/ (create it if needed), never inside the'), 'the developer reads its block from a file under the scratch dir, since the Bash display cuts long output');
   ok(/node 'E:\/r\/tools\/plan-block\.mjs' 'E:\/plans\/bus\.md' 'block-a'/.test(prompt('acceptance block-a')),
     'acceptance judges against the same block the developer built to');
-  ok(prompt('acceptance block-a').includes('Redirect its output to a file outside the target repo'), 'and reads it from a file too');
+  ok(prompt('acceptance block-a').includes('Redirect its output to a file under E:/r/runs/t/scratch/ (create it if needed), never inside the'), 'and reads it from a file there too');
   ok(!/plan-block|bus\.md/.test(prompt('quality block-a')), 'the BLIND reviewer gets no route to any plan (#3)');
 }
 
@@ -1553,8 +1553,23 @@ section('the developer is told the staged index holds blocks this run already ac
 {
   for (const [mode, id, r] of FRAMES) {
     ok(flat(r.prompt(`develop ${id}`)).includes('Anything YOU stage is reviewed by nobody and HALTS the run. '
-      + 'The staged index already holds the blocks this run accepted before this one. They are not yours, so leave them as they are.'),
-      `${mode}: the staging step says the staged entries are earlier accepted blocks, not the developer's`);
+      + 'The staged index already holds the blocks this run accepted before this one. '
+      + 'Leave the index as it is: never unstage, restage or revert those blocks. '
+      + 'You may still edit any file this block needs, including one an earlier block changed.'),
+      `${mode}: the staging step says the staged entries are earlier accepted blocks, and a file they changed stays editable`);
+  }
+}
+
+section('every scratch file an agent writes goes under scratch/, never into the blind reviewer\'s gate/');
+// An agent that redirected the plan block or a test log into gate/ left plan text one read away from the blind reviewer (#3).
+{
+  for (const [mode, id, r] of FRAMES) {
+    for (const role of ['develop', 'acceptance']) {
+      const text = flat(r.prompt(`${role} ${id}`));
+      ok(text.includes(`Write every scratch file, such as a plan block or a test log, under ${STATE}/scratch/, never under ${STATE}/gate/.`),
+        `${mode}: the ${role} prompt sends every scratch file to scratch/ and none to gate/`);
+    }
+    ok(!r.prompt(`quality ${id}`).includes('/scratch/'), `${mode}: the blind prompt names no scratch dir`);
   }
 }
 
@@ -1990,10 +2005,10 @@ section('fix acceptance and the sweep return decisions only, never a prose field
   ok(sweepSchema.required.includes('suite_result') && sweepSchema.properties.suite_result?.type === 'string',
     'the sweep schema requires suite_result, since step 2 makes the suite outcome mandatory');
   const sweepText = flat(swept.prompt('final-sweep'));
-  ok(sweepText.includes("Also grep every guide and README in the repo, sibling workflows' included, for each file name, "
+  ok(sweepText.includes('Also grep every guide and README in the repo, including those of other components, for each file name, '
     + 'phrase or behavior the goal moves or renames.'),
     'the sweep greps every guide and README for what the goal moves or renames');
-  ok(sweepText.includes('Run each distinct gate command once. When build and test are the same command, run it once.'),
+  ok(sweepText.includes('Run each distinct gate command once (build and test may be the same command) and record the real outcome.'),
     'the sweep runs each distinct gate command once');
 }
 
@@ -2053,7 +2068,8 @@ section('a pass hands every agent one command per member block, and edits each s
   }, PASS_ARGS);
   const devPrompt = calls.find((c) => c.label.startsWith('develop')).prompt;
   ok(devPrompt.includes("'E:/plans/one.md' 'fix-a'") && devPrompt.includes("'E:/plans/two.md' 'fix-b'"), 'the developer gets a plan-block command per member');
-  ok(devPrompt.includes('each redirected to its own file outside the target repo'), 'and reads each block from its own file, since the Bash display cuts long output');
+  ok(devPrompt.includes('each redirected to its own file under E:/r/runs/t/scratch/ (create it if needed), never'), 'and reads each block from its own scratch file, since the Bash display cuts long output');
+  ok(calls.find((c) => c.label.startsWith('acceptance')).prompt.includes('each redirected to its own file under E:/r/runs/t/scratch/'), 'and acceptance reads each block from a scratch file too');
   ok(calls.find((c) => c.label.startsWith('acceptance')).prompt.includes("'E:/plans/two.md' 'fix-b'"), 'and so does acceptance');
   eq(calls.filter((c) => c.label.startsWith('develop')).length, 1, 'one developer builds the whole pass');
   eq(out.statusSync.map((e) => `${e.planPath.slice(-6)}:${e.id}=${e.value}`).join(','),

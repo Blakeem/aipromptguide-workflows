@@ -183,7 +183,6 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
     ['plans[].mode', 'mode:"bogus", which names no frame this engine holds', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'bogus' }] }],
     ['plans[].gate', 'gate:"red-baseline" on a FEATURE block (a section gate)', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'red-baseline' }] }],
     ['plans[].status', 'status:"wip"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', status: 'wip' }] }],
-    // build-only, since DEVELOP_ARGS has no test command and a green block would throw for that instead.
     ['plans[].model', 'model:"gpt"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'build-only', model: 'gpt' }] }],
     ['suite', 'suite:"all"', { ...DEVELOP_ARGS, suite: 'all' }],
     ['sweep', 'sweep:"always"', { ...DEVELOP_ARGS, sweep: 'always' }],

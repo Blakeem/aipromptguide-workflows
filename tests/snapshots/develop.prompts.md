@@ -6,47 +6,47 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 7803 | every block accepts first time |
+| develop | 1 | 1 | 8140 | every block accepts first time |
 | quality | 1 | 1 | 7588 | every block accepts first time |
-| acceptance | 1 | 1 | 7604 | every block accepts first time |
-| develop | 2 | 1 | 8196 | every block accepts first time |
-| acceptance | 2 | 2 | 7885 | every block accepts first time |
-| final-sweep | 1 | 1 | 2313 | every block accepts first time |
-| develop | 3 | 1 | 7366 | quality flags the first round |
+| acceptance | 1 | 1 | 7826 | every block accepts first time |
+| develop | 2 | 1 | 8533 | every block accepts first time |
+| acceptance | 2 | 2 | 8107 | every block accepts first time |
+| final-sweep | 1 | 1 | 2398 | every block accepts first time |
+| develop | 3 | 1 | 7703 | quality flags the first round |
 | quality | 2 | 1 | 7412 | quality flags the first round |
-| acceptance | 3 | 1 | 7603 | quality flags the first round |
-| develop | 4 | 1 | 7759 | quality flags the first round |
-| acceptance | 4 | 2 | 7884 | quality flags the first round |
-| develop | 5 | 1 | 7364 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 7601 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 7757 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 7882 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 7879 | the developer produced nothing |
-| acceptance | 8 | 2 | 8160 | the developer produced nothing |
-| develop | 7 | 1 | 7255 | the gate never goes green |
-| park | 1 | 1 | 5123 | the gate never goes green |
-| develop | 8 | 1 | 7648 | the gate never goes green |
-| acceptance | 9 | 1 | 7656 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 7711 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 7766 | a parked block, and the run carries on |
-| park | 2 | 1 | 5067 | a parked block, and the run carries on |
-| park | 3 | 1 | 5118 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 8890 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10181 | a fix block closes its issues |
-| final-sweep | 2 | 1 | 2304 | a fix block closes its issues |
-| develop | 10 | 2 | 8987 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 10466 | a pass of two fix blocks closes its issues |
-| final-sweep | 3 | 1 | 2334 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10180 | every issue is already fixed |
-| park | 4 | 1 | 5234 | passed with a regression, not staged |
-| park | 5 | 1 | 5304 | acceptance stages a rejected block |
-| park | 6 | 1 | 5224 | the quality reviewer fails a block without its file |
-| park | 7 | 1 | 5292 | the developer staged its own work |
-| park | 8 | 1 | 5130 | developer never got its block |
-| park | 9 | 1 | 5148 | the developer dies |
-| park | 10 | 1 | 5218 | developer escalates |
-| park | 11 | 1 | 5259 | developer escalates in an ordered run |
-| develop | 11 | 1 | 8923 | a parked block is continued from its patch |
+| acceptance | 3 | 1 | 7825 | quality flags the first round |
+| develop | 4 | 1 | 8096 | quality flags the first round |
+| acceptance | 4 | 2 | 8106 | quality flags the first round |
+| develop | 5 | 1 | 7701 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 7823 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 8094 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 8104 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 8101 | the developer produced nothing |
+| acceptance | 8 | 2 | 8382 | the developer produced nothing |
+| develop | 7 | 1 | 7592 | the gate never goes green |
+| park | 1 | 1 | 5256 | the gate never goes green |
+| develop | 8 | 1 | 7985 | the gate never goes green |
+| acceptance | 9 | 1 | 7878 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 7933 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 7988 | a parked block, and the run carries on |
+| park | 2 | 1 | 5200 | a parked block, and the run carries on |
+| park | 3 | 1 | 5251 | an ordered run stops at a parked block |
+| develop | 9 | 2 | 9227 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10403 | a fix block closes its issues |
+| final-sweep | 2 | 1 | 2389 | a fix block closes its issues |
+| develop | 10 | 2 | 9323 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 10687 | a pass of two fix blocks closes its issues |
+| final-sweep | 3 | 1 | 2419 | a pass of two fix blocks closes its issues |
+| acceptance | 14 | 3 | 10402 | every issue is already fixed |
+| park | 4 | 1 | 5367 | passed with a regression, not staged |
+| park | 5 | 1 | 5437 | acceptance stages a rejected block |
+| park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
+| park | 7 | 1 | 5425 | the developer staged its own work |
+| park | 8 | 1 | 5263 | developer never got its block |
+| park | 9 | 1 | 5281 | the developer dies |
+| park | 10 | 1 | 5351 | developer escalates |
+| park | 11 | 1 | 5392 | developer escalates in an ordered run |
+| develop | 11 | 1 | 9260 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -55,9 +55,10 @@ this file is stale.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -69,6 +70,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
@@ -93,7 +95,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -386,9 +389,10 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -400,6 +404,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -554,9 +559,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -568,6 +574,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -596,7 +603,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -749,9 +757,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -763,6 +772,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -932,17 +942,17 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-a, block-b
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
-2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
-   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
-   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
-   vs surprising.
+2. Run each distinct gate command once (build and test may be the same command) and record the real
+   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -989,9 +999,10 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1003,6 +1014,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
@@ -1022,7 +1034,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -1313,9 +1326,10 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1327,6 +1341,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -1481,9 +1496,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1495,6 +1511,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior review flagged issues — READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md and address every finding or gap in it, at
@@ -1518,7 +1535,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -1671,9 +1689,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1685,6 +1704,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -1842,9 +1862,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -1856,6 +1877,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-a-r1.md and address every finding or gap in it, at
 every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED
@@ -1875,7 +1897,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -2028,9 +2051,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2042,6 +2066,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2196,9 +2221,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2210,6 +2236,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior review flagged issues — READ E:/flow/runs/flow/acceptance-review-block-b-r1.md and address every finding or gap in it, at
@@ -2233,7 +2260,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -2386,9 +2414,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2400,6 +2429,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2558,9 +2588,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2572,6 +2603,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2730,9 +2762,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2744,6 +2777,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -2904,9 +2938,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -2918,6 +2953,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
@@ -2936,7 +2972,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -3099,6 +3136,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -3190,9 +3228,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -3204,6 +3243,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
@@ -3226,7 +3266,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -3379,9 +3420,10 @@ Return ONLY the decision fields via the schema (no prose report).
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -3393,6 +3435,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -3549,9 +3592,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -3563,6 +3607,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -3720,9 +3765,10 @@ Do NOT modify source code. Return ONLY the decision fields via the schema.
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
 passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
 against that block; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -3734,6 +3780,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -3902,6 +3949,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -4004,6 +4052,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -4095,9 +4144,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the FIXER. Resolve the verified issues in the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
@@ -4111,6 +4161,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -4144,7 +4195,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -4320,9 +4372,10 @@ Return ONLY the decision fields via the schema (no prose report).
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
 the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -4334,6 +4387,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -4543,17 +4597,17 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-c
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
-2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
-   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
-   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
-   vs surprising.
+2. Run each distinct gate command once (build and test may be the same command) and record the real
+   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -4602,9 +4656,10 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 You are the FIXER. Resolve the verified issues in the output of each command below, one block per command:
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
-Run every one, each redirected to its own file outside the target repo, and read those files, since the
-Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
+Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
+inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
+Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
+guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
@@ -4617,6 +4672,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
@@ -4650,7 +4706,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 5. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
@@ -4828,9 +4885,10 @@ blind code review already passed (or was skipped because the developer changed n
 the output of each command below, one block per command:
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/one.md' 'block-c'
   node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/two.md' 'block-d'
-Run every one, each redirected to its own file outside the target repo, and read those files, since the
-Bash display cuts long output. Each output is one block, verbatim. If any exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
+Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ (create it if needed), never
+inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
+Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
+guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -4841,6 +4899,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -5053,17 +5112,17 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 COMPLETED BLOCKS: block-c-plus-1
 
 PROCEDURE (read-only except step 4):
 1. RE-DERIVE the change surface from the GOAL: grep the target repo for every pattern/API/symbol the goal
    replaces or touches. Any hit that should have been converted but wasn't = a gap. Record hit counts.
-   Also grep every guide and README in the repo, sibling workflows' included, for each file name,
+   Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
-2. Run the FULL gates (GATES above) once and record the real outcome. Run each distinct gate command
-   once. When build and test are the same command, run it once. If the GOAL implies whole-suite
-   green at the end, a red suite is a gap; if a red tail is expected, say which failures look expected
-   vs surprising.
+2. Run each distinct gate command once (build and test may be the same command) and record the real
+   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
@@ -5112,9 +5171,10 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 You are the ACCEPTANCE VERIFIER — the final, issue-aware gate for ONE fix block or pass of blocks. The
 blind code review already passed (or was skipped because the developer changed nothing). Read
 the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-c'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
 instruction. You judge the work against it; you never implement it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -5126,6 +5186,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
@@ -5334,6 +5395,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5436,6 +5498,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5538,6 +5601,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5640,6 +5704,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5742,6 +5807,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5844,6 +5910,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -5946,6 +6013,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -6048,6 +6116,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
@@ -6139,9 +6208,10 @@ Return saved + cleared + gates_green + patch_bytes via the schema.
 ~~~~text
 
 You are the DEVELOPER. Implement the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file outside the target repo and read that file, since the Bash
-display cuts long output. That output is the block, verbatim. If it exits non-zero, report
-plan_obtained=false and STOP: never guess at a plan you could not read. The full plan file is at
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -6153,6 +6223,7 @@ GATES (the commands that define "it works"):
 BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
@@ -6189,7 +6260,8 @@ PROCEDURE:
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   They are not yours, so leave them as they are.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   this block needs, including one an earlier block changed.
 4. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
