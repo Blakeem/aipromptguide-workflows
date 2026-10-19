@@ -125,6 +125,26 @@ models. Show each block's model in the approval summary.
   does a block that already landed and is built again from scratch, so its old `DISMISSED-<id>.md`
   stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 
+**Choosing the change policy.** `changePolicy` sets how far a developer may change code past its block.
+`strict` keeps each change to its block. `proactive` builds each feature and section block with the
+change that has the best long-term result. It also fixes clear defects and makes clear-win refactors in
+the code a block reaches, logging each to `DECISIONS.md`. A fix block keeps each fix as its entry
+instructs, and that extra work stays inside the code each fix touches. Acceptance excuses a logged
+change from its regression check only when it stays inside those bounds, the behavior it removes was a
+defect, and nothing else changed. Every developer prompt says the policy and the prompt's own scope
+rules override any other instruction about scope, a memory line or a CLAUDE.md included. A policy the
+user names for a run wins. Otherwise look for the target repo in the auto-memory entry
+`change-policy.md`, a topic file whose `MEMORY.md` index line lists each repo by absolute path with its
+policy, such as `- [Change policy](change-policy.md) — E:/proj=proactive, E:/work/api=strict`. Match
+the path case-insensitively, with forward slashes. A listed repo takes its policy. A worktree takes the
+line of its main checkout. `git -C <worktree> rev-parse --path-format=absolute --git-common-dir` prints
+that checkout's `.git` folder, whose parent is the checkout. An unlisted repo takes `strict`, with no
+question and no memory write, when `git -C <repo> log --format=%ae | sort -u` shows an author other
+than the user's `git config user.email`. An unlisted repo whose only author is the user, or that has no
+commits yet, gets one question with `proactive` recommended, and the answer is saved to that memory
+entry and its index line. With auto memory off, the default is `strict`. Show the policy in the
+approval summary.
+
 ## 5. Roles
 
 Same roles and contracts as the engines it replaces, with these merge-specific points:
@@ -275,7 +295,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `reviewSeverity` (`low|medium|high|critical`, default `medium`, any other value
   **throws**. The threshold of every blind review but a block's first in a launch, which uses `low`
-  when a later round remains) ·
+  when a later round remains) · `changePolicy` (`strict|proactive`, default `strict`, any other value
+  **throws**. How far a developer may change code past its block, and §4 says how to choose it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (every role opus. A block's `model:` line overrides `models.develop` for that block's developer and
   park agent, §3) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1

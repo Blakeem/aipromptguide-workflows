@@ -48,8 +48,16 @@ const GATES       = A.gates ?? {};                          // { build, test, te
 // review surfaces a new batch each round).
 const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
 const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
-const REVIEW_SEV  = SEV_RANK[REVIEW_SEV_NAME];
+// A plain lookup resolves an inherited name such as `constructor` to a function, which no comparison drops.
+const REVIEW_SEV  = Object.hasOwn(SEV_RANK, REVIEW_SEV_NAME) ? SEV_RANK[REVIEW_SEV_NAME] : undefined;
 if (REVIEW_SEV === undefined) throw new Error(`reviewSeverity "${REVIEW_SEV_NAME}" is not one of low|medium|high|critical`);
+// A typo that coerced would silently widen or narrow the scope of every Fix line the fixer later builds.
+const VALID_CHANGE_POLICY = new Set(['strict', 'proactive']);
+const CHANGE_POLICY = A.changePolicy ?? 'strict';
+if (!VALID_CHANGE_POLICY.has(CHANGE_POLICY)) {
+  throw new Error(`Invalid args.changePolicy: it must be one of strict, proactive; got ${JSON.stringify(A.changePolicy)}. It is not coerced, since it decides how far each Fix line reaches.`);
+}
+const PROACTIVE = CHANGE_POLICY === 'proactive';
 // The reviewer and the verifier both grade on this one written scale, so the floor cuts where both expect it.
 const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
@@ -219,6 +227,14 @@ BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report
 task names. Read another file only by targeted grep or short read, and only to confirm or reject a
 candidate in those files. Don't restate large files back.`;
 
+// Every agent also loads the user's CLAUDE.md and auto memory, which may set fix scope another way.
+// The prompt's own scope and routing rules carry the policy out, so they are not "other".
+const POLICY_LINE = `CHANGE POLICY: ${CHANGE_POLICY}. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.`;
+const BEST_FIX = 'the best long-term result: correct, simple, maintainable and consistent with the repo';
+const FIX_DIRECTION = PROACTIVE ? `a suggested_fix direction with ${BEST_FIX}` : 'a minimal suggested_fix direction';
+const ROUTED_FIX_LINE = PROACTIVE ? `a precise **Fix:** line that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal **Fix:** line';
+const TEMPLATE_FIX_LINE = PROACTIVE ? `a precise instruction for the fixer that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal instruction for the fixer';
+
 // =============================================================================
 // Review-phase prompts
 // =============================================================================
@@ -228,6 +244,7 @@ FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT
 the target repo${cleanEligible
     ? ' (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).'
     : '. Write no file. Another pass decides the unit\'s marker. Return wrote_clean_marker=false.'}
+${POLICY_LINE}
 ${ENV}
 UNIT: ${unit.id}${L.isSet ? `\nLENS: ${L.id}` : ''}
 FILES TO REVIEW (read them fully):
@@ -247,7 +264,7 @@ RULES:
   an efficiency idea, and those are rejected downstream. Every finding must be something the code gets
   WRONG today, not something it could do better.
 - Each finding: specific file + line, the right category/severity, what's wrong and why it matters${L.matters},
-  and a minimal suggested_fix direction.${handled.length ? `\n\nALREADY FOUND in a prior pass:\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
+  and ${FIX_DIRECTION}.${handled.length ? `\n\nALREADY FOUND in a prior pass:\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO ${REVIEW_SEV_NAME}+ findings, WRITE the file ${issueFile(unit.id)} (create
 ${ISSUES_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
@@ -284,6 +301,7 @@ is real, correct its severity, then route it with the decision matrix. Reject fa
 gold-plating ruthlessly, in particular anything the code ALREADY does and anything that is a preference
 rather than a defect.
 ${SEVERITY_SCALE}
+${POLICY_LINE}
 ${ENV}
 UNIT: ${unit.id}
 UNIT FILES (each entry's \`- loc:\` value comes from this list):
@@ -316,7 +334,7 @@ ROUTING (apply in order; first match wins):
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
   - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
-  - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
+  - otherwise -> ACTIONABLE (write ${ROUTED_FIX_LINE})
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
 its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.
@@ -360,7 +378,7 @@ ${lensLine}- effort: <matrix effort>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>
-**Fix:** <a precise, minimal instruction for the fixer>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
+**Fix:** <${TEMPLATE_FIX_LINE}>  (ACTIONABLE; for NEEDS_USER leave the chosen option for the user)
 **Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
 -----
@@ -400,7 +418,7 @@ for (const u of units) {
 const failed = [];
 const totalReviewers = units.reduce((s, u) => s + lensesOf(u).length, 0);
 const lensedUnits = units.filter((u) => u && u.lens).length;
-log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [floor=${REVIEW_SEV_NAME}, ${totalReviewers} reviewer(s)${A.lens ? `, default lens x${asList(A.lens).length}` : ''}${lensedUnits ? `, ${lensedUnits} unit lens override(s)` : ''}]`);
+log(`review: ${units.length} unit(s) → ${ISSUES_DIR} [floor=${REVIEW_SEV_NAME}, changePolicy=${CHANGE_POLICY}, ${totalReviewers} reviewer(s)${A.lens ? `, default lens x${asList(A.lens).length}` : ''}${lensedUnits ? `, ${lensedUnits} unit lens override(s)` : ''}]`);
 log(`spawn ceiling: ≤ ${totalReviewers + units.length} agents (${totalReviewers} reviewer(s) = one per unit x lens, + ≤${units.length} verifiers — verify spawns only where findings exist, ONE per unit however many lenses it ran)`);
 
 // Read-only fan-out: each unit flows reviewer(s) → verifier independently and concurrently.

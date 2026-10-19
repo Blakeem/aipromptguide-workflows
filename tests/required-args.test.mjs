@@ -57,6 +57,7 @@ const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, ga
 // whole subject of the run: there is no inline plan and no default, and an omitted one would spawn a
 // critic against nothing and report a clean round for a plan it never saw.
 const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md' };
+const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
 // decide and docs are the two engines that do NOT reach a terminal on empty returns (measured
@@ -99,7 +100,7 @@ const SWEEP = [
   },
   {
     engine: 'workflows/debug/review.mjs',
-    baseArgs: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] },
+    baseArgs: REVIEW_ARGS,
     respond: {},
     required: ['runId', 'root', 'target.repo', 'units'],
   },
@@ -186,6 +187,24 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
     ['plans[].model', 'model:"gpt"', { ...DEVELOP_ARGS, plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'build-only', model: 'gpt' }] }],
     ['suite', 'suite:"all"', { ...DEVELOP_ARGS, suite: 'all' }],
     ['sweep', 'sweep:"always"', { ...DEVELOP_ARGS, sweep: 'always' }],
+    ['changePolicy', 'changePolicy:"lenient"', { ...DEVELOP_ARGS, changePolicy: 'lenient' }],
+  ];
+  for (const [path, what, args] of VALUES) {
+    const msg = await throwsWith(engine, { args, respond: {} });
+    ok(msg !== '', `${path} = ${what} throws: ${msg.slice(0, 50)}`);
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// review's control VALUES are present and wrong, never missing, so the deletion sweep cannot reach them.
+// `constructor` resolved through a plain-object lookup of the severity ranks and passed the floor guard.
+// ---------------------------------------------------------------------------------------------
+{
+  const engine = 'workflows/debug/review.mjs';
+  section('review.mjs — an illegal severity floor or change policy throws instead of coercing');
+  const VALUES = [
+    ['reviewSeverity', 'reviewSeverity:"constructor", an inherited object name', { ...REVIEW_ARGS, reviewSeverity: 'constructor' }],
+    ['changePolicy', 'changePolicy:"lenient"', { ...REVIEW_ARGS, changePolicy: 'lenient' }],
   ];
   for (const [path, what, args] of VALUES) {
     const msg = await throwsWith(engine, { args, respond: {} });

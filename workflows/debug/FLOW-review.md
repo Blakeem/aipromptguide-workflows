@@ -19,9 +19,10 @@ flowchart TD
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.target.repo is required"/]
   x5[/"throw: reviewSeverity #quot;...#quot; is not one of low#124;medium#124;high#124;critical"/]
-  x6[/"throw: review requires a non-empty args.units array"/]
-  x7[/"throw: Issue file collision"/]
-  x8[/"throw: Plan id collision"/]
+  x6[/"throw: Invalid args.changePolicy"/]
+  x7[/"throw: review requires a non-empty args.units array"/]
+  x8[/"throw: Issue file collision"/]
+  x9[/"throw: Plan id collision"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -31,6 +32,7 @@ flowchart TD
   S0 --> x6
   S0 --> x7
   S0 --> x8
+  S0 --> x9
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
@@ -63,11 +65,12 @@ flowchart TD
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
-| throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 52) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 384) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 394) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 395) |
+| throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 53) |
+| throw: Invalid args.changePolicy | args.changePolicy is outside strict \| proactive | throw (line 58) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 402) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 412) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 413) |
 
 ## Coverage
 
-11 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 11 terminal states.
+12 scenarios · 2/2 roles · 9/9 throw sites · 0/0 halt statuses · 12 terminal states.

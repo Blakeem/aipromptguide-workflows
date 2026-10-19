@@ -114,6 +114,8 @@ export default {
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
     // nit grades the dive below the threshold, so it is rejected as the threshold itself.
     { name: 'unknown review severity', when: 'reviewSeverity is outside low | medium | high | critical', args: { ...base, reviewSeverity: 'nit' } },
+    // A coerced policy would silently widen or narrow every developer's diff.
+    { name: 'unknown change policy', when: 'changePolicy is outside strict | proactive', args: { ...base, changePolicy: 'lenient' } },
     // Retired args throw rather than being ignored: each served only a hand-built payload.
     { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
     { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },

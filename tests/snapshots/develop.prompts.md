@@ -6,35 +6,35 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 12707 | every block accepts first time |
+| develop | 1 | 1 | 12909 | every block accepts first time |
 | quality | 1 | 1 | 8046 | every block accepts first time |
 | acceptance | 1 | 1 | 8216 | every block accepts first time |
-| develop | 2 | 1 | 13115 | every block accepts first time |
+| develop | 2 | 1 | 13317 | every block accepts first time |
 | acceptance | 2 | 2 | 8497 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 12270 | quality flags the first round |
+| develop | 3 | 1 | 12472 | quality flags the first round |
 | quality | 2 | 2 | 8055 | quality flags the first round |
 | acceptance | 3 | 1 | 8215 | quality flags the first round |
-| develop | 4 | 1 | 12678 | quality flags the first round |
+| develop | 4 | 1 | 12880 | quality flags the first round |
 | acceptance | 4 | 2 | 8496 | quality flags the first round |
-| develop | 5 | 1 | 12268 | acceptance finds gaps, then passes |
+| develop | 5 | 1 | 12470 | acceptance finds gaps, then passes |
 | acceptance | 5 | 1 | 8213 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 12676 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 12878 | acceptance finds gaps, then passes |
 | acceptance | 6 | 2 | 8494 | acceptance finds gaps, then passes |
 | acceptance | 7 | 1 | 8491 | the developer produced nothing |
 | acceptance | 8 | 2 | 8772 | the developer produced nothing |
-| develop | 7 | 1 | 12159 | the gate never goes green |
+| develop | 7 | 1 | 12361 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 12567 | the gate never goes green |
+| develop | 8 | 1 | 12769 | the gate never goes green |
 | acceptance | 9 | 1 | 8268 | a parked block, and the run carries on |
 | acceptance | 10 | 1 | 8323 | a parked block, and the run carries on |
 | acceptance | 11 | 1 | 8378 | a parked block, and the run carries on |
 | park | 2 | 1 | 5200 | a parked block, and the run carries on |
 | park | 3 | 1 | 5251 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 13840 | a fix block closes its issues |
+| develop | 9 | 2 | 14042 | a fix block closes its issues |
 | acceptance | 12 | 3 | 10884 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
-| develop | 10 | 2 | 13936 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 14138 | a pass of two fix blocks closes its issues |
 | acceptance | 13 | 3 | 11168 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
 | acceptance | 14 | 3 | 10883 | every issue is already fixed |
@@ -46,7 +46,7 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 13827 | a parked block is continued from its patch |
+| develop | 11 | 1 | 14029 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -61,6 +61,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -611,6 +612,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -1098,6 +1100,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -1643,6 +1646,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -2051,6 +2055,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -2452,6 +2457,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -3195,6 +3201,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -3535,6 +3542,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
 conventions; NO scope creep beyond it.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -4479,6 +4487,7 @@ E:/flow/plans/bus.md if you need a neighbouring block for context; your block is
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -5048,6 +5057,7 @@ guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". E
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, NO scope creep beyond what each fix requires.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -6660,6 +6670,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
 NO scope creep beyond the plan.
+CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)

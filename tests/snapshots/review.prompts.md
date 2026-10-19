@@ -6,12 +6,12 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 3138 | a clean unit beside one with findings |
-| verify | 1 | 1 | 6518 | a clean unit beside one with findings |
-| review | 2 | 1 | 2724 | two lenses per unit |
-| review | 3 | 1 | 2850 | two lenses per unit |
-| verify | 2 | 1 | 7001 | two lenses per unit |
-| verify | 3 | 1 | 7001 | two lenses per unit |
+| review | 1 | 1 | 3416 | a clean unit beside one with findings |
+| verify | 1 | 1 | 6796 | a clean unit beside one with findings |
+| review | 2 | 1 | 3002 | two lenses per unit |
+| review | 3 | 1 | 3128 | two lenses per unit |
+| verify | 2 | 1 | 7279 | two lenses per unit |
+| verify | 3 | 1 | 7279 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -22,6 +22,7 @@ this file is stale.
 You are the REVIEWER examining ONE bounded unit of a codebase for PRODUCTION READINESS. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
 the target repo (the ONLY file you may write is the clean-unit marker described below, in the run-state dir).
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -171,6 +172,7 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -378,6 +380,7 @@ Set wrote_file=true and return all verdicts via the schema.
 You are the REVIEWER auditing DESTRUCTIVE behavior. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
 the target repo. Write no file. Another pass decides the unit's marker. Return wrote_clean_marker=false.
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -504,6 +507,7 @@ Return findings via the schema. An empty array (a clean unit) is a normal, good 
 You are the REVIEWER auditing DATA LOSS. This is a
 FIND-ONLY pass: you report defects, and later phases verify and fix them. Do NOT modify any file in
 the target repo. Write no file. Another pass decides the unit's marker. Return wrote_clean_marker=false.
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -643,6 +647,7 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):
@@ -867,6 +872,7 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
              result the caller can detect.
   low      - a real defect with no effect on any input the code accepts today.
+CHANGE POLICY: strict. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 Source paths are RELATIVE TO THIS REPO. Use `git -C E:/repo …` for git.
 CONVENTIONS (judge against these):

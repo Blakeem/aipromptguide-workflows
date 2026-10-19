@@ -2511,3 +2511,80 @@ section('every developer frame follows the repo\'s patterns, then checks its dif
       `${mode}: the self-check says what ${mode} acceptance checks, and no other mode's`);
   }
 }
+
+section('changePolicy defaults to strict, proactive widens each developer frame to the code its block reaches, and any other value throws');
+// The user's CLAUDE.md and auto memory reach every agent too, so each developer prompt names the policy as the override.
+{
+  const policyLine = (policy) => `CHANGE POLICY: ${policy}. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.`;
+  const pro = await run(GREEN_RUN, { ...baseArgs, changePolicy: 'proactive' });
+  const proFix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, { ...FIX_ONE, changePolicy: 'proactive' });
+  const PRO_FRAMES = [['feature', 'block-a', pro], ['section', 'block-b', pro], ['fix', 'fix-a', proFix]];
+  const strictScope = {
+    feature: 'Build it minimally and surgically; match conventions; NO scope creep beyond the plan.',
+    section: 'Build ONLY this block minimally and surgically; match conventions; NO scope creep beyond it.',
+    fix: 'Fix each one exactly as instructed, minimally and surgically; NO opportunistic refactors, NO scope creep beyond what each fix requires.',
+  };
+  const strictRule2 = '2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX → DROP + LOG.';
+  const strictClose = 'leave the lines you TOUCH a little better, and touch nothing else.';
+  const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Also fix clear defects and make clear-win refactors in this block\'s reach, which is the code the REACH step in your SELF-CHECK below finds from the changes this block itself requires, not from your proactive changes. Leave a change that another block of the plan owns to that block.';
+  const proScope = {
+    feature: `Build it ${best} Match conventions; NO scope creep beyond the plan and this block's reach.`,
+    section: `Build this block ${best} Match conventions; NO scope creep beyond this block and its reach.`,
+    fix: 'Fix each one exactly as instructed, minimally and surgically. Inside the code each fix touches, also fix clear defects and make clear-win refactors, never on behalf of an entry that is not ACTIONABLE. NO opportunistic refactors outside that code, NO scope creep beyond what each fix requires and the code it touches.',
+  };
+  const proRule2 = '2. Pre-existing in code outside this block\'s reach, as the top of this prompt defines it, and not a sibling path of a finding you FIX → DROP + LOG.';
+  const proClose = 'fix the clear defects and make the clear-win refactors in this block\'s reach, and touch nothing outside that reach.';
+  const decisionsRule = (id) => `PROACTIVE (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each fix or refactor you made beyond this block's own work and no earlier round logged, naming its file:line, what changed and why: \`PROACTIVE ${id}: <file:line> — <what changed> — <why>\``;
+  const planReach = 'this block\'s reach (the code this block\'s own changes touch, plus its callers and consumers, sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it) and in no change another block of the plan owns';
+  const proReach = { feature: planReach, section: planReach, fix: 'the code a fix of this block touches' };
+  const proRegression = (id, mode) => `A behavior change that a "PROACTIVE ${id}:" line in ${STATE}/DECISIONS.md names is not a regression when you confirm from the code that the change lies in ${proReach[mode]}, that the baseline behavior it removes was itself a defect, and that the change alters no other behavior. Such a line excuses nothing else, so a change outside that code, a refactor that changes behavior, or a fix that alters any other behavior, is a regression.`;
+  const strictStep4 = '4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted behavior was changed or broken.';
+  const proStep4 = '4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted behavior was changed or broken, apart from a removed defect that a PROACTIVE line names, judged by the regression rule above.';
+  const strictCheck = 'that no behavior of the staged baseline regressed, and';
+  const proCheck = 'that no behavior of the staged baseline regressed, apart from a removed defect, inside the scope this prompt sets, that a PROACTIVE line in DECISIONS.md names, and';
+  const decisionsNext = (what) => `Show the user each entry in ${STATE}/DECISIONS.md if it exists, since each is ${what}.`;
+  const settledPro = `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix or refactor this run's proactive change policy let the developer make beyond a block's own work, a record. A PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.`;
+
+  ok(bus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=strict]')), 'the default run\'s start line names strict');
+  ok(pro.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=proactive]')), 'a proactive run\'s start line names proactive');
+
+  for (const [mode, id, r] of FRAMES) {
+    const dev = flat(r.prompt(`develop ${id}`));
+    ok(dev.includes(strictScope[mode]) && dev.includes(strictClose), `strict ${mode}: the developer keeps today's scope text`);
+    ok(dev.includes(policyLine('strict')), `strict ${mode}: the developer prompt names the policy and its override`);
+    ok(!dev.includes('PROACTIVE (this run') && !dev.includes('best long-term result') && !dev.includes('clear-win refactors'),
+      `strict ${mode}: no proactive text`);
+    ok(dev.includes(strictCheck), `strict ${mode}: the self-check's regression clause is unchanged`);
+    const acc = flat(r.prompt(`acceptance ${id}`));
+    ok(acc.includes(`${STATE}/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.`),
+      `strict ${mode}: acceptance's DECISIONS entry is unchanged`);
+    ok(!acc.includes('PROACTIVE'), `strict ${mode}: acceptance excuses no change as proactive`);
+    ok(acc.includes(strictStep4), `strict ${mode}: acceptance's regression step is unchanged`);
+  }
+  ok(String(bus.out.nextStep ?? '').includes(decisionsNext('a default the developer took or a plan amendment')), 'strict: nextStep describes DECISIONS without proactive lines');
+  ok(flat(bus.prompt('develop block-a')).includes(strictRule2), 'strict feature: decision-matrix rule 2 keeps today\'s text');
+
+  for (const [mode, id, r] of PRO_FRAMES) {
+    const dev = flat(r.prompt(`develop ${id}`));
+    ok(dev.includes(policyLine('proactive')), `proactive ${mode}: the developer prompt names the policy and its override`);
+    ok(dev.includes(proScope[mode]) && !dev.includes(strictScope[mode]), `proactive ${mode}: the scope text is the proactive one`);
+    ok(dev.includes(decisionsRule(id)), `proactive ${mode}: each fix or refactor beyond the block gets one DECISIONS line in a fixed shape`);
+    ok(dev.includes(proCheck) && !dev.includes(strictCheck), `proactive ${mode}: the self-check says acceptance excuses a logged defect fix`);
+    ok(dev.includes(mode === 'fix' ? strictRule2 : proRule2) && dev.includes(mode === 'fix' ? strictClose : proClose),
+      `proactive ${mode}: rule 2 and the closing sentence bound the work by ${mode === 'fix' ? 'the code the diff touches' : 'the block\'s reach'}`);
+    const acc = flat(r.prompt(`acceptance ${id}`));
+    ok(acc.includes(settledPro), `proactive ${mode}: acceptance's DECISIONS entry says it also holds the proactive lines`);
+    ok(acc.includes(proRegression(id, mode)), `proactive ${mode}: acceptance's regression rule excuses a logged defect fix inside the ${mode} bound and nothing else`);
+    ok(acc.includes(proStep4) && !acc.includes(strictStep4), `proactive ${mode}: acceptance's regression step defers a PROACTIVE line to the regression rule`);
+  }
+  ok(String(pro.out.nextStep ?? '').includes(decisionsNext('a default the developer took, a plan amendment, or a fix or refactor the proactive change policy allowed. Show a PROACTIVE line only after you confirm the code still holds its change, since a later round or a park can undo it')),
+    'proactive: nextStep says DECISIONS also holds the proactive lines, each shown only while the code holds its change');
+  ok(!flat(pro.prompt('develop block-a')).includes('minimally and surgically') && !flat(pro.prompt('develop block-b')).includes('minimally and surgically'),
+    'proactive feature and section: no "minimally and surgically"');
+
+  for (const bad of ['lenient', 'Strict', '']) {
+    const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, changePolicy: bad } });
+    ok(msg.startsWith('Invalid args.changePolicy: it must be one of strict, proactive') && msg.includes(JSON.stringify(bad)),
+      `changePolicy ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 90)}`);
+  }
+}

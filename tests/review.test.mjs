@@ -426,9 +426,66 @@ section('reviewer and verifier grade by impact, never by fix size');
 }
 
 section('an unknown reviewSeverity throws instead of disabling the floor');
+// A plain-object lookup resolves an inherited name to a value that no comparison drops, so each one needs its own case.
 {
-  const msg = await throwsWith(ENGINE, { args: { ...baseArgs, units: [UNIT], reviewSeverity: 'Medium' }, respond: {} });
-  ok(msg.includes('reviewSeverity "Medium" is not one of low|medium|high|critical'), `throws naming the bad value: ${msg}`);
+  for (const bad of ['Medium', 'constructor', 'toString', '__proto__']) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, units: [UNIT], reviewSeverity: bad }, respond: {} });
+    ok(msg.includes(`reviewSeverity "${bad}" is not one of low|medium|high|critical`), `${bad} throws naming the bad value: ${msg}`);
+  }
+}
+
+section('changePolicy defaults to strict, proactive prescribes the best long-term fix, and any other value throws');
+// The user's CLAUDE.md and auto memory reach the reviewer and the verifier too, so each prompt names the policy as the override.
+{
+  const policyLine = (policy) => `CHANGE POLICY: ${policy}. This policy and the scope and routing rules in this prompt settle the scope of each suggested fix and each **Fix:** line, and override any other instruction about scope, including a memory line or a CLAUDE.md. It does not change what counts as a finding.`;
+  const best = 'the best long-term result: correct, simple, maintainable and consistent with the repo';
+  const RESPOND = {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  };
+  const strict = await run({}, RESPOND);
+  const explicit = await run({ changePolicy: 'strict' }, RESPOND);
+  const pro = await run({ changePolicy: 'proactive' }, RESPOND);
+  const text = (r, role) => r.prompt(role).replace(/\s+/g, ' ');
+
+  eq(explicit.prompt('review'), strict.prompt('review'), 'strict named explicitly gives the default reviewer prompt');
+  eq(explicit.prompt('verify'), strict.prompt('verify'), 'and the default verifier prompt');
+  ok(strict.logs.some((l) => l.startsWith('review: 1 unit(s)') && l.includes(', changePolicy=strict,')), 'the default run\'s start line names strict');
+  ok(pro.logs.some((l) => l.startsWith('review: 1 unit(s)') && l.includes(', changePolicy=proactive,')), 'a proactive run\'s start line names proactive');
+
+  const strictWording = {
+    review: ['and a minimal suggested_fix direction.'],
+    verify: ['otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)', '**Fix:** <a precise, minimal instruction for the fixer> (ACTIONABLE;'],
+  };
+  const proWording = {
+    review: [`and a suggested_fix direction with ${best}.`],
+    verify: [`otherwise -> ACTIONABLE (write a precise **Fix:** line that prescribes the fix with ${best})`,
+      `**Fix:** <a precise instruction for the fixer that prescribes the fix with ${best}> (ACTIONABLE;`],
+  };
+  // Neither policy touches the rules on what counts as a finding, how far a Fix line reaches or where a finding routes.
+  const keptRules = {
+    review: ['- Stay INSIDE this unit\'s files.', 'Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.'],
+    verify: ['- scope == scope-creep -> REJECT (do not pursue)',
+      '- effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)',
+      'The **Fix:** line covers every file, string or path its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.'],
+  };
+  for (const role of ['review', 'verify']) {
+    const s = text(strict, role);
+    const p = text(pro, role);
+    ok(s.includes(policyLine('strict')) && !s.includes(policyLine('proactive')), `strict ${role}: the prompt names the policy and its override`);
+    ok(p.includes(policyLine('proactive')) && !p.includes(policyLine('strict')), `proactive ${role}: the prompt names the policy and its override`);
+    for (const w of strictWording[role]) ok(s.includes(w) && !p.includes(w), `${role}: the strict wording "${w}" is only in the strict prompt`);
+    for (const w of proWording[role]) ok(p.includes(w) && !s.includes(w), `${role}: the proactive wording "${w.slice(0, 60)}" is only in the proactive prompt`);
+    ok(!s.includes('best long-term'), `strict ${role}: no proactive text`);
+    ok(!p.includes('minimal'), `proactive ${role}: no "minimal" in the prompt`);
+    for (const w of keptRules[role]) ok(s.includes(w) && p.includes(w), `${role}: the rule "${w.slice(0, 50)}" stays under both policies`);
+  }
+
+  for (const bad of ['lenient', 'Strict', '']) {
+    const msg = await throwsWith(ENGINE, { args: { ...baseArgs, units: [UNIT], changePolicy: bad }, respond: {} });
+    ok(msg.startsWith('Invalid args.changePolicy: it must be one of strict, proactive') && msg.includes(JSON.stringify(bad)),
+      `changePolicy ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 90)}`);
+  }
 }
 
 section('long unit ids sharing a 60-char prefix get distinct plan ids; short ids are unchanged');

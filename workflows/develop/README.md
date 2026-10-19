@@ -16,6 +16,10 @@ Each `## Plan:` block names its `mode`, and the mode picks the instructions the 
 A block can also name its developer model in a `model:` line, picked by how complex the block is. The
 reviewers always use the run's review models, which default to Opus.
 
+A run's `changePolicy` is `strict` by default, which keeps each change to its block. A `proactive` run
+also fixes clear problems in the code a block reaches. A fix block limits that work to the code each fix
+touches.
+
 ## How it works
 
 Every block runs the same loop, up to `maxRounds`.
@@ -64,9 +68,10 @@ directly.
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
 acceptance reviews, the quality reviews under `gate/`, each block's declined findings
 (`gate/DISMISSED-<id>.md`), any plan amendment (`AMENDED-<id>.md`), the questions for you and each
-parked block's record (`NEEDS-USER.md`), the defaults the developer took and a pointer to each plan
-amendment (`DECISIONS.md`), each parked patch, and the sweep result (`SWEEP.md`). Each fix block's
-new issues land in `plans/<runId>/NEW-ISSUES-<block id>.md` for you to triage.
+parked block's record (`NEEDS-USER.md`), the defaults the developer took, a pointer to each plan
+amendment and each fix or refactor a proactive run made past its block (`DECISIONS.md`), each parked
+patch, and the sweep result (`SWEEP.md`). Each fix block's new issues land in
+`plans/<runId>/NEW-ISSUES-<block id>.md` for you to triage.
 
 ## Requirements
 

@@ -127,6 +127,7 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
    `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
+   Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, and pass it.
 3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
    "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to
@@ -235,7 +236,11 @@ with `units` from `gen-units.mjs`.
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
-  see Lenses; per-unit override via `unit.lens`).
+  see Lenses; per-unit override via `unit.lens`) · `changePolicy` (`strict|proactive`, default `strict`,
+  any other value **throws**. `strict` makes each **Fix:** line the minimal fix. `proactive` makes it the
+  fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
+  the verifier prompt each say the policy and that prompt's own scope and routing rules override any
+  other instruction about scope, a memory line or a CLAUDE.md included).
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
   `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every clean unit whose reviewer

@@ -116,9 +116,10 @@ The developer's only outputs besides code are four append files:
   may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
   also appends each parked block's record to it.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
-  plan amendment pointer. The user reads it at run end, and the acceptance stage reads it. It is never a
-  question. A flag-and-proceed item is recorded here, and the developer continues with a defensible
-  default.
+  plan amendment pointer. Under develop's proactive change policy, it also records each fix or refactor
+  the developer made past its block. The user reads it at run end, and the acceptance stage reads it.
+  It is never a question. A flag-and-proceed item is recorded here, and the developer continues with a
+  defensible default.
 
 A search-shaped workflow carries two more ledgers on the same terms, investigate's **`DISQUALIFIED.md`**
 and **`SEARCHED.md`**. `DISQUALIFIED.md` holds one terse line per rejected candidate, naming the
