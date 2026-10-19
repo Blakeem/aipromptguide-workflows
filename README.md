@@ -156,6 +156,35 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-18
 
+- **develop's first blind review of a block also reports low findings.** That review uses threshold
+  `low`, so the developer fixes small defects in one pass. Later reviews use `reviewSeverity`. A first
+  review in the last round keeps `reviewSeverity`, since no round is left to fix a low.
+- **The developer checks its work the way its reviewers will.** Before it writes, it finds how the repo
+  already does the same kind of thing. Before it hands off, it applies the blind reviewer's severity
+  scale, reach step and checklist to its own diff.
+- **develop and debug take a change policy.** `changePolicy: strict` is the default and keeps each change
+  to its block. `proactive` also fixes clear defects and makes clear-win refactors in the code a block
+  reaches, and logs each one to `DECISIONS.md`. Under `proactive`, debug's Fix lines prescribe the fix
+  with the best long-term result.
+- **Claude picks a repo's change policy from auto memory.** An index line lists each repo with its
+  policy. A repo you alone commit to gets one question the first time, and any other repo stays strict.
+- **The develop guide says what a plan block holds.** A block states the goal, your decisions and the
+  choices that must agree across blocks. It splits work so that each block's code is complete on its
+  own.
+- **refine writes its FYI section once, on the converged round.** Items are grouped by block, then the
+  file preamble, then "Outside the plan" for code defects the critic saw. The editor never sees them.
+- **The developer, blind reviewer and acceptance prompts state their round.** A dismissal names one place
+  or a class of places, such as every caller of a function.
+- **Acceptance no longer counts criteria.** The counts never flagged a weak pass in 225 recorded passes. A
+  pass that lacks evidence for a criterion is still flagged.
+- **The guides keep reviewers on Opus unless you ask.**
+- **Principle #3 lists the context every agent receives.** Each agent gets your CLAUDE.md, the project
+  CLAUDE.md, the memory index and git status as the session loaded them at its start. It also gets the
+  launching message unless the run starts from a notification turn. So keep in-flight plan details out of
+  memory before a session starts.
+- **Fixes.** debug's severity guard and enhance's impact guard reject an inherited name such as
+  `constructor`. develop's `regression` return follows the last verdict. The sweep reads amendments and
+  decisions before it reports a gap.
 - **develop's NEEDS-USER.md holds only real questions.** The developer escalates a choice only when it
   changes user-visible behavior, stored data or a public contract, and nothing it can read or check
   answers it. A blocker it cannot resolve also goes there, and so does each parked block's record.
