@@ -462,7 +462,7 @@ section('changePolicy defaults to strict, proactive prescribes the best long-ter
     verify: [`otherwise -> ACTIONABLE (write a precise **Fix:** line that prescribes the fix with ${best})`,
       `**Fix:** <a precise instruction for the fixer that prescribes the fix with ${best}> (ACTIONABLE;`],
   };
-  // Neither policy touches the rules on what counts as a finding, how far a Fix line reaches or where a finding routes.
+  // Neither policy touches the rules on what counts as a finding, which files a Fix line must cover or where a finding routes.
   const keptRules = {
     review: ['- Stay INSIDE this unit\'s files.', 'Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.'],
     verify: ['- scope == scope-creep -> REJECT (do not pursue)',

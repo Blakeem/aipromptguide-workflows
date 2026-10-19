@@ -10,9 +10,10 @@ Two terms used throughout:
 - **Harness / conductor**: the JS workflow script. It is not an LLM and has no context window. It has no
   tools, so it cannot read files, run git, or write anything. It only sequences `agent()` calls and
   passes small control values.
-- **Agent**: one `agent()` call. It starts with an empty context that holds only its prompt, works with
-  its own tools, returns one structured value, and is then destroyed. Agents cannot message each other
-  or keep context warm across calls.
+- **Agent**: one `agent()` call. It starts with a context that holds its prompt and the startup context
+  #3 names: the user `CLAUDE.md`, the project `CLAUDE.md`, the launching session's auto-memory index
+  (`MEMORY.md`) and a git status snapshot. It works with its own tools, returns one structured value, and
+  is then destroyed. Agents cannot message each other or keep context warm across calls.
 
 ---
 
@@ -33,6 +34,13 @@ An agent that must not see a document is never given its path, and the document 
 directory the agent reads. Do not rely on an instruction such as "don't read X." For example, the plan
 from plan mode lives at `~/.claude/plans/<random-name>.md`. The blind reviewer is given no path to it and
 works only inside the repo and its own review directory, so the plan cannot enter its context.
+
+Every agent, the blind reviewer included, receives three files at startup: the user `CLAUDE.md`, the
+project `CLAUDE.md` and the launching session's auto-memory index (`MEMORY.md`). Two more sources reach an agent. A git working directory adds that repository's git
+status snapshot at startup: the branch, the working-tree status lines and the latest commit subjects. A
+run launched from this checkout also loads a folder's `CLAUDE.md` once an agent reads a file in that
+folder. So placement keeps a document out of an agent's reach only when none of these sources names it
+or restates it.
 
 ### 4. No busy work
 The main agent does every preparatory or clerical step with the user before the run, such as cleaning
@@ -110,8 +118,8 @@ The developer's only outputs besides code are four append files:
   reviewers and the user's end-of-run audit of every judgment call.
 - **`AMENDED-<id>.md`**, one entry per plan clause the developer overrode because it prescribes a real
   defect. Each entry quotes the clause, names the defect's file:line, and says what was built instead.
-  It is an inter-agent message from the developer to the acceptance stage. It is kept outside `gate/`
-  because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
+  It is an inter-agent message from the developer to the acceptance stage and the sweep. It is kept
+  outside `gate/` because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
 - **`NEEDS-USER.md`**, the user-facing notes of blockers and questions only the user can answer. These
   may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
   also appends each parked block's record to it.
@@ -199,9 +207,10 @@ code cannot show, such as a constraint, a workaround, or a measured decision, in
 never narrates what the code does, records history (what a line used to be, which review found it, a
 date), or repeats the workflow's `CLAUDE.md`, which loads for anyone editing a file in that folder. A
 guide never repeats another guide. For prompts, a guide does not count as something the reader already
-has. Run-time agents work in the user's project and never load this repo's `CLAUDE.md` files. So a
-prompt states each rule its agent needs, once, and cutting that rule because a guide holds it is
-compression.
+has. A run launched from another project never loads this repo's `CLAUDE.md` files. A run launched from
+this checkout loads a workflow guide (`workflows/<x>/CLAUDE.md`) only once an agent reads a file in that
+folder. So a prompt states each rule its agent needs, once, and cutting that rule because a guide holds
+it is compression. The same run loads its root `CLAUDE.md` as the project `CLAUDE.md` of #3.
 
 ### 14. Evidence-grounded judgment
 Every score, severity, verdict, and finding names the evidence it rests on, such as a `file:line`, a lens

@@ -55,7 +55,10 @@ the message over its task. A turn started by a background task's notification ca
 So run the workflow's pre-launch command with `run_in_background`, and call the Workflow tool in the turn
 its notification starts. The pre-launch command is `plan-edit.mjs args` for develop,
 `plan-block.mjs <planPath> --list` for refine, and `git -C <target.repo> status --short` for the rest
-(`node --version` when the run has no `target.repo`).
+(`node --version` when the run has no `target.repo`). Before launching, keep the plan out of auto-memory.
+A `MEMORY.md` index line holds settled facts and pointers, and neither it nor a topic file it points to
+holds the plan or goal of work a run is building, since every agent of the run reads that index
+(`principles/WORKFLOW-PRINCIPLES.md` #3).
 
 **Two paths, never the same directory:** `target.repo` = the project being worked on (the folder holding
 its `.git`); `root` = where run-state lands (`<root>/runs/<runId>/`), normally this checkout. Keeping

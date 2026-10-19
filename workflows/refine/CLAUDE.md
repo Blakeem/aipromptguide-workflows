@@ -12,7 +12,7 @@ one plan it keeps adding detail and never stops). Nothing here builds, stages, o
 Four things together — remove any one and the plan grows every round instead of settling:
 - **The defect bar.** The plan states what the user wants, and the critic judges only whether its
   text is correct. A gap names plan text that is wrong, in one of four classes: a contradiction within
-  the plan or with the repo, a wrong prescription (built as written, the code crashes, loses or
+  the plan or with the repo or a file the plan cites, a wrong prescription (built as written, the code crashes, loses or
   corrupts data, or gives wrong output on an input the repo or the plan accepts), a bad practice the
   text prescribes, or a dependency-ordering error. Text a block tells the developer to write is
   output, so a sentence the repo contradicts is a wrong prescription. The critic confirms a prescribed
@@ -30,7 +30,7 @@ Four things together — remove any one and the plan grows every round instead o
   makes an existing sentence false and a later block rewrites it, that is a dependency-ordering error
   graded major, since develop's acceptance counts the sentence against the earlier block.
   Below-floor findings never block convergence and no editor folds them. The critic writes them in the
-  FYI section of the converged round only, beside the repo defects outside the plan, and the user reads
+  FYI section of the converged round only, beside the defects outside the plan, and the user reads
   that section with the plan. `belowFloor` returns the section's item count.
 - **The dismissal ledger** (`DISMISSED-PLAN.md`). A declined gap stays declined. The critic skips
   settled items and may contest one once. It never contests a line marked `USER-RULED:`, which records
@@ -73,9 +73,9 @@ own single refine run. One develop launch takes both files when their file keys 
   round, it writes the FYI section when it has items, and writes no file when it has none. That section
   has one subsection per block with below-floor findings, then `File preamble` (plan text above the
   first block, other than the file keys, at any grade, plus a file-key finding below the floor), then
-  `Outside the plan` (repo defects no plan text holds, at every floor). Its items are numbered F1, F2
-  across the section. No editor reads it, and the user reads it with the plan. Returns
-  counts plus a `wrote_file` attestation, nothing else — content crosses through the file. Nonzero
+  `Outside the plan` (defects no plan text holds, in files the critic read to judge the plan, at every
+  floor). Its items are numbered F1, F2 across the section. No editor reads it, and the user reads it
+  with the plan. Returns counts plus a `wrote_file` attestation, nothing else — content crosses through the file. Nonzero
   counts with `wrote_file` false halt (`critique-unwritten`). A DEAD critic **throws** — zero gaps from a dead
   agent would be byte-identical to convergence.
 - **Editor** (opus) — runs only on a round with countable gaps and no questions. Checks each gap
@@ -105,7 +105,8 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
   **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `blockTool` (default
   `<root>/tools/plan-block.mjs`, the editor's re-validation command — pre-allowlist it) ·
-  `conventions` · `reference` · `models`/`agentTypes` (both roles opus) · `stateDir`.
+  `conventions` · `reference` · `models`/`agentTypes` (keep the critic and editor on opus, and set another
+  model for them only when the user asks. A saved memory preference counts as asking) · `stateDir`.
 - **Return:** `status` · `halted` (true on `needs-answers`, `dismissal-contested` and every
   `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
   empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·

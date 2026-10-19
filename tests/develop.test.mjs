@@ -964,6 +964,39 @@ section('acceptance that passed with a regression but staged nothing parks, and 
   eq(syncOf(fix.out), 'fix-a=blocked,i-1=needs-attention', 'a fix block syncs blocked and its FIXED entry needs-attention');
 }
 
+section('the regression flag follows the last acceptance verdict, never an earlier round');
+// A later round may fix what an earlier acceptance flagged, so the ledger and the return read the last verdict.
+{
+  const fixed = await run({ ...GREEN_RUN, acceptance: firstRound({ ...ACC_FAIL, regression: true }, ACC_PASS) }, ONE_BLOCK);
+  eq(fixed.out.status, 'done (all blocks staged)', 'a round-1 regression fixed in round 2 ends staged');
+  eq(fixed.out.ledger[0].regression, false, 'the ledger reads false once the last verdict found none');
+  eq(fixed.out.regression, false, 'and so does the return');
+
+  const open = await run({ ...GREEN_RUN, acceptance: firstRound(ACC_FAIL, { ...ACC_FAIL, regression: true }), park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 2 });
+  eq(open.out.ledger[0].regression, true, 'a regression in the last verdict stays in the ledger');
+  eq(open.out.regression, true, 'and in the return');
+
+  // A failing verdict that reports false still clears the earlier regression, since the last verdict stands.
+  const failFalse = await run({ ...GREEN_RUN, acceptance: firstRound({ ...ACC_FAIL, regression: true }, ACC_FAIL), park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 2 });
+  eq(failFalse.out.ledger[0].regression, false, 'a failing verdict that reports false clears the earlier regression in the ledger');
+  eq(failFalse.out.regression, false, 'and in the return');
+
+  // A verdict that omits the field says nothing about the earlier regression, so it must not clear it.
+  const ACC_FAIL_NO_FIELD = { ...ACC_FAIL };
+  delete ACC_FAIL_NO_FIELD.regression;
+  const silent = await run({ ...GREEN_RUN, acceptance: firstRound({ ...ACC_FAIL, regression: true }, ACC_FAIL_NO_FIELD), park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 2 });
+  eq(silent.out.ledger[0].regression, true, 'a later verdict without the field leaves the earlier regression in the ledger');
+  eq(silent.out.regression, true, 'and in the return');
+
+  // A pass certifies that nothing regressed, so a passing verdict without the field clears the earlier regression.
+  const ACC_PASS_NO_FIELD = { ...ACC_PASS };
+  delete ACC_PASS_NO_FIELD.regression;
+  const passSilent = await run({ ...GREEN_RUN, acceptance: firstRound({ ...ACC_FAIL, regression: true }, ACC_PASS_NO_FIELD) }, ONE_BLOCK);
+  eq(passSilent.out.status, 'done (all blocks staged)', 'a staged pass without the field ends staged');
+  eq(passSilent.out.ledger[0].regression, false, 'a passing verdict without the field clears the earlier regression in the ledger');
+  eq(passSilent.out.regression, false, 'and in the return');
+}
+
 section('a pass resting on assertion rather than evidence is flagged THIN, never failed');
 // Acceptance already staged by the time the flag is computed, so this is an operator audit signal (#14),
 // not a gate.
@@ -1679,6 +1712,15 @@ section('acceptance judges an amended criterion against the AMENDED behavior, wi
   }
 }
 
+section('acceptance may run a command that writes nothing, in every mode');
+// Without a named check-only allowance, a verifier confirming freshness runs a regenerator, which writes.
+{
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`acceptance ${id}`)).includes("Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY"),
+      `${mode}: the allowance sits beside the no-modify line`);
+  }
+}
+
 section('acceptance counts every defect it writes, in every mode: a prescribed or unreached regression is a gap, and the rest is dropped');
 // An uncounted notes section is a channel no agent reads on a pass, so a waived regression staged unseen.
 {
@@ -1963,8 +2005,8 @@ section('the blind reviewer is told the gate commands and which porcelain entrie
   ok(/a later stage re-runs them before anything is staged/.test(r1), 'and a later stage re-runs them');
   ok(/Never run them in full/.test(r1), 'running them in full is forbidden');
   ok(/test command only for ONE targeted test/.test(r1), 'one targeted test is allowed');
-  ok(flat(r1).includes('Any other command that writes nothing in the repo, such as a tool\'s check mode, and a probe script in a temporary folder outside the repo are allowed.'),
-    'any other command that writes nothing and a probe script outside the repo are allowed');
+  ok(flat(r1).includes(`Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a temporary folder outside the repo and outside the folder that holds ${STATE}/gate/ are allowed.`),
+    'any other command that writes nothing and a probe script outside the repo and the folder holding gate/ are allowed');
   ok(r1.indexOf('test:  t\n') < r1.indexOf('Any other command that writes nothing'), 'the allowance follows the gate command list, so it excludes the gate commands');
   ok(/anything that breaks the\s+build or tests/.test(r1), 'a build or test break stays a defect class');
   ok(/READ every untracked file \(`\?\?`\)/.test(r1) && !/`\?\?`\/`A`/.test(r1), 'new files are the untracked ?? entries, not a staged A');

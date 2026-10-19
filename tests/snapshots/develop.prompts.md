@@ -7,37 +7,37 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | develop | 1 | 1 | 12909 | every block accepts first time |
-| quality | 1 | 1 | 8046 | every block accepts first time |
-| acceptance | 1 | 1 | 8216 | every block accepts first time |
+| quality | 1 | 1 | 8104 | every block accepts first time |
+| acceptance | 1 | 1 | 8302 | every block accepts first time |
 | develop | 2 | 1 | 13317 | every block accepts first time |
-| acceptance | 2 | 2 | 8497 | every block accepts first time |
+| acceptance | 2 | 2 | 8583 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
 | develop | 3 | 1 | 12472 | quality flags the first round |
-| quality | 2 | 2 | 8055 | quality flags the first round |
-| acceptance | 3 | 1 | 8215 | quality flags the first round |
+| quality | 2 | 2 | 8113 | quality flags the first round |
+| acceptance | 3 | 1 | 8301 | quality flags the first round |
 | develop | 4 | 1 | 12880 | quality flags the first round |
-| acceptance | 4 | 2 | 8496 | quality flags the first round |
+| acceptance | 4 | 2 | 8582 | quality flags the first round |
 | develop | 5 | 1 | 12470 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 8213 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 8299 | acceptance finds gaps, then passes |
 | develop | 6 | 1 | 12878 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 8494 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 8491 | the developer produced nothing |
-| acceptance | 8 | 2 | 8772 | the developer produced nothing |
+| acceptance | 6 | 2 | 8580 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 8577 | the developer produced nothing |
+| acceptance | 8 | 2 | 8858 | the developer produced nothing |
 | develop | 7 | 1 | 12361 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
 | develop | 8 | 1 | 12769 | the gate never goes green |
-| acceptance | 9 | 1 | 8268 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 8323 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 8378 | a parked block, and the run carries on |
+| acceptance | 9 | 1 | 8354 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 8409 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 8464 | a parked block, and the run carries on |
 | park | 2 | 1 | 5200 | a parked block, and the run carries on |
 | park | 3 | 1 | 5251 | an ordered run stops at a parked block |
 | develop | 9 | 2 | 14042 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10884 | a fix block closes its issues |
+| acceptance | 12 | 3 | 10970 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
 | develop | 10 | 2 | 14138 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 11168 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 11254 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10883 | every issue is already fixed |
+| acceptance | 14 | 3 | 10969 | every issue is already fixed |
 | park | 4 | 1 | 5367 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
 | park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
@@ -310,7 +310,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   build: npm run build
   test:  npm test
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
-temporary folder outside the repo are allowed.
+temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
@@ -539,7 +539,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -953,7 +953,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -1344,7 +1344,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   build: npm run build
   test:  npm test
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
-temporary folder outside the repo are allowed.
+temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
@@ -1573,7 +1573,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -1982,7 +1982,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -2384,7 +2384,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -2793,7 +2793,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -2959,7 +2959,7 @@ PROCEDURE:
      fails acceptance: name the files in your file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -3128,7 +3128,7 @@ PROCEDURE:
      fails acceptance: name the files in your file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -3875,7 +3875,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r3.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -4040,7 +4040,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r4.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -4206,7 +4206,7 @@ PROCEDURE:
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r5.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -4883,7 +4883,7 @@ PROCEDURE:
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -5457,7 +5457,7 @@ PROCEDURE:
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json
@@ -5749,7 +5749,7 @@ PROCEDURE:
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-c-r1.md this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
 
 ~~~~json

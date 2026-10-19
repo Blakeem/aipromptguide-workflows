@@ -240,7 +240,9 @@ with `units` from `gen-units.mjs`.
   any other value **throws**. `strict` makes each **Fix:** line the minimal fix. `proactive` makes it the
   fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
   the verifier prompt each say the policy and that prompt's own scope and routing rules override any
-  other instruction about scope, a memory line or a CLAUDE.md included).
+  other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`agentTypes` (the
+  `review` and `verify` roles, both opus by default. Set another model for them only when the user
+  asks. A saved memory preference counts as asking).
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
   `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every clean unit whose reviewer

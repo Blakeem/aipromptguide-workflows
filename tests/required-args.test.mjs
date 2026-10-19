@@ -197,7 +197,7 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
 
 // ---------------------------------------------------------------------------------------------
 // review's control VALUES are present and wrong, never missing, so the deletion sweep cannot reach them.
-// `constructor` resolved through a plain-object lookup of the severity ranks and passed the floor guard.
+// An inherited object name such as `constructor` must throw like any other illegal name.
 // ---------------------------------------------------------------------------------------------
 {
   const engine = 'workflows/debug/review.mjs';
@@ -210,6 +210,21 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
     const msg = await throwsWith(engine, { args, respond: {} });
     ok(msg !== '', `${path} = ${what} throws: ${msg.slice(0, 50)}`);
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// enhance's impact FLOOR is a control VALUE with a default, so the deletion sweep cannot reach it either.
+// An inherited object name such as `constructor` must throw like any other illegal name.
+// ---------------------------------------------------------------------------------------------
+{
+  const engine = 'workflows/enhance/enhance-cycle.mjs';
+  section('enhance-cycle.mjs — an illegal impact floor throws instead of coercing');
+  for (const minImpact of ['constructor', 'nit']) {
+    const msg = await throwsWith(engine, { args: { ...ENHANCE_ARGS, minImpact }, respond: {} });
+    ok(msg !== '', `minImpact = "${minImpact}" throws: ${msg.slice(0, 50)}`);
+  }
+  const legal = await throwsWith(engine, { args: { ...ENHANCE_ARGS, minImpact: 'high' }, respond: {} });
+  ok(legal === '', `minImpact = "high" is accepted: ${legal.slice(0, 50)}`);
 }
 
 // ---------------------------------------------------------------------------------------------

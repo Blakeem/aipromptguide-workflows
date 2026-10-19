@@ -54,8 +54,8 @@ const CONTEXT     = A.context ?? '';                       // domain facts the a
 // Impact floor — the "enhancement, not nit" gate. Marginal is below the default floor on purpose.
 const IMPACT_RANK = { marginal: 1, moderate: 2, high: 3, transformative: 4 };
 const MIN_IMPACT_NAME = A.minImpact ?? 'moderate';
-const MIN_IMPACT = IMPACT_RANK[MIN_IMPACT_NAME];
-if (!MIN_IMPACT) {
+// A plain lookup resolves an inherited name such as `constructor` to a function, which passes a truthiness check.
+if (!Object.hasOwn(IMPACT_RANK, MIN_IMPACT_NAME)) {
   throw new Error(`args.minImpact must be one of ${Object.keys(IMPACT_RANK).join(' | ')} (got "${MIN_IMPACT_NAME}").`);
 }
 

@@ -35,8 +35,9 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
   `belowFloor` counts them. No editor folds those items, so read the section with the plan. It has a
   subsection for each block with findings below the severity floor. A `File preamble` subsection holds
   findings in plan text above the first block, other than the file keys, and file-key findings below
-  the floor. An `Outside the plan` subsection holds repo defects that no plan text holds. Items are
-  numbered F1, F2 and so on. You can add an item to a block before you approve.
+  the floor. An `Outside the plan` subsection holds defects that no plan text holds. They sit in files
+  the critic read to judge the plan. Items are numbered F1, F2 and so on. You can add an item to a block
+  before you approve.
 - `needs-answers` means the critic raised something only you can decide, such as a block order. Read
   `NEEDS-USER.md`, change the plan, and run refine again. The file keeps the entries of earlier runs,
   so the newest entries are at its end.

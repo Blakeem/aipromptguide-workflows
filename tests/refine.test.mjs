@@ -117,8 +117,8 @@ section('the critic writes the FYI section only in a round with no gap and no qu
   ok(fyi.includes('"File preamble": a finding in plan text above the first block, other than the file keys, at any grade, since no developer reads that text. A file-key finding below the floor goes here too.'),
     'a finding in plan text above the first block, other than the file keys, goes in File preamble at any grade, and so does a file-key finding below the floor');
   ok(!/"Preamble"/.test(p), 'no subsection is named bare Preamble, which the block metadata paragraph already uses for a block\'s key run');
-  ok(fyi.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
-    'Outside the plan holds repo defects no plan text holds, each with its repo line, at every floor');
+  ok(fyi.includes('"Outside the plan": a real defect that no plan text holds, in a file you read to judge the plan, with its file and line. Write it at every floor, minor included. Never search further for one.'),
+    'Outside the plan holds defects no plan text holds, in a file the critic read for the plan, each with its file and line, at every floor, and the critic never searches further');
   ok(!p.includes('A gap never invites the editor to fold an FYI item.') && !p.includes('then the FYI section, then a QUESTIONS section'),
     'the critique file layout puts no FYI section beside the gaps the editor reads');
   ok(p.includes('You write only your critique file E:/r/runs/t-refine/plan-critique-1.md, E:/r/runs/t-refine/NEEDS-USER.md, and a probe\'s files'),
@@ -129,7 +129,7 @@ section('at the minor floor the critic has no below-floor subsection and still w
 {
   const { prompt } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, critiqueSeverity: 'minor' });
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
-  ok(p.includes('"Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo line. Write it at every floor, minor included.'),
+  ok(p.includes('"Outside the plan": a real defect that no plan text holds, in a file you read to judge the plan, with its file and line. Write it at every floor, minor included. Never search further for one.'),
     'a minor-floor critic is told to write Outside the plan');
   ok(p.includes('"File preamble": a finding in plan text above the first block, other than the file keys, at any grade'),
     'and File preamble');
@@ -166,6 +166,8 @@ section('the critic prompt settles gates, grading and one-fix-per-gap');
   const p = prompt('plan-critic').replace(/\s+/g, ' ');
   ok(p.includes('You MAY run read-only commands, including a build or test command you find in the repo'),
     'read-only is defined as never editing, with read-only commands allowed');
+  ok(p.includes('You MAY read any file the plan cites, such as a design note or another plan file, to judge a claim about it.'),
+    'the critic may read a file the plan cites');
   ok(p.includes('a finding whose fix is a text edit inside ONE todo block is a GAP, whatever its class'),
     'a text edit inside one block is a gap');
   ok(p.includes('A WRONG PRESCRIPTION is major or higher, since the developer can depart from it only through a plan amendment.'),
@@ -209,8 +211,10 @@ section('the critic judges only whether the plan\'s text is correct, and a lean 
     'the write list names the critique file by its path and the probe\'s temporary directory');
   ok(p.includes('Judge the plan file against the REAL repo and find plan text that is wrong.') && !p.includes('find what would BUILD WRONG'),
     'the opener looks for wrong plan text');
-  ok(p.includes('EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP.'),
-    'evidence may be a plan line, a dependency doc or a probe output');
+  ok(p.includes('EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, cited file\'s line, dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP.'),
+    'evidence may be a plan line, a cited file\'s line, a dependency doc or a probe output');
+  ok(p.includes('a plan statement the repo or a file the plan cites contradicts'),
+    'a contradiction class admits a plan statement that a cited file contradicts');
   ok(p.includes('SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is reported as a QUESTION'),
     'only an ordering error becomes a structural question');
   ok(p.includes('which of the four classes it is') && p.includes('The one change may touch several lines of one block, such as a Files line, a Docs bullet and a criterion, and still names no alternatives. It names every plan line the change makes stale.'),
@@ -240,7 +244,7 @@ section('the critic grades by impact on accepted input, never by fix size');
   eq(prompts.length, 2, 'two critic rounds ran');
   ok(prompts[0].includes('crashes, loses or corrupts data, or gives wrong output on an input the repo or the plan accepts'),
     'a runtime failure on accepted input is major by definition, whether or not a criterion names it');
-  ok(prompts[0].includes('the plan contradicts itself or the repo on what to build, or it prescribes a bad practice'),
+  ok(prompts[0].includes('the plan contradicts itself, the repo or a file it cites on what to build, or it prescribes a bad practice'),
     'a contradiction about what to build and a prescribed bad practice are major by definition');
   ok(!prompts[0].includes('a named acceptance criterion or wiring point is not met'),
     'an unmet criterion or wiring point no longer defines major');
@@ -302,7 +306,7 @@ section('the editor checks every gap against the plan and the repo before it fol
     ok(at.every((i) => i > 0) && at.every((i, k) => k === 0 || i > at[k - 1]),
       `${r}: the CHECK step is step 1, before the fold step, and the later steps are renumbered in order`);
     const check = p.slice(at[0], at[1]);
-    for (const c of ['Open the plan line and the evidence it cites (a repo line, a plan line, a dependency doc or a probe output) and confirm each says what the gap claims.',
+    for (const c of ['Open the plan line and the evidence it cites (a repo line, a plan line, a cited file\'s line, a dependency doc or a probe output) and confirm each says what the gap claims.',
       'Confirm the gap names text the plan states, never text it lacks.',
       'Confirm its change only corrects, removes or moves text the plan states, and adds nothing the plan does not already state.',
       'Run a probe the critic ran when you doubt its result.',

@@ -299,7 +299,7 @@ const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; 
 // the user to read, never a question.
 const DECISIONS      = `${STATE_DIR}/DECISIONS.md`;
 const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
-// MATRIX 6a overrides, read by acceptance only. It quotes plan text, so it stays outside GATE_DIR.
+// MATRIX 6a overrides, read by acceptance and the sweep. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
 // A second park renames the first patch here. A slug holds no dot, so no block's own patch matches.
@@ -837,7 +837,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
-temporary folder outside the repo are allowed.
+temporary folder outside the repo and outside the folder that holds ${GATE_DIR}/ are allowed.
 CONVENTIONS (judge against these): ${CONVENTIONS}
 
 ${SETTLED(p.id, true, threshold)}
@@ -906,6 +906,8 @@ ${earlierReviews.map((path) => `     ${path}`).join('\n') || '     (none: no rev
    that no line in ${dismissedFile(p.id)} covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A blind review that came back clean is never on this list, since it found
    nothing at or above its own threshold. That includes this round's blind review, when one ran.`;
+
+const ACCEPTANCE_CHECK_RULE = `Any command that writes nothing in the repo, such as a tool's check mode, is allowed.`;
 
 // The root cause is re-derived from current code, not checked against the entry's **Fix:** line, because
 // the entry may have under-scoped the defect.
@@ -1005,7 +1007,7 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.`;
+Do NOT modify source code. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 
 const planAcceptance = (p, round, { reviewSkipped, earlierReviews }) => {
   const isSection = p.mode === 'section';
@@ -1091,7 +1093,7 @@ PROCEDURE:
      fails acceptance: name the files in your file and return pass=false.` : ''}
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
-Do NOT modify source code. Return ONLY the decision fields via the schema.`;
+Do NOT modify source code. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 };
 
 const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix: fixAcceptance };
@@ -1713,7 +1715,10 @@ for (const p of pending) {
     if (earlierReviews.size > 0 && !(Number(acc.earlier_reviews_read) >= earlierReviews.size)) {
       logLine(`  ⚠ ${p.id} r${round}: acceptance read ${acc.earlier_reviews_read} of ${earlierReviews.size} earlier review file(s) — audit ${acceptanceFile(p.id, round)}`);
     }
-    if (acc?.regression === true) rec.regression = true;
+    // The last verdict stands, since a later round may fix an earlier regression. Only a pass certifies
+    // none when the field is omitted.
+    if (typeof acc.regression === 'boolean') rec.regression = acc.regression;
+    else if (acc.pass === true) rec.regression = false;
     if (fix) {
       // A pass's own id names no file: each harm belongs to the member whose entry lists it.
       const issueBlocks = p.blocks ? p.blocks.map((b) => b.id) : [p.id];
@@ -1943,7 +1948,7 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
 const allDone = isFullRun && !halted && pending.length > 0 && doneIds.length === pending.length;
 const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
 // Blocks whose developer overrode a plan clause under MATRIX 6a. Named here because AMENDED-<id>.md is
-// reachable by acceptance alone — without this the user would have to already know the file exists.
+// reachable by acceptance and the sweep alone — without this the user would have to already know the file exists.
 const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
 // Keyed on the patch and rec.parked, never the status string.
 const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);

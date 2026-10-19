@@ -150,10 +150,10 @@ approval summary.
 Same roles and contracts as the engines it replaces, with these merge-specific points:
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
-  `AMENDED-<id>.md` (acceptance-only), `NEEDS-USER.md`, `DECISIONS.md`. It follows the repo's existing
-  patterns before it writes, and checks its own diff with the blind reviewer's severity scale, reach step
-  and checklist before handoff. It fixes clear wins at every
-  tier, a finding below the threshold included, and weighs the rest against their cost. It logs every
+  `AMENDED-<id>.md` (read by acceptance and the sweep, never the blind reviewer), `NEEDS-USER.md`,
+  `DECISIONS.md`. It follows the repo's existing patterns before it writes, and checks its own diff with
+  the blind reviewer's severity scale, reach step and checklist before handoff. It fixes clear wins at
+  every tier, a finding below the threshold included, and weighs the rest against their cost. It logs every
   finding it does not fix, so none is dropped silently. A dismissal names one place or the class of places
   it covers, and its reason holds for every place it names. It escalates only a choice that changes
   user-visible behavior, stored data or a public contract and that nothing it can read or check settles,
@@ -284,7 +284,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
-- **Return:** `status` · `halted`/`haltReason` · `plansDone` · `parked` · `ledger` (per block, with a
+- **Return:** `status` · `halted`/`haltReason` · `regression` (true when any block's ledger entry reads
+  true. An entry follows the last acceptance verdict that reports the field, and a passing verdict that
+  omits the field sets it false) · `plansDone` · `parked` · `ledger` (per block, with a
   status of the form `<token> (<meaning>)`, the developer `model` it ran on, and per-issue `results` in
   fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
@@ -298,8 +300,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   when a later round remains) · `changePolicy` (`strict|proactive`, default `strict`, any other value
   **throws**. How far a developer may change code past its block, and §4 says how to choose it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (every role opus. A block's `model:` line overrides `models.develop` for that block's developer and
-  park agent, §3) · `stateDir` · `runOnly` · `continueParked` (block ids whose round 1
-  restores the parked patch, §7. **Throws** on a non-array or an id outside the pending blocks).
+  (keep the quality, acceptance and sweep roles on opus, and set another model for them only when the
+  user asks. A saved memory preference counts as asking. The develop role is opus by default, and a
+  block's `model:` line overrides `models.develop` for that block's developer and park agent, §3) ·
+  `stateDir` · `runOnly` · `continueParked` (block ids whose round 1 restores the parked patch, §7.
+  **Throws** on a non-array or an id outside the pending blocks).
 - **Retired:** `startAt`, a top-level `planPath` and `planContext` are retired and **throw**.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

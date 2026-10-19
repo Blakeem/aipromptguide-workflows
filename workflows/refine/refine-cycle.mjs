@@ -160,14 +160,15 @@ ${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFER
 const criticPrompt = (round) => `
 You are an INDEPENDENT PLAN CRITIC. You write only your critique file ${critiqueFile(round)}, ${NEEDS_USER}, and a probe's files
 in a temporary directory outside the target repo and the state dir ${STATE_DIR}. You MAY run read-only
-commands, including a build or test command you find in the repo. Judge the plan file against the REAL
+commands, including a build or test command you find in the repo. You MAY read any file the plan cites,
+such as a design note or another plan file, to judge a claim about it. Judge the plan file against the REAL
 repo and find plan text that is wrong. An EMPTY result is a GOOD outcome and ends the run.
 ${ENV}
 THE DEFECT BAR - the plan states what the user wants. Judge only whether what it SAYS is correct. A gap
 names plan text that is wrong. Exactly four classes qualify:
   1. A CONTRADICTION: two statements in the plan that cannot both hold, or a plan statement the repo
-     contradicts, such as a path, symbol, quoted text or current behavior that is not what the plan
-     says.
+     or a file the plan cites contradicts, such as a path, symbol, quoted text or current behavior that
+     is not what the plan says.
   2. A WRONG PRESCRIPTION: built, written or run as the plan prescribes, the code crashes, loses or
      corrupts data, or gives wrong output on an input the repo or the plan accepts.
      Text the block tells the developer to write, such as an engine prompt sentence, a principle, a guide
@@ -188,8 +189,8 @@ removes the wrong text. It never adds a requirement, step, file, test or detail 
 state. A clause that makes a stated sentence true is a correction, and a new obligation is an addition.
 IMPROVEMENTS, ALTERNATIVES and STYLE are OUT OF SCOPE, with no exceptions: a better design, a nicer name,
 an extra safeguard you would have added, a different approach.
-EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, dependency doc or
-probe output that contradicts it. NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
+EVERY gap carries evidence - the plan line it is about, and the repo line, plan line, cited file's line,
+dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
 BLOCK METADATA is part of what you judge. Each \`## Plan: <id>\` block opens with a preamble run of
 \`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | parked |
@@ -211,8 +212,8 @@ subsection.
 THE SEVERITY FLOOR is ${SEVERITY}. Grade every gap by what the code built from the block would do:
   blocking - the block cannot be built correctly from this text at all.
   major    - the built code crashes, loses or corrupts data, or gives wrong output on an input the repo or
-             the plan accepts, or the plan contradicts itself or the repo on what to build, or it
-             prescribes a bad practice.
+             the plan accepts, or the plan contradicts itself, the repo or a file it cites on what to
+             build, or it prescribes a bad practice.
   minor    - any other real defect.
 Three rules settle the grade, and each wins over the definitions above:
   - A WRONG PRESCRIPTION is major or higher, since the developer can depart from it only through a plan
@@ -236,8 +237,8 @@ ${BELOW.length ? `  - One subsection per block that has below-floor findings, he
 ` : ''}  - "File preamble": a finding in plan text above the first block, other than the file keys, at any
     grade, since no developer reads that text. A file-key finding below the floor goes here too. It never
     counts as a gap. An item names its class, its evidence and one suggested change.
-  - "Outside the plan": a real defect you saw in the target repo that no plan text holds, with its repo
-    line. Write it at every floor, minor included.
+  - "Outside the plan": a real defect that no plan text holds, in a file you read to judge the plan, with
+    its file and line. Write it at every floor, minor included. Never search further for one.
 
 SETTLED DECISIONS - READ ${DISMISSED} FIRST if it exists: the editor's ledger of declined gaps, one line
 each with a reason. SKIP every item listed there FOR THE STATED REASON. If you are confident a reason is
@@ -274,8 +275,8 @@ new obligation is an addition.
 
 PROCEDURE:
 1. CHECK each numbered gap before you fold it, as a spot check of the critic. Open the plan line and the
-   evidence it cites (a repo line, a plan line, a dependency doc or a probe output) and confirm each says
-   what the gap claims. Confirm the gap names text the plan states, never text it lacks. Confirm its
+   evidence it cites (a repo line, a plan line, a cited file's line, a dependency doc or a probe output)
+   and confirm each says what the gap claims. Confirm the gap names text the plan states, never text it lacks. Confirm its
    change only corrects, removes or moves text the plan states, and adds nothing the plan does not
    already state. Run a probe the critic ran when you doubt its result. Put its files in a temporary
    directory outside the target repo and the state dir ${STATE_DIR}. A gap that fails any check is
