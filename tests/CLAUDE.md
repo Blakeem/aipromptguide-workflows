@@ -390,4 +390,5 @@ Neither can lose work: `worktree remove` refuses a tree with changes or untracke
 refuses a branch `main` does not contain. Run the suite here after the merge, since a worktree holds
 only tracked files (docs/worktree-batches.md, "untracked files"). A detached snapshot worktree that a
 read-only run audits is removed when that run ends, since its findings name the commit. Parallel chains
-use `tools/wt.mjs`, whose `clean` verb is this removal.
+use `tools/wt.mjs`, whose `clean` verb moves the folder to the trash, runs `git worktree prune` and keeps
+the branch.

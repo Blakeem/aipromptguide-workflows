@@ -103,7 +103,10 @@ function isTrashName(name, foldCase) {
   return RECYCLE_BIN_RE.test(name) || (foldCase ? TRASH_DIR_FOLDED_RE : TRASH_DIR_RE).test(name);
 }
 
-function isWithin(inner, outer, foldCase) {
+/** Windows and macOS volumes compare names without regard to case by default. */
+export const foldsCase = (platform) => platform === 'win32' || platform === 'darwin';
+
+export function isWithin(inner, outer, foldCase) {
   const rel = foldCase ? path.relative(outer.toLowerCase(), inner.toLowerCase()) : path.relative(outer, inner);
   return rel === '' || (rel !== '..' && !rel.startsWith(`..${path.sep}`) && !path.isAbsolute(rel));
 }
@@ -183,7 +186,7 @@ function settle(target, verdict) {
  *  `realpath` defaults to realpathSync.native and takes a stub in tests. */
 export function preflight(rawPath, ctx, realpath = realpathSync.native) {
   // Input
-  const foldCase = ctx.platform === 'win32' || ctx.platform === 'darwin';
+  const foldCase = foldsCase(ctx.platform);
   let lexical = null;
   let stat = null;
   let resolvedStat = null;

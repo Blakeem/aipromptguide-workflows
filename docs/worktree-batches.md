@@ -6,9 +6,10 @@ each parallel chain its own git worktree, so isolation comes from *placement*, n
 `tools/wt.mjs` is the whole mechanism: a deterministic operator-invoked script, no agents, no
 engine changes — a worktree is just a different absolute path to pass as `target.repo`.
 
-Decided in `runs/worktree-parallelism-1/decision-r3.md` (E-c); every load-bearing rule below
-(hook bytes, exit codes, lock liveness) is a measured decision recorded there and in the
-`tools/wt.mjs` header. This file is the one playbook — guides link here, nothing copies it.
+This design is option E-c of the decide run `worktree-parallelism-1` (2026-07-29). That run measured
+the batch rules, such as the hook bytes, the exit codes and the lock liveness. This file and the
+`tools/wt.mjs` header cite each measurement by its label, such as M25. This file is the one playbook,
+so guides link to it and do not copy it.
 
 ## The shape
 
@@ -42,6 +43,36 @@ stdout carries exactly one value — the worktree path the verb acted on — so
 At stage 3, each engine run is ordinary, except that `git stash` is refused (see `refs/stash`
 below): same workflow, same args, only `target.repo` differs (and `root` stays shared, so all
 runs of the batch report into the same runs/ area under distinct runIds).
+
+## Removal
+
+`clean` moves a worktree folder to the operating system's trash through `tools/trash.mjs` and then
+runs `git worktree prune`. It never runs `git worktree remove`, since that deletes the folder and its
+ignored files permanently. Ignored files go to the trash with the folder. The stderr of `clean` names
+the trash location and the number of ignored files.
+
+`clean` exits 40 and changes nothing when the worktree:
+
+- is the main worktree of the repo, whose `.git` holds the repository itself,
+- is locked,
+- has a folder at its path whose `.git` file does not point at the worktree's git directory, such
+  as another repository moved there,
+- holds modified, staged or untracked files,
+- has a merge, cherry-pick, revert, rebase, am or bisect in progress,
+- holds submodule git directories in its git directory, which `git worktree prune` would delete
+  outside the trash,
+- holds the working directory of the process that runs `clean`,
+- holds the `--repo` path, since the prune after the move runs there.
+
+A rebase or bisect detaches HEAD. So `clean` finds that worktree by the branch the operation records,
+as git does, and `clean --batch` counts it as a chain still registered.
+
+The trash can also refuse the move or fail to confirm it. Either case is exit 40 and prunes nothing.
+A worktree still registered after the prune is exit 40, and its folder has already left its path.
+Check its entry in `git worktree list --porcelain`, then run `clean` again. A registered worktree
+whose folder is gone is pruned. When it is also locked, run `git worktree unlock` first. To discard
+unlanded work, run the trash and prune commands that the refusal of `clean` prints. They also trash
+any submodule git directories.
 
 ## Exit codes — the contract the orchestrator branches on
 

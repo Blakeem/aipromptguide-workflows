@@ -12,20 +12,29 @@
 //   clean --repo <abs> --key <chain>                                      after that chain has landed
 //   clean --repo <abs> --batch <name>                                     after the batch has landed
 //
-// "after it has landed" is a precondition `clean` ENFORCES, not advice: it removes a worktree without
-// `--force`, so a tree still holding modified, staged or untracked work is refused (exit 40) instead of
-// deleted (see `removeWorktree`) — and `clean --batch`, which also removes the shared hook, is refused
-// while any chain worktree of that batch is still registered (see `cleanBatch`).
+// "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
+// operating system's trash through tools/trash.mjs and then runs `git worktree prune`. It never runs
+// `git worktree remove`, which deletes the folder and every ignored file in it. It refuses with exit 40
+// and changes nothing when the worktree is the repo's main worktree, is locked, has a folder at its path
+// whose `.git` file does not point at its git directory, holds modified, staged or untracked files, has
+// a merge, cherry-pick, revert, rebase, am or bisect in progress, has submodule git directories in its
+// git directory, or holds the working directory of the process that runs it or the `--repo` path (see
+// `removeWorktree`). A rebase or bisect detaches HEAD, so `clean` finds that worktree by the branch the
+// operation records, as git does (see `worktreesForClean`).
+// `clean --batch`, which also removes the shared hook, is refused while any chain worktree of that batch
+// is still registered (see `cleanBatch`).
 //
-// The one thing worktrees do NOT isolate is `refs/stash` — it is a single stack shared by every worktree
+// Every M-number in this file is a measurement label of the decide run `worktree-parallelism-1`
+// (2026-07-29).
+//
+// The one thing worktrees do NOT isolate is `refs/stash`. It is a single stack shared by every worktree
 // of a repo, so a `stash push` in one chain and a `stash pop` in another injects a sibling's work into
-// that chain's tree AND into its accepted index (measured: runs/worktree-parallelism-1/decision-r3.md
-// M25). `init` therefore installs a `reference-transaction` hook that refuses `refs/stash` updates from
-// inside an `aipg-*` worktree, and `prep` PROVES the hook is live in each fresh worktree before any agent
-// runs there (M30). The hook's bytes below are load-bearing and measured — the obvious three-line version
-// exits 1 on every ref transaction and bricks every commit and merge in a linked worktree (M19/M20), and
-// the `aipg-*` scoping is what leaves the user's own `git stash` working everywhere else (M31). Do not
-// "improve" it.
+// that chain's tree AND into its accepted index (measured: M25). `init` therefore installs a
+// `reference-transaction` hook that refuses `refs/stash` updates from inside an `aipg-*` worktree, and
+// `prep` PROVES the hook is live in each fresh worktree before any agent runs there (M30). The hook's
+// bytes below are load-bearing and measured — the obvious three-line version exits 1 on every ref
+// transaction and bricks every commit and merge in a linked worktree (M19/M20), and the `aipg-*` scoping
+// is what leaves the user's own `git stash` working everywhere else (M31). Do not "improve" it.
 //
 // PATHS ARE NEVER STORED. Every verb rediscovers them from `git worktree list --porcelain`: the
 // integration worktree is the entry on `aipg/int-<batch>`, a chain worktree the entry on
@@ -67,10 +76,14 @@
 //   30  integration-red — the gate failed on the SYNCED state. The sync merge is kept on the branch (it
 //       records the exact combined state a fix run must address); integration is untouched and green.
 //   40  unsafe / precondition — foreign hook, a relative core.hooksPath, no init, another batch active,
-//       hook self-test failed or never exercised, provision red, unlanded work in a worktree being
-//       cleaned, a batch cleaned while its chains are still registered, an empty index over a dirty
-//       tree, unaccepted work left beside a committed accept, a sync git refused up front, a command
-//       killed for flooding its output buffer. Always with a one-line reason naming what to do.
+//       hook self-test failed or never exercised, provision red, a worktree being cleaned that is the
+//       main worktree, is locked, has another folder at its path or holds unlanded work, an unfinished
+//       operation, submodule git directories, the caller's working directory or the --repo path, a trash
+//       move that was refused or could not be confirmed, a worktree still registered after the prune, a
+//       batch cleaned while its chains are still registered, an empty index over a dirty tree, unaccepted
+//       work left beside a committed accept, a sync git refused up front, a command killed for flooding
+//       its output buffer.
+//       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
 //   1   unexpected — bad argv, bad --repo, git missing.
@@ -78,9 +91,10 @@
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
 import { execFileSync } from 'node:child_process';
-import { chmodSync, closeSync, mkdirSync, openSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
-import { dirname, isAbsolute, resolve } from 'node:path';
+import { chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { TrashError, foldsCase, isWithin, trash } from './trash.mjs';
 
 export const EXIT_OK = 0;
 export const EXIT_NOTHING = 10;
@@ -143,9 +157,11 @@ const unsafe = (message) => fail(message, EXIT_UNSAFE);
 /** One line, whitespace-trimmed — every reason this tool prints is a single line. */
 const firstLine = (text) => String(text ?? '').split('\n').map((l) => l.trim()).filter(Boolean)[0] ?? '';
 
+const MIB = 1024 * 1024;
+
 // What execFileSync caps a child's combined stdout+stderr at when no `maxBuffer` is passed. Named only
 // so the overflow message can state the limit it actually hit.
-const NODE_DEFAULT_MAX_BUFFER = 1024 * 1024;
+const NODE_DEFAULT_MAX_BUFFER = MIB;
 
 /** The two codes a child killed for overflowing that cap comes back with (ENOBUFS on Windows). */
 const isOverflow = (err) => err.code === 'ENOBUFS' || err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER';
@@ -158,7 +174,8 @@ const isOverflow = (err) => err.code === 'ENOBUFS' || err.code === 'ERR_CHILD_PR
  * `maxBuffer` never reports a status at all (`err.status` is null), and `null ?? EXIT_ERROR` would hand
  * the caller a FABRICATED exit 1 that no caller can tell apart from a real failure — measured: a --gate
  * that wrote 2 MiB and exited 0 was reported as integration-red. An exit code this function did not
- * observe is not a value it may return.
+ * observe is not a value it may return. The thrown error carries `overflow`, so a caller that reads the
+ * output only to report it can go on without it.
  */
 function run(cmd, args, cwd, opts = {}) {
   try {
@@ -167,30 +184,33 @@ function run(cmd, args, cwd, opts = {}) {
   } catch (err) {
     if (err.code === 'ENOENT') throw fail(`cannot run "${cmd}" — it is not on PATH`);
     if (isOverflow(err)) {
-      throw unsafe(`"${cmd}" was KILLED in ${cwd} for writing more than ${opts.maxBuffer ?? NODE_DEFAULT_MAX_BUFFER} bytes to stdout+stderr — it never reported an exit code, so this is NOT a report that it failed; make it quieter and run it again`);
+      throw Object.assign(unsafe(`"${cmd}" was KILLED in ${cwd} for writing more than ${opts.maxBuffer ?? NODE_DEFAULT_MAX_BUFFER} bytes to stdout+stderr — it never reported an exit code, so this is NOT a report that it failed; make it quieter and run it again`), { overflow: true });
     }
     return { code: err.status ?? EXIT_ERROR, stdout: String(err.stdout ?? ''), stderr: String(err.stderr ?? '') };
   }
 }
 
 /** `git -C <cwd> …`. -C rather than a cwd option so the failure message always names the repo. */
-const git = (cwd, args) => run('git', ['-C', cwd, ...args]);
+const git = (cwd, args, opts) => run('git', ['-C', cwd, ...args], undefined, opts);
 
 /** For the git calls whose failure is a precondition the operator must clear, not a branch we take. */
-function mustGit(cwd, args, what) {
-  const r = git(cwd, args);
+function mustGit(cwd, args, what, opts) {
+  const r = git(cwd, args, opts);
   if (r.code !== 0) throw unsafe(`${what} failed: ${firstLine(r.stderr) || firstLine(r.stdout) || `git exited ${r.code}`}`);
   return r.stdout;
 }
+
+const outputLines = (stdout) => stdout
+  .split('\n')
+  .map((l) => (l.endsWith('\r') ? l.slice(0, -1) : l))
+  .filter(Boolean);
 
 /**
  * `git status --porcelain` as `['XY path', …]` — the XY prefix is load-bearing (` A` = intent-to-add).
  * `--untracked-files=normal` because `status.showUntrackedFiles=no` would otherwise hide untracked work.
  */
-const porcelainLines = (worktree) => git(worktree, ['status', '--porcelain', '--untracked-files=normal']).stdout
-  .split('\n')
-  .map((l) => (l.endsWith('\r') ? l.slice(0, -1) : l))
-  .filter(Boolean);
+const STATUS_ARGS = ['status', '--porcelain', '--untracked-files=normal'];
+const porcelainLines = (worktree) => outputLines(git(worktree, STATUS_ARGS).stdout);
 
 /** Those lines as a one-line file list — a message naming the files is what makes a 40 actionable. */
 function fileList(lines, cap = 8) {
@@ -208,7 +228,11 @@ function fileList(lines, cap = 8) {
 const WORKTREE_LIST_RACE = /failed to read .*locked/;
 const WORKTREE_LIST_ATTEMPTS = 5;
 
-/** `[{ path, branch }]` for every worktree of the repo; `branch` is '' for a detached entry. */
+/**
+ * `[{ path, branch, locked, lockReason, main }]` for every worktree of the repo. `branch` is '' for a
+ * detached entry, `lockReason` is '' for an entry locked with no reason, and `main` marks the first
+ * entry, which git always lists as the main worktree.
+ */
 function listWorktrees(repo) {
   const listArgs = ['worktree', 'list', '--porcelain'];
   let listed = git(repo, listArgs);
@@ -220,13 +244,15 @@ function listWorktrees(repo) {
   }
   if (listed.code !== 0) throw unsafe(`listing the worktrees failed: ${firstLine(listed.stderr) || `git exited ${listed.code}`}`);
 
-  for (const raw of listed.stdout.split('\n')) {
-    const line = raw.endsWith('\r') ? raw.slice(0, -1) : raw;
+  for (const line of outputLines(listed.stdout)) {
     if (line.startsWith('worktree ')) {
-      current = { path: line.slice('worktree '.length).trim(), branch: '' };
+      current = { path: line.slice('worktree '.length).trim(), branch: '', locked: false, lockReason: '', main: entries.length === 0 };
       entries.push(current);
     } else if (line.startsWith('branch ') && current) {
       current.branch = line.slice('branch '.length).trim().replace(/^refs\/heads\//, '');
+    } else if ((line === 'locked' || line.startsWith('locked ')) && current) {
+      current.locked = true;
+      current.lockReason = line.slice('locked'.length).trim();
     }
   }
   return entries;
@@ -655,8 +681,7 @@ function releaseLock(path, token) {
  * other verb that knows this path. A lock whose owner is still running is left ALONE: the fix for a live
  * land is to wait for it, never to pull the lock out from under it.
  */
-function removeDeadLock(linkedWorktree) {
-  const path = lockPath(linkedWorktree);
+function removeDeadLock(path) {
   const owner = readLock(path);
   if (owner === null) return;
 
@@ -672,38 +697,277 @@ function removeDeadLock(linkedWorktree) {
 // clean — the two teardown forms; both leave the branch for the user
 // =============================================================================
 
-/**
- * NO `--force`, deliberately. `--force` is the flag that overrides git's own refusal to delete a
- * worktree holding modified, staged or untracked files — and an engine run's RESTING state is exactly
- * that: accepted work staged, never committed (tests/CLAUDE.md §4). A `clean` run one step ahead of the
- * land would have discarded it silently, at exit 0, with no patch and no prompt. Git's refusal is the
- * guard; the operator clears the precondition (land it, commit it, or discard it deliberately with the
- * command named below). The `--force` recovery of a CRASHED run (decision-r3 M7/M8) is still exactly
- * that command — it just has to be typed by the person who accepts the loss.
- */
-function removeWorktree(repo, path) {
-  const r = git(repo, ['worktree', 'remove', path]);
-  if (r.code !== 0) {
-    throw unsafe(`cannot remove the worktree at ${path}: ${firstLine(r.stderr)} — land or commit the work there, or throw it away on purpose with "git -C ${repo} worktree remove --force ${path}"`);
+const TRASH_SCRIPT = fileURLToPath(new URL('./trash.mjs', import.meta.url));
+
+// What git keeps in a worktree's git directory while an operation is unfinished, and the operation's
+// name. `git worktree prune` deletes that directory outside the trash.
+const OPERATION_MARKERS = [
+  ['MERGE_HEAD', 'a merge'],
+  ['CHERRY_PICK_HEAD', 'a cherry-pick'],
+  ['REVERT_HEAD', 'a revert'],
+  ['rebase-merge', 'a rebase'],
+  ['rebase-apply', 'a rebase or am'],
+  ['BISECT_LOG', 'a bisect'],
+  // Outlives CHERRY_PICK_HEAD and REVERT_HEAD once a conflicted pick of a multi-commit sequence is
+  // committed by hand.
+  ['sequencer', 'a cherry-pick or revert sequence'],
+];
+
+// A rebase or bisect detaches HEAD, and git still counts the worktree as on the branch that operation
+// returns to (is_worktree_being_rebased, is_worktree_being_bisected). BISECT_START holds an object id
+// instead of a branch name when the bisect started detached.
+const REBASE_HEAD_NAMES = ['rebase-merge/head-name', 'rebase-apply/head-name'];
+const OBJECT_ID_RE = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
+
+// An ignored tree such as node_modules lists far more than Node's 1 MiB default child-output cap.
+const IGNORED_LIST_MAX_BUFFER = 256 * MIB;
+
+const pathExists = (path) => statSync(path, { throwIfNoEntry: false }) !== undefined;
+
+/** A file's trimmed text, or '' when it cannot be read. */
+function readTrimmed(file) {
+  try {
+    return readFileSync(file, 'utf8').trim();
+  } catch {
+    return '';
   }
-  git(repo, ['worktree', 'prune']);
+}
+
+const FOLDS_CASE = foldsCase(process.platform);
+const caseKey = (p) => (FOLDS_CASE ? resolve(p).toLowerCase() : resolve(p));
+
+const pruneCommand = (repo) => `git -C "${repo}" worktree prune`;
+/** The by-hand removal a refusal names, which trashes each target and then prunes. */
+const handRemoval = (repo, targets) => `node "${TRASH_SCRIPT}" ${targets.map((t) => `"${t}"`).join(' ')} and then run ${pruneCommand(repo)}`;
+const cannotRemove = (path, reason) => unsafe(`cannot remove the worktree at ${path}. ${reason}`);
+
+/** Each `--git-path` answer for `names` in `cwd`, as an absolute path. */
+function gitPaths(cwd, names) {
+  const out = mustGit(cwd, ['rev-parse', ...names.flatMap((name) => ['--git-path', name])], `resolving the git paths of ${cwd}`);
+  return outputLines(out).map((p) => (isAbsolute(p) ? p : resolve(cwd, p)));
+}
+
+/**
+ * Each directory under `<git-common-dir>/worktrees`, keyed by the `caseKey` of the `.git` path its
+ * `gitdir` file records. It is read from the repo, so a worktree whose folder is gone still has one.
+ */
+export function worktreeAdminDirs(repo) {
+  // Input
+  const [typedRoot] = gitPaths(repo, ['worktrees']);
+  // git lists worktree paths in physical form, so a relative gitdir must resolve from the physical root,
+  // not from a --repo typed through a symlink, junction or subst drive.
+  const root = pathExists(typedRoot) ? realpathSync.native(typedRoot) : typedRoot;
+  const dirs = (pathExists(root) ? readdirSync(root) : []).map((id) => join(root, id));
+  const byDotGit = new Map();
+
+  // Process
+  for (const dir of dirs) {
+    // A `gitdir` file may hold a path relative to its own directory (worktree.useRelativePaths).
+    const recorded = readTrimmed(join(dir, 'gitdir'));
+    if (recorded) byDotGit.set(caseKey(resolve(dir, recorded)), dir);
+  }
+
+  // Output
+  return byDotGit;
+}
+
+/** The branch an unfinished rebase or bisect in the worktree git directory `gitDir` returns to, or ''. */
+function heldBranch(gitDir) {
+  // Input
+  const headName = REBASE_HEAD_NAMES.map((name) => readTrimmed(join(gitDir, name))).find(Boolean) ?? '';
+  const bisectStart = readTrimmed(join(gitDir, 'BISECT_START'));
+
+  // Output
+  if (headName.startsWith('refs/heads/')) return headName.slice('refs/heads/'.length);
+  if (bisectStart && !OBJECT_ID_RE.test(bisectStart)) return bisectStart;
+  return '';
+}
+
+/**
+ * `listWorktrees` as `clean` reads it. Each linked entry gains `gitDir`, its directory under
+ * `<git-common-dir>/worktrees` or null, and a detached one takes the branch its rebase or bisect holds,
+ * so `clean --key` finds and refuses it and `clean --batch` counts it as a registered chain.
+ */
+function worktreesForClean(repo) {
+  const entries = listWorktrees(repo);
+  const byDotGit = worktreeAdminDirs(repo);
+  return entries.map((e) => {
+    const gitDir = e.main ? null : byDotGit.get(caseKey(join(e.path, '.git'))) ?? null;
+    return { ...e, gitDir, branch: e.branch || (gitDir ? heldBranch(gitDir) : '') };
+  });
+}
+
+/**
+ * Whether a folder exists at `path` and its `.git` file points at `gitDir`. git reads whatever repository
+ * holds a folder, so no check may run git in the folder before this one passes.
+ */
+function linksBack(path, gitDir) {
+  const text = readTrimmed(join(path, '.git'));
+  const target = text.startsWith('gitdir: ') ? text.slice('gitdir: '.length).trim() : '';
+  if (!target || !gitDir) return false;
+  try {
+    return caseKey(realpathSync.native(resolve(path, target))) === caseKey(realpathSync.native(gitDir));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The unlanded files of the worktree at `path` as a one-line list, or '' when it is clean. A status
+ * listing that passes the output cap is never empty, so it proves the tree dirty.
+ */
+function unlandedFiles(path) {
+  try {
+    return fileList(outputLines(mustGit(path, STATUS_ARGS, `reading the status of ${path}`)));
+  } catch (err) {
+    if (!err.overflow) throw err;
+    return `its status listing passed the ${NODE_DEFAULT_MAX_BUFFER / MIB} MiB output cap`;
+  }
+}
+
+/**
+ * Why the existing folder of the worktree at `path` must not go to the trash, or null. `mainPath` is the
+ * --repo the in-repo refusal names, and `discard` is the by-hand removal the unlanded-work refusal names.
+ */
+function folderProblem(repo, path, mainPath, discard) {
+  // Input
+  const real = realpathSync.native(path);
+  const cwd = realpathSync.native(process.cwd());
+  const repoReal = realpathSync.native(repo);
+  const markers = gitPaths(path, OPERATION_MARKERS.map(([name]) => name));
+  const operation = OPERATION_MARKERS.find((_, i) => pathExists(markers[i])) ?? null;
+  const dirty = unlandedFiles(path);
+
+  // Process
+  if (isWithin(cwd, real, FOLDS_CASE)) return `The working directory ${cwd} is inside it. Change to a directory outside it and run this command again.`;
+  if (isWithin(repoReal, real, FOLDS_CASE)) {
+    return `The --repo path ${repo} is inside it, and the prune after the move runs there. Run this command again with --repo "${mainPath}".`;
+  }
+  if (operation) {
+    return `It has ${operation[1]} in progress (${operation[0]}), and "git worktree prune" would delete that state outside the trash. Finish or abort it there, then run this command again.`;
+  }
+  if (dirty) {
+    return `It holds work that has not landed (${dirty}), so land or commit it, or ${discard}.`;
+  }
+
+  // Output
+  return null;
+}
+
+/**
+ * How many ignored files go to the trash with the folder, or null when their names pass the listing cap.
+ * The status check passes over them. The count only informs stderr, so an overflow never blocks the move.
+ */
+function ignoredFileCount(path) {
+  // Input
+  const args = ['ls-files', '-z', '--others', '--ignored', '--exclude-standard'];
+  let out = '';
+  let count = 0;
+  try {
+    out = mustGit(path, args, `listing the ignored files of ${path}`, { maxBuffer: IGNORED_LIST_MAX_BUFFER });
+  } catch (err) {
+    if (err.overflow) return null;
+    throw err;
+  }
+
+  // Process
+  // `-z` ends each name with a NUL, so counting NULs counts the names without building a string for each.
+  for (let i = out.indexOf('\0'); i !== -1; i = out.indexOf('\0', i + 1)) count++;
+
+  // Output
+  return count;
+}
+
+/** A refused move left every file in place and an unknown one may have moved part of it, so neither may prune. */
+function moveToTrash(repo, path) {
+  try {
+    return trash(path);
+  } catch (err) {
+    const state = err instanceof TrashError ? err.state : 'unknown';
+    const reason = err instanceof TrashError ? err.reason : err.message;
+    if (state === 'refused') {
+      throw unsafe(`the trash refused the worktree at ${path} (${reason}), so it stays registered and intact and nothing was pruned. Clear that cause and run this command again, or move the folder elsewhere by hand and then run ${pruneCommand(repo)}.`);
+    }
+    throw unsafe(`the trash could not confirm where the worktree at ${path} went (${reason}), so nothing was pruned. Check the trash for it, then run this command again.`);
+  }
+}
+
+/**
+ * Moves a registered worktree's folder to the trash and prunes its registration. `git worktree remove`
+ * is never run, since it deletes the folder and its ignored files permanently. An engine run's resting
+ * state is accepted work staged and never committed (tests/CLAUDE.md §4), so a dirty tree is refused.
+ * A folder already gone skips the checks that read it and is pruned. Every refusal before the move is
+ * exit 40 and leaves the worktree registered and intact. `entry` comes from `worktreesForClean`, and
+ * `mainPath` is the main worktree's path.
+ */
+function removeWorktree(repo, entry, mainPath) {
+  // Runs before the gitDir check, since the main worktree has no directory under worktrees/ either.
+  if (entry.main) {
+    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so clean never removes it. Switch it to another branch with git -C "${entry.path}" switch <branch>, then run this command again.`);
+  }
+  if (!entry.gitDir) {
+    throw cannotRemove(entry.path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C "${repo}" worktree list --porcelain.`);
+  }
+
+  // Input
+  const { path, gitDir } = entry;
+  const present = pathExists(path);
+  const modules = join(gitDir, 'modules');
+  const hasModules = pathExists(modules);
+  // The by-hand prune deletes the submodule git directories, so every by-hand removal trashes them first.
+  const byHand = handRemoval(repo, [present ? path : null, hasModules ? modules : null].filter(Boolean));
+  const discard = `trash the folder${hasModules ? ` and the submodule git directories in ${modules}` : ''} by hand with ${byHand}`;
+  let problem = null;
+  let ignored = null;
+  let ignoredText = '';
+  let moved = null;
+
+  // Process
+  if (entry.locked) {
+    throw cannotRemove(path, `It is locked${entry.lockReason ? ` (${entry.lockReason})` : ''}, and "git worktree prune" keeps a locked worktree. If no process uses it, run git -C "${repo}" worktree unlock "${path}" and run this command again.`);
+  }
+  if (present && !linksBack(path, gitDir)) {
+    throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C "${repo}" worktree repair "${path}". Otherwise move the folder elsewhere. Then run this command again.`);
+  }
+  problem = present ? folderProblem(repo, path, mainPath, discard) : null;
+  if (problem) throw cannotRemove(path, problem);
+  if (hasModules) {
+    throw cannotRemove(path, `It holds submodule git directories in ${modules}, which "git worktree prune" would delete outside the trash. Trash ${present ? 'the folder and that directory' : 'that directory'} by hand with ${byHand}.`);
+  }
+  if (present) {
+    ignored = ignoredFileCount(path);
+    ignoredText = ignored === null
+      ? `an uncounted number of ignored files, whose names pass the ${IGNORED_LIST_MAX_BUFFER / MIB} MiB listing cap`
+      : `${ignored} ignored file${ignored === 1 ? '' : 's'}`;
+    moved = moveToTrash(repo, path);
+    process.stderr.write(`moved ${path} to the trash at ${moved.location}${moved.verified ? '' : ' (unverified, the trash is not readable)'}, with ${ignoredText}\n`);
+  } else {
+    process.stderr.write(`the folder ${path} was already gone, so only its registration is pruned\n`);
+  }
+  mustGit(repo, ['worktree', 'prune'], 'git worktree prune');
+
+  // Output
+  if (listWorktrees(repo).some((e) => e.path === path)) {
+    throw unsafe(`${path} is still registered after "git worktree prune". Check its entry in git -C "${repo}" worktree list --porcelain, then run this command again.`);
+  }
 }
 
 function cleanChain(repo, key) {
-  const entry = findChain(listWorktrees(repo), key);
+  const entries = worktreesForClean(repo);
+  const entry = findChain(entries, key);
   if (!entry) {
     // Idempotent on purpose: teardown runs after every chain, including ones that never got a worktree.
     process.stderr.write(`no worktree on aipg/<batch>/${key} — nothing to remove\n`);
     git(repo, ['worktree', 'prune']);
     return;
   }
-  removeWorktree(repo, entry.path);
-  process.stderr.write(`removed ${entry.path}; branch ${entry.branch} kept\n`);
+  removeWorktree(repo, entry, entries[0].path);
+  process.stderr.write(`kept branch ${entry.branch}\n`);
   process.stdout.write(`${entry.path}\n`);
 }
 
 function cleanBatch(repo, batch) {
-  const entries = listWorktrees(repo);
+  const entries = worktreesForClean(repo);
   const entry = findBranch(entries, intBranch(batch));
   if (!entry) {
     // The hook path is only resolvable from a linked worktree (M27) and this tool never guesses at a
@@ -722,18 +986,26 @@ function cleanBatch(repo, batch) {
     throw unsafe(`batch "${batch}" still has ${stranded.length} chain worktree(s) registered (${stranded.map((e) => e.branch).join(', ')}) — run "clean --key <chain>" on each first; removing the shared reference-transaction hook now would leave them open to the refs/stash hazard it exists to prevent`);
   }
 
-  const hook = hookPath(entry.path);
-  const state = hookState(hook);                                 // read BEFORE the worktree goes away
-  removeDeadLock(entry.path);                                    // same reason: the path needs a linked worktree
-  removeWorktree(repo, entry.path);
+  // The hook and the land lock resolve only from a linked worktree (M27), so both are resolved before the
+  // worktree goes away. A folder already gone leaves both alone, and `removeWorktree` refuses a folder
+  // that is not the worktree. A dead lock goes only after the removal succeeds, so a refused clean
+  // changes nothing.
+  const linked = linksBack(entry.path, entry.gitDir);
+  const hook = linked ? hookPath(entry.path) : null;
+  const lock = linked ? lockPath(entry.path) : null;
+  const state = hook ? hookState(hook) : 'unresolved';
+  removeWorktree(repo, entry, entries[0].path);
+  if (lock) removeDeadLock(lock);
 
   if (state === 'ours') {
     rmSync(hook, { force: true });
     process.stderr.write(`removed the AIPG reference-transaction hook at ${hook}\n`);
   } else if (state === 'foreign') {
     process.stderr.write(`left a FOREIGN reference-transaction hook in place at ${hook}\n`);
+  } else if (state === 'unresolved') {
+    process.stderr.write(`left the hook and any land lock alone, since their paths resolve only from a linked worktree\n`);
   }
-  process.stderr.write(`removed ${entry.path}; branch ${intBranch(batch)} kept — merge it where you want it\n`);
+  process.stderr.write(`kept branch ${intBranch(batch)}. Merge it where you want it.\n`);
   process.stdout.write(`${entry.path}\n`);
 }
 
@@ -773,9 +1045,8 @@ function isLanded(worktree, batch, key) {
  * Step 2. Commit the ACCEPTED index — index-only, never `-a`: work an engine left unstaged was not
  * accepted, so it is never committed and the land refuses while it remains. When the commit fails, the
  * split below is what separates "this chain finished with nothing to land" from "this chain's accepted
- * work is about to be thrown away", and they must never share an exit code: the orchestrator moves on
- * from 10, and a later `clean --key` on a tree it believes empty is `remove --force` on the only copy of
- * that work.
+ * work is about to be left behind", and they must never share an exit code. The orchestrator moves on
+ * from 10 and never lands that work.
  *
  * A clean tree over an empty index is NOT nothing-to-land on its own. It is also what the recovery this
  * tool prescribes leaves behind: `syncFromIntegration`'s exit 20 says "resolve it on <chain> and land
@@ -813,7 +1084,7 @@ function commitAccepted(worktree, batch, key) {
   if (ita.length) {
     throw unsafe(`"${key}" has ${ita.length} residual intent-to-add entr${ita.length === 1 ? 'y' : 'ies'} in ${worktree} (${fileList(ita)}) — "git add -N" reserved those names but staged no content, so landing now would commit them EMPTY; "git add" them for real (or "git reset" them) and land again`);
   }
-  throw unsafe(`"${key}" has an EMPTY index but a DIRTY worktree in ${worktree} (${fileList(lines)}) — the likely cause is develop-cycle's passed-but-unstaged halt, where the work is good and one "git add" fixes it; refusing to report nothing-to-land, because that would let a later "clean --key" force-remove the only copy of it`);
+  throw unsafe(`"${key}" has an EMPTY index but a DIRTY worktree in ${worktree} (${fileList(lines)}) — the likely cause is develop-cycle's passed-but-unstaged halt, where the work is good and one "git add" fixes it; refusing to report nothing-to-land, since the orchestrator moves on from that and the work would never land`);
 }
 
 /**
@@ -928,7 +1199,7 @@ function syncFromIntegration(worktree, batch, key) {
  * something a real one clears without trying — at which point the child is KILLED and reports no exit
  * code (see `run`). Room, so that a gate which PASSES loudly is not read as a red one.
  */
-const GATE_MAX_BUFFER = 1024 * 1024 * 1024;
+const GATE_MAX_BUFFER = 1024 * MIB;
 
 function runGate(command, worktree, batch, key) {
   const r = run(command, [], worktree, { shell: true, maxBuffer: GATE_MAX_BUFFER });
