@@ -10,10 +10,12 @@ Two terms used throughout:
 - **Harness / conductor**: the JS workflow script. It is not an LLM and has no context window. It has no
   tools, so it cannot read files, run git, or write anything. It only sequences `agent()` calls and
   passes small control values.
-- **Agent**: one `agent()` call. It starts with a context that holds its prompt and the startup context
-  #3 names: the user `CLAUDE.md`, the project `CLAUDE.md`, the launching session's auto-memory index
-  (`MEMORY.md`) and a git status snapshot. It works with its own tools, returns one structured value, and
-  is then destroyed. Agents cannot message each other or keep context warm across calls.
+- **Agent**: one `agent()` call. It starts with a context that holds its prompt, the launching turn's user
+  message when that turn carries one, and the startup context #3 names: the user `CLAUDE.md`, the project
+  `CLAUDE.md`, the copy of the auto-memory index (`MEMORY.md`) the launching session loaded at its start
+  and, when that session's working directory is a git repository, the git status snapshot taken at that
+  start. It works with its own tools, returns one structured value, and is then destroyed. Agents cannot
+  message each other or keep context warm across calls.
 
 ---
 
@@ -36,11 +38,15 @@ from plan mode lives at `~/.claude/plans/<random-name>.md`. The blind reviewer i
 works only inside the repo and its own review directory, so the plan cannot enter its context.
 
 Every agent, the blind reviewer included, receives three files at startup: the user `CLAUDE.md`, the
-project `CLAUDE.md` and the launching session's auto-memory index (`MEMORY.md`). Two more sources reach an agent. A git working directory adds that repository's git
-status snapshot at startup: the branch, the working-tree status lines and the latest commit subjects. A
-run launched from this checkout also loads a folder's `CLAUDE.md` once an agent reads a file in that
-folder. So placement keeps a document out of an agent's reach only when none of these sources names it
-or restates it.
+project `CLAUDE.md` and the launching session's auto-memory index (`MEMORY.md`). The index is the copy
+the launching session loaded at its start, so an edit to `MEMORY.md` made later in that session reaches
+no agent until a new session starts. Three more sources reach an agent. When the launching session's
+working directory is a git repository, the git status snapshot taken at the session's start reaches every
+agent: the branch, the working-tree status lines and the latest commit subjects. A run launched from this
+checkout also loads a folder's `CLAUDE.md` once an agent reads a file in that folder. A run launched from
+a turn that carries a user message copies that message into every agent's prompt, ahead of its task, so
+launch from a notification turn (root `CLAUDE.md`, "Launch from a notification turn"). So placement keeps
+a document out of an agent's reach only when none of these sources names it or restates it.
 
 ### 4. No busy work
 The main agent does every preparatory or clerical step with the user before the run, such as cleaning
