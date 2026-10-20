@@ -2523,6 +2523,10 @@ await withFixture(({ repo }) => {
     [['close', '--repo', repo, '--name', 'x', '--discard', 'yes'], /unexpected argument/, 'a value after the --discard switch'],
     [['close', '--repo', repo, '--name', 'int-x', '--discard'], /starts with "int-"/, 'close with an int- name'],
     [['nope', '--repo', repo], /unknown verb/, 'an unknown verb'],
+    [['constructor'], /unknown verb "constructor"/, 'a bare verb named constructor'],
+    [['__proto__'], /unknown verb "__proto__"/, 'a bare verb named __proto__'],
+    [['constructor', '--repo', repo], /unknown verb "constructor"/, 'a verb named constructor with a flag'],
+    [['__proto__', '--repo', repo], /unknown verb "__proto__"/, 'a verb named __proto__ with a flag'],
     [[], /no verb given/, 'no arguments at all'],
   ];
   for (const [argv, expected, what] of cases) {

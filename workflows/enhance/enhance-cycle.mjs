@@ -353,7 +353,8 @@ log(`spawn ceiling: ≤ ${LENSES.length * 2} agents (${LENSES.length} finder(s) 
 
 // The phase of the last agent each lens reached. A lost lens reports it as its `failed` stage, so a lens
 // nobody searched reads apart from one whose search went unverified, even when a stage threw.
-const lensStage = {};
+// Null prototype, so a lens id named like an Object member never reads an inherited value.
+const lensStage = Object.create(null);
 const results = await pipeline(
   LENSES,
   // -- Find: one agent per lens, reading the whole scope --------------------------------------

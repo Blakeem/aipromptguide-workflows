@@ -57,6 +57,18 @@ section('a dead finder does the same — the two guards stay symmetric');
   eq(out.summary.lenses, 1, 'and is not counted as audited');
 }
 
+section('a lens named like an Object member is reported failed at its own stage');
+// A lens id is slugged, so `__proto__` becomes `proto` and `constructor` is the one id that names an Object member.
+// The stage record is read back for every failed lens, so each id has to resolve to the stage written for it.
+{
+  const { out } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['__proto__', 'constructor', 'efficiency'] },
+    respond: { 'find:proto': null, 'verify:constructor': null, find: FOUND, verify: VERIFIED },
+  });
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'proto', stage: 'find' }, { id: 'constructor', stage: 'verify' }]),
+    'each lens is reported failed at the stage it died in');
+}
+
 section('a candidate the verifier judges too risky is rejected, counted, and kept out of the proposals');
 // The operator's one filter for "this would regress something the workflow needs" is this count and the
 // rejection line in the lens file. A too_risky verdict routed anywhere but REJECT would reach triage.

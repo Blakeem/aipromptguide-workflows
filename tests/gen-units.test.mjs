@@ -159,3 +159,26 @@ section('--unit-loc bounds the big-file split, the directory split and packing')
     rmSync(dir, { recursive: true, force: true });
   }
 }
+
+section('a packed group under a directory named like an Object member is numbered like any other');
+// The per-prefix counter is keyed by a directory of the target repo. A plain object read `constructor` as
+// the inherited Object function and `__proto__` as Object.prototype, so the unit id took that text as its number.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-gen-units-names-'));
+  const out = join(dir, 'manifest.json');
+  const lines = (n) => Array.from({ length: n }, (_, i) => `export const v${i} = ${i};`).join('\n') + '\n';
+  try {
+    for (const prefix of ['constructor', '__proto__']) {
+      for (const sub of ['a', 'b']) {
+        mkdirSync(join(dir, prefix, sub), { recursive: true });
+        writeFileSync(join(dir, prefix, sub, 'x.mjs'), lines(5));
+      }
+    }
+    const r = runCli(['--repo', dir, '--src', 'constructor,__proto__', '--ext', '.mjs', '--unit-loc', '15', '--out', out]);
+    eq(r.code, 0, `the run succeeds: ${r.stderr.split('\n')[0]}`);
+    const ids = JSON.parse(readFileSync(out, 'utf8')).units.map((u) => u.id).sort();
+    eq(JSON.stringify(ids), JSON.stringify(['__proto__#p1', 'constructor#p1']), 'each prefix gets #p1 for its first packed group');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}

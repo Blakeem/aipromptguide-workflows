@@ -210,7 +210,8 @@ function pack(baseUnits) {
   }
   flush();
 
-  const counters = {};
+  // Null prototype, so a directory named `constructor` or `__proto__` counts from 0 like any other.
+  const counters = Object.create(null);
   return groups.map((g) => {
     if (g.length === 1) return g[0];
     const absPaths = g.flatMap((u) => u.files.map((f) => join(REPO, f.path)));

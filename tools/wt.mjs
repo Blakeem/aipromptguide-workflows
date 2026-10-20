@@ -2170,7 +2170,7 @@ function requireRepo(opt) {
  */
 export function parseArgv(argv) {
   const [verb, ...rest] = argv;
-  if (!verb || !VERBS[verb]) throw fail(`${verb ? `unknown verb "${verb}"` : 'no verb given'} — ${USAGE}`);
+  if (!verb || !Object.hasOwn(VERBS, verb)) throw fail(`${verb ? `unknown verb "${verb}"` : 'no verb given'} — ${USAGE}`);
 
   const { flags, switches = [] } = VERBS[verb];
   const opt = {};
