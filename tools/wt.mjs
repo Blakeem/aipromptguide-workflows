@@ -1,4 +1,5 @@
-// tools/wt.mjs — the batch worktree lifecycle for running several AIPG chains in parallel.
+// tools/wt.mjs: the worktree lifecycle for running several AIPG chains in parallel as a batch, or for
+// building one change in its own worktree.
 //
 // Why this exists. Two engine runs in ONE checkout share a working tree, so their unstaged diffs — the
 // exact thing every blind reviewer is handed — bleed into each other. Giving each chain its own git
@@ -11,6 +12,9 @@
 //   land  --repo <abs> --batch <name> --key <chain> --gate "<cmd>"        once per chain, SERIALIZED
 //   clean --repo <abs> --key <chain>                                      after that chain has landed
 //   clean --repo <abs> --batch <name>                                     after the batch has landed
+//   open  --repo <abs> --name <n> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]   one change, no batch
+//   close --repo <abs> --name <n> --into <branch> --gate "<cmd>"          merge that change, then remove it
+//   close --repo <abs> --name <n> --discard                               trash that change unmerged
 //
 // "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
 // operating system's trash through tools/trash.mjs and then runs `git worktree prune`. It never runs
@@ -19,10 +23,20 @@
 // whose `.git` file does not point at its git directory, holds modified, staged or untracked files, has
 // a merge, cherry-pick, revert, rebase, am or bisect in progress, has submodule git directories in its
 // git directory, or holds the working directory of the process that runs it or the `--repo` path (see
-// `removeWorktree`). A rebase or bisect detaches HEAD, so `clean` finds that worktree by the branch the
+// `checkRemovable`). A rebase or bisect detaches HEAD, so `clean` finds that worktree by the branch the
 // operation records, as git does (see `worktreesForClean`).
 // `clean --batch`, which also removes the shared hook, is refused while any chain worktree of that batch
 // is still registered (see `cleanBatch`).
+//
+// `open` and `close` build one change in its own worktree on `aipg/<n>`. They install no hook and take no
+// lock, since both guard the sibling chains of a batch and a single change has none. So `close` refuses an
+// `--into` that is a batch's integration or chain branch, which only `land` moves. `close --into` rebases
+// `aipg/<n>` onto `<into>` when `<into>` has a commit it lacks, gates the exact commit `<into>` will point at,
+// moves `<into>` to it only by fast-forward, and verifies the move. Only then does it remove the worktree the
+// way `clean` does and delete `aipg/<n>`. A refusal before the rebase changes nothing. Each later stop keeps
+// the steps already done, such as a rebased `aipg/<n>`, a moved `<into>` or a worktree in the trash. Running
+// close again finishes the steps left (see `closeInto`). `close --discard` trashes the worktree with its
+// uncommitted work and keeps the branch.
 //
 // Every M-number in this file is a measurement label of the decide run `worktree-parallelism-1`
 // (2026-07-29).
@@ -59,22 +73,27 @@
 // RE-READS the lock immediately before it and refuses to merge on a lock this land no longer holds
 // (exit 75). Detecting the loss on the way out, after the merge, is not a serialization guarantee.
 //
-// `land` is also the only verb that COMMITS: an index-only accept commit of the chain's accepted work, a
-// sync merge, and the landing merge — all on `aipg/*` branches, all by this deterministic script. The user
-// still makes every commit that reaches their own branches (WORKFLOW-PRINCIPLES.md #9).
+// `land` and `close` are the only verbs that WRITE commits, all on `aipg/*` branches and all by this deterministic
+// script. `land` writes an index-only accept commit of the chain's accepted work, a sync merge, and the landing
+// merge. `close`'s rebase rewrites the `aipg/<n>` commits onto `<into>` and adds no change of its own, and `<into>`
+// moves only by fast-forward. So every change that reaches the user's own branches is one the user committed
+// (WORKFLOW-PRINCIPLES.md #9).
 //
-// stdout carries ONE value: the worktree path the verb acted on (prep's is the `target.repo` an engine
-// run is handed; land's is the integration worktree). Everything a human reads goes to stderr, so
-// `target=$(node wt.mjs prep …)` is safe.
+// stdout carries ONE value: the worktree path the verb acted on (prep's and open's is the `target.repo` an
+// engine run is handed; land's is the integration worktree; close's is the worktree it removed). Everything a
+// human reads goes to stderr, so `target=$(node wt.mjs prep …)` is safe.
 //
 // Exit codes are the contract an orchestrator branches on:
 //   0   success
 //   10  nothing to land — the chain accepted no work AND its branch is already contained in the
 //       integration branch. NOT an error; the orchestrator moves on.
 //   20  conflict — the sync merge conflicted and was aborted. The branch keeps its work, integration is
-//       untouched. A human or a fix run resolves it on the branch.
+//       untouched. A human or a fix run resolves it on the branch. For close: its rebase conflicted and was
+//       aborted with `aipg/<n>` back at its old tip, or `<into>` moved before the fast-forward. `<into>` is
+//       untouched either way.
 //   30  integration-red — the gate failed on the SYNCED state. The sync merge is kept on the branch (it
-//       records the exact combined state a fix run must address); integration is untouched and green.
+//       records the exact combined state a fix run must address); integration is untouched and green. For
+//       close: the gate failed on the commit `<into>` would point at, and `<into>` is untouched.
 //   40  unsafe / precondition — foreign hook, a relative core.hooksPath, no init, another batch active,
 //       hook self-test failed or never exercised, provision red, a worktree being cleaned that is the
 //       main worktree, is locked, has another folder at its path or holds unlanded work, an unfinished
@@ -82,7 +101,17 @@
 //       move that was refused or could not be confirmed, a worktree still registered after the prune, a
 //       batch cleaned while its chains are still registered, an empty index over a dirty tree, unaccepted
 //       work left beside a committed accept, a sync git refused up front, a command killed for flooding
-//       its output buffer.
+//       its output buffer, an init, prep or open whose worktree git created and then exited nonzero, such
+//       as on a failed post-checkout hook, an open or close given a branch name that matches a branch only
+//       in another case, an open whose base is no local branch or whose branch exists, a close whose --into
+//       is no local branch, a batch's branch or a symbolic ref, whose worktree is off its branch or gone with
+//       commits to merge, whose rebase would drop a merge commit of the branch, whose rebase or
+//       fast-forward would delete ignored files, whose rebase git refused, left unfinished, stopped with no
+//       conflicted file or left uncommitted changes, whose gate changed the tree it judged, whose `<into>`
+//       is checked out in two worktrees, under another name or in a folder that is gone or holds another
+//       repository, whose `<into>` worktree has tracked changes, untracked files in the way of the
+//       fast-forward or an unfinished operation, whose merge did not verify, or whose branch moved before
+//       its delete.
 //       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
@@ -92,7 +121,8 @@
 
 import { execFileSync } from 'node:child_process';
 import { chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
-import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { devNull } from 'node:os';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { TrashError, foldsCase, isWithin, trash } from './trash.mjs';
 
@@ -126,6 +156,8 @@ exit 0
 
 const PROBE_FILE = '.aipg-hook-probe';
 const LOCK_FILE = 'aipg-land.lock';
+// The path that the recovery commands a refusal names run this tool from.
+const WT_SCRIPT = fileURLToPath(import.meta.url);
 
 // Stated literals, not derived from anything: how long a land may wait for the lock before telling the
 // orchestrator to retry, and how long a lock may go WITHOUT A HEARTBEAT before a live-looking owner is
@@ -139,6 +171,7 @@ const MAX_TAKEOVERS = 3;
 
 const intBranch = (batch) => `aipg/int-${batch}`;
 const chainBranch = (batch, key) => `aipg/${batch}/${key}`;
+const singleBranch = (name) => `aipg/${name}`;
 const intDir = (batch) => `aipg-int-${batch}`;
 const chainDir = (key) => `aipg-${key}`;
 
@@ -166,6 +199,11 @@ const NODE_DEFAULT_MAX_BUFFER = MIB;
 /** The two codes a child killed for overflowing that cap comes back with (ENOBUFS on Windows). */
 const isOverflow = (err) => err.code === 'ENOBUFS' || err.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER';
 
+// A gate or a provision is a whole build, install or test suite, and a real one can write more than Node's default
+// cap. A child killed at the cap reports no exit code (see `run`), so the room keeps one that PASSES loudly from
+// reading as red.
+const GATE_MAX_BUFFER = 1024 * MIB;
+
 /**
  * Run a command and hand back its exit code as a VALUE. A nonzero exit is the normal answer to half the
  * questions here ("does this ref exist", "did the hook refuse"), so it must not throw.
@@ -184,20 +222,70 @@ function run(cmd, args, cwd, opts = {}) {
   } catch (err) {
     if (err.code === 'ENOENT') throw fail(`cannot run "${cmd}" — it is not on PATH`);
     if (isOverflow(err)) {
-      throw Object.assign(unsafe(`"${cmd}" was KILLED in ${cwd} for writing more than ${opts.maxBuffer ?? NODE_DEFAULT_MAX_BUFFER} bytes to stdout+stderr — it never reported an exit code, so this is NOT a report that it failed; make it quieter and run it again`), { overflow: true });
+      // `git` passes no cwd, since its -C argument names the repo.
+      throw Object.assign(unsafe(`"${[cmd, ...args].join(' ')}" was KILLED${cwd ? ` in ${cwd}` : ''} for writing more than ${opts.maxBuffer ?? NODE_DEFAULT_MAX_BUFFER} bytes to stdout+stderr — it never reported an exit code, so this is NOT a report that it failed; make it quieter and run it again`), { overflow: true });
     }
     return { code: err.status ?? EXIT_ERROR, stdout: String(err.stdout ?? ''), stderr: String(err.stderr ?? '') };
   }
 }
 
+/** Writes both streams of a `run` result to stderr, since stdout carries only the one path this tool prints. */
+function relay(r) {
+  if (r.stdout) process.stderr.write(r.stdout);
+  if (r.stderr) process.stderr.write(r.stderr);
+}
+
 /** `git -C <cwd> …`. -C rather than a cwd option so the failure message always names the repo. */
 const git = (cwd, args, opts) => run('git', ['-C', cwd, ...args], undefined, opts);
+
+// For the git calls that run the repo's hooks, such as a checkout, rebase, merge or branch update. The hooks write
+// to git's pipes, so they get the room a gate has.
+const HOOK_ROOM = { maxBuffer: GATE_MAX_BUFFER };
+
+// For close's git calls. One that waits on a prompt would hang close mid-step, such as mid-rebase, so its stdin is
+// closed and git may not ask for credentials. A branch create and a worktree add keep the operator's environment,
+// since a hook or checkout filter may need its language or a credential prompt.
+const UNATTENDED = { ...HOOK_ROOM, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } };
+
+/**
+ * git's first `error:` or `fatal:` line, past the progress git writes before it, such as the "Preparing worktree"
+ * line of `git worktree add` or the `\r`-ended counter of a rebase.
+ */
+function gitError(r) {
+  const found = String(r.stderr).split(/[\r\n]+/).map((l) => l.trim()).find((l) => /^(error|fatal):/.test(l));
+  return found ?? (firstLine(r.stderr) || firstLine(r.stdout) || `git exited ${r.code}`);
+}
 
 /** For the git calls whose failure is a precondition the operator must clear, not a branch we take. */
 function mustGit(cwd, args, what, opts) {
   const r = git(cwd, args, opts);
-  if (r.code !== 0) throw unsafe(`${what} failed: ${firstLine(r.stderr) || firstLine(r.stdout) || `git exited ${r.code}`}`);
+  if (r.code !== 0) throw unsafe(`${what} failed: ${gitError(r)}`);
   return r.stdout;
+}
+
+const HEADS = 'refs/heads/';
+const headsRef = (branch) => `${HEADS}${branch}`;
+/** The branch that `ref` names, or '' when `ref` is no local branch ref. */
+const shortBranch = (ref) => (ref.startsWith(HEADS) ? ref.slice(HEADS.length) : '');
+
+/**
+ * Whether `branch` is a local branch. show-ref reads no revision syntax, so a value such as main~1 is no branch.
+ * A loose ref is a file, so where the file system folds case it also answers yes for `branch` in another case.
+ */
+const isLocalBranch = (repo, branch) => git(repo, ['show-ref', '--verify', '--quiet', headsRef(branch)]).code === 0;
+
+const commitOf = (cwd, rev) => mustGit(cwd, ['rev-parse', '--verify', `${rev}^{commit}`], `reading the commit of ${rev}`).trim();
+
+/**
+ * Whether `descendant` contains `ancestor`. `--is-ancestor` answers 0 for yes and 1 for no. Anything else is a
+ * git error, and reading an error as "yes, already contained" is the one direction that loses work, so it throws.
+ */
+function contains(cwd, descendant, ancestor) {
+  const r = git(cwd, ['merge-base', '--is-ancestor', ancestor, descendant]);
+  if (r.code !== EXIT_OK && r.code !== 1) {
+    throw unsafe(`cannot tell whether ${descendant} contains ${ancestor}: ${gitError(r)}`);
+  }
+  return r.code === EXIT_OK;
 }
 
 const outputLines = (stdout) => stdout
@@ -212,35 +300,39 @@ const outputLines = (stdout) => stdout
 const STATUS_ARGS = ['status', '--porcelain', '--untracked-files=normal'];
 const porcelainLines = (worktree) => outputLines(git(worktree, STATUS_ARGS).stdout);
 
-/** Those lines as a one-line file list — a message naming the files is what makes a 40 actionable. */
-function fileList(lines, cap = 8) {
-  const files = lines.map((l) => l.slice(3).trim()).filter(Boolean);
+/** File names as a one-line list, since a message naming the files is what makes a 40 actionable. */
+function nameList(files, cap = 8) {
   const head = files.slice(0, cap).join(', ');
   return files.length > cap ? `${head} (+${files.length - cap} more)` : head;
 }
+
+/** Porcelain status lines as a one-line file list. */
+const fileList = (lines, cap) => nameList(lines.map((l) => l.slice(3).trim()).filter(Boolean), cap);
 
 // =============================================================================
 // Discovery — every path in this tool comes from here, never from stored state
 // =============================================================================
 
 // A concurrent `worktree add` holds a `locked` file while it initializes. `worktree list` can see it
-// exist, lose it to the add's unlink, and die reading it (M26), so that one failure is retried.
+// exist, lose it to the add's unlink, and die reading it (M26), so that one failure is retried. The pattern reads
+// git's English message, and git skips its translations when GIT_TEXTDOMAINDIR names no directory.
 const WORKTREE_LIST_RACE = /failed to read .*locked/;
 const WORKTREE_LIST_ATTEMPTS = 5;
+const WORKTREE_LIST_OPTS = { env: { ...process.env, GIT_TEXTDOMAINDIR: devNull } };
 
 /**
- * `[{ path, branch, locked, lockReason, main }]` for every worktree of the repo. `branch` is '' for a
- * detached entry, `lockReason` is '' for an entry locked with no reason, and `main` marks the first
- * entry, which git always lists as the main worktree.
+ * `[{ path, branch, locked, lockReason, main }]` for every worktree of the repo. `branch` is '' for an
+ * entry on no local branch, such as a detached one, `lockReason` is '' for an entry locked with no reason,
+ * and `main` marks the first entry, which git always lists as the main worktree.
  */
 function listWorktrees(repo) {
   const listArgs = ['worktree', 'list', '--porcelain'];
-  let listed = git(repo, listArgs);
+  let listed = git(repo, listArgs, WORKTREE_LIST_OPTS);
   const entries = [];
   let current = null;
 
   for (let attempt = 1; attempt < WORKTREE_LIST_ATTEMPTS && listed.code !== 0 && WORKTREE_LIST_RACE.test(listed.stderr); attempt++) {
-    listed = git(repo, listArgs);
+    listed = git(repo, listArgs, WORKTREE_LIST_OPTS);
   }
   if (listed.code !== 0) throw unsafe(`listing the worktrees failed: ${firstLine(listed.stderr) || `git exited ${listed.code}`}`);
 
@@ -249,7 +341,7 @@ function listWorktrees(repo) {
       current = { path: line.slice('worktree '.length).trim(), branch: '', locked: false, lockReason: '', main: entries.length === 0 };
       entries.push(current);
     } else if (line.startsWith('branch ') && current) {
-      current.branch = line.slice('branch '.length).trim().replace(/^refs\/heads\//, '');
+      current.branch = shortBranch(line.slice('branch '.length).trim());
     } else if ((line === 'locked' || line.startsWith('locked ')) && current) {
       current.locked = true;
       current.lockReason = line.slice('locked'.length).trim();
@@ -286,6 +378,12 @@ function hookPath(linkedWorktree) {
   return isAbsolute(out) ? out : resolve(linkedWorktree, out);
 }
 
+/** The repo's git common dir, as an absolute path. git answers a relative one from the main worktree. */
+function gitCommonDir(cwd) {
+  const out = mustGit(cwd, ['rev-parse', '--git-common-dir'], 'resolving the git common dir').trim();
+  return isAbsolute(out) ? out : resolve(cwd, out);
+}
+
 /**
  * The hook-exists rule, stated ONCE and obeyed by init AND clean: bytes equal to what init writes means
  * the hook is ours (init no-ops, clean may remove it); anything else is someone else's file (init
@@ -312,6 +410,8 @@ function writeHook(path) {
 // init — the ONLY verb that checks-then-acts, which is why it runs before any fan-out
 // =============================================================================
 
+const detachedBase = (repo) => unsafe(`--base was omitted and ${repo} is on a DETACHED HEAD — git has no machine-independent "default branch" in a local repo, so name the branch to cut from with --base`);
+
 /** The branch to cut the integration branch from. No default branch is discoverable in a local repo. */
 function resolveBase(repo, base) {
   if (base !== undefined) {
@@ -321,23 +421,66 @@ function resolveBase(repo, base) {
     return base;
   }
   const head = git(repo, ['symbolic-ref', '--short', 'HEAD']);
-  if (head.code !== 0) {
-    throw unsafe(`--base was omitted and ${repo} is on a DETACHED HEAD — git has no machine-independent "default branch" in a local repo, so name the branch to cut from with --base`);
-  }
+  if (head.code !== 0) throw detachedBase(repo);
   return head.stdout.trim();
+}
+
+/**
+ * Exit 40 for a `git worktree add` of `branch` that exited nonzero, once git's output is relayed. git runs the
+ * post-checkout hook after it creates the worktree, so a failed hook leaves a worktree on `branch`, which the
+ * message names with `recovery`. Null when no worktree is on `branch`. The caller knows that no worktree was on
+ * `branch` before the add, so a worktree on it now is the one the add created.
+ */
+function createdThenFailed(repo, branch, added, what, recovery) {
+  const holder = findBranch(listWorktrees(repo), branch);
+  if (!holder) return null;
+  relay(added);
+  return unsafe(`${what}: git created the worktree on ${branch} at ${holder.path} and then exited ${added.code}, as it does when a post-checkout hook fails (git's output is above), so the worktree is left in place. ${recovery}`);
+}
+
+/**
+ * Creates `branch` at `start`, then a worktree on it at `path`, or exits 40 naming `what` and, for a worktree git
+ * created before it failed, `recovery`. The create fails for a branch that exists or that another process is
+ * creating, so its exit code says whether this call owns the branch. No decision reads git's message, so both calls
+ * keep the operator's environment for their hooks and checkout filters. A failed add deletes the branch this call
+ * owns once no worktree holds it, so a later attempt does not fail on it.
+ */
+function addWorktreeOnNewBranch(repo, branch, path, start, { what, recovery }) {
+  // Input
+  let created = null;
+  let added = null;
+  let kept = null;
+  let dropped = null;
+  let note = '';
+
+  // Process
+  created = git(repo, ['branch', '--no-track', branch, start], HOOK_ROOM);
+  if (created.code !== 0) throw unsafe(`${what}: ${gitError(created)}`);
+  added = git(repo, ['worktree', 'add', path, branch], HOOK_ROOM);
+  if (added.code === 0) return;
+  kept = createdThenFailed(repo, branch, added, what, recovery);
+  if (kept) throw kept;
+  dropped = git(repo, ['branch', '-D', branch], HOOK_ROOM);
+  note = dropped.code === 0
+    ? `. The branch ${branch} that this call created was deleted`
+    : `. The branch ${branch} that this call created is left behind (${gitError(dropped)}), so delete it with git -C "${repo}" branch -D ${branch} before trying again`;
+
+  // Output
+  throw unsafe(`${what}: ${gitError(added)}${note}`);
 }
 
 function addIntegrationWorktree(repo, batch, base, path) {
   const branch = intBranch(batch);
+  const what = `cannot create the integration worktree at ${path}`;
+  const recovery = `Fix the cause, then run init again, which re-uses that worktree and installs the hook.`;
   // `clean --batch` removes the worktree and KEEPS the branch (the user decides where the finished
   // integration goes), so re-initialising the same batch must re-use the branch rather than fail on it.
-  const exists = git(repo, ['rev-parse', '--verify', '--quiet', `refs/heads/${branch}`]).code === 0;
-  const args = exists
-    ? ['worktree', 'add', path, branch]
-    : ['worktree', 'add', '-b', branch, path, resolveBase(repo, base)];
-
-  const added = git(repo, args);
-  if (added.code !== 0) throw unsafe(`cannot create the integration worktree at ${path}: ${firstLine(added.stderr)}`);
+  if (isLocalBranch(repo, branch)) {
+    const added = git(repo, ['worktree', 'add', path, branch], HOOK_ROOM);
+    if (added.code !== 0) throw createdThenFailed(repo, branch, added, what, recovery) ?? unsafe(`${what}: ${gitError(added)}`);
+  } else {
+    addWorktreeOnNewBranch(repo, branch, path, resolveBase(repo, base), { what, recovery });
+  }
 
   // Re-read git's own spelling of the path, so later discovery matches what we print here.
   return findBranch(listWorktrees(repo), branch)?.path ?? path;
@@ -378,7 +521,7 @@ function init(opt) {
 }
 
 // =============================================================================
-// prep — a PURE `worktree add`, which is what makes N of them concurrent-safe (M26)
+// prep — a new branch and its worktree and nothing else, which is what makes N of them concurrent-safe (M26)
 // =============================================================================
 
 /**
@@ -435,17 +578,27 @@ function selfTest(worktree) {
   if (residue) throw unsafe(`hook self-test left residue in ${worktree}: ${residue}`);
 }
 
-function runProvision(command, worktree) {
-  if (!command.trim()) throw fail('--provision needs a command (it was empty)');
+/**
+ * Runs `command`, which `requireCommand` checked before the worktree was created, in `worktree`. A red one, or
+ * one killed for passing its output cap, keeps the worktree, and its message names `removal`, the caller's
+ * command that removes it.
+ */
+function runProvision(command, worktree, removal) {
+  // Input
+  const recovery = `re-provision it by hand with ${command}, or remove it with ${removal}.`;
+  let r = null;
 
-  const r = run(command, [], worktree, { shell: true });
-  // Onto stderr, both streams: stdout here belongs to the provision command, and stdout is reserved for
-  // the one path this tool prints.
-  if (r.stdout) process.stderr.write(r.stdout);
-  if (r.stderr) process.stderr.write(r.stderr);
-  if (r.code !== 0) {
-    throw unsafe(`--provision exited ${r.code} in ${worktree} — the worktree is LEFT IN PLACE (removing it would discard its branch); fix and re-provision by hand: ${command}`);
+  // Process
+  try {
+    r = run(command, [], worktree, { shell: true, maxBuffer: GATE_MAX_BUFFER });
+  } catch (err) {
+    if (!err.overflow) throw err;
+    throw unsafe(`--provision was KILLED in ${worktree} for writing more than ${GATE_MAX_BUFFER} bytes to stdout+stderr. It never reported an exit code, so this is NOT a report that it failed. The worktree is left in place. Make it quieter, then ${recovery}`);
   }
+  relay(r);
+
+  // Output
+  if (r.code !== 0) throw unsafe(`--provision exited ${r.code} in ${worktree}, so the worktree is left in place. Fix the cause and ${recovery}`);
 }
 
 function prep(opt) {
@@ -453,6 +606,7 @@ function prep(opt) {
   const repo = requireRepo(opt);
   const batch = requireName(opt, 'batch');
   const key = requireName(opt, 'key');
+  const provision = opt.provision === undefined ? undefined : requireCommand(opt, 'provision');
 
   // Process
   const integration = findBranch(listWorktrees(repo), intBranch(batch));
@@ -461,12 +615,14 @@ function prep(opt) {
   }
 
   const path = resolve(dirname(integration.path), chainDir(key));
-  const added = git(repo, ['worktree', 'add', '-b', chainBranch(batch, key), path, intBranch(batch)]);
-  if (added.code !== 0) throw unsafe(`cannot create the worktree for "${key}" at ${path}: ${firstLine(added.stderr)}`);
+  addWorktreeOnNewBranch(repo, chainBranch(batch, key), path, headsRef(intBranch(batch)), {
+    what: `cannot create the worktree for "${key}" at ${path}`,
+    recovery: `Its hook self-test never ran, so start no agent there. Fix the cause, remove it with node "${WT_SCRIPT}" clean --repo "${repo}" --key ${key}, delete the branch with git -C "${repo}" branch -D ${chainBranch(batch, key)}, then run prep again.`,
+  });
 
   const worktree = findBranch(listWorktrees(repo), chainBranch(batch, key))?.path ?? path;
   selfTest(worktree);
-  if (opt.provision !== undefined) runProvision(opt.provision, worktree);
+  if (provision !== undefined) runProvision(provision, worktree, `node "${WT_SCRIPT}" clean --repo "${repo}" --key ${key}, which keeps the branch`);
 
   // Output
   process.stderr.write(`prepared ${chainBranch(batch, key)}\n`);
@@ -483,10 +639,7 @@ function prep(opt) {
  * for a name git does not know, it answers with the PER-WORKTREE git dir, which would give every chain
  * its own lock and serialize nothing.
  */
-function lockPath(linkedWorktree) {
-  const out = mustGit(linkedWorktree, ['rev-parse', '--git-common-dir'], 'resolving the git common dir').trim();
-  return resolve(isAbsolute(out) ? out : resolve(linkedWorktree, out), LOCK_FILE);
-}
+const lockPath = (linkedWorktree) => resolve(gitCommonDir(linkedWorktree), LOCK_FILE);
 
 /**
  * `{ pid, key, startedAt, heartbeatAt }` for the current holder, or null when there is no lock.
@@ -719,8 +872,14 @@ const OPERATION_MARKERS = [
 const REBASE_HEAD_NAMES = ['rebase-merge/head-name', 'rebase-apply/head-name'];
 const OBJECT_ID_RE = /^[0-9a-f]{40}(?:[0-9a-f]{24})?$/;
 
-// An ignored tree such as node_modules lists far more than Node's 1 MiB default child-output cap.
-const IGNORED_LIST_MAX_BUFFER = 256 * MIB;
+// A file listing, such as the ignored files of a node_modules tree, can pass Node's 1 MiB default child-output cap.
+const LISTING_MAX_BUFFER = 256 * MIB;
+// Every ignored file by name, the files inside an ignored directory included, each name ended by a NUL. A
+// directory that holds its own repository is one entry ending in `/`.
+const IGNORED_LIST_ARGS = ['ls-files', '-z', '--others', '--ignored', '--exclude-standard'];
+// Every untracked file that no ignore rule matches, the files inside an untracked directory included, each name ended by
+// a NUL. A directory that holds its own repository is one entry ending in `/`.
+const UNTRACKED_LIST_ARGS = ['ls-files', '-z', '--others', '--exclude-standard'];
 
 const pathExists = (path) => statSync(path, { throwIfNoEntry: false }) !== undefined;
 
@@ -776,9 +935,10 @@ function heldBranch(gitDir) {
   // Input
   const headName = REBASE_HEAD_NAMES.map((name) => readTrimmed(join(gitDir, name))).find(Boolean) ?? '';
   const bisectStart = readTrimmed(join(gitDir, 'BISECT_START'));
+  const rebased = shortBranch(headName);
 
   // Output
-  if (headName.startsWith('refs/heads/')) return headName.slice('refs/heads/'.length);
+  if (rebased) return rebased;
   if (bisectStart && !OBJECT_ID_RE.test(bisectStart)) return bisectStart;
   return '';
 }
@@ -813,30 +973,36 @@ function linksBack(path, gitDir) {
 }
 
 /**
- * The unlanded files of the worktree at `path` as a one-line list, or '' when it is clean. A status
- * listing that passes the output cap is never empty, so it proves the tree dirty.
+ * The unlanded files of the worktree at `path` as a one-line list of at most `cap` names, or '' when it is
+ * clean. A status listing that passes the output cap is never empty, so it proves the tree dirty.
  */
-function unlandedFiles(path) {
+function unlandedFiles(path, cap) {
   try {
-    return fileList(outputLines(mustGit(path, STATUS_ARGS, `reading the status of ${path}`)));
+    return fileList(outputLines(mustGit(path, STATUS_ARGS, `reading the status of ${path}`)), cap);
   } catch (err) {
     if (!err.overflow) throw err;
     return `its status listing passed the ${NODE_DEFAULT_MAX_BUFFER / MIB} MiB output cap`;
   }
 }
 
+/** The `[marker, name]` of the operation unfinished in the worktree at `path`, or null. */
+function operationInProgress(path) {
+  const markers = gitPaths(path, OPERATION_MARKERS.map(([name]) => name));
+  return OPERATION_MARKERS.find((_, i) => pathExists(markers[i])) ?? null;
+}
+
 /**
  * Why the existing folder of the worktree at `path` must not go to the trash, or null. `mainPath` is the
- * --repo the in-repo refusal names, and `discard` is the by-hand removal the unlanded-work refusal names.
+ * --repo the in-repo refusal names, and `unlandedAdvice` is what the unlanded-work refusal tells the operator to do.
+ * `discard` lets unlanded work and an unfinished operation go with the folder.
  */
-function folderProblem(repo, path, mainPath, discard) {
+function folderProblem(repo, path, mainPath, { discard, unlandedAdvice }) {
   // Input
   const real = realpathSync.native(path);
   const cwd = realpathSync.native(process.cwd());
   const repoReal = realpathSync.native(repo);
-  const markers = gitPaths(path, OPERATION_MARKERS.map(([name]) => name));
-  const operation = OPERATION_MARKERS.find((_, i) => pathExists(markers[i])) ?? null;
-  const dirty = unlandedFiles(path);
+  const operation = discard ? null : operationInProgress(path);
+  const dirty = discard ? '' : unlandedFiles(path);
 
   // Process
   if (isWithin(cwd, real, FOLDS_CASE)) return `The working directory ${cwd} is inside it. Change to a directory outside it and run this command again.`;
@@ -847,7 +1013,7 @@ function folderProblem(repo, path, mainPath, discard) {
     return `It has ${operation[1]} in progress (${operation[0]}), and "git worktree prune" would delete that state outside the trash. Finish or abort it there, then run this command again.`;
   }
   if (dirty) {
-    return `It holds work that has not landed (${dirty}), so land or commit it, or ${discard}.`;
+    return `It holds work that has not landed (${dirty}), so ${unlandedAdvice}.`;
   }
 
   // Output
@@ -860,11 +1026,10 @@ function folderProblem(repo, path, mainPath, discard) {
  */
 function ignoredFileCount(path) {
   // Input
-  const args = ['ls-files', '-z', '--others', '--ignored', '--exclude-standard'];
   let out = '';
   let count = 0;
   try {
-    out = mustGit(path, args, `listing the ignored files of ${path}`, { maxBuffer: IGNORED_LIST_MAX_BUFFER });
+    out = mustGit(path, IGNORED_LIST_ARGS, `listing the ignored files of ${path}`, { maxBuffer: LISTING_MAX_BUFFER });
   } catch (err) {
     if (err.overflow) return null;
     throw err;
@@ -893,17 +1058,17 @@ function moveToTrash(repo, path) {
 }
 
 /**
- * Moves a registered worktree's folder to the trash and prunes its registration. `git worktree remove`
- * is never run, since it deletes the folder and its ignored files permanently. An engine run's resting
- * state is accepted work staged and never committed (tests/CLAUDE.md §4), so a dirty tree is refused.
- * A folder already gone skips the checks that read it and is pruned. Every refusal before the move is
- * exit 40 and leaves the worktree registered and intact. `entry` comes from `worktreesForClean`, and
- * `mainPath` is the main worktree's path.
+ * Refuses, with exit 40 and nothing changed, a worktree whose removal could lose work or reach another
+ * folder, and returns whether its folder is present. An engine run's resting state is accepted work staged
+ * and never committed (tests/CLAUDE.md §4), so a dirty tree is refused. A folder already gone skips the
+ * checks that read it. `entry` comes from `worktreesForClean`, and `mainPath` is the main worktree's path.
+ * `discard` lets unlanded work and an unfinished operation go to the trash with the folder, and
+ * `unlandedAdvice` replaces the land, commit or by-hand trash that the unlanded-work refusal names.
  */
-function removeWorktree(repo, entry, mainPath) {
+function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice = '' } = {}) {
   // Runs before the gitDir check, since the main worktree has no directory under worktrees/ either.
   if (entry.main) {
-    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so clean never removes it. Switch it to another branch with git -C "${entry.path}" switch <branch>, then run this command again.`);
+    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so it is never removed. Switch it to another branch with git -C "${entry.path}" switch <branch>, then run this command again.`);
   }
   if (!entry.gitDir) {
     throw cannotRemove(entry.path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C "${repo}" worktree list --porcelain.`);
@@ -916,11 +1081,8 @@ function removeWorktree(repo, entry, mainPath) {
   const hasModules = pathExists(modules);
   // The by-hand prune deletes the submodule git directories, so every by-hand removal trashes them first.
   const byHand = handRemoval(repo, [present ? path : null, hasModules ? modules : null].filter(Boolean));
-  const discard = `trash the folder${hasModules ? ` and the submodule git directories in ${modules}` : ''} by hand with ${byHand}`;
+  const advice = unlandedAdvice || `land or commit it, or trash the folder${hasModules ? ` and the submodule git directories in ${modules}` : ''} by hand with ${byHand}`;
   let problem = null;
-  let ignored = null;
-  let ignoredText = '';
-  let moved = null;
 
   // Process
   if (entry.locked) {
@@ -929,18 +1091,45 @@ function removeWorktree(repo, entry, mainPath) {
   if (present && !linksBack(path, gitDir)) {
     throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C "${repo}" worktree repair "${path}". Otherwise move the folder elsewhere. Then run this command again.`);
   }
-  problem = present ? folderProblem(repo, path, mainPath, discard) : null;
+  problem = present ? folderProblem(repo, path, mainPath, { discard, unlandedAdvice: advice }) : null;
   if (problem) throw cannotRemove(path, problem);
   if (hasModules) {
     throw cannotRemove(path, `It holds submodule git directories in ${modules}, which "git worktree prune" would delete outside the trash. Trash ${present ? 'the folder and that directory' : 'that directory'} by hand with ${byHand}.`);
   }
+
+  // Output
+  return present;
+}
+
+/**
+ * Moves a registered worktree's folder to the trash and prunes its registration, once `checkRemovable`
+ * passes with `opts`. `git worktree remove` is never run, since it deletes the folder and its ignored files
+ * permanently. A folder already gone is pruned. A discard lists on stderr the work it trashed, the
+ * operation whose state the prune deletes, and the detached HEAD of a rebase or bisect.
+ */
+function removeWorktree(repo, entry, mainPath, opts = {}) {
+  // Input
+  const { path } = entry;
+  const present = checkRemovable(repo, entry, mainPath, opts);
+  const work = present && opts.discard ? unlandedFiles(path, Infinity) : '';
+  const operation = present && opts.discard ? operationInProgress(path) : null;
+  // A commit made during a rebase or bisect is reachable only from its detached HEAD, which the prune deletes.
+  const detachedAt = operation && !headRef(path) ? commitOf(path, 'HEAD') : '';
+  const recovery = detachedAt ? `. Its detached HEAD was ${detachedAt}, and git -C "${repo}" branch <name> ${detachedAt} recovers a commit made during it until git gc expires it` : '';
+  let ignored = null;
+  let ignoredText = '';
+  let moved = null;
+
+  // Process
   if (present) {
     ignored = ignoredFileCount(path);
     ignoredText = ignored === null
-      ? `an uncounted number of ignored files, whose names pass the ${IGNORED_LIST_MAX_BUFFER / MIB} MiB listing cap`
+      ? `an uncounted number of ignored files, whose names pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap`
       : `${ignored} ignored file${ignored === 1 ? '' : 's'}`;
     moved = moveToTrash(repo, path);
     process.stderr.write(`moved ${path} to the trash at ${moved.location}${moved.verified ? '' : ' (unverified, the trash is not readable)'}, with ${ignoredText}\n`);
+    if (work) process.stderr.write(`discarded the uncommitted work it held: ${work}\n`);
+    if (operation) process.stderr.write(`discarded ${operation[1]} in progress, whose state (${operation[0]}) the prune deletes${recovery}\n`);
   } else {
     process.stderr.write(`the folder ${path} was already gone, so only its registration is pruned\n`);
   }
@@ -1027,19 +1216,8 @@ function clean(opt) {
 /**
  * Is every commit of the chain branch already contained in integration? That — not the state of the
  * working tree — is what "this chain has nothing to land" actually means.
- *
- * `--is-ancestor` answers 0 for yes and 1 for no; anything else is a git error, and reading an error as
- * "yes, already landed" is the one direction that loses work, so it throws instead.
  */
-function isLanded(worktree, batch, key) {
-  const chain = chainBranch(batch, key);
-  const int = intBranch(batch);
-  const r = git(worktree, ['merge-base', '--is-ancestor', chain, int]);
-  if (r.code !== EXIT_OK && r.code !== 1) {
-    throw unsafe(`cannot tell whether ${chain} is already contained in ${int}: ${firstLine(r.stderr) || `git merge-base exited ${r.code}`}`);
-  }
-  return r.code === EXIT_OK;
-}
+const isLanded = (worktree, batch, key) => contains(worktree, intBranch(batch), chainBranch(batch, key));
 
 /**
  * Step 2. Commit the ACCEPTED index — index-only, never `-a`: work an engine left unstaged was not
@@ -1192,22 +1370,19 @@ function syncFromIntegration(worktree, batch, key) {
   throw fail(`sync of ${int} into "${key}" CONFLICTED (${fileList(conflicts) || firstLine(merged.stdout)}) — the merge was aborted, ${chain} keeps its work and ${int} is untouched; resolve it on ${chain} and land again${aborted.code === 0 ? '' : `. WARNING: "git merge --abort" FAILED (${firstLine(aborted.stderr)}) — ${worktree} is mid-merge`}`, EXIT_CONFLICT);
 }
 
-/**
- * Step 4. Only ever on a SYNCED state — the only state that predicts what integration will look like.
- *
- * A gate is a whole build or test suite by definition, and Node's default 1 MiB child-output cap is
- * something a real one clears without trying — at which point the child is KILLED and reports no exit
- * code (see `run`). Room, so that a gate which PASSES loudly is not read as a red one.
- */
-const GATE_MAX_BUFFER = 1024 * MIB;
-
-function runGate(command, worktree, batch, key) {
+/** Runs the gate in `worktree` with both of its streams on stderr, and returns its exit code. */
+function relayGate(command, worktree) {
   const r = run(command, [], worktree, { shell: true, maxBuffer: GATE_MAX_BUFFER });
-  if (r.stdout) process.stderr.write(r.stdout);
-  if (r.stderr) process.stderr.write(r.stderr);
-  if (r.code === 0) return;
+  relay(r);
+  return r.code;
+}
 
-  throw fail(`the gate exited ${r.code} on the SYNCED state of "${key}" — ${intBranch(batch)} is untouched and still green. The sync merge is KEPT on ${chainBranch(batch, key)} so a fix run sees the exact combined state that failed: ${command}`, EXIT_RED);
+/** Step 4. Only ever on a SYNCED state, the only state that predicts what integration will look like. */
+function runGate(command, worktree, batch, key) {
+  const code = relayGate(command, worktree);
+  if (code === 0) return;
+
+  throw fail(`the gate exited ${code} on the SYNCED state of "${key}" — ${intBranch(batch)} is untouched and still green. The sync merge is KEPT on ${chainBranch(batch, key)} so a fix run sees the exact combined state that failed: ${command}`, EXIT_RED);
 }
 
 /** Step 5. Fast-forwardable by construction — the chain already contains integration's tip. */
@@ -1279,6 +1454,632 @@ function land(opt) {
 }
 
 // =============================================================================
+// open / close: one change in its own worktree, merged into a branch only by fast-forward
+// =============================================================================
+
+/** The names in git's `-z` output. */
+const nulNames = (out) => out.split('\0').filter(Boolean);
+
+/** `a/b/c` as `['a', 'a/b']`. */
+const parentsOf = (path) => path.split('/').slice(0, -1).map((_, i, parts) => parts.slice(0, i + 1).join('/'));
+
+/**
+ * The files of `files` in the way when git writes the tree paths `written`: a file at a path, a file inside
+ * one, whose directory git replaces with the file, and a file above one, which git replaces with a directory.
+ * An entry ending in `/`, the form ls-files gives a directory that holds its own repository, counts as a file at
+ * that directory's path. Names compare without case where the file system folds it.
+ */
+export function filesInTheWay(files, written, foldCase = FOLDS_CASE) {
+  // Input
+  const key = (p) => (foldCase ? p.toLowerCase() : p).replace(/\/$/, '');
+  const targets = new Set(written.map(key));
+  const above = new Set(written.flatMap((p) => parentsOf(key(p))));
+
+  // Process + Output
+  return files.filter((file) => {
+    const k = key(file);
+    return targets.has(k) || above.has(k) || parentsOf(k).some((dir) => targets.has(dir));
+  });
+}
+
+/**
+ * The `kind` files that `args` lists in the worktree at `path`. A rebase or fast-forward must know each one,
+ * so a listing past the cap refuses.
+ */
+function listFiles(path, args, kind) {
+  try {
+    return nulNames(mustGit(path, args, `listing the ${kind} files of ${path}`, { maxBuffer: LISTING_MAX_BUFFER }));
+  } catch (err) {
+    if (!err.overflow) throw err;
+    throw unsafe(`the names of the ${kind} files in ${path} pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward. Move the largest ${kind} directories out of it, then run close again.`);
+  }
+}
+
+const ignoredFiles = (path) => listFiles(path, IGNORED_LIST_ARGS, 'ignored');
+const untrackedFiles = (path) => listFiles(path, UNTRACKED_LIST_ARGS, 'untracked');
+
+/** The paths the tree of `to` holds and the tree of `from` lacks. */
+const addedPaths = (cwd, from, to) => nulNames(mustGit(cwd, ['diff', '--name-only', '--no-renames', '--diff-filter=A', '-z', from, to],
+  `listing the paths ${to} adds to ${from}`, { maxBuffer: LISTING_MAX_BUFFER }));
+
+/**
+ * The paths each commit in `from..to` adds, modifies or retypes, which a replay of those commits writes. A
+ * modify/delete conflict writes the modified file too. A delete writes nothing.
+ */
+const pathsWrittenBy = (cwd, from, to) => nulNames(mustGit(cwd, ['log', '--format=', '--no-show-signature', '--name-only', '--no-renames', '--diff-filter=AMT', '-z', `${from}..${to}`],
+  `listing the paths the commits of ${from}..${to} write`, { maxBuffer: LISTING_MAX_BUFFER }));
+
+/** The unmerged files of `worktree` as a one-line list, or '' when it has none. */
+const unmergedNames = (worktree) => nameList(nulNames(mustGit(worktree, ['diff', '--name-only', '--diff-filter=U', '-z'],
+  `listing the unmerged files of ${worktree}`, { maxBuffer: LISTING_MAX_BUFFER })));
+
+const rebaseInProgress = (worktree) => gitPaths(worktree, ['rebase-merge', 'rebase-apply']).some(pathExists);
+
+/** The ref HEAD of `worktree` names, or '' for a detached HEAD. */
+const headRef = (worktree) => git(worktree, ['symbolic-ref', '-q', 'HEAD']).stdout.trim();
+
+/**
+ * Each local branch of `repo`, spelled as git stores it, mapped to the full ref name a symbolic branch points at,
+ * or to '' for any other branch. A ref name holds no space, so a space ends the name.
+ */
+function localBranchTargets(repo) {
+  const out = mustGit(repo, ['for-each-ref', '--format=%(refname:strip=2) %(symref)', HEADS],
+    `listing the branches of ${repo}`, { maxBuffer: LISTING_MAX_BUFFER });
+  return new Map(outputLines(out).map((line) => line.split(' ')));
+}
+
+/** A file or ref name as the file system matches it: without case where the file system folds it. */
+const foldName = (name) => (FOLDS_CASE ? name.toLowerCase() : name);
+
+/** `targets` from `localBranchTargets`, keyed by `foldName`. */
+const foldedTargets = (targets) => new Map([...targets].map(([name, target]) => [foldName(name), target]));
+
+// git's SYMREF_MAXDEPTH, past which git stops following a chain of symbolic refs.
+const SYMREF_MAX_HOPS = 5;
+
+/**
+ * The `foldName` key of the branch git reads for `branch`, once each symbolic branch is followed through `folded`
+ * from `foldedTargets`. Two names with one key name one branch.
+ */
+function branchKey(folded, branch) {
+  // Input
+  let key = foldName(branch);
+  let next = shortBranch(folded.get(key) ?? '');
+
+  // Process
+  for (let hop = 0; hop < SYMREF_MAX_HOPS && next; hop++) {
+    key = foldName(next);
+    next = shortBranch(folded.get(key) ?? '');
+  }
+
+  // Output
+  return key;
+}
+
+/**
+ * The local branch in `targets` from `localBranchTargets` that `branch` names, spelled as git stores it, or ''
+ * when none does. Where the file system folds case, git finds the loose ref file of branch main for
+ * refs/heads/Main, while the worktree list and every comparison here are exact. So an answer that differs from
+ * `branch` in case is refused by each caller.
+ */
+function storedBranch(targets, branch) {
+  if (targets.has(branch)) return branch;
+  return [...targets.keys()].find((n) => foldName(n) === foldName(branch)) ?? '';
+}
+
+/**
+ * `branch` when `repo`, whose `targets` come from `localBranchTargets`, has a local branch spelled that way, or
+ * exit 40 naming the `flag` that gave it.
+ */
+function requireLocalBranch(repo, targets, branch, flag) {
+  const stored = storedBranch(targets, branch);
+  // storedBranch answers '' for no branch, so an empty `branch` would otherwise pass.
+  if (stored && stored === branch) return branch;
+  throw unsafe(stored
+    ? `${flag} "${branch}" names branch ${stored} in another case, so pass ${flag} ${stored}`
+    : `${flag} "${branch}" is not a local branch in ${repo}`);
+}
+
+/**
+ * Whether `aipg/<name>` is in `targets` from `localBranchTargets`, or exit 40 when the file system finds it as a
+ * branch spelled in another case.
+ */
+function singleBranchExists(targets, name) {
+  const branch = singleBranch(name);
+  const stored = storedBranch(targets, branch);
+  if (stored && stored !== branch) {
+    throw unsafe(`--name "${name}" gives branch ${branch}, which this file system finds as branch ${stored}, spelled in another case. Pass the --name that ${stored} was opened with.`);
+  }
+  return stored === branch;
+}
+
+/** The local branch `open` cuts from: `--base`, or the branch checked out in `repo`, whose branches are `targets`. */
+function resolveOpenBase(repo, targets, base) {
+  // Input
+  const current = base === undefined ? shortBranch(headRef(repo)) : '';
+  let stored = '';
+
+  // Process
+  if (base !== undefined) return requireLocalBranch(repo, targets, base, '--base');
+  if (!current) throw detachedBase(repo);
+  stored = storedBranch(targets, current);
+  if (stored && stored !== current) {
+    throw unsafe(`the current branch "${current}" of ${repo} names branch ${stored} in another case, so name the branch to cut from with --base ${stored}`);
+  }
+  if (!stored) throw unsafe(`the current branch "${current}" of ${repo} has no commit yet, so name the branch to cut from with --base`);
+
+  // Output
+  return current;
+}
+
+function open(opt) {
+  // Input
+  const repo = requireRepo(opt);
+  const name = requireSingleName(opt);
+  const parent = opt.dir === undefined ? dirname(repo) : requireAbsolute(opt, 'dir');
+  const provision = opt.provision === undefined ? undefined : requireCommand(opt, 'provision');
+  const branch = singleBranch(name);
+  const path = resolve(parent, chainDir(name));
+  let targets = new Map();
+  let base = '';
+  let existing = '';
+  let alias = '';
+  let holder = null;
+  let worktree = '';
+
+  // Process
+  targets = localBranchTargets(repo);
+  base = resolveOpenBase(repo, targets, opt.base);
+  existing = storedBranch(targets, branch);
+  if (existing) {
+    holder = findBranch(listWorktrees(repo), existing);
+    alias = existing === branch ? '' : `, which this file system does not tell apart from ${branch}`;
+    throw unsafe(`branch ${existing} already exists in ${repo}${alias}${holder ? `, and the worktree at ${holder.path} is on it, so finish that change with close` : ''}. Pick another --name, or delete the branch with git -C "${repo}" branch -D ${existing} once its commits are merged or not needed.`);
+  }
+  addWorktreeOnNewBranch(repo, branch, path, headsRef(base), {
+    what: `cannot create the worktree for "${name}" at ${path}`,
+    recovery: `Fix the cause, remove it with node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, delete the branch with git -C "${repo}" branch -D ${branch}, then run open again.`,
+  });
+  worktree = findBranch(listWorktrees(repo), branch)?.path ?? path;
+  if (provision !== undefined) runProvision(provision, worktree, `node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, which keeps the branch`);
+
+  // Output
+  process.stderr.write(`opened ${branch} off ${base} in ${worktree}\n`);
+  process.stdout.write(`${worktree}\n`);
+}
+
+/** Deletes `branch` when `into` contains it, and returns whether it did. */
+function deleteIfMerged(repo, branch, into) {
+  if (!contains(repo, headsRef(into), headsRef(branch))) return false;
+  // -D after that check, since -d judges against the current HEAD, which may be another branch.
+  mustGit(repo, ['branch', '-D', branch], `deleting ${branch}`, UNATTENDED);
+  return true;
+}
+
+/**
+ * Exit 40 for a worktree `open` made that a switch or a detached HEAD took off `aipg/<name>`, found by its folder
+ * name, or null. prep names a chain's folder the same way, so a chain branch of key `name` makes the folder ambiguous.
+ */
+function strayRefusal(targets, entries, name, exists) {
+  // Input
+  const branch = singleBranch(name);
+  const folder = foldName(chainDir(name));
+  const stray = entries.find((e) => !e.main && !chainParts(e.branch) && foldName(basename(e.path)) === folder && pathExists(e.path)) ?? null;
+  let chains = [];
+
+  // Process
+  if (!stray) return null;
+  chains = [...targets.keys()].filter((b) => foldName(chainParts(b)?.key ?? '') === foldName(name));
+  if (chains.length > 0 && !exists) return null;
+
+  // Output
+  return offBranch(stray.path, stray.branch, branch, exists, chains);
+}
+
+/**
+ * Exit 40 for the worktree of `branch` at `path` while `head`, a branch name or '' for a detached HEAD, is checked
+ * out. After the switch back, a commit made on a detached HEAD is reachable only from the worktree's HEAD reflog,
+ * which the prune of a later close deletes. `chains` names the chain branches the worktree may belong to instead.
+ */
+function offBranch(path, head, branch, exists, chains = []) {
+  const held = head ? `branch ${head}` : 'a detached HEAD';
+  const keep = head ? '' : `Keep any commit made on that detached HEAD with git -C "${path}" branch <new-name>. `;
+  if (chains.length > 0) {
+    return unsafe(`the worktree at ${path} has ${held} checked out, and the branches ${[branch, ...chains].join(', ')} exist, so it may be the worktree of any of them, and close leaves it in place. ${keep}Switch it back to its branch with git -C "${path}" switch <branch>, then run close again.`);
+  }
+  return unsafe(`the worktree of ${branch} at ${path} has ${held} checked out, so close leaves it in place. ${keep}Switch it back with git -C "${path}" switch ${exists ? '' : '-c '}${branch}, then run close again.`);
+}
+
+/**
+ * Step 2 of `closeInto` when no worktree is on `aipg/<name>`. A close that stopped after its removal left the
+ * branch, which `into` contains, so it is deleted. A branch with commits `into` lacks is refused.
+ */
+function closeWithoutWorktree(repo, branch, into, exists) {
+  // Process
+  if (!exists) {
+    git(repo, ['worktree', 'prune']);
+    process.stderr.write(`no worktree and no branch ${branch}, so there is nothing to close\n`);
+    return;
+  }
+  if (!deleteIfMerged(repo, branch, into)) {
+    throw unsafe(`no worktree is on ${branch}, and it holds commits ${into} lacks, so close cannot gate them. Check it out in a free folder with git -C "${repo}" worktree add <folder> ${branch}, then run close again.`);
+  }
+
+  // Output
+  process.stderr.write(`no worktree is on ${branch}, and ${into} contains it, so the branch was deleted\n`);
+}
+
+/**
+ * The end of a rebase of `branch` onto `into` in `worktree` that stopped with `rebased`, its nonzero `run` result.
+ * Lists the unmerged files, aborts whatever that listing gives, confirms `branch` is back at `before`, and returns
+ * the error to throw. A stop with unmerged files is a conflict, exit 20. One with none, such as a commit that failed
+ * to sign, is exit 40.
+ */
+function abortStoppedRebase(worktree, branch, into, before, rebased) {
+  // Input
+  const stopped = gitError(rebased);
+  const undone = `The rebase was aborted, ${branch} is back at ${before} and ${into} is untouched.`;
+  let conflicts = '';
+  let unlisted = '';
+  let aborted = null;
+  let restored = '';
+  let left = '';
+
+  // Process
+  try {
+    conflicts = unmergedNames(worktree);
+  } catch (err) {
+    unlisted = err.message;
+  }
+  aborted = git(worktree, ['rebase', '--abort'], UNATTENDED);
+  restored = commitOf(worktree, headsRef(branch));
+  if (aborted.code !== 0) left = `"git rebase --abort" failed (${gitError(aborted)}), so ${worktree} is mid-rebase`;
+  else if (rebaseInProgress(worktree)) left = `${worktree} is still mid-rebase after "git rebase --abort"`;
+  else if (restored !== before) left = `${branch} is at ${restored} after "git rebase --abort", not at ${before}`;
+  if (left) {
+    return unsafe(`the rebase of ${branch} onto ${into} stopped (${conflicts || stopped}), and ${left}. Finish or abort any rebase in ${worktree} and check ${branch} there, then run close again.`);
+  }
+  if (unlisted) {
+    return unsafe(`the rebase of ${branch} onto ${into} stopped (${stopped}), and listing its unmerged files failed (${unlisted}). ${undone} Rebase ${branch} onto ${into} in ${worktree} by hand, then run close again.`);
+  }
+  if (!conflicts) return unsafe(`the rebase of ${branch} onto ${into} stopped with no conflicted file (${stopped}). ${undone} Clear that cause, then run close again.`);
+
+  // Output
+  return fail(`rebasing ${branch} onto ${into} conflicted (${conflicts}). ${undone} Rebase ${branch} onto ${into} in ${worktree} by hand, resolve the conflicts, and run close again.`, EXIT_CONFLICT);
+}
+
+/**
+ * Step 5. Rebases `branch` in `worktree` onto `intoOld`, the commit `into` pointed at when close read it, so
+ * the fast-forward's old-value check guards the commit the rebase built on. Returns the branch tip after it.
+ * A branch that already contains `intoOld` stays as it is. A rebase drops every merge commit it replays, and
+ * with it any change made only in that merge, such as a conflict resolution, so a branch holding one is refused.
+ * A rebase that leaves uncommitted changes, such as a hook's output, is refused before the gate can take the blame.
+ */
+function rebaseOnto(worktree, branch, into, intoOld, before) {
+  // Input
+  const branchRef = headsRef(branch);
+  let merges = [];
+  let written = [];
+  let doomed = [];
+  let rebased = null;
+  let after = '';
+  let dirty = '';
+
+  // Process
+  if (contains(worktree, branchRef, intoOld)) return before;
+  merges = outputLines(mustGit(worktree, ['rev-list', '--merges', `${intoOld}..${before}`], `listing the merge commits of ${branch} that ${into} lacks`));
+  if (merges.length) {
+    throw unsafe(`${branch} holds merge commits ${into} lacks (${nameList(merges)}), and a rebase onto ${into} drops each one with any change made only in it, so nothing changed. Rebase ${branch} onto ${into} by hand in ${worktree} and check that every change those merges carried survives, then run close again.`);
+  }
+  // The rebase's checkout of intoOld and its replay of the branch's commits write these paths over any ignored file.
+  written = [...addedPaths(worktree, before, intoOld), ...pathsWrittenBy(worktree, intoOld, before)];
+  doomed = filesInTheWay(ignoredFiles(worktree), written);
+  if (doomed.length) {
+    throw unsafe(`rebasing ${branch} onto ${into} would delete ignored files in ${worktree} without a word (${nameList(doomed)}). Move them out of the worktree, then run close again.`);
+  }
+  // Directory rename detection would move a file a branch commit adds to a path neither listing names.
+  rebased = git(worktree, ['-c', 'rebase.updateRefs=false', '-c', 'merge.directoryRenames=false', 'rebase', '--no-autostash', intoOld], UNATTENDED);
+  after = commitOf(worktree, branchRef);
+  if (rebased.code === 0) {
+    process.stderr.write(`rebased ${branch} onto ${into}: ${before} -> ${after}\n`);
+    dirty = unlandedFiles(worktree);
+    if (dirty) {
+      throw unsafe(`the rebase of ${branch} onto ${into} left uncommitted changes in ${worktree} (${dirty}), such as files a post-checkout or post-rewrite hook wrote, so no gate ran and ${into} is untouched. ${branch} is at ${after}, and was at ${before} before the rebase. Commit or remove those changes, then run close again.`);
+    }
+    return after;
+  }
+  if (rebaseInProgress(worktree)) throw abortStoppedRebase(worktree, branch, into, before, rebased);
+  if (after === before) throw unsafe(`git refused to rebase ${branch} onto ${into} in ${worktree}, so nothing changed: ${gitError(rebased)}`);
+
+  // Output
+  throw unsafe(`the rebase of ${branch} onto ${into} exited ${rebased.code} and moved ${branch} from ${before} to ${after}: ${gitError(rebased)}. Check ${branch} in ${worktree}, then run close again.`);
+}
+
+/**
+ * Step 6. Gates `tip` in `worktree`, the exact commit `into` will point at. A gate that moved the branch,
+ * switched off it or left changes judged something other than what would merge.
+ */
+function gateTip(worktree, branch, into, gate, tip, before) {
+  // Input
+  const history = tip === before ? '' : `, and was at ${before} before the rebase`;
+  let code = 0;
+  let now = '';
+  let dirty = '';
+  let changed = '';
+
+  // Process
+  code = relayGate(gate, worktree);
+  if (code !== 0) {
+    throw fail(`the gate exited ${code} on ${tip}, the commit ${into} would point at, so ${into} is untouched. ${branch} is at ${tip}${history}. Fix it in ${worktree}, commit, and run close again: ${gate}`, EXIT_RED);
+  }
+  now = commitOf(worktree, headsRef(branch));
+  dirty = unlandedFiles(worktree);
+  if (now !== tip) changed = `moved ${branch} from ${tip} to ${now}`;
+  else if (headRef(worktree) !== headsRef(branch)) changed = `switched ${worktree} off ${branch}`;
+  else if (dirty) changed = `left changes in ${worktree} (${dirty})`;
+
+  // Output
+  if (changed) {
+    throw unsafe(`the gate passed but ${changed}, so it may not have judged ${tip}. ${into} is untouched. Put ${worktree} back on ${branch} at ${tip} with a clean tree, then run close again.`);
+  }
+}
+
+/**
+ * Why the worktree at `path`, which has `into` checked out, must not take a fast-forward from `from` to `to`,
+ * or null. An untracked file at a path the fast-forward adds, inside one or above one is refused here, since
+ * git's own refusal names neither the worktree nor the recovery. git deletes an ignored file in those places
+ * without a word. Other untracked files may stay.
+ */
+function fastForwardProblem(path, from, to) {
+  // Input
+  const operation = operationInProgress(path);
+  let tracked = [];
+  let added = [];
+  let blocking = [];
+  let doomed = [];
+
+  // Process
+  // Cheapest first, since the file listings of a main checkout can run to hundreds of MB.
+  if (operation) return `It has ${operation[1]} in progress (${operation[0]}). Finish or abort it there, then run close again.`;
+  tracked = outputLines(mustGit(path, ['status', '--porcelain', '--untracked-files=no'], `reading the status of ${path}`));
+  if (tracked.length) return `It has staged or modified tracked files (${fileList(tracked)}). Commit them or set them aside, then run close again.`;
+  added = addedPaths(path, from, to);
+  blocking = filesInTheWay(untrackedFiles(path), added);
+  if (blocking.length) return `It holds untracked files in the way of the fast-forward (${nameList(blocking)}). Move them out of it, then run close again.`;
+  doomed = filesInTheWay(ignoredFiles(path), added);
+  if (doomed.length) return `The fast-forward would delete ignored files there without a word (${nameList(doomed)}). Move them out of it, then run close again.`;
+
+  // Output
+  return null;
+}
+
+/**
+ * Why `holder`, a worktree entry whose `branch` names the same branch as `into`, must not take the fast-forward of
+ * `into`, or null. git reads whatever repository holds a folder, so no git call may run in it before this passes.
+ */
+function holderProblem(repo, into, holder) {
+  // Input
+  const { path, branch, main, gitDir, locked, lockReason } = holder;
+  const present = pathExists(path);
+  const gone = `The folder of the worktree at ${path}, which has it checked out, is gone`;
+
+  // Process + Output
+  if (branch !== into) {
+    return `The worktree at ${path} has it checked out as ${branch}, which names the same branch. Once no rebase or bisect runs there, switch it with git -C "${path}" switch ${into}, then run close again.`;
+  }
+  if (!present && locked) {
+    return `${gone}, and it is locked${lockReason ? ` (${lockReason})` : ''}, so "git worktree prune" keeps it. If the folder is on a drive that is not mounted, mount it. Otherwise run git -C "${repo}" worktree unlock "${path}" and ${pruneCommand(repo)}. Then run close again.`;
+  }
+  if (!present) return `${gone}. Run ${pruneCommand(repo)}, then run close again.`;
+  if (!main && !linksBack(path, gitDir)) {
+    return `The .git file of the worktree at ${path}, which has it checked out, does not point at its git directory, so the folder may hold another repository. If the folder is that worktree, run git -C "${repo}" worktree repair "${path}", then run close again.`;
+  }
+  return null;
+}
+
+/**
+ * The worktree that has `into` checked out or that a rebase or bisect of `into` detached, or null. A fast-forward
+ * updates the files of only the worktree it runs in and moves the branch under every other one, so `into` checked
+ * out in two worktrees, or under another name (a case variant or a symbolic branch), is refused. `worktreesForClean`
+ * reads an operation only for a linked worktree. The main worktree keeps its operation's state in the git common
+ * dir, so that state is read from there.
+ */
+function intoHolder(repo, into) {
+  // Input
+  const folded = foldedTargets(localBranchTargets(repo));
+  const mainHeld = heldBranch(gitCommonDir(repo));
+  const intoKey = branchKey(folded, into);
+  const holders = worktreesForClean(repo)
+    .map((e) => ({ ...e, branch: e.branch || (e.main ? mainHeld : '') }))
+    .filter((e) => e.branch && branchKey(folded, e.branch) === intoKey);
+  let problem = null;
+
+  // Process
+  problem = holders.map((h) => holderProblem(repo, into, h)).find(Boolean) ?? null;
+  if (!problem && holders.length > 1) {
+    problem = `It is checked out in more than one worktree (${nameList(holders.map((h) => h.path))}). Switch all but one of them to another branch, then run close again.`;
+  }
+
+  // Output
+  if (problem) throw unsafe(`cannot fast-forward ${into}, so it is untouched. ${problem}`);
+  return holders[0] ?? null;
+}
+
+/** Exit 40, before anything is removed, unless `into` and the worktree that has it checked out are at `tip`. */
+function verifyFastForward(repo, into, holder, tip) {
+  // Input
+  const now = commitOf(repo, headsRef(into));
+  const head = holder ? commitOf(holder.path, 'HEAD') : tip;
+  const unmerged = holder ? unmergedNames(holder.path) : '';
+  let problem = '';
+
+  // Process
+  if (now !== tip) problem = `${into} is at ${now}`;
+  else if (head !== tip) problem = `the worktree at ${holder.path} has HEAD at ${head}`;
+  else if (unmerged) problem = `the worktree at ${holder.path} shows unmerged files (${unmerged})`;
+
+  // Output
+  if (problem) throw unsafe(`the fast-forward of ${into} to ${tip} did not verify, since ${problem}. Nothing was removed. Check ${into}, then run close again.`);
+}
+
+/**
+ * Step 7. Moves `into` from `intoOld` to `tip`, with `git merge --ff-only <tip>` in the worktree that has `into`
+ * checked out, or with an update-ref that checks the old value when none has. Naming the gated commit keeps a
+ * commit that lands on the branch after the gate out of `into`. A move of `into` is exit 20: update-ref checks
+ * the old value as it writes, and the merge, which succeeds from any ancestor of `tip`, runs only after `into`
+ * is re-read at `intoOld`.
+ */
+function fastForward(repo, name, into, intoOld, tip) {
+  // Input
+  const intoRef = headsRef(into);
+  const holder = intoHolder(repo, into);
+  const problem = holder ? fastForwardProblem(holder.path, intoOld, tip) : null;
+  const movedAway = () => fail(`${into} moved while close ran, so it was not fast-forwarded and ${singleBranch(name)} keeps its gated work. Run close again.`, EXIT_CONFLICT);
+  let moved = null;
+
+  // Process
+  // Before the problem, which was judged against intoOld and is stale once `into` moved.
+  if (commitOf(repo, intoRef) !== intoOld) throw movedAway();
+  if (problem) throw unsafe(`cannot fast-forward ${into} in the worktree at ${holder.path}, so it is untouched. ${problem}`);
+  moved = holder
+    ? git(holder.path, ['merge', '--ff-only', tip], UNATTENDED)
+    : git(repo, ['update-ref', '-m', `aipg close ${name}`, intoRef, tip, intoOld], UNATTENDED);
+  if (moved.code !== 0 && !contains(repo, tip, intoRef)) throw movedAway();
+  if (moved.code !== 0) throw unsafe(`fast-forwarding ${into} to ${tip} failed: ${gitError(moved)}`);
+
+  // Output
+  verifyFastForward(repo, into, holder, tip);
+  process.stderr.write(`fast-forwarded ${into} from ${intoOld} to ${tip}\n`);
+}
+
+/**
+ * `close --into`: merges `aipg/<name>` into `into` only by fast-forward, after gating the exact commit `into`
+ * will point at, then removes the worktree and deletes the branch. A refusal before the rebase changes nothing.
+ * A close run again after a later stop finishes the steps left, since steps 2, 4 and 5 skip what is done.
+ */
+function closeInto(repo, name, into, gate) {
+  // Input
+  const branch = singleBranch(name);
+  const branchRef = headsRef(branch);
+  const intoRef = headsRef(into);
+  const opts = { unlandedAdvice: `commit it, or trash the worktree with its uncommitted work with node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, which keeps the branch` };
+  let targets = new Map();
+  let exists = false;
+  let entries = [];
+  let entry = null;
+  let strayRefused = null;
+  let present = false;
+  let head = '';
+  let intoOld = '';
+  let before = '';
+  let tip = '';
+  let branchAt = '';
+  let intoAt = '';
+  let intoTarget = '';
+
+  // Process
+  // 1. `into` is a local branch other than the one being closed, no batch's branch, which close would move outside
+  // the land lock, and no symbolic branch, which moves the branch it points at under another name.
+  if (into === branch) throw unsafe(`--into ${into} is the branch being closed, so name the branch to merge it into`);
+  if (isIntegration(into) || chainParts(into)) {
+    throw unsafe(`--into ${into} is a branch of a batch, which only land moves, under the lock that keeps two merges into it apart. Name another --into, or land the change as a chain of that batch.`);
+  }
+  targets = localBranchTargets(repo);
+  requireLocalBranch(repo, targets, into, '--into');
+  intoTarget = targets.get(into);
+  if (intoTarget) throw unsafe(`--into ${into} is a symbolic ref to ${intoTarget}, so a fast-forward of it would move ${intoTarget}. Pass the branch it points at as --into.`);
+
+  // 2. Discovery. With no worktree, only the branch is left to settle.
+  exists = singleBranchExists(targets, name);
+  entries = worktreesForClean(repo);
+  entry = findBranch(entries, branch);
+  strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
+  if (strayRefused) throw strayRefused;
+  if (!entry) {
+    closeWithoutWorktree(repo, branch, into, exists);
+    return;
+  }
+
+  // 3. The worktree passes every removal check and is on its branch.
+  present = checkRemovable(repo, entry, entries[0].path, opts);
+  head = present ? headRef(entry.path) : '';
+  if (present && head !== branchRef) throw offBranch(entry.path, shortBranch(head) || head, branch, exists);
+
+  // 4. A branch `into` already contains needs no merge. 5 to 7: rebase when `into` has a commit the branch lacks,
+  // gate, fast-forward.
+  before = commitOf(repo, branchRef);
+  tip = before;
+  if (contains(repo, intoRef, before)) {
+    process.stderr.write(`${into} already contains ${branch}, so nothing is merged and no gate runs\n`);
+  } else if (!present) {
+    throw unsafe(`the folder ${entry.path} of the worktree on ${branch} is gone, so close cannot gate the commits ${into} lacks. Run git -C "${repo}" worktree prune, check the branch out with git -C "${repo}" worktree add "${entry.path}" ${branch}, then run close again.`);
+  } else {
+    intoOld = commitOf(repo, intoRef);
+    tip = rebaseOnto(entry.path, branch, into, intoOld, before);
+    gateTip(entry.path, branch, into, gate, tip, before);
+    fastForward(repo, name, into, intoOld, tip);
+  }
+
+  // 8. Removal, re-read in case the gate's run changed the registration, then the branch `into` contains.
+  removeWorktree(repo, findBranch(worktreesForClean(repo), branch) ?? entry, entries[0].path, opts);
+  if (!deleteIfMerged(repo, branch, into)) {
+    branchAt = commitOf(repo, branchRef);
+    throw unsafe(branchAt === tip
+      ? `the worktree at ${entry.path} went to the trash, but ${into} no longer contains ${branch}, so the branch is kept. Check ${into}, then run close again.`
+      : `the worktree at ${entry.path} went to the trash, but ${branch} moved from ${tip} to ${branchAt}, so the branch is kept. Check it out in a free folder with git -C "${repo}" worktree add <folder> ${branch}, then run close again, which gates it.`);
+  }
+  intoAt = commitOf(repo, intoRef);
+
+  // Output
+  process.stderr.write(`closed ${branch}: ${into} is at ${intoAt}\n`);
+  process.stdout.write(`${entry.path}\n`);
+}
+
+/**
+ * `close --discard`: trashes the worktree with any uncommitted work in it and keeps the branch. Every refusal of
+ * `checkRemovable` but the unlanded-work and unfinished-operation ones still applies. So does the refusal of a
+ * worktree off its branch with no rebase or bisect of it, since the prune drops the HEAD that reaches any commit
+ * made off the branch. A rebase or bisect of the branch goes with the worktree, and stderr names its detached HEAD.
+ */
+function closeDiscard(repo, name) {
+  // Input
+  const branch = singleBranch(name);
+  const targets = localBranchTargets(repo);
+  const exists = singleBranchExists(targets, name);
+  const entries = worktreesForClean(repo);
+  const entry = findBranch(entries, branch);
+  const strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
+  let tip = '';
+
+  // Process
+  if (strayRefused) throw strayRefused;
+  if (entry) {
+    removeWorktree(repo, entry, entries[0].path, { discard: true });
+  } else {
+    git(repo, ['worktree', 'prune']);
+    process.stderr.write(`no worktree is on ${branch}, so there is nothing to discard\n`);
+  }
+  tip = exists ? commitOf(repo, headsRef(branch)) : '';
+
+  // Output
+  if (tip) process.stderr.write(`kept branch ${branch} at ${tip}. Delete it with git -C "${repo}" branch -D ${branch}\n`);
+  if (entry) process.stdout.write(`${entry.path}\n`);
+}
+
+function close(opt) {
+  const repo = requireRepo(opt);
+  const name = requireSingleName(opt);
+  const hasInto = opt.into !== undefined;
+  const discard = opt.discard === true;
+  if (hasInto === discard) {
+    throw fail(`close takes exactly one of --into <branch> or --discard (${hasInto ? 'both were given' : 'neither was given'})`);
+  }
+  if (discard && opt.gate !== undefined) throw fail('close --discard takes no --gate, since it merges nothing');
+  if (discard) closeDiscard(repo, name);
+  else closeInto(repo, name, opt.into, requireCommand(opt, 'gate'));
+}
+
+// =============================================================================
 // CLI
 // =============================================================================
 
@@ -1287,6 +2088,8 @@ const VERBS = {
   prep: { fn: prep, flags: ['repo', 'batch', 'key', 'provision'] },
   land: { fn: land, flags: ['repo', 'batch', 'key', 'gate', 'scope-file', 'wait-ms', 'stale-ms'] },
   clean: { fn: clean, flags: ['repo', 'batch', 'key'] },
+  open: { fn: open, flags: ['repo', 'name', 'base', 'dir', 'provision'] },
+  close: { fn: close, flags: ['repo', 'name', 'into', 'gate'], switches: ['discard'] },
 };
 
 const USAGE = `usage:
@@ -1294,7 +2097,10 @@ const USAGE = `usage:
   node tools/wt.mjs prep  --repo <abs> --batch <name> --key <chain> [--provision "<cmd>"]
   node tools/wt.mjs land  --repo <abs> --batch <name> --key <chain> --gate "<cmd>" [--scope-file <abs>] [--wait-ms <n>] [--stale-ms <n>]
   node tools/wt.mjs clean --repo <abs> --key <chain>
-  node tools/wt.mjs clean --repo <abs> --batch <name>`;
+  node tools/wt.mjs clean --repo <abs> --batch <name>
+  node tools/wt.mjs open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
+  node tools/wt.mjs close --repo <abs> --name <name> --into <branch> --gate "<cmd>"
+  node tools/wt.mjs close --repo <abs> --name <name> --discard`;
 
 // A name becomes a ref segment AND a directory name, so a slash or a space would silently reshape both.
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
@@ -1311,6 +2117,18 @@ function requireName(opt, name) {
     throw fail(`--${name} "${value}" is not a plain name — it becomes a branch segment and a directory name, so it must start with a letter or digit and hold only letters, digits, dot, underscore or hyphen`);
   }
   return value;
+}
+
+/**
+ * `--name` for open and close, which may not start with int- in any case, since `aipg/int-<x>` reads as a batch's
+ * integration branch, and a file system that folds case finds `aipg/INT-<x>` as that branch's loose ref.
+ */
+function requireSingleName(opt) {
+  const name = requireName(opt, 'name');
+  if (/^int-/i.test(name)) {
+    throw fail(`--name "${name}" starts with "${name.slice(0, 'int-'.length)}", and aipg/int-<x> in any case reads as the integration branch of a batch, so pick a name that does not`);
+  }
+  return name;
 }
 
 function requireAbsolute(opt, name) {
@@ -1345,15 +2163,16 @@ function requireRepo(opt) {
 }
 
 /**
- * `<verb> [--flag value]…`, validated. NOTHING is coerced: a bare `--batch` is an error, never the
- * string "true" quietly naming a branch (the defect gen-units.mjs's numeric flags were fixed for), and a
- * flag belonging to another verb is an error rather than a silently ignored argument.
+ * `<verb> [--flag value]… [--switch]…`, validated. NOTHING is coerced: a bare `--batch` is an error, never
+ * the string "true" quietly naming a branch (the defect gen-units.mjs's numeric flags were fixed for), and a
+ * flag belonging to another verb is an error rather than a silently ignored argument. A switch such as
+ * `--discard` takes no value and reads as `true`.
  */
 export function parseArgv(argv) {
   const [verb, ...rest] = argv;
   if (!verb || !VERBS[verb]) throw fail(`${verb ? `unknown verb "${verb}"` : 'no verb given'} — ${USAGE}`);
 
-  const allowed = VERBS[verb].flags;
+  const { flags, switches = [] } = VERBS[verb];
   const opt = {};
 
   for (let i = 0; i < rest.length; i++) {
@@ -1361,8 +2180,14 @@ export function parseArgv(argv) {
     if (!token.startsWith('--')) throw fail(`unexpected argument "${token}" — every value follows its own flag. ${USAGE}`);
 
     const name = token.slice(2);
-    if (!allowed.includes(name)) throw fail(`unknown flag "--${name}" for ${verb} — it takes ${allowed.map((f) => `--${f}`).join(' ')}`);
+    if (!flags.includes(name) && !switches.includes(name)) {
+      throw fail(`unknown flag "--${name}" for ${verb} — it takes ${[...flags, ...switches].map((f) => `--${f}`).join(' ')}`);
+    }
     if (opt[name] !== undefined) throw fail(`--${name} was given twice`);
+    if (switches.includes(name)) {
+      opt[name] = true;
+      continue;
+    }
 
     const value = rest[i + 1];
     if (value === undefined || value.startsWith('--')) throw fail(`--${name} needs a value`);

@@ -12,12 +12,15 @@
 // hook without leaving a probe entry on the shared stash stack, and that N concurrent preps do not race
 // (M26 — spawn + Promise.all; execFileSync is blocking and would prove nothing).
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { HOOK, heartbeat, takeoverLock, worktreeAdminDirs } from '../tools/wt.mjs';
+import { foldsCase } from '../tools/trash.mjs';
+// Read off the namespace, so a build without the export fails its own assertions instead of the entire file.
+import * as wtTool from '../tools/wt.mjs';
 
 const SCRIPT = join(REPO_ROOT, 'tools/wt.mjs');
 
@@ -55,9 +58,10 @@ const wt = (argv, opts = {}) => runCli(process.execPath, [SCRIPT, ...argv], { en
 
 const TRASH_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/trash-stub.mjs')).href;
 const GIT_OVERFLOW_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/git-overflow-stub.mjs')).href;
-/** `clean --key` with the fixture module `stub` preloaded in place of a module tools/wt.mjs imports. */
-const cleanStubbed = (stub, repo, key, env = {}) => runCli(process.execPath, ['--import', stub, SCRIPT, 'clean', '--repo', repo, '--key', key],
-  { env: { ...fixtureEnv(), ...env } });
+const GIT_RACE_STUB = pathToFileURL(join(REPO_ROOT, 'tests/fixtures/git-race-stub.mjs')).href;
+/** wt with the fixture module `stub` preloaded in place of a module tools/wt.mjs imports. */
+const wtStubbed = (stub, argv, env = {}) => runCli(process.execPath, ['--import', stub, SCRIPT, ...argv], { env: { ...fixtureEnv(), ...env } });
+const cleanStubbed = (stub, repo, key, env = {}) => wtStubbed(stub, ['clean', '--repo', repo, '--key', key], env);
 
 /**
  * Every path this file touches is absolute, and this is the guard that keeps it that way. A path read
@@ -178,6 +182,13 @@ function stage(worktree, file, content) {
   eq(git(worktree, ['add', '--', file]).code, 0, `stage ${file} in ${worktree}`);
 }
 
+/** Commits `file` holding `content` on the branch checked out in `worktree`, and returns the new commit. */
+function commitFile(worktree, file, content) {
+  stage(worktree, file, content);
+  eq(git(worktree, ['commit', '-qm', `add ${file}`]).code, 0, `commit ${file} in ${worktree}`);
+  return sha(worktree, 'HEAD');
+}
+
 /** A --gate the tool shells out to. Written OUTSIDE every worktree so it is not part of any diff. */
 function gateCmd(root, name, body) {
   const path = join(root, `gate-${name}.cjs`);
@@ -230,6 +241,22 @@ section('the CLI still speaks when its own path goes through a symlink or juncti
     ok(true, 'skipped — this machine cannot create a link');
   }
   rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+}
+
+section('filesInTheWay names a file at, inside or above a path a merge writes, and no other');
+{
+  const filesInTheWay = typeof wtTool.filesInTheWay === 'function' ? wtTool.filesInTheWay : () => [];
+  ok(typeof wtTool.filesInTheWay === 'function', 'tools/wt.mjs exports filesInTheWay');
+  // `lib` is written as a file over a lib/ directory, and docs/readme.md as a file under a file docs.
+  const written = ['cfg/app.json', 'lib', 'docs/readme.md'];
+  const files = ['cfg/app.json', 'lib/cache.bin', 'docs', 'docs2/x', 'cfg/other.json', 'Lib/Cache.bin'];
+  eq(filesInTheWay(files, written, false).join(','), 'cfg/app.json,lib/cache.bin,docs', 'with case kept: the file at a path, inside one and above one');
+  eq(filesInTheWay(files, written, true).join(','), 'cfg/app.json,lib/cache.bin,docs,Lib/Cache.bin', 'with case folded: Lib/Cache.bin as well');
+  eq(filesInTheWay([], written, false).length, 0, 'no files: none in the way');
+  // ls-files lists a directory that holds its own repository as one entry ending in `/`.
+  eq(filesInTheWay(['vendor/lib/', 'vendor/other/'], ['vendor/lib/x.js'], false).join(','), 'vendor/lib/', 'a nested repository entry over a written path, and not its sibling');
+  eq(filesInTheWay(['vendor/lib/'], ['vendor/lib'], false).join(','), 'vendor/lib/', '...at a written path');
+  eq(filesInTheWay(['vendor/lib/'], ['vendor'], false).join(','), 'vendor/lib/', '...and inside a written path');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -414,23 +441,36 @@ await withFixture(({ root, repo }) => {
   const red = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'gamma', '--provision', `node "${bad}"`]);
   eq(red.code, 40, 'a nonzero --provision exits 40');
   ok(/provision blew up/.test(red.stderr), "...surfacing the command's own stderr");
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-gamma'))), '...and LEAVES the worktree registered (removing it would discard the branch)');
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-gamma'))), '...and LEAVES the worktree registered');
+  ok(/left in place\. .*clean --repo .* --key gamma, which keeps the branch/.test(red.stderr), '...naming the clean --key that removes it');
 });
 
-section('a command KILLED for flooding its output buffer is SAID so, never given a fabricated exit code');
+section('a provision past 1 MiB passes, and one KILLED for flooding its output buffer is SAID so, never given a fabricated exit code, with its worktree named as left in place');
 await withFixture(({ root, repo }) => {
   // Node caps a child's combined stdout+stderr at 1 MiB unless told otherwise, and a child that exceeds
   // it is KILLED reporting NO exit status — `err.status` is null. Read as `status ?? 1`, that is an exit
-  // code nothing observed, indistinguishable from a real failure. The tool must name the overflow.
+  // code nothing observed, indistinguishable from a real failure. The tool must name the overflow. A
+  // provision gets a gate's room, which no test can fill, so the stub kills it there.
   wt(['init', '--repo', repo, '--batch', 'b1']);
   const loud = join(root, 'provision-loud.cjs');
   writeFileSync(loud, "process.stdout.write('x'.repeat(2 * 1024 * 1024));\nprocess.exit(0);\n");
 
-  const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha', '--provision', `node "${loud}"`]);
-  eq(r.code, 40, 'a command whose output overflows the buffer exits 40');
+  // No firstLine() on these two stderrs: each carries the provision's 2 MiB of output, relayed verbatim.
+  eq(wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'loud', '--provision', `node "${loud}"`]).code, 0, 'a provision that writes 2 MiB and exits 0 keeps prep green');
+  eq(wt(['open', '--repo', repo, '--name', 'noisy', '--provision', `node "${loud}"`]).code, 0, '...and keeps open green');
+
+  const r = wtStubbed(GIT_OVERFLOW_STUB, ['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha', '--provision', 'node -e 0'], { AIPG_SHELL_OVERFLOW: '1' });
+  eq(r.code, 40, 'a prep whose provision overflows the buffer exits 40');
   ok(/KILLED/.test(r.stderr), `...saying it was killed: ${firstLine(r.stderr)}`);
   ok(/NOT a report that it failed/.test(r.stderr), '...and refusing to call an unobserved exit code a failure');
-  ok(/1048576 bytes/.test(r.stderr), '...naming the limit it hit');
+  ok(/1073741824 bytes/.test(r.stderr), "...naming the gate's limit it hit");
+  ok(/left in place\. .*clean --repo .* --key alpha, which keeps the branch/.test(r.stderr), '...and the clean --key that removes the worktree it keeps');
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-alpha'))), '...which stays registered');
+
+  const o = wtStubbed(GIT_OVERFLOW_STUB, ['open', '--repo', repo, '--name', 'feat', '--provision', 'node -e 0'], { AIPG_SHELL_OVERFLOW: '1' });
+  eq(o.code, 40, 'an open whose provision overflows the buffer exits 40');
+  ok(/KILLED .*left in place\. .*close --repo .* --name feat --discard, which keeps the branch/.test(o.stderr), `...naming the close --discard that removes the worktree it keeps: ${firstLine(o.stderr)}`);
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-feat'))), '...which stays registered');
 });
 
 section('three CONCURRENT preps of distinct keys all succeed (M26)');
@@ -448,6 +488,20 @@ await withFixture(async ({ root, repo }) => {
   for (const key of keys) ok(paths.includes(norm(join(root, `aipg-${key}`))), `aipg-${key} is registered`);
   eq(paths.length, 5, 'main + integration + 3 chains — nothing lost to the race');
   eq(git(repo, ['stash', 'list']).stdout.trim(), '', 'three concurrent self-tests left the stash stack empty');
+});
+
+section('init cuts the integration branch from the current branch, and prep the chain branch from the integration branch, when a tag has the same name');
+await withFixture(({ repo }) => {
+  const older = sha(repo, 'refs/heads/main');
+  commitFile(repo, 'n.txt', 'newer\n');
+  eq(git(repo, ['tag', 'main', older]).code, 0, 'a tag main names an older commit');
+  const initR = wt(['init', '--repo', repo, '--batch', 'b1']);
+  eq(initR.code, 0, `init with no --base exits 0 (${firstLine(initR.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/int-b1'), sha(repo, 'refs/heads/main'), '...and cuts aipg/int-b1 from the main branch, not the tag');
+  eq(git(repo, ['tag', 'aipg/int-b1', older]).code, 0, 'a tag aipg/int-b1 names an older commit');
+  const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
+  eq(r.code, 0, `prep exits 0 (${firstLine(r.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/b1/alpha'), sha(repo, 'refs/heads/aipg/int-b1'), '...and cuts aipg/b1/alpha from the integration branch, not the tag');
 });
 
 section('clean moves the worktree to the trash, keeps the branch, and obeys the same byte-equal hook rule');
@@ -876,6 +930,1087 @@ await withFixture(({ root, repo }) => {
     { stub: GIT_OVERFLOW_STUB, env: { AIPG_GIT_OVERFLOW: 'status' } });
   ok(/trash\.mjs" ".*" and then run git -C ".*" worktree prune/.test(r?.stderr ?? ''), `...and names the by-hand trash and prune: ${firstLine(r?.stderr)}`);
 });
+
+// --- open and close fixtures --------------------------------------------------------------------
+
+const openIn = (repo, name, extra = []) => wt(['open', '--repo', repo, '--name', name, ...extra]);
+const closeIn = (repo, name, into, gate, opts = {}) => wt(['close', '--repo', repo, '--name', name, '--into', into, '--gate', gate], opts);
+const discardIn = (repo, name) => wt(['close', '--repo', repo, '--name', name, '--discard']);
+
+/**
+ * The worktree path a successful `open` printed. After a failed open it is a throwaway repository beside the
+ * fixture's, so the assertions after it fail one at a time and no git call reaches another repository.
+ */
+function openedPath(r, repo, name) {
+  if (r.code === 0) return abs(r.stdout.trim(), `${name} worktree path`);
+  const standIn = join(dirname(repo), `failed-open-${name}`);
+  otherRepo(standIn);
+  return standIn;
+}
+
+/** `open` that must exit 0, returning the worktree path it printed. */
+function opened(repo, name, extra = []) {
+  const r = openIn(repo, name, extra);
+  eq(r.code, 0, `open ${name} exits 0 (${firstLine(r.stderr)})`);
+  return openedPath(r, repo, name);
+}
+
+/** A gate that appends the commit it judged and its working directory to `ledger`, one run per line. */
+const ledgerGate = (root, ledger) => gateCmd(root, 'ledger', `const head = require('child_process').execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+require('fs').appendFileSync(${JSON.stringify(ledger)}, head + ' ' + process.cwd() + '\\n');
+`);
+const ledgerRuns = (ledger) => readOr(ledger).split('\n').filter(Boolean);
+
+/** Asserts close changed nothing: main and the branch where they were, the worktree registered and out of the trash. */
+function unchanged(root, repo, worktree, name, mainAt, branchAt) {
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...main is untouched');
+  eq(sha(repo, `refs/heads/aipg/${name}`), branchAt, `...aipg/${name} is where it was`);
+  ok(worktreePaths(repo).includes(norm(worktree)), '...the worktree is still registered');
+  eq(trashedName(root, worktree), '', '...and nothing went to the trash');
+}
+
+section('open cuts aipg/<name> off a local branch into its own worktree, with no hook and no upstream');
+await withFixture(({ root, repo }) => {
+  // Under always, git sets an upstream for a branch cut from a local branch unless --no-track says otherwise.
+  eq(git(repo, ['config', 'branch.autoSetupMerge', 'always']).code, 0, 'set branch.autoSetupMerge to always');
+  const r = openIn(repo, 'feat');
+  eq(r.code, 0, `open exits 0 (${firstLine(r.stderr)})`);
+  const feat = openedPath(r, repo, 'feat');
+  eq(norm(feat), norm(join(root, 'aipg-feat')), '...printing the worktree beside the repo on stdout');
+  eq(git(feat, ['symbolic-ref', 'HEAD']).stdout.trim(), 'refs/heads/aipg/feat', '...which has aipg/feat checked out');
+  eq(sha(repo, 'refs/heads/aipg/feat'), sha(repo, 'refs/heads/main'), '...cut from the current branch when --base is omitted');
+  eq(git(repo, ['config', '--get', 'branch.aipg/feat.merge']).stdout.trim(), '', '...with no upstream, though branch.autoSetupMerge is always');
+  // makeFixture keeps any hooks path inside the fixture at .git/hooks.
+  ok(!existsSync(join(repo, '.git', 'hooks', 'reference-transaction')), '...and no reference-transaction hook');
+
+  eq(git(repo, ['switch', '-q', '-c', 'dev']).code, 0, 'branch dev off main');
+  const devTip = commitFile(repo, 'd.txt', 'dev\n');
+  eq(git(repo, ['switch', '-q', 'main']).code, 0, '...and switch back to main');
+  eq(openIn(repo, 'fix', ['--base', 'dev']).code, 0, 'open --base dev exits 0');
+  eq(sha(repo, 'refs/heads/aipg/fix'), devTip, '...cutting the branch from dev');
+
+  const elsewhere = join(root, 'elsewhere');
+  mkdirSync(elsewhere);
+  const far = openIn(repo, 'far', ['--dir', elsewhere]);
+  eq(norm(far.stdout.trim()), norm(join(elsewhere, 'aipg-far')), `--dir places the worktree under it (${firstLine(far.stderr)})`);
+
+  const again = openIn(repo, 'feat');
+  eq(again.code, 40, 'an existing branch exits 40');
+  ok(/already exists.*aipg-feat is on it.*close.*another --name.*branch -D aipg\/feat/.test(again.stderr), `...naming close, another name and the delete: ${firstLine(again.stderr)}`);
+  eq(worktreePaths(repo).length, 4, '...adding no worktree');
+
+  const revision = openIn(repo, 'rev', ['--base', 'main~0']);
+  eq(revision.code, 40, 'a --base that is a revision, not a local branch, exits 40');
+  ok(/not a local branch/.test(revision.stderr), `...saying so: ${firstLine(revision.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/rev'), '', '...and creates no branch');
+
+  const empty = openIn(repo, 'empty', ['--base', '']);
+  eq(empty.code, 40, 'an empty --base exits 40');
+  ok(/--base "" is not a local branch/.test(empty.stderr), `...saying so: ${firstLine(empty.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/empty'), '', '...and creates no branch');
+});
+await withFixture(({ repo }) => {
+  // git's short name for the current branch is heads/main once a tag shares its name.
+  eq(git(repo, ['tag', 'main']).code, 0, 'tag main beside branch main');
+  const tagged = openIn(repo, 'tagged');
+  eq(tagged.code, 0, `open with no --base exits 0 when a tag shares the current branch's name (${firstLine(tagged.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/tagged'), sha(repo, 'refs/heads/main'), '...cutting from branch main');
+
+  git(repo, ['checkout', '-q', '--detach', 'HEAD']);
+  const r = openIn(repo, 'feat');
+  eq(r.code, 40, 'open on a detached HEAD with no --base exits 40');
+  ok(/DETACHED HEAD/.test(r.stderr), `...naming it: ${firstLine(r.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and creates no branch');
+
+  git(repo, ['checkout', '-q', '--orphan', 'fresh']);
+  const unborn = openIn(repo, 'feat');
+  eq(unborn.code, 40, 'open on a branch with no commit yet and no --base exits 40');
+  ok(/current branch "fresh" .* has no commit yet/.test(unborn.stderr), `...naming it: ${firstLine(unborn.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and creates no branch');
+});
+
+section('open keeps a worktree whose --provision is red, open and prep refuse a blank one first, and both leave no branch behind when git refuses the path');
+await withFixture(({ root, repo }) => {
+  const blank = openIn(repo, 'blank', ['--provision', ' ']);
+  eq(blank.code, 1, 'open with a blank --provision exits 1');
+  ok(/--provision needs a command/.test(blank.stderr), `...saying so: ${firstLine(blank.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/blank'), '', '...before it creates the branch');
+  ok(!existsSync(join(root, 'aipg-blank')), '...or the worktree');
+
+  const bad = join(root, 'provision-bad.cjs');
+  writeFileSync(bad, 'process.exit(3);\n');
+  const red = openIn(repo, 'feat', ['--provision', `node "${bad}"`]);
+  eq(red.code, 40, 'a red --provision exits 40');
+  ok(/--provision exited 3/.test(red.stderr), `...saying so: ${firstLine(red.stderr)}`);
+  ok(/left in place\. .*close --repo .* --name feat --discard, which keeps the branch/.test(red.stderr), '...naming the close --discard that removes it');
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-feat'))), '...and the worktree stays registered');
+
+  // open creates the branch before git checks the path, so a refused add would strand it.
+  const busy = join(root, 'aipg-busy');
+  mkdirSync(busy);
+  writeFileSync(join(busy, 'mine.txt'), 'not a worktree\n');
+  const refused = openIn(repo, 'busy');
+  eq(refused.code, 40, `open onto a folder already there exits 40 (${firstLine(refused.stderr)})`);
+  ok(/aipg-busy' already exists/.test(refused.stderr), "...giving git's reason, not its progress line");
+  eq(sha(repo, 'refs/heads/aipg/busy'), '', '...and deletes the branch it created first');
+  ok(/The branch aipg\/busy that this call created was deleted/.test(refused.stderr), '...saying it deleted the branch');
+  eq(readOr(join(busy, 'mine.txt')), 'not a worktree\n', '...leaving the folder alone');
+  renameSync(busy, `${busy}.moved`);
+  eq(openIn(repo, 'busy').code, 0, '...so open exits 0 once the folder is moved');
+
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init a batch');
+  const blankPrep = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'blank', '--provision', ' ']);
+  eq(blankPrep.code, 1, `prep with a blank --provision exits 1 (${firstLine(blankPrep.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/b1/blank'), '', '...before it creates the branch');
+  ok(!existsSync(join(root, 'aipg-blank')), '...or the worktree');
+
+  const taken = join(root, 'aipg-alpha');
+  mkdirSync(taken);
+  writeFileSync(join(taken, 'mine.txt'), 'not a worktree\n');
+  eq(wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']).code, 40, 'prep onto a folder already there exits 40');
+  eq(sha(repo, 'refs/heads/aipg/b1/alpha'), '', '...and deletes the branch it created first');
+  renameSync(taken, `${taken}.moved`);
+  eq(wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']).code, 0, '...so prep exits 0 once the folder is moved');
+
+  const nested = openIn(repo, 'b1');
+  eq(nested.code, 40, 'open of a name whose branch aipg/b1 the chain branch aipg/b1/alpha blocks exits 40');
+  ok(/cannot lock ref 'refs\/heads\/aipg\/b1'/.test(nested.stderr), `...giving git's reason: ${firstLine(nested.stderr)}`);
+  ok(!existsSync(join(root, 'aipg-b1')), '...and creates no worktree');
+});
+
+section('open and prep leave alone the branch and worktree of another process that creates their branch first');
+await withFixture(({ root, repo }) => {
+  const mainAt = sha(repo, 'refs/heads/main');
+  const raced = wtStubbed(GIT_RACE_STUB, ['open', '--repo', repo, '--name', 'race'], { AIPG_GIT_RACE: 'branch' });
+  eq(raced.code, 40, `open whose branch another process creates during it exits 40 (${firstLine(raced.stderr)})`);
+  ok(/a branch named 'aipg\/race' already exists/.test(raced.stderr), "...giving git's reason");
+  eq(sha(repo, 'refs/heads/aipg/race'), mainAt, "...and keeps the other process's branch");
+
+  const translated = wtStubbed(GIT_RACE_STUB, ['open', '--repo', repo, '--name', 'local'], { AIPG_GIT_RACE: 'branch', AIPG_GIT_TRANSLATED: '1' });
+  eq(translated.code, 40, `the same race under a git that translates its messages exits 40 (${firstLine(translated.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/local'), mainAt, "...and keeps the other process's branch");
+
+  const held = wtStubbed(GIT_RACE_STUB, ['open', '--repo', repo, '--name', 'held'], { AIPG_GIT_RACE: 'worktree' });
+  eq(held.code, 40, `open whose branch and worktree another process creates during it exits 40 (${firstLine(held.stderr)})`);
+  ok(/a branch named 'aipg\/held' already exists/.test(held.stderr) && !/git created the worktree/.test(held.stderr),
+    "...giving git's reason, not the other process's worktree as one it created");
+  eq(sha(repo, 'refs/heads/aipg/held'), mainAt, "...keeping the other process's branch");
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-held-racer'))), '...and its worktree');
+
+  const locked = wtStubbed(GIT_RACE_STUB, ['open', '--repo', repo, '--name', 'locked'], { AIPG_GIT_RACE: 'locked' });
+  eq(locked.code, 40, `open whose branch another process creates inside git's window between check and create exits 40 (${firstLine(locked.stderr)})`);
+  ok(/aipg\/locked\.lock': File exists/.test(locked.stderr), "...giving git's reason");
+  eq(sha(repo, 'refs/heads/aipg/locked'), mainAt, "...and keeps the other process's branch");
+
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init a batch');
+  const prepped = wtStubbed(GIT_RACE_STUB, ['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha'], { AIPG_GIT_RACE: 'branch' });
+  eq(prepped.code, 40, `prep whose branch another process creates during it exits 40 (${firstLine(prepped.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/b1/alpha'), mainAt, "...and keeps the other process's branch");
+
+  const prepTranslated = wtStubbed(GIT_RACE_STUB, ['prep', '--repo', repo, '--batch', 'b1', '--key', 'beta'], { AIPG_GIT_RACE: 'branch', AIPG_GIT_TRANSLATED: '1' });
+  eq(prepTranslated.code, 40, `the same race of prep under a git that translates its messages exits 40 (${firstLine(prepTranslated.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/b1/beta'), mainAt, "...and keeps the other process's branch");
+});
+
+section('close fast-forwards the --into branch checked out in the main worktree, trashes the worktree and deletes the branch');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const ledger = join(root, 'gate-runs.txt');
+  const gate = ledgerGate(root, ledger);
+
+  const r = closeIn(repo, 'feat', 'main', gate);
+  eq(r.code, 0, `close exits 0 (${firstLine(r.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), tip, 'main points at the branch tip');
+  eq(readOr(at(repo, 'f.txt')), 'feature\n', '...and the main worktree has its file checked out');
+  eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...in a clean tree');
+  const runs = ledgerRuns(ledger);
+  eq(runs.length, 1, 'the gate ran once');
+  eq(norm(runs[0] ?? ''), norm(`${tip} ${feat}`), '...in the worktree, on the commit main now points at');
+  ok(!worktreePaths(repo).includes(norm(feat)), 'the worktree is no longer registered');
+  eq(readOr(trashedAt(root, feat, 'f.txt')), 'feature\n', '...its folder is in the trash');
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', '...and aipg/feat is deleted');
+  eq(norm(r.stdout.trim()), norm(feat), 'stdout carries the removed worktree path');
+  ok(r.stderr.includes(`main is at ${tip}`), `stderr names main and its new tip: ${r.stderr.trim().split('\n').pop()}`);
+
+  const again = closeIn(repo, 'feat', 'main', gate);
+  eq(again.code, 0, 'a second close exits 0');
+  ok(/nothing to close/.test(again.stderr), `...with nothing left to do: ${firstLine(again.stderr)}`);
+  eq(ledgerRuns(ledger).length, 1, '...and runs no gate');
+});
+
+section('close moves an --into branch checked out nowhere with update-ref, and in either form a moved --into is exit 20 that a second close finishes');
+await withFixture(({ root, repo }) => {
+  eq(git(repo, ['switch', '-q', '-c', 'side']).code, 0, 'the main worktree switches to side, so main is checked out nowhere');
+  const sideTip = commitFile(repo, 's.txt', 'side\n');
+  const feat = opened(repo, 'feat', ['--base', 'main']);
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+
+  const r = closeIn(repo, 'feat', 'main', gateCmd(root, 'green', GATE_GREEN));
+  eq(r.code, 0, `close exits 0 (${firstLine(r.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), tip, 'main points at the branch tip');
+  eq(git(repo, ['reflog', '-1', '--format=%gs', 'refs/heads/main']).stdout.trim(), 'aipg close feat', '...moved by update-ref with its reflog message');
+  eq(sha(repo, 'refs/heads/side'), sideTip, '...and side, checked out in the main worktree, is untouched');
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', 'aipg/feat is deleted');
+  ok(trashedName(root, feat) !== '', '...and the worktree is in the trash');
+
+  const fix = opened(repo, 'fix', ['--base', 'main']);
+  const fixTip = commitFile(fix, 'g.txt', 'fix\n');
+  eq(git(repo, ['switch', '-q', '-c', 'ahead', 'main']).code, 0, 'branch ahead off main');
+  const aheadTip = commitFile(repo, 'n.txt', 'ahead\n');
+  eq(git(repo, ['switch', '-q', 'side']).code, 0, '...and switch back to side');
+  // The gate moves main to ahead once, standing in for a commit that lands on main while the gate runs.
+  const marker = join(root, 'moved-once');
+  const mover = gateCmd(root, 'mover', `const fs = require('fs');
+if (!fs.existsSync(${JSON.stringify(marker)})) {
+  fs.writeFileSync(${JSON.stringify(marker)}, '');
+  require('child_process').execFileSync('git', ['-C', ${JSON.stringify(repo)}, 'branch', '-f', 'main', 'ahead']);
+}
+`);
+  const moved = closeIn(repo, 'fix', 'main', mover);
+  eq(moved.code, 20, `a main that moved during the gate exits 20 (${firstLine(moved.stderr)})`);
+  ok(/main moved while close ran.*Run close again/.test(moved.stderr), '...saying to run close again');
+  unchanged(root, repo, fix, 'fix', aheadTip, fixTip);
+
+  const rerun = closeIn(repo, 'fix', 'main', mover);
+  eq(rerun.code, 0, `...and a second close exits 0 (${firstLine(rerun.stderr)})`);
+  ok(/rebased aipg\/fix onto main/.test(rerun.stderr), '...rebasing the branch onto the moved main');
+  eq(sha(repo, 'refs/heads/main~1'), aheadTip, '...so main holds the commit it moved to with the fix on top');
+  eq(git(repo, ['show', 'main:g.txt']).stdout, 'fix\n', "...carrying the fix's file");
+  eq(sha(repo, 'refs/heads/aipg/fix'), '', '...and aipg/fix is deleted');
+});
+await withFixture(({ root, repo }) => {
+  const mainOld = sha(repo, 'refs/heads/main');
+  commitFile(repo, 'm.txt', 'main\n');
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  // The gate resets main in the main worktree back one commit once, to an ancestor that merge --ff-only accepts.
+  const marker = join(root, 'reset-once');
+  const resetter = gateCmd(root, 'resetter', `const fs = require('fs');
+if (!fs.existsSync(${JSON.stringify(marker)})) {
+  fs.writeFileSync(${JSON.stringify(marker)}, '');
+  require('child_process').execFileSync('git', ['-C', ${JSON.stringify(repo)}, 'reset', '-q', '--hard', 'HEAD~1']);
+}
+`);
+  const moved = closeIn(repo, 'feat', 'main', resetter);
+  eq(moved.code, 20, `a main checked out in the main worktree and reset to an ancestor during the gate exits 20 (${firstLine(moved.stderr)})`);
+  ok(/main moved while close ran.*Run close again/.test(moved.stderr), '...saying to run close again');
+  unchanged(root, repo, feat, 'feat', mainOld, tip);
+
+  const rerun = closeIn(repo, 'feat', 'main', resetter);
+  eq(rerun.code, 0, `...and a second close exits 0 (${firstLine(rerun.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), tip, '...moving main to the gated tip');
+});
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  // The gate commits on main in the main worktree once and leaves a tracked edit there, which a fast-forward refuses.
+  const marker = join(root, 'moved-and-edited-once');
+  const mover = gateCmd(root, 'mover-editor', `const fs = require('fs');
+if (!fs.existsSync(${JSON.stringify(marker)})) {
+  fs.writeFileSync(${JSON.stringify(marker)}, '');
+  require('child_process').execFileSync('git', ['-C', ${JSON.stringify(repo)}, 'commit', '-q', '--allow-empty', '-m', 'moved']);
+  fs.writeFileSync(${JSON.stringify(join(repo, 'a.txt'))}, 'edited\\n');
+}
+`);
+  const mainOld = sha(repo, 'refs/heads/main');
+  const moved = closeIn(repo, 'feat', 'main', mover);
+  eq(moved.code, 20, `a main that moved during the gate exits 20 even when its worktree also has a tracked edit (${firstLine(moved.stderr)})`);
+  ok(/main moved while close ran/.test(moved.stderr), '...reporting the move, not the edit judged against the old main');
+  eq(sha(repo, 'refs/heads/main~1'), mainOld, '...main holds only the commit the gate made');
+  unchanged(root, repo, feat, 'feat', sha(repo, 'refs/heads/main'), tip);
+  eq(git(repo, ['checkout', '--', 'a.txt']).code, 0, 'revert the edit');
+  eq(closeIn(repo, 'feat', 'main', mover).code, 0, '...and a second close exits 0');
+});
+
+section('close rebases a branch main moved past and gates the rebased commit, a rebase conflict is exit 20, and a merge commit a rebase would drop is exit 40, each with nothing changed');
+await withFixture(({ root, repo }) => {
+  const ledger = join(root, 'gate-runs.txt');
+  const gate = ledgerGate(root, ledger);
+  const feat = opened(repo, 'feat');
+  const featOld = commitFile(feat, 'f.txt', 'feature\n');
+  const mainOld = commitFile(repo, 'm.txt', 'main\n');
+
+  const r = closeIn(repo, 'feat', 'main', gate);
+  eq(r.code, 0, `close exits 0 (${firstLine(r.stderr)})`);
+  const merged = sha(repo, 'refs/heads/main');
+  eq(sha(repo, 'refs/heads/main~1'), mainOld, 'main is its old tip with the rebased commit on top');
+  ok(merged !== featOld, '...which is a new commit, since the rebase rewrote it');
+  ok(r.stderr.includes(`rebased aipg/feat onto main: ${featOld} -> ${merged}`), '...reported with the old and new tip');
+  eq((ledgerRuns(ledger)[0] ?? '').split(' ')[0], merged, 'the gate judged the exact commit main now points at');
+  eq(readOr(at(repo, 'f.txt')) + readOr(at(repo, 'm.txt')), 'feature\nmain\n', 'the main worktree has both files');
+  eq(sha(repo, 'refs/heads/aipg/feat'), '', 'aipg/feat is deleted');
+
+  const clash = opened(repo, 'clash');
+  const clashTip = commitFile(clash, 'a.txt', 'clash\n');
+  const mainTip = commitFile(repo, 'a.txt', 'main edit\n');
+  const c = closeIn(repo, 'clash', 'main', gate);
+  eq(c.code, 20, `a rebase conflict exits 20 (${firstLine(c.stderr)})`);
+  ok(/conflicted \(a\.txt\)/.test(c.stderr), '...naming the conflicted file');
+  ok(c.stderr.includes(`back at ${clashTip}`), '...and the tip the branch is back at');
+  unchanged(root, repo, clash, 'clash', mainTip, clashTip);
+  ok(!existsSync(at(git(clash, ['rev-parse', '--absolute-git-dir']).stdout.trim(), 'rebase-merge')), 'the worktree is not mid-rebase');
+  eq(git(clash, ['symbolic-ref', 'HEAD']).stdout.trim(), 'refs/heads/aipg/clash', '...it is back on its branch');
+  eq(git(clash, ['status', '--porcelain']).stdout.trim(), '', '...in a clean tree');
+  eq(ledgerRuns(ledger).length, 1, '...and the gate never ran on it');
+
+  const unlisted = wtStubbed(GIT_OVERFLOW_STUB, ['close', '--repo', repo, '--name', 'clash', '--into', 'main', '--gate', gate],
+    { AIPG_GIT_OVERFLOW: 'diff', AIPG_GIT_OVERFLOW_ARG: '--diff-filter=U' });
+  eq(unlisted.code, 40, `a rebase conflict whose unmerged files cannot be listed exits 40 (${firstLine(unlisted.stderr)})`);
+  ok(/listing its unmerged files failed \(.*KILLED.*\)\. The rebase was aborted, aipg\/clash is back at/.test(unlisted.stderr), '...saying so, after the abort');
+  unchanged(root, repo, clash, 'clash', mainTip, clashTip);
+  ok(!existsSync(at(git(clash, ['rev-parse', '--absolute-git-dir']).stdout.trim(), 'rebase-merge')), '...and the worktree is not mid-rebase');
+
+  // A rebase drops a merge commit, and with it a change made only in that merge.
+  const merging = opened(repo, 'merging');
+  commitFile(merging, 'use.txt', 'uses api v1\n');
+  commitFile(repo, 'api.txt', 'api v2\n');
+  eq(git(merging, ['merge', '-q', '--no-edit', 'main']).code, 0, 'merge main into aipg/merging');
+  stage(merging, 'use.txt', 'uses api v2\n');
+  eq(git(merging, ['commit', '-q', '--amend', '--no-edit']).code, 0, '...and amend a change of its own into the merge commit');
+  const mergeTip = sha(merging, 'HEAD');
+  const mainLater = commitFile(repo, 'later.txt', 'later\n');
+  const dropped = closeIn(repo, 'merging', 'main', gate);
+  eq(dropped.code, 40, `a branch holding a merge commit main lacks exits 40 (${firstLine(dropped.stderr)})`);
+  ok(dropped.stderr.includes(`aipg/merging holds merge commits main lacks (${mergeTip})`), '...naming the merge commit');
+  ok(/drops each one with any change made only in it, so nothing changed\. Rebase aipg\/merging onto main by hand/.test(dropped.stderr), '...why, and the rebase by hand');
+  unchanged(root, repo, merging, 'merging', mainLater, mergeTip);
+  eq(readOr(at(merging, 'use.txt')), 'uses api v2\n', "...the merge's own change is still in the worktree");
+  eq(ledgerRuns(ledger).length, 1, '...and the gate never ran on it');
+
+  // A commit that fails to sign stops the rebase with no unmerged file, so there is no conflict to resolve.
+  const failGpg = join(root, 'fail-gpg');
+  writeFileSync(failGpg, '#!/bin/sh\nexit 1\n', { mode: 0o755 });
+  const signed = opened(repo, 'signed');
+  const signedTip = commitFile(signed, 's.txt', 'signed\n');
+  const mainNow = commitFile(repo, 'n.txt', 'main again\n');
+  eq(git(repo, ['config', 'commit.gpgSign', 'true']).code, 0, 'every commit is signed...');
+  eq(git(repo, ['config', 'gpg.program', failGpg.replace(/\\/g, '/')]).code, 0, '...by a program that fails');
+  const stop = closeIn(repo, 'signed', 'main', gate);
+  eq(stop.code, 40, `a rebase that stops with no conflicted file exits 40 (${firstLine(stop.stderr)})`);
+  ok(/stopped with no conflicted file \(error: gpg failed to sign the data\)\. The rebase was aborted, aipg\/signed is back at/.test(stop.stderr), "...giving git's reason, after the abort");
+  unchanged(root, repo, signed, 'signed', mainNow, signedTip);
+  eq(git(signed, ['status', '--porcelain']).stdout.trim(), '', '...in a clean tree');
+  eq(ledgerRuns(ledger).length, 1, '...and the gate never ran on it');
+});
+
+/** Writes `body` as the hook `name` of the fixture repo, and returns its path. */
+function hookIn(repo, name, body) {
+  const out = git(repo, ['rev-parse', '--git-path', 'hooks']).stdout.trim();
+  const dir = isAbsolute(out) ? out : join(repo, out);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, name), body, { mode: 0o755 });
+  return join(dir, name);
+}
+
+section("open's checkout and close's rebase and fast-forward give the repo's hooks a gate's output room, a rebase git refuses up front is exit 40 with nothing changed, and a rebase whose hook leaves changes is exit 40 before the gate");
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  // Each run writes 2 MiB, past Node's 1 MiB default child-output cap.
+  const loud = `#!/bin/sh\n${JSON.stringify(process.execPath.replace(/\\/g, '/'))} -e 'process.stdout.write("x".repeat(2 * 1024 * 1024))'\n`;
+  // Both are opened before the hooks exist, so each close below is judged on its own.
+  const next = opened(repo, 'next');
+  const feat = opened(repo, 'feat');
+  const nextTip = commitFile(next, 'n.txt', 'next\n');
+  const featOld = commitFile(feat, 'f.txt', 'feature\n');
+  for (const name of ['post-checkout', 'post-rewrite', 'post-merge']) hookIn(repo, name, loud);
+
+  const ff = closeIn(repo, 'next', 'main', gate);
+  eq(ff.code, 0, `close exits 0 through a fast-forward with no rebase, whose post-merge hook writes 2 MiB (${firstLine(ff.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), nextTip, '...and main points at the branch tip');
+
+  const rebased = closeIn(repo, 'feat', 'main', gate);
+  eq(rebased.code, 0, `close exits 0 through a rebase and a fast-forward whose hooks write 2 MiB a run (${firstLine(rebased.stderr)})`);
+  eq(sha(repo, 'refs/heads/main~1'), nextTip, '...main holds the rebased commit on top of the first');
+  ok(sha(repo, 'refs/heads/main') !== featOld, '...which the rebase rewrote');
+
+  const r = openIn(repo, 'third');
+  eq(r.code, 0, `open exits 0 under a post-checkout hook that writes 2 MiB (${firstLine(r.stderr)})`);
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-third'))), '...registering the worktree');
+});
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = commitFile(repo, 'm.txt', 'main\n');
+  const hook = hookIn(repo, 'pre-rebase', '#!/bin/sh\nexit 1\n');
+
+  const refused = closeIn(repo, 'feat', 'main', gate);
+  eq(refused.code, 40, 'a rebase the pre-rebase hook refuses exits 40');
+  ok(/git refused to rebase aipg\/feat onto main in .*, so nothing changed: fatal: The pre-rebase hook refused to rebase/.test(refused.stderr), `...giving git's reason: ${firstLine(refused.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  rmSync(hook);
+  eq(closeIn(repo, 'feat', 'main', gate).code, 0, '...and close exits 0 once the hook is gone');
+});
+await withFixture(({ root, repo }) => {
+  const ledger = join(root, 'ledger.txt');
+  const feat = opened(repo, 'feat');
+  const featOld = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = commitFile(repo, 'm.txt', 'main\n');
+  hookIn(repo, 'post-rewrite', '#!/bin/sh\necho hooked >> f.txt\n');
+
+  const r = closeIn(repo, 'feat', 'main', ledgerGate(root, ledger));
+  eq(r.code, 40, `a rebase whose post-rewrite hook modifies a tracked file exits 40 (${firstLine(r.stderr)})`);
+  ok(/the rebase of aipg\/feat onto main left uncommitted changes in .*f\.txt.*so no gate ran and main is untouched/.test(r.stderr), `...naming the rebase and the file, never the gate: ${firstLine(r.stderr)}`);
+  ok(r.stderr.includes(`was at ${featOld} before the rebase`), '...and the tip from before the rebase');
+  eq(ledgerRuns(ledger).length, 0, '...the gate never ran');
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...and main is untouched');
+});
+
+section("init's, prep's and open's worktree adds give the post-checkout hook the caller's locale, message catalog and credential prompt setting and a gate's output room");
+await withFixture(({ root, repo }) => {
+  const log = join(root, 'hook-env.log');
+  // A catalog folder that does not exist only turns git's translations off, which no assertion here reads.
+  const callerEnv = { ...fixtureEnv(), LC_ALL: 'C.UTF-8', GIT_TERMINAL_PROMPT: '1', GIT_TEXTDOMAINDIR: 'caller-catalog' };
+  const seen = 'LC_ALL=[C.UTF-8] GIT_TERMINAL_PROMPT=[1] GIT_TEXTDOMAINDIR=[caller-catalog]';
+  // Each run also writes 2 MiB, past Node's 1 MiB default child-output cap.
+  hookIn(repo, 'post-checkout', `#!/bin/sh\necho "LC_ALL=[$LC_ALL] GIT_TERMINAL_PROMPT=[$GIT_TERMINAL_PROMPT] GIT_TEXTDOMAINDIR=[$GIT_TEXTDOMAINDIR]" >> "${log.replace(/\\/g, '/')}"\n`
+    + `${JSON.stringify(process.execPath.replace(/\\/g, '/'))} -e 'process.stdout.write("x".repeat(2 * 1024 * 1024))'\n`);
+
+  const initR = wt(['init', '--repo', repo, '--batch', 'b1'], { env: callerEnv });
+  eq(initR.code, 0, `init exits 0 (${firstLine(initR.stderr)})`);
+  const prepR = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha'], { env: callerEnv });
+  eq(prepR.code, 0, `prep exits 0 (${firstLine(prepR.stderr)})`);
+  const openR = wt(['open', '--repo', repo, '--name', 'feat'], { env: callerEnv });
+  eq(openR.code, 0, `open exits 0 (${firstLine(openR.stderr)})`);
+  eq(wt(['clean', '--repo', repo, '--key', 'alpha']).code, 0, 'clean --key alpha exits 0');
+  eq(wt(['clean', '--repo', repo, '--batch', 'b1']).code, 0, 'clean --batch b1 exits 0, keeping aipg/int-b1');
+  const reuseR = wt(['init', '--repo', repo, '--batch', 'b1'], { env: callerEnv });
+  eq(reuseR.code, 0, `init that re-uses aipg/int-b1 exits 0 (${firstLine(reuseR.stderr)})`);
+  eq(readOr(log), `${seen}\n`.repeat(4), "...and each add's post-checkout hook saw the caller's LC_ALL, GIT_TEXTDOMAINDIR and GIT_TERMINAL_PROMPT");
+});
+
+section('a worktree git created before its post-checkout hook failed is kept and named by open, init and prep, never reported as not created');
+await withFixture(({ root, repo }) => {
+  const failing = '#!/bin/sh\necho "post-checkout: npm install failed" >&2\nexit 1\n';
+  const feat = join(root, 'aipg-feat');
+  const intWt = join(root, 'aipg-int-b1');
+  let hook = hookIn(repo, 'post-checkout', failing);
+
+  const r = openIn(repo, 'feat');
+  eq(r.code, 40, `open whose post-checkout hook fails exits 40 (${firstLine(r.stderr)})`);
+  ok(/git created the worktree on aipg\/feat at .*aipg-feat and then exited 1/.test(r.stderr), '...saying git created the worktree');
+  ok(r.stderr.includes('post-checkout: npm install failed'), "...relaying the hook's output");
+  ok(/close --repo .* --name feat --discard, delete the branch with .*branch -D aipg\/feat, then run open again/.test(r.stderr), '...naming close --discard and the branch delete');
+  ok(worktreePaths(repo).includes(norm(feat)), '...and the worktree stays registered');
+  eq(sha(repo, 'refs/heads/aipg/feat'), sha(repo, 'refs/heads/main'), '...with its branch kept');
+  eq(discardIn(repo, 'feat').code, 0, 'the close --discard it names exits 0');
+  eq(git(repo, ['branch', '-D', 'aipg/feat']).code, 0, '...and so does the branch delete');
+
+  const initRed = wt(['init', '--repo', repo, '--batch', 'b1']);
+  eq(initRed.code, 40, `init whose post-checkout hook fails exits 40 (${firstLine(initRed.stderr)})`);
+  ok(/git created the worktree on aipg\/int-b1 .*run init again, which re-uses that worktree/.test(initRed.stderr), '...naming init again');
+  ok(worktreePaths(repo).includes(norm(intWt)), '...and the worktree stays registered');
+  rmSync(hook);
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init again exits 0 once the hook is gone');
+  eq(readOr(hookOf(intWt)), HOOK, '...and installs the reference-transaction hook');
+
+  hook = hookIn(repo, 'post-checkout', failing);
+  const prepRed = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
+  eq(prepRed.code, 40, `prep whose post-checkout hook fails exits 40 (${firstLine(prepRed.stderr)})`);
+  ok(/self-test never ran.*clean --repo .* --key alpha, delete the branch with .*branch -D aipg\/b1\/alpha, then run prep again/.test(prepRed.stderr), '...naming clean --key and the branch delete');
+  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-alpha'))), '...and the worktree stays registered');
+  rmSync(hook);
+
+  const twice = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
+  eq(twice.code, 40, `a second prep of a key whose branch a worktree holds exits 40 (${firstLine(twice.stderr)})`);
+  ok(/a branch named 'aipg\/b1\/alpha' already exists/.test(twice.stderr) && !/git created the worktree/.test(twice.stderr), "...giving git's reason, not a worktree it did not create");
+});
+
+section('a red gate is exit 30 and a gate that changes the tree, moves the branch or switches off it is exit 40, each with main untouched');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+  const redGate = gateCmd(root, 'red', 'process.exit(5);\n');
+
+  const red = closeIn(repo, 'feat', 'main', redGate);
+  eq(red.code, 30, 'a red gate exits 30');
+  ok(red.stderr.includes(`gate exited 5 on ${tip}`), `...naming the commit it judged: ${firstLine(red.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  const dirtying = closeIn(repo, 'feat', 'main', gateCmd(root, 'dirty', "require('fs').writeFileSync('gate-out.txt', 'x\\n');\n"));
+  eq(dirtying.code, 40, 'a gate that leaves a file in the worktree exits 40');
+  ok(/gate passed but left changes .*gate-out\.txt/.test(dirtying.stderr), `...saying so: ${firstLine(dirtying.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  rmSync(at(feat, 'gate-out.txt'), { force: true });
+  const committing = closeIn(repo, 'feat', 'main', gateCmd(root, 'commits', "require('child_process').execFileSync('git', ['commit', '-q', '--allow-empty', '-m', 'gate commit']);\n"));
+  eq(committing.code, 40, 'a gate that commits on the branch exits 40');
+  ok(committing.stderr.includes(`gate passed but moved aipg/feat from ${tip}`), `...saying so: ${firstLine(committing.stderr)}`);
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...and main is untouched');
+  eq(git(feat, ['reset', '-q', '--hard', tip]).code, 0, 'put the branch back at its tip');
+
+  const detaching = closeIn(repo, 'feat', 'main', gateCmd(root, 'detaches', "require('child_process').execFileSync('git', ['checkout', '-q', '--detach']);\n"));
+  eq(detaching.code, 40, 'a gate that switches the worktree off the branch exits 40');
+  ok(/gate passed but switched .* off aipg\/feat/.test(detaching.stderr), `...saying so: ${firstLine(detaching.stderr)}`);
+  eq(git(feat, ['switch', '-q', 'aipg/feat']).code, 0, 'switch the worktree back');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  const mainMoved = commitFile(repo, 'm.txt', 'main\n');
+  const rebasedRed = closeIn(repo, 'feat', 'main', redGate);
+  eq(rebasedRed.code, 30, 'a red gate on a rebased branch exits 30');
+  ok(rebasedRed.stderr.includes(`was at ${tip} before the rebase`), `...naming the tip from before the rebase: ${firstLine(rebasedRed.stderr)}`);
+  eq(sha(repo, 'refs/heads/main'), mainMoved, '...and main is untouched');
+});
+
+section('close REFUSES a dirty worktree, an --into worktree with tracked changes, a call from inside the worktree, and a bad --into');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+
+  writeFileSync(at(feat, 'wip.txt'), 'unsaved\n');
+  const dirty = closeIn(repo, 'feat', 'main', gate);
+  eq(dirty.code, 40, 'a worktree with untracked work exits 40');
+  ok(/has not landed \(wip\.txt\), so commit it, or trash the worktree with its uncommitted work with .*close .*--discard, which keeps the branch/.test(dirty.stderr), `...naming the file, a commit and close --discard, never land: ${firstLine(dirty.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  rmSync(at(feat, 'wip.txt'));
+
+  writeFileSync(at(repo, 'a.txt'), 'edited, not committed\n');
+  const intoDirty = closeIn(repo, 'feat', 'main', gate);
+  eq(intoDirty.code, 40, 'a main worktree with a modified tracked file exits 40');
+  ok(/staged or modified tracked files \(a\.txt\)/.test(intoDirty.stderr), `...naming it: ${firstLine(intoDirty.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  eq(readOr(at(repo, 'a.txt')), 'edited, not committed\n', '...and the edit is still there');
+  eq(git(repo, ['checkout', '--', 'a.txt']).code, 0, 'revert the edit');
+
+  // A regression that removed the worktree on an earlier call would make spawnSync throw and hide every later case.
+  const inside = existsSync(feat) ? closeIn(repo, 'feat', 'main', gate, { cwd: feat }) : { code: -1, stderr: 'the worktree is already gone' };
+  eq(inside.code, 40, 'a call from inside the worktree exits 40');
+  ok(/working directory .* is inside it/.test(inside.stderr), `...naming it: ${firstLine(inside.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  const nowhere = closeIn(repo, 'feat', 'nope', gate);
+  eq(nowhere.code, 40, 'an --into that is no local branch exits 40');
+  ok(/--into "nope" is not a local branch/.test(nowhere.stderr), `...saying so: ${firstLine(nowhere.stderr)}`);
+  const itself = closeIn(repo, 'feat', 'aipg/feat', gate);
+  eq(itself.code, 40, 'an --into that is the branch being closed exits 40');
+  ok(/is the branch being closed/.test(itself.stderr), `...saying so: ${firstLine(itself.stderr)}`);
+  const empty = closeIn(repo, 'feat', '', gate);
+  eq(empty.code, 40, 'an empty --into exits 40');
+  ok(/--into "" is not a local branch/.test(empty.stderr), `...saying so: ${firstLine(empty.stderr)}`);
+  for (const batchBranch of ['aipg/int-b1', 'aipg/b1/alpha']) {
+    eq(git(repo, ['branch', batchBranch]).code, 0, `make the batch branch ${batchBranch}`);
+    const r = closeIn(repo, 'feat', batchBranch, gate);
+    eq(r.code, 40, `an --into that is the batch branch ${batchBranch} exits 40`);
+    ok(/is a branch of a batch, which only land moves/.test(r.stderr), `...saying so: ${firstLine(r.stderr)}`);
+    eq(sha(repo, `refs/heads/${batchBranch}`), mainAt, '...and leaves that branch where it was');
+  }
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  eq(closeIn(repo, 'feat', 'main', gate).code, 0, 'with every refusal cleared, close exits 0');
+});
+
+section('close REFUSES to fast-forward an --into branch that the main worktree is mid-rebase of, and changes nothing');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const mainAt = commitFile(repo, 'm.txt', 'main\n');
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  // The exec fails after the replay, so the rebase stops with HEAD detached and main as the branch it returns to.
+  ok(git(repo, ['rebase', '-x', 'exit 1', 'HEAD~1']).code !== 0, 'stop a rebase of main in the main worktree');
+  eq(git(repo, ['symbolic-ref', '-q', 'HEAD']).stdout.trim(), '', '...which detached HEAD');
+
+  const r = closeIn(repo, 'feat', 'main', gate);
+  eq(r.code, 40, `close exits 40 (${firstLine(r.stderr)})`);
+  ok(/cannot fast-forward main in the worktree at .*\. It has a rebase in progress/.test(r.stderr), '...naming the rebase in the main worktree');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  ok(existsSync(join(repo, '.git', 'rebase-merge')), '...and the rebase is still in progress');
+
+  eq(git(repo, ['rebase', '--abort']).code, 0, 'abort the rebase');
+  eq(closeIn(repo, 'feat', 'main', gate).code, 0, '...and close exits 0');
+  eq(sha(repo, 'refs/heads/main'), tip, '...moving main to the branch tip');
+});
+
+section('close REFUSES an --into branch whose fast-forward would move it under a worktree that does not take it, and changes nothing');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+
+  // An update-ref of trunk moves main, which the main worktree has checked out.
+  eq(git(repo, ['symbolic-ref', 'refs/heads/trunk', 'refs/heads/main']).code, 0, 'make trunk a symbolic ref to main');
+  const symbolic = closeIn(repo, 'feat', 'trunk', gate);
+  eq(symbolic.code, 40, `close --into a symbolic branch exits 40 (${firstLine(symbolic.stderr)})`);
+  ok(/--into trunk is a symbolic ref to refs\/heads\/main.*Pass the branch it points at as --into/.test(symbolic.stderr), '...naming the branch it points at');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...and the main worktree shows no change');
+  eq(git(repo, ['symbolic-ref', '--delete', 'refs/heads/trunk']).code, 0, 'delete trunk');
+
+  // --force checks main out a second time, so a merge in either worktree moves main under the other.
+  const second = join(root, 'second-main');
+  eq(git(repo, ['worktree', 'add', '-q', '--force', second, 'main']).code, 0, 'check main out in a second worktree');
+  const twice = closeIn(repo, 'feat', 'main', gate);
+  eq(twice.code, 40, `close --into a branch checked out in two worktrees exits 40 (${firstLine(twice.stderr)})`);
+  ok(/cannot fast-forward main, so it is untouched\. It is checked out in more than one worktree \(.*second-main\)/.test(twice.stderr), '...naming both');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  eq(git(second, ['status', '--porcelain']).stdout.trim(), '', '...and the second worktree shows no change');
+
+  // git worktree prune keeps a locked worktree, so for a locked one the prune alone is no recovery.
+  eq(git(repo, ['worktree', 'lock', '--reason', 'on a removable drive', second]).code, 0, 'lock the second worktree');
+  renameSync(second, `${second}.moved`);
+  const lockedGone = closeIn(repo, 'feat', 'main', gate);
+  eq(lockedGone.code, 40, `close --into a branch held by a locked worktree whose folder is gone exits 40 (${firstLine(lockedGone.stderr)})`);
+  ok(/second-main, which has it checked out, is gone, and it is locked \(on a removable drive\), so "git worktree prune" keeps it\. .*mount it\. Otherwise run git -C .* worktree unlock ".*second-main" and git -C .* worktree prune\. Then run close again/.test(lockedGone.stderr),
+    '...naming the mount, then the unlock before the prune');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  eq(git(repo, ['worktree', 'unlock', second]).code, 0, 'unlock the second worktree');
+
+  const gone = closeIn(repo, 'feat', 'main', gate);
+  eq(gone.code, 40, `close --into a branch held by a worktree whose folder is gone exits 40 (${firstLine(gone.stderr)})`);
+  ok(/The folder of the worktree at .*second-main, which has it checked out, is gone\. Run git -C .* worktree prune/.test(gone.stderr), '...naming the prune');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  // git -C <path> reads whatever repository holds the folder, so a merge there would land in the other repository.
+  otherRepo(second);
+  const otherAt = commitFile(second, 'x.txt', 'other\n');
+  const foreign = closeIn(repo, 'feat', 'main', gate);
+  eq(foreign.code, 40, `close --into a branch held by a worktree whose folder holds another repository exits 40 (${firstLine(foreign.stderr)})`);
+  ok(/The \.git file of the worktree at .*second-main, which has it checked out, does not point at its git directory.*worktree repair/.test(foreign.stderr), '...naming the repair');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+  eq(sha(second, 'HEAD'), otherAt, '...and the other repository is untouched');
+
+  renameSync(second, `${second}.other`);
+  eq(git(repo, ['worktree', 'prune']).code, 0, 'prune the second worktree');
+  eq(closeIn(repo, 'feat', 'main', gate).code, 0, '...and close exits 0');
+  eq(sha(repo, 'refs/heads/main'), tip, '...moving main to the branch tip');
+});
+
+section('close and close --discard REFUSE a worktree that a detached HEAD or a switch took off its branch, and change nothing');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const feat = opened(repo, 'feat');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+  eq(git(feat, ['checkout', '-q', '--detach']).code, 0, 'detach HEAD in the worktree');
+  writeFileSync(at(feat, 'wip.txt'), 'unsaved\n');
+  const offBranch = /the worktree of aipg\/feat at .*aipg-feat has a detached HEAD checked out, so close leaves it in place\. Keep any commit made on that detached HEAD with git -C ".*" branch <new-name>\. Switch it back with git -C ".*" switch aipg\/feat,/;
+
+  const unmerged = closeIn(repo, 'feat', 'main', gate);
+  eq(unmerged.code, 40, 'close of a detached worktree whose branch holds commits main lacks exits 40');
+  ok(offBranch.test(unmerged.stderr), `...naming the worktree and the switch back: ${firstLine(unmerged.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  const discarded = discardIn(repo, 'feat');
+  eq(discarded.code, 40, 'close --discard of a detached worktree exits 40');
+  ok(offBranch.test(discarded.stderr), `...naming the switch back: ${firstLine(discarded.stderr)}`);
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  eq(git(repo, ['merge', '-q', '--ff-only', 'aipg/feat']).code, 0, 'main takes the branch by hand');
+  const merged = closeIn(repo, 'feat', 'main', gate);
+  eq(merged.code, 40, 'close of a detached worktree whose branch main contains exits 40');
+  ok(offBranch.test(merged.stderr), `...naming the switch back: ${firstLine(merged.stderr)}`);
+  unchanged(root, repo, feat, 'feat', tip, tip);
+  eq(readOr(at(feat, 'wip.txt')), 'unsaved\n', '...and the untracked work is still in the worktree');
+
+  eq(git(feat, ['switch', '-q', '-c', 'other']).code, 0, 'switch the worktree to a new branch other');
+  eq(git(repo, ['branch', '-D', 'aipg/feat']).code, 0, '...and delete aipg/feat');
+  const gone = closeIn(repo, 'feat', 'main', gate);
+  eq(gone.code, 40, 'close of a worktree on another branch, with aipg/feat deleted, exits 40');
+  ok(/has branch other checked out, so close leaves it in place\. Switch it back with git -C ".*" switch -c aipg\/feat,/.test(gone.stderr), `...naming the switch that recreates the branch: ${firstLine(gone.stderr)}`);
+  ok(worktreePaths(repo).includes(norm(feat)), '...keeping the worktree registered');
+
+  eq(git(feat, ['switch', '-q', '-c', 'aipg/feat']).code, 0, 'recreate aipg/feat in the worktree');
+  rmSync(at(feat, 'wip.txt'));
+  const closed = closeIn(repo, 'feat', 'main', gate);
+  eq(closed.code, 0, `...and close exits 0 (${firstLine(closed.stderr)})`);
+  ok(trashedName(root, feat) !== '', '...moving the worktree to the trash');
+});
+await withFixture(({ root, repo }) => {
+  // prep names a chain's folder aipg-<key>, as open names its own.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init a batch');
+  const chain = abs(wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'feat']).stdout.trim(), 'chain worktree path');
+  eq(git(chain, ['checkout', '-q', '--detach']).code, 0, 'detach HEAD by hand in the chain worktree aipg-feat');
+  const closed = closeIn(repo, 'feat', 'main', gate);
+  eq(closed.code, 0, `close --name feat with no aipg/feat exits 0 (${firstLine(closed.stderr)})`);
+  ok(/nothing to close/.test(closed.stderr), "...finding nothing to close, never the chain's folder");
+  const discarded = discardIn(repo, 'feat');
+  eq(discarded.code, 0, `close --name feat --discard exits 0 (${firstLine(discarded.stderr)})`);
+  ok(/nothing to discard/.test(discarded.stderr), "...finding nothing to discard, never the chain's folder");
+  ok(worktreePaths(repo).includes(norm(chain)), '...the chain worktree stays registered');
+  eq(trashedName(root, chain), '', '...and out of the trash');
+});
+await withFixture(({ root, repo }) => {
+  // clean keeps a chain branch, so a cleaned chain of key feat can sit beside a later open of feat.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  eq(git(repo, ['branch', 'aipg/b1/feat']).code, 0, 'a kept chain branch aipg/b1/feat');
+  const feat = opened(repo, 'feat');
+  const mainAt = sha(repo, 'refs/heads/main');
+  eq(git(feat, ['checkout', '-q', '--detach']).code, 0, 'detach HEAD in the worktree of aipg/feat');
+  const detachedAt = commitFile(feat, 'x.txt', 'detached\n');
+  const either = /the worktree at .*aipg-feat has a detached HEAD checked out, and the branches aipg\/feat, aipg\/b1\/feat exist, so it may be the worktree of any of them, and close leaves it in place\. Keep any commit made on that detached HEAD with git -C ".*" branch <new-name>\. Switch it back to its branch with git -C ".*" switch <branch>,/;
+
+  const closed = closeIn(repo, 'feat', 'main', gate);
+  eq(closed.code, 40, `close of a detached open of feat beside the chain branch aipg/b1/feat exits 40 (${firstLine(closed.stderr)})`);
+  ok(either.test(closed.stderr), '...naming the worktree and both branches it may belong to');
+  unchanged(root, repo, feat, 'feat', mainAt, mainAt);
+  const discarded = discardIn(repo, 'feat');
+  eq(discarded.code, 40, `close --discard of the same worktree exits 40 (${firstLine(discarded.stderr)})`);
+  ok(either.test(discarded.stderr), '...naming both branches');
+  unchanged(root, repo, feat, 'feat', mainAt, mainAt);
+  eq(sha(feat, 'HEAD'), detachedAt, '...and the detached commit is still checked out');
+});
+
+section('close REFUSES a rebase or fast-forward that would delete an ignored file, or a fast-forward an untracked file is in the way of, and changes nothing');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  // info/exclude lives in the common git directory, so it applies in every worktree of the repo.
+  appendFileSync(join(repo, '.git', 'info', 'exclude'), 'local.cfg\nout.cfg\n');
+
+  const feat = opened(repo, 'feat');
+  const featTip = commitFile(feat, 'f.txt', 'feature\n');
+  writeFileSync(at(feat, 'local.cfg'), 'mine\n');
+  writeFileSync(at(repo, 'local.cfg'), 'shared\n');
+  eq(git(repo, ['add', '-f', 'local.cfg']).code, 0, 'main force-adds the ignored local.cfg');
+  eq(git(repo, ['commit', '-qm', 'track local.cfg']).code, 0, '...and commits it');
+  const mainAt = sha(repo, 'refs/heads/main');
+  const rebase = closeIn(repo, 'feat', 'main', gate);
+  eq(rebase.code, 40, "a rebase whose checkout of main would overwrite the worktree's ignored local.cfg exits 40");
+  ok(/would delete ignored files .*\(local\.cfg\)/.test(rebase.stderr), `...naming it: ${firstLine(rebase.stderr)}`);
+  eq(readOr(at(feat, 'local.cfg')), 'mine\n', '...and the ignored file is intact');
+  unchanged(root, repo, feat, 'feat', mainAt, featTip);
+  rmSync(at(feat, 'local.cfg'), { force: true });
+  eq(closeIn(repo, 'feat', 'main', gate).code, 0, 'with the ignored file moved out, close exits 0');
+
+  const ship = opened(repo, 'ship');
+  writeFileSync(at(ship, 'out.cfg'), 'branch\n');
+  eq(git(ship, ['add', '-f', 'out.cfg']).code, 0, 'the branch force-adds the ignored out.cfg');
+  eq(git(ship, ['commit', '-qm', 'track out.cfg']).code, 0, '...and commits it');
+  const shipTip = sha(ship, 'HEAD');
+  writeFileSync(at(repo, 'out.cfg'), 'my local copy\n');
+  const mainBefore = sha(repo, 'refs/heads/main');
+  const ff = closeIn(repo, 'ship', 'main', gate);
+  eq(ff.code, 40, "a fast-forward that would overwrite the main worktree's ignored out.cfg exits 40");
+  ok(/fast-forward would delete ignored files there .*\(out\.cfg\)/.test(ff.stderr), `...naming it: ${firstLine(ff.stderr)}`);
+  eq(readOr(at(repo, 'out.cfg')), 'my local copy\n', '...and the ignored file is intact');
+  unchanged(root, repo, ship, 'ship', mainBefore, shipTip);
+
+  const plain = opened(repo, 'plain');
+  const plainTip = commitFile(plain, 'p.txt', 'branch\n');
+  writeFileSync(at(repo, 'p.txt'), 'my untracked copy\n');
+  const blocked = closeIn(repo, 'plain', 'main', gate);
+  eq(blocked.code, 40, "a fast-forward that the main worktree's untracked p.txt is in the way of exits 40");
+  ok(norm(blocked.stderr).includes(`worktree at ${norm(repo)}`) && /untracked files in the way of the fast-forward \(p\.txt\)/.test(blocked.stderr), `...naming the worktree and the file: ${firstLine(blocked.stderr)}`);
+  eq(readOr(at(repo, 'p.txt')), 'my untracked copy\n', '...and the untracked file is intact');
+  unchanged(root, repo, plain, 'plain', mainBefore, plainTip);
+});
+await withFixture(({ root, repo }) => {
+  // ls-files lists an ignored directory that holds its own repository as one `dir/` entry, never the files inside it.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  appendFileSync(join(repo, '.git', 'info', 'exclude'), 'deps/\n');
+  const nestedRepo = (base, dir, file) => {
+    mkdirSync(at(base, 'deps', dir), { recursive: true });
+    eq(git(at(base, 'deps', dir), ['init', '-q']).code, 0, `${base} holds an ignored repository at deps/${dir}`);
+    writeFileSync(at(base, 'deps', dir, file), 'my uncommitted edit\n');
+  };
+  const vendor = (base, dir, file) => {
+    mkdirSync(at(base, 'deps', dir), { recursive: true });
+    writeFileSync(at(base, 'deps', dir, file), 'vendored\n');
+    eq(git(base, ['add', '-f', `deps/${dir}/${file}`]).code, 0, `${base} force-adds the ignored deps/${dir}/${file}`);
+    eq(git(base, ['commit', '-qm', `vendor ${dir}`]).code, 0, '...and commits it');
+    return sha(base, 'HEAD');
+  };
+
+  const feat = opened(repo, 'feat');
+  const featTip = commitFile(feat, 'f.txt', 'feature\n');
+  nestedRepo(feat, 'lib', 'x.js');
+  const mainAt = vendor(repo, 'lib', 'x.js');
+  const rebase = closeIn(repo, 'feat', 'main', gate);
+  eq(rebase.code, 40, "a rebase whose checkout of main would overwrite a file inside the worktree's ignored repository deps/lib exits 40");
+  ok(/would delete ignored files .*\(deps\/lib\/\)/.test(rebase.stderr), `...naming it: ${firstLine(rebase.stderr)}`);
+  eq(readOr(at(feat, 'deps', 'lib', 'x.js')), 'my uncommitted edit\n', '...and the file inside it is intact');
+  unchanged(root, repo, feat, 'feat', mainAt, featTip);
+
+  const ship = opened(repo, 'ship');
+  const shipTip = vendor(ship, 'vend', 'z.js');
+  nestedRepo(repo, 'vend', 'z.js');
+  const ff = closeIn(repo, 'ship', 'main', gate);
+  eq(ff.code, 40, "a fast-forward that would overwrite a file inside the main worktree's ignored repository deps/vend exits 40");
+  ok(/fast-forward would delete ignored files there .*\(deps\/vend\/\)/.test(ff.stderr), `...naming it: ${firstLine(ff.stderr)}`);
+  eq(readOr(at(repo, 'deps', 'vend', 'z.js')), 'my uncommitted edit\n', '...and the file inside it is intact');
+  unchanged(root, repo, ship, 'ship', mainAt, shipTip);
+});
+await withFixture(({ root, repo }) => {
+  // A replay writes each path a branch commit adds, though a later commit deletes it and main never had it.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  appendFileSync(join(repo, '.git', 'info', 'exclude'), 'cache/\n');
+  const feat = opened(repo, 'feat');
+  commitFile(feat, 'cache', 'a file for now\n');
+  eq(git(feat, ['rm', '-q', 'cache']).code, 0, 'the branch removes the file cache');
+  eq(git(feat, ['commit', '-qm', 'drop cache']).code, 0, '...and commits that');
+  const featTip = sha(feat, 'HEAD');
+  mkdirSync(at(feat, 'cache'));
+  writeFileSync(at(feat, 'cache', 'x'), 'mine\n');
+  const mainAt = commitFile(repo, 'm.txt', 'main moved\n');
+  const replay = closeIn(repo, 'feat', 'main', gate);
+  eq(replay.code, 40, "a rebase whose replay of the commit that adds the file cache would delete the worktree's ignored cache/x exits 40");
+  ok(/would delete ignored files .*\(cache\/x\)/.test(replay.stderr), `...naming it: ${firstLine(replay.stderr)}`);
+  eq(readOr(at(feat, 'cache', 'x')), 'mine\n', '...and the ignored file is intact');
+  unchanged(root, repo, feat, 'feat', mainAt, featTip);
+});
+await withFixture(({ root, repo }) => {
+  // A replay writes each path a branch commit modifies, such as the file a modify/delete conflict leaves.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  commitFile(repo, 'p', 'tracked\n');
+  const feat = opened(repo, 'feat');
+  commitFile(feat, 'p', 'branch edit\n');
+  appendFileSync(join(repo, '.git', 'info', 'exclude'), 'p\n');
+  eq(git(feat, ['rm', '-q', '--cached', 'p']).code, 0, 'the branch stops tracking p');
+  eq(git(feat, ['commit', '-qm', 'untrack p']).code, 0, '...and commits that');
+  const featTip = sha(feat, 'HEAD');
+  writeFileSync(at(feat, 'p'), 'mine\n');
+  eq(git(repo, ['rm', '-q', 'p']).code, 0, 'main removes p');
+  eq(git(repo, ['commit', '-qm', 'drop p']).code, 0, '...and commits that');
+  const mainAt = sha(repo, 'refs/heads/main');
+  const replay = closeIn(repo, 'feat', 'main', gate);
+  eq(replay.code, 40, "a rebase whose replay of the commit that modifies p would delete the worktree's ignored p exits 40");
+  ok(/would delete ignored files .*\(p\)/.test(replay.stderr), `...naming it: ${firstLine(replay.stderr)}`);
+  eq(readOr(at(feat, 'p')), 'mine\n', '...and the ignored file is intact');
+  unchanged(root, repo, feat, 'feat', mainAt, featTip);
+});
+await withFixture(({ root, repo }) => {
+  // Directory rename detection would move the branch's d/new.txt onto the ignored e/new.txt, a path no listing names.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  commitFile(repo, 'd/a.txt', 'a\n');
+  commitFile(repo, 'd/b.txt', 'b\n');
+  eq(git(repo, ['config', 'merge.directoryRenames', 'true']).code, 0, 'the repo turns on silent directory rename detection');
+  appendFileSync(join(repo, '.git', 'info', 'exclude'), 'e/new.txt\n');
+  const feat = opened(repo, 'feat');
+  commitFile(feat, 'd/new.txt', 'branch\n');
+  mkdirSync(at(feat, 'e'));
+  writeFileSync(at(feat, 'e', 'new.txt'), 'mine\n');
+  eq(git(repo, ['mv', 'd', 'e']).code, 0, 'main renames d to e');
+  eq(git(repo, ['commit', '-qm', 'rename d']).code, 0, '...and commits that');
+  const moved = closeIn(repo, 'feat', 'main', gate);
+  eq(moved.code, 0, `close rebases the branch past the rename and merges it (${firstLine(moved.stderr)})`);
+  eq(git(repo, ['cat-file', '-e', 'main:d/new.txt']).code, 0, "...with the branch's file at the path its commit gave it");
+  ok(git(repo, ['cat-file', '-e', 'main:e/new.txt']).code !== 0, '...and not moved into the renamed directory');
+  eq(readOr(trashedAt(root, feat, 'e', 'new.txt')), 'mine\n', "...and the worktree's ignored e/new.txt went to the trash intact");
+});
+await withFixture(({ root, repo }) => {
+  // A listing past the cap hides which names are in the way, so close refuses before the rebase or fast-forward.
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const closeStubbed = (name, env) => wtStubbed(GIT_OVERFLOW_STUB, ['close', '--repo', repo, '--name', name, '--into', 'main', '--gate', gate], env);
+  const feat = opened(repo, 'feat');
+  const featTip = commitFile(feat, 'f.txt', 'feature\n');
+  const mainAt = commitFile(repo, 'm.txt', 'main moved\n');
+  const rebase = closeStubbed('feat', { AIPG_GIT_OVERFLOW: 'ls-files', AIPG_GIT_OVERFLOW_ARG: '--ignored' });
+  eq(rebase.code, 40, `a rebase whose ignored-file listing passes the listing cap exits 40 (${firstLine(rebase.stderr)})`);
+  ok(/names of the ignored files in .*aipg-feat pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward/.test(rebase.stderr),
+    '...naming the listing and the operation');
+  unchanged(root, repo, feat, 'feat', mainAt, featTip);
+
+  const ship = opened(repo, 'ship');
+  const shipTip = commitFile(ship, 's.txt', 'ship\n');
+  const ff = closeStubbed('ship', { AIPG_GIT_OVERFLOW: 'ls-files' });
+  eq(ff.code, 40, `a fast-forward whose untracked-file listing in the main worktree passes the listing cap exits 40 (${firstLine(ff.stderr)})`);
+  ok(/names of the untracked files in .* pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward/.test(ff.stderr),
+    '...naming the listing and the operation');
+  unchanged(root, repo, ship, 'ship', mainAt, shipTip);
+});
+
+section('close removes a branch main already contains with no gate run, and a close stopped after its merge or removal finishes on the next run');
+await withFixture(({ root, repo }) => {
+  const ledger = join(root, 'gate-runs.txt');
+  const gate = ledgerGate(root, ledger);
+
+  const done = opened(repo, 'done');
+  commitFile(done, 'd.txt', 'done\n');
+  eq(git(repo, ['merge', '-q', '--ff-only', 'aipg/done']).code, 0, 'main takes the branch by hand');
+  const merged = closeIn(repo, 'done', 'main', gate);
+  eq(merged.code, 0, `close of a merged branch exits 0 (${firstLine(merged.stderr)})`);
+  ok(/main already contains aipg\/done.*no gate runs/.test(merged.stderr), '...saying nothing is merged');
+  eq(ledgerRuns(ledger).length, 0, '...the gate never ran');
+  ok(trashedName(root, done) !== '', '...the worktree is in the trash');
+  eq(sha(repo, 'refs/heads/aipg/done'), '', '...and aipg/done is deleted');
+
+  // A file where the trash keeps its files/ directory makes the trash refuse after the merge.
+  const half = opened(repo, 'half');
+  const halfTip = commitFile(half, 'h.txt', 'half\n');
+  const files = join(root, DATA_HOME, 'Trash', 'files');
+  const kept = `${files}.kept`;
+  mkdirSync(dirname(files), { recursive: true });
+  if (existsSync(files)) renameSync(files, kept);
+  writeFileSync(files, 'not a directory\n');
+  const halfBase = sha(repo, 'refs/heads/main');
+  const stopped = closeIn(repo, 'half', 'main', gate);
+  eq(stopped.code, 40, `a refused trash move after the merge exits 40 (${firstLine(stopped.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), halfTip, '...after main took the gated commit');
+  ok(stopped.stderr.includes(`fast-forwarded main from ${halfBase} to ${halfTip}`), '...which stderr reports before the refusal');
+  eq(sha(repo, 'refs/heads/aipg/half'), halfTip, '...with the branch kept');
+  ok(worktreePaths(repo).includes(norm(half)), '...and the worktree still registered');
+  rmSync(files, { force: true });
+  if (existsSync(kept)) renameSync(kept, files);
+  const finished = closeIn(repo, 'half', 'main', gate);
+  eq(finished.code, 0, `the next close exits 0 (${firstLine(finished.stderr)})`);
+  eq(ledgerRuns(ledger).length, 1, '...running no second gate');
+  ok(trashedName(root, half) !== '', '...moving the worktree to the trash');
+  eq(sha(repo, 'refs/heads/aipg/half'), '', '...and deleting aipg/half');
+
+  const last = opened(repo, 'last');
+  commitFile(last, 'l.txt', 'last\n');
+  eq(git(repo, ['merge', '-q', '--ff-only', 'aipg/last']).code, 0, 'main takes another branch by hand');
+  rmSync(last, { recursive: true, force: true });
+  eq(git(repo, ['worktree', 'prune']).code, 0, '...whose worktree is gone and pruned');
+  const branchOnly = closeIn(repo, 'last', 'main', gate);
+  eq(branchOnly.code, 0, `close of a branch with no worktree that main contains exits 0 (${firstLine(branchOnly.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/last'), '', '...and deletes the branch');
+
+  const gone = opened(repo, 'gone');
+  commitFile(gone, 'g.txt', 'gone\n');
+  eq(git(repo, ['merge', '-q', '--ff-only', 'aipg/gone']).code, 0, 'main takes a third branch by hand');
+  rmSync(gone, { recursive: true, force: true });
+  const goneFolder = closeIn(repo, 'gone', 'main', gate);
+  eq(goneFolder.code, 0, `close of a registered worktree whose folder is gone, on a branch main contains, exits 0 (${firstLine(goneFolder.stderr)})`);
+  ok(!worktreePaths(repo).includes(norm(gone)), '...pruning its registration');
+  eq(sha(repo, 'refs/heads/aipg/gone'), '', '...and deleting the branch');
+
+  const stray = opened(repo, 'stray');
+  const strayTip = commitFile(stray, 's.txt', 'stray\n');
+  rmSync(stray, { recursive: true, force: true });
+  const strayFolder = closeIn(repo, 'stray', 'main', gate);
+  eq(strayFolder.code, 40, 'close of a registered worktree whose folder is gone, with commits main lacks, exits 40');
+  ok(/is gone, so close cannot gate.*worktree prune.*worktree add/.test(strayFolder.stderr), `...naming the prune and the checkout: ${firstLine(strayFolder.stderr)}`);
+  ok(worktreePaths(repo).includes(norm(stray)), '...keeping its registration');
+  eq(sha(repo, 'refs/heads/aipg/stray'), strayTip, '...and the branch');
+
+  const lost = opened(repo, 'lost');
+  const lostTip = commitFile(lost, 'x.txt', 'lost\n');
+  rmSync(lost, { recursive: true, force: true });
+  eq(git(repo, ['worktree', 'prune']).code, 0, 'a branch with commits main lacks loses its worktree');
+  const unmerged = closeIn(repo, 'lost', 'main', gate);
+  eq(unmerged.code, 40, 'close of that branch exits 40');
+  ok(/holds commits main lacks.*worktree add/.test(unmerged.stderr), `...naming how to check it out: ${firstLine(unmerged.stderr)}`);
+  eq(sha(repo, 'refs/heads/aipg/lost'), lostTip, '...and keeps the branch');
+});
+
+section('close keeps a branch that moved past the gated commit before its delete, and names the move, not --into');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const moved = opened(repo, 'moved');
+  const tip = commitFile(moved, 'm.txt', 'moved\n');
+  // The fast-forward's post-merge hook commits on the branch after the gate, with the same tree, so the worktree stays clean.
+  const hook = hookIn(repo, 'post-merge', `#!/bin/sh
+next=$(git commit-tree -p refs/heads/aipg/moved -m late "refs/heads/aipg/moved^{tree}")
+git update-ref refs/heads/aipg/moved "$next"
+`);
+  const r = closeIn(repo, 'moved', 'main', gate);
+  rmSync(hook);
+  const late = sha(repo, 'refs/heads/aipg/moved');
+  eq(r.code, 40, `close exits 40 (${firstLine(r.stderr)})`);
+  ok(late !== tip && late !== '', '...after the hook moved aipg/moved past the gated commit');
+  ok(r.stderr.includes(`aipg/moved moved from ${tip} to ${late}, so the branch is kept`), '...naming the move');
+  ok(/worktree add <folder> aipg\/moved, then run close again, which gates it/.test(r.stderr), '...and the checkout that lets close gate it');
+  ok(!/no longer contains/.test(r.stderr), '...never blaming main');
+  eq(sha(repo, 'refs/heads/main'), tip, '...main is at the gated commit');
+  ok(trashedName(root, moved) !== '', '...and the worktree is in the trash');
+});
+
+section('close keeps the worktree and the branch when its fast-forward does not verify, and a second close finishes');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const feat = opened(repo, 'feat');
+  const mainAt = sha(repo, 'refs/heads/main');
+  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  // The fast-forward's post-merge hook moves main back, so main is off the gated commit when close verifies it.
+  const hook = hookIn(repo, 'post-merge', '#!/bin/sh\ngit reset -q --hard HEAD~1\n');
+  const r = closeIn(repo, 'feat', 'main', gate);
+  rmSync(hook);
+  eq(r.code, 40, `close exits 40 (${firstLine(r.stderr)})`);
+  ok(r.stderr.includes(`did not verify, since main is at ${mainAt}. Nothing was removed.`), '...naming where main is and that nothing was removed');
+  unchanged(root, repo, feat, 'feat', mainAt, tip);
+
+  const again = closeIn(repo, 'feat', 'main', gate);
+  eq(again.code, 0, `a second close exits 0 (${firstLine(again.stderr)})`);
+  eq(sha(repo, 'refs/heads/main'), tip, '...and main points at the gated commit');
+});
+
+section('close --discard trashes the worktree with its uncommitted work and an unfinished operation, keeps the branch, and still refuses a locked worktree');
+await withFixture(({ root, repo }) => {
+  const scrap = opened(repo, 'scrap');
+  const tip = commitFile(scrap, 's.txt', 'on the branch\n');
+  writeFileSync(at(scrap, 'wip.txt'), 'unsaved\n');
+  writeFileSync(at(scrap, 'a.txt'), 'edited\n');
+
+  eq(git(repo, ['worktree', 'lock', scrap]).code, 0, 'lock the worktree');
+  const locked = discardIn(repo, 'scrap');
+  eq(locked.code, 40, 'close --discard of a locked worktree exits 40');
+  ok(/locked/.test(locked.stderr), `...naming the lock: ${firstLine(locked.stderr)}`);
+  eq(readOr(at(scrap, 'wip.txt')), 'unsaved\n', '...and its work is still on disk');
+  eq(git(repo, ['worktree', 'unlock', scrap]).code, 0, 'unlock it');
+  eq(git(scrap, ['bisect', 'start']).code, 0, 'start a bisect in it');
+
+  const r = discardIn(repo, 'scrap');
+  eq(r.code, 0, `close --discard exits 0 (${firstLine(r.stderr)})`);
+  eq(readOr(trashedAt(root, scrap, 'wip.txt')), 'unsaved\n', 'the untracked file is in the trash');
+  eq(readOr(trashedAt(root, scrap, 'a.txt')), 'edited\n', '...and so is the modified one');
+  ok(/discarded the uncommitted work it held: .*a\.txt/.test(r.stderr) && /discarded the uncommitted work it held: .*wip\.txt/.test(r.stderr), 'stderr lists that work');
+  ok(/discarded a bisect in progress, whose state \(BISECT_LOG\) the prune deletes\n/.test(r.stderr), '...and the bisect whose state the prune deletes, which left HEAD on the branch');
+  ok(r.stderr.includes(`kept branch aipg/scrap at ${tip}`) && r.stderr.includes('branch -D aipg/scrap'), '...and names the kept tip and the command that deletes it');
+  eq(sha(repo, 'refs/heads/aipg/scrap'), tip, 'the branch is kept');
+  ok(!worktreePaths(repo).includes(norm(scrap)), 'the worktree is no longer registered');
+  eq(norm(r.stdout.trim()), norm(scrap), 'stdout carries the removed worktree path');
+
+  const none = discardIn(repo, 'scrap');
+  eq(none.code, 0, `close --discard with no worktree left exits 0 (${firstLine(none.stderr)})`);
+  ok(/nothing to discard/.test(none.stderr) && none.stderr.includes(`kept branch aipg/scrap at ${tip}`), '...saying so and naming the kept branch');
+  eq(none.stdout, '', '...with nothing on stdout');
+
+  // The exec fails after the replay, so the rebase stops with HEAD detached, and a commit made there is on no branch.
+  const stop = opened(repo, 'stop');
+  const stopTip = commitFile(stop, 'x.txt', 'x\n');
+  ok(git(stop, ['rebase', '-x', 'exit 1', 'HEAD~1']).code !== 0, 'stop a rebase of aipg/stop in its worktree');
+  const during = commitFile(stop, 'during.txt', 'made during the rebase\n');
+  const mid = discardIn(repo, 'stop');
+  eq(mid.code, 0, `close --discard of a worktree mid-rebase exits 0 (${firstLine(mid.stderr)})`);
+  ok(mid.stderr.includes(`discarded a rebase in progress, whose state (rebase-merge) the prune deletes. Its detached HEAD was ${during}`), '...naming the detached HEAD');
+  ok(new RegExp(`branch <name> ${during} recovers a commit made during it`).test(mid.stderr), '...and the command that recovers it');
+  eq(git(repo, ['cat-file', '-t', during]).stdout.trim(), 'commit', '...which the commit is still there for');
+  eq(sha(repo, 'refs/heads/aipg/stop'), stopTip, '...and the branch is kept at its tip');
+});
+
+section('where the file system folds case, a branch name given in another case is refused before anything changes');
+if (!foldsCase(process.platform)) {
+  ok(true, 'skipped, since this file system tells branch names apart by case');
+} else {
+  await withFixture(({ root, repo }) => {
+    const gate = gateCmd(root, 'green', GATE_GREEN);
+    const feat = opened(repo, 'feat');
+    const tip = commitFile(feat, 'f.txt', 'feature\n');
+    const mainAt = sha(repo, 'refs/heads/main');
+    // A loose ref is a file, so git finds refs/heads/Main as the file of branch main.
+    const refused = [
+      [closeIn(repo, 'feat', 'Main', gate), /--into "Main" names branch main in another case, so pass --into main/, 'close --into Main'],
+      [closeIn(repo, 'feat', 'AIPG/feat', gate), /--into "AIPG\/feat" names branch aipg\/feat in another case/, 'close --into AIPG/feat'],
+      [closeIn(repo, 'FEAT', 'main', gate), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT'],
+      [discardIn(repo, 'FEAT'), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT --discard'],
+      [openIn(repo, 'FEAT'), /branch aipg\/feat already exists .*does not tell apart from aipg\/FEAT.*branch -D aipg\/feat once/, 'open --name FEAT'],
+      [openIn(repo, 'other', ['--base', 'MAIN']), /--base "MAIN" names branch main in another case, so pass --base main/, 'open --base MAIN'],
+    ];
+    for (const [r, expected, what] of refused) {
+      eq(r.code, 40, `${what} exits 40`);
+      ok(expected.test(r.stderr), `...saying why: ${firstLine(r.stderr)}`);
+    }
+    unchanged(root, repo, feat, 'feat', mainAt, tip);
+    eq(git(repo, ['for-each-ref', '--format=%(refname)', 'refs/heads/']).stdout.trim().split('\n').join(','), 'refs/heads/aipg/feat,refs/heads/main', '...no branch was added or renamed');
+    eq(worktreePaths(repo).length, 2, '...and no worktree was added');
+
+    // git accepts the checkout and writes HEAD as refs/heads/Main, which reads the loose ref file of main.
+    eq(git(repo, ['checkout', '-q', 'Main']).code, 0, 'check main out in the main worktree as Main');
+    const variant = closeIn(repo, 'feat', 'main', gate);
+    eq(variant.code, 40, `close --into main while a worktree has it checked out as Main exits 40 (${firstLine(variant.stderr)})`);
+    ok(/has it checked out as Main, which names the same branch\..*switch main/.test(variant.stderr), '...naming the worktree and the switch');
+    unchanged(root, repo, feat, 'feat', mainAt, tip);
+    eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...and the main worktree shows no change');
+    eq(git(repo, ['checkout', '-q', 'main']).code, 0, 'check main out as main');
+
+    eq(closeIn(repo, 'feat', 'main', gate).code, 0, "close in git's own spelling exits 0");
+  });
+}
 
 section('land: two chains with disjoint edits, in order — the first skips the sync, the second merges it');
 await withFixture(({ root, repo }) => {
@@ -1378,6 +2513,15 @@ await withFixture(({ repo }) => {
     [['land', '--repo', repo, '--batch', 'b1', '--key', 'a', '--gate', 'x', '--scope-file', 'scope.txt'], /ABSOLUTE/, 'a relative --scope-file'],
     [['clean', '--repo', repo], /exactly one of/, 'clean with neither --key nor --batch'],
     [['clean', '--repo', repo, '--key', 'a', '--batch', 'b'], /exactly one of/, 'clean with both'],
+    [['open', '--repo', repo], /--name is required/, 'open without --name'],
+    [['open', '--repo', repo, '--name', 'int-x'], /starts with "int-"/, 'open with an int- name'],
+    [['open', '--repo', repo, '--name', 'INT-x'], /starts with "INT-", and aipg\/int-<x> in any case/, 'open with an INT- name'],
+    [['close', '--repo', repo, '--name', 'x'], /exactly one of --into/, 'close with neither --into nor --discard'],
+    [['close', '--repo', repo, '--name', 'x', '--into', 'main', '--gate', 'g', '--discard'], /exactly one of --into/, 'close with both --into and --discard'],
+    [['close', '--repo', repo, '--name', 'x', '--discard', '--gate', 'g'], /takes no --gate/, 'close --discard with --gate'],
+    [['close', '--repo', repo, '--name', 'x', '--into', 'main'], /--gate is required/, 'close --into without --gate'],
+    [['close', '--repo', repo, '--name', 'x', '--discard', 'yes'], /unexpected argument/, 'a value after the --discard switch'],
+    [['close', '--repo', repo, '--name', 'int-x', '--discard'], /starts with "int-"/, 'close with an int- name'],
     [['nope', '--repo', repo], /unknown verb/, 'an unknown verb'],
     [[], /no verb given/, 'no arguments at all'],
   ];

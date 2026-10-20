@@ -1,4 +1,4 @@
-# Worktree batches — running chains in parallel
+# Worktree batches and single changes
 
 One checkout cannot host two engine runs at once: they share a working tree, so their unstaged
 diffs — the exact thing every blind reviewer is handed — bleed into each other. A **batch** gives
@@ -74,14 +74,78 @@ whose folder is gone is pruned. When it is also locked, run `git worktree unlock
 unlanded work, run the trash and prune commands that the refusal of `clean` prints. They also trash
 any submodule git directories.
 
+## One change in its own worktree
+
+`open` and `close` build one change in its own worktree, with no batch.
+
+```
+1  open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
+2  run the engine, target.repo = the path open printed, and commit the accepted work there
+3  close --repo <abs> --name <name> --into <branch> --gate "<cmd>"
+4  run the full suite in the main checkout (see "untracked files" below)
+```
+
+`open` cuts `aipg/<name>` from the `--base` branch and checks it out in a worktree beside the repo.
+With `--base` omitted, it cuts from the current branch. `--dir` places the worktree elsewhere, and
+`--provision` runs as it does for `prep`. Since the hook and the land lock guard the chains of a batch,
+`open` installs no hook and `close` takes no lock. A branch that already exists is refused. So is a
+name that starts with `int-` in any case, since `aipg/int-<x>` is the integration branch of batch
+`<x>`. When git creates the worktree and then exits nonzero, as it does on a failed post-checkout
+hook, `open` exits 40 and keeps the worktree. Its stderr relays git's output and names the commands
+that remove the worktree. `prep` does the same. `init` names a rerun of `init`, which re-uses the
+worktree.
+
+`close --into` runs these steps in order:
+
+1. When the `--into` branch has a commit `aipg/<name>` lacks, it rebases `aipg/<name>` onto it. A conflict
+   aborts the rebase and exits 20 with `aipg/<name>` back at its old tip. A rebase that stops with no
+   conflicted file, such as on a commit that fails to sign, is aborted the same way and exits 40. The
+   rebase turns off directory rename detection. So a file that `aipg/<name>` adds to a directory the
+   `--into` branch renamed stays at the path the branch gave it.
+2. It runs the gate in the worktree on the exact commit the `--into` branch will point at. A red gate
+   exits 30.
+3. It moves the `--into` branch to that commit by fast-forward only. When the `--into` branch moved
+   during the gate, it exits 20.
+4. It verifies the move, then removes the worktree as `clean` does and deletes `aipg/<name>`.
+
+A refusal before the rebase changes nothing. Each later stop keeps the steps already done, such as a
+rebased `aipg/<name>`, a moved `--into` branch or a worktree in the trash. Running `close` again
+finishes the steps left. `close` exits 40 in cases such as these:
+
+- the `--into` branch is the integration or chain branch of a batch, which only `land` moves, under
+  its lock,
+- the `--into` branch is a symbolic ref, or is checked out in more than one worktree, since a
+  fast-forward updates the files of only the worktree it runs in,
+- the worktree that has the `--into` branch checked out has lost its folder, or its folder holds
+  another repository,
+- the worktree fails a check of `clean`, such as the one for unlanded work,
+- the worktree `open` made is off `aipg/<name>`, such as on a detached HEAD,
+- the `--into` branch is checked out in a worktree that has staged or modified tracked files, an
+  untracked file in the way of the fast-forward, or an unfinished operation, such as a rebase of the
+  `--into` branch itself,
+- the rebase would drop a merge commit of `aipg/<name>` and any change made only in that merge,
+- the rebase or the fast-forward would overwrite an ignored file, which git deletes without a word,
+- the rebase left uncommitted changes in the worktree, such as files a hook wrote,
+- the gate moved `aipg/<name>`, switched the worktree off it, or left changes in the worktree.
+
+`close --discard` moves the worktree to the trash with its uncommitted work and any unfinished
+operation, and keeps `aipg/<name>`. Its stderr lists that work and operation, the branch tip, and the
+command that deletes the branch. For a rebase or bisect, it also names the detached HEAD, which
+reaches any commit made during the operation. Every other refusal of `clean` still applies, and so
+does the refusal of a worktree off `aipg/<name>`.
+
+On a file system that folds case, `open` and `close` refuse a `--name`, `--base` or `--into` that
+matches a branch only in another case. `close` also refuses an `--into` branch that a worktree has
+checked out under a name in another case.
+
 ## Exit codes — the contract the orchestrator branches on
 
 | Code | Meaning | Orchestrator's move |
 |---|---|---|
 | 0 | success | continue |
 | 10 | nothing to land (no accepted work, branch already contained) | move on — not an error |
-| 20 | sync merge conflicted, aborted; branch keeps its work, integration untouched | human or fix run resolves on the branch |
-| 30 | gate red on the SYNCED state; sync merge kept on the branch, integration untouched | fix run against the branch |
+| 20 | sync merge conflicted, aborted; branch keeps its work, integration untouched. For `close`, the rebase conflicted and was aborted, or the `--into` branch moved | human or fix run resolves on the branch. After a moved `--into` branch, run `close` again |
+| 30 | gate red on the SYNCED state; sync merge kept on the branch, integration untouched. For `close`, the gate was red on the commit the `--into` branch would point at | fix run against the branch |
 | 40 | unsafe / precondition, one-line reason names what to do | do that, re-run the verb |
 | 75 | lock held by another land, or lost mid-gate before merging | the ONLY code to retry |
 | 1 | unexpected (bad argv, bad --repo, git missing) | read stderr |
@@ -125,11 +189,13 @@ A fresh worktree carries only TRACKED files — nothing gitignored or untracked 
 that scans the tree (a cache dir, a downloaded artifact, a stray fixture) can therefore pass in every
 chain worktree and still fail in the main checkout after the merge (measured: batch h2's control-byte
 scan vs `tools/.cache`). Always run the full suite in the main checkout after merging the integration
-branch — that run is part of the batch, not optional.
+branch or after `close`. That run is part of the merge, not optional.
 
 ## What commits, and who
 
-`land` is the only verb that commits: the index-only accept commit, the sync merge, the landing
-merge — all on `aipg/*` branches, all deterministic. Nothing here touches your branches; the merge
-of `aipg/int-<batch>` into anything of yours is stage 7, done by you
-(WORKFLOW-PRINCIPLES.md #9).
+`land` and `close` are the only verbs that write commits, all on `aipg/*` branches and all
+deterministic. `land` writes the index-only accept commit, the sync merge and the landing merge.
+Nothing else in a batch touches your branches, and the merge of `aipg/int-<batch>` into anything of
+yours is stage 7, done by you (WORKFLOW-PRINCIPLES.md #9). The rebase of `close` rewrites the
+`aipg/<name>` commits and adds no change of its own. Since the `--into` branch moves only by
+fast-forward, every change that reaches it is one you committed.

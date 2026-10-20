@@ -171,9 +171,11 @@ Only the final acceptance gate stages (`git add`), and only on pass. Nothing is 
 the user commits. Staging at the end is the regression boundary (staged is the accepted baseline,
 unstaged is the work under review), and it lets features be built back to back without overlap.
 
-A deterministic script the operator invokes may commit on `aipg/*` batch branches, since no agent
-decides those commits. These are the accept, sync, and landing commits of `tools/wt.mjs land`. The user
-still makes every commit that reaches their own branches.
+A deterministic script the operator invokes may write commits on the `aipg/*` branches it owns, since
+no agent decides those commits. These are the accept, sync, and landing commits of `tools/wt.mjs land`
+and the rebased commits of `tools/wt.mjs close`. The rebase of `close` adds no change of its own, and
+`close` moves the user's branch only by fast-forward. So every change that reaches the user's own
+branches is one the user committed.
 
 ### 10. Statelessness is a feature
 Each agent starts cold and re-reads what it needs. For one bounded feature the re-read is cheap, and it

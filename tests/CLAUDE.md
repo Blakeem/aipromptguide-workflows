@@ -378,17 +378,19 @@ but an edit or branch switch in this working tree reaches a tool call already in
 change in its own worktree off `main`, and point develop's `target.repo` at it:
 
 ```
-git worktree add -b aipg/<name> ../aipg-<name> main   # build, gate and commit there
-git -C ../aipg-<name> rebase main
-git merge --ff-only aipg/<name>                         # here, then node tests/run.mjs here
-git worktree remove ../aipg-<name>
-git branch -d aipg/<name>
+node tools/wt.mjs open --repo <checkout> --name <name> --base main   # build, gate and commit in the path it prints
+node tools/wt.mjs close --repo <checkout> --name <name> --into main --gate "node tests/run.mjs"
+node tests/run.mjs                                                   # here, after the merge
 ```
 
-The last two lines are part of the merge. Left for later, finished worktrees pile up beside the repo.
-Neither can lose work: `worktree remove` refuses a tree with changes or untracked files, and `branch -d`
-refuses a branch `main` does not contain. Run the suite here after the merge, since a worktree holds
-only tracked files (docs/worktree-batches.md, "untracked files"). A detached snapshot worktree that a
-read-only run audits is removed when that run ends, since its findings name the commit. Parallel chains
-use `tools/wt.mjs`, whose `clean` verb moves the folder to the trash, runs `git worktree prune` and keeps
-the branch.
+`open` cuts `aipg/<name>` from `main`, whatever branch the checkout is on. Run `close` once the change is
+committed, since finished worktrees left for later pile up beside the repo. `close` rebases the branch
+onto `main` when `main` has a commit the branch lacks, gates the exact commit `main` will point at, and
+fast-forwards `main` to it. Only then does it move the worktree folder to the trash and delete the
+branch. It refuses a worktree with modified, staged or untracked files, an unfinished operation or
+submodule git directories, a rebase that would drop a merge commit of the branch, and a rebase or
+fast-forward that would delete an ignored file. Run the suite here after the merge, since a worktree
+holds only tracked files (docs/worktree-batches.md, "untracked files"). A detached snapshot worktree
+that a read-only run audits is removed when that run ends, since its findings name the commit.
+Parallel chains use the batch verbs of `tools/wt.mjs`, whose `clean` verb moves the folder to the
+trash, runs `git worktree prune` and keeps the branch.
