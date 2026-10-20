@@ -40,6 +40,7 @@ const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 const syncOf = (out) => out.statusSync.map((e) => `${e.id}=${e.value}`).join(',');
+const flat = (s) => s.replace(/\s+/g, ' ');
 
 // ---------------------------------------------------------------------------------------------
 // Round preconditions, in the order the engine checks them
@@ -744,6 +745,28 @@ section('park carries new files in its one patch and never overwrites an earlier
     'how-to-resume names continueParked beside the runOnly redo, not a hand finish');
 }
 
+section('park keeps a copy of every review file of its block, since a relaunch rewrites the round-numbered files');
+// A continued launch's acceptance read a parked review file that its own round of the same number had rewritten.
+{
+  const { prompt } = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN), acceptance: ACC_FAIL, park: PARK_OK },
+    { ...ONE_BLOCK, maxRounds: 2 });
+  const parkText = flat(prompt('park:block-a'));
+  const copy = parkText.indexOf('3. RECORD. First copy each review file below that exists into E:/r/runs/t/parked-block-a-reviews/<k>/, with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete an earlier folder.');
+  const files = parkText.indexOf('E:/r/runs/t/gate/quality-review-block-a-r1.md E:/r/runs/t/acceptance-review-block-a-r2.md Then append ONE entry to E:/r/runs/t/NEEDS-USER.md');
+  ok(copy > -1 && files > copy, 'park copies every review file of the block, in round order, into a new numbered folder before it writes the entry');
+  ok(parkText.includes('- the diagnosis: the full path of the copy this step made of `E:/r/runs/t/acceptance-review-block-a-r2.md`, since a relaunch of this block rewrites that file'),
+    'the entry names the copy of the diagnosis, which no relaunch rewrites');
+
+  const regressed = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, staged: false, regression: true }, park: PARK_OK }, ONE_BLOCK);
+  ok(flat(regressed.prompt('park:block-a')).includes('or 1 when none exists. Never overwrite or delete an earlier folder. E:/r/runs/t/acceptance-review-block-a-r1.md Then append'),
+    'a passed-regression park keeps the acceptance file it cites, which no developer was routed to');
+
+  const escalated = await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_OK }, ONE_BLOCK);
+  const bare = flat(escalated.prompt('park:block-a'));
+  ok(bare.includes('3. RECORD. Append ONE entry to E:/r/runs/t/NEEDS-USER.md') && !bare.includes('-reviews/') && !bare.includes('First copy'),
+    'a park with no review file copies nothing');
+}
+
 section('continueParked is validated before any agent runs');
 // A string or a stray id would otherwise redo the block from scratch with no word in any log line.
 {
@@ -794,6 +817,14 @@ section('a continued block restores its patch in round 1, after the clean-baseli
   const untouched = [byLabel('develop block-a r2')[0]?.prompt, byLabel('develop block-b r1')[0]?.prompt];
   ok(untouched.every((t) => t && !/parked-block-a\.patch|CONTINUE from/.test(t)),
     'round 2 of the continued block and the block not named get no restore text');
+  // A continued launch starts its earlier-review list empty and rewrites the round-numbered review files, so
+  // only park's kept copies hold the parked findings.
+  const acceptA = flat(byLabel('acceptance block-a')[0]?.prompt ?? '');
+  const acceptB = flat(byLabel('acceptance block-b')[0]?.prompt ?? '');
+  ok(acceptA.includes('and that no other block of the plan owns it. This block continues its parked patch, so for this item every file under E:/r/runs/t/parked-block-a-reviews/, when that folder exists, also counts as an earlier review of this block.'),
+    "the continued block's removed-defect item, after its conditions, counts every review park kept as an earlier review");
+  ok(acceptB.includes('and that no other block of the plan owns it.') && !acceptB.includes('continues its parked patch') && !acceptB.includes('-reviews/'),
+    'the block not named gets no parked-review sentence');
 }
 {
   const { prompt } = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS },
@@ -801,6 +832,8 @@ section('a continued block restores its patch in round 1, after the clean-baseli
   const r1 = prompt('develop fix-a r1');
   ok(!/step 0 below/.test(r1), 'a continued fix block names no procedure step 0, since its procedure starts at step 1');
   ok(/Report every entry the restored work closes as FIXED, never STALE\./.test(r1), 'a continued fix block reports the entries the restored work closes as FIXED');
+  ok(flat(prompt('acceptance fix-a')).includes('This block continues its parked patch, so for this item every file under E:/r/runs/t/parked-fix-a-reviews/, when that folder exists, also counts as an earlier review of this block.'),
+    "a continued fix block's acceptance counts every review park kept as an earlier review");
 }
 
 section('a continued block whose park saves nothing names the patch it was continued from');
@@ -1458,7 +1491,6 @@ section('a developer that dies in round 2 is reported as a death, not a red gate
 const bus = await run(GREEN_RUN);
 const fixBus = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
 const FRAMES = [['feature', 'block-a', bus], ['section', 'block-b', bus], ['fix', 'fix-a', fixBus]];
-const flat = (s) => s.replace(/\s+/g, ' ');
 
 section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 6b keeps the drop');
 // The plan-defect wedge: a finding that indicts the plan's own prescription routed to a DROP, the
@@ -1501,7 +1533,7 @@ section('the developer fixes clear wins at every tier, weighs the rest and accou
   const laterRound = { 'block-a': flaggedBus, 'block-b': flaggedBus, 'fix-a': flaggedFix };
   for (const [mode, id, r] of FRAMES) {
     const dev = flat(r.prompt(`develop ${id}`));
-    ok(dev.includes('2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX → DROP + LOG. Never fix it (regression risk).'),
+    ok(dev.includes('2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).'),
       `${mode}: rule 2 logs a pre-existing finding and leaves a sibling path to the sibling rule`);
     ok(dev.includes('4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan → FIX.'),
       `${mode}: rule 4 fixes a clear win at any tier`);
@@ -1513,8 +1545,8 @@ section('the developer fixes clear wins at every tier, weighs the rest and accou
       `${mode}: rule 8 weighs benefit against cost and logs a drop`);
     ok(dev.includes('Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7). None is dropped silently.'),
       `${mode}: every finding is accounted for`);
-    ok(dev.includes("When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to."),
-      `${mode}: a fix covers every sibling path with the same mechanism, and an outside one is logged by place or class`);
+    ok(dev.includes("When you FIX a finding or make a fix this block requires, grep for every sibling path with the same mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to. Code this block's text excludes, or that another block of the plan owns, is outside the scope."),
+      `${mode}: a fix, found or required, covers every sibling path with the same mechanism, and an outside one, excluded or other-block code included, is logged by place or class`);
     ok(dev !== '' && !dev.includes('medium/low polish') && !dev.includes('DROP silently'), `${mode}: no rule drops a finding silently`);
     const later = flat(laterRound[id].prompt(`develop ${id} r2`));
     ok(later.includes(`A prior review flagged issues — READ ${STATE}/gate/quality-review-${id}-r1.md and address every finding or gap in it, at every tier, under the decision matrix: fix it or log it. Your earlier work is already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`),
@@ -1728,9 +1760,9 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     const a = flat(r.prompt(`acceptance ${id}`));
     ok(a.includes(mode === 'fix' ? 'EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.' : 'EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
     ok(a.includes('a third-party one included'), `${mode}: a third-party caller's behavior is in the regression bar`);
-    ok(a.includes('suite rule allows to be red is not a regression'), `${mode}: a suite-allowed red test is not a regression`);
+    ok(a.includes("Not a regression: - a test the gate step's suite rule allows to be red."), `${mode}: a suite-allowed red test is not a regression`);
     ok(a.includes("this cycle's diff made false is a regression"), `${mode}: a comment or doc sentence the cycle made false is a regression`);
-    ok(a.includes('A line number that another file cites is not'), `${mode}: a cited line number the edit moved is not`);
+    ok(a.includes('- a line number that another file cites, since every edit moves lines.'), `${mode}: a cited line number the edit moved is not`);
     ok(a.includes('prescribes the construction that causes it'), `${mode}: a prescribed regression still counts`);
     ok(a.includes('unreached by any current caller'), `${mode}: an unreached regression still counts`);
     ok(a.includes("Those calls are the developer's, never yours."), `${mode}: the call on a counted regression is the developer's`);
@@ -1748,6 +1780,50 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     ok(a.includes('a non-empty diff with no FIXED claim'), 'fix: a non-empty diff with no FIXED claim is a gap');
     ok(a.includes('a gate not satisfied, an earlier finding that is neither closed nor declined, or a regression'), 'fix: an unsatisfied gate, unavailable tool included, is a gap');
   }
+}
+
+section('acceptance lists what is not a regression from one rule, in every mode and under both policies, and the developer\'s self-check and sibling bullet name the removed-defect exception and its scope');
+// The developer's sibling rule removed a defect on a sibling path of a required fix, and acceptance counted that change as a regression.
+{
+  const proBus = await run(GREEN_RUN, { ...baseArgs, changePolicy: 'proactive' });
+  const proFixBus = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, { ...FIX_ONE, changePolicy: 'proactive' });
+  const framesByPolicy = { strict: FRAMES, proactive: [['feature', 'block-a', proBus], ['section', 'block-b', proBus], ['fix', 'fix-a', proFixBus]] };
+  const required = { feature: 'a criterion of this block', section: 'a criterion of this block', fix: 'an ACTIONABLE entry' };
+  const removedDefect = (req) => `- a removed defect: a change that closes a finding an earlier review of this block named, or that closes the same defect on a sibling path of a change ${req} requires or of such a finding. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect and is that same defect, that the change alters no other behavior, that this block's text does not exclude that code, and that no other block of the plan owns it.`;
+  const passage = (r, id) => {
+    const a = flat(r.prompt(`acceptance ${id}`));
+    const at = a.indexOf('A regression is any behavior');
+    const end = at < 0 ? -1 : a.indexOf('OVERRIDE rule above governs it.', at);
+    return end < 0 ? '' : a.slice(at, end);
+  };
+  for (const [policy, frames] of Object.entries(framesByPolicy)) {
+    for (const [mode, id, r] of frames) {
+      const a = flat(r.prompt(`acceptance ${id}`));
+      const at = (s) => (a.includes(s) ? a.indexOf(s) : NaN);
+      const item = removedDefect(required[mode]);
+      const otherWording = mode === 'fix' ? required.feature : required.fix;
+      ok(a.includes(`without ${required[mode]} requiring it. Not a regression: - a test`) && !a.includes(`without ${otherWording} requiring it`),
+        `${policy} ${mode}: the definition keeps this frame's requirement wording, then opens the "Not a regression" list`);
+      ok(a.includes(item), `${policy} ${mode}: the list holds the removed-defect item with its four conditions`);
+      ok(at('Not a regression:') < at(item) && at(item) < at('Every other such break or change is a regression.')
+        && at('Every other such break or change is a regression.') < at('A comment or doc sentence that was true in the staged baseline'),
+        `${policy} ${mode}: the definition, then the list, then the rule that everything else counts`);
+      ok((policy === 'proactive') === a.includes(`- a behavior change that a "PROACTIVE ${id}:" line in`),
+        `${policy} ${mode}: the PROACTIVE item is ${policy === 'proactive' ? 'listed' : 'absent'}`);
+      const dev = flat(r.prompt(`develop ${id}`));
+      ok(dev.includes("of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns"),
+        `${policy} ${mode}: the developer's self-check bounds the removed-defect exception by acceptance's two scope conditions`);
+      ok(dev.includes('• When you FIX a finding or make a fix this block requires, grep for every sibling path')
+        && dev.includes("Code this block's text excludes, or that another block of the plan owns, is outside the scope."),
+        `${policy} ${mode}: the sibling bullet covers a fix the block requires and leaves excluded and other-block code outside the scope`);
+    }
+  }
+  const feature = passage(bus, 'block-a');
+  const fixAsFeature = passage(fixBus, 'fix-a').replaceAll(required.fix, required.feature).replaceAll("an entry's **Fix:**", "this block's own text");
+  ok(feature !== '' && passage(bus, 'block-b') === feature && fixAsFeature === feature,
+    'strict: every frame renders one passage, apart from the fix frame\'s ACTIONABLE-entry and **Fix:** wording');
+  ok(passage(proBus, 'block-a') !== '' && passage(proBus, 'block-b').replace('"PROACTIVE block-b:"', '"PROACTIVE block-a:"') === passage(proBus, 'block-a'),
+    'proactive: the feature and section frames render one passage, apart from the block id');
 }
 
 section('a recorded amendment is logged, summed into the ledger and named in nextStep; zero is silent');
@@ -2566,7 +2642,7 @@ section('changePolicy defaults to strict, proactive widens each developer frame 
     section: 'Build ONLY this block minimally and surgically; match conventions; NO scope creep beyond it.',
     fix: 'Fix each one exactly as instructed, minimally and surgically; NO opportunistic refactors, NO scope creep beyond what each fix requires.',
   };
-  const strictRule2 = '2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX → DROP + LOG.';
+  const strictRule2 = '2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a finding you FIX or of a fix this block requires → DROP + LOG.';
   const strictClose = 'leave the lines you TOUCH a little better, and touch nothing else.';
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Also fix clear defects and make clear-win refactors in this block\'s reach, which is the code the REACH step in your SELF-CHECK below finds from the changes this block itself requires, not from your proactive changes. Leave a change that another block of the plan owns to that block.';
   const proScope = {
@@ -2574,16 +2650,16 @@ section('changePolicy defaults to strict, proactive widens each developer frame 
     section: `Build this block ${best} Match conventions; NO scope creep beyond this block and its reach.`,
     fix: 'Fix each one exactly as instructed, minimally and surgically. Inside the code each fix touches, also fix clear defects and make clear-win refactors, never on behalf of an entry that is not ACTIONABLE. NO opportunistic refactors outside that code, NO scope creep beyond what each fix requires and the code it touches.',
   };
-  const proRule2 = '2. Pre-existing in code outside this block\'s reach, as the top of this prompt defines it, and not a sibling path of a finding you FIX → DROP + LOG.';
+  const proRule2 = '2. Pre-existing in code outside this block\'s reach, as the top of this prompt defines it, and not a sibling path of a finding you FIX or of a fix this block requires → DROP + LOG.';
   const proClose = 'fix the clear defects and make the clear-win refactors in this block\'s reach, and touch nothing outside that reach.';
   const decisionsRule = (id) => `PROACTIVE (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each fix or refactor you made beyond this block's own work and no earlier round logged, naming its file:line, what changed and why: \`PROACTIVE ${id}: <file:line> — <what changed> — <why>\``;
   const planReach = 'this block\'s reach (the code this block\'s own changes touch, plus its callers and consumers, sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it) and in no change another block of the plan owns';
   const proReach = { feature: planReach, section: planReach, fix: 'the code a fix of this block touches' };
-  const proRegression = (id, mode) => `A behavior change that a "PROACTIVE ${id}:" line in ${STATE}/DECISIONS.md names is not a regression when you confirm from the code that the change lies in ${proReach[mode]}, that the baseline behavior it removes was itself a defect, and that the change alters no other behavior. Such a line excuses nothing else, so a change outside that code, a refactor that changes behavior, or a fix that alters any other behavior, is a regression.`;
-  const strictStep4 = '4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted behavior was changed or broken.';
-  const proStep4 = '4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted behavior was changed or broken, apart from a removed defect that a PROACTIVE line names, judged by the regression rule above.';
-  const strictCheck = 'that no behavior of the staged baseline regressed, and';
-  const proCheck = 'that no behavior of the staged baseline regressed, apart from a removed defect, inside the scope this prompt sets, that a PROACTIVE line in DECISIONS.md names, and';
+  const proRegression = (id, mode) => `- a behavior change that a "PROACTIVE ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the change lies in ${proReach[mode]}, that the baseline behavior it removes was itself a defect, and that the change alters no other behavior. Such a line excuses no change outside that code, no refactor that changes behavior, and no fix that alters any other behavior. Every other such break or change is a regression.`;
+  const step4 = '4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
+  const removedDefectCheck = "that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns";
+  const strictCheck = `${removedDefectCheck}, and`;
+  const proCheck = `${removedDefectCheck}, or a removed defect inside that scope that a PROACTIVE line in DECISIONS.md names, and`;
   const decisionsNext = (what) => `Show the user each entry in ${STATE}/DECISIONS.md if it exists, since each is ${what}.`;
   const settledPro = `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix or refactor this run's proactive change policy let the developer make beyond a block's own work, a record. A PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.`;
 
@@ -2596,12 +2672,12 @@ section('changePolicy defaults to strict, proactive widens each developer frame 
     ok(dev.includes(policyLine('strict')), `strict ${mode}: the developer prompt names the policy and its override`);
     ok(!dev.includes('PROACTIVE (this run') && !dev.includes('best long-term result') && !dev.includes('clear-win refactors'),
       `strict ${mode}: no proactive text`);
-    ok(dev.includes(strictCheck), `strict ${mode}: the self-check's regression clause is unchanged`);
+    ok(dev.includes(strictCheck), `strict ${mode}: the self-check's regression clause names the removed-defect exception and no PROACTIVE one`);
     const acc = flat(r.prompt(`acceptance ${id}`));
     ok(acc.includes(`${STATE}/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.`),
       `strict ${mode}: acceptance's DECISIONS entry is unchanged`);
     ok(!acc.includes('PROACTIVE'), `strict ${mode}: acceptance excuses no change as proactive`);
-    ok(acc.includes(strictStep4), `strict ${mode}: acceptance's regression step is unchanged`);
+    ok(acc.includes(step4), `strict ${mode}: acceptance's regression step defers to the "Not a regression" list`);
   }
   ok(String(bus.out.nextStep ?? '').includes(decisionsNext('a default the developer took or a plan amendment')), 'strict: nextStep describes DECISIONS without proactive lines');
   ok(flat(bus.prompt('develop block-a')).includes(strictRule2), 'strict feature: decision-matrix rule 2 keeps today\'s text');
@@ -2611,13 +2687,13 @@ section('changePolicy defaults to strict, proactive widens each developer frame 
     ok(dev.includes(policyLine('proactive')), `proactive ${mode}: the developer prompt names the policy and its override`);
     ok(dev.includes(proScope[mode]) && !dev.includes(strictScope[mode]), `proactive ${mode}: the scope text is the proactive one`);
     ok(dev.includes(decisionsRule(id)), `proactive ${mode}: each fix or refactor beyond the block gets one DECISIONS line in a fixed shape`);
-    ok(dev.includes(proCheck) && !dev.includes(strictCheck), `proactive ${mode}: the self-check says acceptance excuses a logged defect fix`);
+    ok(dev.includes(proCheck) && !dev.includes(strictCheck), `proactive ${mode}: the self-check says acceptance excuses a removed defect and a logged defect fix`);
     ok(dev.includes(mode === 'fix' ? strictRule2 : proRule2) && dev.includes(mode === 'fix' ? strictClose : proClose),
       `proactive ${mode}: rule 2 and the closing sentence bound the work by ${mode === 'fix' ? 'the code the diff touches' : 'the block\'s reach'}`);
     const acc = flat(r.prompt(`acceptance ${id}`));
     ok(acc.includes(settledPro), `proactive ${mode}: acceptance's DECISIONS entry says it also holds the proactive lines`);
-    ok(acc.includes(proRegression(id, mode)), `proactive ${mode}: acceptance's regression rule excuses a logged defect fix inside the ${mode} bound and nothing else`);
-    ok(acc.includes(proStep4) && !acc.includes(strictStep4), `proactive ${mode}: acceptance's regression step defers a PROACTIVE line to the regression rule`);
+    ok(acc.includes(proRegression(id, mode)), `proactive ${mode}: the last "Not a regression" item excuses a logged defect fix inside the ${mode} bound and nothing else`);
+    ok(acc.includes(step4), `proactive ${mode}: acceptance's regression step defers to the same "Not a regression" list`);
   }
   ok(String(pro.out.nextStep ?? '').includes(decisionsNext('a default the developer took, a plan amendment, or a fix or refactor the proactive change policy allowed. Show a PROACTIVE line only after you confirm the code still holds its change, since a later round or a park can undo it')),
     'proactive: nextStep says DECISIONS also holds the proactive lines, each shown only while the code holds its change');

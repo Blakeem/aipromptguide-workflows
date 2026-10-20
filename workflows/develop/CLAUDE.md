@@ -158,9 +158,10 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   it covers, and its reason holds for every place it names. It escalates only a choice that changes
   user-visible behavior, stored data or a public contract and that nothing it can read or check settles,
   or a blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
-  default it took goes to `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding,
-  it fixes every sibling path with the same mechanism inside the block's scope, and logs one outside
-  it. **Must attest `unstaged_confirmed`. A
+  default it took goes to `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding or
+  makes a fix the block requires, it fixes every sibling path with the same mechanism inside the block's
+  scope, and logs one outside it. Code the block's text excludes, or that another block of the plan
+  owns, is outside that scope. **Must attest `unstaged_confirmed`. A
   missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
   surface neither reviewer checks).
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
@@ -178,6 +179,11 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   earlier review file of its block and counts an earlier finding as a gap unless the code closes it on
   every sibling path or the dismissal ledger declines it. Every defect it
   writes in its review file counts as a gap, including a regression the block prescribes or no current caller reaches.
+  A change that removes a defect a review finding named, or the same defect on a sibling path of a
+  required fix or of such a finding, is not a regression when the code shows the removed behavior was a
+  real defect, the change alters no other behavior, the block's text does not exclude that code, and no
+  other block of the plan owns it. For a continued block, that rule also counts the findings of the
+  review files its parks kept in `parked-<id>-reviews/`.
   The developer never dismisses a regression. It fixes the regression, with an
   amendment when the block prescribes it, or escalates it with a default when the fix needs major
   changes outside the block's scope. The review file holds no notes section. In fix mode, a harm an
@@ -191,7 +197,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
   Park marks the block's new files intent-to-add, so its one patch carries them. A second park of a
   block renames the earlier patch to `parked-<id>.prev<n>.patch`. The restore command park writes is
-  a plain `git apply`, which leaves the work unstaged.
+  a plain `git apply`, which leaves the work unstaged. A relaunch rewrites the round-numbered review
+  files, so park copies the block's review files, when it has any, into a new
+  `parked-<id>-reviews/<k>/` folder, and its `NEEDS-USER.md` entry names the copy of the diagnosis.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep is the `failed` entry
@@ -267,7 +275,8 @@ and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
 `AMENDED-<id>.md` · `NEEDS-USER.md` · `DECISIONS.md` · `parked-<id>.patch` ·
-`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `SWEEP.md` · `scratch/` (the agents' plan
+`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `parked-<id>-reviews/<k>/` (the
+review files one park of the block kept) · `SWEEP.md` · `scratch/` (the agents' plan
 block copies and test logs, never in `gate/`).
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.

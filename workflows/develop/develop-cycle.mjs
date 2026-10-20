@@ -304,6 +304,8 @@ const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
 // A second park renames the first patch here. A slug holds no dot, so no block's own patch matches.
 const parkedPrevPatch = (id) => `${STATE_DIR}/parked-${slug(id)}.prev<n>.patch`;
+// A relaunch rewrites the round-numbered review files, so a park keeps its copies in a folder of its own here.
+const parkedReviewsDir = (id) => `${STATE_DIR}/parked-${slug(id)}-reviews`;
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 // A closed inventory is what lets a fix loop converge, so an issue found mid-run waits for the user's triage.
 // One fixed file per source block, so its triage never waits on another block's relaunch.
@@ -530,9 +532,10 @@ const MATRIX = (id, round, mode) => {
   1. Not a real problem / false positive → DROP + LOG.
   2. ${reachScope
     ? `Pre-existing in code outside this block's reach, as the top of this prompt defines it, and not a
-      sibling path of a finding you FIX → DROP + LOG. Never fix it (regression risk).`
+      sibling path of a finding you FIX or of a fix this block requires → DROP + LOG. Never fix it
+      (regression risk).`
     : `Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).`}
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).`}
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -555,8 +558,10 @@ const MATRIX = (id, round, mode) => {
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -639,21 +644,54 @@ const CHECKLIST = `CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.`;
 
-// A proactive fix removes a baseline behavior on purpose, so acceptance excuses that change and no other.
-// The reach condition repeats the developer frame's bound, which acceptance would otherwise never check.
-const proactiveRegressionRule = (id, mode) => (PROACTIVE ? ` A behavior change that a "PROACTIVE ${id}:" line in
-${DECISIONS} names is not a regression when you confirm from the code that the change lies in ${mode === 'fix'
+// One rule for both acceptance frames, so they cannot drift. The PROACTIVE reach repeats the developer's
+// bound, which nothing else checks.
+const regressionRule = (id, mode) => {
+  const required = mode === 'fix' ? 'an ACTIONABLE entry' : 'a criterion of this block';
+  const prescriber = mode === 'fix' ? "an entry's **Fix:**" : "this block's own text";
+  const proactiveReach = mode === 'fix'
     ? 'the code a fix of this block touches'
     : `this block's reach
-(the code this block's own changes touch, plus its callers and consumers, sibling paths with the same
-mechanism, duplicates of the same logic, and the comments and docs that describe it) and in no change
-another block of the plan owns`}, that the baseline behavior it removes was itself a defect, and that the
-change alters no other behavior. Such a line excuses nothing else, so a change outside that code, a
-refactor that changes behavior, or a fix that alters any other behavior, is a regression.` : '');
-const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken${PROACTIVE ? ', apart from a removed defect that a PROACTIVE line names, judged by the regression rule above' : ''}.`;
+    (the code this block's own changes touch, plus its callers and consumers, sibling paths with the same
+    mechanism, duplicates of the same logic, and the comments and docs that describe it) and in no change
+    another block of the plan owns`;
+  const proactiveItem = PROACTIVE ? `
+  - a behavior change that a "PROACTIVE ${id}:" line in
+    ${DECISIONS} names. It is not a regression only when you confirm from the code that the change
+    lies in ${proactiveReach},
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior. Such a line excuses no change outside that code, no refactor that changes behavior, and no
+    fix that alters any other behavior.` : '';
+  // A continued launch starts earlierReviews empty, so its parked findings are in the copies park kept.
+  const parkedReview = CONTINUE.has(id) ? ` This block continues its parked patch, so for this item every
+    file under ${parkedReviewsDir(id)}/, when that folder exists, also counts as an earlier review of
+    this block.` : '';
+  return `A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+${required} requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change ${required} requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.${parkedReview}${proactiveItem}
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+${prescriber} prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when ${prescriber} prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.`;
+};
+const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.`;
 // Mirrors what each ACCEPTANCE_FRAME prompt checks. A change to one needs the same change to the other.
-const NO_REGRESSION_CHECK = `that no behavior of the staged baseline regressed${PROACTIVE ? ', apart from a removed defect, inside the scope this prompt sets, that a PROACTIVE line in DECISIONS.md names' : ''}`;
+const REMOVED_DEFECT_CHECK = "a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns";
+const PROACTIVE_DEFECT_CHECK = 'a removed defect inside that scope that a PROACTIVE line in DECISIONS.md names';
+const NO_REGRESSION_CHECK = `that no behavior of the staged baseline regressed, apart from ${REMOVED_DEFECT_CHECK}${PROACTIVE ? `, or ${PROACTIVE_DEFECT_CHECK}` : ''}`;
 const ACCEPTANCE_CHECKS = {
   feature: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, ${NO_REGRESSION_CHECK}, and that the gate is satisfied.`,
   section: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, ${NO_REGRESSION_CHECK}, and that this block's gate meets its expectation.`,
@@ -936,18 +974,10 @@ NOTHING: that issue stays actually_fixed=false.
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding that is neither closed
-nor declined, or a regression. A
-regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
-third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it.${proactiveRegressionRule(p.id, 'fix')} A test the gate step's suite rule allows to be red is not a regression. A comment or doc
-sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
-line number that another file cites is not, since every edit moves lines. Count each one,
-even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
-path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
-The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
-the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
-file holds no notes, observations or non-blocking section.
+nor declined, or a regression.
+${regressionRule(p.id, 'fix')}
+Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
+non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -1051,18 +1081,9 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it.${proactiveRegressionRule(p.id, p.mode)} A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+${regressionRule(p.id, p.mode)}
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
@@ -1112,7 +1133,7 @@ const parkReason = (haltKind) => ({
   'passed-regression': 'acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is',
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
 
-const parkPrompt = (p, lastReviewPath, escalated, haltKind, stopsRun) => `
+const parkPrompt = (p, lastReviewPath, reviews, escalated, haltKind, stopsRun) => `
 You are PARKING the plan block "${p.id}", which ${escalated
     ? `was halted: ${parkReason(haltKind)}`
     : 'did NOT reach acceptance within its round budget'}. SAVE its work to a patch, then clear it from
@@ -1152,12 +1173,17 @@ PROCEDURE:
    Always name the files: an unpathed \`git reset\` or \`git rm\` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
+3. RECORD. ${reviews.length ? `First copy each review file below that exists into ${parkedReviewsDir(p.id)}/<k>/,
+   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
+   an earlier folder.
+${reviews.map((path) => `     ${path}`).join('\n')}
+   Then append` : 'Append'} ONE entry to ${NEEDS_USER}, under a \`## Parked block: ${p.id}\` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${stopsRun
     ? `, and that the blocks after it were NOT attempted${ORDERED ? ', because they depend on this one' : ''}`
     : '; the remaining blocks continued without it'}
    - one line on why it was parked (${escalated ? parkReason(haltKind) : 'what acceptance was still failing'})
-   - ${lastReviewPath ? `the diagnosis: \`${lastReviewPath}\`` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
+   - ${lastReviewPath ? `the diagnosis: the full path of the copy this step made of \`${lastReviewPath}\`, since a
+     relaunch of this block rewrites that file` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
      \`git -C ${REPO} apply ${parkedPatch(p.id)}\`. Say that it restores the work UNSTAGED, with new
      files untracked, and that \`--3way\`, \`--index\` and \`--cached\` would each stage it into the accepted
@@ -1842,8 +1868,10 @@ for (const p of pending) {
       logLine(`  ✋ ${p.id}: not accepted within ${MAX_ROUNDS} rounds → parking its work, then halting (ordered run)`);
     }
     phase('Park');
-    // reviewPath passes through empty or not: see its declaration.
-    const pk = await agent(parkPrompt(p, reviewPath, escalated, parkKind || haltKind, halted), roleOpts('develop', {
+    // reviewPath passes through empty or not: see its declaration. It joins the kept reviews because a
+    // passed-regression halt names a review file that earlierReviews never holds.
+    const keptReviews = [...new Set([...earlierReviews, reviewPath])].filter(Boolean);
+    const pk = await agent(parkPrompt(p, reviewPath, keptReviews, escalated, parkKind || haltKind, halted), roleOpts('develop', {
       model: devModel, schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.

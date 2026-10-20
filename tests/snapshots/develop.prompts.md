@@ -6,39 +6,39 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 12909 | every block accepts first time |
+| develop | 1 | 1 | 13383 | every block accepts first time |
 | quality | 1 | 1 | 8104 | every block accepts first time |
-| acceptance | 1 | 1 | 8302 | every block accepts first time |
-| develop | 2 | 1 | 13317 | every block accepts first time |
-| acceptance | 2 | 2 | 8583 | every block accepts first time |
+| acceptance | 1 | 1 | 8946 | every block accepts first time |
+| develop | 2 | 1 | 13791 | every block accepts first time |
+| acceptance | 2 | 2 | 9227 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 12472 | quality flags the first round |
+| develop | 3 | 1 | 12946 | quality flags the first round |
 | quality | 2 | 2 | 8113 | quality flags the first round |
-| acceptance | 3 | 1 | 8301 | quality flags the first round |
-| develop | 4 | 1 | 12880 | quality flags the first round |
-| acceptance | 4 | 2 | 8582 | quality flags the first round |
-| develop | 5 | 1 | 12470 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 8299 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 12878 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 8580 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 8577 | the developer produced nothing |
-| acceptance | 8 | 2 | 8858 | the developer produced nothing |
-| develop | 7 | 1 | 12361 | the gate never goes green |
+| acceptance | 3 | 1 | 8945 | quality flags the first round |
+| develop | 4 | 1 | 13354 | quality flags the first round |
+| acceptance | 4 | 2 | 9226 | quality flags the first round |
+| develop | 5 | 1 | 12944 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 8943 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 13352 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 9224 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 9221 | the developer produced nothing |
+| acceptance | 8 | 2 | 9502 | the developer produced nothing |
+| develop | 7 | 1 | 12835 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 12769 | the gate never goes green |
-| acceptance | 9 | 1 | 8354 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 8409 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 8464 | a parked block, and the run carries on |
-| park | 2 | 1 | 5200 | a parked block, and the run carries on |
-| park | 3 | 1 | 5251 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 14042 | a fix block closes its issues |
-| acceptance | 12 | 3 | 10970 | a fix block closes its issues |
+| develop | 8 | 1 | 13243 | the gate never goes green |
+| acceptance | 9 | 1 | 8998 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 9053 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 9108 | a parked block, and the run carries on |
+| park | 2 | 1 | 5806 | a parked block, and the run carries on |
+| park | 3 | 1 | 5857 | an ordered run stops at a parked block |
+| develop | 9 | 2 | 14516 | a fix block closes its issues |
+| acceptance | 12 | 3 | 11608 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
-| develop | 10 | 2 | 14138 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 11254 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 14612 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 11892 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 10969 | every issue is already fixed |
-| park | 4 | 1 | 5367 | passed with a regression, not staged |
+| acceptance | 14 | 3 | 11607 | every issue is already fixed |
+| park | 4 | 1 | 5753 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
 | park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
 | park | 7 | 1 | 5425 | the developer staged its own work |
@@ -46,7 +46,8 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 14029 | a parked block is continued from its patch |
+| develop | 11 | 1 | 14503 | a parked block is continued from its patch |
+| acceptance | 15 | 1 | 9143 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -99,7 +100,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -148,7 +149,7 @@ CHECKLIST:
 6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -171,8 +172,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -486,18 +489,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -520,8 +531,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -654,7 +666,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -703,7 +715,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -726,8 +738,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -897,18 +911,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -932,8 +954,9 @@ PROCEDURE:
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
    to this block, by its `test_selector:` line when it has one, else the test gate:
    npm test). For gate=green the selector tests must PASS; for
@@ -1133,7 +1156,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1182,7 +1205,7 @@ CHECKLIST:
 6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -1205,8 +1228,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -1520,18 +1545,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -1554,8 +1587,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -1683,7 +1717,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1732,7 +1766,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -1755,8 +1789,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -1926,18 +1962,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -1961,8 +2005,9 @@ PROCEDURE:
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
    to this block, by its `test_selector:` line when it has one, else the test gate:
    npm test). For gate=green the selector tests must PASS; for
@@ -2088,7 +2133,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2137,7 +2182,7 @@ CHECKLIST:
 6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -2160,8 +2205,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -2331,18 +2378,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2365,8 +2420,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -2494,7 +2550,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2543,7 +2599,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -2566,8 +2622,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -2737,18 +2795,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2772,8 +2838,9 @@ PROCEDURE:
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
    to this block, by its `test_selector:` line when it has one, else the test gate:
    npm test). For gate=green the selector tests must PASS; for
@@ -2903,18 +2970,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -2937,8 +3012,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -3069,18 +3145,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3104,8 +3188,9 @@ PROCEDURE:
 3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
    converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
    half-converted block is not done.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
    to this block, by its `test_selector:` line when it has one, else the test gate:
    npm test). For gate=green the selector tests must PASS; for
@@ -3233,7 +3318,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3282,7 +3367,7 @@ CHECKLIST:
 6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -3305,8 +3390,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -3578,7 +3665,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that this block's gate meets its expectation.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3627,7 +3714,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -3650,8 +3737,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -3821,18 +3910,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -3856,8 +3953,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -3985,18 +4083,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -4021,8 +4127,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -4150,18 +4257,26 @@ judged under an amendment in your review file. An amendment entry that states NO
 NOTHING: that criterion stays UNMET.
 
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
-satisfied, an earlier finding that is neither closed nor declined, or a regression. A regression is
-any behavior the staged baseline (HEAD when nothing is
-staged) gave a caller or input, a third-party one included, that this cycle's work breaks or changes
-without a criterion of this block requiring it. A test the gate step's suite rule allows to be red is
-not a regression. A comment or doc sentence that was true in the staged baseline and that this cycle's
-diff made false is a regression. A line number that another file cites is not, since every edit moves
-lines. Count each one, even when this block's own text prescribes the construction that
-causes it, and even when you judge the path rare, inherent, or unreached by any current caller. Those
-calls are the developer's, never yours. The developer fixes it, with an amendment when this block's own
-text prescribes it, or escalates it when the fix needs major changes outside this block's scope. Once
-the developer's ledger holds one, the OVERRIDE rule above governs it. Drop any other concern silently.
-Your file holds no notes, observations or non-blocking section.
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -4187,8 +4302,9 @@ PROCEDURE:
    nothing at or above its own threshold. That includes this round's blind review, when one ran.
 3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
    routed/bound/flagged and reachable from real entry points (grep to prove it).
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
@@ -4315,10 +4431,19 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
+   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
+   an earlier folder.
+     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/acceptance-review-block-a-r5.md
+   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what acceptance was still failing)
-   - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r5.md`
+   - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r5.md`, since a
+     relaunch of this block rewrites that file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
      `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
      files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
@@ -4418,10 +4543,19 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
+   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
+   an earlier folder.
+     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/acceptance-review-block-a-r2.md
+     E:/flow/runs/flow/acceptance-review-block-a-r3.md
+     E:/flow/runs/flow/acceptance-review-block-a-r4.md
+     E:/flow/runs/flow/acceptance-review-block-a-r5.md
+   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (what acceptance was still failing)
-   - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r5.md`
+   - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r5.md`, since a
+     relaunch of this block rewrites that file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
      `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
      files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
@@ -4534,7 +4668,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4583,7 +4717,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -4606,8 +4740,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -4801,18 +4937,27 @@ NOTHING: that issue stays actually_fixed=false.
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding that is neither closed
-nor declined, or a regression. A
-regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
-third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
-sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
-line number that another file cites is not, since every edit moves lines. Count each one,
-even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
-path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
-The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
-the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
-file holds no notes, observations or non-blocking section.
+nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+an ACTIONABLE entry requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change an ACTIONABLE entry requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
+non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -4861,8 +5006,9 @@ PROCEDURE:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
@@ -5104,7 +5250,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -5153,7 +5299,7 @@ CHECKLIST:
 7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -5176,8 +5322,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -5372,18 +5520,27 @@ NOTHING: that issue stays actually_fixed=false.
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding that is neither closed
-nor declined, or a regression. A
-regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
-third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
-sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
-line number that another file cites is not, since every edit moves lines. Count each one,
-even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
-path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
-The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
-the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
-file holds no notes, observations or non-blocking section.
+nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+an ACTIONABLE entry requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change an ACTIONABLE entry requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
+non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -5435,8 +5592,9 @@ PROCEDURE:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
@@ -5667,18 +5825,27 @@ NOTHING: that issue stays actually_fixed=false.
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
 a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding that is neither closed
-nor declined, or a regression. A
-regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or input, a
-third-party one included, that this cycle's diff breaks or changes without an ACTIONABLE entry
-requiring it. A test the gate step's suite rule allows to be red is not a regression. A comment or doc
-sentence that was true in the staged baseline and that this cycle's diff made false is a regression. A
-line number that another file cites is not, since every edit moves lines. Count each one,
-even when an entry's **Fix:** prescribes the construction that causes it, and even when you judge the
-path rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours.
-The developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it when
-the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
-OVERRIDE rule above governs it. Drop any other concern silently, except a new issue (step 1). Your
-file holds no notes, observations or non-blocking section.
+nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+an ACTIONABLE entry requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change an ACTIONABLE entry requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
+non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -5727,8 +5894,9 @@ PROCEDURE:
      (none reported skipped)
    Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
    an issue left open, and it fails acceptance.
-4. REGRESSION: compare the unstaged diff against the staged baseline; confirm no previously-accepted
-   behavior was changed or broken.
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
 5. Run the FULL gates (GATES above) once and record the real outcome.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
@@ -5882,10 +6050,15 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
+   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
+   an earlier folder.
+     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is)
-   - the diagnosis: `E:/flow/runs/flow/acceptance-review-block-a-r1.md`
+   - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r1.md`, since a
+     relaunch of this block rewrites that file
    - when step 1 saved a patch, the saved work `E:/flow/runs/flow/parked-block-a.patch` and the restore command, verbatim:
      `git -C E:/repo apply E:/flow/runs/flow/parked-block-a.patch`. Say that it restores the work UNSTAGED, with new
      files untracked, and that `--3way`, `--index` and `--cached` would each stage it into the accepted
@@ -6720,7 +6893,7 @@ PROCEDURE:
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
    unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
    tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, and that the gate is satisfied.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6769,7 +6942,7 @@ CHECKLIST:
 6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
   2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX → DROP + LOG. Never fix it (regression risk).
+      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
   4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
       → FIX.
@@ -6792,8 +6965,10 @@ CHECKLIST:
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
-  • When you FIX a finding, grep for every sibling path with the same mechanism and fix each one inside
-    this block's scope. DROP + LOG one outside the scope by its file:line, or log the class it belongs to.
+  • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
+    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
+    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
+    the plan owns, is outside the scope.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
     truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
   • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
@@ -6908,6 +7083,180 @@ Return ONLY the decision fields via the schema (no prose report).
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 15 · schema 1
+
+`acceptance block-a r1` in "a parked block is continued from its patch"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block. The blind code review already
+passed (or was skipped because the developer changed nothing). Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work
+against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-a   (mode: feature, gate: green)
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+An `ESCALATED:` line is a decision
+routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
+held escalation never fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, or a regression.
+A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that this block's text does not exclude that code, and that no other block of the plan
+    owns it. This block continues its parked patch, so for this item every
+    file under E:/flow/runs/flow/parked-block-a-reviews/, when that folder exists, also counts as an earlier review of
+    this block.
+Every other such break or change is a regression. A comment or doc sentence that was true in the
+staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     (none: no review in this run has flagged this block)
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A blind review that came back clean is never on this list, since it found
+   nothing at or above its own threshold. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
+   routed/bound/flagged and reachable from real entry points (grep to prove it).
+4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run the FULL gates (GATES above) once and record the real outcome.
+   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
+   and return pass=false.
+6. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 7: the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, and each gap (title + file:line + fix) — or "All criteria met;
+   every earlier finding closed or declined; reachable; no regression."
+7. DECIDE:
+   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, no
+     regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
+     return pass=true, staged=true.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
+   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r1.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "reachable",
+    "evidence_recorded"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, and nothing regressed"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "the feature is actually wired in / reachable from the app entry points"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the FULL gates"
     }
   }
 }
