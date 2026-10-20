@@ -10,6 +10,8 @@ import { REPO_ROOT, section, ok } from './harness.mjs';
 const SKILLS_DIR = join(REPO_ROOT, 'skills');
 const SKILLS = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory()).map((d) => d.name).sort();
+// The two workflows that take a changePolicy.
+const POLICY_SKILLS = ['debug', 'develop'];
 
 section('every workflow ships a skill, and every skill is a known workflow');
 ok(SKILLS.join(',') === 'brainstorm,debug,decide,develop,docs,enhance,investigate,refine',
@@ -47,7 +49,25 @@ for (const name of SKILLS) {
   // The Workflow tool refuses a scriptPath the session cannot already read, and a plugin cannot grant
   // itself its own folder.
   const accessCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check');
-  ok(accessCheck >= 0 && accessCheck < body.indexOf(`/workflows/${name}/CLAUDE.md`),
+  const handover = body.indexOf(`Read \`\${CLAUDE_PLUGIN_ROOT}/workflows/${name}/CLAUDE.md\` and follow it exactly`);
+  ok(handover >= 0, 'body hands over to this workflow\'s guide');
+  ok(accessCheck >= 0 && accessCheck < handover,
     'body runs the plugin-access check before it hands over to the guide');
+  const policyCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo');
+  if (POLICY_SKILLS.includes(name)) {
+    ok(policyCheck > accessCheck && policyCheck < handover,
+      'body runs the change-policy check after the plugin-access check and before it hands over to the guide');
+    // The working directory may be a repo other than the one the run works on.
+    ok(body.includes('--root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`'),
+      'the check reads the policy of the run\'s target.repo');
+    ok(body.replace(/\s+/g, ' ').includes('When the task does not name that repo, ask the user for it'),
+      'body asks the user for a target.repo the task does not name, in place of the working directory\'s repo');
+    ok(body.includes('`${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy"'),
+      'body follows the develop guide\'s policy procedure on the check\'s output');
+    ok(body.includes('- Change-policy tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs`'),
+      'the path list maps the guide\'s change-policy tool');
+  } else {
+    ok(policyCheck < 0, 'body runs no change-policy check, since this workflow takes no change policy');
+  }
   ok(/\$ARGUMENTS\s*$/.test(body), 'body ends with $ARGUMENTS');
 }

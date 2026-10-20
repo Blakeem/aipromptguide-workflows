@@ -132,7 +132,7 @@ async function main(argv) {
   return 0;
 }
 
-// Realpath both sides, as gen-flows does: a link in the script path otherwise made the CLI a silent no-op.
+// Realpath both sides, as gen-flows does. A link in the script path otherwise makes the CLI a silent no-op.
 let invokedDirectly = false;
 try {
   invokedDirectly = Boolean(process.argv[1])

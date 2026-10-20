@@ -16,9 +16,18 @@ Each `## Plan:` block names its `mode`, and the mode picks the instructions the 
 A block can also name its developer model in a `model:` line, picked by how complex the block is. The
 reviewers always use the run's review models, which default to Opus.
 
-A run's `changePolicy` is `strict` by default, which keeps each change to its block. A `proactive` run
-also fixes clear problems in the code a block reaches. A fix block limits that work to the code each fix
-touches.
+A run's `changePolicy` is `strict` by default. Claude asks which policy a repo takes the first time
+and saves the answer. `strict` is for working code that stays close to the task. Its developer works
+only in the code its block changes and the code that interacts with it. In a fix block, it works
+only in the code each fix touches and in every repeat of the problem each entry names. It fixes a
+critical, high or security problem in the code its block changes. When the fix goes against the
+plan, it fixes the problem only after it confirms the plan is wrong. It fixes a medium problem when
+the fix is worth its cost. It also fixes every repeat of a problem it fixes in that code, at any
+size. It leaves other smaller problems alone unless a review names them or its own change made
+correct code or docs wrong. `proactive` is for the best code. Its developer fixes any clear problem
+and makes clear improvements in the code a block reaches. A fix block limits that work to the code
+each fix touches. The developer also fixes the same problem where it repeats in that code. Past that
+code, it fixes only a problem a review names, or a repeat of one or of a fix the block requires.
 
 ## How it works
 
@@ -26,10 +35,11 @@ Every block runs the same loop, up to `maxRounds`.
 
 1. A **developer** builds the block and runs the gates. It leaves its work unstaged.
 2. A **blind quality reviewer** judges the unstaged diff on its own merits. It never sees the plan.
-   A block's first review in a launch hunts findings at low severity or above, so that a later round
-   fixes them. Every other review hunts at the run's severity threshold or above, and so does a first
-   review in the last round. Only when a review finds one does it also list smaller findings for the
-   developer to fix in the same pass.
+   The run's `changePolicy` sets the lowest severity each review hunts for. Under `strict`, every
+   review hunts at medium. Under `proactive`, a block's first review in a launch hunts at low, its
+   second at medium and every later one at high. Since no round is left to fix a smaller finding, a
+   review in the block's last allowed round hunts at high. Only a `proactive` review that finds a
+   problem also lists smaller findings for the developer to fix in the same pass.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass.
    It also rechecks every finding raised earlier in the block.
 4. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
@@ -69,9 +79,10 @@ Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId
 acceptance reviews, the quality reviews under `gate/`, each block's declined findings
 (`gate/DISMISSED-<id>.md`), any plan amendment (`AMENDED-<id>.md`), the questions for you and each
 parked block's record (`NEEDS-USER.md`), the defaults the developer took, a pointer to each plan
-amendment and each fix or refactor a proactive run made past its block (`DECISIONS.md`), each parked
-patch, and the sweep result (`SWEEP.md`). Each fix block's new issues land in
-`plans/<runId>/NEW-ISSUES-<block id>.md` for you to triage.
+amendment and each fix or refactor the developer made past its block (`DECISIONS.md`), each parked
+patch, and the sweep result (`SWEEP.md`). Each block's `plans/<runId>/NEW-ISSUES-<block id>.md`
+holds the defects found outside that block's work. It is a fix-mode plan file, so once you triage it,
+a later run builds it.
 
 ## Requirements
 

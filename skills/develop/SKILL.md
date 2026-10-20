@@ -11,6 +11,12 @@ folder above it, ask the user once whether to add the printed Read rule to their
 run the command again with `grant` (settings reload live, no restart). On no, the user can run
 `/add-dir ${CLAUDE_PLUGIN_ROOT}` for this session only.
 
+Next, before any step of the guide, settle the change policy. Run
+`node "${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`,
+where `<target.repo>` is the repo the run works on. When the task does not name that repo, ask the user
+for it, since the working directory may be another repo. Then follow
+`${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy" on its output.
+
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` and follow it exactly.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
@@ -20,5 +26,6 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - `blockTool` arg (always pass it): `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
 - Args tool (operator-side, before every launch, also applies finished runs' statuses):
   `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
+- Change-policy tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs`
 
 $ARGUMENTS

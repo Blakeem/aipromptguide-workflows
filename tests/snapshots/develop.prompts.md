@@ -6,38 +6,38 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 13383 | every block accepts first time |
-| quality | 1 | 1 | 8104 | every block accepts first time |
-| acceptance | 1 | 1 | 8946 | every block accepts first time |
-| develop | 2 | 1 | 13791 | every block accepts first time |
-| acceptance | 2 | 2 | 9227 | every block accepts first time |
+| develop | 1 | 1 | 17497 | every block accepts first time |
+| quality | 1 | 1 | 8040 | every block accepts first time |
+| acceptance | 1 | 1 | 9759 | every block accepts first time |
+| develop | 2 | 1 | 17905 | every block accepts first time |
+| acceptance | 2 | 2 | 10040 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 12946 | quality flags the first round |
-| quality | 2 | 2 | 8113 | quality flags the first round |
-| acceptance | 3 | 1 | 8945 | quality flags the first round |
-| develop | 4 | 1 | 13354 | quality flags the first round |
-| acceptance | 4 | 2 | 9226 | quality flags the first round |
-| develop | 5 | 1 | 12944 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 8943 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 13352 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 9224 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 9221 | the developer produced nothing |
-| acceptance | 8 | 2 | 9502 | the developer produced nothing |
-| develop | 7 | 1 | 12835 | the gate never goes green |
+| develop | 3 | 1 | 17060 | quality flags the first round |
+| acceptance | 3 | 1 | 9758 | quality flags the first round |
+| develop | 4 | 1 | 17468 | quality flags the first round |
+| acceptance | 4 | 2 | 10039 | quality flags the first round |
+| develop | 5 | 1 | 17058 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 9756 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 17466 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 10037 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 10034 | the developer produced nothing |
+| acceptance | 8 | 2 | 10315 | the developer produced nothing |
+| develop | 7 | 1 | 16949 | the gate never goes green |
 | park | 1 | 1 | 5256 | the gate never goes green |
-| develop | 8 | 1 | 13243 | the gate never goes green |
-| acceptance | 9 | 1 | 8998 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 9053 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 9108 | a parked block, and the run carries on |
+| develop | 8 | 1 | 17357 | the gate never goes green |
+| acceptance | 9 | 1 | 9811 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 9866 | a parked block, and the run carries on |
+| quality | 2 | 2 | 8034 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 9921 | a parked block, and the run carries on |
 | park | 2 | 1 | 5806 | a parked block, and the run carries on |
 | park | 3 | 1 | 5857 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 14516 | a fix block closes its issues |
-| acceptance | 12 | 3 | 11608 | a fix block closes its issues |
+| develop | 9 | 2 | 18950 | a fix block closes its issues |
+| acceptance | 12 | 3 | 12509 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
-| develop | 10 | 2 | 14612 | a pass of two fix blocks closes its issues |
-| acceptance | 13 | 3 | 11892 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 19258 | a pass of two fix blocks closes its issues |
+| acceptance | 13 | 3 | 12800 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 11607 | every issue is already fixed |
+| acceptance | 14 | 3 | 12508 | every issue is already fixed |
 | park | 4 | 1 | 5753 | passed with a regression, not staged |
 | park | 5 | 1 | 5437 | acceptance stages a rejected block |
 | park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
@@ -46,8 +46,8 @@ this file is stale.
 | park | 9 | 1 | 5281 | the developer dies |
 | park | 10 | 1 | 5351 | developer escalates |
 | park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 14503 | a parked block is continued from its patch |
-| acceptance | 15 | 1 | 9143 | a parked block is continued from its patch |
+| develop | 11 | 1 | 18617 | a parked block is continued from its patch |
+| acceptance | 15 | 1 | 9956 | a parked block is continued from its patch |
 
 ## develop · variant 1 · schema 1
 
@@ -61,7 +61,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -98,9 +98,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -110,11 +115,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -138,28 +148,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -167,20 +176,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -190,6 +201,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-a.md only.
+    Count it in new_issues and name "block-a" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-a-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-a-noticed-<n>] <title>
+      - id: block-a-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-a r1. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -206,8 +245,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-a: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -224,7 +267,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -287,6 +332,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -322,7 +378,7 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
     settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
 diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG and the finding is at or above the low threshold,
+If you are confident a DISMISSED reason is WRONG and the finding is at or above the medium threshold,
 raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
@@ -343,14 +399,20 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
-THRESHOLD: low. A finding at or above it blocks this block. A finding below it never blocks.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
+THRESHOLD: medium. A finding at or above it blocks this block. A finding below it is outside this
+run, so neither hunt for it nor report it.
 
-Report only what this diff introduces or exposes, at every tier. Drop silently anything
+Report only what this diff introduces or exposes, at or above the threshold. Drop silently anything
 pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
@@ -375,34 +437,28 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
-Apply the CHECKLIST in both stages below.
+    query or page, a secret reaching a log, result or error.
+Apply the CHECKLIST in stage 1 below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
 above the threshold through the checklist and the REACH step. A finding at medium or above names the
 concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
 to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
 
-STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
-below the threshold, down to nit, so the developer fixes them while it works in this code. When
-stage 1 found nothing, skip stage 2 and report nothing below the threshold.
-
 A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
 to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
 identifier or file the new text names that does not exist, a sentence the change removed that other
 text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
-cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
+cited by line. Those four checks bound stage 1.
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
 highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
-exactly "No findings at or above low." Then return wrote_file (true ONLY if you wrote that
+exactly "No findings at or above medium." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
-above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
-contested_dismissals via the schema. Do NOT modify source, stage, or commit.
+above the threshold) and contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 ~~~~
 
 ~~~~json
@@ -411,8 +467,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
   "required": [
     "wrote_file",
     "clean",
-    "issue_count",
-    "minor_count"
+    "issue_count"
   ],
   "properties": {
     "wrote_file": {
@@ -421,15 +476,11 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
     },
     "clean": {
       "type": "boolean",
-      "description": "true if no finding at or above this review's low threshold and no contest"
+      "description": "true if no finding at or above this review's medium threshold and no contest"
     },
     "issue_count": {
       "type": "integer",
-      "description": "findings at or above this review's low threshold written to the review file"
-    },
-    "minor_count": {
-      "type": "integer",
-      "description": "findings below the threshold written in stage 2 (0 when stage 2 did not run)"
+      "description": "findings at or above this review's medium threshold written to the review file"
     },
     "contested_dismissals": {
       "type": "integer",
@@ -471,7 +522,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -499,14 +552,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -623,7 +679,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
-conventions; NO scope creep beyond it.
+conventions; NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -664,9 +720,14 @@ PROCEDURE:
 4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -676,11 +737,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -704,28 +770,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -733,20 +798,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -756,6 +823,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-b.md only.
+    Count it in new_issues and name "block-b" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-b-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-b-noticed-<n>] <title>
+      - id: block-b-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-b r1. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -772,8 +867,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-b: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -790,7 +889,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -853,6 +954,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -893,7 +1005,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -921,14 +1035,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -1122,7 +1239,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1154,9 +1271,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1166,11 +1288,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -1194,28 +1321,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -1223,20 +1349,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -1246,6 +1374,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-a.md only.
+    Count it in new_issues and name "block-a" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-a-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-a-noticed-<n>] <title>
+      - id: block-a-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1262,8 +1418,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-a: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -1280,7 +1440,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -1343,153 +1505,20 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
-    }
-  }
-}
-~~~~
-
-## quality · variant 2 · schema 2
-
-`quality block-a r2` in "quality flags the first round"
-
-~~~~text
-
-You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
-spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
-Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
-E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
-Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
-TARGET REPO: E:/repo
-GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
-Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
-  build: npm run build
-  test:  npm test
-Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
-temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
-CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
-
-Before reviewing, READ this if it exists. It holds the settled decisions:
-  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
-    It exists only once the developer has declined something, so a missing file means nothing is
-    settled yet. Do not search for it elsewhere.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
-diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG and the finding is at or above the medium threshold,
-raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
-
-SCOPE — review ONLY this cycle's UNSTAGED work:
-  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
-  `git -C E:/repo diff --stat` first, then read it file by file.
-  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
-  A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
-  `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
-  (`git -C E:/repo diff -- <file>`) is this cycle's work.
-  `git -C E:/repo diff --staged` is the ACCEPTED baseline — context only, do NOT review it.
-
-SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
-  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
-  high     - crashes or gives wrong output on an input the code accepts.
-  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
-             result the caller can detect.
-  low      - a real defect with no effect on any input the code accepts today.
-  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
-A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
-higher by what the misled reader would do. It is never a nit.
-NITS include: an overlong comment, or one that restates the code; a comment that breaks the
-CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
-diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
-THRESHOLD: medium. A finding at or above it blocks this block. A finding below it never blocks.
-
-Report only what this diff introduces or exposes, at every tier. Drop silently anything
-pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
-
-REACH: for every function, constant, field, string or rule the diff changes, grep its callers
-and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
-comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
-counts as introduced by this diff.
-
-CHECKLIST:
-  - build and tests: anything that breaks the build or tests;
-  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
-    numeric inputs, platform path forms, and a value computed right but reported wrong;
-  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
-    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
-  - error contract: an expected failure that escapes the project's error path, a failure returned in
-    a success shape, a message that hides the cause or the way to recover;
-  - consistency: the same concept shaped differently from its established counterpart in the repo
-    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
-  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
-    a container, an enum value, a domain or a cleanup step;
-  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
-    that replaces the behavior under test, a risky path the diff adds with no test;
-  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
-    contradicts or that now misleads;
-  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
-Apply the CHECKLIST in both stages below.
-
-STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
-above the threshold through the checklist and the REACH step. A finding at medium or above names the
-concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
-to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
-
-STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
-below the threshold, down to nit, so the developer fixes them while it works in this code. When
-stage 1 found nothing, skip stage 2 and report nothing below the threshold.
-
-A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
-to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
-identifier or file the new text names that does not exist, a sentence the change removed that other
-text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
-cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
-A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
-with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
-
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r2.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
-highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
-exactly "No findings at or above medium." Then return wrote_file (true ONLY if you wrote that
-file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
-above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
-contested_dismissals via the schema. Do NOT modify source, stage, or commit.
-~~~~
-
-~~~~json
-{
-  "type": "object",
-  "required": [
-    "wrote_file",
-    "clean",
-    "issue_count",
-    "minor_count"
-  ],
-  "properties": {
-    "wrote_file": {
-      "type": "boolean",
-      "description": "true ONLY if you wrote your review file this round"
-    },
-    "clean": {
-      "type": "boolean",
-      "description": "true if no finding at or above this review's medium threshold and no contest"
-    },
-    "issue_count": {
-      "type": "integer",
-      "description": "findings at or above this review's medium threshold written to the review file"
-    },
-    "minor_count": {
-      "type": "integer",
-      "description": "findings below the threshold written in stage 2 (0 when stage 2 did not run)"
-    },
-    "contested_dismissals": {
-      "type": "integer",
-      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
     }
   }
 }
@@ -1527,7 +1556,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -1555,14 +1586,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -1679,7 +1713,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
-conventions; NO scope creep beyond it.
+conventions; NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -1715,9 +1749,14 @@ PROCEDURE:
 4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1727,11 +1766,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -1755,28 +1799,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -1784,20 +1827,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -1807,6 +1852,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-b.md only.
+    Count it in new_issues and name "block-b" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-b-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-b-noticed-<n>] <title>
+      - id: block-b-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1823,8 +1896,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-b: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -1841,7 +1918,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -1904,6 +1983,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -1944,7 +2034,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -1972,14 +2064,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -2099,7 +2194,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -2131,9 +2226,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2143,11 +2243,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -2171,28 +2276,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -2200,20 +2304,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -2223,6 +2329,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-a.md only.
+    Count it in new_issues and name "block-a" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-a-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-a-noticed-<n>] <title>
+      - id: block-a-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2239,8 +2373,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-a: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -2257,7 +2395,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -2320,6 +2460,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -2360,7 +2511,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2388,14 +2541,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -2512,7 +2668,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
-conventions; NO scope creep beyond it.
+conventions; NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -2548,9 +2704,14 @@ PROCEDURE:
 4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2560,11 +2721,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -2588,28 +2754,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -2617,20 +2782,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -2640,6 +2807,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-b.md only.
+    Count it in new_issues and name "block-b" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-b-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-b-noticed-<n>] <title>
+      - id: block-b-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2656,8 +2851,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-b: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -2674,7 +2873,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -2737,6 +2938,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -2777,7 +2989,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2805,14 +3019,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -2952,7 +3169,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -2980,14 +3199,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -3127,7 +3349,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -3155,14 +3379,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -3285,7 +3512,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -3316,9 +3543,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3328,11 +3560,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -3356,28 +3593,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -3385,20 +3621,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -3408,6 +3646,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-a.md only.
+    Count it in new_issues and name "block-a" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-a-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-a-noticed-<n>] <title>
+      - id: block-a-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -3424,8 +3690,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-a: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -3442,7 +3712,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -3504,6 +3776,17 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments": {
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
+    },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
     },
     "gate_output": {
       "type": "string",
@@ -3628,7 +3911,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". Build ONLY this block minimally and surgically; match
-conventions; NO scope creep beyond it.
+conventions; NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -3663,9 +3946,14 @@ PROCEDURE:
 4. Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that this block's gate meets its expectation.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that this block's gate meets its expectation.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3675,11 +3963,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -3703,28 +3996,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond it and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -3732,20 +4024,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
@@ -3755,6 +4049,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-b.md only.
+    Count it in new_issues and name "block-b" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-b-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-b-noticed-<n>] <title>
+      - id: block-b-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -3771,8 +4093,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-b: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -3789,7 +4115,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -3852,6 +4180,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -3892,7 +4231,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -3920,14 +4261,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -4065,7 +4409,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -4093,14 +4439,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -4207,6 +4556,145 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
+## quality · variant 2 · schema 2
+
+`quality block-a r5` in "a parked block, and the run carries on"
+
+~~~~text
+
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
+E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back, and the blind review has no file for a round in which the developer changed nothing.
+TARGET REPO: E:/repo
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
+  build: npm run build
+  test:  npm test
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
+
+Before reviewing, READ this if it exists. It holds the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
+diff FRESH, catching new or nearby issues.
+If you are confident a DISMISSED reason is WRONG and the finding is at or above the high threshold,
+raise it ONCE, prefixed "CONTESTS DISMISSAL:", explaining why the reason does not hold.
+
+SCOPE — review ONLY this cycle's UNSTAGED work:
+  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
+  `git -C E:/repo diff --stat` first, then read it file by file.
+  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
+  A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
+  `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
+  (`git -C E:/repo diff -- <file>`) is this cycle's work.
+  `git -C E:/repo diff --staged` is the ACCEPTED baseline — context only, do NOT review it.
+
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
+THRESHOLD: high. A finding at or above it blocks this block. A finding below it is outside this
+run, so neither hunt for it nor report it.
+
+Report only what this diff introduces or exposes, at or above the threshold. Drop silently anything
+pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error.
+Apply the CHECKLIST in stage 1 below.
+
+STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
+above the threshold through the checklist and the REACH step. A finding at medium or above names the
+concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
+to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
+
+A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
+to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, a sentence the change removed that other
+text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
+cited by line. Those four checks bound stage 1.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
+
+WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r5.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
+highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
+exactly "No findings at or above high." Then return wrote_file (true ONLY if you wrote that
+file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
+above the threshold) and contested_dismissals via the schema. Do NOT modify source, stage, or commit.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "clean",
+    "issue_count"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "clean": {
+      "type": "boolean",
+      "description": "true if no finding at or above this review's high threshold and no contest"
+    },
+    "issue_count": {
+      "type": "integer",
+      "description": "findings at or above this review's high threshold written to the review file"
+    },
+    "contested_dismissals": {
+      "type": "integer",
+      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
+    }
+  }
+}
+~~~~
+
 ## acceptance · variant 11 · schema 1
 
 `acceptance block-a r5` in "a parked block, and the run carries on"
@@ -4239,7 +4727,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -4267,14 +4757,17 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 
@@ -4620,7 +5113,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
-refactors, NO scope creep beyond what each fix requires.
+refactors, NO scope creep beyond what each fix requires and the defect fixes this prompt allows inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -4666,9 +5159,14 @@ PROCEDURE:
    with the reason, and keep the rest.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, or a removed defect, inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4678,11 +5176,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -4706,28 +5209,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the defect fixes this prompt allows inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -4735,20 +5237,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md:
@@ -4758,6 +5262,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-c.md only.
+    Count it in new_issues and name "block-c" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-c-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-c-noticed-<n>] <title>
+      - id: block-c-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-c r1. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -4774,8 +5306,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-c: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -4792,7 +5328,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -4877,6 +5415,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -4918,7 +5467,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -4947,14 +5498,17 @@ an ACTIONABLE entry requiring it. Not a regression:
     closes the same defect on a sibling path of a change an ACTIONABLE entry requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-c:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
@@ -4976,12 +5530,11 @@ PROCEDURE:
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file. Count it in new_issues and name
-   "block-c" in new_issue_blocks. It sets no
-   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: block-c-new-issues - issues found outside the fixes' root causes",
-   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
-   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file.
+   Count it in new_issues and name "block-c" in new_issue_blocks. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate.
+   A new file starts with the four lines "## Plan: block-c-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
    Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
@@ -5202,7 +5755,7 @@ Each output is one block, verbatim. If any exits non-zero, report plan_obtained=
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically; NO opportunistic
-refactors, NO scope creep beyond what each fix requires.
+refactors, NO scope creep beyond what each fix requires and the defect fixes this prompt allows inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -5248,9 +5801,14 @@ PROCEDURE:
    with the reason, and keep the rest.
 5. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, or a removed defect, inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -5260,11 +5818,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -5288,28 +5851,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 6. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-7. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+7. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the defect fixes this prompt allows inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -5317,20 +5879,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md:
@@ -5340,6 +5904,36 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    only to the file of the block whose entry's fix led you to the defect:
+      - i-1 → E:/flow/plans/flow/NEW-ISSUES-block-c.md (block "block-c")
+      - i-2 → E:/flow/plans/flow/NEW-ISSUES-block-d.md (block "block-d")
+    Count it in new_issues and name that block in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: <that block's id>-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [<that block's id>-noticed-<n>] <title>
+      - id: <that block's id>-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-c-plus-1 r1. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md:
       `## Plan amendment: block-c-plus-1 r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -5356,8 +5950,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-c-plus-1: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -5374,7 +5972,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -5459,6 +6059,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -5501,7 +6112,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -5530,14 +6143,17 @@ an ACTIONABLE entry requiring it. Not a regression:
     closes the same defect on a sibling path of a change an ACTIONABLE entry requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-c-plus-1:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
@@ -5564,10 +6180,9 @@ PROCEDURE:
      - i-1 → E:/flow/plans/flow/NEW-ISSUES-block-c.md (block "block-c")
      - i-2 → E:/flow/plans/flow/NEW-ISSUES-block-d.md (block "block-d")
    Count it in new_issues and name that block in new_issue_blocks. It sets no
-   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: <that block's id>-new-issues - issues found outside the fixes' root causes",
-   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
-   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   fix_check false, and it never excuses a regression or an unsatisfied gate.
+   A new file starts with the four lines "## Plan: <that block's id>-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
    Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
@@ -5806,7 +6421,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -5835,14 +6452,17 @@ an ACTIONABLE entry requiring it. Not a regression:
     closes the same defect on a sibling path of a change an ACTIONABLE entry requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior, that it lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause, and that it lies in code this block's text does not exclude and in code no other block of the plan owns.
+  - a behavior change that a "STRICT block-c:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when an entry's **Fix:** prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code each ACTIONABLE entry's fix touches and the sibling paths of each ACTIONABLE entry's root cause. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently, except a new issue (step 1). Your file holds no notes, observations or
 non-blocking section.
@@ -5864,12 +6484,11 @@ PROCEDURE:
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file. Count it in new_issues and name
-   "block-c" in new_issue_blocks. It sets no
-   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: block-c-new-issues - issues found outside the fixes' root causes",
-   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
-   existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
+   new issue to E:/flow/plans/flow/NEW-ISSUES-block-c.md only, never to your review file.
+   Count it in new_issues and name "block-c" in new_issue_blocks. It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate.
+   A new file starts with the four lines "## Plan: block-c-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a harm any of them already holds.
    Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
@@ -6842,7 +7461,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Build it minimally and surgically; match conventions;
-NO scope creep beyond the plan.
+NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with.
 CHANGE POLICY: strict. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -6891,9 +7510,14 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
-   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns, and that the gate is satisfied.
+   unstaged diff, new files included. Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
+   After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, apart from a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code this block's text does not exclude and in code no other block of the plan owns, inside the code that this block's required changes add, change or interact with, or a removed defect, inside the code that this block's required changes add, change or interact with and in code no other block of the plan owns, that a STRICT line in DECISIONS.md names, and that the gate is satisfied.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6903,11 +7527,16 @@ SEVERITY - grade by impact, never by the size of the fix. When two grades fit, t
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
 
 REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
@@ -6931,28 +7560,27 @@ CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.
+    query or page, a secret reaching a log, result or error.
 5. LEAVE EVERYTHING UNSTAGED — do NOT `git add` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run `git -C E:/repo add -N <file>` (intent-to-add, so reviewers' `git diff` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
    and HALTS the run. The staged index already holds the blocks this run accepted before this one.
    Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
    this block needs, including one an earlier block changed.
-6. DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+6. DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).
+  2. Pre-existing outside the code that this block's required changes add, change or interact with → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
   6a. Conflicts with the plan AND you VERIFIED that what the plan PRESCRIBES is itself defective (you
       reproduced it, or demonstrated the failure path, to the same evidence bar as any FIX)
       → FIX it: the verified defect outranks the prescription. LOG an amendment.
-      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan"
+      PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the defect fixes this prompt allows inside the code that this block's required changes add, change or interact with"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
   6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
@@ -6960,20 +7588,22 @@ CHECKLIST:
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside the code that this block's required changes add, change or interact with. DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it. A contested defect already in the staged baseline
+    that lies outside the code that this block's required changes add, change or interact with goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression. NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside the code that this block's required changes add, change or interact with.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
@@ -6983,6 +7613,34 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    in code no other block of the plan owns because it lies outside the code that this block's required changes add, change or interact with,
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    to E:/flow/plans/flow/NEW-ISSUES-block-a.md only.
+    Count it in new_issues and name "block-a" in new_issue_blocks.
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    A new file starts with the four lines "## Plan: block-a-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    Before you append, read every existing NEW-ISSUES-*.md in E:/flow/plans/flow/ and never append a defect any of them already holds.
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [block-a-noticed-<n>] <title>
+      - id: block-a-noticed-<n>
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a STRICT line below, read every NEW-ISSUES-*.md in E:/flow/plans/flow/.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block block-a r1. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -6999,8 +7657,12 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
-This is NOT a general code review. Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.
+  • STRICT (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the staged baseline
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      `STRICT block-a: <file:line> — <what changed> — <why>`
+This is NOT a general code review. Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in the code that this block's required changes add, change or interact with, and touch nothing else.
 Return ONLY the decision fields via the schema (no prose report).
 ~~~~
 
@@ -7017,7 +7679,9 @@ Return ONLY the decision fields via the schema (no prose report).
     "full_suite_outcome",
     "unstaged_confirmed",
     "needs_user",
-    "plan_amendments"
+    "plan_amendments",
+    "new_issues",
+    "new_issue_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -7080,6 +7744,17 @@ Return ONLY the decision fields via the schema (no prose report).
       "type": "integer",
       "description": "entries you appended to this block's AMENDED file this round (MATRIX 6a). Report 0 when there were none."
     },
+    "new_issues": {
+      "type": "integer",
+      "description": "entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)"
+    },
+    "new_issue_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)"
+    },
     "gate_output": {
       "type": "string",
       "description": "tail of failing gate/verification output, or \"\" if green"
@@ -7120,7 +7795,9 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
   • E:/flow/runs/flow/NEEDS-USER.md — items already escalated to the user.
-  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took and plan amendment pointers, a record.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the staged baseline that
+    this run's strict change policy let the developer make beyond a block's own work, a record. A
+    STRICT line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
@@ -7148,16 +7825,19 @@ a criterion of this block requiring it. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it. This block continues its parked patch, so for this item every
+    behavior, that it lies in the code that this block's required changes add, change or interact with, and that it lies in code this block's text does not exclude and in code no other block of the plan owns. This block continues its parked patch, so for this item every
     file under E:/flow/runs/flow/parked-block-a-reviews/, when that folder exists, also counts as an earlier review of
     this block.
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+  - a behavior change that a "STRICT block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the change
+    lies in the code that this block's required changes add, change or interact with and in code no other block of the plan owns,
+    that the baseline behavior it removes was itself a defect, and that the change alters no other
+    behavior.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside the code that this block's required changes add, change or interact with. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
 Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
 

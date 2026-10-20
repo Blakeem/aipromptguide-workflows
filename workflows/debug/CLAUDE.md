@@ -212,7 +212,8 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 - **The issue files are the source of truth for WHAT to fix.** `review.mjs` writes them, and a
   `review.mjs` re-run rewrites each unit file it re-reviews from scratch, triage edits and statuses
   included. Otherwise only you write them, at triage and through `plan-edit.mjs args` before each develop
-  launch. develop's verifier writes only its own `NEW-ISSUES-<block id>.md` files, never these.
+  launch. develop's developer and verifier write new issues only to their own `NEW-ISSUES-<block id>.md`
+  files, never to these.
 
 ## State files (`runs/<runId>/`, outside every repo)
 

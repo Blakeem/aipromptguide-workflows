@@ -70,8 +70,7 @@ cap, so no agent or operator ever handles a cut line.
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
 1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits
-   against a severity threshold: `low` on a block's first review in a launch when a later round
-   remains, and the run's threshold on every other review, then
+   against a severity threshold that the run's change policy sets, then
 2. a plan-aware acceptance review, which verifies every requirement is met, the feature is reachable, and
    nothing regressed.
 
@@ -130,8 +129,9 @@ The developer's only outputs besides code are four append files:
   may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
   also appends each parked block's record to it.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
-  plan amendment pointer. Under develop's proactive change policy, it also records each fix or refactor
-  the developer made past its block. The user reads it at run end, and the acceptance stage reads it.
+  plan amendment pointer. It also records each fix or refactor develop's developer made past its block.
+  Under the strict change policy, that is only a fix of a defect the staged baseline already had. The
+  user reads it at run end, and the acceptance stage reads it.
   It is never a question. A flag-and-proceed item is recorded here, and the developer continues with a
   defensible default.
 
@@ -143,12 +143,15 @@ reads both before searching so that the round diverges from what already failed 
 covered. They are the run's convergence mechanism, not a record of it. Their writers are strictly
 sequential, which is the only reason a shared append-only file is safe.
 
-The developer writes no "what I did" report, since its code is its output (#8). Reviewers write only
-their numbered review files. One exception is develop's fix-mode acceptance verifier, which
-appends a harm with a separate cause to its source block's `NEW-ISSUES-<id>.md` in the plan directory,
-an untriaged issue inventory the user triages like debug's `issues/`. A critic, an editor or a verifier
-may write one scratch probe beside the listed files. Its temporary directory sits outside the repo and
-the run-state dir. Nothing outside this list is written.
+The developer writes no "what I did" report, since its code is its output (#8). In develop, the
+developer also appends each real defect it leaves outside its block's work to that block's
+`NEW-ISSUES-<id>.md` in the plan directory, an untriaged issue inventory the user triages like debug's
+`issues/`. It adds a closing line to an entry in any `NEW-ISSUES-*.md` there whose defect a fix it
+logs closes. Reviewers write only their numbered review files. One exception is develop's fix-mode
+acceptance verifier, which appends a harm with a separate cause to its source block's
+`NEW-ISSUES-<id>.md`. A critic, an editor or a verifier may write one scratch probe beside the listed
+files. Its temporary directory sits outside the repo and the run-state dir. Nothing outside this list is
+written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -290,11 +293,11 @@ rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9). develop's blind reviewer uses threshold `low` on a block's first review in a launch when a
-  later round remains, and the run's severity threshold on every other review. It reports a finding
-  below its review's threshold only beside one at or above it, so a minor finding rides along with work
-  already owed and never drives a round on its own, unless the developer neither fixed nor logged it,
-  which acceptance counts as a gap.
+  end (#9). develop's change policy sets each blind review's severity threshold. Under `proactive`, the
+  reviewer reports a finding below its review's threshold only beside one at or above it, so a minor
+  finding rides along with work already owed and never drives a round on its own, unless the developer
+  neither fixed nor logged it, which acceptance counts as a gap. Under `strict`, it reports no finding
+  below its review's threshold.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, enhance). They write no code, stage nothing, and never commit, so #7 and
   #9 don't apply. The user is the judge, and there is no AI review gate unless the workflow needs one.

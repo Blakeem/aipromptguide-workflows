@@ -221,10 +221,10 @@ const spawnCli = (args) => new Promise((done) => {
 section('the CLI still speaks when its own path goes through a symlink or junction');
 {
   // Node resolves the MAIN module through realpath, so comparing `import.meta.url` against the RAW argv[1]
-  // made `invokedDirectly` false through any link: the process exited 0 having printed NOTHING, and every
-  // loud failure in the file (unknown verb, bad flags, missing args) was bypassed. Twin of the plan-block
-  // case (tests/CLAUDE.md §1). No git needed, so it sits above the git gate. Skipped where a link cannot be
-  // created (no privilege, no support) rather than failing for the machine.
+  // makes `invokedDirectly` false through any link. The process then exits 0 having printed nothing, and
+  // every loud failure in the file (unknown verb, bad flags, missing args) is bypassed. Twin of the
+  // plan-block case (tests/CLAUDE.md §1). No git needed, so it sits above the git gate. Skipped where a link
+  // cannot be created (no privilege, no support) rather than failing for the machine.
   const dir = mkdtempSync(join(tmpdir(), 'aipg-wt-link-'));
   const link = join(dir, 'tools');
   let linked = false;

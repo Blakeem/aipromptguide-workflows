@@ -50,7 +50,7 @@ const base = {
 
 // Agent returns carrying every attestation the engine reads. `produced` gates the blind review, and
 // `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
-const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0 };
+const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, new_issues: 0, new_issue_blocks: [] };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, minor_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, minor_count: 0, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
@@ -112,10 +112,10 @@ export default {
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-block round loop never runs, and every block parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
-    // nit grades the dive below the threshold, so it is rejected as the threshold itself.
-    { name: 'unknown review severity', when: 'reviewSeverity is outside low | medium | high | critical', args: { ...base, reviewSeverity: 'nit' } },
-    // A coerced policy would silently widen or narrow every developer's diff.
+    // A coerced policy would silently move every blind review's bar and widen or narrow every developer's diff.
     { name: 'unknown change policy', when: 'changePolicy is outside strict | proactive', args: { ...base, changePolicy: 'lenient' } },
+    // changePolicy sets every blind review's bar, and an ignored reviewSeverity would claim a bar the run never used.
+    { name: 'reviewSeverity is retired', when: 'args carry reviewSeverity, any value', args: { ...base, reviewSeverity: 'medium' } },
     // Retired args throw rather than being ignored: each served only a hand-built payload.
     { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
     { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },

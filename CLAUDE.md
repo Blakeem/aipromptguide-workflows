@@ -72,8 +72,9 @@ see the root README, "One checkout, many projects".
 at the plugin's persistent data dir instead of a checkout. The Workflow tool refuses a `scriptPath`
 the session cannot already read, and an installed plugin's folder is outside every project. So each
 skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plugin folder once the
-user agrees. Rename an engine, guide, `tools/plan-block.mjs`, `tools/plugin-access.mjs`, or
-`workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md` paths must move with it.
+user agrees. Rename an engine, guide, `tools/plan-block.mjs`, `tools/plugin-access.mjs`,
+`tools/change-policy.mjs`, or `workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md`
+paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
 (`workflows/<x>/FLOW.md`; debug's is `FLOW-review.md`) — every agent, gate, loop and

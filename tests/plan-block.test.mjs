@@ -517,8 +517,9 @@ section('a BOM does not swallow the first block');
 section('the CLI still prints when its own path goes through a symlink or junction');
 {
   // Node resolves the MAIN module through realpath, so comparing `import.meta.url` against the RAW argv[1]
-  // made `invokedDirectly` false through any link: the process wrote NOTHING and exited 0, bypassing every
-  // loud failure above. An installed plugin dir, a subst drive or macOS /tmp -> /private/tmp all trigger it.
+  // makes `invokedDirectly` false through any link. The process then writes nothing and exits 0, bypassing
+  // every loud failure above. An installed plugin dir, a subst drive or macOS /tmp -> /private/tmp all
+  // trigger it.
   // Skipped where a link cannot be created (no privilege, no support) rather than failing for the machine.
   const dir = mkdtempSync(join(tmpdir(), 'aipg-plan-block-'));
   const link = join(dir, 'tools');

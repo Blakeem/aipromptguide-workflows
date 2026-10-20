@@ -102,7 +102,7 @@ const ROADMAP = [
   '',
 ].join('\n');
 
-const DEV_OK = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, plan_obtained: true };
+const DEV_OK = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, plan_obtained: true, new_issues: 0, new_issue_blocks: [] };
 const DEV_FIX = { ...DEV_OK, results: [{ issue_id: 'f-1', status: 'FIXED' }, { issue_id: 'f-2', status: 'STALE' }] };
 const CLEAN = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, plan_obtained: true };

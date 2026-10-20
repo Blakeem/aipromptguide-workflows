@@ -2204,10 +2204,10 @@ export function main(argv) {
 
 // Node resolves the MAIN module through realpath by default (`--preserve-symlinks-main` off), so
 // `import.meta.url` is canonical while argv[1] is whatever the caller typed. A symlink, a Windows junction
-// or a `subst` drive anywhere in the invocation path made the two differ, `invokedDirectly` false, and the
-// process wrote NOTHING at exit 0 — every loud failure above bypassed, which is the silent-success shape
+// or a `subst` drive anywhere in the invocation path makes the two differ and `invokedDirectly` false. The
+// process then writes nothing at exit 0 and bypasses every loud failure above, the silent-success shape
 // this file exists to prevent. Realpath BOTH sides, so it holds under `--preserve-symlinks-main` too.
-// (Twin of the same expression in tools/plan-block.mjs — tests/CLAUDE.md §1.)
+// (Twin of the same expression in tools/plan-block.mjs, per tests/CLAUDE.md §1.)
 let invokedDirectly = false;
 try {
   invokedDirectly = Boolean(process.argv[1])

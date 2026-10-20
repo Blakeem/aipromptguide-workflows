@@ -134,7 +134,7 @@ function main(argv) {
   return `granted ${spelled} in ${settingsPath} (added)\n`;
 }
 
-// Realpath both sides, as the other tools do: a link in the script path otherwise made the CLI a no-op.
+// Realpath both sides, as the other tools do. A link in the script path otherwise makes the CLI a no-op.
 let invokedDirectly = false;
 try {
   invokedDirectly = Boolean(process.argv[1])

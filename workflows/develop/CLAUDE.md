@@ -10,9 +10,12 @@ block** before the next. Built to
 
 ## 1. Scope (check FIRST)
 
-Right-size per block, same bars as the engines it replaces: a `feature` block is one bounded feature
-(~10–100+ lines plus tests); a `section` block is one coherent slice of one goal, roughly
-feature-sized. Too small → just edit. A block too big for one develop pass → split it before running.
+Right-size each block by behavior, never by line count. A block holds one behavior a reviewer can
+judge as a unit. A `feature` block's behavior is one entry point (a verb, a command, an endpoint or an
+added function) with its failure and recovery paths. A `section` block's behavior is one slice of the
+goal whose call sites convert and are accepted together. Behaviors that can each be accepted alone are
+separate blocks, listed in dependency order with `ordered: true` set when one builds on another. Too
+small, such as a one-liner or a rename → just edit.
 A block may edit hand-written documentation. Acceptance judges a doc edit only against the block's
 acceptance criteria or fix entries, so name each doc change a block owes in one of them. Generated
 files, such as a flow map regenerated from an engine a block changes, belong to that block. Locate code
@@ -125,25 +128,48 @@ models. Show each block's model in the approval summary.
   does a block that already landed and is built again from scratch, so its old `DISMISSED-<id>.md`
   stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 
-**Choosing the change policy.** `changePolicy` sets how far a developer may change code past its block.
-`strict` keeps each change to its block. `proactive` builds each feature and section block with the
-change that has the best long-term result. It also fixes clear defects and makes clear-win refactors in
-the code a block reaches, logging each to `DECISIONS.md`. A fix block keeps each fix as its entry
-instructs, and that extra work stays inside the code each fix touches. Acceptance excuses a logged
-change from its regression check only when it stays inside those bounds, the behavior it removes was a
-defect, and nothing else changed. Every developer prompt says the policy and the prompt's own scope
-rules override any other instruction about scope, a memory line or a CLAUDE.md included. A policy the
-user names for a run wins. Otherwise look for the target repo in the auto-memory entry
-`change-policy.md`, a topic file whose `MEMORY.md` index line lists each repo by absolute path with its
-policy, such as `- [Change policy](change-policy.md) — E:/proj=proactive, E:/work/api=strict`. Match
-the path case-insensitively, with forward slashes. A listed repo takes its policy. A worktree takes the
-line of its main checkout. `git -C <worktree> rev-parse --path-format=absolute --git-common-dir` prints
-that checkout's `.git` folder, whose parent is the checkout. An unlisted repo takes `strict`, with no
-question and no memory write, when `git -C <repo> log --format=%ae | sort -u` shows an author other
-than the user's `git config user.email`. An unlisted repo whose only author is the user, or that has no
-commits yet, gets one question with `proactive` recommended, and the answer is saved to that memory
-entry and its index line. With auto memory off, the default is `strict`. Show the policy in the
-approval summary.
+**Choosing the change policy.** `changePolicy` sets each blind review's bar, which findings a developer
+fixes, and how far it may change code past its block. Under `strict`, every blind review hunts at
+`medium`, or `high` in a block's last allowed round, and never hunts or reports a finding below its
+bar. Under `proactive`, a block's blind reviews in a launch hunt at `low`, then `medium`, then `high`,
+or `high` in its last allowed round, and each review that finds something also dives below its bar,
+down to nit.
+`strict` aims for working code that stays close to the task. A strict developer checks its own diff
+only for findings at `medium` or above and for regressions at any tier. It changes code only in the
+code its block's required changes add, change or interact with, or in a fix block the code each fix
+touches and the sibling paths of each root cause. It fixes a critical, high or security finding in
+code its block adds or changes. When that fix conflicts with the plan, it fixes the finding only
+after it verifies the plan is defective, and logs an amendment. It weighs a medium against its cost.
+It logs each fix of a defect the staged baseline already had to `DECISIONS.md` as a `STRICT` line.
+`proactive` aims for the best code. A proactive developer builds each feature and section block with
+the change that has the best long-term result. It fixes a clear win at any tier and makes clear-win
+refactors in the code a block reaches. A fix block keeps each fix as its entry instructs, and that
+extra work stays inside the code each fix touches. Past those bounds it changes code only to close a
+defect a review file names, or the same defect on a sibling path of one or of a required fix, apart
+from code the block's text excludes or another block of the plan owns. It logs each change past its
+block's own work to `DECISIONS.md` as a `PROACTIVE` line. Under both policies, acceptance excuses a
+logged fix from its regression check only when it lies inside the developer's bounds, the behavior
+it removes was a defect, and nothing else changed. Every logged fix, apart from a proactive fix
+block's, must also lie in no code another block of the plan owns. Acceptance judges a fix past the
+proactive bounds as a removed defect. Every developer prompt says the policy and the prompt's own
+scope rules override any other instruction about scope, a memory line or a CLAUDE.md included.
+Settle a run's policy in these steps, where `<change-policy.mjs>` is this checkout's
+`tools/change-policy.mjs`.
+
+- A policy the user names for a run wins.
+- Otherwise, before §2 step 1, run `node <change-policy.mjs> check --root <root> --repo <target.repo>`
+  and use the policy it prints. The tool keys a repo by its main checkout, so a worktree takes its
+  main checkout's policy.
+- On `missing <key> recommend=<policy>`, ask the user once which policy the repo takes. List the
+  recommended policy first, marked recommended, with one line for each policy:
+  - `strict`: working code that stays close to the task.
+  - `proactive`: the best code, with a clear win fixed at any tier and clear-win refactors made in the
+    code a block reaches.
+
+  Then save the answer with `node <change-policy.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
+- When `check` or `set` exits 1, show the user its message, which names the cause, and run the step
+  again once the cause is fixed.
+- Show the policy in the approval summary.
 
 ## 5. Roles
 
@@ -152,46 +178,65 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
   `AMENDED-<id>.md` (read by acceptance and the sweep, never the blind reviewer), `NEEDS-USER.md`,
   `DECISIONS.md`. It follows the repo's existing patterns before it writes, and checks its own diff with
-  the blind reviewer's severity scale, reach step and checklist before handoff. It fixes clear wins at
-  every tier, a finding below the threshold included, and weighs the rest against their cost. It logs every
-  finding it does not fix, so none is dropped silently. A dismissal names one place or the class of places
-  it covers, and its reason holds for every place it names. It escalates only a choice that changes
-  user-visible behavior, stored data or a public contract and that nothing it can read or check settles,
-  or a blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
-  default it took goes to `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding or
-  makes a fix the block requires, it fixes every sibling path with the same mechanism inside the block's
-  scope, and logs one outside it. Code the block's text excludes, or that another block of the plan
-  owns, is outside that scope. **Must attest `unstaged_confirmed`. A
-  missing or false attestation HALTS, even beside a needs-user escalation** (the staged index is
-  surface neither reviewer checks).
+  the blind reviewer's severity scale, reach step and checklist before handoff. It fixes and weighs
+  findings as the change policy sets (§4). It logs every finding it routes and does not fix, so none is
+  dropped silently. A dismissal names one place or the class of places it covers, and its reason holds
+  for every place it names. It escalates only a choice that changes user-visible behavior, stored data
+  or a public contract and that nothing it can read or check settles, or a blocker it cannot resolve in
+  scope. One it cannot proceed without goes to `NEEDS-USER.md`. A default it took goes to
+  `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding or makes a fix the block
+  requires, it greps for every sibling path with the same mechanism and fixes each one, at any tier,
+  inside its policy's bounds (§4). Under `strict` it logs every other sibling. Under `proactive` it
+  fixes one past those bounds only as §4 allows, and logs the others. Under both, it logs a sibling in
+  code the block's text excludes or that another block of the plan owns. Under both policies, a real
+  defect at low or above that it logs because the defect lies outside its policy's bounds, under rule 2
+  or as a sibling path, also goes to its block's `<root>/plans/<runId>/NEW-ISSUES-<block id>.md` as a
+  `NEEDS_USER` entry `<block id>-noticed-<n>` in debug's issue-file shape, so a later run can fix it. A
+  false positive, a nit and a defect in code another block owns get no entry. In a pass, the entry goes
+  to the file of the member whose entry's fix led to the defect. The dismissal line stays, since the
+  blind reviewer never reads a NEW-ISSUES file. When a fix it logs to `DECISIONS.md` closes a defect
+  that an entry in any NEW-ISSUES file holds, it adds a `**Closed by:**` line to that entry and leaves
+  the entry's status and decision as they are, since a park clears the fix from the tree. Triage then
+  confirms the staged code holds the fix before it skips the entry. **Must attest
+  `unstaged_confirmed`. A missing or false attestation HALTS, even beside a needs-user escalation**
+  (the staged index is surface neither reviewer checks).
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
-  at a severity threshold: `low` on a block's first review in a launch when a later round remains, so
-  that round fixes its lows, and `reviewSeverity` on every other review. It works through a reach step
-  over callers, siblings, duplicates and describing text, and a lens checklist. It dives below the threshold, down to nit,
-  only when its hunt found something at or above it. It also flags a new sentence that the
+  at a severity bar the change policy sets. A block's last allowed round hunts at `high` under both
+  policies, since no round is left to fix a smaller finding. Otherwise `strict` hunts at `medium` on
+  every review, and `proactive` hunts at `low` on a block's first review in a launch, `medium` on its
+  second and `high` on every later one. The count restarts in each launch, so a block continued from its
+  parked patch starts at `low` again. It works through a reach step over callers, siblings, duplicates and
+  describing text, and a lens checklist. A `proactive` review dives below its bar, down to nit, only when
+  its hunt found something at or above it. A `strict` review neither hunts nor reports a finding below its
+  bar, and its checklist, like a strict developer's self-check, drops the maintainability item (the nit
+  list). It also flags a new sentence that the
   repo's code contradicts. Skipped ONLY when no work is owed a review (`reviewOwed`). A round that
   only re-runs a red gate, drops every finding or answers a failed acceptance cannot skip it past
   unreviewed, flagged or rejected code.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
-  block the staged baseline already satisfies passes without inventing changes). When no blind review
-  has run for a feature or section block, any unstaged or untracked change fails acceptance. In fix
-  mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. It reads every
-  earlier review file of its block and counts an earlier finding as a gap unless the code closes it on
-  every sibling path or the dismissal ledger declines it. Every defect it
-  writes in its review file counts as a gap, including a regression the block prescribes or no current caller reaches.
-  A change that removes a defect a review finding named, or the same defect on a sibling path of a
-  required fix or of such a finding, is not a regression when the code shows the removed behavior was a
-  real defect, the change alters no other behavior, the block's text does not exclude that code, and no
-  other block of the plan owns it. For a continued block, that rule also counts the findings of the
-  review files its parks kept in `parked-<id>-reviews/`.
-  The developer never dismisses a regression. It fixes the regression, with an
-  amendment when the block prescribes it, or escalates it with a default when the fix needs major
-  changes outside the block's scope. The review file holds no notes section. In fix mode, a harm an
-  entry lists whose cause shares no code path with the re-derived root cause is a new issue, never a
-  gap. A sibling path with the identical defect stays a residual path. The verifier appends a new issue
-  to its source block's `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`, a fix-mode plan file with every
-  entry `NEEDS_USER`. The return counts new issues in `newIssues` and names each file in
-  `newIssueFiles`. Triage a block's file like a debug issue file once that block is `done` or `skip`.
+  block the staged baseline already satisfies passes without inventing changes). When no blind
+  review has run for a feature or section block, any unstaged or untracked change fails acceptance.
+  In fix mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. It
+  reads every earlier review file of its block and counts an earlier finding as a gap unless the
+  code closes it on every sibling path or the dismissal ledger declines it. Every defect it writes
+  in its review file counts as a gap, including a regression the block prescribes or no current
+  caller reaches. A change that removes a defect a review finding named, or the same defect on a
+  sibling path of a required fix or of such a finding, is not a regression when the code shows the
+  removed behavior was a real defect, the change alters no other behavior, the block's text does not
+  exclude that code, and no other block of the plan owns it. Under `strict`, the change must also
+  lie inside the developer's bounds (§4). For a continued block, that rule also counts the findings
+  of the review files its parks kept in `parked-<id>-reviews/`. The developer never dismisses a
+  regression. It fixes the regression, with an amendment when the block prescribes it, or escalates
+  it with a default when the fix needs major changes outside the developer's bounds (§4). The review
+  file holds no notes section. In fix mode, a harm an entry lists whose cause shares no code path
+  with the re-derived root cause is a new issue, never a gap. A sibling path with the identical
+  defect stays a residual path. The verifier appends a new issue to its source block's
+  `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`, a fix-mode plan file with every entry
+  `NEEDS_USER`. The verifier and the developer start a new file with one header,
+  `## Plan: <block id>-new-issues - defects found outside the block's work`, then `mode: fix`,
+  `gate: green` and `status: todo`. The return counts both writers' entries in `newIssues` and names
+  each file in `newIssueFiles`.
+  Triage a block's file like a debug issue file once that block is `done` or `skip`.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
@@ -208,8 +253,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 ## 6. Loop, gates & verification
 
 `develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 5) per
-block. The review threshold is `low` on a block's first review in a launch when a later round remains,
-and `reviewSeverity` on every other review. A finding below a review's threshold never sends a block back on its own, unless the developer
+block. Each review's bar follows the change policy. `strict` hunts at `medium`, `proactive` at `low`,
+then `medium`, then `high` by review in a launch, and a block's last allowed round hunts at `high` under
+both. Only a `proactive` review that finds something dives below its bar, down to nit. A finding below a review's bar never sends a block back on its own, unless the developer
 neither fixed nor logged it, which acceptance counts as a gap. Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
 too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected in a migration).
@@ -300,19 +346,20 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
-  entry means the sweep did not run) · `newIssues` (fix mode, null when a verifier returned no usable report) · `newIssueFiles`
-  (the sorted new-issues files the verifiers named, null when `newIssues` is null) · `nextStep`.
+  entry means the sweep did not run) · `newIssues` (every mode, the entries developers and fix
+  verifiers appended, null when one returned no usable report) · `newIssueFiles` (the sorted
+  NEW-ISSUES files the developers and fix verifiers named, null when `newIssues` is null) · `nextStep`.
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
-  garbage) · `reviewSeverity` (`low|medium|high|critical`, default `medium`, any other value
-  **throws**. The threshold of every blind review but a block's first in a launch, which uses `low`
-  when a later round remains) · `changePolicy` (`strict|proactive`, default `strict`, any other value
-  **throws**. How far a developer may change code past its block, and §4 says how to choose it) ·
+  garbage) · `changePolicy` (`strict|proactive`, default `strict`, any other value **throws**. Each
+  blind review's bar, which findings a developer fixes, and how far it may change code past its block,
+  and §4 says how to choose it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (keep the quality, acceptance and sweep roles on opus, and set another model for them only when the
   user asks. A saved memory preference counts as asking. The develop role is opus by default, and a
   block's `model:` line overrides `models.develop` for that block's developer and park agent, §3) ·
   `stateDir` · `runOnly` · `continueParked` (block ids whose round 1 restores the parked patch, §7.
   **Throws** on a non-array or an id outside the pending blocks).
-- **Retired:** `startAt`, a top-level `planPath` and `planContext` are retired and **throw**.
+- **Retired:** `startAt`, `reviewSeverity` (`changePolicy` sets every blind review's bar), a top-level
+  `planPath` and `planContext` are retired and **throw**.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.

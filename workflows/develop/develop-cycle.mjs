@@ -3,8 +3,8 @@ export const meta = {
   description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) → plan-aware acceptance + regression review (stages on pass), looped per round; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
   whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode → the user approves), and the operator derives the args with `tools/plan-edit.mjs args <planPath>` and spreads the object it prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, never committed. Reuse one runId across resumes.',
   phases: [
-    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues; implements it within the run\'s changePolicy (strict keeps to the block, proactive also fixes clear defects and makes clear-win refactors in the code the block reaches, or in a fix block the code each fix touches), runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision.' },
-    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags findings at or above its review\'s severity threshold (low on a block\'s first review in a launch when a later round remains, reviewSeverity on every other one), and findings below it only beside one at or above it, writes quality-review-<id>-rN.md. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
+    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues; implements it within the run\'s changePolicy, runs the gate, leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing. A strict developer self-checks only for findings at medium or above and for regressions at any tier. It fixes a critical, high or security finding in code its block adds or changes, and fixes one whose fix conflicts with the plan only after it verifies the plan is defective. It changes code only in the code its block\'s required changes add, change or interact with (in a fix block, the code each fix touches and the sibling paths of each root cause). There it weighs a medium against its cost and fixes every sibling path of a finding it fixes or of a fix its block requires, apart from code its block\'s text excludes or another block owns. It logs each fix of a defect the staged baseline already had to DECISIONS.md. A proactive developer fixes a clear win at any tier and makes clear-win refactors in the code its block reaches (in a fix block, the code each fix touches). It fixes every sibling path of a finding it fixes or of a fix its block requires inside that code, and past that code only a defect a review file names or a sibling path of one or of a required fix, apart from code its block\'s text excludes or another block owns. It logs each change past its block\'s own work to DECISIONS.md. Under both policies, each real defect at low or above that it declines because the defect lies outside the code its policy lets it change, apart from one in code another block owns, also goes to its block\'s NEW-ISSUES-<id>.md, a fix-mode plan file a later run builds once the user triages it.' },
+    { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), flags findings at or above its review\'s severity bar, writes quality-review-<id>-rN.md. changePolicy sets the bar: high in a block\'s last allowed round, otherwise medium on every strict review, and low, medium, then high on a block\'s first, second and later proactive reviews in a launch. A proactive review that finds something also dives below its bar, down to nit. A strict review neither hunts nor reports a finding below its bar. Must be clean to proceed. Skipped only for a block that has produced nothing AND has no review still open.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression. Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add, never commit) — the accepted baseline advances.' },
     { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
     { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory — a dead sweep never halts.' },
@@ -55,22 +55,25 @@ const num = (v, name, min, dflt, max = 1_000_000) => {
 };
 const MAX_ROUNDS  = num(A.maxRounds, 'maxRounds', 1, 5, 50);    // develop→quality→acceptance rounds per block
 const MIN_PLAN_BUDGET = num(A.minPlanBudget, 'minPlanBudget', 0, 150_000); // token floor to start another block
-// The blind reviewer's blocking threshold. A nit never blocks, so nit is not a valid threshold.
-const VALID_REVIEW_SEVERITY = new Set(['low', 'medium', 'high', 'critical']);
-const REVIEW_SEVERITY = A.reviewSeverity ?? 'medium';
-if (!VALID_REVIEW_SEVERITY.has(REVIEW_SEVERITY)) {
-  throw new Error(`Invalid args.reviewSeverity: it must be one of low, medium, high, critical; got ${JSON.stringify(A.reviewSeverity)}. It is not coerced, and nit is never a threshold, since a finding below the threshold never blocks.`);
-}
-// A block's first review in a launch uses low so a later round fixes its lows. The last round has none
-// left, so its review keeps reviewSeverity like every later review and the loop stops at that bar.
-const FIRST_REVIEW_SEVERITY = 'low';
-// A typo that coerced would silently widen or narrow every developer's diff.
+// A typo that coerced would silently move every blind review's bar and widen or narrow every developer's diff.
 const VALID_CHANGE_POLICY = new Set(['strict', 'proactive']);
 const CHANGE_POLICY = A.changePolicy ?? 'strict';
 if (!VALID_CHANGE_POLICY.has(CHANGE_POLICY)) {
-  throw new Error(`Invalid args.changePolicy: it must be one of strict, proactive; got ${JSON.stringify(A.changePolicy)}. It is not coerced, since it decides how far past its block a developer may change code.`);
+  throw new Error(`Invalid args.changePolicy: it must be one of strict, proactive; got ${JSON.stringify(A.changePolicy)}. It is not coerced, since it decides each blind review's bar and how far past its block a developer may change code.`);
 }
 const PROACTIVE = CHANGE_POLICY === 'proactive';
+// Ignored, it would leave the operator believing a bar the run never used.
+if (A.reviewSeverity !== undefined) {
+  throw new Error(`args.reviewSeverity is retired: changePolicy now sets every blind review's bar (strict hunts at medium, proactive at low, then medium, then high by review, and a block's last allowed round at high under both), so drop this key. Got reviewSeverity ${JSON.stringify(A.reviewSeverity)}.`);
+}
+// No later round could fix a smaller finding, so the last allowed round hunts at high. reviewsSoFar counts
+// this launch's blind reviews of the block, so a block continued from its parked patch climbs the ladder again.
+const PROACTIVE_LADDER = ['low', 'medium', 'high'];
+const reviewBar = (policy, reviewsSoFar, round) => {
+  if (round >= MAX_ROUNDS) return 'high';
+  if (policy === 'strict') return 'medium';
+  return PROACTIVE_LADDER[Math.min(reviewsSoFar, PROACTIVE_LADDER.length - 1)];
+};
 
 // Retired args throw, never ignored: each served only a hand-built payload, which skips the status fold
 // `plan-edit.mjs args` applies. Below num(): the cross-engine bound sweep passes refine's top-level planPath.
@@ -295,8 +298,8 @@ const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything th
 const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
-// Defaults the developer took, plan amendment pointers and a proactive run's fixes past each block, for
-// the user to read, never a question.
+// Defaults the developer took, plan amendment pointers and the LOGGED_FIX lines, for the user to read,
+// never a question.
 const DECISIONS      = `${STATE_DIR}/DECISIONS.md`;
 const dismissedFile  = (id) => `${GATE_DIR}/DISMISSED-${slug(id)}.md`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
 // MATRIX 6a overrides, read by acceptance and the sweep. It quotes plan text, so it stays outside GATE_DIR.
@@ -309,7 +312,8 @@ const parkedReviewsDir = (id) => `${STATE_DIR}/parked-${slug(id)}-reviews`;
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 // A closed inventory is what lets a fix loop converge, so an issue found mid-run waits for the user's triage.
 // One fixed file per source block, so its triage never waits on another block's relaunch.
-const newIssuesFile  = (id) => `${ROOT}/plans/${RUN_ID}/NEW-ISSUES-${slug(id)}.md`;
+const NEW_ISSUES_DIR = `${ROOT}/plans/${RUN_ID}/`;
+const newIssuesFile  = (id) => `${NEW_ISSUES_DIR}NEW-ISSUES-${slug(id)}.md`;
 
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. Only it
 // forbids prior reviews, which would anchor it (#5). Acceptance overrides instead.
@@ -318,9 +322,9 @@ const SETTLED = (id, canContest, threshold) => `Before reviewing, READ ${canCont
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.${canContest ? '' : `
   • ${NEEDS_USER} — items already escalated to the user.
-  • ${DECISIONS} — ${PROACTIVE ? `defaults the developer took, plan amendment pointers, and one line per fix or refactor this run's
-    proactive change policy let the developer make beyond a block's own work, a record. A PROACTIVE line
-    is never skipped for its stated reason, since the regression rule below judges each one.` : 'defaults the developer took and plan amendment pointers, a record.'}`}
+  • ${DECISIONS} — defaults the developer took, plan amendment pointers, and one line per ${LOGGED_FIX.fix} that
+    this run's ${CHANGE_POLICY} change policy let the developer make beyond a block's own work, a record. A
+    ${LOGGED_FIX.tag} line is never skipped for its stated reason, since the regression rule below judges each one.`}
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
 If you are confident a DISMISSED reason is WRONG and the finding is at or above the ${threshold} threshold,
@@ -349,8 +353,8 @@ function gateOk(gate, dev) {
 const developSchema = (mode) => ({
   type: 'object',
   required: mode === 'fix'
-    ? ['plan_obtained', 'baseline_dirty_files', 'results', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments']
-    : ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments'],
+    ? ['plan_obtained', 'baseline_dirty_files', 'results', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'new_issues', 'new_issue_blocks']
+    : ['plan_obtained', 'baseline_dirty_files', 'produced', 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'new_issues', 'new_issue_blocks'],
   properties: {
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
@@ -380,18 +384,23 @@ const developSchema = (mode) => ({
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
     // Required, unlike dismissed_count: an omitted field must not read as "none this round".
     plan_amendments:   { type: 'integer', description: 'entries you appended to this block\'s AMENDED file this round (MATRIX 6a). Report 0 when there were none.' },
+    // Acceptance's fix schema declares the same two fields. Each schema writes them out, since
+    // tests/static.test.mjs reads only the fields a schema declares itself.
+    new_issues:        { type: 'integer', description: 'entries you appended this round to the NEW-ISSUES-<block id>.md files your prompt names (0 if none)' },
+    new_issue_blocks:  { type: 'array', items: { type: 'string' }, description: 'the id of every block whose NEW-ISSUES-<block id>.md file you appended to this round ([] if none)' },
     gate_output:       { type: 'string', description: 'tail of failing gate/verification output, or "" if green' },
   },
 });
 
+// A strict review reports nothing below its threshold, so only a proactive one returns a below-threshold count.
 const qualitySchema = (threshold) => ({
   type: 'object',
-  required: ['wrote_file', 'clean', 'issue_count', 'minor_count'],
+  required: ['wrote_file', 'clean', 'issue_count', ...(PROACTIVE ? ['minor_count'] : [])],
   properties: {
     wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
     clean:       { type: 'boolean', description: `true if no finding at or above this review's ${threshold} threshold and no contest` },
     issue_count: { type: 'integer', description: `findings at or above this review's ${threshold} threshold written to the review file` },
-    minor_count: { type: 'integer', description: 'findings below the threshold written in stage 2 (0 when stage 2 did not run)' },
+    ...(PROACTIVE ? { minor_count: { type: 'integer', description: `findings below this review's ${threshold} threshold written in stage 2 (0 when stage 2 did not run)` } } : {}),
     contested_dismissals: { type: 'integer', description: 'how many DISMISSED entries you re-raised as "CONTESTS DISMISSAL:" this round (0 if none)' },
   },
 });
@@ -507,38 +516,87 @@ const ROUND_NOTE = (round) => `This is round ${round} of at most ${MAX_ROUNDS}. 
 // Every agent also loads the user's CLAUDE.md and auto memory, either of which may set scope another way.
 // The prompt's own scope rules, 6a's PRECEDENCE included, carry the policy out, so they are not "other".
 const POLICY_LINE = `CHANGE POLICY: ${CHANGE_POLICY}. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.`;
+const OWNED_CODE = 'in code no other block of the plan owns';
+const UNCLAIMED_CODE = `in code this block's text does not exclude and ${OWNED_CODE}`;
+// Rule 2 and the sibling bullet let a proactive developer close an earlier review finding, or a sibling of one
+// or of a required fix, past its bound, so the prompt's scope rules must permit that change. Its code limit
+// is the one acceptance's removed-defect item applies.
+const PROACTIVE_PAST_REACH = `change code only to close a defect an earlier review finding names, or the same defect on
+a sibling path of such a finding or of a fix this block requires, when that defect exists in the current
+code and lies ${UNCLAIMED_CODE}. An earlier review finding is one a review file of this block names,
+never one your SELF-CHECK found.`;
 // The blind reviewer's REACH step starts from the entire diff. The developer's starts from the block's own
 // changes, so a proactive change cannot widen the reach it is bounded by.
 const PROACTIVE_BUILD = `with the change that has the best long-term result: correct, simple, maintainable and consistent
 with the repo. Also fix clear defects and make clear-win refactors in this block's reach, which is the code the
 REACH step in your SELF-CHECK below finds from the changes this block itself requires, not from your
-proactive changes. Leave a change that another block of the plan owns to that block.`;
+proactive changes. Outside that reach,
+${PROACTIVE_PAST_REACH}
+Leave a change that another block of the plan owns to that block.`;
+
+// One name per policy's bound, so the developer's rules and acceptance judge a logged fix against the same code.
+// Every bound is keyed on the block's required changes, never on the developer's own fixes, so a fix cannot
+// widen it.
+const proactiveBound = (mode) => (mode === 'fix' ? "the code each ACTIONABLE entry's fix touches" : "this block's reach");
+// A feature or section bound holds the required changes' callers and consumers, where the defects those
+// changes expose sit. A fix block's bound adds each root cause's sibling paths, since fix acceptance
+// requires them closed.
+const strictBound = (mode) => (mode === 'fix'
+  ? `${proactiveBound(mode)} and the sibling paths of each ACTIONABLE entry's root cause`
+  : "the code that this block's required changes add, change or interact with");
+// A fix past the block's own work changes a baseline behavior no review named, so acceptance needs the
+// developer's DECISIONS line to tell it from a regression.
+const LOGGED_FIX = PROACTIVE
+  ? { tag: 'PROACTIVE', fix: 'fix or refactor', bound: proactiveBound }
+  : { tag: 'STRICT', fix: 'fix of a defect already in the staged baseline', bound: strictBound };
+// The proactive fix-block bound holds only this block's own fixes. A root cause's sibling path in the
+// strict fix-block bound can lie in code another block owns.
+const ownershipClause = (mode) => (PROACTIVE && mode === 'fix' ? '' : ` and ${OWNED_CODE}`);
 
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
 // PRECEDENCE must quote the frame's own scope line, or 6a outranks nothing.
 const SCOPE_LINE = PROACTIVE ? {
-  feature: 'NO scope creep beyond the plan and this block\'s reach',
-  section: 'NO scope creep beyond this block and its reach',
-  fix: 'NO scope creep beyond what each fix requires and the code it touches',
+  feature: 'NO scope creep beyond the plan, this block\'s reach and the defect fixes this prompt allows outside it',
+  section: 'NO scope creep beyond this block, its reach and the defect fixes this prompt allows outside it',
+  fix: 'NO scope creep beyond what each fix requires, the code it touches and the defect fixes this prompt allows outside that code',
 } : {
-  feature: 'NO scope creep beyond the plan',
-  section: 'NO scope creep beyond it',
-  fix: 'NO scope creep beyond what each fix requires',
+  feature: `NO scope creep beyond the plan and the defect fixes this prompt allows inside ${strictBound('feature')}`,
+  section: `NO scope creep beyond it and the defect fixes this prompt allows inside ${strictBound('section')}`,
+  fix: `NO scope creep beyond what each fix requires and the defect fixes this prompt allows inside ${strictBound('fix')}`,
 };
-const MATRIX = (id, round, mode) => {
-  const reachScope = PROACTIVE && mode !== 'fix';
-  return `DECISION MATRIX — for each ambiguity or review finding, route it yourself IN ORDER (first match wins):
+
+// The developer and fix acceptance both write NEW-ISSUES files. A pass member's file holds only what its
+// own entries led to, so each block's file is triaged on its own.
+const newIssuesBlockId = (p) => (p.blocks ? '<that block\'s id>' : p.id);
+// `indent` is the caller's continuation indent, so the lines sit inside the caller's step or bullet.
+const newIssueRoute = (p, owner, { exclusion = '', indent = '   ' } = {}) => p.blocks
+  ? `only to the file of the block ${owner}${exclusion}:
+${p.blocks.map((b) => `${indent}  - ${b.issues.join(', ')} → ${newIssuesFile(b.id)} (block "${b.id}")`).join('\n')}
+${indent}Count it in new_issues and name that block in new_issue_blocks.`
+  : `to ${newIssuesFile(p.id)} only${exclusion}.
+${indent}Count it in new_issues and name "${p.id}" in new_issue_blocks.`;
+const newIssuesHeader = (p) => `A new file starts with the four lines "## Plan: ${newIssuesBlockId(p)}-new-issues - defects found outside the block's work", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
+const newIssuesDedup = (item) => `Before you append, read every existing NEW-ISSUES-*.md in ${NEW_ISSUES_DIR} and never append a ${item} any of them already holds.`;
+
+const MATRIX = (p, round) => {
+  const { id, mode } = p;
+  const noticedId = `${newIssuesBlockId(p)}-noticed-<n>`;
+  const boundNote = PROACTIVE && mode !== 'fix' ? ', as the top of this prompt defines it' : '';
+  // Exempts the findings PROACTIVE_PAST_REACH covers, so its limits decide them. A strict developer changes
+  // nothing past its bound.
+  const pastBoundExempt = PROACTIVE ? `, neither an earlier review finding nor a sibling
+      path of one you FIX or of a fix this block requires` : '';
+  return `DECISION MATRIX — for each ambiguity or finding, route it yourself IN ORDER (first match wins):
   1. Not a real problem / false positive → DROP + LOG.
-  2. ${reachScope
-    ? `Pre-existing in code outside this block's reach, as the top of this prompt defines it, and not a
-      sibling path of a finding you FIX or of a fix this block requires → DROP + LOG. Never fix it
-      (regression risk).`
-    : `Pre-existing in code this diff neither changes nor interacts with, and not a sibling path of a
-      finding you FIX or of a fix this block requires → DROP + LOG. Never fix it (regression risk).`}
+  2. Pre-existing outside ${LOGGED_FIX.bound(mode)}${boundNote}${pastBoundExempt} → DROP + LOG.
+      Never fix it (regression risk).
   3. Stops the build/tests/verification → FIX (always).
-  4. A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
-      → FIX.
+  4. ${PROACTIVE
+    ? `A clear win at any tier: real, local, small, low regression risk, and no conflict with the plan
+      → FIX.`
+    : `A critical, high or security finding in code this block adds or changes, that does not conflict
+      with the plan → FIX (always). A conflict with the plan still goes to 6a or 6b.`}
   5. Needed to satisfy the spec / wire this block in → FIX (an unreachable or incomplete block is not done).
       A piece the plan's prescribed text leaves out is this case, not a conflict, so it takes no amendment.
       An exception to a rule the plan states is a conflict (6a or 6b), never a left-out piece.
@@ -553,20 +611,23 @@ const MATRIX = (id, round, mode) => {
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
-  8. Any other real finding, at any tier: weigh its benefit (its tier, and how likely an input reaches it)
+  8. Any other real finding${PROACTIVE ? ', at any tier' : ''}: weigh its benefit (its tier, and how likely an input reaches it)
       against its cost (diff size, regression risk, scope). Benefit clearly ahead → FIX. Benefit not
       clearly ahead, or a different block's work → DROP + LOG.
   • Every finding a review names ends FIXED, LOGGED to the DISMISSED file, AMENDED (6a) or ESCALATED (7).
     None is dropped silently.
   • When you FIX a finding or make a fix this block requires, grep for every sibling path with the same
-    mechanism and fix each one inside this block's scope. DROP + LOG one outside the scope by its
-    file:line, or log the class it belongs to. Code this block's text excludes, or that another block of
-    the plan owns, is outside the scope.
+    mechanism and fix each one inside ${LOGGED_FIX.bound(mode)}.${PROACTIVE ? ` Outside it, fix only a sibling
+    path of an earlier review finding or of a fix this block requires.` : ''} DROP + LOG every other sibling
+    by its file:line, or log the class it belongs to. A sibling in code this block's text excludes, or
+    that another block of the plan owns, is DROP + LOG wherever it lies.
   • A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is
-    truly a user-only call, ESCALATE it. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted is a bug, so never DROP it under 1, 2, 6b or 8. FIX it (4, 5
-    or 6a), or ESCALATE it (7) with the default you took when the fix needs major changes outside this
-    block's scope.
+    truly a user-only call, ESCALATE it.${PROACTIVE ? '' : ` A contested defect already in the staged baseline
+    that lies outside ${strictBound(mode)} goes to 7, with the default of leaving it unchanged,
+    since acceptance counts a change there as a regression.`} NEVER log the same dismissal twice.
+  • A REGRESSION the acceptance review counted or your SELF-CHECK found is a bug, so never DROP it under
+    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
+    the default you took when the fix needs major changes outside ${LOGGED_FIX.bound(mode)}.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)}:
@@ -576,6 +637,33 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+  • RECORD (2 or the sibling bullet): when you DROP + LOG a real defect at low or above
+    ${OWNED_CODE} because it lies outside ${LOGGED_FIX.bound(mode)},
+    under rule 2 or as a sibling path the sibling bullet leaves outside it, also append ONE entry for it
+    ${newIssueRoute(p, "whose entry's fix led you to the defect", { indent: '    ' })}
+    A false positive and a nit get no entry. Write its DISMISSED line too, since the blind reviewer
+    reads that file and never this one.
+    ${newIssuesHeader(p)}
+    ${newIssuesDedup('defect')}
+    Each entry copies the shape of debug's issue files, with n one past the highest noticed id in that file:
+      ### [${noticedId}] <title>
+      - id: ${noticedId}
+      - status: open
+      - file: <path>:<line>
+      - severity: <low | medium | high | critical>
+      - category: <category>
+      - effort: <trivial | small | medium | large>
+      - decision: NEEDS_USER
+      **What:** <the defect, the input or path that reaches it, and its harm>
+      **Fix:** <the change that closes it>
+    A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
+    place, and its **What:** names the class.
+    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    When you append a ${LOGGED_FIX.tag} line below, read every NEW-ISSUES-*.md in ${NEW_ISSUES_DIR}.
+    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    **Fix:** line:
+      **Closed by:** block ${id} r${round}. Confirm at triage that the staged code holds the fix.
+    Leave its status and decision as they are, since a park clears the fix from the tree.
   • AMEND (6a): append ONE entry to ${amendedFile(id)}:
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -591,16 +679,17 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${DECISIONS}
       and would re-raise your default every round until this block parks.
     Write to ${NEEDS_USER} only a question the user must answer before a block can finish. Never write an
-    informational note, a test observation, a chore or a default you took to it.${PROACTIVE ? `
-  • PROACTIVE (this run's change policy): append ONE line to ${DECISIONS} for each fix or refactor you
-    made beyond this block's own work and no earlier round logged, naming its file:line, what changed
-    and why:
-      \`PROACTIVE ${id}: <file:line> — <what changed> — <why>\`` : ''}
-This is NOT a general code review. ${reachScope
+    informational note, a test observation, a chore or a default you took to it.
+  • ${LOGGED_FIX.tag} (this run's change policy): append ONE line to ${DECISIONS} for each ${LOGGED_FIX.fix}
+    that you made beyond this block's own work and no earlier round logged, naming its file:line, what
+    changed and why:
+      \`${LOGGED_FIX.tag} ${id}: <file:line> — <what changed> — <why>\`
+This is NOT a general code review. ${PROACTIVE
     ? `Make THIS block correct, testable and production-safe, fix the clear
-defects and make the clear-win refactors in this block's reach, and touch nothing outside that reach.`
-    : `Make THIS block correct, testable and production-safe, leave the
-lines you TOUCH a little better, and touch nothing else.`}`;
+defects and make the clear-win refactors in ${proactiveBound(mode)}, and outside it make
+only the defect fixes this prompt allows.`
+    : `Make THIS block correct, testable and production-safe, fix only the
+defects this prompt allows in ${strictBound(mode)}, and touch nothing else.`}`;
 };
 
 // The first six lines copy debug/review.mjs's SEVERITY_SCALE, so a grade means the same in both engines.
@@ -613,17 +702,23 @@ const SEVERITY_SCALE = `SEVERITY - grade by impact, never by the size of the fix
   nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
 A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
 higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
 NITS include: an overlong comment, or one that restates the code; a comment that breaks the
 CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
 diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
-no named constant; small duplication inside the diff; a redundant line or condition; control flow
-nested deeper than its logic needs; a function that mixes I/O with processing against the CONVENTIONS.`;
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.`;
 
 // Shared by the blind reviewer and the developer's self-check, so both judge a diff by one bar.
 const REACH = `REACH: for every function, constant, field, string or rule the diff changes, grep its callers
 and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
 comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
 counts as introduced by this diff.`;
+// A strict run never hunts a nit, so its CHECKLIST drops the nit list.
 const CHECKLIST = `CHECKLIST:
   - build and tests: anything that breaks the build or tests;
   - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
@@ -641,27 +736,29 @@ const CHECKLIST = `CHECKLIST:
   - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
     contradicts or that now misleads;
   - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
-    query or page, a secret reaching a log, result or error;
-  - maintainability: the nit list in the scale above.`;
+    query or page, a secret reaching a log, result or error${PROACTIVE ? `;
+  - maintainability: the nit list in the scale above.` : '.'}`;
 
-// One rule for both acceptance frames, so they cannot drift. The PROACTIVE reach repeats the developer's
-// bound, which nothing else checks.
+// The developer's self-check and acceptance's regression rule share this wording, so they cannot drift.
+const DOC_REGRESSION = "a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false";
+// One rule for both acceptance frames, so they cannot drift. The bounds of the removed-defect and
+// logged-fix items repeat the developer's, which nothing else checks.
 const regressionRule = (id, mode) => {
   const required = mode === 'fix' ? 'an ACTIONABLE entry' : 'a criterion of this block';
   const prescriber = mode === 'fix' ? "an entry's **Fix:**" : "this block's own text";
-  const proactiveReach = mode === 'fix'
-    ? 'the code a fix of this block touches'
-    : `this block's reach
+  const strictRemovedBound = PROACTIVE ? '' : ` that it lies in ${strictBound(mode)},`;
+  const reachDefinition = PROACTIVE && mode !== 'fix' ? `
     (the code this block's own changes touch, plus its callers and consumers, sibling paths with the same
-    mechanism, duplicates of the same logic, and the comments and docs that describe it) and in no change
-    another block of the plan owns`;
-  const proactiveItem = PROACTIVE ? `
-  - a behavior change that a "PROACTIVE ${id}:" line in
+    mechanism, duplicates of the same logic, and the comments and docs that describe it)` : '';
+  const proactiveLimits = PROACTIVE ? ` Such a line excuses no change outside that code, no refactor that changes behavior, and no
+    fix that alters any other behavior. A change outside that code is judged by this list's other items,
+    so a sibling-path fix outside it is not a regression when it meets the removed-defect item.` : '';
+  const loggedFixItem = `
+  - a behavior change that a "${LOGGED_FIX.tag} ${id}:" line in
     ${DECISIONS} names. It is not a regression only when you confirm from the code that the change
-    lies in ${proactiveReach},
+    lies in ${LOGGED_FIX.bound(mode)}${reachDefinition}${ownershipClause(mode)},
     that the baseline behavior it removes was itself a defect, and that the change alters no other
-    behavior. Such a line excuses no change outside that code, no refactor that changes behavior, and no
-    fix that alters any other behavior.` : '';
+    behavior.${proactiveLimits}`;
   // A continued launch starts earlierReviews empty, so its parked findings are in the copies park kept.
   const parkedReview = CONTINUE.has(id) ? ` This block continues its parked patch, so for this item every
     file under ${parkedReviewsDir(id)}/, when that folder exists, also counts as an earlier review of
@@ -675,35 +772,42 @@ ${required} requiring it. Not a regression:
     closes the same defect on a sibling path of a change ${required} requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that this block's text does not exclude that code, and that no other block of the plan
-    owns it.${parkedReview}${proactiveItem}
-Every other such break or change is a regression. A comment or doc sentence that was true in the
-staged baseline and that this cycle's diff made false is a regression. Count each one, even when
+    behavior,${strictRemovedBound} and that it lies ${UNCLAIMED_CODE}.${parkedReview}${loggedFixItem}
+Every other such break or change is a regression. So is ${DOC_REGRESSION}. Count each one, even when
 ${prescriber} prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
 developer fixes it, with an amendment when ${prescriber} prescribes it, or escalates it
-when the fix needs major changes outside this block's scope. Once the developer's ledger holds one, the
+when the fix needs major changes outside ${LOGGED_FIX.bound(mode)}. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.`;
 };
 const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.`;
 // Mirrors what each ACCEPTANCE_FRAME prompt checks. A change to one needs the same change to the other.
-const REMOVED_DEFECT_CHECK = "a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) in code that lies inside the scope this prompt sets, that this block's text does not exclude, and that no other block of the plan owns";
-const PROACTIVE_DEFECT_CHECK = 'a removed defect inside that scope that a PROACTIVE line in DECISIONS.md names';
-const NO_REGRESSION_CHECK = `that no behavior of the staged baseline regressed, apart from ${REMOVED_DEFECT_CHECK}${PROACTIVE ? `, or ${PROACTIVE_DEFECT_CHECK}` : ''}`;
+const removedDefectScope = (mode) => `${UNCLAIMED_CODE}, ${PROACTIVE ? 'wherever it lies' : `inside ${strictBound(mode)}`}`;
+const removedDefectCheck = (mode) => `a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) ${removedDefectScope(mode)}`;
+const loggedFixCheck = (mode) => `a removed defect, inside ${LOGGED_FIX.bound(mode)}${ownershipClause(mode)}, that a ${LOGGED_FIX.tag} line in DECISIONS.md names`;
+const noRegressionCheck = (mode) => `that no behavior of the staged baseline regressed, apart from ${removedDefectCheck(mode)}, or ${loggedFixCheck(mode)}`;
 const ACCEPTANCE_CHECKS = {
-  feature: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, ${NO_REGRESSION_CHECK}, and that the gate is satisfied.`,
-  section: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, ${NO_REGRESSION_CHECK}, and that this block's gate meets its expectation.`,
-  fix: `After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, ${NO_REGRESSION_CHECK}, and that the gate is satisfied.`,
+  feature: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, ${noRegressionCheck('feature')}, and that the gate is satisfied.`,
+  section: `After the blind review, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, ${noRegressionCheck('section')}, and that this block's gate meets its expectation.`,
+  fix: `After the blind review, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, ${noRegressionCheck('fix')}, and that the gate is satisfied.`,
 };
 const PATTERN_STEP = `PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.`;
 // The developer meets the blind reviewer's bar first, so no round is spent on a finding it could catch.
 const SELF_CHECK = (mode) => `SELF-CHECK before you return. The blind reviewer applies the SEVERITY scale, the REACH step
    and the CHECKLIST below to your diff next, so apply them to it first. "The diff" they name is your
-   unstaged diff, new files included. Route every finding the diff introduces or exposes, at every
-   tier, through the DECISION MATRIX below, and re-run the gate after each fix.
+   unstaged diff, new files included. ${PROACTIVE
+    ? `Route every finding the diff introduces or exposes, at every
+   tier, through the DECISION MATRIX below, and re-run the gate after each fix.`
+    : `Route every finding at medium or above that the diff introduces or
+   exposes through the DECISION MATRIX below, and re-run the gate after each fix. Lows and nits are
+   outside this strict run, so neither hunt for them nor log one you notice, apart from a regression or
+   a sibling path the MATRIX sibling bullet names. Route each regression and each finding a review
+   names through the DECISION MATRIX at any tier.`}
+   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   regressed, or ${DOC_REGRESSION}.
    ${ACCEPTANCE_CHECKS[mode]}
 ${SEVERITY_SCALE}
 
@@ -734,7 +838,7 @@ PROCEDURE:
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 4. ${SELF_CHECK(p.mode)}
 5. ${staging}
-6. ${MATRIX(p.id, round, p.mode)}
+6. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
 const sectionDevelop = (p, round, { opening, ledgerNote, staging }) => {
@@ -767,7 +871,7 @@ PROCEDURE:
 4. ${SUITE_LINE} Build/lint must always pass.
 5. ${SELF_CHECK(p.mode)}
 6. ${staging}
-7. ${MATRIX(p.id, round, p.mode)}
+7. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 };
 
@@ -777,8 +881,10 @@ const fixDevelop = (p, round, { opening, ledgerNote, staging }) => `
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
 a **Fix:** instruction. ${PROACTIVE ? `Fix each one exactly as instructed, minimally and surgically. Inside the code
-each fix touches, also fix clear defects and make clear-win refactors, never on behalf of an entry that is
-not ACTIONABLE. NO opportunistic refactors outside that code, ${SCOPE_LINE.fix}.` : `Fix each one exactly as instructed, minimally and surgically; NO opportunistic
+each fix touches, also fix clear defects and make clear-win refactors. Outside that code,
+${PROACTIVE_PAST_REACH}
+Change nothing on behalf of an entry that is not ACTIONABLE, inside or outside that code.
+NO opportunistic refactors outside that code, ${SCOPE_LINE.fix}.` : `Fix each one exactly as instructed, minimally and surgically; NO opportunistic
 refactors, ${SCOPE_LINE.fix}.`}
 ${POLICY_LINE}
 ${ENV}
@@ -806,7 +912,7 @@ PROCEDURE:
    with the reason, and keep the rest.
 5. ${SELF_CHECK(p.mode)}
 6. ${staging}
-7. ${MATRIX(p.id, round, p.mode)}
+7. ${MATRIX(p, round)}
 Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
@@ -890,30 +996,31 @@ SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff --staged\` is the ACCEPTED baseline — context only, do NOT review it.
 
 ${SEVERITY_SCALE}
-THRESHOLD: ${threshold}. A finding at or above it blocks this block. A finding below it never blocks.
+THRESHOLD: ${threshold}. A finding at or above it blocks this block. ${PROACTIVE ? 'A finding below it never blocks.' : `A finding below it is outside this
+run, so neither hunt for it nor report it.`}
 
-Report only what this diff introduces or exposes, at every tier. Drop silently anything
+Report only what this diff introduces or exposes, ${PROACTIVE ? 'at every tier' : 'at or above the threshold'}. Drop silently anything
 pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
 
 ${REACH}
 
 ${CHECKLIST}
-Apply the CHECKLIST in both stages below.
+Apply the CHECKLIST in ${PROACTIVE ? 'both stages' : 'stage 1'} below.
 
 STAGE 1, THRESHOLD HUNT. Working from critical down to the threshold, find every finding at or
 above the threshold through the checklist and the REACH step. A finding at medium or above names the
 concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie
 to a concrete input or path grades low at most. An EMPTY stage 1 is the normal, GOOD outcome.
-
+${PROACTIVE ? `
 STAGE 2, DIVE. Only when stage 1 found at least one finding, review the diff again for findings
 below the threshold, down to nit, so the developer fixes them while it works in this code. When
 stage 1 found nothing, skip stage 2 and report nothing below the threshold.
-
+` : ''}
 A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
 to executable code (\`git -C ${REPO} diff --word-diff\` shows each hunk's exact tokens), a path, command,
 identifier or file the new text names that does not exist, a sentence the change removed that other
 text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
-cited by line. Those four checks bound stage 1. Stage 2 also applies the nit list to such a hunk.
+cited by line. Those four checks bound stage 1.${PROACTIVE ? ' Stage 2 also applies the nit list to such a hunk.' : ''}
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
@@ -922,16 +1029,8 @@ highest first, one section per finding: its tier, file:line, what is wrong, the 
 harm (for a finding at medium or above), and a concrete fix. When stage 1 found nothing, write
 exactly "No findings at or above ${threshold}." Then return wrote_file (true ONLY if you wrote that
 file), clean (true if no finding at or above the threshold and no contest), issue_count (findings at or
-above the threshold), minor_count (findings below it, 0 when stage 2 did not run) and
-contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
-
-// A pass member's file holds only harms its own entries list, so each block's file is triaged on its own.
-const newIssueRoute = (p) => p.blocks
-  ? `only to the file of the block whose entry lists the harm, never to your review file:
-${p.blocks.map((b) => `     - ${b.issues.join(', ')} → ${newIssuesFile(b.id)} (block "${b.id}")`).join('\n')}
-   Count it in new_issues and name that block in new_issue_blocks.`
-  : `to ${newIssuesFile(p.id)} only, never to your review file. Count it in new_issues and name
-   "${p.id}" in new_issue_blocks.`;
+above the threshold)${PROACTIVE ? `, minor_count (findings below it, 0 when stage 2 did not run) and
+` : ' and '}contested_dismissals via the schema. Do NOT modify source, stage, or commit.`;
 
 // Read after step 1, so the verifier's own first judgment stays unanchored (#5).
 const earlierFindingsStep = (p, earlierReviews) => `EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
@@ -996,11 +1095,10 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
-   new issue ${newIssueRoute(p)} It sets no
-   fix_check false, and it never excuses a regression or an unsatisfied gate. A new file starts with the
-   four lines "## Plan: ${p.blocks ? '<that block\'s id>' : p.id}-new-issues - issues found outside the fixes' root causes",
-   "mode: fix", "gate: green" and "status: todo", then a blank line. Before you append, read every
-   existing NEW-ISSUES-*.md in ${ROOT}/plans/${RUN_ID}/ and never append a harm any of them already holds.
+   new issue ${newIssueRoute(p, 'whose entry lists the harm', { exclusion: ', never to your review file' })} It sets no
+   fix_check false, and it never excuses a regression or an unsatisfied gate.
+   ${newIssuesHeader(p)}
+   ${newIssuesDedup('harm')}
    Each entry copies the shape of the block's own entries, with the id "<source issue id>-new-<n>"
    (n one past that source's highest), "- status: open" and "- decision: NEEDS_USER", so that the user
    triages it before anything fixes it.
@@ -1319,9 +1417,9 @@ const ledger = [];               // in-memory, returned to the orchestrator (NOT
 // `plan-edit.mjs args` folds them into the plan file.
 const statusSync = [];
 let newIssues = 0;
-let newIssuesUnknown = false;    // a fix verifier's report was unusable, so a file it never named may hold entries
-const newIssueFiles = new Set();     // the files fix verifiers named in new_issue_blocks
-const startedIssueFiles = new Set(); // every started fix block's file: what to check when a report is unknown
+let newIssuesUnknown = false;    // a writer's report was unusable, so a file it never named may hold entries
+const newIssueFiles = new Set();     // the files developers and fix verifiers named in new_issue_blocks
+const startedIssueFiles = new Set(); // every started block's file: what to check when a report is unknown
 let halted = false;
 let haltReason = '';
 // A value, so the status line never parses haltReason prose. Every halt site sets it.
@@ -1332,6 +1430,26 @@ const noChangeIds = [];
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
 // tree. The only honest recoveries are a clean relaunch or finishing the parked patch by hand.
 const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. Once `plan-edit.mjs args` has applied the statuses of this run, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
+
+/**
+ * Folds one writer's new-issue report into the run's count. A report it cannot use makes the count
+ * unknown, since a file the writer never named may hold its entries.
+ */
+function recordNewIssues(p, round, writer, count, namedBlocks) {
+  // A pass's own id names no file, since each entry belongs to the member whose entry led to it.
+  const issueBlocks = p.blocks ? p.blocks.map((b) => b.id) : [p.id];
+  const countKnown = Number.isInteger(count) && count >= 0;
+  const blocksKnown = Array.isArray(namedBlocks) && namedBlocks.every((id) => issueBlocks.includes(id))
+    && !(count > 0 && namedBlocks.length === 0);
+  if (!countKnown || !blocksKnown) {
+    newIssuesUnknown = true;
+    return;
+  }
+  const writtenFiles = [...new Set(namedBlocks)].map(newIssuesFile);
+  newIssues += count;
+  for (const file of writtenFiles) newIssueFiles.add(file);
+  if (count > 0) logLine(`  ⓘ ${p.id} r${round}: ${writer} recorded ${count} new issue(s) in ${writtenFiles.join(', ')}`);
+}
 
 /**
  * One fix entry's synced status, or '' for no edit. An id this run claimed FIXED maps as FIXED even when a
@@ -1489,7 +1607,7 @@ for (const p of pending) {
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
   const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, status: 'pending', rounds: 0, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
-  if (fix) for (const b of p.blocks ?? [p]) startedIssueFiles.add(newIssuesFile(b.id));
+  for (const b of p.blocks ?? [p]) startedIssueFiles.add(newIssuesFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
   // park: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
@@ -1528,9 +1646,13 @@ for (const p of pending) {
       haltKind = 'agent-dead';
       haltReason = `Developer for block ${p.id} returned nothing in round ${round} (agent skipped or died) — no work can be assumed either way. ${DEAD_AGENT_RECOVERY}`;
       rec.status = 'BLOCKED (agent died)';
+      // It may have appended a new issue before it died.
+      newIssuesUnknown = true;
       logLine(`  ✋ ${p.id} r${round}: developer returned nothing (agent skipped or died) → halting before any review agent`);
       break;
     }
+    // Counted before every halt below, since a developer that halts may already have appended.
+    recordNewIssues(p, round, 'developer', dev.new_issues, dev.new_issue_blocks);
 
     // ---- PRECONDITION (round 1 of every block): the unstaged tree must have been CLEAN --------------
     // Reviewers scope on the unstaged diff, so pre-existing work would be judged as this block's. Checked
@@ -1651,7 +1773,7 @@ for (const p of pending) {
     // the claim.
     if (reviewOwed) {
       phase('Quality');
-      const reviewThreshold = rec.qualityRounds === 0 && round < MAX_ROUNDS ? FIRST_REVIEW_SEVERITY : REVIEW_SEVERITY;
+      const reviewThreshold = reviewBar(CHANGE_POLICY, rec.qualityRounds, round);
       rec.qualityRounds++;
       const quality = await agent(qualityPrompt(p, round, reviewThreshold), roleOpts('quality', {
         schema: qualitySchema(reviewThreshold), phase: 'Quality', label: `quality ${p.id} r${round}`,
@@ -1693,14 +1815,15 @@ for (const p of pending) {
         reviewOwed = true;
         reviewPath = qualityFile(p.id, round);
         earlierReviews.add(reviewPath);
-        const qualityCounts = `${quality.issue_count ?? '?'} issue(s) at or above ${reviewThreshold} and ${quality.minor_count ?? '?'} below`;
+        const qualityCounts = `${quality.issue_count ?? '?'} issue(s) at or above ${reviewThreshold}${PROACTIVE ? ` and ${quality.minor_count ?? '?'} below` : ''}`;
         if (round >= MAX_ROUNDS) { logLine(`  ⚠ ${p.id} r${round}: quality review left ${qualityCounts} open at round budget (see ${reviewPath})`); break; }
         logLine(`  ↻ ${p.id} r${round}: quality review found ${qualityCounts} → develop addresses ${reviewPath}`);
         continue;
       }
       reviewOwed = false;
       // A clean review sends nothing back to the developer, so stage-2 findings beside it go unaddressed.
-      if (Number(quality.minor_count) > 0) {
+      // A strict review has no stage 2, so its schema carries no minor_count.
+      if (PROACTIVE && Number(quality.minor_count) > 0) {
         logLine(`  ⚠ ${p.id} r${round}: quality ran stage 2 with nothing at or above ${reviewThreshold}, so its ${quality.minor_count} finding(s) below the threshold are not routed`);
       }
       if (quality.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: quality reviewer did not confirm writing ${qualityFile(p.id, round)}`);
@@ -1745,22 +1868,7 @@ for (const p of pending) {
     // none when the field is omitted.
     if (typeof acc.regression === 'boolean') rec.regression = acc.regression;
     else if (acc.pass === true) rec.regression = false;
-    if (fix) {
-      // A pass's own id names no file: each harm belongs to the member whose entry lists it.
-      const issueBlocks = p.blocks ? p.blocks.map((b) => b.id) : [p.id];
-      const countKnown = Number.isInteger(acc.new_issues) && acc.new_issues >= 0;
-      const namedBlocks = Array.isArray(acc.new_issue_blocks) ? acc.new_issue_blocks : null;
-      const blocksKnown = namedBlocks !== null && namedBlocks.every((id) => issueBlocks.includes(id))
-        && !(acc.new_issues > 0 && namedBlocks.length === 0);
-      if (countKnown && blocksKnown) {
-        const writtenFiles = [...new Set(namedBlocks)].map(newIssuesFile);
-        newIssues += acc.new_issues;
-        for (const file of writtenFiles) newIssueFiles.add(file);
-        if (acc.new_issues > 0) logLine(`  ⓘ ${p.id} r${round}: acceptance recorded ${acc.new_issues} new issue(s) in ${writtenFiles.join(', ')}`);
-      } else {
-        newIssuesUnknown = true;
-      }
-    }
+    if (fix) recordNewIssues(p, round, 'acceptance', acc.new_issues, acc.new_issue_blocks);
     // Per mode: a fix schema has no evidence_recorded or reachable, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
     if (acc?.pass === true) {
@@ -2047,7 +2155,7 @@ return {
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
   // changes. A block the run never reached has none.
   statusSync,
-  // null when a fix verifier's report was unusable: a file may then hold entries the total would hide.
+  // null when a developer's or fix verifier's report was unusable: a file may then hold entries the total would hide.
   newIssues: newIssuesUnknown ? null : newIssues,
   newIssueFiles: newIssuesUnknown ? null : [...newIssueFiles].sort(),
   reviewTrail,
@@ -2077,7 +2185,7 @@ return {
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
     : ''}${newIssueFiles.size || newIssuesUnknown
     ? `${newIssuesUnknown
-      ? `A fix verifier returned no usable new-issue report, so check these files for entries: ${[...startedIssueFiles].sort().join(', ')}.`
-      : `Acceptance recorded ${newIssues} new issue(s) outside the fixes' root causes in: ${[...newIssueFiles].sort().join(', ')}.`} Triage each file like a debug issue file once its block's status is done or skip, since a relaunch of a parked or blocked block may still append to it. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is ${PROACTIVE ? 'a default the developer took, a plan amendment, or a fix or refactor the proactive change policy allowed. Show a PROACTIVE line only after you confirm the code still holds its change, since a later round or a park can undo it' : 'a default the developer took or a plan amendment'}. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
+      ? `A developer or fix verifier returned no usable new-issue report, so check these files for entries: ${[...startedIssueFiles].sort().join(', ')}.`
+      : `${newIssues} defect(s) found outside the blocks' work are recorded in: ${[...newIssueFiles].sort().join(', ')}.`} Triage each file like a debug issue file once its block's status is done or skip, since a relaunch of a parked or blocked block may still append to it. `
+    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${LOGGED_FIX.fix} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX.tag} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${BLOCK_TOOL.replace(/[^/\\]*$/, 'plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
 };

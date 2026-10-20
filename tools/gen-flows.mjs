@@ -800,9 +800,9 @@ async function main(argv) {
 }
 
 // Guard: importing this module (tests/flows.test.mjs does) must not run the CLI. Errors are reported as
-// the one line they are — a mistyped spec name is not worth a stack trace, and every throw in here
-// already names what to fix. Node realpaths the main module, so both sides are realpathed: a link in the
-// script path otherwise made the guard false and the CLI a silent no-op at exit 0.
+// the one line they are. A mistyped spec name is not worth a stack trace, and every throw in here
+// already names what to fix. Node realpaths the main module, so both sides are realpathed. A link in the
+// script path otherwise makes the guard false and the CLI a silent no-op at exit 0.
 let invokedDirectly = false;
 try {
   invokedDirectly = Boolean(process.argv[1])

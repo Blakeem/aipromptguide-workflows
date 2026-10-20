@@ -589,8 +589,8 @@ export function run(argv, note = (line) => process.stderr.write(line)) {
 }
 
 // Node resolves the MAIN module through realpath by default, so `import.meta.url` is canonical while argv[1]
-// is whatever the caller typed. Comparing the two raw made this false through any link or junction, and the
-// process then wrote NOTHING at exit 0 — the plausible-looking default this tool forbids. Realpath BOTH
+// is whatever the caller typed. A raw comparison of the two is false through any link or junction, and the
+// process then writes nothing at exit 0, the plausible-looking default this tool forbids. Realpath BOTH
 // sides, so it holds under `--preserve-symlinks-main` too.
 let invokedDirectly = false;
 try {

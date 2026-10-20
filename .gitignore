@@ -1,4 +1,5 @@
 runs/
 plans/
+/change-policy.json*
 .claude/settings.local.json
 tools/.cache/
