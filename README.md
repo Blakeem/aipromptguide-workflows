@@ -154,6 +154,28 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-19
+
+- **A trash tool that never deletes.** `node tools/trash.mjs <path>` moves a file or folder to the trash on
+  Windows, macOS and Linux. When it cannot, it refuses and leaves every file in place. On Windows it
+  cancels any delete the Recycle Bin would not take, such as an item larger than the bin or a path on a
+  network share. The Windows recycle call that most scripts use deletes those permanently with no error.
+  The macOS backend has not yet run on a Mac.
+- **wt.mjs builds one change in its own worktree.** `open` makes a branch and a worktree off a base branch.
+  `close` rebases onto the base when the base moved, runs your gate on the exact commit the base will
+  point at, fast-forwards the base and checks the result. Then it moves the worktree to the trash and
+  deletes the branch. A conflict, a red gate or a moved base stops it with the base untouched.
+- **wt.mjs never runs `git worktree remove`.** That command deletes the folder outright, ignored files
+  included. `clean` and `close` move it to the trash. They refuse a locked worktree, one with uncommitted
+  or untracked work, one in the middle of a merge or rebase, and one with submodules.
+- **Acceptance lists what is not a regression.** A change that removes the same defect on a sibling path
+  of a required fix, or closes a finding an earlier review named, no longer counts as a regression.
+  Before, acceptance demanded the sibling fix at one step and failed it as a regression at the next, and
+  one run reverted two real fixes.
+- **Fixes.** debug's hottest-areas table, gen-units' unit names, enhance's lens stages and wt.mjs's verb
+  check no longer read an inherited name such as `constructor` from a lookup table. A parked block's
+  record points at a kept copy of its last review, which a relaunch no longer overwrites.
+
 ### 2026-10-18
 
 - **develop's first blind review of a block also reports low findings.** That review uses threshold
