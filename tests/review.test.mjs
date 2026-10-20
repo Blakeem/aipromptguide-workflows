@@ -434,6 +434,42 @@ section('an unknown reviewSeverity throws instead of disabling the floor');
   }
 }
 
+section('a returned severity named like an Object member ranks as low');
+// The schema enum keeps current agents from returning one, so the rank helper is the only guard.
+{
+  const sub = { 'review': { wrote_clean_marker: false, findings: [finding({ severity: 'constructor', category: 'correctness' })] } };
+  const belowMedium = await run({}, sub);
+  eq(belowMedium.byLabel('verify').length, 0, 'a reviewer severity of constructor is dropped below the default medium floor');
+
+  const atLow = await run({ reviewSeverity: 'low' }, { ...sub, 'verify': { wrote_file: true, verdicts: [keep('u1-1')] } });
+  eq(atLow.byLabel('verify').length, 1, 'and passes a low floor, so it ranks as low');
+
+  const findings = ['dx/a.js', 'dx/b.js', 'dy/c.js', 'dz/d.js'].map((file) => finding({ file, category: 'correctness' }));
+  const verdicts = [
+    keep('u1-1', { severity: 'constructor' }), keep('u1-2', { severity: 'constructor' }),
+    keep('u1-3', { severity: 'medium' }), keep('u1-4', { severity: 'low' }),
+  ];
+  const { out } = await run({}, { 'review': { wrote_clean_marker: false, findings }, 'verify': { wrote_file: true, verdicts } });
+  eq(JSON.stringify(out.hottest), JSON.stringify([{ area: 'dy', issues: 1 }, { area: 'dx', issues: 2 }, { area: 'dz', issues: 1 }]),
+    'a verdict severity of constructor ranks its area below medium and level with low, so the count breaks the tie');
+}
+
+section('the hottest-areas table gives a directory named like an Object member its own entry');
+// An inherited member found by the area key takes the count and maxSev writes, and `__proto__` is Object.prototype.
+{
+  const findings = ['constructor/a.js', 'constructor/b.js', '__proto__/c.js'].map((file) => finding({ file, category: 'correctness' }));
+  const { out } = await run({}, {
+    'review': { wrote_clean_marker: false, findings },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1'), keep('u1-2'), keep('u1-3')] },
+  });
+  const hosts = [Object, Object.prototype];
+  const leaked = hosts.flatMap((host) => ['count', 'maxSev'].filter((key) => Object.hasOwn(host, key)));
+  for (const host of hosts) { delete host.count; delete host.maxSev; }
+  eq(JSON.stringify(out.hottest), JSON.stringify([{ area: 'constructor', issues: 2 }, { area: '__proto__', issues: 1 }]),
+    'each directory appears in hottest with its own count');
+  eq(leaked.length, 0, `Object and Object.prototype gain no count or maxSev (got ${JSON.stringify(leaked)})`);
+}
+
 section('changePolicy defaults to strict, proactive prescribes the best long-term fix, and any other value throws');
 // The user's CLAUDE.md and auto memory reach the reviewer and the verifier too, so each prompt names the policy as the override.
 {

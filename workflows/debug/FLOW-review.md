@@ -65,11 +65,11 @@ flowchart TD
 | throw: args must include at least { runId, root, target, conventions, units } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 32) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
-| throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 53) |
-| throw: Invalid args.changePolicy | args.changePolicy is outside strict \| proactive | throw (line 58) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 402) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 412) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 413) |
+| throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 54) |
+| throw: Invalid args.changePolicy | args.changePolicy is outside strict \| proactive | throw (line 59) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 403) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 413) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 414) |
 
 ## Coverage
 

@@ -47,9 +47,10 @@ const GATES       = A.gates ?? {};                          // { build, test, te
 // mode then fixes (because the inventory is closed here, fixing mediums downstream converges — no fresh
 // review surfaces a new batch each round).
 const SEV_RANK    = { low: 1, medium: 2, high: 3, critical: 4 };
-const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
 // A plain lookup resolves an inherited name such as `constructor` to a function, which no comparison drops.
-const REVIEW_SEV  = Object.hasOwn(SEV_RANK, REVIEW_SEV_NAME) ? SEV_RANK[REVIEW_SEV_NAME] : undefined;
+const sevRank     = (name) => (Object.hasOwn(SEV_RANK, name) ? SEV_RANK[name] : undefined);
+const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
+const REVIEW_SEV  = sevRank(REVIEW_SEV_NAME);
 if (REVIEW_SEV === undefined) throw new Error(`reviewSeverity "${REVIEW_SEV_NAME}" is not one of low|medium|high|critical`);
 // A typo that coerced would silently widen or narrow the scope of every Fix line the fixer later builds.
 const VALID_CHANGE_POLICY = new Set(['strict', 'proactive']);
@@ -457,7 +458,7 @@ const results = await pipeline(
       // No dedup here: a file:category key dropped distinct real defects from a CLOSED inventory. The
       // ALREADY FOUND list steers repeat passes, and the verifier folds true duplicates.
       for (const f of (rev?.findings || [])) {
-        if ((SEV_RANK[f.severity] ?? 1) < REVIEW_SEV) continue;
+        if ((sevRank(f.severity) ?? 1) < REVIEW_SEV) continue;
         handled.push(`[${lens.id}] ${f.file}${f.line ? ':' + f.line : ''} ${f.title}`);
         found.push({ ...f, _lens: lens });
       }
@@ -525,8 +526,9 @@ const bySeverity = { critical: sum((i) => i.severity === 'critical'), high: sum(
 
 // Hottest areas (directory) by max severity then count — guidance for the triage conversation.
 const area = (f) => (f.includes('/') ? f.split('/').slice(0, -1).join('/') : '(root)');
-const areas = {};
-for (const i of all) { const a = area(i.file); (areas[a] ??= { area: a, count: 0, maxSev: 0 }); areas[a].count++; areas[a].maxSev = Math.max(areas[a].maxSev, SEV_RANK[i.severity] ?? 1); }
+// Null prototype, so a directory named `constructor` or `__proto__` gets its own entry, not an inherited member.
+const areas = Object.create(null);
+for (const i of all) { const a = area(i.file); (areas[a] ??= { area: a, count: 0, maxSev: 0 }); areas[a].count++; areas[a].maxSev = Math.max(areas[a].maxSev, sevRank(i.severity) ?? 1); }
 const hottest = Object.values(areas).sort((x, y) => y.maxSev - x.maxSev || y.count - x.count).slice(0, 8).map((a) => ({ area: a.area, issues: a.count }));
 
 // A unit whose only entries carry `unmatched` is triaged from its issue file. Every other failed unit needs
