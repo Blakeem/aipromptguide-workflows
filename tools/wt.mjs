@@ -159,6 +159,14 @@ const LOCK_FILE = 'aipg-land.lock';
 // The path that the recovery commands a refusal names run this tool from.
 const WT_SCRIPT = fileURLToPath(import.meta.url);
 
+// win32 gets double quotes, the form cmd.exe, PowerShell and Git Bash all run, with a trailing backslash doubled so it cannot escape the closing quote.
+// Other platforms get sh single quotes. A `$` or a backtick in a win32 path still expands in PowerShell and Git Bash, and Git Bash reads the leading `\\` of a UNC path as one backslash.
+export const shellQuoteFor = (platform, value) => {
+  const text = String(value);
+  return platform === 'win32' ? `"${text.replace(/\\+$/, '$&$&')}"` : `'${text.replace(/'/g, `'\\''`)}'`;
+};
+export const shellQuote = (value) => shellQuoteFor(process.platform, value);
+
 // Stated literals, not derived from anything: how long a land may wait for the lock before telling the
 // orchestrator to retry, and how long a lock may go WITHOUT A HEARTBEAT before a live-looking owner is
 // assumed to have wedged.
@@ -463,7 +471,7 @@ function addWorktreeOnNewBranch(repo, branch, path, start, { what, recovery }) {
   dropped = git(repo, ['branch', '-D', branch], HOOK_ROOM);
   note = dropped.code === 0
     ? `. The branch ${branch} that this call created was deleted`
-    : `. The branch ${branch} that this call created is left behind (${gitError(dropped)}), so delete it with git -C "${repo}" branch -D ${branch} before trying again`;
+    : `. The branch ${branch} that this call created is left behind (${gitError(dropped)}), so before trying again, delete it with git -C ${shellQuote(repo)} branch -D ${branch}`;
 
   // Output
   throw unsafe(`${what}: ${gitError(added)}${note}`);
@@ -611,18 +619,18 @@ function prep(opt) {
   // Process
   const integration = findBranch(listWorktrees(repo), intBranch(batch));
   if (!integration) {
-    throw unsafe(`no worktree on ${intBranch(batch)} — run "wt.mjs init --repo ${repo} --batch ${batch}" first; prep creates nothing but its own worktree, deliberately (concurrent check-then-act races)`);
+    throw unsafe(`no worktree on ${intBranch(batch)} — first run wt.mjs init --repo ${shellQuote(repo)} --batch ${batch}; prep creates nothing but its own worktree, deliberately (concurrent check-then-act races)`);
   }
 
   const path = resolve(dirname(integration.path), chainDir(key));
   addWorktreeOnNewBranch(repo, chainBranch(batch, key), path, headsRef(intBranch(batch)), {
     what: `cannot create the worktree for "${key}" at ${path}`,
-    recovery: `Its hook self-test never ran, so start no agent there. Fix the cause, remove it with node "${WT_SCRIPT}" clean --repo "${repo}" --key ${key}, delete the branch with git -C "${repo}" branch -D ${chainBranch(batch, key)}, then run prep again.`,
+    recovery: `Its hook self-test never ran, so start no agent there. Fix the cause, remove it with node ${shellQuote(WT_SCRIPT)} clean --repo ${shellQuote(repo)} --key ${key}, delete the branch with git -C ${shellQuote(repo)} branch -D ${chainBranch(batch, key)}, then run prep again.`,
   });
 
   const worktree = findBranch(listWorktrees(repo), chainBranch(batch, key))?.path ?? path;
   selfTest(worktree);
-  if (provision !== undefined) runProvision(provision, worktree, `node "${WT_SCRIPT}" clean --repo "${repo}" --key ${key}, which keeps the branch`);
+  if (provision !== undefined) runProvision(provision, worktree, `node ${shellQuote(WT_SCRIPT)} clean --repo ${shellQuote(repo)} --key ${key}, which keeps the branch`);
 
   // Output
   process.stderr.write(`prepared ${chainBranch(batch, key)}\n`);
@@ -895,9 +903,9 @@ function readTrimmed(file) {
 const FOLDS_CASE = foldsCase(process.platform);
 const caseKey = (p) => (FOLDS_CASE ? resolve(p).toLowerCase() : resolve(p));
 
-const pruneCommand = (repo) => `git -C "${repo}" worktree prune`;
+const pruneCommand = (repo) => `git -C ${shellQuote(repo)} worktree prune`;
 /** The by-hand removal a refusal names, which trashes each target and then prunes. */
-const handRemoval = (repo, targets) => `node "${TRASH_SCRIPT}" ${targets.map((t) => `"${t}"`).join(' ')} and then run ${pruneCommand(repo)}`;
+const handRemoval = (repo, targets) => `node ${shellQuote(TRASH_SCRIPT)} ${targets.map(shellQuote).join(' ')} and then run ${pruneCommand(repo)}`;
 const cannotRemove = (path, reason) => unsafe(`cannot remove the worktree at ${path}. ${reason}`);
 
 /** Each `--git-path` answer for `names` in `cwd`, as an absolute path. */
@@ -1007,7 +1015,7 @@ function folderProblem(repo, path, mainPath, { discard, unlandedAdvice }) {
   // Process
   if (isWithin(cwd, real, FOLDS_CASE)) return `The working directory ${cwd} is inside it. Change to a directory outside it and run this command again.`;
   if (isWithin(repoReal, real, FOLDS_CASE)) {
-    return `The --repo path ${repo} is inside it, and the prune after the move runs there. Run this command again with --repo "${mainPath}".`;
+    return `The --repo path ${repo} is inside it, and the prune after the move runs there. Run this command again with --repo ${shellQuote(mainPath)}.`;
   }
   if (operation) {
     return `It has ${operation[1]} in progress (${operation[0]}), and "git worktree prune" would delete that state outside the trash. Finish or abort it there, then run this command again.`;
@@ -1068,10 +1076,10 @@ function moveToTrash(repo, path) {
 function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice = '' } = {}) {
   // Runs before the gitDir check, since the main worktree has no directory under worktrees/ either.
   if (entry.main) {
-    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so it is never removed. Switch it to another branch with git -C "${entry.path}" switch <branch>, then run this command again.`);
+    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so it is never removed. Switch it to another branch with git -C ${shellQuote(entry.path)} switch <branch>, then run this command again.`);
   }
   if (!entry.gitDir) {
-    throw cannotRemove(entry.path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C "${repo}" worktree list --porcelain.`);
+    throw cannotRemove(entry.path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C ${shellQuote(repo)} worktree list --porcelain.`);
   }
 
   // Input
@@ -1086,10 +1094,10 @@ function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice
 
   // Process
   if (entry.locked) {
-    throw cannotRemove(path, `It is locked${entry.lockReason ? ` (${entry.lockReason})` : ''}, and "git worktree prune" keeps a locked worktree. If no process uses it, run git -C "${repo}" worktree unlock "${path}" and run this command again.`);
+    throw cannotRemove(path, `It is locked${entry.lockReason ? ` (${entry.lockReason})` : ''}, and "git worktree prune" keeps a locked worktree. If no process uses it, run git -C ${shellQuote(repo)} worktree unlock ${shellQuote(path)} and run this command again.`);
   }
   if (present && !linksBack(path, gitDir)) {
-    throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C "${repo}" worktree repair "${path}". Otherwise move the folder elsewhere. Then run this command again.`);
+    throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C ${shellQuote(repo)} worktree repair ${shellQuote(path)}. Otherwise move the folder elsewhere. Then run this command again.`);
   }
   problem = present ? folderProblem(repo, path, mainPath, { discard, unlandedAdvice: advice }) : null;
   if (problem) throw cannotRemove(path, problem);
@@ -1115,7 +1123,7 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
   const operation = present && opts.discard ? operationInProgress(path) : null;
   // A commit made during a rebase or bisect is reachable only from its detached HEAD, which the prune deletes.
   const detachedAt = operation && !headRef(path) ? commitOf(path, 'HEAD') : '';
-  const recovery = detachedAt ? `. Its detached HEAD was ${detachedAt}, and git -C "${repo}" branch <name> ${detachedAt} recovers a commit made during it until git gc expires it` : '';
+  const recovery = detachedAt ? `. Its detached HEAD was ${detachedAt}. To recover a commit made during it before git gc expires it, run git -C ${shellQuote(repo)} branch <name> ${detachedAt}` : '';
   let ignored = null;
   let ignoredText = '';
   let moved = null;
@@ -1137,7 +1145,7 @@ function removeWorktree(repo, entry, mainPath, opts = {}) {
 
   // Output
   if (listWorktrees(repo).some((e) => e.path === path)) {
-    throw unsafe(`${path} is still registered after "git worktree prune". Check its entry in git -C "${repo}" worktree list --porcelain, then run this command again.`);
+    throw unsafe(`${path} is still registered after "git worktree prune". Check its entry in git -C ${shellQuote(repo)} worktree list --porcelain, then run this command again.`);
   }
 }
 
@@ -1420,11 +1428,11 @@ function land(opt) {
   const entries = listWorktrees(repo);
   const integration = findBranch(entries, intBranch(batch));
   if (!integration) {
-    throw unsafe(`no worktree on ${intBranch(batch)} — nothing to land into; run "wt.mjs init --repo ${repo} --batch ${batch}" first`);
+    throw unsafe(`no worktree on ${intBranch(batch)} — nothing to land into; first run wt.mjs init --repo ${shellQuote(repo)} --batch ${batch}`);
   }
   const chain = findBranch(entries, chainBranch(batch, key));
   if (!chain) {
-    throw unsafe(`no worktree on ${chainBranch(batch, key)} — run "wt.mjs prep --repo ${repo} --batch ${batch} --key ${key}" first, and land only after that chain's run has EXITED`);
+    throw unsafe(`no worktree on ${chainBranch(batch, key)} — first run wt.mjs prep --repo ${shellQuote(repo)} --batch ${batch} --key ${key}, and land only after that chain's run has EXITED`);
   }
 
   // Process — one lock across all of it, heartbeat at every step boundary so a land that is PROGRESSING
@@ -1634,14 +1642,14 @@ function open(opt) {
   if (existing) {
     holder = findBranch(listWorktrees(repo), existing);
     alias = existing === branch ? '' : `, which this file system does not tell apart from ${branch}`;
-    throw unsafe(`branch ${existing} already exists in ${repo}${alias}${holder ? `, and the worktree at ${holder.path} is on it, so finish that change with close` : ''}. Pick another --name, or delete the branch with git -C "${repo}" branch -D ${existing} once its commits are merged or not needed.`);
+    throw unsafe(`branch ${existing} already exists in ${repo}${alias}${holder ? `, and the worktree at ${holder.path} is on it, so finish that change with close` : ''}. Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${shellQuote(repo)} branch -D ${existing}.`);
   }
   addWorktreeOnNewBranch(repo, branch, path, headsRef(base), {
     what: `cannot create the worktree for "${name}" at ${path}`,
-    recovery: `Fix the cause, remove it with node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, delete the branch with git -C "${repo}" branch -D ${branch}, then run open again.`,
+    recovery: `Fix the cause, remove it with node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, delete the branch with git -C ${shellQuote(repo)} branch -D ${branch}, then run open again.`,
   });
   worktree = findBranch(listWorktrees(repo), branch)?.path ?? path;
-  if (provision !== undefined) runProvision(provision, worktree, `node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, which keeps the branch`);
+  if (provision !== undefined) runProvision(provision, worktree, `node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, which keeps the branch`);
 
   // Output
   process.stderr.write(`opened ${branch} off ${base} in ${worktree}\n`);
@@ -1683,11 +1691,11 @@ function strayRefusal(targets, entries, name, exists) {
  */
 function offBranch(path, head, branch, exists, chains = []) {
   const held = head ? `branch ${head}` : 'a detached HEAD';
-  const keep = head ? '' : `Keep any commit made on that detached HEAD with git -C "${path}" branch <new-name>. `;
+  const keep = head ? '' : `Keep any commit made on that detached HEAD with git -C ${shellQuote(path)} branch <new-name>. `;
   if (chains.length > 0) {
-    return unsafe(`the worktree at ${path} has ${held} checked out, and the branches ${[branch, ...chains].join(', ')} exist, so it may be the worktree of any of them, and close leaves it in place. ${keep}Switch it back to its branch with git -C "${path}" switch <branch>, then run close again.`);
+    return unsafe(`the worktree at ${path} has ${held} checked out, and the branches ${[branch, ...chains].join(', ')} exist, so it may be the worktree of any of them, and close leaves it in place. ${keep}Switch it back to its branch with git -C ${shellQuote(path)} switch <branch>, then run close again.`);
   }
-  return unsafe(`the worktree of ${branch} at ${path} has ${held} checked out, so close leaves it in place. ${keep}Switch it back with git -C "${path}" switch ${exists ? '' : '-c '}${branch}, then run close again.`);
+  return unsafe(`the worktree of ${branch} at ${path} has ${held} checked out, so close leaves it in place. ${keep}Switch it back with git -C ${shellQuote(path)} switch ${exists ? '' : '-c '}${branch}, then run close again.`);
 }
 
 /**
@@ -1702,7 +1710,7 @@ function closeWithoutWorktree(repo, branch, into, exists) {
     return;
   }
   if (!deleteIfMerged(repo, branch, into)) {
-    throw unsafe(`no worktree is on ${branch}, and it holds commits ${into} lacks, so close cannot gate them. Check it out in a free folder with git -C "${repo}" worktree add <folder> ${branch}, then run close again.`);
+    throw unsafe(`no worktree is on ${branch}, and it holds commits ${into} lacks, so close cannot gate them. Check it out in a free folder with git -C ${shellQuote(repo)} worktree add <folder> ${branch}, then run close again.`);
   }
 
   // Output
@@ -1865,14 +1873,14 @@ function holderProblem(repo, into, holder) {
 
   // Process + Output
   if (branch !== into) {
-    return `The worktree at ${path} has it checked out as ${branch}, which names the same branch. Once no rebase or bisect runs there, switch it with git -C "${path}" switch ${into}, then run close again.`;
+    return `The worktree at ${path} has it checked out as ${branch}, which names the same branch. Once no rebase or bisect runs there, switch it with git -C ${shellQuote(path)} switch ${into}, then run close again.`;
   }
   if (!present && locked) {
-    return `${gone}, and it is locked${lockReason ? ` (${lockReason})` : ''}, so "git worktree prune" keeps it. If the folder is on a drive that is not mounted, mount it. Otherwise run git -C "${repo}" worktree unlock "${path}" and ${pruneCommand(repo)}. Then run close again.`;
+    return `${gone}, and it is locked${lockReason ? ` (${lockReason})` : ''}, so "git worktree prune" keeps it. If the folder is on a drive that is not mounted, mount it. Otherwise run git -C ${shellQuote(repo)} worktree unlock ${shellQuote(path)} and ${pruneCommand(repo)}. Then run close again.`;
   }
   if (!present) return `${gone}. Run ${pruneCommand(repo)}, then run close again.`;
   if (!main && !linksBack(path, gitDir)) {
-    return `The .git file of the worktree at ${path}, which has it checked out, does not point at its git directory, so the folder may hold another repository. If the folder is that worktree, run git -C "${repo}" worktree repair "${path}", then run close again.`;
+    return `The .git file of the worktree at ${path}, which has it checked out, does not point at its git directory, so the folder may hold another repository. If the folder is that worktree, run git -C ${shellQuote(repo)} worktree repair ${shellQuote(path)}, then run close again.`;
   }
   return null;
 }
@@ -1962,7 +1970,7 @@ function closeInto(repo, name, into, gate) {
   const branch = singleBranch(name);
   const branchRef = headsRef(branch);
   const intoRef = headsRef(into);
-  const opts = { unlandedAdvice: `commit it, or trash the worktree with its uncommitted work with node "${WT_SCRIPT}" close --repo "${repo}" --name ${name} --discard, which keeps the branch` };
+  const opts = { unlandedAdvice: `commit it, or trash the worktree with its uncommitted work with node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, which keeps the branch` };
   let targets = new Map();
   let exists = false;
   let entries = [];
@@ -2012,7 +2020,7 @@ function closeInto(repo, name, into, gate) {
   if (contains(repo, intoRef, before)) {
     process.stderr.write(`${into} already contains ${branch}, so nothing is merged and no gate runs\n`);
   } else if (!present) {
-    throw unsafe(`the folder ${entry.path} of the worktree on ${branch} is gone, so close cannot gate the commits ${into} lacks. Run git -C "${repo}" worktree prune, check the branch out with git -C "${repo}" worktree add "${entry.path}" ${branch}, then run close again.`);
+    throw unsafe(`the folder ${entry.path} of the worktree on ${branch} is gone, so close cannot gate the commits ${into} lacks. Run git -C ${shellQuote(repo)} worktree prune, check the branch out with git -C ${shellQuote(repo)} worktree add ${shellQuote(entry.path)} ${branch}, then run close again.`);
   } else {
     intoOld = commitOf(repo, intoRef);
     tip = rebaseOnto(entry.path, branch, into, intoOld, before);
@@ -2026,7 +2034,7 @@ function closeInto(repo, name, into, gate) {
     branchAt = commitOf(repo, branchRef);
     throw unsafe(branchAt === tip
       ? `the worktree at ${entry.path} went to the trash, but ${into} no longer contains ${branch}, so the branch is kept. Check ${into}, then run close again.`
-      : `the worktree at ${entry.path} went to the trash, but ${branch} moved from ${tip} to ${branchAt}, so the branch is kept. Check it out in a free folder with git -C "${repo}" worktree add <folder> ${branch}, then run close again, which gates it.`);
+      : `the worktree at ${entry.path} went to the trash, but ${branch} moved from ${tip} to ${branchAt}, so the branch is kept. Check it out in a free folder with git -C ${shellQuote(repo)} worktree add <folder> ${branch}, then run close again, which gates it.`);
   }
   intoAt = commitOf(repo, intoRef);
 
@@ -2062,7 +2070,7 @@ function closeDiscard(repo, name) {
   tip = exists ? commitOf(repo, headsRef(branch)) : '';
 
   // Output
-  if (tip) process.stderr.write(`kept branch ${branch} at ${tip}. Delete it with git -C "${repo}" branch -D ${branch}\n`);
+  if (tip) process.stderr.write(`kept branch ${branch} at ${tip}. Delete it with git -C ${shellQuote(repo)} branch -D ${branch}\n`);
   if (entry) process.stdout.write(`${entry.path}\n`);
 }
 

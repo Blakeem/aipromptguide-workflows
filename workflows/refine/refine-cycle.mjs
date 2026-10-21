@@ -107,14 +107,23 @@ const critiqueFile = (r) => `${STATE_DIR}/plan-critique-${r}.md`;   // one per r
 const DISMISSED    = `${STATE_DIR}/DISMISSED-PLAN.md`;              // the editor's declined gaps, one line each
 const NEEDS_USER   = `${STATE_DIR}/NEEDS-USER.md`;                  // questions in full; ends the run needs-answers
 
+// Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
+// A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
+const pathKey     = (p) => (/^(?:[a-zA-Z]:\/|\/\/)/.test(p) ? p.toLowerCase() : p);
+const insideRepo  = (p) => {
+  const path = pathKey(p);
+  const repo = pathKey(REPO);
+  return path === repo || path.startsWith(`${repo}/`);
+};
+
 // Placement guard, ported from the build engines (#3). Run-state and the plan file must both live OUTSIDE
 // the target repo: develop-cycle's blind quality reviewer runs against that repo's tree later, and either
 // one inside it is a route to the spec. WARN rather than throw, matching the build engines' precedent - a
 // mid-flight throw strands a run the operator may still want, and the loud line names the correction.
-if (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/')) {
+if (insideRepo(STATE_DIR)) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo - the critique files quote plan content, and develop-cycle's blind quality reviewer could reach them through the repo tree. Point args.root back at your run-state base - the checkout, or the plugin data dir the skill resolved - never the plugin install dir (see CLAUDE.md).`);
 }
-if (PLAN_PATH === REPO || PLAN_PATH.startsWith(REPO + '/')) {
+if (insideRepo(PLAN_PATH)) {
   log(`⚠ plan file (${PLAN_PATH}) resolves inside the target repo - that puts the SPEC where a blind reviewer can read it straight out of the repo tree, and where the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path.`);
 }
 

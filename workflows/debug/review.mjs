@@ -134,9 +134,17 @@ const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//
 const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
+// Windows folds case in a drive or UNC path, so E:/Repo/x lies inside e:/repo there.
+// A POSIX path keeps its case, so a macOS spelling in another case draws no warning.
+const pathKey    = (p) => (/^(?:[a-zA-Z]:\/|\/\/)/.test(p) ? p.toLowerCase() : p);
+const insideRepo = (p) => {
+  const path = pathKey(p);
+  const repo = pathKey(REPO);
+  return path === repo || path.startsWith(`${repo}/`);
+};
 // Blind-reviewer placement guard (#3): run-state (incl. the issue files) must live OUTSIDE the target
 // repo so the blind quality reviewer (in develop's fix mode) cannot wander into it. Warn loudly if root was set wrong.
-if (REPO && (STATE_DIR === REPO || STATE_DIR.startsWith(REPO + '/'))) {
+if (insideRepo(STATE_DIR)) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
 

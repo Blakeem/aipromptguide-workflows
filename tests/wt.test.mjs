@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { HOOK, heartbeat, takeoverLock, worktreeAdminDirs } from '../tools/wt.mjs';
+import { HOOK, heartbeat, shellQuote, shellQuoteFor, takeoverLock, worktreeAdminDirs } from '../tools/wt.mjs';
 import { foldsCase } from '../tools/trash.mjs';
 // Read off the namespace, so a build without the export fails its own assertions instead of the entire file.
 import * as wtTool from '../tools/wt.mjs';
@@ -80,6 +80,11 @@ const git = (cwd, args) => runCli('git', ['-C', abs(cwd, 'git cwd'), ...args]);
 /** The same directory can be spelled with either separator and either case on Windows. */
 const norm = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
 const firstLine = (s) => String(s ?? '').split('\n').map((l) => l.trim()).filter(Boolean)[0] ?? '';
+
+/** The quote character that wt.mjs prints around a path on this platform. */
+const Q = process.platform === 'win32' ? '"' : "'";
+/** A RegExp from a template, so a pinned pattern carries Q without doubling its other backslashes. */
+const rx = (strings, ...values) => new RegExp(String.raw(strings, ...values));
 
 /** '' for a missing file: an assertion about content that a regression DELETED must fail, not throw. */
 const readOr = (p) => (existsSync(abs(p, 'file path')) ? readFileSync(p, 'utf8') : '');
@@ -559,7 +564,7 @@ await withFixture(({ root, repo }) => {
   eq(refused.code, 40, 'clean --key exits 40 rather than discarding staged work');
   ok(/land or commit/.test(refused.stderr), `...naming the ways out: ${firstLine(refused.stderr)}`);
   ok(/wip\.txt/.test(refused.stderr), '...listing the unlanded file');
-  ok(/trash\.mjs" ".*aipg-alpha"/.test(refused.stderr) && /worktree prune/.test(refused.stderr), '...naming the by-hand trash and prune');
+  ok(rx`trash\.mjs${Q} ${Q}.*aipg-alpha${Q}`.test(refused.stderr) && /worktree prune/.test(refused.stderr), '...naming the by-hand trash and prune');
   ok(!/--force/.test(refused.stderr), '...and never prescribing --force');
   ok(worktreePaths(repo).includes(norm(chain)), '...the worktree is still registered');
   eq(readOr(at(chain, 'wip.txt')), 'accepted, not yet landed\n', '...and the work is still on disk');
@@ -712,7 +717,7 @@ await withFixture(({ root, repo }) => {
   const dirtySub = wt(['clean', '--repo', repo, '--key', 'sub']);
   eq(dirtySub.code, 40, `a dirty worktree holding a submodule exits 40 (${firstLine(dirtySub.stderr)})`);
   ok(/land or commit/.test(dirtySub.stderr), '...as unlanded work');
-  ok(norm(dirtySub.stderr).includes(`"${norm(modules)}" and then run`), `...whose by-hand trash names the submodule git directories: ${firstLine(dirtySub.stderr)}`);
+  ok(norm(dirtySub.stderr).includes(`${Q}${norm(modules)}${Q} and then run`), `...whose by-hand trash names the submodule git directories: ${firstLine(dirtySub.stderr)}`);
   rmSync(at(chains.sub, 'wip.txt'), { force: true });
   // The submodule git directories live in the worktree's git directory, which outlives its folder.
   rmSync(chains.sub, { recursive: true, force: true });
@@ -727,7 +732,7 @@ await withFixture(({ root, repo }) => {
   refusedIntact(root, repo, 'inuse', chains.inuse, /working directory .* is inside it/, 'a call from a directory inside the worktree', { cwd: at(chains.inuse, 'deep') });
   // The prune after the move runs in --repo, so a --repo inside the worktree would fail it with the folder already gone.
   const fromRepo = refusedIntact(root, chains.inuse, 'inuse', chains.inuse, /--repo path .* is inside it/, 'a --repo of the worktree itself');
-  ok(norm(fromRepo?.stderr ?? '').includes(`--repo "${norm(repo)}"`), `...naming the main worktree as the --repo to pass: ${firstLine(fromRepo?.stderr)}`);
+  ok(norm(fromRepo?.stderr ?? '').includes(`--repo ${Q}${norm(repo)}${Q}`), `...naming the main worktree as the --repo to pass: ${firstLine(fromRepo?.stderr)}`);
   refusedIntact(root, at(chains.inuse, 'deep'), 'inuse', chains.inuse, /--repo path .* is inside it/, 'a --repo inside the worktree');
 });
 
@@ -742,7 +747,7 @@ await withFixture(({ root, repo }) => {
   const refused = wt(['clean', '--repo', intWt, '--batch', 'b1']);
   eq(refused.code, 40, `clean --batch with --repo set to the integration worktree exits 40 (${firstLine(refused.stderr)})`);
   ok(/--repo path .* is inside it/.test(refused.stderr), `...naming the reason: ${firstLine(refused.stderr)}`);
-  ok(norm(refused.stderr).includes(`--repo "${norm(repo)}"`), '...and the main worktree as the --repo to pass');
+  ok(norm(refused.stderr).includes(`--repo ${Q}${norm(repo)}${Q}`), '...and the main worktree as the --repo to pass');
   ok(worktreePaths(repo).includes(norm(intWt)), '...the integration worktree is still registered');
   eq(trashedName(root, intWt), '', '...nothing went to the trash');
   eq(readOr(hook), HOOK, '...the hook is still installed');
@@ -928,7 +933,7 @@ await withFixture(({ root, repo }) => {
   const { chains } = batchOf(root, repo, ['alpha']);
   const r = refusedIntact(root, repo, 'alpha', chains.alpha, /has not landed \(its status listing passed the 1 MiB output cap\)/, 'an overflowing status listing',
     { stub: GIT_OVERFLOW_STUB, env: { AIPG_GIT_OVERFLOW: 'status' } });
-  ok(/trash\.mjs" ".*" and then run git -C ".*" worktree prune/.test(r?.stderr ?? ''), `...and names the by-hand trash and prune: ${firstLine(r?.stderr)}`);
+  ok(rx`trash\.mjs${Q} ${Q}.*${Q} and then run git -C ${Q}.*${Q} worktree prune`.test(r?.stderr ?? ''), `...and names the by-hand trash and prune: ${firstLine(r?.stderr)}`);
 });
 
 // --- open and close fixtures --------------------------------------------------------------------
@@ -1417,6 +1422,69 @@ await withFixture(({ root, repo }) => {
   ok(/a branch named 'aipg\/b1\/alpha' already exists/.test(twice.stderr) && !/git created the worktree/.test(twice.stderr), "...giving git's reason, not a worktree it did not create");
 });
 
+section('shellQuoteFor puts a path in double quotes on win32, which cmd.exe, PowerShell and Git Bash run for a path with no $, backtick or UNC prefix');
+eq(shellQuoteFor('win32', 'C:\\a b\\c'), '"C:\\a b\\c"', 'a win32 path with a space is one double-quoted word');
+eq(shellQuoteFor('win32', "C:\\it's\\x"), '"C:\\it\'s\\x"', '...and an apostrophe in it stays as it is');
+eq(shellQuoteFor('win32', 'C:\\x\\$HOME\\`id`'), '"C:\\x\\$HOME\\`id`"', '...and a $ or a backtick in it stays, which PowerShell and Git Bash expand');
+eq(shellQuoteFor('win32', ''), '""', '...and an empty path is an empty quoted word');
+eq(shellQuoteFor('win32', 'E:\\'), '"E:\\\\"', '...and a trailing backslash, as in a drive root, is doubled so it cannot escape the closing quote');
+eq(shellQuoteFor('win32', 'E:\\a\\\\'), '"E:\\a\\\\\\\\"', '...and every trailing backslash is doubled');
+
+section('shellQuoteFor puts a path in single quotes on every other platform and writes each apostrophe in it as a closed quote, a backslash-escaped apostrophe and an opened quote');
+for (const platform of ['linux', 'darwin', 'freebsd']) {
+  eq(shellQuoteFor(platform, '/a b/c'), "'/a b/c'", `${platform}: a path with a space is one single-quoted word`);
+  eq(shellQuoteFor(platform, '/x/$HOME/`id`'), "'/x/$HOME/`id`'", '...and a $ or a backtick in it stays inside the quotes');
+  eq(shellQuoteFor(platform, "/it's/x"), "'/it'\\''s/x'", '...and an apostrophe in it closes the quote, escapes the apostrophe and reopens the quote');
+  eq(shellQuoteFor(platform, ''), "''", '...and an empty path is an empty quoted word');
+  eq(shellQuoteFor(platform, '/a\\'), "'/a\\'", '...and a trailing backslash stays as it is, since sh reads it literally inside single quotes');
+}
+eq(shellQuote("/it's a/b"), shellQuoteFor(process.platform, "/it's a/b"), 'shellQuote uses the form of the platform that runs the tool');
+
+section('no printed command in tools/wt.mjs wraps a path in double quotes itself instead of passing it through shellQuote');
+{
+  // Covers every print site at once, including the land refusals that no fixture reaches.
+  const DOUBLE_QUOTED_PATH = /(?:git -C|--repo|node|worktree (?:unlock|repair|add)) "\$\{|"\$\{(?:repo|path|mainPath|entry\.path|WT_SCRIPT|TRASH_SCRIPT|t)\}"/;
+  const source = readFileSync(SCRIPT, 'utf8');
+  ok(DOUBLE_QUOTED_PATH.test('git -C "${repo}" branch -D x') && DOUBLE_QUOTED_PATH.test('node "${WT_SCRIPT}" clean') && DOUBLE_QUOTED_PATH.test('unlock "${path}"'), 'the pattern matches the double-quoted forms the tool printed before');
+  ok(!DOUBLE_QUOTED_PATH.test(source), 'tools/wt.mjs prints no command that interpolates a path inside double quotes');
+}
+
+section('a path with a space, a $, a backtick and an apostrophe is quoted for the platform in the recovery commands that prep, land and open print');
+await withFixture(({ root }) => {
+  const odd = join(root, "it's $HOME `id`");
+  const failing = '#!/bin/sh\necho "post-checkout: npm install failed" >&2\nexit 1\n';
+  const landArgs = ['land', '--repo', odd, '--batch', 'b1', '--key', 'alpha', '--gate', 'true'];
+  otherRepo(odd);
+  // Pinned inside the fixture, so the hook below never lands in a core.hooksPath inherited from the developer's own config.
+  git(odd, ['config', 'core.hooksPath', join(odd, '.git', 'hooks')]);
+  writeFileSync(join(odd, 'a.txt'), 'one\n');
+  eq(git(odd, ['add', '-A']).code, 0, 'stage a file in the odd-named repo');
+  eq(git(odd, ['commit', '-qm', 'base']).code, 0, '...and commit it');
+
+  const lacking = wt(['prep', '--repo', odd, '--batch', 'b1', '--key', 'alpha']);
+  eq(lacking.code, 40, `prep with no integration worktree exits 40 (${firstLine(lacking.stderr)})`);
+  ok(lacking.stderr.includes(`first run wt.mjs init --repo ${shellQuote(odd)} --batch b1; prep creates nothing`), `...naming the init with the repo path quoted for the platform: ${firstLine(lacking.stderr)}`);
+
+  const landNoInt = wt(landArgs);
+  eq(landNoInt.code, 40, `land with no integration worktree exits 40 (${firstLine(landNoInt.stderr)})`);
+  ok(landNoInt.stderr.includes(`nothing to land into; first run wt.mjs init --repo ${shellQuote(odd)} --batch b1`), `...naming the init with the repo path quoted for the platform: ${firstLine(landNoInt.stderr)}`);
+
+  eq(wt(['init', '--repo', odd, '--batch', 'b1']).code, 0, 'init the integration worktree');
+  const landNoChain = wt(landArgs);
+  eq(landNoChain.code, 40, `land with no chain worktree exits 40 (${firstLine(landNoChain.stderr)})`);
+  ok(landNoChain.stderr.includes(`first run wt.mjs prep --repo ${shellQuote(odd)} --batch b1 --key alpha, and land only after`), `...naming the prep with the repo path quoted for the platform: ${firstLine(landNoChain.stderr)}`);
+
+  eq(git(odd, ['branch', 'aipg/dup']).code, 0, 'create the branch aipg/dup');
+  const dup = openIn(odd, 'dup');
+  eq(dup.code, 40, `open of a name whose branch exists exits 40 (${firstLine(dup.stderr)})`);
+  ok(dup.stderr.includes(`Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${shellQuote(odd)} branch -D aipg/dup.`), `...naming the branch delete with the repo path quoted for the platform: ${firstLine(dup.stderr)}`);
+
+  hookIn(odd, 'post-checkout', failing);
+  const openRed = openIn(odd, 'feat');
+  eq(openRed.code, 40, `open whose post-checkout hook fails exits 40 (${firstLine(openRed.stderr)})`);
+  ok(openRed.stderr.includes(`close --repo ${shellQuote(odd)} --name feat --discard, delete the branch with git -C ${shellQuote(odd)} branch -D aipg/feat, then run open again`), `...naming the close and the branch delete with the repo path quoted for the platform: ${firstLine(openRed.stderr)}`);
+});
+
 section('a red gate is exit 30 and a gate that changes the tree, moves the branch or switches off it is exit 40, each with main untouched');
 await withFixture(({ root, repo }) => {
   const feat = opened(repo, 'feat');
@@ -1554,7 +1622,7 @@ await withFixture(({ root, repo }) => {
   renameSync(second, `${second}.moved`);
   const lockedGone = closeIn(repo, 'feat', 'main', gate);
   eq(lockedGone.code, 40, `close --into a branch held by a locked worktree whose folder is gone exits 40 (${firstLine(lockedGone.stderr)})`);
-  ok(/second-main, which has it checked out, is gone, and it is locked \(on a removable drive\), so "git worktree prune" keeps it\. .*mount it\. Otherwise run git -C .* worktree unlock ".*second-main" and git -C .* worktree prune\. Then run close again/.test(lockedGone.stderr),
+  ok(rx`second-main, which has it checked out, is gone, and it is locked \(on a removable drive\), so "git worktree prune" keeps it\. .*mount it\. Otherwise run git -C .* worktree unlock ${Q}.*second-main${Q} and git -C .* worktree prune\. Then run close again`.test(lockedGone.stderr),
     '...naming the mount, then the unlock before the prune');
   unchanged(root, repo, feat, 'feat', mainAt, tip);
   eq(git(repo, ['worktree', 'unlock', second]).code, 0, 'unlock the second worktree');
@@ -1587,7 +1655,7 @@ await withFixture(({ root, repo }) => {
   const mainAt = sha(repo, 'refs/heads/main');
   eq(git(feat, ['checkout', '-q', '--detach']).code, 0, 'detach HEAD in the worktree');
   writeFileSync(at(feat, 'wip.txt'), 'unsaved\n');
-  const offBranch = /the worktree of aipg\/feat at .*aipg-feat has a detached HEAD checked out, so close leaves it in place\. Keep any commit made on that detached HEAD with git -C ".*" branch <new-name>\. Switch it back with git -C ".*" switch aipg\/feat,/;
+  const offBranch = rx`the worktree of aipg\/feat at .*aipg-feat has a detached HEAD checked out, so close leaves it in place\. Keep any commit made on that detached HEAD with git -C ${Q}.*${Q} branch <new-name>\. Switch it back with git -C ${Q}.*${Q} switch aipg\/feat,`;
 
   const unmerged = closeIn(repo, 'feat', 'main', gate);
   eq(unmerged.code, 40, 'close of a detached worktree whose branch holds commits main lacks exits 40');
@@ -1610,7 +1678,7 @@ await withFixture(({ root, repo }) => {
   eq(git(repo, ['branch', '-D', 'aipg/feat']).code, 0, '...and delete aipg/feat');
   const gone = closeIn(repo, 'feat', 'main', gate);
   eq(gone.code, 40, 'close of a worktree on another branch, with aipg/feat deleted, exits 40');
-  ok(/has branch other checked out, so close leaves it in place\. Switch it back with git -C ".*" switch -c aipg\/feat,/.test(gone.stderr), `...naming the switch that recreates the branch: ${firstLine(gone.stderr)}`);
+  ok(rx`has branch other checked out, so close leaves it in place\. Switch it back with git -C ${Q}.*${Q} switch -c aipg\/feat,`.test(gone.stderr), `...naming the switch that recreates the branch: ${firstLine(gone.stderr)}`);
   ok(worktreePaths(repo).includes(norm(feat)), '...keeping the worktree registered');
 
   eq(git(feat, ['switch', '-q', '-c', 'aipg/feat']).code, 0, 'recreate aipg/feat in the worktree');
@@ -1642,7 +1710,7 @@ await withFixture(({ root, repo }) => {
   const mainAt = sha(repo, 'refs/heads/main');
   eq(git(feat, ['checkout', '-q', '--detach']).code, 0, 'detach HEAD in the worktree of aipg/feat');
   const detachedAt = commitFile(feat, 'x.txt', 'detached\n');
-  const either = /the worktree at .*aipg-feat has a detached HEAD checked out, and the branches aipg\/feat, aipg\/b1\/feat exist, so it may be the worktree of any of them, and close leaves it in place\. Keep any commit made on that detached HEAD with git -C ".*" branch <new-name>\. Switch it back to its branch with git -C ".*" switch <branch>,/;
+  const either = rx`the worktree at .*aipg-feat has a detached HEAD checked out, and the branches aipg\/feat, aipg\/b1\/feat exist, so it may be the worktree of any of them, and close leaves it in place\. Keep any commit made on that detached HEAD with git -C ${Q}.*${Q} branch <new-name>\. Switch it back to its branch with git -C ${Q}.*${Q} switch <branch>,`;
 
   const closed = closeIn(repo, 'feat', 'main', gate);
   eq(closed.code, 40, `close of a detached open of feat beside the chain branch aipg/b1/feat exits 40 (${firstLine(closed.stderr)})`);
@@ -1968,7 +2036,7 @@ await withFixture(({ root, repo }) => {
   const mid = discardIn(repo, 'stop');
   eq(mid.code, 0, `close --discard of a worktree mid-rebase exits 0 (${firstLine(mid.stderr)})`);
   ok(mid.stderr.includes(`discarded a rebase in progress, whose state (rebase-merge) the prune deletes. Its detached HEAD was ${during}`), '...naming the detached HEAD');
-  ok(new RegExp(`branch <name> ${during} recovers a commit made during it`).test(mid.stderr), '...and the command that recovers it');
+  ok(new RegExp(`To recover a commit made during it before git gc expires it, run git -C .* branch <name> ${during}\n`).test(mid.stderr), '...and the command that recovers it');
   eq(git(repo, ['cat-file', '-t', during]).stdout.trim(), 'commit', '...which the commit is still there for');
   eq(sha(repo, 'refs/heads/aipg/stop'), stopTip, '...and the branch is kept at its tip');
 });
@@ -1988,7 +2056,7 @@ if (!foldsCase(process.platform)) {
       [closeIn(repo, 'feat', 'AIPG/feat', gate), /--into "AIPG\/feat" names branch aipg\/feat in another case/, 'close --into AIPG/feat'],
       [closeIn(repo, 'FEAT', 'main', gate), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT'],
       [discardIn(repo, 'FEAT'), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT --discard'],
-      [openIn(repo, 'FEAT'), /branch aipg\/feat already exists .*does not tell apart from aipg\/FEAT.*branch -D aipg\/feat once/, 'open --name FEAT'],
+      [openIn(repo, 'FEAT'), rx`branch aipg\/feat already exists .*does not tell apart from aipg\/FEAT.*Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${Q}.*${Q} branch -D aipg\/feat\.`, 'open --name FEAT'],
       [openIn(repo, 'other', ['--base', 'MAIN']), /--base "MAIN" names branch main in another case, so pass --base main/, 'open --base MAIN'],
     ];
     for (const [r, expected, what] of refused) {

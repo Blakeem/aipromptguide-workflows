@@ -522,6 +522,22 @@ const stateWarnings = (logs) => logs.filter((l) => l.includes('INSIDE the target
   const { logs } = await run({ 'plan-critic': CLEAN });
   eq(stateWarnings(logs).length + planWarnings(logs).length, 0, 'both outside the repo draw nothing');
 }
+{
+  // Windows folds case in a drive or UNC path, so a path that spells the repo in another case is still
+  // inside it. A POSIX path keeps its case.
+  const CASES = [
+    ['E:/repo', 'E:\\repo\\', 1, 'the repo root itself, in backslashes with a trailing slash'],
+    ['E:/repo', 'e:/REPO/runs/t', 1, 'a drive path in another case'],
+    ['//server/share/repo', '//SERVER/share/Repo/runs/t', 1, 'a UNC path in another case'],
+    ['/srv/repo', '/srv/REPO/runs/t', 0, 'a POSIX path in another case, so a macOS spelling draws no warning'],
+    ['E:/repo', 'E:/repo-state/t', 0, 'a folder beside the repo whose name extends the repo\'s'],
+  ];
+  for (const [repo, path, warns, what] of CASES) {
+    const { logs } = await run({ 'plan-critic': CLEAN }, { ...baseArgs, target: { repo }, stateDir: path, planPath: `${path}/bus.md` });
+    eq(stateWarnings(logs).length, warns, `run-state: ${what} warns ${warns} time(s)`);
+    eq(planWarnings(logs).length, warns, `plan file: ${what} warns ${warns} time(s)`);
+  }
+}
 
 // ---------------------------------------------------------------------------------------------
 // Arg validation — every one of these throws BEFORE an opus critic is spawned

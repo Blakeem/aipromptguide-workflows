@@ -530,6 +530,24 @@ section('changePolicy defaults to focused, proactive prescribes the best long-te
   `changePolicy "strict" throws the rename message: ${retired.slice(0, 160)}`);
 }
 
+section('run-state inside the target repo draws a warning, whatever case a drive or UNC path spells the repo in');
+// The issue files hold each finding's detail, so run-state in the repo's tree is in the blind reviewer's reach.
+{
+  const CASES = [
+    ['E:/repo', 'E:/repo/runs/t', 1, 'a folder inside the repo'],
+    ['E:/repo', 'E:\\repo\\', 1, 'the repo root itself, in backslashes with a trailing slash'],
+    ['E:/repo', 'e:/REPO/runs/t', 1, 'a drive path in another case'],
+    ['//server/share/repo', '//SERVER/share/Repo/runs/t', 1, 'a UNC path in another case'],
+    ['/srv/repo', '/srv/REPO/runs/t', 0, 'a POSIX path in another case, so a macOS spelling draws no warning'],
+    ['E:/repo', 'E:/repo-state/t', 0, 'a folder beside the repo whose name extends the repo\'s'],
+    ['E:/repo', 'E:/r/runs/t', 0, 'a folder outside the repo'],
+  ];
+  for (const [repo, stateDir, warns, what] of CASES) {
+    const { logs } = await run({ target: { repo }, stateDir }, { 'review': NO_FINDINGS });
+    eq(logs.filter((l) => l.includes('INSIDE the target repo')).length, warns, `${what} warns ${warns} time(s)`);
+  }
+}
+
 section('long unit ids sharing a 60-char prefix get distinct plan ids; short ids are unchanged');
 {
   const prefix = 'src/' + 'a'.repeat(60);

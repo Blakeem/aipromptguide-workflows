@@ -50,7 +50,7 @@ export default {
   scenarios: [
     {
       // THE conditional-second-stage proof, and why both units live in one scenario: u1 is clean (its
-      // reviewer writes the marker, stage 2 skips the verifier at review.mjs:437-446), u2 has a
+      // reviewer writes the marker when `cleanEligible` holds, and stage 2 skips the verifier), u2 has a
       // finding and reaches the verifier. Two paths out of one `review` node.
       name: 'a clean unit beside one with findings',
       when: 'one unit is clean, the other has findings',
