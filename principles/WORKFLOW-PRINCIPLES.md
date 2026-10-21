@@ -69,12 +69,14 @@ cap, so no agent or operator ever handles a cut line.
 
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
-1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits
-   against a severity threshold that the run's change policy sets, then
+1. an unbiased pure-code review with no spec, goal, or plan, which judges the code on its own merits, then
 2. a plan-aware acceptance review, which verifies every requirement is met, the feature is reachable, and
    nothing regressed.
 
-Stage 1 must be clean before stage 2 runs. Any code change re-enters at stage 1.
+Stage 1 runs on a block's first build and on each change the developer judges as needing review, and it
+must be clean before stage 2 runs. A change the developer judges low risk goes to stage 2 directly with
+its risk answers, and stage 2 checks each answer against the code. A wrong answer sends the developer's
+next change to stage 1.
 
 **Reviewer memory.** Reviewers stay fresh but keep the settled decisions. A blind reviewer that reruns
 each round would otherwise re-flag every finding the developer declined on purpose, and that
@@ -89,14 +91,15 @@ review file of its block after its own first check. It confirms each earlier fin
 every sibling path or sits in the ledger, so it is the block's regression check and the blind stage
 stays lean.
 
-A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) for a finding at
-or above its own review's severity threshold. The developer must then fix or escalate it and never silently re-dismiss it.
+A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) at any tier. The
+developer must then fix or escalate it and never silently re-dismiss it.
 This bounds the loop and keeps a wrongly dismissed real defect from being suppressed.
 
 ### 6. Only messages, ledgers, user notes, and product are written
 The numbered, stage-named review files (`quality-review-N.md`, `acceptance-review-N.md`) are the
 reviewers' messages. They also form the progress trail, since the count of each file shows how many
-times each loop ran.
+times each loop ran. develop's numbered `risk-<id>-rN.md` is the developer's message to acceptance,
+which holds its risk answers for round N (#5).
 
 Narration about the run is forbidden, such as status files, run summaries, progress logs, and "what I
 did" reports. A run writes only three kinds of file. These are the numbered inter-agent messages, the
@@ -114,7 +117,7 @@ cannot be stretched to license a status file. For this reason the retired `resol
 grep and produces findings no per-block agent could reach. Resolve's sweep only retold the harness's own
 accounting.
 
-The developer's only outputs besides code are four append files:
+Besides code and develop's risk files, the developer's only outputs are four append files:
 - **`DISMISSED-<id>.md`**, the dismissed-findings ledger, one per plan, section, or batch. It holds one
   terse line per review finding the developer declined (false positive, intentional, conflicts with
   spec, not a real path), with just enough context that a reviewer is not in the dark. The line format
@@ -129,9 +132,9 @@ The developer's only outputs besides code are four append files:
   may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
   also appends each parked block's record to it.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
-  plan amendment pointer. It also records each fix or refactor develop's developer made past its block.
-  Under the strict change policy, that is only a fix of a defect the staged baseline already had. The
-  user reads it at run end, and the acceptance stage reads it.
+  plan amendment pointer. Under either change policy, it also records each fix of a defect the staged
+  baseline already had that develop's developer made and its block did not require. The user reads it
+  at run end, and the acceptance stage reads it.
   It is never a question. A flag-and-proceed item is recorded here, and the developer continues with a
   defensible default.
 
@@ -144,14 +147,17 @@ covered. They are the run's convergence mechanism, not a record of it. Their wri
 sequential, which is the only reason a shared append-only file is safe.
 
 The developer writes no "what I did" report, since its code is its output (#8). In develop, the
-developer also appends each real defect it leaves outside its block's work to that block's
-`NEW-ISSUES-<id>.md` in the plan directory, an untriaged issue inventory the user triages like debug's
-`issues/`. It adds a closing line to an entry in any `NEW-ISSUES-*.md` there whose defect a fix it
-logs closes. Reviewers write only their numbered review files. One exception is develop's fix-mode
-acceptance verifier, which appends a harm with a separate cause to its source block's
-`NEW-ISSUES-<id>.md`. A critic, an editor or a verifier may write one scratch probe beside the listed
-files. Its temporary directory sits outside the repo and the run-state dir. Nothing outside this list is
-written.
+developer also records each real defect the staged baseline already had that it logs because its
+code-zone routing leaves the defect unchanged, under its decision matrix's rule 2 or as a sibling
+path, in code no other block owns. Under the proactive change policy, it also records each cleanup it
+noticed and did not make outside the code its block's required changes add or change. Each record
+goes to that block's file in the project's backlog folder, an untriaged issue inventory the user
+triages like debug's `issues/`. The developer adds a closing line to an entry in any file in that
+folder whose defect a fix it logs closes. Reviewers write only their numbered review files. One
+exception is develop's fix-mode acceptance verifier, which appends a harm with a separate cause to its
+source block's backlog file. A critic, an editor or a verifier may write one scratch probe beside the
+listed files. Its temporary directory sits outside the repo and the run-state dir. Nothing outside
+this list is written.
 
 ### 7. The developer owns the decision matrix and is the only escalation point
 The developer resolves ambiguity itself, with a decision matrix, before flagging anything. It logs a
@@ -284,20 +290,33 @@ or a measurement, that changes the winner. The choice is ROBUST when that change
 input's uncertainty, and FRAGILE when it is not. A dispute inside a fragile margin, such as one point between
 two variants of the winner, is a close call that another round cannot decide without new evidence.
 
+### 17. Judgment first
+An agent judges each case against named questions and cites its evidence (#14). A fixed cutoff in place of
+that judgment encodes what today's model can judge, so a more capable model then does worse than it could.
+
+A fixed value stays only where the agent that would judge lacks the information to judge. The round budget
+is one such value, since no agent inside a run's loop sees the run's trajectory. A hard limit of this kind
+ends the work loudly, with the work saved and the reason recorded, and never decides an outcome in silence.
+In develop, a block that hits the round budget gets one closing pass. It ships only when that pass records
+nothing that needs review and acceptance passes, and it parks otherwise. The orchestrating agent, which
+sees the trajectory, then judges with the user what comes next, and the record shows how to improve the
+next run.
+
+A written scale, such as the severity scale (#14), is the shared vocabulary judgments use, and is not a
+cutoff. When an agent judges its own work, a doubtful case takes the safer outcome, and another agent can
+audit the judgment (#5).
+
 ---
 
 ## Scope
 
-Principles #1 to #4, #6, #8, and #11 to #16 are core, and every workflow honors them. The rest are build-loop
+Principles #1 to #4, #6, #8, and #11 to #17 are core, and every workflow honors them. The rest are build-loop
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
   including the staged escalating review (#5), developer-owned escalation (#7), and one staging at the
-  end (#9). develop's change policy sets each blind review's severity threshold. Under `proactive`, the
-  reviewer reports a finding below its review's threshold only beside one at or above it, so a minor
-  finding rides along with work already owed and never drives a round on its own, unless the developer
-  neither fixed nor logged it, which acceptance counts as a gap. Under `strict`, it reports no finding
-  below its review's threshold.
+  end (#9). In develop, the developer's risk judgment decides which rounds get a blind review (#5), and
+  each blind review reports every finding at every tier.
 - **Generative and read-only workflows** do creative divergence, information provisioning, or read-only
   auditing (brainstorm, docs, enhance). They write no code, stage nothing, and never commit, so #7 and
   #9 don't apply. The user is the judge, and there is no AI review gate unless the workflow needs one.
@@ -401,12 +420,14 @@ Use these as yes/no checks when reviewing any workflow.
       between runs ride a step the operator must run anyway, with nothing left for someone to
       remember? Is every tool or runtime limit an agent would hit fixed in the tool or the engine, with
       no workaround in a prompt? (#4)
-- [ ] Must an unbiased code review pass before the plan-aware acceptance review runs? (#5)
-- [ ] Are the only files written the numbered inter-agent reviews, the developer's terse
+- [ ] Must an unbiased code review pass before the plan-aware acceptance review runs, on a block's
+      first build, on each change judged as needing review and on the next change after the acceptance
+      review finds a risk answer wrong? (#5)
+- [ ] Are the only files written the numbered inter-agent reviews and develop's risk files, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
       `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, `DECISIONS.md`, and the workflow's own
       product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
-      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and `NEW-ISSUES-<id>.md`, a parked patch)? Any
+      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, a parked patch)? Any
       status, summary, progress, or "what I did" file is narration and a violation, including one
       that restates numbers the harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
@@ -441,3 +462,5 @@ Use these as yes/no checks when reviewing any workflow.
       (clean tree and durable trail), with no bespoke recovery step and nothing lost? (#15)
 - [ ] Does every ruling-out verdict cite its evidence, keep an unsettled claim open and name its flip?
       (#16)
+- [ ] Does a fixed cutoff decide something an agent with the information could judge? Does each hard
+      limit end the work loudly, with its state saved? (#17)

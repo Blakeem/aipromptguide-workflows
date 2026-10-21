@@ -12,7 +12,7 @@ run the command again with `grant` (settings reload live, no restart). On no, th
 `/add-dir ${CLAUDE_PLUGIN_ROOT}` for this session only.
 
 Next, before any step of the guide, settle the change policy. Run
-`node "${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`,
+`node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`,
 where `<target.repo>` is the repo the run works on. When the task does not name that repo, ask the user
 for it, since the working directory may be another repo. Then follow
 `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy" on its output.
@@ -25,7 +25,7 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
   `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
 - develop's `blockTool` arg: `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
 - Args, status and triage tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
-- Change-policy tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs`
+- Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`
 - Unit slicer (plain Node, run directly): `${CLAUDE_PLUGIN_ROOT}/workflows/debug/gen-units.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.

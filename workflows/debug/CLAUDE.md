@@ -212,8 +212,8 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 - **The issue files are the source of truth for WHAT to fix.** `review.mjs` writes them, and a
   `review.mjs` re-run rewrites each unit file it re-reviews from scratch, triage edits and statuses
   included. Otherwise only you write them, at triage and through `plan-edit.mjs args` before each develop
-  launch. develop's developer and verifier write new issues only to their own `NEW-ISSUES-<block id>.md`
-  files, never to these.
+  launch. develop's developer and verifier write new entries only to their own block's files in the
+  project's backlog folder (`../develop/CLAUDE.md` §10), never to these.
 
 ## State files (`runs/<runId>/`, outside every repo)
 
@@ -237,8 +237,9 @@ with `units` from `gen-units.mjs`.
   `units` **throws** — `target.repo` has no default, so a bogus inventory can't be built against `.`.
 - **Optional tuning:** `reviewSeverity` (inventory floor, default medium; a name outside
   low|medium|high|critical **throws**) · `lens` (one lens or an ARRAY —
-  see Lenses; per-unit override via `unit.lens`) · `changePolicy` (`strict|proactive`, default `strict`,
-  any other value **throws**. `strict` makes each **Fix:** line the minimal fix. `proactive` makes it the
+  see Lenses; per-unit override via `unit.lens`) · `changePolicy` (`focused|proactive`, default `focused`,
+  any other value **throws**, and `strict`, the old name of `focused`, throws with a message that names
+  the rename. `focused` makes each **Fix:** line the minimal fix. `proactive` makes it the
   fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
   the verifier prompt each say the policy and that prompt's own scope and routing rules override any
   other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`agentTypes` (the

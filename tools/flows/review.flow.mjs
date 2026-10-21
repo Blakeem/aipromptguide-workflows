@@ -89,7 +89,7 @@ export default {
     { name: 'no target repo', when: 'args.target.repo is missing', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'unknown severity floor', when: 'args.reviewSeverity is not a known severity', args: { ...base, reviewSeverity: 'Medium', units: [unit('u1')] } },
     // A coerced policy would silently widen or narrow the scope of every Fix line.
-    { name: 'unknown change policy', when: 'args.changePolicy is outside strict | proactive', args: { ...base, changePolicy: 'lenient', units: [unit('u1')] } },
+    { name: 'unknown change policy', when: 'args.changePolicy is outside focused | proactive', args: { ...base, changePolicy: 'lenient', units: [unit('u1')] } },
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
     { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
     { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },

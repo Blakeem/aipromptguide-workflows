@@ -14,9 +14,8 @@
 // `partial slice complete (every selected block staged)` whether a sweep was wanted or not — so only
 // these scenarios can draw them.
 //
-// The develop SELF-LOOP ('the gate never goes green') is the only develop -> develop edge, the only round
-// with NO reviewer spawned at all, and the only route to a park with no review file — parkPrompt's
-// "produced NO review file" fallback exists for exactly it.
+// The develop SELF-LOOP ('the gate never goes green') is the only develop -> develop edge. It is also the
+// only route to a budget park with no review file, which the budget halt's "produced no review file" clause names.
 //
 // Four halts collapse into ONE `park-unsafe` status, so HALT_STATUS coverage cannot tell them apart: a
 // self-contradictory park report, a tree park could not clear, red gates after clearing, and a park agent
@@ -43,31 +42,36 @@ const BLOCKS = [
 // returns per-issue results instead of `produced`, and its two round-1 terminals are reachable from no
 // other mode. Gate green is the only gate a fix block takes.
 const FIX_BLOCK = { id: 'block-c', planPath: BUS, mode: 'fix', gate: 'green' };
+// The folder `project-settings.mjs backlog` prints, as every launch passes it.
+const BACKLOG = 'E:/flow/backlog/repo-0a1b2c3d';
 const base = {
-  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES,
+  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, backlogDir: BACKLOG,
   goal: 'move every caller onto the new client', sweep: 'goal-coverage', plans: BLOCKS,
 };
 
-// Agent returns carrying every attestation the engine reads. `produced` gates the blind review, and
-// `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
-const DEV_OK   = { baseline_dirty_files: 0, produced: true, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, new_issues: 0, new_issue_blocks: [] };
-const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, minor_count: 0, contested_dismissals: 0 };
-const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, minor_count: 0, contested_dismissals: 0 };
+// Agent returns carrying every attestation the engine reads. `review_needed` gates a later round's blind
+// review, and `unstaged_confirmed` is a HALT here rather than a warning — hence its own scenario below.
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true };
+const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
+const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
+// A closing pass that made only low-risk fixes and recorded nothing.
+const CLOSING_OK = { ...DEV_OK, review_needed: false, recorded_entries: [] };
 
-// The fix frame's returns. `produced` is DERIVED from results here, so the status values below are what
-// decide whether the blind reviewer is spawned at all.
-const devFix = (results, extra) => ({ ...DEV_OK, produced: undefined, results, ...extra });
+// The fix frame's returns. Whether a round changed anything is DERIVED from results here, so the status
+// values below decide whether the round-1 no-changes terminal fires.
+const devFix = (results, extra) => ({ ...DEV_OK, results, ...extra });
 const FIX_DONE   = devFix([{ issue_id: 'i-1', status: 'FIXED' }]);
 const FIX_STALE  = devFix([{ issue_id: 'i-1', status: 'STALE' }]);
 const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
-const ACC_FIX    = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], new_issues: 0, new_issue_blocks: [], gap_count: 0, suite_result: 'green' };
+const ACC_FIX    = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], backlog_entries: 0, backlog_blocks: [], gap_count: 0, suite_result: 'green' };
 
-// The clean full run every "what changes" scenario is a one-key edit of.
-const GREEN_RUN = { develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };
+// The clean full run every "what changes" scenario is a one-key edit of. Its closing pass returns a usable
+// list, so a scenario that runs out of rounds reaches the closing acceptance.
+const GREEN_RUN = { develop: DEV_OK, 'develop-closing': CLOSING_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 
@@ -112,14 +116,18 @@ export default {
     // One throw site serves every numeric bound. Without it a non-numeric maxRounds coerces to NaN, the
     // per-block round loop never runs, and every block parks having never spawned a developer.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
-    // A coerced policy would silently move every blind review's bar and widen or narrow every developer's diff.
-    { name: 'unknown change policy', when: 'changePolicy is outside strict | proactive', args: { ...base, changePolicy: 'lenient' } },
-    // changePolicy sets every blind review's bar, and an ignored reviewSeverity would claim a bar the run never used.
+    // A coerced policy would silently widen or narrow every developer's diff.
+    { name: 'unknown change policy', when: 'changePolicy is outside focused | proactive', args: { ...base, changePolicy: 'lenient' } },
+    // The developer's risk judgment decides when a blind review runs, so an ignored reviewSeverity would claim a bar the run never used.
     { name: 'reviewSeverity is retired', when: 'args carry reviewSeverity, any value', args: { ...base, reviewSeverity: 'medium' } },
     // Retired args throw rather than being ignored: each served only a hand-built payload.
     { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
     { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },
     { name: 'planContext is retired', when: 'a plans row carries planContext', args: { ...base, plans: [{ ...BLOCKS[0], planContext: 'full' }] } },
+    // The developer and fix acceptance append to the backlog folder, so a run without one has nowhere to
+    // record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
+    { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },
+    { name: 'backlog folder inside the repo', when: 'backlogDir lies inside target.repo', args: { ...base, backlogDir: 'E:/repo/backlog' } },
 
     // The four FILE KEYS `plan-edit.mjs args` prints. Each is control input, and each throw exists
     // because the coerced reading is silently wrong: the string "false" is truthy, so a coerced `ordered`
@@ -213,20 +221,20 @@ export default {
       respond: { ...GREEN_RUN, acceptance: firstRound(ACC_FAIL, ACC_PASS) },
     },
     {
-      // The develop -> acceptance edge that exists on no other path: an empty diff has nothing to review,
-      // so the blind stage is skipped and only acceptance can tell a legitimate no-op from a miss.
-      name: 'the developer produced nothing',
-      when: 'the developer changed no files',
+      // The develop -> acceptance edge: a later round whose developer judged every change low risk skips the
+      // blind review, and acceptance audits that judgment. The block's first round is reviewed regardless.
+      name: 'a later round is judged low risk',
+      when: 'the developer judges every change since the last blind review low risk',
       args: base,
-      respond: { ...GREEN_RUN, develop: { ...DEV_OK, produced: false } },
+      respond: { ...GREEN_RUN, develop: firstRound(DEV_OK, { ...DEV_OK, review_needed: false }), quality: firstRound(FLAGGED, CLEAN) },
     },
     {
       // The develop SELF-LOOP: a gate that is not green re-develops with NO reviewer spawned, until the
-      // round budget runs out. The only route to a park with no review file.
+      // round budget runs out. The closing pass then parks the block, since it never had a blind review.
       name: 'the gate never goes green',
       when: 'the block gate is never green',
       args: base,
-      respond: { develop: { ...DEV_OK, build_passed: false }, park: PARK_OK },
+      respond: { develop: { ...DEV_OK, build_passed: false }, 'develop-closing': { ...CLOSING_OK, build_passed: false }, park: PARK_OK },
     },
 
     // ---- park: the ONE exit whose shape the `ordered` file key decides ----------------------------
@@ -273,12 +281,12 @@ export default {
       },
     },
     {
-      // ALL-STALE: every entry is claimed already closed. The empty diff skips the blind review, and
-      // acceptance confirms each STALE claim before the block counts done.
+      // ALL-STALE: every entry is claimed already closed. The block's first round gets a blind review of its
+      // empty diff, and acceptance confirms each STALE claim before the block counts done.
       name: 'every issue is already fixed',
       when: 'every issue in a fix block is stale',
       args: { ...base, plans: [FIX_BLOCK] },
-      respond: { develop: FIX_STALE, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
+      respond: { develop: FIX_STALE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
     },
     {
       // NO-CHANGES, unordered: the same empty diff, a different outcome — every entry was SKIPPED, so the
@@ -457,12 +465,28 @@ export default {
       },
     },
     {
-      // Adds no node or edge: it puts the round-1 restore text in the prompt snapshot. Last, so the
-      // variants above keep their numbers.
+      // Adds no node or edge: it puts the round-1 restore text in the prompt snapshot. Placed after every
+      // older scenario, so their variants keep their numbers.
       name: 'a parked block is continued from its patch',
       when: 'continueParked names block-a and every block accepts',
       args: { ...base, continueParked: ['block-a'] },
       respond: GREEN_RUN,
+    },
+
+    // ---- the closing pass: one developer after the last round, with no blind review after it --------
+    {
+      // Its one route to acceptance: it recorded nothing and its changes owe no blind review.
+      name: 'a closing pass reaches acceptance',
+      when: 'the last round fails and the closing pass makes only low-risk fixes',
+      args: { ...base, maxRounds: 1 },
+      respond: { ...GREEN_RUN, acceptance: firstRound(ACC_FAIL, ACC_PASS) },
+    },
+    {
+      // A fix that needs a blind review cannot get one after the last round, so the block parks naming it.
+      name: 'a closing pass records a fix that needs review',
+      when: 'the closing pass records a backlog entry',
+      args: { ...base, maxRounds: 1 },
+      respond: { ...GREEN_RUN, 'develop-closing': { ...CLOSING_OK, recorded_entries: ['flow-block-a-1'] }, acceptance: ACC_FAIL, park: PARK_OK },
     },
   ],
 };

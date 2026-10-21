@@ -1,10 +1,10 @@
 // tools/gen-prompts.mjs — the prompt every agent role receives, snapshotted per engine.
 //
 // Runs each engine's flow scenarios (tools/flows/<name>.flow.mjs) through tests/harness.mjs and keeps one
-// copy of every distinct prompt variant: same role, schema and text once the item id and every number are
-// masked, so a variant repeated per block or per round appears once. An edit meant for one mode or round
-// that also changes another then shows in the git diff under the variant it leaked into. The suite fails
-// while a snapshot is stale, the way it does for FLOW.md.
+// copy of every distinct prompt variant: same role, schema and text once the item id, every 8-hex-digit hash
+// and every number are masked, so a variant repeated per block or per round appears once. An edit meant for
+// one mode or round that also changes another then shows in the git diff under the variant it leaked into.
+// The suite fails while a snapshot is stale, the way it does for FLOW.md.
 //
 //   node tools/gen-prompts.mjs [<name>...]           # write tests/snapshots/<name>.prompts.md
 //   node tools/gen-prompts.mjs [<name>...] --check   # write nothing; exit 1 naming stale snapshots
@@ -40,10 +40,11 @@ function fence(text) {
   return '~'.repeat(Math.max(4, longest + 1));
 }
 
-/** A call's variant key: its role, its schema, and its prompt with the item id and every number masked. */
+/** A call's variant key: its role, its schema, and its prompt with the item id, every hash and every number masked. */
 function variantKey(c) {
   const item = c.label.slice(c.role.length).replace(/[\s:/]+r\d+$/, '').replace(/^[\s:/]+/, '').trim();
-  const masked = (item ? c.prompt.split(item).join('<item>') : c.prompt).replace(/\d+/g, 'N');
+  // An engine's fnv1a hash differs per block. An 8-digit number matches too, so both take the number's mask.
+  const masked = (item ? c.prompt.split(item).join('<item>') : c.prompt).replace(/\b[0-9a-f]{8}\b/g, 'N').replace(/\d+/g, 'N');
   return `${c.role}\u0000${c.schema}\u0000${masked}`;
 }
 

@@ -16,34 +16,57 @@ Each `## Plan:` block names its `mode`, and the mode picks the instructions the 
 A block can also name its developer model in a `model:` line, picked by how complex the block is. The
 reviewers always use the run's review models, which default to Opus.
 
-A run's `changePolicy` is `strict` by default. Claude asks which policy a repo takes the first time
-and saves the answer. `strict` is for working code that stays close to the task. Its developer works
-only in the code its block changes and the code that interacts with it. In a fix block, it works
-only in the code each fix touches and in every repeat of the problem each entry names. It fixes a
-critical, high or security problem in the code its block changes. When the fix goes against the
-plan, it fixes the problem only after it confirms the plan is wrong. It fixes a medium problem when
-the fix is worth its cost. It also fixes every repeat of a problem it fixes in that code, at any
-size. It leaves other smaller problems alone unless a review names them or its own change made
-correct code or docs wrong. `proactive` is for the best code. Its developer fixes any clear problem
-and makes clear improvements in the code a block reaches. A fix block limits that work to the code
-each fix touches. The developer also fixes the same problem where it repeats in that code. Past that
-code, it fixes only a problem a review names, or a repeat of one or of a fix the block requires.
+A run's `changePolicy` is `focused` by default. Claude asks which policy a repo takes the first time
+and saves the answer. The developer sorts the code into three zones. Task code is the code its block
+changes. In a fix block, it also holds every repeat of the problem each entry names. Connected code is
+the code that calls or repeats task code, and the docs that describe it. Code another block of the plan
+owns is never task or connected code. Other code is everything else.
+
+Under both policies, the developer fixes every problem in task code at any size. It also fixes a
+problem its change causes or exposes in connected code. It never changes other code. When its change
+causes or exposes a problem there, it fixes the cause in task or connected code. If only a change in
+other code can fix the problem, the developer escalates it. `focused` is for working code that stays
+close to the task. Its developer builds minimally. It leaves unchanged any problem the connected code
+already had that its change neither causes nor exposes. `proactive` is for the best code. Its developer
+builds each feature and section block with the change that has the best long-term result. In those
+blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
+cleanup there, such as a clearer name, in the backlog and leaves the code unchanged.
 
 ## How it works
 
 Every block runs the same loop, up to `maxRounds`.
 
-1. A **developer** builds the block and runs the gates. It leaves its work unstaged.
+1. A **developer** works in six phases and leaves its work unstaged.
+   - **Patterns.** It finds how the repo already does the same kind of thing.
+   - **Build.** It builds the block and runs the gates. In a round that answers a review, it fixes or
+     logs each finding in that review. A feature or section block does not build the block again in
+     that round, and a fix block still works through its entries.
+   - **Harden.** It handles edge cases, gives each expected failure a message that names its cause and
+     adds a test for each risky path. It also cleans up the code its round wrote.
+   - **Siblings.** It fixes every repeat of a problem it fixed inside the code its policy lets it
+     change, and logs the rest.
+   - **Self-review.** It applies the blind reviewer's checks to the code its round changed or read.
+     Each earlier round had its own self-review, and each blind review checks the entire block. So the
+     self-review skips code that earlier rounds changed unless this round changed or read it.
+   - **Classify.** It judges the risk of each change its round made with four questions. A change is
+     low risk when it needs edits in only one system, adds few branches or error paths, touches no
+     critical code such as data writes or security, and rests on no assumption a caller could break.
+     A doubtful answer counts as risky.
 2. A **blind quality reviewer** judges the unstaged diff on its own merits. It never sees the plan.
-   The run's `changePolicy` sets the lowest severity each review hunts for. Under `strict`, every
-   review hunts at medium. Under `proactive`, a block's first review in a launch hunts at low, its
-   second at medium and every later one at high. Since no round is left to fix a smaller finding, a
-   review in the block's last allowed round hunts at high. Only a `proactive` review that finds a
-   problem also lists smaller findings for the developer to fix in the same pass.
+   Under both policies, it reports every problem it finds, from critical down to nit. It reviews the
+   block's first round that meets its gate, and any later round with a change the developer judged
+   risky. A round with only low-risk changes goes straight to acceptance.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass.
-   It also rechecks every finding raised earlier in the block.
-4. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
-   nothing is lost and the next block starts clean.
+   It also rechecks every finding raised earlier in the block. For a round the blind reviewer did not
+   see, it checks each of the developer's risk answers against the diff. A wrong answer sends the next
+   round to the blind reviewer.
+4. If the last round fails, a **closing pass** runs one more developer with no blind review after it.
+   It makes each fix that is low risk and records each risky fix in the project's backlog. Acceptance
+   then runs once more, but only when the closing pass recorded nothing and no change still needs a
+   blind review.
+5. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
+   nothing is lost and the next block starts clean. The park record names each backlog entry the
+   closing pass recorded.
 
 Settings at the top of the plan file control the run.
 
@@ -76,13 +99,18 @@ directly.
 ## Reviewing the result
 
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
-acceptance reviews, the quality reviews under `gate/`, each block's declined findings
-(`gate/DISMISSED-<id>.md`), any plan amendment (`AMENDED-<id>.md`), the questions for you and each
-parked block's record (`NEEDS-USER.md`), the defaults the developer took, a pointer to each plan
-amendment and each fix or refactor the developer made past its block (`DECISIONS.md`), each parked
-patch, and the sweep result (`SWEEP.md`). Each block's `plans/<runId>/NEW-ISSUES-<block id>.md`
-holds the defects found outside that block's work. It is a fix-mode plan file, so once you triage it,
-a later run builds it.
+acceptance reviews, the quality reviews under `gate/`, the developer's risk answers for each round
+(`risk-<id>-rN.md`), each block's declined findings (`gate/DISMISSED-<id>.md`), any plan amendment
+(`AMENDED-<id>.md`), the questions for you and each parked block's record (`NEEDS-USER.md`), the
+defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
+problem the code already had that its block did not require (`DECISIONS.md`), each parked patch, and
+the sweep result (`SWEEP.md`).
+
+The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
+in one file per block of each run. Under `proactive`, it also holds the cleanups the developer noticed
+and did not make. To work the backlog, run `/aipg:develop work the backlog`, or tell Claude to work
+the backlog with the develop workflow. You triage the entries with Claude. Then develop builds the
+entries you approve.
 
 ## Requirements
 

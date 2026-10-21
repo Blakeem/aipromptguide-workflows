@@ -274,7 +274,7 @@ section('terminals differing only in a number fold into one N-form node');
   const parked = g.terminals.filter((t) => t.label.includes('block(s) parked'));
   eq(parked.length, 1, 'one terminal, not one per count');
   eq(parked[0].label, 'run complete (N block(s) parked)', 'digits normalized for identity and display');
-  eq(parked[0].scenarios.join(', '), 'the gate never goes green, a parked block, and the run carries on, developer escalates',
+  eq(parked[0].scenarios.join(', '), 'the gate never goes green, a parked block, and the run carries on, developer escalates, a closing pass records a fix that needs review',
     'every parking scenario reached it');
 }
 

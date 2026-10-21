@@ -14,8 +14,8 @@ reviewed, so `review.mjs` is read-only. It sweeps the codebase in bounded units 
 sweep is fast. It then verifies every finding against the real code, scores each one, and writes one
 issue file per unit.
 Then it stops. You read those files, answer anything flagged for your decision, drop what you disagree
-with. Each issue file is a fix-mode plan file, so develop then builds it. A blind critic reviews every
-fix, then an acceptance gate checks it against the issue file. Each accepted fix is staged.
+with. Each issue file is a fix-mode plan file, so develop then builds it behind a two-stage review.
+Each accepted fix is staged.
 
 Debug does **not** hunt a reported bug for you. There is no repro/bisect step. If you have a live symptom
 ("X crashes"), diagnose it first, then feed the result in as an external inventory (below).
@@ -31,10 +31,11 @@ step. This one engineers those away and follows a strict set of principles:
 - **The inventory travels verbatim.** Each unit's issue file is written once by the verifier and read
   byte-for-byte by the fixer and the acceptance gate. Nothing is parsed into fields and rebuilt, so
   nothing about a finding is lost or reinterpreted. There is no monolithic JSON inventory.
-- **Two-stage review on every fix.** A blind critic judges the diff with no idea what issue it was
-  meant to fix (so it catches a fix that solved the report but broke something else), then an
-  acceptance gate reads the issue, re-derives each defect's root cause and confirms it is fully closed
-  with no regression.
+- **Two-stage review.** A blind critic reviews the first fix of each issue file and each later change
+  that develop judges risky. It has no idea what issue the diff was meant to fix, so it catches a fix
+  that solved the report but broke something else. Then an acceptance gate reads the issue, re-derives
+  each defect's root cause and confirms it is fully closed with no regression. The gate also checks
+  each of develop's risk judgments against the diff.
 - **The fix list is closed.** The fix loop only ever works the inventory you approved. No fresh
   review mid-fix keeps finding "just one more thing", which is what makes fixing medium issues
   converge instead of spiraling. For the same reason it hunts **defects only**. An improvement list
@@ -92,8 +93,8 @@ From there Claude drives everything:
 3. **Walks you through triage.** Claude presents the inventory (totals, the hottest areas, every item
    that needs your decision) and helps you decide scope. You approve or skip issues by editing the
    issue files.
-4. **Fixes it.** For each issue file, develop loops a fix, a blind review and an acceptance review
-   against that file unattended. It stages the fix on acceptance. A file it cannot pass is parked
+4. **Fixes it.** For each issue file, develop loops fixes and the two-stage review against that file
+   unattended. It stages the fix on acceptance. A file it cannot pass is parked
    with its work saved to a patch file. Then Claude writes each issue's outcome back into its `status:` line.
 
 A workflow runs in the background and **cannot ask you questions mid-run**, so Claude decides scope and
@@ -108,8 +109,8 @@ symptom you diagnosed yourself), tell Claude to feed them into the debug workflo
 the per-unit issue files itself in the verifier's format (each finding anchored to `file:line` with a
 precise fix instruction, and anything you decline recorded as a SKIP so the triage is on file), then
 runs develop on them as normal. Every safeguard still applies. Each issue is re-confirmed against the
-current code before it is touched, every fix passes the blind critic and the acceptance gate that reads
-the issue, and accepted work is staged for you to commit. Every entry marked ACTIONABLE is fixed, whatever
+current code before it is touched, every fix goes through the same two-stage review, and accepted work
+is staged for you to commit. Every entry marked ACTIONABLE is fixed, whatever
 its severity.
 
 ---
@@ -126,8 +127,8 @@ Each is a fresh, throwaway context that does one job and returns one decision:
   file. That file is both the inventory and your triage document.
 The fix loop is [develop](../develop/)'s, in fix mode. Its developer re-confirms each issue still
 exists (stale ones are skipped, never re-fixed) and fixes only ACTIONABLE entries. A blind critic then
-reviews the diff with no idea what it was meant to fix, and an acceptance verifier re-derives each root
-cause from the current code before it stages the work. A fix that cannot pass within its round budget is
+reviews the first fix and each later change the developer judges risky. An acceptance verifier
+re-derives each root cause from the current code before it stages the work. A fix that cannot pass within its round budget is
 parked, with its work saved to a patch and the restore command written into `NEEDS-USER.md`.
 
 ---

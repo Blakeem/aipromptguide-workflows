@@ -8,7 +8,7 @@ together.
 
 | Skill               | Workflow guide it loads              | Use for |
 |---------------------|--------------------------------------|---------|
-| `/aipg:develop`     | `workflows/develop/CLAUDE.md`        | Build the todo blocks of one approved plan file. Each block's mode is `feature`, `section` or `fix`. |
+| `/aipg:develop`     | `workflows/develop/CLAUDE.md`        | Build the todo blocks of one approved plan file. Each block's mode is `feature`, `section` or `fix`. Also work the project's backlog with `/aipg:develop work the backlog`. |
 | `/aipg:refine`      | `workflows/refine/CLAUDE.md`         | Converge a plan file before develop builds it: a read-only critic and a minimal-fold editor. |
 | `/aipg:debug`       | `workflows/debug/CLAUDE.md`          | Find production defects. Its triaged issue files are fix-mode plan files develop builds. |
 | `/aipg:enhance`     | `workflows/enhance/CLAUDE.md`        | Audit a working system for enhancements (read-only). You triage its proposals, and nothing is applied. |

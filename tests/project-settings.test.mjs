@@ -1,17 +1,18 @@
-// tools/change-policy.mjs: the per-repo change policy store, driven as a child process against real git.
+// tools/project-settings.mjs: the per-repo settings store and backlog folder, driven as a child process against real git.
 //
-// Fixtures live under mkdtemp(os.tmpdir(), 'aipg-policy-') and never under REPO_ROOT, as in wt.test.mjs, and each is
+// Fixtures live under mkdtemp(os.tmpdir(), 'aipg-settings-') and never under REPO_ROOT, as in wt.test.mjs, and each is
 // removed in `finally`. Every git child, the tool's included, reads only a config file inside the fixture and stops
 // its repository search at the fixture, so the machine's own git config never reaches a case.
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { STORE_FILE, repoKey, savedKey, withPolicy } from '../tools/change-policy.mjs';
+import { STORE_FILE, projectName, repoKey, savedKey, withPolicy } from '../tools/project-settings.mjs';
 
-const CLI = join(REPO_ROOT, 'tools/change-policy.mjs');
+const CLI = join(REPO_ROOT, 'tools/project-settings.mjs');
 const FOLDS_CASE = foldsCase(process.platform);
 // Mixed case, so a compare that folds only one side fails.
 const USER = 'Me@Example.invalid';
@@ -24,15 +25,21 @@ function run(cmd, args, env, input, cwd) {
   return { code: r.status ?? 1, stdout: String(r.stdout ?? ''), stderr: String(r.stderr ?? '') };
 }
 
+const toPosix = (p) => p.replace(/\\/g, '/');
 /** The key the tool stores for a main checkout or a git dir. */
-const keyOf = (dir) => realpathSync.native(dir).replace(/\\/g, '/');
+const keyOf = (dir) => toPosix(realpathSync.native(dir));
+/** The backlog folder the tool prints for a key, computed here from the rule, apart from the tool's own code. */
+const backlogOf = (state, key, segment) => {
+  const hash = createHash('sha256').update(FOLDS_CASE ? key.toLowerCase() : key).digest('hex').slice(0, 8);
+  return `${toPosix(state)}/backlog/${segment}-${hash}/\n`;
+};
 
 // git reads safe.directory only from system and global config, so the fixture's global config grants what the
 // machine's own config may grant.
 const configText = (email) => `[safe]\n\tdirectory = *\n${email === null ? '' : `[user]\n\temail = ${email}\n`}`;
 
 function withFixture(fn) {
-  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'aipg-policy-')));
+  const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'aipg-settings-')));
   const gitconfig = join(root, 'gitconfig');
   const env = { ...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: gitconfig, GIT_CEILING_DIRECTORIES: root };
   const state = join(root, 'state');
@@ -52,9 +59,10 @@ function withFixture(fn) {
     commit(dir, author) {
       const ident = { GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: author, GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: author };
       const r = run('git', ['-C', dir, 'commit', '--allow-empty', '-qm', 'c'], { ...env, ...ident });
-      if (r.code !== 0) throw new Error(`change-policy.test: a fixture commit failed: ${r.stderr}`);
+      if (r.code !== 0) throw new Error(`project-settings.test: a fixture commit failed: ${r.stderr}`);
     },
     check: (dir) => cli('check', '--root', state, '--repo', dir),
+    backlog: (dir) => cli('backlog', '--root', state, '--repo', dir),
     set: (dir, policy) => cli('set', '--root', state, '--repo', dir, '--policy', policy),
     store: () => JSON.parse(readFileSync(storePath, 'utf8')),
   };
@@ -74,32 +82,70 @@ withFixture((fx) => {
   const first = fx.set(one, 'proactive');
   eq(first.code, 0, 'set exits 0 and creates the missing root');
   eq(first.stdout, `set ${keyOf(one)} proactive in ${fx.storePath}\n`, 'set names the key, the policy and the store');
-  eq(fx.set(two, 'strict').code, 0, 'a second repo\'s set exits 0');
+  eq(fx.set(two, 'focused').code, 0, 'a second repo\'s set exits 0');
   eq(fx.check(one).stdout, `proactive ${keyOf(one)}\n`, 'check prints the first repo\'s saved policy');
-  eq(fx.check(two).stdout, `strict ${keyOf(two)}\n`, 'check prints the second repo\'s saved policy');
-  eq(JSON.stringify(fx.store()), JSON.stringify({ [keyOf(one)]: 'proactive', [keyOf(two)]: 'strict' }),
-    'the store holds both keys');
-  eq(fx.set(one, 'strict').code, 0, 'set replaces a saved policy');
-  eq(JSON.stringify(fx.store()), JSON.stringify({ [keyOf(two)]: 'strict', [keyOf(one)]: 'strict' }),
+  eq(fx.check(two).stdout, `focused ${keyOf(two)}\n`, 'check prints the second repo\'s saved policy');
+  eq(JSON.stringify(fx.store()),
+    JSON.stringify({ [keyOf(one)]: { changePolicy: 'proactive' }, [keyOf(two)]: { changePolicy: 'focused' } }),
+    'the store maps each key to an object whose one field is changePolicy');
+  eq(fx.set(one, 'focused').code, 0, 'set replaces a saved policy');
+  eq(JSON.stringify(fx.store()),
+    JSON.stringify({ [keyOf(two)]: { changePolicy: 'focused' }, [keyOf(one)]: { changePolicy: 'focused' } }),
     'the replaced key appears once, and the other key survives');
   eq(readdirSync(fx.state).join(','), STORE_FILE, 'no temp file is left beside the store');
   mkdirSync(join(one, 'sub'));
-  eq(fx.check(join(one, 'sub')).stdout, `strict ${keyOf(one)}\n`, 'a subdirectory reads its repo\'s key');
-  eq(fx.cliIn(join(one, 'sub'), 'check', '--root', fx.state, '--repo', '.').stdout, `strict ${keyOf(one)}\n`,
+  eq(fx.check(join(one, 'sub')).stdout, `focused ${keyOf(one)}\n`, 'a subdirectory reads its repo\'s key');
+  eq(fx.cliIn(join(one, 'sub'), 'check', '--root', fx.state, '--repo', '.').stdout, `focused ${keyOf(one)}\n`,
     'a relative --repo resolves against the working directory');
 });
 
-section('the checkout ignores the store and its temp file, since a run\'s root is normally the checkout');
+section('the checkout ignores the store, its temp file and the backlog, since a run\'s root can be the checkout');
 withFixture((fx) => {
   const repo = fx.repo('ignores');
   copyFileSync(join(REPO_ROOT, '.gitignore'), join(repo, '.gitignore'));
   // A crash between the write and the rename leaves the temp file, named this way, beside the store.
-  for (const name of [STORE_FILE, `${STORE_FILE}.4242.tmp`]) {
+  for (const name of [STORE_FILE, `${STORE_FILE}.4242.tmp`, 'backlog/r-0123abcd/run-block.md']) {
     eq(fx.git(repo, 'check-ignore', '-q', '--no-index', name).code, 0, `the checkout's .gitignore ignores ${name} at its root`);
   }
 });
 
-section('a linked worktree reads its main checkout\'s key');
+section('backlog prints the project\'s folder under the root, reads no setting and creates nothing');
+withFixture((fx) => {
+  const same = fx.repo('a/same');
+  const twin = fx.repo('b/same');
+  const printed = fx.backlog(same);
+  eq(printed.code, 0, 'backlog exits 0');
+  eq(printed.stdout, backlogOf(fx.state, keyOf(same), 'same'),
+    'backlog prints <root>/backlog/<last segment>-<8 hex digits of the folded key\'s SHA-256>/ with forward slashes');
+  ok(!printed.stdout.includes('\\'), 'the printed folder holds no backslash');
+  const twinPrinted = fx.backlog(twin).stdout;
+  eq(twinPrinted, backlogOf(fx.state, keyOf(twin), 'same'), 'a second repo with the same folder name prints its own key\'s folder');
+  ok(twinPrinted !== printed.stdout, 'two repos with the same last segment get different backlog folders');
+  ok(!existsSync(fx.state), 'backlog creates neither the folder nor the root');
+  eq(fx.cliIn(fx.root, 'backlog', '--root', 'state', '--repo', join('a', 'same')).stdout, printed.stdout,
+    'a relative --root and --repo print the same absolute folder');
+  eq(fx.set(same, 'proactive').code, 0, 'set exits 0');
+  eq(fx.backlog(same).stdout, printed.stdout, 'a saved policy does not change the folder');
+  writeFileSync(fx.storePath, '{ "E:/r": ');
+  eq(fx.backlog(same).stdout, printed.stdout, 'a store that does not parse does not stop backlog, which reads no setting');
+  if (FOLDS_CASE) eq(fx.backlog(same.toUpperCase()).stdout, printed.stdout, 'an upper-case spelling of --repo prints the same folder');
+  eq(readdirSync(fx.state).join(','), STORE_FILE, 'backlog leaves the root as it found it');
+});
+
+section('the backlog folder name is a valid folder name for every key');
+const NAME = /^(.*)-([0-9a-f]{8})$/;
+const segmentOf = (name) => NAME.exec(name)?.[1] ?? null;
+const hashOf = (name) => NAME.exec(name)?.[2] ?? null;
+eq(segmentOf(projectName('C:/', true)), 'C', 'a drive root\'s segment drops the colon');
+eq(segmentOf(projectName('/', false)), '', 'a file system root has an empty segment');
+eq(segmentOf(projectName('/w/a<b>:c"d|e?f*g\\h\u0001i', false)), 'abcdefghi', 'the segment drops each character a Windows file name refuses');
+eq(segmentOf(projectName(`/w/${'x'.repeat(250)}`, false)), 'x'.repeat(48), 'a long segment is cut to 48 characters');
+eq(segmentOf(projectName(`/w/${'\u{1d4b3}'.repeat(60)}`, false)), '\u{1d4b3}'.repeat(48),
+  'the cut counts characters and never splits a surrogate pair');
+eq(hashOf(projectName('E:/Work/R', true)), hashOf(projectName('e:/work/r', true)), 'a folding name hashes the key after case folding');
+ok(hashOf(projectName('/w/R', false)) !== hashOf(projectName('/w/r', false)), 'a case-sensitive name hashes the key as it is');
+
+section('a linked worktree reads its main checkout\'s key and backlog folder');
 withFixture((fx) => {
   const main = fx.repo('main');
   fx.commit(main, USER);
@@ -107,7 +153,8 @@ withFixture((fx) => {
   eq(fx.git(main, 'worktree', 'add', '-q', linked, '-b', 'side').code, 0, 'the fixture worktree is added');
   eq(fx.set(main, 'proactive').code, 0, 'set on the main checkout exits 0');
   eq(fx.check(linked).stdout, `proactive ${keyOf(main)}\n`, 'check from the worktree prints the main checkout\'s policy and key');
-  eq(fx.set(linked, 'strict').stdout, `set ${keyOf(main)} strict in ${fx.storePath}\n`, 'set from the worktree writes the main checkout\'s key');
+  eq(fx.backlog(linked).stdout, fx.backlog(main).stdout, 'backlog from the worktree prints the main checkout\'s folder');
+  eq(fx.set(linked, 'focused').stdout, `set ${keyOf(main)} focused in ${fx.storePath}\n`, 'set from the worktree writes the main checkout\'s key');
   eq(Object.keys(fx.store()).join(','), keyOf(main), 'the store holds one key');
 });
 
@@ -116,6 +163,7 @@ withFixture((fx) => {
   const bare = join(fx.root, 'b.git');
   eq(fx.git(fx.root, 'init', '-q', '--bare', bare).code, 0, 'the fixture bare repository is created');
   eq(fx.check(bare).stdout, `missing ${keyOf(bare)} recommend=proactive\n`, 'a bare repository is keyed by its git dir');
+  eq(fx.backlog(bare).stdout, backlogOf(fx.state, keyOf(bare), 'b.git'), 'a bare repository\'s backlog folder names its git dir');
   const work = join(fx.root, 'work');
   const separate = join(fx.root, 'separate-git');
   eq(fx.git(fx.root, 'init', '-q', '--separate-git-dir', separate, work).code, 0, 'the fixture separate git dir is created');
@@ -130,31 +178,35 @@ if (process.platform === 'win32') {
 }
 
 section('keys compare case-insensitively where foldsCase is true');
-eq(savedKey({ 'E:/Work/R': 'strict' }, 'e:/work/r', true), 'E:/Work/R', 'a folding lookup finds another spelling');
-eq(savedKey({ 'E:/Work/R': 'strict' }, 'e:/work/r', false), null, 'a case-sensitive lookup does not');
+const focused = { changePolicy: 'focused' };
+const proactive = { changePolicy: 'proactive' };
+eq(savedKey({ 'E:/Work/R': focused }, 'e:/work/r', true), 'E:/Work/R', 'a folding lookup finds another spelling');
+eq(savedKey({ 'E:/Work/R': focused }, 'e:/work/r', false), null, 'a case-sensitive lookup does not');
 eq(savedKey({}, 'constructor', false), null, 'a lookup never resolves to an inherited member');
-eq(JSON.stringify(withPolicy({ 'E:/Work/R': 'strict', 'E:/x': 'strict' }, 'e:/work/r', 'proactive', true)),
-  JSON.stringify({ 'E:/x': 'strict', 'e:/work/r': 'proactive' }), 'a folding set replaces the other spelling and keeps the other key');
-eq(JSON.stringify(withPolicy({ 'E:/Work/R': 'strict' }, 'e:/work/r', 'proactive', false)),
-  JSON.stringify({ 'E:/Work/R': 'strict', 'e:/work/r': 'proactive' }), 'a case-sensitive set keeps both spellings');
+eq(JSON.stringify(withPolicy({ 'E:/Work/R': focused, 'E:/x': focused }, 'e:/work/r', 'proactive', true)),
+  JSON.stringify({ 'E:/x': focused, 'e:/work/r': proactive }), 'a folding set replaces the other spelling and keeps the other key');
+eq(JSON.stringify(withPolicy({ 'E:/Work/R': focused }, 'e:/work/r', 'proactive', false)),
+  JSON.stringify({ 'E:/Work/R': focused, 'e:/work/r': proactive }), 'a case-sensitive set keeps both spellings');
+eq(JSON.stringify(withPolicy({ 'E:/Work/R': { changePolicy: 'focused', later: 1 } }, 'e:/work/r', 'proactive', true)),
+  JSON.stringify({ 'e:/work/r': { changePolicy: 'proactive', later: 1 } }), 'a set keeps the other settings of the spelling it replaces');
 withFixture((fx) => {
   const repo = fx.repo('Repo');
   const key = keyOf(repo);
   if (FOLDS_CASE) {
     eq(fx.set(repo, 'proactive').code, 0, 'set exits 0');
     eq(fx.check(repo.toUpperCase()).stdout, `proactive ${key}\n`, 'an upper-case spelling of --repo finds the same key');
-    writeFileSync(fx.storePath, JSON.stringify({ [key.toUpperCase()]: 'strict' }));
-    eq(fx.check(repo).stdout, `strict ${key}\n`, 'a stored key in another case is found');
+    writeFileSync(fx.storePath, JSON.stringify({ [key.toUpperCase()]: focused }));
+    eq(fx.check(repo).stdout, `focused ${key}\n`, 'a stored key in another case is found');
     eq(fx.set(repo.toLowerCase(), 'proactive').code, 0, 'set through a lower-case spelling exits 0');
-    eq(JSON.stringify(fx.store()), JSON.stringify({ [key]: 'proactive' }), 'the store keeps one spelling, the real path');
+    eq(JSON.stringify(fx.store()), JSON.stringify({ [key]: proactive }), 'the store keeps one spelling, the real path');
   } else {
     mkdirSync(fx.state);
-    writeFileSync(fx.storePath, JSON.stringify({ [key.toUpperCase()]: 'strict' }));
+    writeFileSync(fx.storePath, JSON.stringify({ [key.toUpperCase()]: focused }));
     eq(fx.check(repo).stdout, `missing ${key} recommend=proactive\n`, 'a stored key in another case is another repo here');
   }
 });
 
-section('the recommendation: proactive for no commits or only the user\'s email, strict otherwise');
+section('the recommendation: proactive for no commits or only the user\'s email, focused otherwise');
 withFixture((fx) => {
   const empty = fx.repo('empty');
   eq(fx.check(empty).stdout, `missing ${keyOf(empty)} recommend=proactive\n`, 'no commits recommends proactive');
@@ -167,16 +219,16 @@ withFixture((fx) => {
   fx.commit(shared, USER);
   fx.commit(shared, 'other@example.invalid');
   fx.commit(shared, USER);
-  eq(fx.check(shared).stdout, `missing ${keyOf(shared)} recommend=strict\n`, 'a second author recommends strict');
+  eq(fx.check(shared).stdout, `missing ${keyOf(shared)} recommend=focused\n`, 'a second author recommends focused');
   const branched = fx.repo('branched');
   fx.commit(branched, USER);
   fx.git(branched, 'checkout', '-q', '-b', 'theirs');
   fx.commit(branched, 'other@example.invalid');
   fx.git(branched, 'checkout', '-q', 'main');
-  eq(fx.check(branched).stdout, `missing ${keyOf(branched)} recommend=strict\n`,
-    'a second author on a branch that HEAD does not reach recommends strict');
+  eq(fx.check(branched).stdout, `missing ${keyOf(branched)} recommend=focused\n`,
+    'a second author on a branch that HEAD does not reach recommends focused');
   fx.setEmail(null);
-  eq(fx.check(mine).stdout, `missing ${keyOf(mine)} recommend=strict\n`, 'commits and an unset user.email recommend strict');
+  eq(fx.check(mine).stdout, `missing ${keyOf(mine)} recommend=focused\n`, 'commits and an unset user.email recommend focused');
   eq(fx.check(empty).stdout, `missing ${keyOf(empty)} recommend=proactive\n`, 'no commits and an unset user.email recommend proactive');
   ok(!existsSync(fx.state), 'check writes nothing');
 });
@@ -195,11 +247,18 @@ withFixture((fx) => {
   eq(r.stdout, `missing ${keyOf(long)} recommend=proactive\n`, `${LONG_HISTORY} commits by the user recommend proactive (${r.stderr.trim()})`);
 });
 
-section('a store that is not a JSON object of policies fails check and set, and set leaves its bytes');
+section('a store that is not a JSON object of repo settings fails check and set, and set leaves its bytes');
 for (const [what, bytes, cause] of [
   ['a store that does not parse', '{ "E:/r": ', /does not parse as JSON/],
-  ['a store that holds an array', '["strict"]\n', /does not hold a JSON object/],
-  ['a store value outside the two policies', '{ "E:/x": "lenient" }\n', /maps "E:\/x" to "lenient", which is neither strict nor proactive/],
+  ['a store that holds an array', '[{ "changePolicy": "focused" }]\n', /does not hold a JSON object/],
+  ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object whose one field is changePolicy/],
+  ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
+    /gives "E:\/x" the field "theme", which is not changePolicy, the one field a repo takes/],
+  ['a store value with no changePolicy', '{ "E:/x": {} }\n', /gives "E:\/x" no changePolicy field/],
+  ['a changePolicy outside the two policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
+    /gives "E:\/x" a changePolicy of "lenient", which is neither focused nor proactive/],
+  ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
+    /gives "E:\/x" a changePolicy of "strict", which is neither focused nor proactive/],
 ]) {
   withFixture((fx) => {
     const repo = fx.repo('r');
@@ -208,10 +267,11 @@ for (const [what, bytes, cause] of [
     const check = fx.check(repo);
     ok(check.code === 1 && cause.test(check.stderr) && check.stderr.includes(fx.storePath),
       `${what}: check exits 1 naming the store and the cause (${check.stderr.trim()})`);
-    const set = fx.set(repo, 'strict');
+    const set = fx.set(repo, 'focused');
     ok(set.code === 1 && cause.test(set.stderr) && set.stderr.includes(fx.storePath),
       `${what}: set exits 1 naming the store and the cause`);
     eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what}: set leaves the store byte-identical`);
+    eq(readdirSync(fx.state).join(','), STORE_FILE, `${what}: set leaves no temp file`);
   });
 }
 
@@ -221,19 +281,24 @@ withFixture((fx) => {
   const plain = join(fx.root, 'plain');
   mkdirSync(plain);
   for (const [what, argv, cause] of [
-    ['an invalid policy', ['set', '--root', fx.state, '--repo', repo, '--policy', 'lenient'], /--policy "lenient" is neither strict nor proactive/],
+    ['an invalid policy', ['set', '--root', fx.state, '--repo', repo, '--policy', 'lenient'], /--policy "lenient" is neither focused nor proactive/],
+    ['the retired policy name', ['set', '--root', fx.state, '--repo', repo, '--policy', 'strict'], /--policy "strict" is now named focused\. Pass --policy focused\./],
     ['a --repo outside any git repository', ['check', '--root', fx.state, '--repo', plain], /is not in a git repository/],
+    ['a backlog --repo outside any git repository', ['backlog', '--root', fx.state, '--repo', plain], /is not in a git repository/],
     ['an unknown verb', ['get', '--root', fx.state, '--repo', repo], /unknown verb "get"/],
     ['no verb', [], /no verb given/],
-    ['an unknown flag', ['check', '--root', fx.state, '--repo', repo, '--policy', 'strict'], /unknown flag "--policy" for check/],
+    ['an unknown flag', ['check', '--root', fx.state, '--repo', repo, '--policy', 'focused'], /unknown flag "--policy" for check/],
+    ['a policy passed to backlog', ['backlog', '--root', fx.state, '--repo', repo, '--policy', 'focused'], /unknown flag "--policy" for backlog/],
     ['a missing flag', ['set', '--root', fx.state, '--repo', repo], /set needs --policy/],
+    ['a backlog with no --root', ['backlog', '--repo', repo], /backlog needs --root/],
     ['a flag with no value', ['check', '--root', fx.state, '--repo'], /--repo needs a value/],
     ['a blank value', ['check', '--root', ' ', '--repo', repo], /--root needs a value/],
     ['a flag given twice', ['check', '--root', fx.state, '--repo', repo, '--repo', repo], /--repo was given twice/],
     ['a bare value', ['check', fx.state], /unexpected argument/],
   ]) {
     const r = fx.cli(...argv);
-    ok(r.code === 1 && cause.test(r.stderr), `${what} exits 1 naming the cause (${r.stderr.trim().slice(0, 120)})`);
+    ok(r.code === 1 && cause.test(r.stderr) && r.stderr.startsWith('project-settings: ') && r.stdout === '',
+      `${what} exits 1 naming the cause (${r.stderr.trim().slice(0, 120)})`);
   }
   ok(fx.cliIn(fx.root, 'check', '--root', fx.state, '--repo', 'plain').stderr.includes(plain),
     'the repo failure names the absolute path of a relative --repo');

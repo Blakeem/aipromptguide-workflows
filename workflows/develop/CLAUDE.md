@@ -47,7 +47,9 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
 3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
    It first folds every finished develop run's statuses into the plan files (below), then prints
    `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread that
-   object into the args. Several files make one run, as long as their file keys agree. When you know the
+   object into the args, and add `backlogDir`, the folder that
+   `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints (§4, §10). Several
+   files make one run, as long as their file keys agree. When you know the
    last launch's Workflow run id (`wf_...`), pass `--expect <id>`: it fails loudly if that run's record is
    missing, which is the sign Claude Code moved or changed its run records. For fix-mode files, add
    `--pack <target.repo>`: it groups the todo fix blocks into passes of at most `--loc-cap` lines (default
@@ -128,45 +130,60 @@ models. Show each block's model in the approval summary.
   does a block that already landed and is built again from scratch, so its old `DISMISSED-<id>.md`
   stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 
-**Choosing the change policy.** `changePolicy` sets each blind review's bar, which findings a developer
-fixes, and how far it may change code past its block. Under `strict`, every blind review hunts at
-`medium`, or `high` in a block's last allowed round, and never hunts or reports a finding below its
-bar. Under `proactive`, a block's blind reviews in a launch hunt at `low`, then `medium`, then `high`,
-or `high` in its last allowed round, and each review that finds something also dives below its bar,
-down to nit.
-`strict` aims for working code that stays close to the task. A strict developer checks its own diff
-only for findings at `medium` or above and for regressions at any tier. It changes code only in the
-code its block's required changes add, change or interact with, or in a fix block the code each fix
-touches and the sibling paths of each root cause. It fixes a critical, high or security finding in
-code its block adds or changes. When that fix conflicts with the plan, it fixes the finding only
-after it verifies the plan is defective, and logs an amendment. It weighs a medium against its cost.
-It logs each fix of a defect the staged baseline already had to `DECISIONS.md` as a `STRICT` line.
-`proactive` aims for the best code. A proactive developer builds each feature and section block with
-the change that has the best long-term result. It fixes a clear win at any tier and makes clear-win
-refactors in the code a block reaches. A fix block keeps each fix as its entry instructs, and that
-extra work stays inside the code each fix touches. Past those bounds it changes code only to close a
-defect a review file names, or the same defect on a sibling path of one or of a required fix, apart
-from code the block's text excludes or another block of the plan owns. It logs each change past its
-block's own work to `DECISIONS.md` as a `PROACTIVE` line. Under both policies, acceptance excuses a
-logged fix from its regression check only when it lies inside the developer's bounds, the behavior
-it removes was a defect, and nothing else changed. Every logged fix, apart from a proactive fix
-block's, must also lie in no code another block of the plan owns. Acceptance judges a fix past the
-proactive bounds as a removed defect. Every developer prompt says the policy and the prompt's own
-scope rules override any other instruction about scope, a memory line or a CLAUDE.md included.
-Settle a run's policy in these steps, where `<change-policy.mjs>` is this checkout's
-`tools/change-policy.mjs`.
+**Choosing the change policy.** `changePolicy` sets the developer's build aim and whether it fixes a
+defect it notices in the code its block's changes connect to. The engine defines three code zones, and
+every developer and acceptance prompt renders that one definition:
+- Task code is the code the block's required changes add or change. In a fix block, it also holds the
+  sibling paths of each ACTIONABLE entry's root cause, apart from code the block's text excludes or
+  another block of the plan owns.
+- Connected code is the code a reach step from the task code finds, which is its callers and consumers,
+  its sibling paths, duplicates of its logic and the text that describes it. Code the block's text
+  excludes and code another block of the plan owns are never connected code.
+- Other code is everything else.
+
+Under both policies, the developer hunts only task code and fixes every finding there at every tier, a
+defect the staged baseline already had included. It also fixes each finding the diff introduces or
+exposes in connected code. The developer reads connected code only to check its change's effects. It never
+changes other code. It closes a finding the diff introduces or exposes there, such as a build break, at
+its source in task or connected code, and escalates the finding when only a change in other code closes
+it. A pre-existing finding is one, at any tier, that the staged baseline already had and that the diff
+neither introduces nor exposes. Each real pre-existing defect at low or above that the developer logs
+because its zone routing leaves the defect unchanged, under the decision matrix's rule 2 or as a
+sibling path (§5), apart from one in code another block owns, goes to the backlog (§10). The policies
+differ as follows.
+- `focused` aims for working code that stays close to the task. Its developer builds minimally and
+  surgically. It leaves every pre-existing finding in connected code unchanged.
+- `proactive` aims for the best code. Its developer builds each feature and section block with the
+  change that has the best long-term result. In a feature or section block, it also fixes a pre-existing
+  defect in connected code when the fix is low risk under the risk questions (§6). It leaves every other
+  pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
+  connected code unchanged, as under `focused`. The developer also records each cleanup outside task
+  code that it noticed and did not make.
+
+Each fix of a defect the staged baseline already had that no criterion of the block or ACTIONABLE entry
+requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance excuses such
+a fix from its regression check only when it lies in a zone the policy lets the developer change, lies
+in no code another block of the plan owns, removes a real defect, and alters no other behavior. Those
+zones are task code and connected code where the fix closes a defect the diff introduces or exposes.
+Under `proactive`, a feature or section block adds the rest of its connected code. Every developer
+prompt says the policy and the prompt's own scope rules override any other instruction about scope, a
+memory line or a CLAUDE.md included.
+Settle a run's policy in these steps, where `<project-settings.mjs>` is this checkout's
+`tools/project-settings.mjs`. The tool saves each repo's policy in `<root>/projects.json`. Its
+`node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints the project's backlog
+folder.
 
 - A policy the user names for a run wins.
-- Otherwise, before §2 step 1, run `node <change-policy.mjs> check --root <root> --repo <target.repo>`
+- Otherwise, before §2 step 1, run `node <project-settings.mjs> check --root <root> --repo <target.repo>`
   and use the policy it prints. The tool keys a repo by its main checkout, so a worktree takes its
   main checkout's policy.
 - On `missing <key> recommend=<policy>`, ask the user once which policy the repo takes. List the
   recommended policy first, marked recommended, with one line for each policy:
-  - `strict`: working code that stays close to the task.
-  - `proactive`: the best code, with a clear win fixed at any tier and clear-win refactors made in the
-    code a block reaches.
+  - `focused`: working code that stays close to the task.
+  - `proactive`: the best code, with a low-risk fix of each defect noticed in the code a block's changes
+    connect to.
 
-  Then save the answer with `node <change-policy.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
+  Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
 - When `check` or `set` exits 1, show the user its message, which names the cause, and run the step
   again once the cause is fixed.
 - Show the policy in the approval summary.
@@ -177,66 +194,66 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
   `AMENDED-<id>.md` (read by acceptance and the sweep, never the blind reviewer), `NEEDS-USER.md`,
-  `DECISIONS.md`. It follows the repo's existing patterns before it writes, and checks its own diff with
-  the blind reviewer's severity scale, reach step and checklist before handoff. It fixes and weighs
-  findings as the change policy sets (§4). It logs every finding it routes and does not fix, so none is
-  dropped silently. A dismissal names one place or the class of places it covers, and its reason holds
-  for every place it names. It escalates only a choice that changes user-visible behavior, stored data
-  or a public contract and that nothing it can read or check settles, or a blocker it cannot resolve in
-  scope. One it cannot proceed without goes to `NEEDS-USER.md`. A default it took goes to
-  `DECISIONS.md`, beside each plan amendment pointer. When it fixes a finding or makes a fix the block
-  requires, it greps for every sibling path with the same mechanism and fixes each one, at any tier,
-  inside its policy's bounds (§4). Under `strict` it logs every other sibling. Under `proactive` it
-  fixes one past those bounds only as §4 allows, and logs the others. Under both, it logs a sibling in
-  code the block's text excludes or that another block of the plan owns. Under both policies, a real
-  defect at low or above that it logs because the defect lies outside its policy's bounds, under rule 2
-  or as a sibling path, also goes to its block's `<root>/plans/<runId>/NEW-ISSUES-<block id>.md` as a
-  `NEEDS_USER` entry `<block id>-noticed-<n>` in debug's issue-file shape, so a later run can fix it. A
-  false positive, a nit and a defect in code another block owns get no entry. In a pass, the entry goes
-  to the file of the member whose entry's fix led to the defect. The dismissal line stays, since the
-  blind reviewer never reads a NEW-ISSUES file. When a fix it logs to `DECISIONS.md` closes a defect
-  that an entry in any NEW-ISSUES file holds, it adds a `**Closed by:**` line to that entry and leaves
-  the entry's status and decision as they are, since a park clears the fix from the tree. Triage then
-  confirms the staged code holds the fix before it skips the entry. **Must attest
+  `DECISIONS.md`. It works in six phases, in this order. PATTERNS finds how the repo already does the
+  same kind of thing before it writes. BUILD builds the block, then runs the gate. In a feature or
+  section block, a round that answers a review routes each finding and gap in that review through the
+  decision matrix in place of the build. A fix block's round routes them beside its entry rules. A
+  round after a red gate with no review builds again. HARDEN handles edge cases, gives each expected
+  failure a message that names its cause, logs where the repo logs, adds a test for each risky path
+  and cleans up the code its round added or changed, at every tier. SIBLINGS is the sibling rule
+  below. SELF-REVIEW applies the blind reviewer's severity scale, reach step and checklist to the code
+  its round changed or read. Code that earlier rounds changed and that its round neither changed nor
+  read is outside the self-review, since each earlier round's self-review judged that round's code,
+  and each blind review judges the entire block diff. CLASSIFY
+  answers the risk questions (§6) for each change its round made, writes `risk-<id>-rN.md` and returns
+  `review_needed`. Each phase after BUILD re-runs the gate after its changes, so the gate result it
+  reports is the final tree's. It routes each finding by the code zone it lies in, as §4 sets. It logs
+  every finding it routes and does not fix, so none is dropped silently. A dismissal names one place or
+  the class of places it covers, and its reason holds for every place it names. It escalates only a
+  choice that changes user-visible behavior, stored data or a public contract and that nothing it can
+  read or check settles, or a blocker it cannot resolve in scope. One it cannot proceed without goes to
+  `NEEDS-USER.md`. A default it took goes to `DECISIONS.md`, beside each plan amendment pointer. In
+  SIBLINGS, for each finding it fixes in any phase and each fix the block requires, it greps for every
+  sibling path with the same mechanism and fixes each one, at any tier, that its zone routing fixes
+  (§4). It logs every other sibling, and a sibling in code the block's text excludes or that another
+  block of the plan owns. Under both policies, a real defect at low or above that it logs because its
+  zone routing leaves the defect unchanged, under rule 2 or as a sibling path, also goes to its block's
+  backlog file (§10), so a later run can fix it. Under `proactive` it also records there each cleanup
+  outside task code that it noticed and did not make, such as a refactor or a nit. A false positive and
+  anything in code another block owns get no entry, and under `focused` neither does a nit. In a pass,
+  the entry goes to the file of the member whose entry's fix led to it. The dismissal line stays, since
+  the blind reviewer never reads a backlog file. When a fix it logs to `DECISIONS.md` closes a defect
+  that an entry in any backlog file holds, it adds a `**Closed by:**` line to that entry and leaves the
+  entry's status and decision as they are, since a park clears the fix from the tree. **Must attest
   `unstaged_confirmed`. A missing or false attestation HALTS, even beside a needs-user escalation**
   (the staged index is surface neither reviewer checks).
-- **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reviews
-  at a severity bar the change policy sets. A block's last allowed round hunts at `high` under both
-  policies, since no round is left to fix a smaller finding. Otherwise `strict` hunts at `medium` on
-  every review, and `proactive` hunts at `low` on a block's first review in a launch, `medium` on its
-  second and `high` on every later one. The count restarts in each launch, so a block continued from its
-  parked patch starts at `low` again. It works through a reach step over callers, siblings, duplicates and
-  describing text, and a lens checklist. A `proactive` review dives below its bar, down to nit, only when
-  its hunt found something at or above it. A `strict` review neither hunts nor reports a finding below its
-  bar, and its checklist, like a strict developer's self-check, drops the maintainability item (the nit
-  list). It also flags a new sentence that the
-  repo's code contradicts. Skipped ONLY when no work is owed a review (`reviewOwed`). A round that
-  only re-runs a red gate, drops every finding or answers a failed acceptance cannot skip it past
-  unreviewed, flagged or rejected code.
+- **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reports
+  every finding the diff introduces or exposes at every tier, from critical down to nit, under both
+  policies. It works through a reach step over callers, siblings, duplicates and describing text, and
+  a lens checklist that ends with the nit list. It also flags a new sentence that the repo's code
+  contradicts. A review is clean when it holds no finding and no contested dismissal, and its file
+  then reads `No findings.` It may contest a dismissal at any tier. §6 says which rounds it runs in.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
-  block the staged baseline already satisfies passes without inventing changes). When no blind
-  review has run for a feature or section block, any unstaged or untracked change fails acceptance.
-  In fix mode, the same rule applies when no issue is claimed FIXED. Only agent that stages. It
-  reads every earlier review file of its block and counts an earlier finding as a gap unless the
-  code closes it on every sibling path or the dismissal ledger declines it. Every defect it writes
+  block the staged baseline already satisfies passes without inventing changes). In fix mode, any
+  unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
+  stages. It reads every earlier review file of its block and counts an earlier finding as a gap
+  unless the code closes it on every sibling path or the dismissal ledger declines it. It audits the
+  risk file of each round since the block's last blind review (§6). Every defect it writes
   in its review file counts as a gap, including a regression the block prescribes or no current
   caller reaches. A change that removes a defect a review finding named, or the same defect on a
   sibling path of a required fix or of such a finding, is not a regression when the code shows the
   removed behavior was a real defect, the change alters no other behavior, the block's text does not
-  exclude that code, and no other block of the plan owns it. Under `strict`, the change must also
-  lie inside the developer's bounds (§4). For a continued block, that rule also counts the findings
+  exclude that code, no other block of the plan owns it, and it lies in a zone the policy lets the
+  developer change (§4). For a continued block, that rule also counts the findings
   of the review files its parks kept in `parked-<id>-reviews/`. The developer never dismisses a
   regression. It fixes the regression, with an amendment when the block prescribes it, or escalates
-  it with a default when the fix needs major changes outside the developer's bounds (§4). The review
+  it with a default when only a change in other code closes it (§4). The review
   file holds no notes section. In fix mode, a harm an entry lists whose cause shares no code path
   with the re-derived root cause is a new issue, never a gap. A sibling path with the identical
-  defect stays a residual path. The verifier appends a new issue to its source block's
-  `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`, a fix-mode plan file with every entry
-  `NEEDS_USER`. The verifier and the developer start a new file with one header,
-  `## Plan: <block id>-new-issues - defects found outside the block's work`, then `mode: fix`,
-  `gate: green` and `status: todo`. The return counts both writers' entries in `newIssues` and names
-  each file in `newIssueFiles`.
-  Triage a block's file like a debug issue file once that block is `done` or `skip`.
+  defect stays a residual path. The verifier appends a new issue to its source block's backlog file
+  (§10), and the entry's `**What:**` names the source issue id. The return counts both writers'
+  entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file (§10) once
+  that block is `done` or `skip`.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
@@ -253,10 +270,40 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 ## 6. Loop, gates & verification
 
 `develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 5) per
-block. Each review's bar follows the change policy. `strict` hunts at `medium`, `proactive` at `low`,
-then `medium`, then `high` by review in a launch, and a block's last allowed round hunts at `high` under
-both. Only a `proactive` review that finds something dives below its bar, down to nit. A finding below a review's bar never sends a block back on its own, unless the developer
-neither fixed nor logged it, which acceptance counts as a gap. Gate semantics per block: `green` = build + the block's verification passed
+block, then one closing pass when the last round fails.
+
+**Risk-gated review.** The developer's CLASSIFY phase answers four risk questions for each change its
+round made:
+- Systems: does the change need edits in more than one system to stay consistent?
+- Paths: does it add or change many branches, loops, error paths or state transitions?
+- Critical code: does it touch data writes, deletion, security, concurrency, a public contract, or code
+  whose behavior is hard to follow?
+- Assumptions: does it rest on a judgment call or an assumption that an input, a platform or a caller
+  could falsify?
+
+Each answer cites its evidence or is "no". A doubtful answer counts as yes, and a change is low risk
+when every answer is no. The developer writes the answers to `risk-<id>-rN.md` and returns
+`review_needed`, true when any change is not low risk. The blind review runs in a block's first round
+with a satisfied gate in a launch, a block continued from its parked patch included. A later round
+gets one when a round since the block's last blind review returned `review_needed` true or no
+boolean, or an acceptance verdict since then returned `risk_misclassified` true. Any other round goes
+from the developer straight to acceptance. Acceptance checks each answer in the risk file of each round
+since the last blind review against the diff. A missing file, a change the file does not judge low
+risk and an answer the diff contradicts are each a gap, and the verdict returns `risk_misclassified`
+true, which sends the next round to a blind review.
+
+**Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
+with no blind review after it. It takes round number `maxRounds + 1` in its file names. It makes each
+fix of the last review's findings and gaps that is low risk, and records each one whose fix is not as
+an entry in its block's backlog file (§10), with a `**Fix:**` line naming the fix, a
+`**Parked with:**` line naming the block and no DISMISSED line, under both policies. It returns those
+entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
+that holds the item instead. When it recorded no entry and no blind review is owed, acceptance runs
+once more. A pass stages the block and a fail parks it. Otherwise the engine parks the block with the
+closing pass's work in its patch, and the park entry in `NEEDS-USER.md` names each recorded entry. A
+block never reaches acceptance with a change that needs a blind review and has none.
+
+Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
 too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected in a migration).
 `red-baseline` (section mode) = authored tests fail for the right reason, count 0 fails.
@@ -285,7 +332,7 @@ leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose pa
 clear. Verify ground truth yourself after every run: run the
 gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
 `DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `DECISIONS.md`, the files in
-`newIssueFiles` and `SWEEP.md`.
+`backlogFiles` and `SWEEP.md`.
 
 **Research NEEDS-USER before asking.** For each unanswered question the blocks named in `nextStep`
 wrote to `NEEDS-USER.md`, park records under `## Parked block: <id>` excluded, read the code, the docs
@@ -312,6 +359,10 @@ developer restores the patch into the unstaged tree after the clean-baseline che
 longer applies parks the block as `blocked` and leaves its patch untouched, so redo that block. A park
 from an older engine may also hold a `parked-<id>-newfiles/` directory, which `continueParked` does not
 restore. Finish that block by hand or redo it.
+Before you relaunch under `focused` a run that an engine from before the rename ran under `strict`,
+rewrite each `STRICT <id>:` tag in its `DECISIONS.md` to `FOCUSED <id>:`. The acceptance and developer
+prompts name only `FOCUSED <id>:` lines, so acceptance counts a fix logged under the old tag as a
+regression.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
 unreviewed work. Set it aside with §4's save-and-clear, which saves it to a patch under the state dir
@@ -319,7 +370,8 @@ and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
-`gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `gate/DISMISSED-<id>.md` ·
+`gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `risk-<id>-rN.md` (the
+developer's risk answers for round N, outside `gate/`, §6) · `gate/DISMISSED-<id>.md` ·
 `AMENDED-<id>.md` · `NEEDS-USER.md` · `DECISIONS.md` · `parked-<id>.patch` ·
 `parked-<id>.prev<n>.patch` (an earlier park of the same block) · `parked-<id>-reviews/<k>/` (the
 review files one park of the block kept) · `SWEEP.md` · `scratch/` (the agents' plan
@@ -335,31 +387,89 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   model?, blocks: [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no
   `planPath` **throws** naming it. A `model` outside `opus | sonnet` **throws** naming the row.) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
-  `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal).
+  `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal) · `backlogDir`
+  (the absolute folder `project-settings.mjs backlog` prints, §10. **Throws** when missing, relative or
+  inside `target.repo`, and the message names the command).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
 - **Return:** `status` · `halted`/`haltReason` · `regression` (true when any block's ledger entry reads
   true. An entry follows the last acceptance verdict that reports the field, and a passing verdict that
   omits the field sets it false) · `plansDone` · `parked` · `ledger` (per block, with a
-  status of the form `<token> (<meaning>)`, the developer `model` it ran on, and per-issue `results` in
-  fix mode) · `statusSync` (the
+  status of the form `<token> (<meaning>)`, the developer `model` it ran on, `rounds`, `closingPass`
+  (true when the block ran its closing pass, §6), and per-issue `results` in fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
-  entry means the sweep did not run) · `newIssues` (every mode, the entries developers and fix
-  verifiers appended, null when one returned no usable report) · `newIssueFiles` (the sorted
-  NEW-ISSUES files the developers and fix verifiers named, null when `newIssues` is null) · `nextStep`.
+  entry means the sweep did not run) · `backlogEntries` (every mode, the entries developers and fix
+  verifiers added to the backlog this run, null when one returned no usable report) · `backlogFiles`
+  (the sorted backlog files the developers and fix verifiers named, null when `backlogEntries` is
+  null) · `nextStep` (when the run added entries, it names the folder, the files and the count, and
+  asks you to report each added entry's severity and title to the user).
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
-  garbage) · `changePolicy` (`strict|proactive`, default `strict`, any other value **throws**. Each
-  blind review's bar, which findings a developer fixes, and how far it may change code past its block,
-  and §4 says how to choose it) ·
+  garbage) · `changePolicy` (`focused|proactive`, default `focused`, any other value **throws**, and
+  `strict`, the old name of `focused`, throws with a message that names the rename. It sets the
+  developer's build aim and whether it fixes a defect it notices in connected code, and §4 says how to
+  choose it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (keep the quality, acceptance and sweep roles on opus, and set another model for them only when the
   user asks. A saved memory preference counts as asking. The develop role is opus by default, and a
   block's `model:` line overrides `models.develop` for that block's developer and park agent, §3) ·
   `stateDir` · `runOnly` · `continueParked` (block ids whose round 1 restores the parked patch, §7.
   **Throws** on a non-array or an id outside the pending blocks).
-- **Retired:** `startAt`, `reviewSeverity` (`changePolicy` sets every blind review's bar), a top-level
-  `planPath` and `planContext` are retired and **throw**.
+- **Retired:** `startAt`, `reviewSeverity` (the developer's risk judgment decides when a blind review
+  runs, and every blind review reports every tier), a top-level `planPath` and `planContext` are
+  retired and **throw**.
+- **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of its
+  round is not low risk, and a non-boolean counts as true) and, in the closing pass only,
+  `recorded_entries` (the ids of the backlog entries it recorded) · acceptance's `risk_misclassified`
+  (true when its risk audit found a gap) · the blind reviewer's `issue_count`, which counts every
+  finding at every tier. `minor_count`, the old count of findings below a review's bar, is retired.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.
+
+## 10. Working the backlog
+
+The backlog folder holds what develop leaves for later on one project, across all of its runs. It is
+the folder `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints, and every
+launch passes it as `backlogDir`. A run's entries for one block go to one file there,
+`<file id>.md`, created with the first entry. `<file id>` is `<run slug>-<block slug>-<pair hash>`:
+- `<run slug>` is the runId through the engine's `slug()`, or `run-` and the engine's `fnv1a()` hash of
+  the runId when that slug is empty, as for a runId with no ASCII letter or digit.
+- `<block slug>` is the block id through `slug()`. It equals the block id for an id of 60 characters or
+  fewer.
+- `<pair hash>` is the `fnv1a()` hash of the JSON array `[runId, block id]`. It keeps two runs apart
+  whose slugs join alike, such as run `a` with block `b-c` and run `a-b` with block `c`.
+
+Each file is a fix-mode plan file. Its header is
+`## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
+and `status: todo`. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
+`- decision: NEEDS_USER`. A cleanup entry carries `- category: cleanup` and no `- severity:` line.
+Before the developer or fix acceptance appends an entry (§5), it reads every `*.md` in the folder and
+never appends a defect that an entry with `- status: open` or `- status: needs-attention` already
+holds. A defect whose only entries say `fixed` or `stale` is back in the code, so it gets a new entry
+whose `**What:**` names theirs.
+
+When the user asks to work the backlog:
+
+1. Run `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` and read each file in
+   the folder it prints. Before the folder existed, develop wrote its entries to
+   `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`. Move each such file that holds an entry waiting on
+   the user (step 2) into the folder as `<runId>-NEW-ISSUES-<block id>.md`, so this triage and the
+   writers' dedup read it.
+2. List the entries that wait on the user, grouped by severity, highest first, with the cleanup entries
+   last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or `DEFER`, or while its
+   `- status:` is `needs-attention`, which a fix that failed or did not land sets. An entry set to SKIP
+   keeps `- status: open`, since no build works it, so `- status: open` alone never lists an entry.
+3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
+   entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
+   option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the staged code
+   holds that fix, and triage it like the rest when the code does not. Hold an entry with a
+   `**Parked with:**` line until its block is continued and accepted, since the code it names sits in
+   that block's parked patch. Then skip it once the staged code holds its fix, and triage it like the
+   rest when the code does not. A `status: todo` file left with no ACTIONABLE entry and no entry that
+   waits on the user is not a plan, so set it to `status: skip`, as debug's triage does.
+4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with
+   `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>` and a develop launch in fix
+   mode, from §2 step 3. A file whose `status:` is not `todo`, such as a `done` file whose
+   needs-attention entry the user approved again, first takes §2 step 5's order: run `args` on it, set
+   its `status:` to `todo`, then run `args` again for the launch.

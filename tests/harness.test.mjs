@@ -147,7 +147,7 @@ section('an EMPTY phases list is a CORRECT result, not a tracing failure');
 section('readRoles reads the static label prefixes in source order');
 {
   eq(readRoles(srcOf('workflows/develop/develop-cycle.mjs')).join(),
-    'develop,quality,acceptance,park,final-sweep', 'develop-cycle, exactly');
+    'develop,develop-closing,quality,acceptance,park,final-sweep', 'develop-cycle, exactly');
   // The normalization edge cases, each taken from the engine that actually has it.
   eq(readRoles(srcOf('workflows/docs/docs-cycle.mjs')).join(), 'gather,scrub,curate',
     '`curate:r${rounds}` loses the trailing :r');

@@ -1,26 +1,36 @@
-// tools/change-policy.mjs: the change policy each repo takes, saved under a state root, so Claude asks for it once.
+// tools/project-settings.mjs: each project's settings, saved under a state root so Claude asks for them once, and
+// the folder that holds the project's backlog.
 //
-// develop and debug take `changePolicy` strict or proactive. The store is <root>/change-policy.json, a JSON object
-// that maps a repo key to its policy. The key is the repo's main checkout, so a linked worktree shares its policy.
+// The store is <root>/projects.json, a JSON object that maps a repo key to the repo's settings, an object whose one
+// field, `changePolicy`, holds the policy develop and debug take, focused or proactive. The key is the repo's main
+// checkout, so a linked worktree shares its settings and its backlog folder.
 //
-//   node tools/change-policy.mjs check --root <dir> --repo <dir>    # "<policy> <key>" or "missing <key> recommend=<policy>"
-//   node tools/change-policy.mjs set --root <dir> --repo <dir> --policy strict|proactive    # "set <key> <policy> in <store>"
+//   node tools/project-settings.mjs check --root <dir> --repo <dir>      # "<policy> <key>" or "missing <key> recommend=<policy>"
+//   node tools/project-settings.mjs backlog --root <dir> --repo <dir>    # "<root>/backlog/<project>/"
+//   node tools/project-settings.mjs set --root <dir> --repo <dir> --policy focused|proactive    # "set <key> <policy> in <store>"
 //
 // The recommendation is proactive when the repo has no commits or every commit's author email is the user's
-// `git config user.email`, and strict otherwise. Every failure exits 1 with its cause on stderr, and set never
-// writes over a store it cannot parse. Ordinary Node: `node --check` applies.
+// `git config user.email`, and focused otherwise. backlog reads no setting and creates nothing. Every failure exits
+// 1 with its cause on stderr, and set never writes over a store it cannot parse. Ordinary Node: `node --check` applies.
 
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { foldsCase } from './trash.mjs';
 
-const POLICIES = ['strict', 'proactive'];
-export const STORE_FILE = 'change-policy.json';
-const VERBS = { check: ['root', 'repo'], set: ['root', 'repo', 'policy'] };
-const USAGE = 'usage: node tools/change-policy.mjs check --root <dir> --repo <dir> | set --root <dir> --repo <dir> --policy strict|proactive';
+const POLICIES = ['focused', 'proactive'];
+// The old name of focused, which set rejects with the rename.
+const RETIRED_POLICY = 'strict';
+export const STORE_FILE = 'projects.json';
+const BACKLOG_DIR = 'backlog';
+// At most 4 bytes each in UTF-8, so a backlog folder name stays inside the 255-byte limit of common file systems.
+const SEGMENT_MAX = 48;
+const NOT_IN_FILE_NAMES = /[<>:"\\|?*\u0000-\u001f]/g;
+const VERBS = { check: ['root', 'repo'], backlog: ['root', 'repo'], set: ['root', 'repo', 'policy'] };
+const USAGE = 'usage: node tools/project-settings.mjs check|backlog --root <dir> --repo <dir> | set --root <dir> --repo <dir> --policy focused|proactive';
 const FOLDS_CASE = foldsCase(process.platform);
 
 const toPosix = (p) => p.replace(/\\/g, '/');
@@ -49,7 +59,11 @@ function parseArgv(argv) {
   }
   const missing = flags.filter((f) => !Object.hasOwn(opt, f));
   if (missing.length) throw new Error(`${verb} needs ${missing.map((f) => `--${f}`).join(' ')}. ${USAGE}`);
-  if (verb === 'set' && !POLICIES.includes(opt.policy)) throw new Error(`--policy "${opt.policy}" is neither strict nor proactive`);
+  if (verb === 'set' && !POLICIES.includes(opt.policy)) {
+    throw new Error(opt.policy === RETIRED_POLICY
+      ? `--policy "${RETIRED_POLICY}" is now named focused. Pass --policy focused.`
+      : `--policy "${opt.policy}" is neither focused nor proactive`);
+  }
 
   // Output
   return { verb, opt };
@@ -66,14 +80,38 @@ export function savedKey(store, key, foldCase) {
   return Object.keys(store).find((k) => fold(k, foldCase) === fold(key, foldCase)) ?? null;
 }
 
-/** The store with `key` set to `policy`, every other key kept, and any spelling of `key` the fold matches
- *  dropped. Never mutates. */
+/** The store with `key`'s policy set to `policy`, the key's other settings and every other key kept, and any
+ *  spelling of `key` the fold matches dropped. Never mutates. */
 export function withPolicy(store, key, policy, foldCase) {
+  const saved = savedKey(store, key, foldCase);
+  const settings = saved === null ? {} : store[saved];
   const others = Object.entries(store).filter(([k]) => fold(k, foldCase) !== fold(key, foldCase));
-  return Object.fromEntries([...others, [key, policy]]);
+  return Object.fromEntries([...others, [key, { ...settings, changePolicy: policy }]]);
 }
 
-/** The store `text` holds, or an error naming `path` when it is not a JSON object of policies. */
+/** The backlog folder name for `key`. The hash keeps apart two repos with the same folder name, and the segment
+ *  loses each character a Windows file name refuses, such as a drive's colon, so the name is valid everywhere. */
+export function projectName(key, foldCase) {
+  const lastSegment = key.split('/').filter(Boolean).pop() ?? '';
+  const segment = Array.from(lastSegment.replace(NOT_IN_FILE_NAMES, '')).slice(0, SEGMENT_MAX).join('');
+  const hash = createHash('sha256').update(fold(key, foldCase)).digest('hex').slice(0, 8);
+  return `${segment}-${hash}`;
+}
+
+/** What is wrong with the settings a store holds for `key`, or null. */
+function settingsProblem(key, settings) {
+  const name = JSON.stringify(key);
+  if (!isJsonObject(settings)) return `maps ${name} to ${JSON.stringify(settings)}, which is not an object whose one field is changePolicy`;
+  const unknown = Object.keys(settings).find((field) => field !== 'changePolicy');
+  if (unknown !== undefined) return `gives ${name} the field ${JSON.stringify(unknown)}, which is not changePolicy, the one field a repo takes`;
+  if (!Object.hasOwn(settings, 'changePolicy')) return `gives ${name} no changePolicy field`;
+  if (!POLICIES.includes(settings.changePolicy)) {
+    return `gives ${name} a changePolicy of ${JSON.stringify(settings.changePolicy)}, which is neither focused nor proactive`;
+  }
+  return null;
+}
+
+/** The store `text` holds, or an error naming `path` when it is not a JSON object of repo settings. */
 function parseStore(text, path) {
   // Input
   let store = null;
@@ -85,10 +123,8 @@ function parseStore(text, path) {
 
   // Process
   if (!isJsonObject(store)) throw new Error(`${path} does not hold a JSON object. Nothing was written. Fix the file and run the command again.`);
-  const bad = Object.entries(store).find(([, policy]) => !POLICIES.includes(policy));
-  if (bad) {
-    throw new Error(`${path} maps ${JSON.stringify(bad[0])} to ${JSON.stringify(bad[1])}, which is neither strict nor proactive. Nothing was written. Fix the file and run the command again.`);
-  }
+  const problem = Object.entries(store).map(([key, settings]) => settingsProblem(key, settings)).find((p) => p !== null);
+  if (problem !== undefined) throw new Error(`${path} ${problem}. Nothing was written. Fix the file and run the command again.`);
 
   // Output
   return store;
@@ -174,18 +210,20 @@ async function main(argv) {
   // Input
   const { verb, opt } = parseArgv(argv);
   const repo = resolve(opt.repo);
-  const storePath = join(resolve(opt.root), STORE_FILE);
+  const root = resolve(opt.root);
+  const storePath = join(root, STORE_FILE);
   const key = repoKey(realpathSync.native(gitCommonDir(repo)));
-  const store = readStore(storePath);
-  const saved = savedKey(store, key, FOLDS_CASE);
 
   // Process and output
+  if (verb === 'backlog') return `${toPosix(join(root, BACKLOG_DIR, projectName(key, FOLDS_CASE)))}/\n`;
+  const store = readStore(storePath);
+  const saved = savedKey(store, key, FOLDS_CASE);
   if (verb === 'set') {
     writeStore(storePath, withPolicy(store, key, opt.policy, FOLDS_CASE));
     return `set ${key} ${opt.policy} in ${storePath}\n`;
   }
-  if (saved !== null) return `${store[saved]} ${key}\n`;
-  const recommendation = (await onlyAuthor(repo, userEmail(repo))) ? 'proactive' : 'strict';
+  if (saved !== null) return `${store[saved].changePolicy} ${key}\n`;
+  const recommendation = (await onlyAuthor(repo, userEmail(repo))) ? 'proactive' : 'focused';
   return `missing ${key} recommend=${recommendation}\n`;
 }
 
@@ -201,7 +239,7 @@ if (invokedDirectly) {
   try {
     process.stdout.write(await main(process.argv.slice(2)));
   } catch (err) {
-    process.stderr.write(`change-policy: ${err.message}\n`);
+    process.stderr.write(`project-settings: ${err.message}\n`);
     process.exitCode = 1;
   }
 }

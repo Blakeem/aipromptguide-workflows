@@ -53,10 +53,10 @@ for (const name of SKILLS) {
   ok(handover >= 0, 'body hands over to this workflow\'s guide');
   ok(accessCheck >= 0 && accessCheck < handover,
     'body runs the plugin-access check before it hands over to the guide');
-  const policyCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo');
+  const policyCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo');
   if (POLICY_SKILLS.includes(name)) {
     ok(policyCheck > accessCheck && policyCheck < handover,
-      'body runs the change-policy check after the plugin-access check and before it hands over to the guide');
+      'body runs the project-settings check after the plugin-access check and before it hands over to the guide');
     // The working directory may be a repo other than the one the run works on.
     ok(body.includes('--root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`'),
       'the check reads the policy of the run\'s target.repo');
@@ -64,10 +64,10 @@ for (const name of SKILLS) {
       'body asks the user for a target.repo the task does not name, in place of the working directory\'s repo');
     ok(body.includes('`${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy"'),
       'body follows the develop guide\'s policy procedure on the check\'s output');
-    ok(body.includes('- Change-policy tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/change-policy.mjs`'),
-      'the path list maps the guide\'s change-policy tool');
+    ok(body.includes('- Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`'),
+      'the path list maps the guide\'s project-settings tool');
   } else {
-    ok(policyCheck < 0, 'body runs no change-policy check, since this workflow takes no change policy');
+    ok(policyCheck < 0, 'body runs no project-settings check, since this workflow takes no change policy');
   }
   ok(/\$ARGUMENTS\s*$/.test(body), 'body ends with $ARGUMENTS');
 }

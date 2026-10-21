@@ -73,6 +73,7 @@ const EXPECTED = {
 
   // inside a build loop -> halts and parks through the ordinary park path
   'develop x develop':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
+  'develop x develop-closing':      { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'develop x quality':              { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   'develop x acceptance':           { signal: 'terminal', expect: /BLOCKED \(an agent returned nothing/ },
   // refine-cycle halts WITHOUT parking, alone among the loop engines: it writes no repo code, so there is

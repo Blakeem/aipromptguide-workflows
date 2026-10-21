@@ -1,5 +1,6 @@
 runs/
 plans/
-/change-policy.json*
+/projects.json*
+/backlog/
 .claude/settings.local.json
 tools/.cache/

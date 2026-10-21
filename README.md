@@ -35,7 +35,7 @@ work is **weighing trade-offs**. Investigate fits when the answer is already out
 **finding it and proving it fits**. The tell is whether missing a requirement is a trade-off or
 disqualifying.
 
-All eight share the design rules in **[principles/](principles/)**, the sixteen
+All eight share the design rules in **[principles/](principles/)**, the seventeen
 [Workflow Principles](principles/WORKFLOW-PRINCIPLES.md) (lean, file bus, no busy work).
 
 **The Flow column is a diagram of what a run does.** It shows every agent, gate, loop and terminal

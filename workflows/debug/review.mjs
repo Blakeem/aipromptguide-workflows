@@ -53,10 +53,11 @@ const REVIEW_SEV_NAME = A.reviewSeverity ?? 'medium';
 const REVIEW_SEV  = sevRank(REVIEW_SEV_NAME);
 if (REVIEW_SEV === undefined) throw new Error(`reviewSeverity "${REVIEW_SEV_NAME}" is not one of low|medium|high|critical`);
 // A typo that coerced would silently widen or narrow the scope of every Fix line the fixer later builds.
-const VALID_CHANGE_POLICY = new Set(['strict', 'proactive']);
-const CHANGE_POLICY = A.changePolicy ?? 'strict';
+const VALID_CHANGE_POLICY = new Set(['focused', 'proactive']);
+const CHANGE_POLICY = A.changePolicy ?? 'focused';
 if (!VALID_CHANGE_POLICY.has(CHANGE_POLICY)) {
-  throw new Error(`Invalid args.changePolicy: it must be one of strict, proactive; got ${JSON.stringify(A.changePolicy)}. It is not coerced, since it decides how far each Fix line reaches.`);
+  const renamed = CHANGE_POLICY === 'strict' ? ' The policy strict is now named focused, so pass "focused" instead.' : '';
+  throw new Error(`Invalid args.changePolicy: it must be one of focused, proactive; got ${JSON.stringify(A.changePolicy)}.${renamed} It is not coerced, since it decides how far each Fix line reaches.`);
 }
 const PROACTIVE = CHANGE_POLICY === 'proactive';
 // The reviewer and the verifier both grade on this one written scale, so the floor cuts where both expect it.

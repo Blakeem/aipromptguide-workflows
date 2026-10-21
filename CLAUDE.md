@@ -7,6 +7,7 @@ no workflow instructions. Pick the match, then read that workflow's `CLAUDE.md` 
 | Want to… | Read & follow |
 |----------|---------------|
 | **Build** from an approved plan file: one bounded feature, an ordered roadmap of them, a migration across many call sites, or a triaged issue inventory. Each `## Plan:` block's `mode` (`feature`, `section`, `fix`) picks the frame | `workflows/develop/CLAUDE.md` |
+| Work the project's **backlog**: the defects and cleanups develop left for later, triaged with the user, then built in fix mode | `workflows/develop/CLAUDE.md`, "Working the backlog" |
 | **Refine** a plan file before develop builds it: a read-only critic under a fixed defect bar and a minimal-fold editor, until one clean round | `workflows/refine/CLAUDE.md` |
 | **Debug**: find production defects in a repo or change. Its triaged issue files are fix-mode plan files develop builds. Bring your own inventory from manual testing the same way | `workflows/debug/CLAUDE.md` |
 | **Enhance** a system that already works — lensed audit → verified, impact-scored proposals you triage (nothing auto-applied) | `workflows/enhance/CLAUDE.md` |
@@ -73,7 +74,7 @@ at the plugin's persistent data dir instead of a checkout. The Workflow tool ref
 the session cannot already read, and an installed plugin's folder is outside every project. So each
 skill first runs `tools/plugin-access.mjs`, which adds one Read rule for the plugin folder once the
 user agrees. Rename an engine, guide, `tools/plan-block.mjs`, `tools/plugin-access.mjs`,
-`tools/change-policy.mjs`, or `workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md`
+`tools/project-settings.mjs`, or `workflows/debug/gen-units.mjs` and the matching `skills/<x>/SKILL.md`
 paths must move with it.
 
 **Want to see what a run actually does?** Each workflow ships a generated `FLOW.md` beside its engine
