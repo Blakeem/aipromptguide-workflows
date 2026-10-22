@@ -6,56 +6,56 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 21500 | every block accepts first time |
-| quality | 1 | 1 | 8230 | every block accepts first time |
-| acceptance | 1 | 1 | 10988 | every block accepts first time |
-| develop | 2 | 1 | 21925 | every block accepts first time |
-| acceptance | 2 | 2 | 11269 | every block accepts first time |
+| develop | 1 | 1 | 24008 | every block accepts first time |
+| quality | 1 | 1 | 8380 | every block accepts first time |
+| acceptance | 1 | 1 | 11632 | every block accepts first time |
+| develop | 2 | 1 | 24433 | every block accepts first time |
+| acceptance | 2 | 2 | 11913 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 21026 | quality flags the first round |
-| acceptance | 3 | 1 | 10987 | quality flags the first round |
-| develop | 4 | 1 | 21396 | quality flags the first round |
-| acceptance | 4 | 2 | 11268 | quality flags the first round |
-| develop | 5 | 1 | 21022 | acceptance finds gaps, then passes |
-| acceptance | 5 | 1 | 10985 | acceptance finds gaps, then passes |
-| develop | 6 | 1 | 21392 | acceptance finds gaps, then passes |
-| acceptance | 6 | 2 | 11266 | acceptance finds gaps, then passes |
-| acceptance | 7 | 1 | 12102 | a later round is judged low risk |
-| acceptance | 8 | 2 | 12383 | a later round is judged low risk |
-| develop | 7 | 1 | 20952 | the gate never goes green |
-| develop-closing | 1 | 1 | 22163 | the gate never goes green |
-| park | 1 | 1 | 5377 | the gate never goes green |
-| develop | 8 | 1 | 21377 | the gate never goes green |
-| develop-closing | 2 | 1 | 22533 | the gate never goes green |
-| acceptance | 9 | 1 | 11040 | a parked block, and the run carries on |
-| acceptance | 10 | 1 | 11095 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 11150 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 22256 | a parked block, and the run carries on |
-| acceptance | 12 | 1 | 12380 | a parked block, and the run carries on |
-| park | 2 | 1 | 5894 | a parked block, and the run carries on |
-| park | 3 | 1 | 5945 | an ordered run stops at a parked block |
-| develop | 9 | 2 | 22850 | a fix block closes its issues |
-| acceptance | 13 | 3 | 14131 | a fix block closes its issues |
+| develop | 3 | 1 | 23534 | quality flags the first round |
+| acceptance | 3 | 1 | 11631 | quality flags the first round |
+| develop | 4 | 1 | 23904 | quality flags the first round |
+| acceptance | 4 | 2 | 11912 | quality flags the first round |
+| develop | 5 | 1 | 23530 | acceptance finds gaps, then passes |
+| acceptance | 5 | 1 | 11629 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 23900 | acceptance finds gaps, then passes |
+| acceptance | 6 | 2 | 11910 | acceptance finds gaps, then passes |
+| acceptance | 7 | 1 | 13390 | a later round is judged low risk |
+| acceptance | 8 | 2 | 13671 | a later round is judged low risk |
+| develop | 7 | 1 | 23460 | the gate never goes green |
+| develop-closing | 1 | 1 | 24671 | the gate never goes green |
+| park | 1 | 1 | 5908 | the gate never goes green |
+| develop | 8 | 1 | 23885 | the gate never goes green |
+| develop-closing | 2 | 1 | 25041 | the gate never goes green |
+| acceptance | 9 | 1 | 11684 | a parked block, and the run carries on |
+| acceptance | 10 | 1 | 11739 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 11794 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 24764 | a parked block, and the run carries on |
+| acceptance | 12 | 1 | 13676 | a parked block, and the run carries on |
+| park | 2 | 1 | 6194 | a parked block, and the run carries on |
+| park | 3 | 1 | 6245 | an ordered run stops at a parked block |
+| develop | 9 | 2 | 25748 | a fix block closes its issues |
+| acceptance | 13 | 3 | 14950 | a fix block closes its issues |
 | final-sweep | 2 | 1 | 2921 | a fix block closes its issues |
-| develop | 10 | 2 | 23186 | a pass of two fix blocks closes its issues |
-| acceptance | 14 | 3 | 14454 | a pass of two fix blocks closes its issues |
+| develop | 10 | 2 | 26105 | a pass of two fix blocks closes its issues |
+| acceptance | 14 | 3 | 15273 | a pass of two fix blocks closes its issues |
 | final-sweep | 3 | 1 | 2951 | a pass of two fix blocks closes its issues |
-| acceptance | 15 | 3 | 14130 | every issue is already fixed |
-| park | 4 | 1 | 5753 | passed with a regression, not staged |
-| park | 5 | 1 | 5437 | acceptance stages a rejected block |
-| park | 6 | 1 | 5357 | the quality reviewer fails a block without its file |
-| park | 7 | 1 | 5425 | the developer staged its own work |
-| park | 8 | 1 | 5263 | developer never got its block |
-| park | 9 | 1 | 5281 | the developer dies |
-| park | 10 | 1 | 5351 | developer escalates |
-| park | 11 | 1 | 5392 | developer escalates in an ordered run |
-| develop | 11 | 1 | 22598 | a parked block is continued from its patch |
-| acceptance | 16 | 1 | 11185 | a parked block is continued from its patch |
-| acceptance | 17 | 1 | 12160 | a closing pass reaches acceptance |
-| develop-closing | 4 | 1 | 22626 | a closing pass reaches acceptance |
-| acceptance | 18 | 2 | 12441 | a closing pass reaches acceptance |
-| park | 12 | 1 | 5933 | a closing pass records a fix that needs review |
-| park | 13 | 1 | 5933 | a closing pass records a fix that needs review |
+| acceptance | 15 | 3 | 14949 | every issue is already fixed |
+| park | 4 | 1 | 6053 | passed with a regression, not staged |
+| park | 5 | 1 | 5968 | acceptance stages a rejected block |
+| park | 6 | 1 | 5888 | the quality reviewer fails a block without its file |
+| park | 7 | 1 | 5956 | the developer staged its own work |
+| park | 8 | 1 | 5794 | developer never got its block |
+| park | 9 | 1 | 5812 | the developer dies |
+| park | 10 | 1 | 5882 | developer escalates |
+| park | 11 | 1 | 5923 | developer escalates in an ordered run |
+| develop | 11 | 1 | 25106 | a parked block is continued from its patch |
+| acceptance | 16 | 1 | 11911 | a parked block is continued from its patch |
+| acceptance | 17 | 1 | 13456 | a closing pass reaches acceptance |
+| develop-closing | 4 | 1 | 25134 | a closing pass reaches acceptance |
+| acceptance | 18 | 2 | 13737 | a closing pass reaches acceptance |
+| park | 12 | 1 | 6233 | a closing pass records a fix that needs review |
+| park | 13 | 1 | 6233 | a closing pass records a fix that needs review |
 
 ## develop · variant 1 · schema 1
 
@@ -82,7 +82,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -96,6 +96,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -115,23 +116,27 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
    (registered/exported/routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests
    per the plan's Test Strategy.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -140,10 +145,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -189,11 +195,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -239,12 +251,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -259,7 +276,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -274,8 +291,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r1. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -290,7 +307,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -412,7 +429,7 @@ spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
 Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -563,7 +580,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -579,9 +596,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -593,13 +611,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -702,7 +723,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -754,7 +775,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -768,6 +789,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -787,6 +809,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement this block's steps. WIRE IT IN so the change is actually reachable — convert
@@ -797,16 +825,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -815,10 +841,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -864,11 +891,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -914,12 +947,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -934,7 +972,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -949,8 +987,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r1. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -965,7 +1003,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -1101,7 +1139,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -1117,9 +1155,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -1131,13 +1170,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -1243,7 +1285,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -1368,7 +1410,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -1376,6 +1418,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -1395,23 +1438,27 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -1420,10 +1467,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1469,11 +1517,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -1519,12 +1573,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -1539,7 +1598,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -1554,8 +1613,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -1570,7 +1629,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -1706,7 +1765,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -1722,9 +1781,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -1736,13 +1796,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -1845,7 +1908,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -1897,7 +1960,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -1905,6 +1968,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -1924,6 +1988,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md
@@ -1934,16 +2004,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -1952,10 +2020,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2001,11 +2070,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -2051,12 +2126,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -2071,7 +2151,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -2086,8 +2166,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -2102,7 +2182,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -2238,7 +2318,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2254,9 +2334,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -2268,13 +2349,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -2380,7 +2464,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -2431,7 +2515,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -2439,6 +2523,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -2458,23 +2543,27 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
    log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -2483,10 +2572,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2532,11 +2622,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -2582,12 +2678,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -2602,7 +2703,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -2617,8 +2718,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -2633,7 +2734,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -2769,7 +2870,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2785,9 +2886,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -2799,13 +2901,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -2908,7 +3013,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -2960,7 +3065,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -2968,6 +3073,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -2987,6 +3093,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-b-r1.md
@@ -2997,16 +3109,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -3015,10 +3125,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3064,11 +3175,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -3114,12 +3231,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -3134,7 +3256,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -3149,8 +3271,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -3165,7 +3287,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -3301,7 +3423,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3317,9 +3439,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -3331,13 +3454,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -3443,7 +3569,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -3494,7 +3620,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3510,9 +3636,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -3524,13 +3651,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -3582,10 +3712,17 @@ PROCEDURE:
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r2.md
-   Read each one, and check each answer it gives against the diff under the RISK QUESTIONS below. A
-   missing file, a change it does not judge low risk, and an answer the diff contradicts are each a gap.
-   Write each one in your review file and return risk_misclassified=true, which sends the next round to
-   a blind review. Otherwise return risk_misclassified=false.
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   sends the next round to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -3648,7 +3785,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -3699,7 +3836,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3715,9 +3852,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -3729,13 +3867,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -3790,10 +3931,17 @@ PROCEDURE:
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-b-r2.md
-   Read each one, and check each answer it gives against the diff under the RISK QUESTIONS below. A
-   missing file, a change it does not judge low risk, and an answer the diff contradicts are each a gap.
-   Write each one in your review file and return risk_misclassified=true, which sends the next round to
-   a blind review. Otherwise return risk_misclassified=false.
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   sends the next round to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -3856,7 +4004,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -3907,7 +4055,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -3915,6 +4063,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -3934,23 +4083,27 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
    (registered/exported/routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests
    per the plan's Test Strategy.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -3959,10 +4112,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4008,11 +4162,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -4058,12 +4218,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -4078,7 +4243,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -4093,8 +4258,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -4109,7 +4274,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -4245,7 +4410,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 blind review follows you. The engine parks the block when you record an entry or when its changes since
 the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
@@ -4255,6 +4420,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -4274,6 +4440,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. Each failure the gate run below shows is your work list. Route each item through the DECISION
@@ -4289,17 +4461,15 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    on them.
    A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -4308,10 +4478,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4357,11 +4528,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -4408,12 +4585,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -4428,7 +4610,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -4443,8 +4625,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r6. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -4459,7 +4641,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -4627,7 +4809,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (its closing pass parked it without acceptance: its changes owe a blind review, since the block has had no blind review in this launch)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -4638,9 +4826,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -4707,7 +4896,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -4715,6 +4904,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -4734,6 +4924,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement this block's steps. WIRE IT IN so the change is actually reachable — convert
@@ -4744,16 +4940,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -4762,10 +4956,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4811,11 +5006,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -4861,12 +5062,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -4881,7 +5087,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -4896,8 +5102,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -4912,7 +5118,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -5049,7 +5255,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 blind review follows you. The engine parks the block when you record an entry or when its changes since
 the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
@@ -5059,6 +5265,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -5078,6 +5285,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. Each failure the gate run below shows is your work list. Route each item through the DECISION
@@ -5097,16 +5310,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -5115,10 +5326,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -5164,11 +5376,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r6.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -5215,12 +5433,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -5235,7 +5458,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -5250,8 +5473,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r6. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -5266,7 +5489,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -5410,7 +5633,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -5426,9 +5649,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -5440,13 +5664,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -5550,7 +5777,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -5601,7 +5828,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -5617,9 +5844,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -5631,13 +5859,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -5742,7 +5973,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -5793,7 +6024,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -5809,9 +6040,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -5823,13 +6055,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -5935,7 +6170,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -5986,7 +6221,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 blind review follows you. The engine parks the block when you record an entry or when its changes since
 the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
@@ -5996,6 +6231,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -6015,6 +6251,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
@@ -6031,17 +6273,15 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    on them.
    A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -6050,10 +6290,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6099,11 +6340,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -6150,12 +6397,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -6170,7 +6422,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -6185,8 +6437,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r6. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -6201,7 +6453,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -6345,7 +6597,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -6361,9 +6613,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -6375,13 +6628,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -6437,10 +6693,17 @@ PROCEDURE:
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r6.md
-   Read each one, and check each answer it gives against the diff under the RISK QUESTIONS below. A
-   missing file, a change it does not judge low risk, and an answer the diff contradicts are each a gap.
-   Write each one in your review file and return risk_misclassified=true, which sends the next round to
-   a blind review. Otherwise return risk_misclassified=false.
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
+       git -C E:/repo diff <base> <snapshot>
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   sends the next round to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -6462,7 +6725,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -6503,7 +6766,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -6578,16 +6841,19 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
-   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
-   an earlier folder.
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
      E:/flow/runs/flow/acceptance-review-block-a-r6.md
-   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (what the closing acceptance was still failing)
    - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r6.md`, since a
@@ -6599,9 +6865,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -6691,16 +6958,19 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
-   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
-   an earlier folder.
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
      E:/flow/runs/flow/acceptance-review-block-a-r6.md
-   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (what the closing acceptance was still failing)
    - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r6.md`, since a
@@ -6712,9 +6982,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -6768,7 +7039,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -6783,7 +7054,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -6797,6 +7068,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+    Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -6816,6 +7088,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -6826,21 +7104,23 @@ PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, 
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
    entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
    user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
+   leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
+   amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
+   6a, 6b or rule 7 of the DECISION MATRIX below.
    Where a fix warrants a pinning test, write it. Never weaken or delete existing tests to make the gate
    pass. Never disable lint rules.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 5. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 6. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -6849,10 +7129,11 @@ PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, 
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6898,11 +7179,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -6948,12 +7235,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction an entry's **Fix:** line prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    an entry's **Fix:** line says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -6968,7 +7260,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-c-eb03ab84-<n>] <title>
       - id: flow-block-c-eb03ab84-<n>
@@ -6983,8 +7275,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-c r1. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -6999,7 +7291,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -7163,7 +7455,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7178,9 +7470,10 @@ diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c.md if it exists. It records **Fix:** instructions the developer
 OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
@@ -7194,13 +7487,16 @@ a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding t
 nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+    Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-an ACTIONABLE entry requiring it. Not a regression:
+an ACTIONABLE entry requiring it. A change counts as required only when an ACTIONABLE entry names that change.
+A break that a prescribed construction causes, which an ACTIONABLE entry does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -7242,7 +7538,7 @@ PROCEDURE:
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
+   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
    names the source issue id, so that the user triages it before anything fixes it.
@@ -7333,7 +7629,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "fix_checks": {
       "type": "array",
@@ -7470,7 +7766,7 @@ inside the target repo or E:/flow/runs/flow/gate/, and read those files, since t
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one exactly as instructed, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -7485,7 +7781,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -7499,6 +7795,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: you
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+    Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -7518,6 +7815,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -7528,21 +7831,23 @@ PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, 
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
    entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
    user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
+   leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
+   amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
+   6a, 6b or rule 7 of the DECISION MATRIX below.
    Where a fix warrants a pinning test, write it. Never weaken or delete existing tests to make the gate
    pass. Never disable lint rules.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: npm test.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 5. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 6. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -7551,10 +7856,11 @@ PROCEDURE: VERIFY-FIRST, then the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, 
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -7600,11 +7906,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -7650,12 +7962,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction an entry's **Fix:** line prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    an entry's **Fix:** line says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -7672,7 +7989,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [<that file's name without .md>-<n>] <title>
       - id: <that file's name without .md>-<n>
@@ -7687,8 +8004,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-c-plus-1 r1. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -7703,7 +8020,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -7868,7 +8185,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7883,9 +8200,10 @@ diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c-plus-1.md if it exists. It records **Fix:** instructions the developer
 OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
@@ -7899,13 +8217,16 @@ a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding t
 nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+    Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-an ACTIONABLE entry requiring it. Not a regression:
+an ACTIONABLE entry requiring it. A change counts as required only when an ACTIONABLE entry names that change.
+A break that a prescribed construction causes, which an ACTIONABLE entry does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -7950,7 +8271,7 @@ PROCEDURE:
    Count it in backlog_entries and name that block in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
    A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
+   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "<that file's name without .md>-<n>" (n one past
    the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
    names the source issue id, so that the user triages it before anything fixes it.
@@ -8041,7 +8362,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "fix_checks": {
       "type": "array",
@@ -8190,7 +8511,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -8205,9 +8526,10 @@ diff FRESH, catching new or nearby issues. Read prior review files only at your
 EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
-acceptance for it and record it in your review file. An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-c.md if it exists. It records **Fix:** instructions the developer
 OVERRODE after verifying the instruction itself prescribes a real defect. Judge an issue whose
@@ -8221,13 +8543,16 @@ a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding t
 nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+    Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-an ACTIONABLE entry requiring it. Not a regression:
+an ACTIONABLE entry requiring it. A change counts as required only when an ACTIONABLE entry names that change.
+A break that a prescribed construction causes, which an ACTIONABLE entry does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -8269,7 +8594,7 @@ PROCEDURE:
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
+   Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
    names the source issue id, so that the user triages it before anything fixes it.
@@ -8360,7 +8685,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "fix_checks": {
       "type": "array",
@@ -8458,11 +8783,14 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
-   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
-   an earlier folder.
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is)
    - the diagnosis: the full path of the copy this step made of `E:/flow/runs/flow/acceptance-review-block-a-r1.md`, since a
@@ -8474,9 +8802,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -8566,7 +8895,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached` and unstage this block's files)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -8577,9 +8912,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -8669,7 +9005,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (a reviewer reported a failing verdict but did not confirm writing its review file)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -8680,9 +9022,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -8772,7 +9115,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -8783,9 +9132,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -8875,7 +9225,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent could not obtain its plan)
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -8886,9 +9242,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -8978,7 +9335,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted
    - one line on why it was parked (an agent returned nothing (skipped or died))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -8989,9 +9352,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -9081,7 +9445,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -9092,9 +9462,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -9184,7 +9555,13 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**, and that the blocks after it were NOT attempted, because they depend on this one
    - one line on why it was parked (the developer escalated a user-only decision (see E:/flow/runs/flow/NEEDS-USER.md))
    - that this block left no review file to cite; point the user at the run trail in E:/flow/runs/flow instead of naming a file
@@ -9195,9 +9572,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -9263,7 +9641,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -9289,6 +9667,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -9308,23 +9687,27 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
    (registered/exported/routed/bound/flagged) — written-but-unreachable is NOT done. Author/extend tests
    per the plan's Test Strategy.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
-   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Never
+   the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -9333,10 +9716,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -9382,11 +9766,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -9432,12 +9822,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -9452,7 +9847,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
       - id: flow-block-a-d48cf78a-<n>
@@ -9467,8 +9862,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-a r1. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -9483,7 +9878,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-a.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -9619,7 +10014,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9635,9 +10030,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -9649,13 +10045,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -9663,8 +10062,8 @@ a criterion of this block requiring it. Not a regression:
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
     behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes. This block continues its parked patch, so for this item every
-    file under E:/flow/runs/flow/parked-block-a-reviews/, when that folder exists, also counts as an earlier review of
-    this block.
+    review file under E:/flow/runs/flow/parked-block-a-reviews/, when that folder exists, also counts as an earlier review of
+    this block. The copies of DISMISSED-block-a.md and DECISIONS.md there are not reviews.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
@@ -9760,7 +10159,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -9811,7 +10210,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9827,9 +10226,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -9841,13 +10241,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -9899,10 +10302,17 @@ PROCEDURE:
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r2.md
-   Read each one, and check each answer it gives against the diff under the RISK QUESTIONS below. A
-   missing file, a change it does not judge low risk, and an answer the diff contradicts are each a gap.
-   Write each one in your review file and return risk_misclassified=true, which sends the next round to
-   a blind review. Otherwise return risk_misclassified=false.
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   sends the next round to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -9924,7 +10334,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -9965,7 +10375,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -10017,7 +10427,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 Round 1 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 blind review follows you. The engine parks the block when you record an entry or when its changes since
 the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
@@ -10027,6 +10437,7 @@ If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledge
 block. Do not duplicate or re-litigate an entry.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
@@ -10046,6 +10457,12 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   these rules do not fix, and RECORD below says which of them get a backlog entry.
 
 PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order.
+Each phase after BUILD, while it works, runs only a targeted test of the code it changes, such as one
+test file, when the repo has one, and never the gate. A phase with nothing to do for this round's changes is
+skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the round made no fix.
+When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
+phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
+code, BUILD's run is the one you report.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
@@ -10066,16 +10483,14 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
-   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). Build/lint must always pass.
+   Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
-   Re-run the gate under BUILD's rules after these changes.
 4. SIBLINGS: when you FIX a finding in any phase or make a fix this block requires, grep for
    every sibling path with the same mechanism, and fix each one the ZONE ROUTING above fixes.
    DROP + LOG every other sibling by its file:line, or log the class it belongs to. A sibling in code
    this block's text excludes, or that another block of the plan owns, is DROP + LOG wherever it lies.
-   Re-run the gate under BUILD's rules after these changes.
 5. SELF-REVIEW: before you return, apply the SEVERITY scale, the REACH step and the CHECKLIST
    below to the code this round changed or read: the part of your unstaged diff, new files included, that
    this round changed, and the code you read in this round, such as the callers and consumers the REACH
@@ -10084,10 +10499,11 @@ PROCEDURE: the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLA
    review judges the entire block diff.
    Hunt the task code in that scope for every finding at every tier. In the connected code in that
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
-   DECISION MATRIX below, and re-run the gate after each fix.
+   DECISION MATRIX below.
+   In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the staged baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against the diff, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -10133,11 +10549,17 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed): one
-   section per change, named by its file:line, with its four answers. A round that changed nothing writes
-   "No changes." Return review_needed=true when any change is not low risk, and false only when every
-   change is low risk. With false, the engine may send this round's diff to acceptance with no blind
-   review, and acceptance then checks each answer against the diff.
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
+   last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
+   needed) and never the real index. The last command prints the tree id:
+     cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
+     GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
+   After the first line, write one section per change, named by its file:line, with its four answers. A
+   round that changed nothing writes "No changes." Return review_needed=true when any change is not low
+   risk, and false only when every change is low risk. With false, the engine may send this round's diff to
+   acceptance with no blind review, and acceptance then checks each answer against that round's hunks.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -10184,12 +10606,17 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
     truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above
     does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every
     change you make. NEVER log the same dismissal twice.
-  • A REGRESSION the acceptance review counted or your SELF-REVIEW found is a bug, so never DROP it under
-    1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with
-    the default you took when only a change in other code closes it.
+  • A REGRESSION that any review of this block names, a blind review included, that the acceptance review
+    counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any
+    tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only
+    a change in other code closes it.
+    A regression that a construction the block's text prescribes causes is fixed under 6a, with an
+    amendment that cites the regression as its defect evidence. When that fix would change a choice that
+    the block's text says the user made, it goes to rule 7's branch that cannot proceed, so the
+    block parks with the user's question in E:/flow/runs/flow/NEEDS-USER.md.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
-  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md:
+  • DROP (1, 2, 6b or 8): append ONE terse line to E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist):
       `<file:line, or the class of places it covers> — <finding gist> — SKIPPED: <reason, ≤15 words>`
     Name one place by its file:line, or the class of places the line covers, such as every caller of a
     function. The reason must hold for every place the line names.
@@ -10204,7 +10631,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit get no entry.
     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist and read every *.md in it. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
+    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
       - id: flow-block-b-7d7451b3-<n>
@@ -10219,8 +10646,8 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
     NEEDS_USER holds the entry for the user's triage before anything fixes it.
-    When you append a FOCUSED line below, read every *.md in E:/flow/backlog/repo-0a1b2c3d/.
-    When an entry in one holds the defect that line's fix closes, add one line after that entry's
+    When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
+    When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
       **Closed by:** block block-b r2. Confirm at triage that the staged code holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
@@ -10235,7 +10662,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
     - You can proceed with a defensible default: append an entry to E:/flow/runs/flow/DECISIONS.md (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
-      E:/flow/runs/flow/gate/DISMISSED-block-b.md in the DROP shape above, its reason
+      E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
@@ -10379,7 +10806,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -10395,9 +10822,10 @@ EARLIER FINDINGS step below.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
-An `ESCALATED:` line is a decision
-routed to the user: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a
-held escalation never fails acceptance. Name it in your file as held.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
 
 AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
 verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
@@ -10409,13 +10837,16 @@ EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reacha
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.
 A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
-a criterion of this block requiring it. Not a regression:
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
   - a test the gate step's suite rule allows to be red.
   - a line number that another file cites, since every edit moves lines.
   - a removed defect: a change that closes a finding an earlier review of this block named, or that
@@ -10470,10 +10901,17 @@ PROCEDURE:
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-b-r2.md
-   Read each one, and check each answer it gives against the diff under the RISK QUESTIONS below. A
-   missing file, a change it does not judge low risk, and an answer the diff contradicts are each a gap.
-   Write each one in your review file and return risk_misclassified=true, which sends the next round to
-   a blind review. Otherwise return risk_misclassified=false.
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   sends the next round to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -10495,7 +10933,7 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
      (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
+   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -10536,7 +10974,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "risk_misclassified": {
       "type": "boolean",
-      "description": "true if your RISK AUDIT found a risk file missing, a change it judges not low risk, or an answer the diff contradicts (false when your prompt lists no risk file)"
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
     },
     "reachable": {
       "type": "boolean",
@@ -10611,11 +11049,14 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/,
-   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
-   an earlier folder.
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-a-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
-   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-a` heading:
+     E:/flow/runs/flow/gate/DISMISSED-block-a.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-a` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (its closing pass parked it without acceptance: it recorded 1 backlog entry whose fix needs a blind review)
    - each backlog entry the closing pass recorded, by its id: flow-block-a-1. Say that each one's
@@ -10630,9 +11071,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-a.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-a"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-a"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
@@ -10722,11 +11164,14 @@ PROCEDURE:
    Always name the files: an unpathed `git reset` or `git rm` touches the staged baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm `git -C E:/repo diff` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each review file below that exists into E:/flow/runs/flow/parked-block-b-reviews/<k>/,
-   with k one past the highest numbered folder there, or 1 when none exists. Never overwrite or delete
-   an earlier folder.
+3. RECORD. First copy each file below that exists into E:/flow/runs/flow/parked-block-b-reviews/<k>/, with k one past
+   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
+   them exists, with or without a review file. Never overwrite or delete an earlier folder.
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
-   Then append ONE entry to E:/flow/runs/flow/NEEDS-USER.md, under a `## Parked block: block-b` heading:
+     E:/flow/runs/flow/gate/DISMISSED-block-b.md
+     E:/flow/runs/flow/DECISIONS.md
+   Then create E:/flow/runs/flow/NEEDS-USER.md when it does not exist, and append ONE entry to it, under a
+   `## Parked block: block-b` heading:
    - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**; the remaining blocks continued without it
    - one line on why it was parked (its closing pass parked it without acceptance: it recorded 1 backlog entry whose fix needs a blind review)
    - each backlog entry the closing pass recorded, by its id: flow-block-a-1. Say that each one's
@@ -10741,9 +11186,10 @@ PROCEDURE:
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when E:/flow/runs/flow/parked-block-b.patch already exists,
      a line naming it as this block's earlier saved work.
-   - how to resume: fix the blocker (sharpening this block in the plan file if needed). Once
-     `plan-edit.mjs args` has applied this run's statuses, set this block's `status:` back to `todo`
-     in its plan file. Then re-invoke with `runOnly:["block-b"]` from the CLEAN baseline and let the
+   - how to resume: the plan file of this block is `E:/flow/plans/bus.md`. Fix the blocker (sharpening this block in
+     the file named there if needed). Once `node 'E:/flow/tools/plan-edit.mjs' args` has applied this
+     run's statuses, set this block's `status:` back to `todo` in the file named there.
+     Then re-invoke with `runOnly:["block-b"]` from the CLEAN baseline and let the
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add `continueParked:["block-b"]` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to

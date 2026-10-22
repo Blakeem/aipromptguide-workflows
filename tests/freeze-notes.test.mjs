@@ -31,6 +31,10 @@ for (const flow of [developFlow, brainstormFlow]) {
       `${flow.engine}: each prompt is the original plus the note naming the notes directory`);
     ok(frozen.calls.length > 0 && frozen.calls.every((c) => /more effective\.\s+That note file is the one write allowed beyond the writes your task allows\./.test(c.prompt)),
       `${flow.engine}: each prompt names the notes file as the one extra write, right after the notes-file sentence`);
+    ok(frozen.calls.length > 0 && frozen.calls.every((c) => /Start the section with a heading line\s+"## <label> <date>", where <label> is this file's name without \.md and <date> is the output of the date\s+command run when you write the note\./.test(c.prompt)),
+      `${flow.engine}: each prompt tells the agent to head its section with its label and the date from the date command`);
+    ok(frozen.calls.every((c, i) => !/\d{4}-\d{2}-\d{2}|\d{1,2}:\d{2}:\d{2}/.test(c.prompt.slice(plain.calls[i].prompt.length))),
+      `${flow.engine}: the note text holds no date or time the engine computed`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

@@ -133,9 +133,11 @@ models. Show each block's model in the approval summary.
 **Choosing the change policy.** `changePolicy` sets the developer's build aim and whether it fixes a
 defect it notices in the code its block's changes connect to. The engine defines three code zones, and
 every developer and acceptance prompt renders that one definition:
-- Task code is the code the block's required changes add or change. In a fix block, it also holds the
-  sibling paths of each ACTIONABLE entry's root cause, apart from code the block's text excludes or
-  another block of the plan owns.
+- Task code is the code the block's required changes add or change. Every line such a change adds or
+  changes is task code in full, so a pre-existing finding on such a line is a task code finding. In a
+  fix block, that holds for every line an ACTIONABLE entry's fix adds or changes, and task code also
+  holds the sibling paths of each ACTIONABLE entry's root cause, apart from code the block's text
+  excludes or another block of the plan owns.
 - Connected code is the code a reach step from the task code finds, which is its callers and consumers,
   its sibling paths, duplicates of its logic and the text that describes it. Code the block's text
   excludes and code another block of the plan owns are never connected code.
@@ -204,64 +206,76 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   below. SELF-REVIEW applies the blind reviewer's severity scale, reach step and checklist to the code
   its round changed or read. Code that earlier rounds changed and that its round neither changed nor
   read is outside the self-review, since each earlier round's self-review judged that round's code,
-  and each blind review judges the entire block diff. CLASSIFY
-  answers the risk questions (§6) for each change its round made, writes `risk-<id>-rN.md` and returns
-  `review_needed`. Each phase after BUILD re-runs the gate after its changes, so the gate result it
-  reports is the final tree's. It routes each finding by the code zone it lies in, as §4 sets. It logs
-  every finding it routes and does not fix, so none is dropped silently. A dismissal names one place or
-  the class of places it covers, and its reason holds for every place it names. It escalates only a
-  choice that changes user-visible behavior, stored data or a public contract and that nothing it can
-  read or check settles, or a blocker it cannot resolve in scope. One it cannot proceed without goes to
-  `NEEDS-USER.md`. A default it took goes to `DECISIONS.md`, beside each plan amendment pointer. In
-  SIBLINGS, for each finding it fixes in any phase and each fix the block requires, it greps for every
-  sibling path with the same mechanism and fixes each one, at any tier, that its zone routing fixes
-  (§4). It logs every other sibling, and a sibling in code the block's text excludes or that another
-  block of the plan owns. Under both policies, a real defect at low or above that it logs because its
-  zone routing leaves the defect unchanged, under rule 2 or as a sibling path, also goes to its block's
-  backlog file (§10), so a later run can fix it. Under `proactive` it also records there each cleanup
-  outside task code that it noticed and did not make, such as a refactor or a nit. A false positive and
-  anything in code another block owns get no entry, and under `focused` neither does a nit. In a pass,
-  the entry goes to the file of the member whose entry's fix led to it. The dismissal line stays, since
-  the blind reviewer never reads a backlog file. When a fix it logs to `DECISIONS.md` closes a defect
-  that an entry in any backlog file holds, it adds a `**Closed by:**` line to that entry and leaves the
-  entry's status and decision as they are, since a park clears the fix from the tree. **Must attest
-  `unstaged_confirmed`. A missing or false attestation HALTS, even beside a needs-user escalation**
-  (the staged index is surface neither reviewer checks).
+  and each blind review judges the entire block diff. CLASSIFY answers the risk questions (§6) for
+  each change its round made, writes `risk-<id>-rN.md`, which starts with a snapshot of its round's
+  tree (§6), and returns `review_needed`. Each phase after BUILD runs a targeted test while it
+  works. The gate runs once more after the last phase that changed code, and that run's outcome is
+  the one it reports. A phase with nothing to do for its round's changes is skipped. It routes each
+  finding by the code zone it lies in, as §4 sets. It logs every finding it routes and does not fix,
+  so none is dropped silently. A dismissal names one place or the class of places it covers, and its
+  reason holds for every place it names. It escalates only a choice that changes user-visible
+  behavior, stored data or a public contract and that nothing it can read or check settles, or a
+  blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
+  default it took goes to `DECISIONS.md`, beside each plan amendment pointer. In SIBLINGS, for each
+  finding it fixes in any phase and each fix the block requires, it greps for every sibling path
+  with the same mechanism and fixes each one, at any tier, that its zone routing fixes (§4). It logs
+  every other sibling, and a sibling in code the block's text excludes or that another block of the
+  plan owns. Under both policies, a real defect at low or above that it logs because its zone
+  routing leaves the defect unchanged, under rule 2 or as a sibling path, also goes to its block's
+  backlog file (§10), so a later run can fix it. Under `proactive` it also records there each
+  cleanup outside task code that it noticed and did not make, such as a refactor or a nit. A false
+  positive and anything in code another block owns get no entry, and under `focused` neither does a
+  nit. In a pass, the entry goes to the file of the member whose entry's fix led to it. The
+  dismissal line stays, since the blind reviewer never reads a backlog file. When a fix it logs to
+  `DECISIONS.md` closes a defect that an entry in any backlog file holds, it adds a `**Closed by:**`
+  line to that entry and leaves the entry's status and decision as they are, since a park clears the
+  fix from the tree. **Must attest `unstaged_confirmed`. A missing or false attestation HALTS, even
+  beside a needs-user escalation** (the staged index is surface neither reviewer checks).
 - **Quality Reviewer** — blind by placement (`gate/` only). It receives the conventions and reports
   every finding the diff introduces or exposes at every tier, from critical down to nit, under both
-  policies. It works through a reach step over callers, siblings, duplicates and describing text, and
-  a lens checklist that ends with the nit list. It also flags a new sentence that the repo's code
-  contradicts. A review is clean when it holds no finding and no contested dismissal, and its file
-  then reads `No findings.` It may contest a dismissal at any tier. §6 says which rounds it runs in.
-- **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
-  block the staged baseline already satisfies passes without inventing changes). In fix mode, any
-  unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
-  stages. It reads every earlier review file of its block and counts an earlier finding as a gap
-  unless the code closes it on every sibling path or the dismissal ledger declines it. It audits the
-  risk file of each round since the block's last blind review (§6). Every defect it writes
-  in its review file counts as a gap, including a regression the block prescribes or no current
-  caller reaches. A change that removes a defect a review finding named, or the same defect on a
-  sibling path of a required fix or of such a finding, is not a regression when the code shows the
-  removed behavior was a real defect, the change alters no other behavior, the block's text does not
-  exclude that code, no other block of the plan owns it, and it lies in a zone the policy lets the
-  developer change (§4). For a continued block, that rule also counts the findings
-  of the review files its parks kept in `parked-<id>-reviews/`. The developer never dismisses a
-  regression. It fixes the regression, with an amendment when the block prescribes it, or escalates
-  it with a default when only a change in other code closes it (§4). The review
-  file holds no notes section. In fix mode, a harm an entry lists whose cause shares no code path
-  with the re-derived root cause is a new issue, never a gap. A sibling path with the identical
-  defect stays a residual path. The verifier appends a new issue to its source block's backlog file
-  (§10), and the entry's `**What:**` names the source issue id. The return counts both writers'
-  entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file (§10) once
-  that block is `done` or `skip`.
+  policies. It works through a reach step over callers, siblings, duplicates and describing text,
+  and a lens checklist that ends with the nit list. It also flags a new sentence that the repo's
+  code contradicts. A review is clean when it holds no finding and no contested dismissal, and its
+  file then reads `No findings.` It may contest a dismissal at any tier. §6 says which rounds it
+  runs in.
+- **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a block the staged baseline already satisfies passes without inventing changes). In fix
+  mode, any unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent
+  that stages. It reads every earlier review file of its block and counts an earlier finding as a
+  gap unless the code closes it on every sibling path or the dismissal ledger declines it. A ledger
+  line whose reason starts `SKIPPED:` declines a finding, and acceptance may override it. A line
+  whose reason starts `ESCALATED:` records a default routed to the user, and acceptance holds it. It
+  audits the risk file of each round since the block's last blind review, against that round's own
+  hunks (§6). When its verdict fails in the closing pass, the block parks with its review file as
+  the diagnosis. Every defect it writes in its review file counts as a gap, including a regression
+  the block prescribes or no current caller reaches. A change counts as required only when the
+  block's text or the ACTIONABLE entry names it, so a break that a prescribed construction causes
+  and the text does not name is a regression. A change that removes a defect a review finding named,
+  or the same defect on a sibling path of a required fix or of such a finding, is not a regression
+  when the code shows the removed behavior was a real defect, the change alters no other behavior,
+  the block's text does not exclude that code, no other block of the plan owns it, and it lies in a
+  zone the policy lets the developer change (§4). For a continued block, that rule also counts the
+  findings of the review files its parks kept in `parked-<id>-reviews/`. The ledger copies there are
+  not reviews. The developer never dismisses a regression. It fixes the regression, with an
+  amendment when prescribed text causes it. It escalates the regression when that fix would change a
+  choice the text says the user made, so the block parks with the user's question. It also escalates
+  with a default when only a change in other code closes it (§4). The review file holds no notes
+  section. In fix mode, a harm an entry lists whose cause shares no code path with the re-derived
+  root cause is a new issue, never a gap. A sibling path with the identical defect stays a residual
+  path. The verifier appends a new issue to its source block's backlog file (§10), and the entry's
+  `**What:**` names the source issue id. The return counts both writers' entries in `backlogEntries`
+  and names each file in `backlogFiles`. Work a block's file (§10) once that block is `done` or
+  `skip`.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
   escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
   Park marks the block's new files intent-to-add, so its one patch carries them. A second park of a
   block renames the earlier patch to `parked-<id>.prev<n>.patch`. The restore command park writes is
   a plain `git apply`, which leaves the work unstaged. A relaunch rewrites the round-numbered review
-  files, so park copies the block's review files, when it has any, into a new
-  `parked-<id>-reviews/<k>/` folder, and its `NEEDS-USER.md` entry names the copy of the diagnosis.
+  files, so park copies the block's review files, its `DISMISSED-<id>.md` ledger and the run's
+  `DECISIONS.md`, each when it exists, into a new `parked-<id>-reviews/<k>/` folder. It makes the folder
+  when any of them exists. Park creates `NEEDS-USER.md` when it does not exist, and its entry names
+  the copy of the diagnosis and the path of each plan file of the block. A round file that an agent's
+  prompt does not name may come from an earlier launch of the block, so the agent ignores it.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep is the `failed` entry
@@ -283,13 +297,20 @@ round made:
 
 Each answer cites its evidence or is "no". A doubtful answer counts as yes, and a change is low risk
 when every answer is no. The developer writes the answers to `risk-<id>-rN.md` and returns
-`review_needed`, true when any change is not low risk. The blind review runs in a block's first round
-with a satisfied gate in a launch, a block continued from its parked patch included. A later round
-gets one when a round since the block's last blind review returned `review_needed` true or no
-boolean, or an acceptance verdict since then returned `risk_misclassified` true. Any other round goes
-from the developer straight to acceptance. Acceptance checks each answer in the risk file of each round
-since the last blind review against the diff. A missing file, a change the file does not judge low
-risk and an answer the diff contradicts are each a gap, and the verdict returns `risk_misclassified`
+`review_needed`, true when any change is not low risk. Each risk file starts with the line
+`Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
+makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
+a copy of the real index. The real index, the staged baseline, is never written. The blind review
+runs in a block's first round with a satisfied gate in a launch, a block continued from its parked
+patch included. A later round gets one when a round since the block's last blind review returned
+`review_needed` true or no boolean, or an acceptance verdict since then returned
+`risk_misclassified` true. Any other round goes from the developer straight to acceptance. Git holds
+one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two snapshots.
+It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line in that round's risk file and
+`<base>` is the line in the risk file of the round before it. It checks each answer in the risk file
+of each round since the last blind review against that round's hunks. A missing file, a missing
+snapshot line in an audited round's file or in its base file, a change the file does not judge low
+risk and an answer the hunks contradict are each a gap, and the verdict returns `risk_misclassified`
 true, which sends the next round to a blind review.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
@@ -371,11 +392,12 @@ and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `risk-<id>-rN.md` (the
-developer's risk answers for round N, outside `gate/`, §6) · `gate/DISMISSED-<id>.md` ·
-`AMENDED-<id>.md` · `NEEDS-USER.md` · `DECISIONS.md` · `parked-<id>.patch` ·
-`parked-<id>.prev<n>.patch` (an earlier park of the same block) · `parked-<id>-reviews/<k>/` (the
-review files one park of the block kept) · `SWEEP.md` · `scratch/` (the agents' plan
-block copies and test logs, never in `gate/`).
+developer's risk answers for round N, outside `gate/`, §6, starting with the line
+`Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` ·
+`DECISIONS.md` · `parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier park of the same
+block) · `parked-<id>-reviews/<k>/` (the review files one park of the block kept, and its copies of
+`DISMISSED-<id>.md` and `DECISIONS.md`) · `SWEEP.md` · `scratch/` (the agents' plan block copies and
+test logs, never in `gate/`).
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 
@@ -444,7 +466,8 @@ Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
 and `status: todo`. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
 `- decision: NEEDS_USER`. A cleanup entry carries `- category: cleanup` and no `- severity:` line.
-Before the developer or fix acceptance appends an entry (§5), it reads every `*.md` in the folder and
+Before the developer or fix acceptance appends an entry (§5), it greps the folder's `*.md` files by the
+file path and the name of the function or identifier at the defect, reads each matching entry, and
 never appends a defect that an entry with `- status: open` or `- status: needs-attention` already
 holds. A defect whose only entries say `fixed` or `stale` is back in the code, so it gets a new entry
 whose `**What:**` names theirs.
@@ -457,9 +480,10 @@ When the user asks to work the backlog:
    the user (step 2) into the folder as `<runId>-NEW-ISSUES-<block id>.md`, so this triage and the
    writers' dedup read it.
 2. List the entries that wait on the user, grouped by severity, highest first, with the cleanup entries
-   last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or `DEFER`, or while its
-   `- status:` is `needs-attention`, which a fix that failed or did not land sets. An entry set to SKIP
-   keeps `- status: open`, since no build works it, so `- status: open` alone never lists an entry.
+   last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or `DEFER`, or while it is
+   ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed or did not land sets.
+   An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status,
+   since no build works it, so `- status: open` alone never lists an entry.
 3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
    option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the staged code

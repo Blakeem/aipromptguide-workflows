@@ -40,7 +40,9 @@ Every block runs the same loop, up to `maxRounds`.
    - **Patterns.** It finds how the repo already does the same kind of thing.
    - **Build.** It builds the block and runs the gates. In a round that answers a review, it fixes or
      logs each finding in that review. A feature or section block does not build the block again in
-     that round, and a fix block still works through its entries.
+     that round, and a fix block still works through its entries. Each later phase runs only a
+     targeted test of its changes. The gates run once more after the last phase that changed code, and
+     a phase with nothing to do is skipped.
    - **Harden.** It handles edge cases, gives each expected failure a message that names its cause and
      adds a test for each risky path. It also cleans up the code its round wrote.
    - **Siblings.** It fixes every repeat of a problem it fixed inside the code its policy lets it
@@ -51,22 +53,24 @@ Every block runs the same loop, up to `maxRounds`.
    - **Classify.** It judges the risk of each change its round made with four questions. A change is
      low risk when it needs edits in only one system, adds few branches or error paths, touches no
      critical code such as data writes or security, and rests on no assumption a caller could break.
-     A doubtful answer counts as risky.
+     A doubtful answer counts as risky. It also records a snapshot of its round's tree, so acceptance
+     can read that round's own changes.
 2. A **blind quality reviewer** judges the unstaged diff on its own merits. It never sees the plan.
    Under both policies, it reports every problem it finds, from critical down to nit. It reviews the
    block's first round that meets its gate, and any later round with a change the developer judged
    risky. A round with only low-risk changes goes straight to acceptance.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass.
    It also rechecks every finding raised earlier in the block. For a round the blind reviewer did not
-   see, it checks each of the developer's risk answers against the diff. A wrong answer sends the next
-   round to the blind reviewer.
+   see, it checks each of the developer's risk answers against that round's own changes. A wrong answer
+   sends the next round to the blind reviewer.
 4. If the last round fails, a **closing pass** runs one more developer with no blind review after it.
    It makes each fix that is low risk and records each risky fix in the project's backlog. Acceptance
    then runs once more, but only when the closing pass recorded nothing and no change still needs a
    blind review.
 5. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
    nothing is lost and the next block starts clean. The park record names each backlog entry the
-   closing pass recorded.
+   closing pass recorded and each plan file of the block. Park also keeps copies of the block's reviews
+   and ledgers.
 
 Settings at the top of the plan file control the run.
 
@@ -100,7 +104,8 @@ directly.
 
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the
 acceptance reviews, the quality reviews under `gate/`, the developer's risk answers for each round
-(`risk-<id>-rN.md`), each block's declined findings (`gate/DISMISSED-<id>.md`), any plan amendment
+(`risk-<id>-rN.md`, which starts with the round's snapshot), each block's declined findings
+(`gate/DISMISSED-<id>.md`), any plan amendment
 (`AMENDED-<id>.md`), the questions for you and each parked block's record (`NEEDS-USER.md`), the
 defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
 problem the code already had that its block did not require (`DECISIONS.md`), each parked patch, and

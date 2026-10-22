@@ -35,7 +35,7 @@ step. This one engineers those away and follows a strict set of principles:
   that develop judges risky. It has no idea what issue the diff was meant to fix, so it catches a fix
   that solved the report but broke something else. Then an acceptance gate reads the issue, re-derives
   each defect's root cause and confirms it is fully closed with no regression. The gate also checks
-  each of develop's risk judgments against the diff.
+  each of develop's risk judgments against that round's own changes.
 - **The fix list is closed.** The fix loop only ever works the inventory you approved. No fresh
   review mid-fix keeps finding "just one more thing", which is what makes fixing medium issues
   converge instead of spiraling. For the same reason it hunts **defects only**. An improvement list

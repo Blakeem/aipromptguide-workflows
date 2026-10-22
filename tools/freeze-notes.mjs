@@ -35,7 +35,9 @@ function __noteAgent(prompt, opts) {
 WORKFLOW TEST NOTE. This run is a live test of the ${name} workflow itself. It does not change your
 task: do everything above exactly as instructed, and return exactly what your schema asks.
 Before your final structured return, write a short note to ${notes}/\${slug}.md (create the directory if
-needed; if the file exists, append a new section) about the WORKFLOW from your seat, not about the
+needed; if the file exists, append a new section). Start the section with a heading line
+"## <label> <date>", where <label> is this file's name without .md and <date> is the output of the date
+command run when you write the note. The note is about the WORKFLOW from your seat, not about the
 code you judged: instructions that were unclear, contradictory or missing; commands or tools that
 failed; files you were pointed at that did not exist; schema fields that did not fit what you had to
 report; effort the instructions made you waste; what would make this role more effective.
