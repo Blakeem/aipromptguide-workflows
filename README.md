@@ -156,6 +156,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **A relaunch keeps its review files.** A relaunch with the same `runId` writes its round files to the
+  paths the earlier launch used. Claude Code refuses to overwrite a file the agent has not read, so a
+  reviewer could leave the earlier launch's file in place and still report it written. Every workflow now
+  tells its agents to read such a file before they replace it, and to report a write only after the tool
+  accepts it.
 - **develop can commit each accepted block.** With `commit: true`, acceptance commits each block it passes,
   and the commit message is the block's title. The repo's commit hooks run. A refused commit, a rewritten
   subject or a tree a hook changed halts the run with one `commit-unverified` reason that lists every
