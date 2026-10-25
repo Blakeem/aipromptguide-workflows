@@ -154,6 +154,52 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-24
+
+- **Each develop role takes a model and a reasoning level.** The `efforts` arg sets a level per role, and
+  every role runs at `high` by default. A block's `effort:` line sets its developer's level, as `model:`
+  sets its model. The models are `opus`, `sonnet`, `haiku` and `fable`. A launch fails on an unknown role
+  or value in `models` or `efforts`. Park has its own role and otherwise follows its block's developer.
+  The other workflows still run at the session's level.
+- **A repo saves its role settings.** `project-settings.mjs set-roles` saves a repo's role models and
+  levels, and the next run reads them with `roles`. A setting you name for a run wins.
+- **The develop guide picks each model by the task.** Sonnet takes common work, opus takes complex or
+  risky work, haiku takes bulk text changes, and fable runs only when you ask. The review roles run on
+  opus for a major or risky change and may run on sonnet for a low-risk one.
+- **The test suite runs in parallel.** `node tests/run.mjs` runs each test file in its own process,
+  `--jobs` at once. On 16 CPUs it takes about 90 s in place of 240 s. A file that crashes or exits early
+  fails the run, and `--jobs 1` runs one file at a time.
+- **Fixes.** develop's backlog guide holds a Parked-with entry until its block is accepted or dropped,
+  and marks a confirmed Closed-by entry fixed. wt.mjs quotes each branch name it prints in a recovery
+  command. A file key such as `ordered: true` placed below a plan's title heading fails `plan-block.mjs
+  --list`, where before the tool read it as prose and took the default. The refine guide asks for your
+  approval once, after refine converges.
+
+### 2026-10-21
+
+- **develop's developer works in phases.** It finds the repo's patterns, builds, hardens, fixes repeats
+  of each problem, reviews its own diff and judges the risk of each change. The developer runs the gates
+  once after its last change and skips a phase with nothing to do.
+- **The blind review runs where the risk is.** It reviews a block's first build and each later round
+  with a risky change. Acceptance checks each risk answer, and a wrong answer sends the next round to
+  the blind review.
+- **develop keeps a project backlog.** The developer records each problem it leaves in
+  `<root>/backlog/<project>/`. Claude triages the backlog with you, then develop builds it in fix mode.
+- **A closing pass follows a block's last failed round.** It makes each low-risk fix and records each
+  risky one in the backlog.
+- **`strict` is renamed `focused`.** `tools/project-settings.mjs` replaces `change-policy.mjs` and keeps
+  each repo's settings in `<root>/projects.json`.
+- **Fixes.** wt.mjs quotes each path in a recovery command for the shell it runs in. refine and debug
+  ignore case in a drive or UNC path before their placement checks.
+
+### 2026-10-20
+
+- **A plan block holds one behavior.** Behaviors that can each be accepted alone go in separate blocks.
+- **The blind review grades two more defects.** Duplicated logic whose copies disagree and a risky path
+  with no test are graded low or higher, never nit.
+- **Each repo's change policy is saved in a file.** The develop and debug skills ask once per repo, in
+  place of reading an auto memory line.
+
 ### 2026-10-19
 
 - **A trash tool that never deletes.** `node tools/trash.mjs <abs path>` moves a file or folder to the
