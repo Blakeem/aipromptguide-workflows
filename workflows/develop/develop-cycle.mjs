@@ -393,11 +393,12 @@ const SETTLED = (id, canContest) => `Before reviewing, READ ${canContest ? 'this
   • ${DECISIONS} — defaults the developer took, plan amendment pointers, and one line per ${BASELINE_FIX} that
     this run's ${CHANGE_POLICY} change policy let the developer make, a record. A
     ${LOGGED_FIX_TAG} line is never skipped for its stated reason, since the regression rule below judges each one.`}
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. ${canContest ? 'Do NOT read prior review files. ' : ''}Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. ${canContest ? 'Do NOT read prior review files, apart from the overwrite read the WRITE step names. ' : ''}Review the CURRENT
 diff FRESH, catching new or nearby issues.${canContest ? `
 If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
 "CONTESTS DISMISSAL:", explaining why the reason does not hold.` : ` Read prior review files only at your
-EARLIER FINDINGS step below.`}`;
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.`}`;
 
 function gateOk(gate, dev) {
   if (!dev) return false;
@@ -583,6 +584,11 @@ BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC re
 need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under ${STATE_DIR}/scratch/, never under ${GATE_DIR}/.`;
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to
+// overwrite a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 
 // A file key, not a mode: suite:scoped allows the mid-run red a test-first migration expects.
 const SUITE_LINE = SUITE === 'green'
@@ -913,7 +919,7 @@ const snapshotCommands = (id, round) => {
 // Last, so the judgment covers every change the earlier phases made. The snapshot is the first line of the
 // risk file, so acceptance can show this round's own hunks, since git holds one cumulative unstaged diff.
 const CLASSIFY_STEP = (id, round) => `CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write ${riskFile(id, round)} (create ${STATE_DIR}/ if needed). Its first line is
+   QUESTIONS below. Write ${riskFile(id, round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} Its first line is
    \`${SNAPSHOT_LINE} <tree id>\`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create ${STATE_DIR}/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -1174,7 +1180,7 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside ${GATE_DIR}/.
 ${GATE_DIR}/ also holds other blocks' review and DISMISSED files.
-Read only ${dismissedFile(p.id)} there.
+Read only ${dismissedFile(p.id)} there, and ${qualityFile(p.id, round)} only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
 ${ROUND_NOTE(round)}
 TARGET REPO: ${REPO}
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
@@ -1218,8 +1224,8 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed), grouped by tier,
-highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+WRITE your findings to ${qualityFile(p.id, round)} (create ${GATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE}
+Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
@@ -1278,7 +1284,7 @@ const NO_OP_COMMIT = COMMIT ? ' Make no commit, and return committed=true, commi
 const commitStep = (p, round) => (COMMIT ? `
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
    ${JSON.stringify(p.title)}, decoded, as the one line of ${commitFile(p.id)} (create ${STATE_DIR}/
-   if needed), with no quotes, no other line and no trailer. Run \`git -C ${REPO} write-tree\` and keep the
+   if needed), with no quotes, no other line and no trailer. ${REPLACE_NOTE} Run \`git -C ${REPO} write-tree\` and keep the
    tree id it prints. Run \`git -C ${REPO} commit -F ${commitFile(p.id)}\`.
    Never pass \`--no-verify\`, \`--no-gpg-sign\` or \`--amend\`. When the commit fails, such as when a hook or
    signing refuses it, append its full output to ${acceptanceFile(p.id, round)}, leave the work staged, and
@@ -1363,7 +1369,7 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
    ${ACC_SUITE_LINE} If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. ${riskAuditStep(p.id, riskRounds)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8: the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -1440,7 +1446,7 @@ PROCEDURE:
 4. ${REGRESSION_STEP}
 5. ${gateStep}
 6. ${riskAuditStep(p.id, riskRounds)}
-7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8: the
+7. WRITE ${acceptanceFile(p.id, round)} (create ${STATE_DIR}/ if needed) BEFORE step 8. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -1613,7 +1619,7 @@ PROCEDURE (read-only except step 4):
    outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. ${spotCheckStep(commits)} Look for suspiciously-untouched areas the GOAL names.
-4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE ${SWEEP_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote ${SWEEP_FILE}, and gap_count = the number of gaps you wrote to it

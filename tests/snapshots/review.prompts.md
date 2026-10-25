@@ -6,12 +6,12 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 3417 | a clean unit beside one with findings |
-| verify | 1 | 1 | 6791 | a clean unit beside one with findings |
+| review | 1 | 1 | 3734 | a clean unit beside one with findings |
+| verify | 1 | 1 | 7111 | a clean unit beside one with findings |
 | review | 2 | 1 | 3003 | two lenses per unit |
 | review | 3 | 1 | 3129 | two lenses per unit |
-| verify | 2 | 1 | 7274 | two lenses per unit |
-| verify | 3 | 1 | 7274 | two lenses per unit |
+| verify | 2 | 1 | 7594 | two lenses per unit |
+| verify | 3 | 1 | 7594 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -62,7 +62,7 @@ RULES:
   and a minimal suggested_fix direction.
 
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO medium+ findings, WRITE the file E:/flow/runs/flow/issues/u1.md (create
-E:/flow/runs/flow/issues/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
+E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 unit: u1
@@ -229,7 +229,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
+WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
 unit: u2
@@ -709,7 +709,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
+WRITE the inventory file E:/flow/runs/flow/issues/u1.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
 unit: u1
@@ -934,7 +934,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed) in EXACTLY this format:
+WRITE the inventory file E:/flow/runs/flow/issues/u2.md (create E:/flow/runs/flow/issues/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
 unit: u2

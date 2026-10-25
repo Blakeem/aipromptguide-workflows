@@ -7,20 +7,20 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | criteria-critic | 1 | 1 | 1539 | refine the criteria |
-| investigate | 1 | 1 | 6344 | exhaustion agreed |
-| critique | 1 | 1 | 5795 | exhaustion agreed |
-| critique | 2 | 1 | 5808 | no solution verified |
-| investigate | 2 | 1 | 7391 | exhaustion contested |
-| investigate | 3 | 1 | 7756 | exhaustion contested |
-| critique | 3 | 1 | 6103 | saturation agreed |
-| critique | 4 | 1 | 4384 | stalled |
-| investigate | 4 | 1 | 7740 | resumed quiet first round |
-| critique | 5 | 1 | 4616 | resumed quiet first round |
-| investigate | 5 | 1 | 7194 | quiet rounds |
-| investigate | 6 | 1 | 7559 | quiet rounds |
-| critique | 6 | 1 | 5207 | quiet rounds |
-| critique | 7 | 1 | 6027 | resumed search |
-| critique | 8 | 1 | 4371 | investigator escalates |
+| investigate | 1 | 1 | 7024 | exhaustion agreed |
+| critique | 1 | 1 | 6116 | exhaustion agreed |
+| critique | 2 | 1 | 6129 | no solution verified |
+| investigate | 2 | 1 | 8071 | exhaustion contested |
+| investigate | 3 | 1 | 8436 | exhaustion contested |
+| critique | 3 | 1 | 6424 | saturation agreed |
+| critique | 4 | 1 | 4705 | stalled |
+| investigate | 4 | 1 | 8420 | resumed quiet first round |
+| critique | 5 | 1 | 4937 | resumed quiet first round |
+| investigate | 5 | 1 | 7874 | quiet rounds |
+| investigate | 6 | 1 | 8239 | quiet rounds |
+| critique | 6 | 1 | 5528 | quiet rounds |
+| critique | 7 | 1 | 6348 | resumed search |
+| critique | 8 | 1 | 4692 | investigator escalates |
 
 ## criteria-critic · variant 1 · schema 1
 
@@ -160,9 +160,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 1 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -184,7 +186,7 @@ PROCEDURE:
    • no_solution = no candidate CAN meet these criteria (usually a criterion pair nothing satisfies), a
      stronger fact than finding none. Say which criterion every candidate died on. Return
      claim=no_solution.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -207,6 +209,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -329,7 +332,7 @@ CHECK:
    each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
    round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
 Do NOT modify any repo, stage, or commit.
@@ -464,7 +467,7 @@ CHECK:
    each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
    round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
 Do NOT modify any repo, stage, or commit.
@@ -577,9 +580,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 2 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -609,7 +614,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -632,6 +637,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -732,9 +738,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 5 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -764,7 +772,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -790,6 +798,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -915,7 +924,7 @@ CHECK:
    each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
    round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
 Do NOT modify any repo, stage, or commit.
@@ -1037,7 +1046,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
@@ -1153,9 +1162,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 3 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -1185,7 +1196,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1208,6 +1219,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1319,7 +1331,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.
@@ -1430,9 +1442,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 3 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -1462,7 +1476,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1485,6 +1499,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1583,9 +1598,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write E:/flow/runs/flow/options/<id>.md per option, <id> a short kebab slug that no file in
+   E:/flow/runs/flow/options uses yet (create the dir if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round 5 or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to E:/flow/runs/flow/DISQUALIFIED.md:
    `<candidate> — FAILS <criterion> — <≤15-word why> — <source>`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line `NEAR-MISS: ` and put the
@@ -1615,7 +1632,7 @@ PROCEDURE:
      NEXT section, and return claim=saturated. It is the WEAKEST claim: another round is not worth its
      cost, never that nothing else is out there. If you can EVIDENCE exhaustion or no_solution instead,
      claim that.
-8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. LINK to each
+8. THE DETERMINATION — write E:/flow/runs/flow/DETERMINATION.md on a terminating round, AND on this one: round 5 is this run's LAST, so it gets written whatever you conclude. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. LINK to each
    E:/flow/runs/flow/options/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads `verdict: upheld`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -1641,6 +1658,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to E:/flow/runs/flow/NEEDS-USER.md and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema, option_ids included.
 ~~~~
 
@@ -1757,7 +1775,7 @@ CHECK:
    each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
    round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r5.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
 Do NOT modify any repo, stage, or commit.
@@ -1894,7 +1912,7 @@ CHECK:
    each such line is a defect. On any STOPPED result (a saturation, a no_solution, or a partial last
    round), its WHERE NEXT is missing or empty. This does NOT change agree.
    Write each defect in your review file and count them in determination_defects.
-WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r3.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds. Then any defect in E:/flow/runs/flow/DETERMINATION.md.
 Do NOT modify any repo, stage, or commit.
@@ -2016,7 +2034,7 @@ CHECK:
 5. No termination was claimed this round: leave agree and contests_claim false.
 6. No determination was DUE this round, so do not judge the run on one. Ignore any E:/flow/runs/flow/DETERMINATION.md
    on disk: it is not this round's output. Set determination_defects to 0.
-WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed): per option, which criteria hold and which
+WRITE E:/flow/runs/flow/acceptance-review-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.
 Do NOT modify any repo, stage, or commit.

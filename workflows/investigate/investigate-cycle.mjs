@@ -206,6 +206,11 @@ const CRITERIA_SCHEMA = {
   },
 };
 
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
+// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+
 // =============================================================================
 // Shared prompt fragment
 // =============================================================================
@@ -261,9 +266,11 @@ PROCEDURE:
    itself, release notes, the spec) over summaries.
 3. SELF-CHECK each candidate against EVERY criterion BEFORE you write anything. Do not soften a criterion
    to keep a candidate you like.
-4. QUALIFIERS: write ${OPTIONS_DIR}/<id>.md per option, <id> a short kebab slug (create the dir if
-   needed): a per-criterion table of EVIDENCE and CITATION, what the option BUYS, what it COSTS, and its
-   sources. Terse and concrete.
+4. QUALIFIERS: write ${OPTIONS_DIR}/<id>.md per option, <id> a short kebab slug that no file in
+   ${OPTIONS_DIR} uses yet (create the dir if needed). ${REPLACE_NOTE} Replace an existing <id>.md only when re-proposing a
+   disqualified option or rewriting an unverified file (no verdict line, or one naming round ${round} or later) for the
+   same candidate. Each file holds a per-criterion table of EVIDENCE and CITATION,
+   what the option BUYS, what it COSTS, and its sources. Terse and concrete.
 5. REJECTS: APPEND one line each to ${LEDGER}:
    \`<candidate> — FAILS <criterion> — <≤15-word why> — <source>\`
    A candidate that fails EXACTLY ONE criterion is a NEAR MISS: prefix its line \`NEAR-MISS: \` and put the
@@ -297,7 +304,7 @@ PROCEDURE:
       : ''}
 8. THE DETERMINATION — write ${DETERMINATION} on a terminating round${round >= LAST_ROUND
       ? `, AND on this one: round ${round} is this run's LAST, so it gets written whatever you conclude`
-      : ''}. LINK to each
+      : ''}. ${REPLACE_NOTE} LINK to each
    ${OPTIONS_DIR}/<id>.md, never restate one. These sections, in this order:
    • ANSWER — one linked line per qualifying option: each option whose file reads \`verdict: upheld\`, plus
      this round's new options. None qualified? Say so, then skip to NEAR MISSES.
@@ -324,6 +331,7 @@ PROCEDURE:
 If a criteria contradiction, or a call only the user can make, blocks you before you can claim anything:
 append a full entry to ${NEEDS_USER} and set needs_user=true.
 Do NOT modify any repo, stage, or commit.
+${WROTE_NOTE}
 Return via the schema, option_ids included.`;
 
 // NON-BLIND on purpose (#3 guards code-regression anchoring, not evidence checking): the critic must see
@@ -405,7 +413,7 @@ ${det
    Write each defect in your review file and count them in determination_defects.`
     : `6. No determination was DUE this round, so do not judge the run on one. Ignore any ${DETERMINATION}
    on disk: it is not this round's output. Set determination_defects to 0.`}
-WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed): per option, which criteria hold and which
+WRITE ${reviewFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Per option, write which criteria hold and which
 fail, with the evidence you checked. Then your near-miss corrections. Then your verdict on any termination
 claim: the avenue still open WITH its citation, or that the claim holds.${det ? ` Then any defect in ${DETERMINATION}.` : ''}
 Do NOT modify any repo, stage, or commit.

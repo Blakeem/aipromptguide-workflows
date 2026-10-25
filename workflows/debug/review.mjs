@@ -268,6 +268,10 @@ const BEST_FIX = 'the best long-term result: correct, simple, maintainable and c
 const FIX_DIRECTION = PROACTIVE ? `a suggested_fix direction with ${BEST_FIX}` : 'a minimal suggested_fix direction';
 const ROUTED_FIX_LINE = PROACTIVE ? `a precise **Fix:** line that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal **Fix:** line';
 const TEMPLATE_FIX_LINE = PROACTIVE ? `a precise instruction for the fixer that prescribes the fix with ${BEST_FIX}` : 'a precise, minimal instruction for the fixer';
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
+// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 
 // =============================================================================
 // Review-phase prompts
@@ -301,7 +305,7 @@ RULES:
   and ${FIX_DIRECTION}.${handled.length ? `\n\nALREADY FOUND in a prior pass:\n${handled.map((t) => `  - ${t}`).join('\n')}` : ''}
 ${cleanEligible ? `
 CLEAN-UNIT MARKER: if AND ONLY IF you find ZERO ${REVIEW_SEV_NAME}+ findings, WRITE the file ${issueFile(unit.id)} (create
-${ISSUES_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
+${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 unit: ${unit.id}
@@ -385,7 +389,7 @@ An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICA
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
 
-WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed) in EXACTLY this format:
+WRITE the inventory file ${issueFile(unit.id)} (create ${ISSUES_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Its format is EXACTLY this:
 -----
 ---
 unit: ${unit.id}

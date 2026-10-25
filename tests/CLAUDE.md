@@ -117,6 +117,18 @@ is invisible to the sweep.
 **Write-confirmation asymmetry.** If one role's schema has `wrote_file` and its siblings don't, the ones
 without can report success having written nothing. Make the set consistent.
 
+**A relaunch's file is a file the agent has not read.** A relaunch with the same `runId` writes to
+the paths the earlier launch used, and the Write tool refuses to overwrite a file the agent has not
+read. An agent that ignores the refusal still returns `wrote_file: true`, and the next stage's agent
+reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
+`WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, and `WROTE_NOTE`
+sits once in each prompt whose return attests a file the agent writes with the Write tool. Two
+returns fall outside that rule and carry no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit
+count, and develop's park patch, which a shell redirect writes and the park prompt confirms
+non-empty. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and
+docs' gatherer capture files. Each engine's test counts both notes in each such
+prompt through `pinWriteNotes`, so a new write site needs a row there.
+
 **Prose-sniffing for control flow.** `status = haltReason.includes('needs user') ? … : …` silently
 reports the wrong thing the moment someone adds a halt reason. Set an explicit `haltKind` at every halt
 site and map it. feature did this; migrate had to catch up.

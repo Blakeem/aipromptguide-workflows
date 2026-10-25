@@ -187,6 +187,11 @@ THE TARGET REPO (read-only - grep it): ${REPO}  (lang=${TARGET.lang ?? '?'}, fra
 CONVENTIONS the plan must fit: ${CONVENTIONS}
 ${REFERENCE_P ? `REFERENCE - a completed example the plan should mirror: ${REFERENCE_P}\n` : ''}`;
 
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
+// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+
 // =============================================================================
 // Role prompts
 // =============================================================================
@@ -279,7 +284,7 @@ WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole r
 "CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked \`USER-RULED:\` is the user's
 own ruling: never contest it.
 
-WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed) and put EVERYTHING there VERBATIM, since it
+WRITE ${critiqueFile(round)} (create ${STATE_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Put EVERYTHING there VERBATIM, since it
 is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section. Per gap: the block
 id, which of the four classes it is, its grade, its evidence with the plan line quoted verbatim, EXACTLY ONE
 smallest change that closes it (never alternatives), and the number of every other gap whose change touches
@@ -332,6 +337,7 @@ PROCEDURE:
    landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
    exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
+${WROTE_NOTE}
 Return via the schema.`;
 
 // =============================================================================

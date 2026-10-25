@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 3761 | two lenses propose |
-| verify | 1 | 1 | 7415 | two lenses propose |
-| verify | 2 | 1 | 7443 | two lenses propose |
+| find | 1 | 1 | 4078 | two lenses propose |
+| verify | 1 | 1 | 7735 | two lenses propose |
+| verify | 2 | 1 | 7763 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -65,7 +65,7 @@ RULES:
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
 CLEAN-LENS MARKER: if AND ONLY IF you have ZERO candidates, WRITE the file E:/flow/runs/flow/proposals/efficiency.md
-(create E:/flow/runs/flow/proposals/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
+(create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 lens: efficiency
@@ -254,7 +254,7 @@ ROUTING (apply in order; first match wins):
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short `theme` keyword per verdict.
 
-WRITE the proposal file E:/flow/runs/flow/proposals/efficiency.md (create E:/flow/runs/flow/proposals/ if needed) in EXACTLY this format:
+WRITE the proposal file E:/flow/runs/flow/proposals/efficiency.md (create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
 lens: efficiency
@@ -459,7 +459,7 @@ ROUTING (apply in order; first match wins):
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short `theme` keyword per verdict.
 
-WRITE the proposal file E:/flow/runs/flow/proposals/simplification.md (create E:/flow/runs/flow/proposals/ if needed) in EXACTLY this format:
+WRITE the proposal file E:/flow/runs/flow/proposals/simplification.md (create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
 lens: simplification

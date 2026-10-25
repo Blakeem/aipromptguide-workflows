@@ -83,7 +83,7 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 91) |
 | throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 367) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 373) |
 
 ## Coverage
 

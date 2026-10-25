@@ -6,46 +6,46 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 24059 | every block accepts first time |
-| quality | 1 | 1 | 8380 | every block accepts first time |
-| acceptance | 1 | 1 | 11663 | every block accepts first time |
-| develop | 2 | 1 | 24484 | every block accepts first time |
-| acceptance | 2 | 2 | 11944 | every block accepts first time |
-| final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 24700 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 1 | 11539 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 2921 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 23583 | quality flags the first round |
-| acceptance | 4 | 1 | 11662 | quality flags the first round |
-| develop | 5 | 1 | 23953 | quality flags the first round |
-| acceptance | 5 | 2 | 11943 | quality flags the first round |
-| develop | 6 | 1 | 23579 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 11660 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 23949 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 11941 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 13421 | a later round is judged low risk |
-| acceptance | 9 | 2 | 13702 | a later round is judged low risk |
-| develop | 8 | 1 | 23509 | the gate never goes green |
-| develop-closing | 1 | 1 | 24735 | the gate never goes green |
+| develop | 1 | 1 | 24172 | every block accepts first time |
+| quality | 1 | 1 | 8894 | every block accepts first time |
+| acceptance | 1 | 1 | 12139 | every block accepts first time |
+| develop | 2 | 1 | 24597 | every block accepts first time |
+| acceptance | 2 | 2 | 12420 | every block accepts first time |
+| final-sweep | 1 | 1 | 3254 | every block accepts first time |
+| develop | 3 | 1 | 24813 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 1 | 12015 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 3245 | a feature block accepts under the proactive policy |
+| develop | 4 | 1 | 23696 | quality flags the first round |
+| acceptance | 4 | 1 | 12138 | quality flags the first round |
+| develop | 5 | 1 | 24066 | quality flags the first round |
+| acceptance | 5 | 2 | 12419 | quality flags the first round |
+| develop | 6 | 1 | 23692 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 12136 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 24062 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 12417 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 13897 | a later round is judged low risk |
+| acceptance | 9 | 2 | 14178 | a later round is judged low risk |
+| develop | 8 | 1 | 23622 | the gate never goes green |
+| develop-closing | 1 | 1 | 24848 | the gate never goes green |
 | park | 1 | 1 | 5936 | the gate never goes green |
-| develop | 9 | 1 | 23934 | the gate never goes green |
-| develop-closing | 2 | 1 | 25105 | the gate never goes green |
-| acceptance | 10 | 1 | 11715 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 11770 | a parked block, and the run carries on |
-| acceptance | 12 | 1 | 11825 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 24828 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 13707 | a parked block, and the run carries on |
+| develop | 9 | 1 | 24047 | the gate never goes green |
+| develop-closing | 2 | 1 | 25218 | the gate never goes green |
+| acceptance | 10 | 1 | 12191 | a parked block, and the run carries on |
+| acceptance | 11 | 1 | 12246 | a parked block, and the run carries on |
+| acceptance | 12 | 1 | 12301 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 24941 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 14183 | a parked block, and the run carries on |
 | park | 2 | 1 | 6222 | a parked block, and the run carries on |
 | park | 3 | 1 | 6273 | an ordered run stops at a parked block |
-| develop | 10 | 2 | 25799 | a fix block closes its issues |
-| acceptance | 14 | 3 | 14979 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 2921 | a fix block closes its issues |
-| develop | 11 | 2 | 26315 | a fix block closes its issues under the proactive policy |
-| acceptance | 15 | 3 | 14985 | a fix block closes its issues under the proactive policy |
-| develop | 12 | 2 | 26156 | a pass of two fix blocks closes its issues |
-| acceptance | 16 | 3 | 15302 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 2951 | a pass of two fix blocks closes its issues |
-| acceptance | 17 | 3 | 14978 | every issue is already fixed |
+| develop | 10 | 2 | 25912 | a fix block closes its issues |
+| acceptance | 14 | 3 | 15455 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 3245 | a fix block closes its issues |
+| develop | 11 | 2 | 26428 | a fix block closes its issues under the proactive policy |
+| acceptance | 15 | 3 | 15461 | a fix block closes its issues under the proactive policy |
+| develop | 12 | 2 | 26269 | a pass of two fix blocks closes its issues |
+| acceptance | 16 | 3 | 15778 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 3275 | a pass of two fix blocks closes its issues |
+| acceptance | 17 | 3 | 15454 | every issue is already fixed |
 | park | 4 | 1 | 6081 | passed with a regression, not staged |
 | park | 5 | 1 | 5996 | acceptance stages a rejected block |
 | park | 6 | 1 | 5916 | the quality reviewer fails a block without its file |
@@ -54,22 +54,22 @@ this file is stale.
 | park | 9 | 1 | 5840 | the developer dies |
 | park | 10 | 1 | 5910 | developer escalates |
 | park | 11 | 1 | 5951 | developer escalates in an ordered run |
-| develop | 13 | 1 | 25155 | a parked block is continued from its patch |
-| acceptance | 18 | 1 | 11942 | a parked block is continued from its patch |
-| acceptance | 19 | 1 | 13487 | a closing pass reaches acceptance |
-| develop-closing | 4 | 1 | 25198 | a closing pass reaches acceptance |
-| acceptance | 20 | 2 | 13768 | a closing pass reaches acceptance |
+| develop | 13 | 1 | 25268 | a parked block is continued from its patch |
+| acceptance | 18 | 1 | 12418 | a parked block is continued from its patch |
+| acceptance | 19 | 1 | 13963 | a closing pass reaches acceptance |
+| develop-closing | 4 | 1 | 25311 | a closing pass reaches acceptance |
+| acceptance | 20 | 2 | 14244 | a closing pass reaches acceptance |
 | park | 12 | 1 | 6257 | a closing pass records a fix that needs review |
 | park | 13 | 1 | 6257 | a closing pass records a fix that needs review |
-| develop | 14 | 3 | 24230 | every block commits first time |
-| quality | 2 | 1 | 8333 | every block commits first time |
-| acceptance | 21 | 4 | 13073 | every block commits first time |
-| develop | 15 | 3 | 24655 | every block commits first time |
-| acceptance | 22 | 5 | 13354 | every block commits first time |
-| final-sweep | 5 | 1 | 3242 | every block commits first time |
-| develop | 16 | 4 | 25970 | a fix block commits |
-| acceptance | 23 | 6 | 16389 | a fix block commits |
-| final-sweep | 6 | 1 | 3149 | a fix block commits |
+| develop | 14 | 3 | 24343 | every block commits first time |
+| quality | 2 | 1 | 8847 | every block commits first time |
+| acceptance | 21 | 4 | 13662 | every block commits first time |
+| develop | 15 | 3 | 24768 | every block commits first time |
+| acceptance | 22 | 5 | 13943 | every block commits first time |
+| final-sweep | 5 | 1 | 3566 | every block commits first time |
+| develop | 16 | 4 | 26083 | a fix block commits |
+| acceptance | 23 | 6 | 16978 | a fix block commits |
+| final-sweep | 6 | 1 | 3473 | a fix block commits |
 | park | 14 | 1 | 6304 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
@@ -210,7 +210,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -443,7 +443,7 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
-Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there, and E:/flow/runs/flow/gate/quality-review-block-a-r1.md only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
@@ -458,7 +458,7 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
 "CONTESTS DISMISSAL:", explaining why the reason does not hold.
@@ -533,8 +533,8 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
-highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
@@ -607,7 +607,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -685,7 +686,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -906,7 +907,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -1166,7 +1167,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -1247,7 +1249,7 @@ PROCEDURE:
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -1363,7 +1365,7 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
@@ -1540,7 +1542,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -1805,7 +1807,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -1883,7 +1886,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -1999,7 +2002,7 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
@@ -2168,7 +2171,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -2428,7 +2431,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -2506,7 +2510,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -2721,7 +2725,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -2981,7 +2985,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -3062,7 +3067,7 @@ PROCEDURE:
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -3273,7 +3278,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -3533,7 +3538,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -3611,7 +3617,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -3826,7 +3832,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -4086,7 +4092,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -4167,7 +4174,7 @@ PROCEDURE:
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4283,7 +4290,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -4383,7 +4391,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4499,7 +4507,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -4602,7 +4611,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -4813,7 +4822,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -5179,7 +5188,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -5657,7 +5666,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -6027,7 +6036,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -6296,7 +6305,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -6375,7 +6385,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -6491,7 +6501,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -6571,7 +6582,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -6687,7 +6698,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -6768,7 +6780,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -6991,7 +7003,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -7260,7 +7272,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -7364,7 +7377,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -7830,7 +7843,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -8118,7 +8131,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
@@ -8222,7 +8236,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -8366,7 +8380,7 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
@@ -8556,7 +8570,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -8849,7 +8863,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     PROACTIVE line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
@@ -8953,7 +8968,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -9214,7 +9229,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -9505,7 +9520,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
@@ -9612,7 +9628,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -9756,7 +9772,7 @@ PROCEDURE (read-only except step 4):
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
@@ -9831,7 +9847,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
@@ -9935,7 +9952,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -11074,7 +11091,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -11334,7 +11351,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -11414,7 +11432,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -11530,7 +11548,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -11630,7 +11649,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -11857,7 +11876,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -12126,7 +12145,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -12229,7 +12249,7 @@ RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -12677,7 +12697,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -12915,7 +12935,7 @@ You are a CODE CRITIC. You have NO information about what this code is for or sh
 spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
-Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there, and E:/flow/runs/flow/gate/quality-review-block-a-r1.md only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
@@ -12930,7 +12950,7 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.
-Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files. Review the CURRENT
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
 If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
 "CONTESTS DISMISSAL:", explaining why the reason does not hold.
@@ -13005,8 +13025,8 @@ cited by line. Those four checks and the nit list bound your review of such a hu
 A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
 with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
 
-WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed), grouped by tier,
-highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
 harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
@@ -13079,7 +13099,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -13157,7 +13178,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -13172,7 +13193,7 @@ PROCEDURE:
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
    "block-a", decoded, as the one line of E:/flow/runs/flow/commit-block-a.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. Run `git -C E:/repo write-tree` and keep the
+   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
    tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-a.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
    signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-a-r1.md, leave the work staged, and
@@ -13416,7 +13437,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 6. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -13681,7 +13702,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
@@ -13762,7 +13784,7 @@ PROCEDURE:
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
    regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
@@ -13777,7 +13799,7 @@ PROCEDURE:
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
    "block-b", decoded, as the one line of E:/flow/runs/flow/commit-block-b.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. Run `git -C E:/repo write-tree` and keep the
+   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
    tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-b.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
    signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-b-r1.md, leave the work staged, and
@@ -13918,7 +13940,7 @@ PROCEDURE (read-only except step 4):
      block-b: `git -C E:/repo show --stat b1c2d3e4f5061728394a5b6c7d8e9f0123456789`
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
@@ -14109,7 +14131,7 @@ CHECKLIST:
     query or page, a secret reaching a log, result or error;
   - maintainability: the nit list in the scale above.
 7. CLASSIFY: judge the risk of each change this round made, in any phase, under the RISK
-   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). Its first line is
+   QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
    needed) and never the real index. The last command prints the tree id:
@@ -14402,7 +14424,8 @@ Before reviewing, READ these if they exist. They hold the settled decisions:
     FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
 diff FRESH, catching new or nearby issues. Read prior review files only at your
-EARLIER FINDINGS step below.
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
@@ -14506,7 +14529,7 @@ PROCEDURE:
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
-7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8: the
+7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
    each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
@@ -14525,7 +14548,7 @@ PROCEDURE:
    • Otherwise → return pass=false (do NOT stage or commit, and return committed=false and commit_sha ""); the gaps you wrote drive the next develop round.
 9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
    "block-c", decoded, as the one line of E:/flow/runs/flow/commit-block-c.txt (create E:/flow/runs/flow/
-   if needed), with no quotes, no other line and no trailer. Run `git -C E:/repo write-tree` and keep the
+   if needed), with no quotes, no other line and no trailer. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Run `git -C E:/repo write-tree` and keep the
    tree id it prints. Run `git -C E:/repo commit -F E:/flow/runs/flow/commit-block-c.txt`.
    Never pass `--no-verify`, `--no-gpg-sign` or `--amend`. When the commit fails, such as when a hook or
    signing refuses it, append its full output to E:/flow/runs/flow/acceptance-review-block-c-r1.md, leave the work staged, and
@@ -14689,7 +14712,7 @@ PROCEDURE (read-only except step 4):
      block-c: `git -C E:/repo show --stat c1d2e3f405162738495a6b7c8d9e0f1234567890`
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
-4. WRITE E:/flow/runs/flow/SWEEP.md: the suite result, then each gap (title + file:line evidence + a suggested
+4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it

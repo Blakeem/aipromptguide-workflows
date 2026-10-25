@@ -193,6 +193,10 @@ const CURATE_SCHEMA = {
 // =============================================================================
 // Shared fragment + role prompts
 // =============================================================================
+// A relaunch into the same outDir finds the earlier launch's files, and the Write tool refuses to overwrite
+// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
 // Named fragments so the scrubber, which judges no relevance, can take the rules without the brief.
 const BRIEF_LINE = `PROJECT BRIEF (what the docs are FOR, so it decides relevance): ${B_REF}`;
 const VERBATIM_RULE = `VERBATIM RULE: doc content is COPIED, SPLIT, and DELETED — never rewritten, paraphrased, or summarized.
@@ -222,7 +226,9 @@ PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
 2. Copy what you keep VERBATIM into ${OUT_DIR}/${src.id}/ (create it): one kebab-case .md file per
-   page/topic, each with its source header.
+   page/topic, each with its source header. ${REPLACE_NOTE} Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+   ${WROTE_NOTE}
 Return files_written + skipped via the schema.`;
 
 const scrubPrompt = (src) => `
@@ -266,7 +272,7 @@ JOBS (in order):
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write ${INDEX_FILE}: one line per file (path — what it covers — when to read it), then a
+3. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
 ${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. ${round > 1 ? `This round,

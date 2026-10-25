@@ -11,7 +11,7 @@
 // ordering those tables cannot see — the throw lands before the first opus critic is ever spawned.
 import { readFileSync } from 'node:fs';
 import { runEngine, runTrace, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
@@ -565,3 +565,14 @@ await pinRoleMaps({
   engine: ENGINE, name: 'refine', defaults: { critic: 'opus', editor: 'opus' },
   runs: [{ args: { ...baseArgs, maxRounds: 1 }, respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, labels: { critic: 'plan-critic', editor: 'plan-editor' } }],
 });
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const { prompt } = await run({ 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, { ...baseArgs, maxRounds: 1 });
+  const sites = [
+    ["the critic's critique file", prompt('plan-critic'), 1, 1],
+    ["the editor's plan edits", prompt('plan-editor'), 0, 1],
+  ];
+  pinWriteNotes(sites);
+}

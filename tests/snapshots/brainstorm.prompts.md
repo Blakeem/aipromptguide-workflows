@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| generate | 1 | 1 | 1164 | three lenses |
-| generate | 2 | 1 | 1176 | three lenses |
+| generate | 1 | 1 | 1494 | three lenses |
+| generate | 2 | 1 | 1506 | three lenses |
 
 ## generate · variant 1 · schema 1
 
@@ -32,7 +32,7 @@ PROCEDURE:
    the lens's influence obvious and concrete.
 2. WRITE it into E:/flow/runs/flow/variations/minimalist/ (create it): the main artifact at
    E:/flow/runs/flow/variations/minimalist/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it.
+   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.
@@ -81,7 +81,7 @@ PROCEDURE:
    the lens's influence obvious and concrete.
 2. WRITE it into E:/flow/runs/flow/variations/bold-editorial/ (create it): the main artifact at
    E:/flow/runs/flow/variations/bold-editorial/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
-   files alongside it.
+   files alongside it. For each file: The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.

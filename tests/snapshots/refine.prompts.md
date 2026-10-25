@@ -6,8 +6,8 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 8872 | a clean first round |
-| plan-editor | 1 | 1 | 3145 | gaps folded, then a clean round |
+| plan-critic | 1 | 1 | 9184 | a clean first round |
+| plan-editor | 1 | 1 | 3347 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
 
@@ -104,7 +104,7 @@ WRONG and the gap genuinely clears the defect bar, raise it ONCE for the whole r
 "CONTESTS DISMISSAL:", saying why the reason does not hold. A line marked `USER-RULED:` is the user's
 own ruling: never contest it.
 
-WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed) and put EVERYTHING there VERBATIM, since it
+WRITE E:/flow/runs/flow-refine/plan-critique-1.md (create E:/flow/runs/flow-refine/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Put EVERYTHING there VERBATIM, since it
 is your ONLY channel to the editor: a numbered GAPS section, then a QUESTIONS section. Per gap: the block
 id, which of the four classes it is, its grade, its evidence with the plan line quoted verbatim, EXACTLY ONE
 smallest change that closes it (never alternatives), and the number of every other gap whose change touches
@@ -196,6 +196,7 @@ PROCEDURE:
    landing at the top of a block BODY joins the preamble run and throws as an unrecognized key. Non-zero
    exit: FIX the file and re-run until it exits 0. Report plan_parses=false only if you could not.
 Do NOT modify the target repo. Do NOT stage or commit anything.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return via the schema.
 ~~~~
 

@@ -6,13 +6,13 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| gather | 1 | 1 | 1391 | two sources, one round |
-| gather | 2 | 1 | 1391 | two sources, one round |
+| gather | 1 | 1 | 1814 | two sources, one round |
+| gather | 2 | 1 | 1814 | two sources, one round |
 | scrub | 1 | 1 | 1132 | two sources, one round |
-| curate | 1 | 1 | 3993 | two sources, one round |
-| gather | 3 | 1 | 1398 | gap-fill round |
-| curate | 2 | 1 | 4574 | gap-fill round |
-| gather | 4 | 1 | 1379 | a repo source skips the scrubber |
+| curate | 1 | 1 | 4317 | two sources, one round |
+| gather | 3 | 1 | 1821 | gap-fill round |
+| curate | 2 | 1 | 4898 | gap-fill round |
+| gather | 4 | 1 | 1802 | a repo source skips the scrubber |
 
 ## gather · variant 1 · schema 1
 
@@ -39,7 +39,9 @@ PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/api-reference/ (create it): one kebab-case .md file per
-   page/topic, each with its source header.
+   page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return files_written + skipped via the schema.
 ~~~~
 
@@ -87,7 +89,9 @@ PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/release-notes/ (create it): one kebab-case .md file per
-   page/topic, each with its source header.
+   page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return files_written + skipped via the schema.
 ~~~~
 
@@ -188,7 +192,7 @@ JOBS (in order):
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write E:/flow/runs/flow/docs/INDEX.md: one line per file (path — what it covers — when to read it), then a
+3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
 4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. Pick up to 3 captured file(s), preferring first any file that reads as
@@ -306,7 +310,9 @@ PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/webhook-signature-verification/ (create it): one kebab-case .md file per
-   page/topic, each with its source header.
+   page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return files_written + skipped via the schema.
 ~~~~
 
@@ -373,7 +379,7 @@ JOBS (in order):
 2. CHECK — as you read, record: (a) INCONSISTENCIES between sources — version mismatches, contradicting
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
-3. INDEX — write E:/flow/runs/flow/docs/INDEX.md: one line per file (path — what it covers — when to read it), then a
+3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds one line per file (path — what it covers — when to read it), then a
    "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
 4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. This round,
@@ -495,7 +501,9 @@ PROCEDURE:
 1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
    versions, features the brief does not touch.
 2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/sdk-readme/ (create it): one kebab-case .md file per
-   page/topic, each with its source header.
+   page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Return files_written + skipped via the schema.
 ~~~~
 

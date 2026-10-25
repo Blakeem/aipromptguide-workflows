@@ -103,9 +103,9 @@ flowchart TD
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 74) |
 | throw: args.planPath is required | args carry no planPath | throw (line 103) |
 | throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 112) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 447) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 520) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 548) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 455) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 528) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 556) |
 
 ## Coverage
 

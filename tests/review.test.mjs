@@ -2,7 +2,7 @@
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
 // issue file the verifier writes, the triaged inventory a develop fix-mode block is built from.
 import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
@@ -683,3 +683,15 @@ await pinRoleMaps({
     labels: { review: 'review', verify: 'verify' },
   }],
 });
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const clean = await run({}, { review: NO_FINDINGS });
+  const verified = await run({}, { review: { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] }, verify: { wrote_file: true, verdicts: [keep('u1-1')] } });
+  const sites = [
+    ['the clean-unit marker', clean.prompt('review'), 1, 1],
+    ["the verifier's inventory file", verified.prompt('verify'), 1, 1],
+  ];
+  pinWriteNotes(sites);
+}

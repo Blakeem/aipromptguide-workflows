@@ -7,7 +7,7 @@
 // cap IS the churn detector), and none of this may move it. Round 1 runs three focused reviewers, later
 // rounds one verifier, and only a BLOCKING gap stops agreement: a caveat reaches the plan via the return.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/decide/decide-cycle.mjs';
 
@@ -572,3 +572,17 @@ await pinRoleMaps({
   engine: ENGINE, name: 'decide', defaults: { analyst: 'sonnet', decide: 'opus', review: 'opus' },
   runs: [{ args: baseArgs, respond: { analyst: ANALYST, decide: DECIDE, review: AGREE }, labels: { analyst: 'analyst', decide: 'decide', review: 'review' } }],
 });
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const single = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
+  const ranked = await run({ analyst: ANALYST, decide: { ...DECIDE, shortlist: ['in-process LRU'] }, review: AGREE }, RANKED);
+  const sites = [
+    ['the analyst lens file', single.prompt('analyst'), 1, 1],
+    ['the single-choice decision file', single.prompt('decide'), 1, 1],
+    ['the ranked decision file', ranked.prompt('decide'), 1, 1],
+    ['the round 1 review file', single.prompt('review r1'), 1, 1],
+  ];
+  pinWriteNotes(sites);
+}

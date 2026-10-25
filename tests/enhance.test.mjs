@@ -4,7 +4,7 @@
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
 // produced nothing because nobody looked — assert it for BOTH stages, or the guards drift apart.
 import { runEngine, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/enhance/enhance-cycle.mjs';
 const baseArgs = {
@@ -287,3 +287,15 @@ await pinRoleMaps({
   engine: ENGINE, name: 'enhance', defaults: { find: 'opus', verify: 'opus' },
   runs: [{ args: baseArgs, respond: { find: FOUND, verify: VERIFIED }, labels: { find: 'find', verify: 'verify' } }],
 });
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const found = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'] }, respond: { find: { wrote_clean_marker: true, candidates: [] } } });
+  const verified = await runEngine(ENGINE, { args: baseArgs, respond: { find: FOUND, verify: VERIFIED } });
+  const sites = [
+    ['the clean-lens marker', found.prompt('find'), 1, 1],
+    ["the verifier's proposal file", verified.prompt('verify'), 1, 1],
+  ];
+  pinWriteNotes(sites);
+}

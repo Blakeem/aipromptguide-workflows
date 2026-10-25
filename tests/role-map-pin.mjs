@@ -1,6 +1,5 @@
-// Shared by each engine's test file: pins what an engine promises for its `models` and `efforts` args.
-// A role's agents carry the role's effort, an unset effort passes high, a launch line names every role,
-// and each bad shape, key or value throws before any agent runs.
+// Shared by each engine's test file: `pinRoleMaps` pins what an engine promises for its `models` and `efforts` args,
+// and `pinWriteNotes` pins the relaunch notes in each prompt that writes a file.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
 
 const EFFORT_CYCLE = ['low', 'medium', 'xhigh', 'max'];
@@ -10,6 +9,8 @@ const LEGAL = {
 };
 
 /**
+ * A role's agents carry the role's effort, an unset effort passes high, a launch line names every role,
+ * and each bad shape, key or value throws before any agent runs.
  * @param {object} spec
  * @param {string} spec.engine    engine path
  * @param {string} spec.name      the launch line's prefix, such as 'refine'
@@ -74,5 +75,20 @@ export async function pinRoleMaps({ engine, name, defaults, runs }) {
     ok(value.includes(`args.${arg}.${keys[0]} is "${bad}"`) && value.includes(set), `${arg} value ${bad} throws naming the role, the value and the legal set: ${value.slice(0, 90)}`);
     const inherited = await throwsWith(engine, { args: { ...runs[0].args, [arg]: { [keys[0]]: 'constructor' } }, respond: {} });
     ok(inherited.includes(`args.${arg}.${keys[0]} is "constructor"`), `a value named like an inherited member throws: ${inherited.slice(0, 70)}`);
+  }
+}
+
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+
+/**
+ * Pins the two relaunch notes in each prompt that writes a file.
+ * @param {Array<[string, string, number, number]>} sites  [where, prompt text, REPLACE_NOTE count, WROTE_NOTE count]
+ */
+export function pinWriteNotes(sites) {
+  const times = (text, needle) => text.split(needle).length - 1;
+  for (const [where, text, replaces, wrotes] of sites) {
+    eq(times(text, REPLACE_NOTE), replaces, `${where}: the prompt carries the Read-first note at each write site`);
+    eq(times(text, WROTE_NOTE), wrotes, `${where}: the prompt carries the rejected-write note`);
   }
 }

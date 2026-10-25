@@ -202,6 +202,11 @@ const VERIFY_SCHEMA = {
   },
 };
 
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite
+// a file the agent has not read. An agent that ignores the refusal reports a file it never wrote.
+const REPLACE_NOTE = "The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content.";
+const WROTE_NOTE = 'A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.';
+
 // =============================================================================
 // Shared prompt fragment
 // =============================================================================
@@ -257,7 +262,7 @@ RULES:
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
 CLEAN-LENS MARKER: if AND ONLY IF you have ZERO candidates, WRITE the file ${proposalFile(lens.id)}
-(create ${PROPOSALS_DIR}/ if needed) with EXACTLY this content, then set wrote_clean_marker=true:
+(create ${PROPOSALS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
 -----
 ---
 lens: ${lens.id}
@@ -326,7 +331,7 @@ ROUTING (apply in order; first match wins):
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short \`theme\` keyword per verdict.
 
-WRITE the proposal file ${proposalFile(lens.id)} (create ${PROPOSALS_DIR}/ if needed) in EXACTLY this format:
+WRITE the proposal file ${proposalFile(lens.id)} (create ${PROPOSALS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Its format is EXACTLY this:
 -----
 ---
 lens: ${lens.id}

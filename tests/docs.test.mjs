@@ -3,7 +3,7 @@
 // visible in the log instead. Everything else about this engine is held by tools/flows/docs.flow.mjs
 // (its throw sites, both exits of the gap loop, a dead gatherer, a zero-file source).
 import { runEngine, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/docs/docs-cycle.mjs';
 
@@ -178,3 +178,14 @@ await pinRoleMaps({
   engine: ENGINE, name: 'docs', defaults: { gather: 'sonnet', scrub: 'haiku', curate: 'sonnet' },
   runs: [{ args: baseArgs, respond: { gather: GATHER, scrub: { files_cleaned: 1 }, curate: CURATE }, labels: { gather: 'gather', scrub: 'scrub', curate: 'curate' } }],
 });
+
+// A relaunch into the same outDir finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const { prompt } = await run({ gather: GATHER, scrub: { files_cleaned: 1 }, curate: CURATE });
+  const sites = [
+    ["the gatherer's capture files", prompt('gather'), 1, 1],
+    ["the curator's index file", prompt('curate'), 1, 1],
+  ];
+  pinWriteNotes(sites);
+}

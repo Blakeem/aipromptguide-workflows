@@ -16,6 +16,7 @@ import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
+import { pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/develop/develop-cycle.mjs';
 
@@ -1946,9 +1947,10 @@ section('the quality reviewer is blind BY PLACEMENT: no run-state path outside g
   // Blindness is placement AND instruction: a fix block's plan file IS an issue inventory.
   ok(q.includes(`Never open a plan file, an issue inventory, or any run-state path outside ${STATE}/gate/.`),
     'and it is told never to open a plan file, an inventory or run-state outside gate/');
-  // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read.
-  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Read only ${STATE}/gate/DISMISSED-block-a.md there.`),
-    'and it is told gate/ holds other blocks\' files and to read only its own DISMISSED file there');
+  // gate/ is shared by every block, so its own DISMISSED file is the one gate/ file it may read. Its own
+  // review file is readable only at the WRITE step, where the Write tool needs a prior read to overwrite it.
+  ok(q.replace(/\s+/g, ' ').includes(`${STATE}/gate/ also holds other blocks' review and DISMISSED files. Read only ${STATE}/gate/DISMISSED-block-a.md there, and ${STATE}/gate/quality-review-block-a-r1.md only at the WRITE step`),
+    'and it is told gate/ holds other blocks\' files and to read only its own DISMISSED file there, plus its own review file at the WRITE step');
   const a = (await run(GREEN_RUN)).prompt('acceptance block-a');
   ok(a.includes(`${STATE}/gate/DISMISSED-block-a.md`) && a.includes(`${STATE}/NEEDS-USER.md`)
     && a.includes(`${STATE}/DECISIONS.md`),
@@ -2318,6 +2320,9 @@ section('acceptance re-checks every earlier review file of its block, and only t
   ok(accPrompts.length > 0 && accPrompts.every((p) => p.includes('Review the CURRENT diff FRESH, catching new or nearby issues. '
     + 'Read prior review files only at your EARLIER FINDINGS step below.')),
     'every acceptance prompt keeps the fresh-review sentence and points at its EARLIER FINDINGS step');
+  ok(accPrompts.every((p) => p.includes('The one exception is the file the WRITE step names. Read it only at the WRITE step, '
+    + 'so the Write tool accepts the overwrite, and never use its content.')),
+    'every acceptance prompt carves out the WRITE step file, read only to overwrite and never used');
   ok(/residual path goes in your review file at step 7\./.test(fixBus.prompt('acceptance fix-a')),
     'fix: step 1 points at the renumbered WRITE step');
 
@@ -3826,4 +3831,23 @@ section('every prompt and halt names the accepted baseline in its mode\'s own te
   const none = await run({}, { ...COMMIT_ONE, plans: [{ ...C_BLOCK, status: 'done' }] });
   ok(nextOf(none.out).includes('(run the full gates, `git -C E:/repo log --stat`).') && !nextOf(none.out).includes('and commit.'),
     'the commit-mode nothing-to-run terminal verifies by the log and never says to commit');
+}
+
+// ---------------------------------------------------------------------------------------------
+// A relaunch with the same runId finds the earlier launch's round files
+// ---------------------------------------------------------------------------------------------
+section('every develop prompt that writes a round file says to Read an earlier launch\'s file first, and a rejected write is not a write');
+{
+  const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
+  const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE);
+  const commit = await run(C_RUN, COMMIT_ONE);
+  const sites = [
+    ['the developer risk file', flat(feat.prompt('develop block-a r1')), 1, 0],
+    ['the blind quality file', flat(feat.prompt('quality block-a r1')), 1, 1],
+    ['the feature-mode acceptance file', flat(feat.prompt('acceptance block-a r1')), 1, 1],
+    ['the fix-mode acceptance file', flat(fix.prompt('acceptance fix-a r1')), 1, 1],
+    ['the sweep file', flat(feat.prompt('final-sweep')), 1, 1],
+    ['the commit message file', flat(commit.prompt('acceptance block-a r1')), 2, 1],
+  ];
+  pinWriteNotes(sites);
 }

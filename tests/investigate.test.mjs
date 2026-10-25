@@ -6,7 +6,7 @@
 // the critic gate, dead agents (a dead investigator must never read as an exhausted search), and what the
 // prompts actually name.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
-import { pinRoleMaps } from './role-map-pin.mjs';
+import { pinRoleMaps, pinWriteNotes } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 
@@ -1075,3 +1075,16 @@ await pinRoleMaps({
     { args: baseArgs, respond: { investigate: { ...INV, option_ids: ['opt-a'] }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] } }, labels: { investigate: 'investigate', critique: 'critique' } },
   ],
 });
+
+// A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
+section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
+{
+  const { prompt } = await run({ investigate: { ...INV, option_ids: ['opt-a'] }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] } });
+  const sites = [
+    ["the investigator's options and determination files", prompt('investigate r1'), 2, 1],
+    ["the critic's review file", prompt('critique r1'), 1, 1],
+  ];
+  pinWriteNotes(sites);
+  ok(prompt('investigate r1').replace(/\s+/g, ' ').includes('rewriting an unverified file (no verdict line, or one naming round 1 or later) for the same candidate'),
+    'the options-file slug rule lets a relaunch rewrite an unverified file of the same candidate');
+}
