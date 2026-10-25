@@ -127,7 +127,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    — or, from the installed aipg plugin, the persistent data dir the skill resolves, never the
    version-swapped install dir — so run-state lands outside the target repo), `target.repo` (absolute),
    `gates`, and `conventions` (the project's CLAUDE.md distilled to ~10 lines — the reviewer's rubric).
-   Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, and pass it.
+   Choose `changePolicy` as `../develop/CLAUDE.md` §4 "Choosing the change policy" says, which settles
+   `auto` into `focused` or `proactive` for the run, and pass it.
 3. **Run `review.mjs`** (`scriptPath` = its absolute path) from a notification turn (root `CLAUDE.md`,
    "Launch from a notification turn"). It writes `issues/<unit>.md` per unit and
    returns counts + the hottest areas + `needsUserFiles`. When the return's `failed` lists units to

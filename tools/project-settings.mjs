@@ -2,14 +2,14 @@
 // the folder that holds the project's backlog.
 //
 // The store is <root>/projects.json, a JSON object that maps a repo key to the repo's settings, an object whose
-// optional fields are `changePolicy` (the policy develop and debug take, focused or proactive), `commit` (a
+// optional fields are `changePolicy` (focused, proactive or auto, where auto leaves the run's pick to Claude), `commit` (a
 // boolean, whether develop commits each accepted block) and `models` and `efforts` (each maps a role key to the
 // model or reasoning level develop gives that role). The key is the repo's main checkout, so a linked worktree
 // shares its settings and its backlog folder.
 //
 //   node tools/project-settings.mjs check --root <dir> --repo <dir>      # "<policy> <key>" or "missing <key> recommend=<policy>"
 //   node tools/project-settings.mjs backlog --root <dir> --repo <dir>    # "<root>/backlog/<project>/"
-//   node tools/project-settings.mjs set --root <dir> --repo <dir> [--policy focused|proactive] [--commit on|off]
+//   node tools/project-settings.mjs set --root <dir> --repo <dir> [--policy focused|proactive|auto] [--commit on|off]
 //                                                                         # "set <key> [<policy>] [commit=<on|off>] in <store>"
 //   node tools/project-settings.mjs commit --root <dir> --repo <dir>     # "on <key>", "off <key>" or "missing <key>"
 //   node tools/project-settings.mjs roles --root <dir> --repo <dir>      # {"models":{...},"efforts":{...}}
@@ -32,7 +32,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { RUN_KEYS } from './plan-block.mjs';
 import { foldsCase } from './trash.mjs';
 
-const POLICIES = ['focused', 'proactive'];
+const POLICIES = ['focused', 'proactive', 'auto'];
 // The old name of focused, which set rejects with the rename.
 const RETIRED_POLICY = 'strict';
 export const STORE_FILE = 'projects.json';
@@ -58,7 +58,7 @@ const VERBS = {
   'set-roles': { required: ['root', 'repo'], anyOf: Object.keys(ROLE_SETS) },
 };
 const USAGE = 'usage: node tools/project-settings.mjs check|backlog|commit|roles --root <dir> --repo <dir>'
-  + ' | set --root <dir> --repo <dir> [--policy focused|proactive] [--commit on|off]'
+  + ` | set --root <dir> --repo <dir> [--policy ${POLICIES.join('|')}] [--commit on|off]`
   + ' | set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]';
 const FOLDS_CASE = foldsCase(process.platform);
 
@@ -120,7 +120,7 @@ function parseArgv(argv) {
   if (Object.hasOwn(opt, 'policy') && !POLICIES.includes(opt.policy)) {
     throw new Error(opt.policy === RETIRED_POLICY
       ? `--policy "${RETIRED_POLICY}" is now named focused. Pass --policy focused.`
-      : `--policy "${opt.policy}" is neither focused nor proactive`);
+      : `--policy "${opt.policy}" is none of ${POLICIES.join(' | ')}`);
   }
   if (Object.hasOwn(opt, 'commit')) {
     if (!Object.hasOwn(COMMIT_CHOICES, opt.commit)) throw new Error(`--commit "${opt.commit}" is neither on nor off`);
@@ -212,7 +212,7 @@ function settingsProblem(key, settings) {
   const unknown = Object.keys(settings).find((field) => !SETTING_FIELDS.includes(field));
   if (unknown !== undefined) return `gives ${name} the field ${JSON.stringify(unknown)}, and the fields a repo takes are ${SETTING_FIELDS.join(', ')}`;
   if (Object.hasOwn(settings, 'changePolicy') && !POLICIES.includes(settings.changePolicy)) {
-    return `gives ${name} a changePolicy of ${JSON.stringify(settings.changePolicy)}, which is neither focused nor proactive`;
+    return `gives ${name} a changePolicy of ${JSON.stringify(settings.changePolicy)}, which is none of ${POLICIES.join(' | ')}`;
   }
   if (Object.hasOwn(settings, 'commit') && typeof settings.commit !== 'boolean') {
     return `gives ${name} a commit of ${JSON.stringify(settings.commit)}, which is neither true nor false`;

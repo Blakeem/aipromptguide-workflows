@@ -24,10 +24,12 @@ set-roles`, and the next run of that repo takes them from `project-settings.mjs 
 over the saved one.
 
 A run's `changePolicy` is `focused` by default. Claude asks which policy a repo takes the first time
-and saves the answer. The developer sorts the code into three zones. Task code is the code its block
-changes. In a fix block, it also holds every repeat of the problem each entry names. Connected code is
-the code that calls or repeats task code, and the docs that describe it. Code another block of the plan
-owns is never task or connected code. Other code is everything else.
+and saves the answer, which is `focused`, `proactive` or `auto`. With `auto`, Claude picks `focused` or
+`proactive` for each run and shows the reason in the approval summary. The developer sorts the code into
+three zones. Task code is the code its block changes. In a fix block, it also holds every repeat of the
+problem each entry names. Connected code is the code that calls or repeats task code, and the docs that
+describe it. Code another block of the plan owns is never task or connected code. Other code is everything
+else.
 
 Under both policies, the developer fixes every problem in task code at any size. It also fixes a
 problem its change causes or exposes in connected code. It never changes other code. When its change

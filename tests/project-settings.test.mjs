@@ -78,6 +78,23 @@ function withFixture(fn) {
   }
 }
 
+section('set --policy auto saves auto, check prints it in the form of the other two, and an illegal policy is still rejected');
+withFixture((fx) => {
+  const repo = fx.repo('auto');
+  const set = fx.set(repo, 'auto');
+  eq(set.code, 0, 'set --policy auto exits 0');
+  eq(set.stdout, `set ${keyOf(repo)} auto in ${fx.storePath}
+`, 'set names the key, auto and the store');
+  eq(JSON.stringify(fx.store()), JSON.stringify({ [keyOf(repo)]: { changePolicy: 'auto' } }), 'the store holds changePolicy auto');
+  eq(fx.check(repo).stdout, `auto ${keyOf(repo)}
+`, 'check prints auto <key>');
+  const bytes = readFileSync(fx.storePath, 'utf8');
+  const bad = fx.set(repo, 'automatic');
+  ok(bad.code === 1 && /--policy "automatic" is none of focused \| proactive \| auto/.test(bad.stderr),
+    `an illegal policy still exits 1 naming the cause (${bad.stderr.trim()})`);
+  eq(readFileSync(fx.storePath, 'utf8'), bytes, 'the rejected policy leaves the store unchanged');
+});
+
 section('set then check returns the saved policy, and a second repo\'s key survives the write');
 withFixture((fx) => {
   const one = fx.repo('one');
@@ -258,10 +275,10 @@ for (const [what, bytes, cause] of [
   ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object of repo settings/],
   ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
     /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, models, efforts/],
-  ['a changePolicy outside the two policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
-    /gives "E:\/x" a changePolicy of "lenient", which is neither focused nor proactive/],
+  ['a changePolicy outside the three policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
+    /gives "E:\/x" a changePolicy of "lenient", which is none of focused \| proactive \| auto/],
   ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
-    /gives "E:\/x" a changePolicy of "strict", which is neither focused nor proactive/],
+    /gives "E:\/x" a changePolicy of "strict", which is none of focused \| proactive \| auto/],
   ['a commit that is a string', '{ "E:/x": { "commit": "on" } }\n',
     /gives "E:\/x" a commit of "on", which is neither true nor false/],
   ['a commit that is null', '{ "E:/x": { "commit": null } }\n',
@@ -461,7 +478,7 @@ withFixture((fx) => {
     ['a flag with no value', ['--commit'], /--commit needs a value/],
     ['a flag given twice', ['--commit', 'on', '--commit', 'off'], /--commit was given twice/],
     ['a valid --policy and a bad --commit', ['--policy', 'proactive', '--commit', 'maybe'], /--commit "maybe" is neither on nor off/],
-    ['a bad --policy and a valid --commit', ['--commit', 'off', '--policy', 'lenient'], /--policy "lenient" is neither focused nor proactive/],
+    ['a bad --policy and a valid --commit', ['--commit', 'off', '--policy', 'lenient'], /--policy "lenient" is none of focused \| proactive \| auto/],
     ['neither flag', [], /set needs --policy or --commit/],
   ]) {
     const r = fx.setWith(repo, ...flags);
@@ -568,7 +585,7 @@ withFixture((fx) => {
   const plain = join(fx.root, 'plain');
   mkdirSync(plain);
   for (const [what, argv, cause] of [
-    ['an invalid policy', ['set', '--root', fx.state, '--repo', repo, '--policy', 'lenient'], /--policy "lenient" is neither focused nor proactive/],
+    ['an invalid policy', ['set', '--root', fx.state, '--repo', repo, '--policy', 'lenient'], /--policy "lenient" is none of focused \| proactive \| auto/],
     ['the retired policy name', ['set', '--root', fx.state, '--repo', repo, '--policy', 'strict'], /--policy "strict" is now named focused\. Pass --policy focused\./],
     ['a --repo outside any git repository', ['check', '--root', fx.state, '--repo', plain], /is not in a git repository/],
     ['a backlog --repo outside any git repository', ['backlog', '--root', fx.state, '--repo', plain], /is not in a git repository/],

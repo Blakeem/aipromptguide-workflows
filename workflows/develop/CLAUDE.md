@@ -197,20 +197,28 @@ Settle a run's policy in these steps, where `<project-settings.mjs>` is this che
 `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints the project's backlog
 folder.
 
-- A policy the user names for a run wins.
-- Otherwise, before §2 step 1, run `node <project-settings.mjs> check --root <root> --repo <target.repo>`
-  and use the policy it prints. The tool keys a repo by its main checkout, so a worktree takes its
-  main checkout's policy.
+- A policy the user names for a run wins over the saved one.
+- Otherwise, before §2 step 1, run `node <project-settings.mjs> check --root <root> --repo <target.repo>`.
+  On `focused <key>` or `proactive <key>`, use that policy. On `auto <key>`, pick `focused` or `proactive`
+  for this run as the `auto` line below says. The tool keys a repo by its main checkout, so a worktree
+  takes its main checkout's policy.
 - On `missing <key> recommend=<policy>`, ask the user once which policy the repo takes. List the
   recommended policy first, marked recommended, with one line for each policy:
-  - `focused`: working code that stays close to the task.
-  - `proactive`: the best code, with a low-risk fix of each defect noticed in the code a block's changes
-    connect to.
+  - `focused`: a light touch. Each change stays on its task. It fits production fixes that ship fast,
+    legacy code, code other developers own, and experiments such as A/B tests. It uses fewer tokens.
+  - `proactive`: takes ownership of code quality and fixes defects near the task, with a low-risk fix of
+    each defect noticed in the code a block's changes connect to. It fits code the user leads that is new
+    or actively developed, with time to test. It uses more tokens.
+  - `auto`: Claude picks per run. It picks `focused` when money or user data is at stake with little
+    time to test, when the code is old and due for replacement, or when others own it. It picks
+    `proactive` when the user is the main developer, the code is new or active, and there is time to
+    test. It asks when unsure.
 
   Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
 - When `check`, `set`, `roles` or `set-roles` exits 1, show the user its message, which names the cause, and run the step
   again once the cause is fixed.
-- Show the policy in the approval summary.
+- Show the run's policy in the approval summary. With `auto`, also show the reason for the pick. The
+  engines take only `focused` or `proactive`, so pass the pick as the `changePolicy` arg, never `auto`.
 
 **Choosing commit mode.** The `commit` arg (§9) sets whether acceptance commits each accepted block
 (§6, "Commit mode"). The tool saves each repo's choice in `<root>/projects.json` beside its policy.
