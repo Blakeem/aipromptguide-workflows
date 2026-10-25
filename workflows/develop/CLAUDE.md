@@ -5,8 +5,15 @@
 bounded feature, wired in and reachable), `section` (one slice of a breadth-spanning goal, every call
 site converted) or `fix` (one issue inventory from debug's review or your own testing, ACTIONABLE
 entries only). Per block: `develop → blind quality → plan-aware acceptance`, **staging each accepted
-block**, and in commit mode committing it (§6), before the next. Built to
+block**, and in commit mode committing it (§6), before the next. A run builds in a worktree of its own,
+and §2 step 6 lands its accepted work on the branch the user has checked out. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md`; follow those before changing the engine.
+
+Two checkouts take part. **The user's checkout** is the repo the user named, on the branch they work on.
+**The run worktree** is the checkout `wt.mjs open` makes for one `runId`, on branch `aipg/<runId>`, and
+it is the `target.repo` every launch of that `runId` gets. Every git state this guide names before §2
+step 6 is the run worktree's. The user never needs to know the run worktree exists, so name it only
+when step 6 hands the user a decision.
 
 ## 1. Scope (check FIRST)
 
@@ -53,7 +60,8 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    prints. A role the user names for the run wins over the repo's saved value. When the user names role
    settings to keep for the repo, save them with
    `node <project-settings.mjs> set-roles --root <root> --repo <target.repo> [--models <role>=<value>,...] [--efforts <role>=<value>,...]`,
-   where the value `default` removes a role's saved value. Also add `commit` as §4, "Choosing commit mode", settles it. The approval summary shows each role's model and
+   where the value `default` removes a role's saved value. Also add `commit` as §4, "Choosing the delivery", settles it, and set
+   `target.repo` to the run worktree (step 4). The approval summary shows each role's model and
    effort and where each came from: the run, the block's `model:` or `effort:` line, the repo's saved settings,
    or the default. Several
    files make one run, as long as their file keys agree. When you know the
@@ -62,10 +70,25 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    `--pack <target.repo>`: it groups the todo fix blocks into passes of at most `--loc-cap` lines (default
    5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
    verifier build several small blocks. Each member keeps its own plan file and statuses.
-4. **Clean the unstaged tree, then launch.** Clean it before step 3, run step 3 with
-   `run_in_background`, and launch in the turn its notification starts (root `CLAUDE.md`, "Launch from
-   a notification turn"). The engine builds the `status: todo` blocks in file order;
-   `done`/`skip`/`parked`/`blocked` are never selected.
+4. **Open the run worktree, then launch.** The run worktree keeps the run's diff, which every blind
+   reviewer reads, apart from the user's own edits, so the user can keep working in their checkout.
+   - On the first launch of a `runId`, run `node <project-settings.mjs> provision --root <root> --repo <the user's checkout>`.
+     A fresh worktree holds only tracked files, so on `"provision":null` work out once the command that
+     readies one for the gates: the repo's install command from its lockfile, plus a copy of each ignored
+     file the gates read from the user's checkout, such as `.env`. The platform's shell runs it in the
+     worktree. Save it with `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --provision "<cmd>"`,
+     or `--provision none` when the gates need nothing.
+   - Then run `node <wt.mjs> open --repo <the user's checkout> --name <runId> --provision "<cmd>"`, leaving
+     `--provision` out on `none`, where `<wt.mjs>` is this checkout's `tools/wt.mjs`. It cuts
+     `aipg/<runId>` from the user's current branch, records that branch as the one step 6 lands on, and
+     prints the run worktree's path. A provision that fails exits 40 and keeps the worktree, so fix the
+     command, save it again, and rerun it there by hand.
+   - A relaunch of the `runId` reuses its run worktree, which `git -C <the user's checkout> worktree list --porcelain`
+     lists on `aipg/<runId>`. Settle a dirty run worktree first (§4).
+
+   Run step 3 with `run_in_background`, and launch in the turn its notification starts (root
+   `CLAUDE.md`, "Launch from a notification turn"). The engine builds the `status: todo` blocks in file
+   order; `done`/`skip`/`parked`/`blocked` are never selected.
 5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
    step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
@@ -87,6 +110,33 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    keep after `acceptance-regression` or a commit-mode pass halt is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
+6. **Land the run on the user's branch.** Land once the plan has no `todo` block left, or once the user
+   stops the plan with blocks still parked or blocked, so that the accepted blocks land. Settle the run
+   worktree first, since close refuses work no acceptance staged (§4). Then run
+   `node <wt.mjs> close --repo <the user's checkout> --name <runId> --gate "<gate>"`, adding `--stage` in
+   stage delivery (§4, "Choosing the delivery"). `<gate>` is the run's `gates.test`, else its
+   `gates.build`. close rebases the run onto the branch it was cut from when that branch moved, runs the
+   gate on the combined tree, and then lands it. In commit delivery it fast-forwards that branch. In
+   stage delivery it stages the run's change in the user's checkout and leaves the branch where it is.
+   The user may have uncommitted work in their checkout, and close refuses only a change at a path the
+   landing writes. Then close removes the run worktree and deletes `aipg/<runId>`. Branch on its exit code:
+   - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only tracked
+     files, and report the result with the run's summary.
+   - `20`: the rebase conflicted with commits the branch gained during the run, or the branch moved
+     while close ran. Resolve it yourself in the run worktree: run `git rebase <branch>`, read both sides
+     of each conflicted file and keep both intents, `git add` it, run `git rebase --continue`, then run
+     close again. In stage delivery the run's work is one carrier commit named `<runId>: accepted`, and it
+     rebases the same way. Ask the user only when the two sides need a product decision, with both sides
+     shown. List each file you resolved in the run's summary, since no reviewer read the resolution. A
+     moved branch with no conflict needs only close again.
+   - `30`: the gate failed on the combined tree. Fix the cause in the run worktree and commit the fix
+     there, then run close again. A fix larger than a few lines is a fix-mode block (§3) built in the same
+     run worktree under the same `runId`.
+   - `40`: follow its one-line reason and run close again. When the reason names the user's uncommitted
+     changes at paths the landing writes, ask the user to commit them or set them aside, since that work
+     is theirs.
+   To drop a run instead, run `node <wt.mjs> close --repo <the user's checkout> --name <runId> --discard`,
+   then delete the branch with the command it prints, once the user agrees to lose the accepted work.
 
 ## 3. Plan-file format
 
@@ -192,59 +242,34 @@ zones are task code and connected code where the fix closes a defect the diff in
 Under `proactive`, a feature or section block adds the rest of its connected code. Every developer
 prompt says the policy and the prompt's own scope rules override any other instruction about scope, a
 memory line or a CLAUDE.md included.
-Settle a run's policy in these steps, where `<project-settings.mjs>` is this checkout's
-`tools/project-settings.mjs`. The tool saves each repo's policy in `<root>/projects.json`. Its
-`node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints the project's backlog
-folder.
+**The setup check.** Every answer a run needs from the user is asked once per repo, together, at the start.
+Run `node <onboard.mjs> check --root <root> --repo <the user's checkout>` before §2 step 1, where `<onboard.mjs>`
+is this checkout's `tools/onboard.mjs`. It prints `ready <key> policy=<policy> delivery=<commit|stage>` once
+nothing is missing. Otherwise it prints `ask <key>` and the open questions, with each option's text and the
+save command. Ask them in one AskUserQuestion call, then run the save command with one flag per answer, which
+prints what check prints. The answers stay in the user settings and in `<root>/projects.json`, keyed by the
+repo's main checkout, so a worktree takes its main checkout's answers. When check or save exits 1, show the
+user its message, which names the cause, and run it again once the cause is fixed. The same holds for
+`<project-settings.mjs>`, this checkout's `tools/project-settings.mjs`, whose
+`node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints the project's backlog folder.
 
+Settle a run's policy in these steps.
 - A policy the user names for a run wins over the saved one.
-- Otherwise, before §2 step 1, run `node <project-settings.mjs> check --root <root> --repo <target.repo>`.
-  On `focused <key>` or `proactive <key>`, use that policy. On `auto <key>`, pick `focused` or `proactive`
-  for this run as the `auto` line below says. The tool keys a repo by its main checkout, so a worktree
-  takes its main checkout's policy.
-- On `missing <key> recommend=<policy>`, ask the user once which policy the repo takes. List the
-  recommended policy first, marked recommended, with one line for each policy:
-  - `focused`: a light touch. Each change stays on its task. It fits production fixes that ship fast,
-    legacy code, code other developers own, and experiments such as A/B tests. It uses fewer tokens.
-  - `proactive`: takes ownership of code quality and fixes defects near the task, with a low-risk fix of
-    each defect noticed in the code a block's changes connect to. It fits code the user leads that is new
-    or actively developed, with time to test. It uses more tokens.
-  - `auto`: Claude picks per run. It picks `focused` when money or user data is at stake with little
-    time to test, when the code is old and due for replacement, or when others own it. It picks
-    `proactive` when the user is the main developer, the code is new or active, and there is time to
-    test. It asks when unsure.
-
-  Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
-- When `check`, `set`, `roles` or `set-roles` exits 1, show the user its message, which names the cause, and run the step
-  again once the cause is fixed.
+- Otherwise use the `policy=` of the ready line. On `auto`, pick `focused` or `proactive` for this run. Pick
+  `focused` when money or user data is at stake with little time to test, when the code is old and due for
+  replacement, or when others own it. Pick `proactive` when the user is the main developer, the code is new
+  or active, and there is time to test. Ask the user when unsure.
 - Show the run's policy in the approval summary. With `auto`, also show the reason for the pick. The
   engines take only `focused` or `proactive`, so pass the pick as the `changePolicy` arg, never `auto`.
 
-**Choosing commit mode.** The `commit` arg (§9) sets whether acceptance commits each accepted block
-(§6, "Commit mode"). The tool saves each repo's choice in `<root>/projects.json` beside its policy.
-Settle a run's choice in these steps.
-
-- A choice the user names for a run wins.
-- Otherwise, before §2 step 3, run `node <project-settings.mjs> commit --root <root> --repo <target.repo>`.
-  It prints `on <key>`, `off <key>` or `missing <key>`, and it never asks or recommends. Use `on` as
-  `commit: true` and `off` as `commit: false`. A worktree takes its main checkout's choice.
-- On `missing <key>`, ask the user once: "Do you want me to commit each accepted block for you?" The
-  question says:
-  - Each accepted block becomes one commit on the checked-out branch, with the block's title as its message.
-  - The repo's commit hooks run, and a refused commit halts the run.
-  - A branch or a worktree keeps the commits off the main branch.
-
-  Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --commit on|off`.
-  `set` takes `--policy` and `--commit` together and keeps every other saved setting.
-- When the user answers on, run `node <attribution.mjs> check`, where `<attribution.mjs>` is this checkout's
-  `tools/attribution.mjs`. On `hidden <settings>`, go on. On
-  `shown <keys> in <settings>`, ask once: "Do you want me to stop adding Claude's author details to commits and
-  pull requests?" On yes, run `node <attribution.mjs> set`, which hides each shown key and keeps every other
-  setting. Claude Code reloads settings live. Commits that develop makes carry only the block's title, so the
-  question covers the commits and pull requests Claude makes outside a run.
-- When `commit`, `set` or `attribution.mjs` exits 1, show the user its message, which names the cause, and run the step
-  again once the cause is fixed.
-- Show the choice and where it came from, the run or the repo's saved choice, in the approval summary.
+**Choosing the delivery.** The delivery sets how the run's accepted work reaches the user's branch, and
+with it the `commit` arg (§9).
+- A delivery the user names for a run wins. Otherwise use the `delivery=` of the ready line.
+- `commit` is `commit: true`. Acceptance commits each accepted block on `aipg/<runId>` with the block's
+  title as its message (§6, "Commit mode"), and §2 step 6 fast-forwards the user's branch to those commits.
+- `stage` is `commit: false`. Acceptance stages each accepted block in the run worktree, and §2 step 6
+  stages the run's entire change in the user's checkout, so the user reviews and commits it.
+- Show the delivery and where it came from, the run or the repo's saved answer, in the approval summary.
 
 ## 5. Roles
 
@@ -417,8 +442,8 @@ the files in `backlogFiles` and `SWEEP.md`.
 block's title as the entire message: it writes the title to `<stateDir>/commit-<id>.txt` and runs
 `git -C <repo> commit -F` on that file. It never passes `--no-verify`, `--no-gpg-sign` or `--amend`, so
 the repo's commit hooks and signing run. A legitimate no-op pass makes no commit. The accepted baseline
-is HEAD, and nothing stays staged between blocks. Each commit lands on the branch the repo has checked
-out, so run commit mode on a branch or in a worktree. Round 1 halts with `staged-baseline`, before any
+is HEAD, and nothing stays staged between blocks. Each commit lands on `aipg/<runId>` in the run
+worktree, and §2 step 6 moves the user's branch to them. Round 1 halts with `staged-baseline`, before any
 reviewer, when files were staged before the block started, since the next commit would carry them
 unreviewed. `git -C <repo> diff --cached --stat` lists them: commit or unstage them. A pass halts the
 run with `commit-unverified` when its commit fails a landing check. The checks, in the order the halt

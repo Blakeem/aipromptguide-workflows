@@ -179,18 +179,20 @@ to carry a message.
 
 ### 9. One staging, at the end
 Only the final acceptance gate stages (`git add`), and only on pass. Nothing is committed, since the
-user commits, unless the user turns on develop's commit mode. There that gate also commits each block
-it stages, on the branch the user checked out, with the repo's hooks and signing. The accepted
-baseline is what is staged, or HEAD in commit mode, and the unstaged tree is the work under review.
-That boundary at the end is the regression boundary, and it lets features be built back to back
-without overlap.
+user commits, unless the user chose commit delivery. There that gate also commits each block it
+stages, with the repo's hooks and signing. The accepted baseline is what is staged, or HEAD in commit
+delivery, and the unstaged tree is the work under review. That boundary at the end is the regression
+boundary, and it lets features be built back to back without overlap.
 
-A deterministic script the operator invokes may write commits on the `aipg/*` branches it owns, since
-no agent decides those commits. These are the accept, sync, and landing commits of `tools/wt.mjs land`
-and the rebased commits of `tools/wt.mjs close`. The rebase of `close` adds no change of its own, and
-`close` moves the user's branch only by fast-forward. So every change that reaches the user's own
-branches is one the user committed, or an accepted block that the commit mode the user turned on
-committed.
+A build runs in a worktree of its own on an `aipg/*` branch, so the user's edits stay out of the diff
+under review. A deterministic script the operator invokes may write commits on the `aipg/*` branches it
+owns, since no agent decides those commits. These are the accept, sync, and landing commits of
+`tools/wt.mjs land`, the carrier commit of `tools/wt.mjs close --stage`, and the rebased commits of
+`close`. The rebase of `close` adds no change of its own, and `close` moves the user's branch only by
+fast-forward, or stages the change in the user's checkout without moving the branch. So every change
+that reaches the user's own branches is one the user committed, or an accepted block that the commit
+delivery the user chose committed. A conflict the operator resolves at the landing passes the gate
+before it lands, and the operator names each resolved file to the user.
 
 ### 10. Statelessness is a feature
 Each agent starts cold and re-reads what it needs. For one bounded feature the re-read is cheap, and it
@@ -446,8 +448,8 @@ Use these as yes/no checks when reviewing any workflow.
       later work depends on that block? (#7)
 - [ ] Do return schemas hold decisions only, with content in files? (#8)
 - [ ] Does every return carry the shared return fields (Mechanics)?
-- [ ] Is there a single staging step, at the end, on pass, with a commit only in a commit mode the user
-      turned on? (#9)
+- [ ] Is there a single staging step, at the end, on pass, with a commit only in the commit delivery the
+      user chose, and does a build reach the user's branch only through `wt.mjs close`? (#9)
 - [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved to a patch
       instead of discarded or left unstaged? Is the restore command in the user notes? (#9, Mechanics)
 - [ ] Is each fact kept in one canonical place, with agents linked to it and never handed copies or

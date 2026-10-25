@@ -6,15 +6,15 @@ orchestration that *guide the AI* through real engineering work.
 
 Each workflow is a background **Workflow engine** (a `.mjs` script) paired with a `CLAUDE.md` operator
 guide. The guide is the prompt. It drives **plan mode** and the human approval gate *outside* the engine,
-then runs the engine to do the work. The **build** workflows leave the result test-verified, wired in,
-and staged for you to commit, unless you turn on develop's commit mode, which commits each accepted
-block. The **generative** ones leave cited files for you to use and never commit.
+then runs the engine to do the work. The **build** workflow builds in a worktree of its own and lands
+the test-verified result on your current branch, staged for you to commit or committed for you, as you
+chose at setup. The **generative** ones leave cited files for you to use and never commit.
 
 ## The workflows
 
 | Workflow | Trigger | Flow | Use it for |
 |----------|---------|------|------------|
-| **[develop](workflows/develop/)** | `/aipg:develop` | [map](workflows/develop/FLOW.md) | **Build** the blocks of an approved plan file. Each block is one bounded feature, one slice of a migration across many call sites, or one triaged issue inventory. Each accepted block is staged. |
+| **[develop](workflows/develop/)** | `/aipg:develop` | [map](workflows/develop/FLOW.md) | **Build** the blocks of an approved plan file. Each block is one bounded feature, one slice of a migration across many call sites, or one triaged issue inventory. The accepted work lands on your branch, staged or committed. |
 | **[refine](workflows/refine/)** | `/aipg:refine` | [map](workflows/refine/FLOW.md) | **Review** a plan file before develop builds it. A critic checks each block against the code for defects only, and an editor folds each gap into the plan. It stops after one clean round. |
 | **[debug](workflows/debug/)** | `/aipg:debug` | [map](workflows/debug/FLOW-review.md) | **Find production defects** in a repo or change. Each unit's issues are written as a fix-mode plan file that develop builds once you triage it. An inventory from manual testing or bug reports works the same way. |
 | **[enhance](workflows/enhance/)** | `/aipg:enhance` | [map](workflows/enhance/FLOW.md) | **Audit**: what a working system could do *better*. One lens per angle → verified, impact-scored proposals you triage. Nothing auto-applied. |
@@ -23,8 +23,8 @@ block. The **generative** ones leave cited files for you to use and never commit
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-develop is the one **build** workflow. It writes the code, reviews it and stages it, and in commit mode
-it commits it. refine and debug produce the plan files develop builds. The last five are **generative**
+develop is the one **build** workflow. It writes the code, reviews it, and lands it on your branch,
+staged or committed. refine and debug produce the plan files develop builds. The last five are **generative**
 and read only. They produce proposals, creative options, a decision, a determination, or a curated doc
 set, with no code and nothing staged or committed.
 
@@ -63,8 +63,8 @@ This repo is a **Claude Code plugin** (`aipg`), and its skills are **thin and st
 
 ```
 You run /aipg:develop  →  Claude reads the plugin's workflows/develop/CLAUDE.md  →  plan mode, the
-refine review, then your approval  →  runs develop-cycle.mjs by path  →  staged result you review
-and commit
+refine review, then your approval  →  runs develop-cycle.mjs by path in a worktree  →  the result
+lands on your branch, staged for you to review or committed
 ```
 
 ## Install (plugin)
@@ -109,7 +109,8 @@ E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>
 ```
 
 - **`target.repo`** is the repo being worked on. Agents run `git -C <target.repo> …` against it, and it
-  is the only place code is ever changed or staged.
+  is the only place code is ever changed or staged. develop passes a worktree of your project as
+  `target.repo`, then lands the result in your project.
 - **`root`** is the base the run-state hangs off. `<root>/runs/<runId>/` holds the review files, the
   ledgers, and any parked patch. Normally the checkout's own folder, so nothing lands in your project.
 
@@ -156,6 +157,21 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **develop builds in a worktree and lands the result on your branch.** Each run builds in a worktree
+  of its own, so you can keep working in your checkout while it runs. Once the plan is done, the
+  accepted work lands on the branch you have checked out, committed or staged as you chose at setup.
+  When your branch gained commits during the run, the run is rebased onto them and its gate runs again
+  first. Claude resolves a conflict itself and names each file it resolved. debug's fix phase lands the
+  same way.
+- **Setup asks every question at once.** The develop and debug skills run `tools/onboard.mjs` first. It
+  asks the questions your repo has no saved answer for in one prompt, and once every answer is saved it
+  prints one line and asks nothing.
+- **wt.mjs close lands beside your own work.** `close` lands on the branch `open` cut from when
+  `--into` is left out. `--stage` stages the change in that branch's checkout and leaves the branch
+  where it is. A checkout with uncommitted changes takes the landing, unless a change sits at a path the
+  landing writes.
+- **project-settings saves a provision command.** `set --provision "<cmd>"` saves the command that
+  readies a fresh worktree for the gates, such as an install, and the `provision` verb reads it back.
 - **A relaunch keeps its review files.** A relaunch with the same `runId` writes its round files to the
   paths the earlier launch used. Claude Code refuses to overwrite a file the agent has not read, so a
   reviewer could leave the earlier launch's file in place and still report it written. Every workflow now
@@ -169,9 +185,9 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **A repo saves its commit choice.** Setup asks once whether develop should commit for you, and
   `project-settings.mjs set --commit on|off` saves the answer. The `commit` verb reads it back. debug's fix
   phase follows the same choice.
-- **Setup offers to hide Claude's author details.** When you turn commit mode on, `tools/attribution.mjs`
-  checks your Claude Code settings and, if you agree, sets the three attribution keys that hide the
-  co-author trailer, the pull request line and the session trailer.
+- **Setup offers to hide Claude's author details.** With the delivery question, setup checks your
+  Claude Code settings and, if you agree, sets the three attribution keys that hide the co-author
+  trailer, the pull request line and the session trailer.
 - **The change policy can be `auto`.** A repo can save `focused`, `proactive` or `auto`. With `auto`,
   Claude picks the policy for each run and states the reason in the approval summary. The develop guide
   says when each policy fits.

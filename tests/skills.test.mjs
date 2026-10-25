@@ -10,7 +10,7 @@ import { REPO_ROOT, section, ok } from './harness.mjs';
 const SKILLS_DIR = join(REPO_ROOT, 'skills');
 const SKILLS = readdirSync(SKILLS_DIR, { withFileTypes: true })
   .filter((d) => d.isDirectory()).map((d) => d.name).sort();
-// The two workflows that take a changePolicy.
+// The two workflows that build code, which ask every setup answer through the onboarding tool.
 const POLICY_SKILLS = ['debug', 'develop'];
 
 section('every workflow ships a skill, and every skill is a known workflow');
@@ -47,32 +47,28 @@ for (const name of SKILLS) {
   ok(body.includes('${CLAUDE_PLUGIN_DATA}'), 'body resolves the data dir (run-state root)');
   ok(body.includes(`/workflows/${name}/CLAUDE.md`), 'body points at this workflow\'s guide');
   // The Workflow tool refuses a scriptPath the session cannot already read, and a plugin cannot grant
-  // itself its own folder.
+  // itself its own folder. The onboarding check asks for that access along with the build settings.
   const accessCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/plugin-access.mjs" check');
+  const onboardCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`');
   const handover = body.indexOf(`Read \`\${CLAUDE_PLUGIN_ROOT}/workflows/${name}/CLAUDE.md\` and follow it exactly`);
   ok(handover >= 0, 'body hands over to this workflow\'s guide');
-  ok(accessCheck >= 0 && accessCheck < handover,
-    'body runs the plugin-access check before it hands over to the guide');
-  const policyCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" check --root "${CLAUDE_PLUGIN_DATA}" --repo');
   if (POLICY_SKILLS.includes(name)) {
-    ok(policyCheck > accessCheck && policyCheck < handover,
-      'body runs the project-settings check after the plugin-access check and before it hands over to the guide');
+    ok(onboardCheck >= 0 && onboardCheck < handover,
+      'body runs the onboarding check on the run\'s target.repo before it hands over to the guide');
+    ok(accessCheck < 0, 'body runs no separate plugin-access check, since the onboarding check asks for access');
     // The working directory may be a repo other than the one the run works on.
-    ok(body.includes('--root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`'),
-      'the check reads the policy of the run\'s target.repo');
     ok(body.replace(/\s+/g, ' ').includes('When the task does not name that repo, ask the user for it'),
       'body asks the user for a target.repo the task does not name, in place of the working directory\'s repo');
-    ok(body.includes('`${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy"'),
-      'body follows the develop guide\'s policy procedure on the check\'s output');
-    ok(body.includes('- Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`'),
-      'the path list maps the guide\'s project-settings tool');
-    const commitCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" commit --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>');
-    ok(commitCheck > policyCheck && commitCheck < handover, 'body settles commit mode after the change policy and before it hands over to the guide');
-    ok(body.includes('§4 "Choosing commit mode"'), 'body follows the develop guide\'s commit mode procedure on the commit verb\'s output');
-    ok(body.includes('- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`'),
-      'the path list maps the guide\'s attribution tool');
+    ok(body.replace(/\s+/g, ' ').includes('ask the questions it prints in one AskUserQuestion call and run the save command it prints'),
+      'body asks the printed questions together and saves the answers');
+    for (const [label, tool] of [['Onboarding', 'onboard'], ['Project-settings', 'project-settings'], ['Worktree', 'wt']]) {
+      ok(body.includes(`- ${label} tool (operator-side): \`\${CLAUDE_PLUGIN_ROOT}/tools/${tool}.mjs\``),
+        `the path list maps the guide's ${tool} tool`);
+    }
   } else {
-    ok(policyCheck < 0, 'body runs no project-settings check, since this workflow takes no change policy');
+    ok(accessCheck >= 0 && accessCheck < handover,
+      'body runs the plugin-access check before it hands over to the guide');
+    ok(onboardCheck < 0, 'body runs no onboarding check, since this workflow builds no code');
   }
   ok(/\$ARGUMENTS\s*$/.test(body), 'body ends with $ARGUMENTS');
 }

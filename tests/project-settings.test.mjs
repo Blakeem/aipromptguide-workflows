@@ -274,7 +274,7 @@ for (const [what, bytes, cause] of [
   ['a store that holds an array', '[{ "changePolicy": "focused" }]\n', /does not hold a JSON object/],
   ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object of repo settings/],
   ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
-    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, models, efforts/],
+    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, provision, models, efforts/],
   ['a changePolicy outside the three policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
     /gives "E:\/x" a changePolicy of "lenient", which is none of focused \| proactive \| auto/],
   ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
@@ -443,6 +443,30 @@ withFixture((fx) => {
   eq(fx.store()[key].commit, false, 'a later set-roles keeps the commit choice');
   eq(fx.roles(repo).stdout, '{"models":{},"efforts":{"park":"low"}}\n', 'roles prints the maps that set-roles left');
   eq(readdirSync(fx.state).join(','), STORE_FILE, 'no temp file is left beside the store');
+});
+
+section('provision prints the saved command, none or null, and set --provision keeps every other setting');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  const provisionOf = () => fx.cli('provision', '--root', fx.state, '--repo', repo);
+  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: null })}\n`, 'a repo with no store prints a null provision');
+  ok(!existsSync(fx.state), 'provision writes nothing');
+  eq(fx.setWith(repo, '--policy', 'focused', '--commit', 'on').code, 0, 'the fixture policy and commit choice are saved');
+  const saved = fx.setWith(repo, '--provision', 'pnpm install --frozen-lockfile');
+  eq(saved.stdout, `set ${key} provision in ${fx.storePath}\n`, 'set names the provision it saved');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', commit: true, provision: 'pnpm install --frozen-lockfile' }),
+    'the command is saved beside the policy and the commit choice');
+  eq(provisionOf().stdout, `${JSON.stringify({ key, provision: 'pnpm install --frozen-lockfile' })}\n`, 'provision prints the command');
+  eq(fx.setWith(repo, '--provision', 'none').code, 0, 'set --provision none exits 0');
+  eq(JSON.parse(provisionOf().stdout).provision, 'none', 'provision prints none');
+  const blank = fx.setWith(repo, '--provision', ' ');
+  ok(blank.code === 1 && /--provision needs a value/.test(blank.stderr), `a blank --provision exits 1: ${blank.stderr.trim()}`);
+  for (const bad of ['', 3]) {
+    writeFileSync(fx.storePath, `${JSON.stringify({ [key]: { provision: bad } })}\n`);
+    const r = provisionOf();
+    ok(r.code === 1 && /not a command or "none"/.test(r.stderr), `a stored provision of ${JSON.stringify(bad)} exits 1: ${r.stderr.trim()}`);
+  }
 });
 
 section('set takes --policy and --commit together, and a repo that saved only a commit choice reads missing from check');

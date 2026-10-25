@@ -76,17 +76,20 @@ any submodule git directories.
 
 ## One change in its own worktree
 
-`open` and `close` build one change in its own worktree, with no batch.
+`open` and `close` build one change in its own worktree, with no batch. Every develop run builds this
+way, with its `runId` as the name (`workflows/develop/CLAUDE.md` §2 steps 4 and 6).
 
 ```
 1  open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
-2  run the engine, target.repo = the path open printed, and commit the accepted work there
-3  close --repo <abs> --name <name> --into <branch> --gate "<cmd>"
+2  run the engine, target.repo = the path open printed. Commit delivery commits each accepted block
+   there, and stage delivery leaves it staged
+3  close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage]
 4  run the full suite in the main checkout (see "untracked files" below)
 ```
 
 `open` cuts `aipg/<name>` from the `--base` branch and checks it out in a worktree beside the repo.
-With `--base` omitted, it cuts from the current branch. `--dir` places the worktree elsewhere, and
+With `--base` omitted, it cuts from the current branch. It records that branch in the config of
+`aipg/<name>`, and `close` lands on it when `--into` is omitted. `--dir` places the worktree elsewhere, and
 `--provision` runs as it does for `prep`. Since the hook and the land lock guard the chains of a batch,
 `open` installs no hook and `close` takes no lock. A branch that already exists is refused. So is a
 name that starts with `int-` in any case, since `aipg/int-<x>` is the integration branch of batch
@@ -97,6 +100,9 @@ worktree.
 
 `close --into` runs these steps in order:
 
+0. With `--stage`, it commits the staged work in the worktree to `aipg/<name>` as one carrier commit,
+   named `<name>: accepted`, so the rebase and the gate judge it as a commit. The carrier runs no
+   commit hook, since only its change reaches the user. Work no acceptance staged is refused.
 1. When the `--into` branch has a commit `aipg/<name>` lacks, it rebases `aipg/<name>` onto it. A conflict
    aborts the rebase and exits 20 with `aipg/<name>` back at its old tip. A rebase that stops with no
    conflicted file, such as on a commit that fails to sign, is aborted the same way and exits 40. The
@@ -104,9 +110,13 @@ worktree.
    `--into` branch renamed stays at the path the branch gave it.
 2. It runs the gate in the worktree on the exact commit the `--into` branch will point at. A red gate
    exits 30.
-3. It moves the `--into` branch to that commit by fast-forward only. When the `--into` branch moved
-   during the gate, it exits 20.
-4. It verifies the move, then removes the worktree as `clean` does and deletes `aipg/<name>`.
+3. It moves the `--into` branch to that commit by fast-forward only. With `--stage`, it instead applies
+   the change from the `--into` branch to that commit to the index and files of the worktree that has
+   the `--into` branch checked out, and the branch stays where it is. When the `--into` branch moved
+   during the gate, it exits 20. The worktree that takes the landing may hold the user's own
+   uncommitted work, and only a change at a path the landing writes is refused.
+4. It verifies the move or the staged change, then removes the worktree as `clean` does and deletes
+   `aipg/<name>`.
 
 A refusal before the rebase changes nothing. Each later stop keeps the steps already done, such as a
 rebased `aipg/<name>`, a moved `--into` branch or a worktree in the trash. Running `close` again
@@ -120,9 +130,12 @@ finishes the steps left. `close` exits 40 in cases such as these:
   another repository,
 - the worktree fails a check of `clean`, such as the one for unlanded work,
 - the worktree `open` made is off `aipg/<name>`, such as on a detached HEAD,
-- the `--into` branch is checked out in a worktree that has staged or modified tracked files, an
-  untracked file in the way of the fast-forward, or an unfinished operation, such as a rebase of the
-  `--into` branch itself,
+- the `--into` branch is checked out in a worktree that has staged or modified tracked files at a path
+  the landing writes, an untracked file in the way of the landing, or an unfinished operation, such as
+  a rebase of the `--into` branch itself,
+- `--stage` finds no worktree with the `--into` branch checked out, or work beside the staged work
+  that no acceptance staged,
+- `--into` is omitted and `open` recorded no base for `aipg/<name>`,
 - the rebase would drop a merge commit of `aipg/<name>` and any change made only in that merge,
 - the rebase or the fast-forward would overwrite an ignored file, which git deletes without a word,
 - the rebase left uncommitted changes in the worktree, such as files a hook wrote,
@@ -196,7 +209,8 @@ branch or after `close`. That run is part of the merge, not optional.
 `land` and `close` are the only verbs that write commits, all on `aipg/*` branches and all
 deterministic. `land` writes the index-only accept commit, the sync merge and the landing merge.
 Nothing else in a batch touches your branches, and the merge of `aipg/int-<batch>` into anything of
-yours is stage 7, done by you (WORKFLOW-PRINCIPLES.md #9). The rebase of `close` rewrites the
-`aipg/<name>` commits and adds no change of its own. Since the `--into` branch moves only by
-fast-forward, every change that reaches it is one you committed, or an accepted block that develop's
-commit mode, which you turned on, committed.
+yours is stage 7, done by you (WORKFLOW-PRINCIPLES.md #9). `close --stage` writes one carrier commit
+of the staged work on `aipg/<name>`. The rebase of `close` rewrites the `aipg/<name>` commits and adds
+no change of its own. Since the `--into` branch moves only by fast-forward, or not at all with
+`--stage`, every change that reaches it is one you committed, or an accepted block that develop's commit
+delivery, which you chose, committed.
