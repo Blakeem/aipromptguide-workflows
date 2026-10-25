@@ -42,7 +42,7 @@ It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, 
 `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
 names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
 array of `{ id, title, mode, gate, status }`, defaults applied, and a row carries `model` or `effort` only when
-its block sets one. Each metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
+its block sets one. The file keys are the first lines of the file, after any frontmatter and before any heading, and a file key anywhere else above the first block (outside a code fence) fails the parse. Each other metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A
 blank line above a run is crossed to find it, never to continue one, and body prose never registers
 as metadata. Every block's gate is its preamble `gate:` line. A bare plan-name resolves
 against `<CLAUDE_CONFIG_DIR | ~/.claude>/plans/`.

@@ -206,6 +206,34 @@ function afterFrontmatter(text) {
   return 0;   // never closed, so it is not frontmatter — the file keys start at the top
 }
 
+// The one block-header prefix. `parseBlocks` builds `headerRe` and `emptyIdRe` from it, so the stray-key scan
+// stops at the line `parseBlocks` treats as the first block.
+const PLAN_HEADER_RE = /^##[ \t]+Plan:/;
+
+/**
+ * Fails on a file key written above the first `## Plan:` header but outside the opening run, such as one
+ * under a `# <title>` heading or inside the frontmatter. The run scan skips the frontmatter and stops at
+ * that heading, so the line would read as prose and the key would silently take its default. Fenced
+ * lines are examples and are skipped.
+ */
+function assertNoStrayFileKey(text, runFrom, runEnd) {
+  let fence = '';
+  let lineNo = 0;
+
+  for (const line of eachLine(text, 0)) {
+    lineNo++;
+    const was = fence;
+    fence = fenceState(line.text, fence);
+    if (was || fence) continue;
+    if (PLAN_HEADER_RE.test(line.text)) return;
+    if (line.start >= runFrom && line.start < runEnd) continue;
+
+    const hit = line.text.match(KEY_LINE_RE);
+    if (!hit || !Object.hasOwn(FILE_KEYS, hit[1])) continue;
+    throw new Error(`file key "${hit[1]}" on line ${lineNo} ("${line.text.trim()}") sits outside the file-key run, where the parser would read it as prose and take the default, so the file is refused — move it into the file-key run at the top of the file (after any frontmatter, before any heading, with no blank line between file keys)`);
+  }
+}
+
 /**
  * The file-level keys — the run that opens the file, the blank line markdown puts under a `---` fence
  * crossed. Positions are into `rawText` as read from disk: the BOM is skipped for matching but still
@@ -214,7 +242,9 @@ function afterFrontmatter(text) {
 export function parseFileKeys(rawText) {
   const { text, shift } = stripBom(rawText);
   const from = runStart(text, afterFrontmatter(text));
-  return shiftRun(scanRun(text, from, FILE_KEYS, KEY_LINE_RE, 'file key'), shift);
+  const run = scanRun(text, from, FILE_KEYS, KEY_LINE_RE, 'file key');
+  assertNoStrayFileKey(text, run.start, run.end);
+  return shiftRun(run, shift);
 }
 
 /**
@@ -271,7 +301,7 @@ export function parseBlocks(rawText) {
   // the file read, so every caller of the parser is covered. `shift` puts the reported positions back on
   // the raw bytes the caller read, which is what a write tool splices against.
   const { text, shift } = stripBom(rawText);
-  const headerRe = /^##[ \t]+Plan:[ \t]*(.+?)[ \t]*$/;
+  const headerRe = new RegExp(`${PLAN_HEADER_RE.source}[ \\t]*(.+?)[ \\t]*$`);
   // 1-3 leading spaces still renders as a heading in most markdown, but is not a block boundary here.
   // Silently dropping it would delete a whole unit the human can see, so it is a hard error.
   const indentedRe = /^[ \t]{1,3}##[ \t]+Plan:/;
@@ -283,7 +313,7 @@ export function parseBlocks(rawText) {
   // `## Plan:` have no legitimate reading as prose, and a `#{3,6}` header is the same class as the 1-3
   // space indent below: a heading the human reads as a boundary that the parser does not. All three were
   // scanned against every `.md`/`.mjs` in the repo: zero matches.
-  const emptyIdRe = /^##[ \t]+Plan:[ \t]*$/;
+  const emptyIdRe = new RegExp(`${PLAN_HEADER_RE.source}[ \\t]*$`);
   const noColonRe = /^##[ \t]+Plan[ \t]+[a-z0-9]+(?:-[a-z0-9]+)*[ \t]*(?:$|[—–-][ \t])/;
   const spacedColonRe = /^##[ \t]+Plan[ \t]+:/;
   const deepHeaderRe = /^#{3,6}[ \t]+Plan:/;

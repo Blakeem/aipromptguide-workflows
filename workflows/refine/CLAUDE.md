@@ -41,8 +41,7 @@ Four things together — remove any one and the plan grows every round instead o
 
 ## 2. The flow
 
-1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo), the user
-   approves it.
+1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo).
 2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
    a notification turn"). Follow the return's `nextStep`, which names the files to read and the relaunch
    or replay for each terminal. The `status` token says what the state means:

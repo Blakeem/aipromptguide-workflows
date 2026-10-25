@@ -6,7 +6,7 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| plan-critic | 1 | 1 | 8723 | a clean first round |
+| plan-critic | 1 | 1 | 8872 | a clean first round |
 | plan-editor | 1 | 1 | 3145 | gaps folded, then a clean round |
 
 ## plan-critic · variant 1 · schema 1
@@ -56,8 +56,8 @@ BLOCK METADATA is part of what you judge. Each `## Plan: <id>` block opens with 
 `key: value` lines: `mode` (feature | section | fix), `gate`, `status` (todo | done | skip | parked |
 blocked), `model` (opus | sonnet | haiku | fable), `effort` (low | medium | high | xhigh | max), plus informational `test_selector` and `depends_on`. A `gate`
 ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
-red-baseline | build-only; fix takes green). File keys `goal` / `ordered` / `suite` / `sweep` sit above
-the first block.
+red-baseline | build-only; fix takes green). File keys `goal` / `ordered` / `suite` / `sweep` are the first lines
+of the file, after any frontmatter and before any heading. A file key anywhere else above the first block, outside a code fence, fails the plan-block tool.
 
 SCOPE RULE 1 - you judge only blocks whose `status` is `todo` or absent. A block marked done, skip,
 parked or blocked is CLOSED. A gap you find in one of those goes to E:/flow/runs/flow-refine/NEEDS-USER.md as a QUESTION and NEVER

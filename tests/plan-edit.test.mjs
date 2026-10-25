@@ -539,6 +539,15 @@ section('args folds a finished run into every plan it names, then prints develop
   eq(again.notes, '', 'and applies nothing');
 }
 
+section('args refuses a plan whose file key sits under a heading, and writes nothing');
+{
+  const plan = fixture(`# Title\n\nordered: true\n\n${PLAN}`);
+  const before = read(plan);
+  const { err } = argsWith(configWith([record({ blocks: [[status('bus-parser', 'done', plan)]] })]), plan);
+  ok(/file key "ordered" on line 3/.test(err ?? ''), `args fails naming the key and line: ${err ?? ''}`);
+  eq(read(plan), before, 'and the plan file is untouched');
+}
+
 section('a failed or stopped run folds too, and runs apply oldest first, each exactly once');
 // The runtime keeps a run's logs when it fails or is stopped, and that is the case a relaunch needs most.
 {
@@ -613,7 +622,7 @@ section('a status line the runtime cut short blocks only the plans it names');
   const both = argsWith(configWith([cutOwn, older]), own);
   ok(/older run\(s\) wf_older, which that key also skips/.test(both.err ?? ''), `an older unapplied run that names the plan is listed: ${(both.err ?? 'no error').slice(-90)}`);
 
-  const synced = fixture(`synced: 2026-09-25T11:00:00.000Z\n\n${PLAN}`, 'synced.md');
+  const synced = fixture(`synced: 2026-09-25T11:00:00.000Z\n${PLAN}`, 'synced.md');
   const past = argsWith(configWith([withCut(many(synced, ['bus-parser', 'triage', 'inventory']))]), synced);
   ok(!past.err, `a cut run the synced key already covers is skipped: ${past.err ?? ''}`);
 

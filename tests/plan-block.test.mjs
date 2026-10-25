@@ -4,7 +4,7 @@
 // dangerous cases are the ones that would hand an agent something that LOOKS like a plan: a truncated
 // body, a silently defaulted gate, a duplicate id quietly sharing another plan's review files.
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
@@ -158,12 +158,12 @@ section('the file keys open the file, and every default is applied in the output
   eq(keyed.suite, 'scoped', 'suite is read');
   eq(keyed.sweep, 'goal-coverage', 'sweep is read');
 
-  // The run is the top of the file only. A colon-bearing line further down is prose, so a plan that
-  // discusses its own goal cannot silently rewrite the file's control values.
-  eq(listOf(`# Title\n\ngoal: prose, not a file key\n\n${ONE()}`).goal, '',
-    'a key: line that does not open the file is body text');
-  eq(listOf(`---\ntitle: x\nordered: true\n---\ngoal: after the fence\n\n${ONE()}`).goal, 'after the fence',
-    'a --- frontmatter fence is skipped without being read, and the keys under it are the file keys');
+  // The run is the top of the file only. A colon-bearing line that is not a file key stays prose, so a
+  // plan that discusses its own topic cannot rewrite the file's control values.
+  eq(listOf(`# Title\n\nnote: prose, not a file key\n\n${ONE()}`).goal, '',
+    'a key: line whose key is not a file key, below the opening heading, is body text');
+  eq(listOf(`---\ntitle: x\nowner: y\n---\ngoal: after the fence\n\n${ONE()}`).goal, 'after the fence',
+    'a --- frontmatter fence is skipped by the run scan, and the keys under it are the file keys');
 
   // Markdown puts a blank line under a `---` fence, and a blank misses the run shape. Reading that gap
   // as "no keys" replaced every declared value with its default at exit 0 — ordered silently false.
@@ -173,9 +173,42 @@ section('the file keys open the file, and every default is applied in the output
   eq(listOf(`\ngoal: g\nsweep: goal-coverage\n\n${ONE()}`).sweep, 'goal-coverage',
     'and across a blank line that opens the file');
 
-  // The gap above the run is crossed; a gap INSIDE it still ends it, which is what keeps prose out.
-  eq(listOf(`goal: real\n\nsuite: scoped\n\n${ONE()}`).suite, 'green',
-    'a blank INSIDE the run ends it, so the line below is body text');
+  // The gap above the run is crossed; a gap INSIDE it still ends it, so a file key below the gap is
+  // refused rather than read as prose.
+  ok(/file key "suite" on line 3 .*outside the file-key run/.test(planFails(`goal: real\n\nsuite: scoped\n\n${ONE()}`)),
+    'a blank INSIDE the run ends it, and the file key below it fails naming its line');
+}
+
+section('a file key outside the opening run and above the first block fails, naming its line and key');
+{
+  const FENCE = '```';
+  const MOVE = /move it into the file-key run at the top of the file \(after any frontmatter, before any heading, with no blank line between file keys\)/;
+
+  const under = planFails(`# Title\n\nordered: true\n\n${ONE()}`);
+  ok(/file key "ordered" on line 3 \("ordered: true"\)/.test(under), `a key under the title heading fails with its line and key: ${under}`);
+  ok(MOVE.test(under), 'and the message says where the key goes');
+  for (const key of ['goal: g', 'suite: scoped', 'sweep: none', 'synced: 2026-10-24T00:00:00Z']) {
+    ok(new RegExp(`file key "${key.split(':')[0]}" on line 3 .*outside the file-key run`).test(planFails(`# Title\n\n${key}\n\n${ONE()}`)), `${key.split(':')[0]} under a heading fails the same way`);
+  }
+  ok(/on line 6 /.test(planFails(`---\ntitle: x\n---\n\n# Title\nordered: true\n\n${ONE()}`)), 'the line number counts the frontmatter');
+  ok(/on line 3 /.test(planFails(`# Title\r\n\r\nordered: true\r\n\r\n${ONE()}`)), 'and counts CRLF lines');
+
+  const fenced = `# Title\n\n${FENCE}\nordered: true\n${FENCE}\n\n${ONE()}`;
+  eq(planFails(fenced), '', 'a key in a fenced example above the first block is not an error');
+  eq(listOf(fenced).ordered, false, 'and it is not read as a key');
+  eq(listOf(`ordered: true\n\n# Title\n\n${ONE()}`).ordered, true, 'a key at the top of the file is read');
+  ok(/file key "ordered" on line 2 /.test(planFails(`---\nordered: true\n---\n\n# Title\n\n${ONE()}`)), 'a file key inside frontmatter fails naming its line');
+  eq(planFails(`---\ntitle: x\n---\nordered: true\n\n# Title\n\n${ONE()}`), '', 'a non-file key in frontmatter, with the file key under it, is fine');
+  eq(planFails(`${ONE()}\nordered: true\n`), '', 'a key line in a block body, below the first header, is body text');
+
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-plan-block-stray-'));
+  const file = join(dir, 'plan.md');
+  writeFileSync(file, `# Title\n\nordered: true\n\n${ONE()}`);
+  const viaList = cli(file, '--list');
+  eq(viaList.code, 1, '--list exits 1');
+  ok(/file key "ordered" on line 3/.test(viaList.stderr), 'and the stderr names the key and line');
+  eq(cli(file, 'a').code, 1, 'fetching one block fails too, since the file itself is at fault');
+  rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
 }
 
 section('a section-mode block flips the FILE defaults, and an explicit key still wins');

@@ -197,7 +197,7 @@ if (!foldsCase(process.platform)) {
     eq(worktreePaths(repo).length, 2, '...and no worktree was added');
 
     // A branch name may hold a `$`, so each printed command carries the stored name through shellQuote.
-    // On win32 shellQuote uses double quotes, in which a `$` still expands (tools/wt.mjs:162-163).
+    // On win32 shellQuote uses double quotes, in which a `$` still expands (the comment on shellQuoteFor in tools/wt.mjs).
     eq(git(repo, ['branch', 'dev$x']).code, 0, 'create a branch whose name holds a $');
     const oddBase = openIn(repo, 'odd', ['--base', 'DEV$X']);
     eq(oddBase.code, 40, 'open --base DEV$X exits 40');
