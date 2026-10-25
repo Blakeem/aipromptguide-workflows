@@ -19,10 +19,13 @@ flowchart TD
   x2[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.minImpact must be one of ..."/]
-  x5[/"throw: args.scope is required"/]
-  x6[/"throw: args.target.repo is required when any args.scope path is relative"/]
-  x7[/"throw: args.lenses is required"/]
-  x8[/"throw: lens ids collide after slugging"/]
+  x5[/"throw: Invalid role map"/]
+  x6[/"throw: Unknown role key in a role map"/]
+  x7[/"throw: Illegal role value in a role map"/]
+  x8[/"throw: args.scope is required"/]
+  x9[/"throw: args.target.repo is required when any args.scope path is relative"/]
+  x10[/"throw: args.lenses is required"/]
+  x11[/"throw: lens ids collide after slugging"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -32,6 +35,9 @@ flowchart TD
   S0 --> x6
   S0 --> x7
   S0 --> x8
+  S0 --> x9
+  S0 --> x10
+  S0 --> x11
   a1 --> a2
   a1 --> t2
   a1 --> t3
@@ -58,11 +64,14 @@ flowchart TD
 | throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 41) |
 | throw: args.root is required | args.root is missing | throw (line 45) |
 | throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 59) |
-| throw: args.scope is required | args.scope is empty | throw (line 104) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 110) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 120) |
-| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 124) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 87) |
+| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 92) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 95) |
+| throw: args.scope is required | args.scope is empty | throw (line 128) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 134) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 144) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 148) |
 
 ## Coverage
 
-12 scenarios · 2/2 roles · 8/8 throw sites · 0/0 halt statuses · 12 terminal states.
+16 scenarios · 2/2 roles · 11/11 throw sites · 0/0 halt statuses · 15 terminal states.

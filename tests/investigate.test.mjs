@@ -6,6 +6,7 @@
 // the critic gate, dead agents (a dead investigator must never read as an exhausted search), and what the
 // prompts actually name.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/investigate/investigate-cycle.mjs';
 
@@ -1066,3 +1067,11 @@ section('each option file carries the critic\'s verdict, and the run\'s result c
     ok(!/Move that file aside/.test(o.haltReason) && !/Move that file aside/.test(o.nextStep), `and round ${r}'s haltReason no longer says "Move that file aside"`);
   }
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'investigate', defaults: { criteria: 'opus', investigate: 'opus', critique: 'opus' },
+  runs: [
+    { args: { ...baseArgs, phase: 'refine' }, respond: { 'criteria-critic': { gaps: [], questions: [], unfalsifiable: [] } }, labels: { criteria: 'criteria-critic' } },
+    { args: baseArgs, respond: { investigate: { ...INV, option_ids: ['opt-a'] }, critique: { ...CRIT, upheld: ['opt-a'], verified_ids: ['opt-a'] } }, labels: { investigate: 'investigate', critique: 'critique' } },
+  ],
+});

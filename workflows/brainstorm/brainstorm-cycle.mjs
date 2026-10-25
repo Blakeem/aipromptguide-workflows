@@ -37,9 +37,33 @@ const FORMAT      = A.outputFormat ?? 'a single self-contained Markdown document
 const KIND        = A.kind ?? 'variation';                 // noun for the thing being produced (e.g. "web design", "product idea")
 
 // Per-role model tier + OPTIONAL custom subagent type. Default: no agentType (standard subagent).
-const M  = { generate: 'opus', ...(A.models ?? {}) };
+const ROLE_KEYS = ['generate'];
+const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'fable']);
+const VALID_EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
+const DEFAULT_EFFORT = 'high';
+// Copy of develop's roleMap, since an engine cannot import: a test pins the copies equal.
+// Static lead clauses: gen-flows labels each throw node from them.
+const roleMap = (name, value, legal) => {
+  if (value === undefined) return {};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Invalid role map: args.${name} must be an object that maps a role key to a value; got ${JSON.stringify(value)}.`);
+  }
+  const entries = Object.entries(value);
+  for (const [role, setting] of entries) {
+    if (!ROLE_KEYS.includes(role)) {
+      throw new Error(`Unknown role key in a role map: args.${name} names ${JSON.stringify(role)}, and the role keys are ${ROLE_KEYS.join(' | ')}.`);
+    }
+    if (!legal.has(setting)) {
+      throw new Error(`Illegal role value in a role map: args.${name}.${role} is ${JSON.stringify(setting)}, and it must be one of ${[...legal].join(' | ')}.`);
+    }
+  }
+  return Object.fromEntries(entries);
+};
+const M  = { generate: 'opus', ...roleMap('models', A.models, VALID_MODELS) };
+const EF = { generate: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
 const AT = { ...(A.agentTypes ?? {}) };
-const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+log(`brainstorm: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`);
 
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');

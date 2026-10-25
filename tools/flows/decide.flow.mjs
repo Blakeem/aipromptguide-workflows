@@ -7,7 +7,7 @@
 // reviewers versus the later-round verifier, BOTH needs-user escalations (the decider's and the
 // reviewers' — two separate exits landing on ONE status string, so terminal coverage alone leaves half the
 // engine undrawn), BOTH unattested-write halts (the decider's and the reviewers', for the same reason), a
-// PARTIAL analyst failure the run survives on the remaining lenses, and each of the ten throw sites.
+// PARTIAL analyst failure the run survives on the remaining lenses, and each of the fourteen throw sites.
 
 const base = {
   runId: 'flow',
@@ -85,7 +85,7 @@ export default {
       respond: { 'analyst:robustness': null, analyst: ANALYST, decide: DECIDE, review: AGREE },
     },
 
-    // ---- the ten throw sites -------------------------------------------------------------------
+    // ---- the fourteen throw sites -------------------------------------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -113,6 +113,11 @@ export default {
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'bad selection', when: 'selection is neither single nor ranked', args: { runId: 'flow', root: 'E:/flow', selection: 'best' } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside analyst | decide | review', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { analyst: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { analyst: 'ultra' } } },
     { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },
     { name: 'one lens only', when: 'fewer than two lenses', args: { ...base, lenses: ['efficiency'] } },
     { name: 'colliding lens ids', when: 'two lenses slug to one file', args: { ...base, lenses: ['Fast path', 'fast-path'] } },

@@ -154,13 +154,21 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-25
+
+- **Every workflow takes a model and a reasoning level per role.** refine, debug, enhance, brainstorm,
+  decide, investigate and docs take the `efforts` arg beside `models`, and every role runs at `high` by
+  default. A launch fails on an unknown role or value in either arg, as it does for develop. Each run logs
+  one line that names every role's model and level. The refine and debug guides say to choose each model by
+  the task and the change's risk, in place of keeping them on opus unless you ask. The other five guides say
+  to choose each model by the task and the judgment the role needs, since those workflows make no change.
+
 ### 2026-10-24
 
 - **Each develop role takes a model and a reasoning level.** The `efforts` arg sets a level per role, and
   every role runs at `high` by default. A block's `effort:` line sets its developer's level, as `model:`
   sets its model. The models are `opus`, `sonnet`, `haiku` and `fable`. A launch fails on an unknown role
   or value in `models` or `efforts`. Park has its own role and otherwise follows its block's developer.
-  The other workflows still run at the session's level.
 - **A repo saves its role settings.** `project-settings.mjs set-roles` saves a repo's role models and
   levels, and the next run reads them with `roles`. A setting you name for a run wins.
 - **The develop guide picks each model by the task.** Sonnet takes common work, opus takes complex or

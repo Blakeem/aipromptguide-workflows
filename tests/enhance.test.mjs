@@ -4,6 +4,7 @@
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
 // produced nothing because nobody looked — assert it for BOTH stages, or the guards drift apart.
 import { runEngine, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/enhance/enhance-cycle.mjs';
 const baseArgs = {
@@ -262,3 +263,8 @@ section('a run where every lens failed says NOTHING was audited, never presents 
     'nextStep says nothing was audited and names each lens with its stage');
   ok(!/PRESENT them/.test(out.nextStep), 'and never says to present proposals');
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'enhance', defaults: { find: 'opus', verify: 'opus' },
+  runs: [{ args: baseArgs, respond: { find: FOUND, verify: VERIFIED }, labels: { find: 'find', verify: 'verify' } }],
+});

@@ -7,6 +7,7 @@
 // cap IS the churn detector), and none of this may move it. Round 1 runs three focused reviewers, later
 // rounds one verifier, and only a BLOCKING gap stops agreement: a caveat reaches the plan via the return.
 import { runEngine, throwsWith, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/decide/decide-cycle.mjs';
 
@@ -566,3 +567,8 @@ section('an agree over a decision the decider says misses a requirement is flagg
   const { out: ok1 } = await run({ analyst: ANALYST, decide: DECIDE, review: AGREE });
   eq(ok1.meetsAllRequirements, true, 'a met rubric returns true');
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'decide', defaults: { analyst: 'sonnet', decide: 'opus', review: 'opus' },
+  runs: [{ args: baseArgs, respond: { analyst: ANALYST, decide: DECIDE, review: AGREE }, labels: { analyst: 'analyst', decide: 'decide', review: 'review' } }],
+});

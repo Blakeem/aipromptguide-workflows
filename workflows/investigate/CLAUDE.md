@@ -272,7 +272,13 @@ inline.
   `target.lang`/`target.framework` (hints) · `maxRounds` (5; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary round-budget
   exit) ·
-  `minRoundBudget` (100k) · `models` (per-role tier: criteria/investigate/critique; all opus) ·
+  `minRoundBudget` (100k) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are
+  `criteria`, `investigate` and `critique`. A model is `opus | sonnet | haiku | fable` and an effort
+  is `low | medium | high | xhigh | max`. All three roles default to opus, and every role defaults
+  to `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a
+  key outside the role keys, and a value outside its set. Choose each role's model by the task and
+  how much judgment the role needs, as the develop guide §3 says. One launch log line names each role's model and
+  effort) ·
   `agentTypes` (custom subagent per role — must exist in your registry) · `stateDir` (override
   `runs/<runId>`).
 

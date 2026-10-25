@@ -57,6 +57,11 @@ export default {
     // The floor decides which gaps COUNT and which are demoted to the critique file's FYI section, so a
     // coerced value silently changes what "clean" means.
     { name: 'severity floor is not a known grade', when: 'critiqueSeverity is outside blocking | major | minor', args: { ...base, critiqueSeverity: 'nit' } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside critic | editor', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { critic: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { critic: 'ultra' } } },
 
     // ---- the terminal states, one scenario per distinct fact -------------------------------------
     {

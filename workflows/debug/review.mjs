@@ -123,8 +123,32 @@ const lensesOf = (unit) => {
 // measured 2026-08-01 (wt-tooling): the fast tier under-reports on large surfaces, and a missed finding
 // here never reaches verify at all.
 const AT = { ...(A.agentTypes ?? {}) };
-const M  = { review: 'opus', verify: 'opus', ...(A.models ?? {}) };
-const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+const ROLE_KEYS = ['review', 'verify'];
+const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'fable']);
+const VALID_EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
+const DEFAULT_EFFORT = 'high';
+// Copy of develop's roleMap, since an engine cannot import: a test pins the copies equal.
+// Static lead clauses: gen-flows labels each throw node from them.
+const roleMap = (name, value, legal) => {
+  if (value === undefined) return {};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Invalid role map: args.${name} must be an object that maps a role key to a value; got ${JSON.stringify(value)}.`);
+  }
+  const entries = Object.entries(value);
+  for (const [role, setting] of entries) {
+    if (!ROLE_KEYS.includes(role)) {
+      throw new Error(`Unknown role key in a role map: args.${name} names ${JSON.stringify(role)}, and the role keys are ${ROLE_KEYS.join(' | ')}.`);
+    }
+    if (!legal.has(setting)) {
+      throw new Error(`Illegal role value in a role map: args.${name}.${role} is ${JSON.stringify(setting)}, and it must be one of ${[...legal].join(' | ')}.`);
+    }
+  }
+  return Object.fromEntries(entries);
+};
+const M  = { review: 'opus', verify: 'opus', ...roleMap('models', A.models, VALID_MODELS) };
+const EF = { review: DEFAULT_EFFORT, verify: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
+const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+log(`review: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`);
 
 // ROOT is the ABSOLUTE base run-state hangs off (supplied by the main agent), so every agent +
 // `git -C` call is cwd-independent. Run-state lands in `<ROOT>/runs/<runId>` unless args.stateDir overrides.

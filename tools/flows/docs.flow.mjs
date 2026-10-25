@@ -11,7 +11,7 @@
 // gatherer (scrubbed anyway: what it wrote is already on disk), a zero-file source (scrub SKIPPED, the
 // run continues) and a repo source (scrub SKIPPED: only web captures carry HTML chrome). None throws
 // and none has its own terminal, so this table is the only thing holding them in the diagram. Plus each
-// of the eight throw sites.
+// of the twelve throw sites.
 
 const base = {
   runId: 'flow',
@@ -99,7 +99,7 @@ export default {
       terminal: CURATED,
     },
 
-    // ---- the eight throw sites -------------------------------------------------------------------
+    // ---- the twelve throw sites -------------------------------------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -120,6 +120,11 @@ export default {
     // the round loop never runs; a bad fidelitySample silently became 0, leaving the verbatim promise
     // asserted but never tested.
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside gather | scrub | curate', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { gather: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { gather: 'ultra' } } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow' } },

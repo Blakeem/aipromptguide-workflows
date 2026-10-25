@@ -20,9 +20,12 @@ flowchart TD
   x4[/"throw: args.target.repo is required"/]
   x5[/"throw: reviewSeverity #quot;...#quot; is not one of low#124;medium#124;high#124;critical"/]
   x6[/"throw: Invalid args.changePolicy"/]
-  x7[/"throw: review requires a non-empty args.units array"/]
-  x8[/"throw: Issue file collision"/]
-  x9[/"throw: Plan id collision"/]
+  x7[/"throw: Invalid role map"/]
+  x8[/"throw: Unknown role key in a role map"/]
+  x9[/"throw: Illegal role value in a role map"/]
+  x10[/"throw: review requires a non-empty args.units array"/]
+  x11[/"throw: Issue file collision"/]
+  x12[/"throw: Plan id collision"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -33,6 +36,9 @@ flowchart TD
   S0 --> x7
   S0 --> x8
   S0 --> x9
+  S0 --> x10
+  S0 --> x11
+  S0 --> x12
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
@@ -67,10 +73,13 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 38) |
 | throw: reviewSeverity "..." is not one of low\|medium\|high\|critical | args.reviewSeverity is not a known severity | throw (line 54) |
 | throw: Invalid args.changePolicy | args.changePolicy is outside focused \| proactive | throw (line 60) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 412) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 422) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 423) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 135) |
+| throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 140) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 143) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 436) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 446) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 447) |
 
 ## Coverage
 
-12 scenarios · 2/2 roles · 9/9 throw sites · 0/0 halt statuses · 12 terminal states.
+16 scenarios · 2/2 roles · 12/12 throw sites · 0/0 halt statuses · 15 terminal states.

@@ -81,7 +81,7 @@ export default {
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the nine throw sites, in the order the engine checks them ------------------------------
+    // ---- the twelve throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -91,6 +91,11 @@ export default {
     { name: 'unknown severity floor', when: 'args.reviewSeverity is not a known severity', args: { ...base, reviewSeverity: 'Medium', units: [unit('u1')] } },
     // A coerced policy would silently widen or narrow the scope of every Fix line.
     { name: 'unknown change policy', when: 'args.changePolicy is outside focused | proactive', args: { ...base, changePolicy: 'lenient', units: [unit('u1')] } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside review | verify', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { review: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { review: 'ultra' } } },
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
     { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
     { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },

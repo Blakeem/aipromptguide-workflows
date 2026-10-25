@@ -5,7 +5,7 @@
 // Coverage aimed at here: all eight terminal states (they are eight different FACTS — folding any pair is
 // how a stopped search gets reported as a finished one), the critic gate in BOTH directions (skipped over
 // a later round with nothing to check, forced open on the last round because a determination is due and on
-// a run's first round), a contested claim of EACH kind buying another round, and each of the ten throw sites.
+// a run's first round), a contested claim of EACH kind buying another round, and each of the thirteen throw sites.
 
 const base = {
   runId: 'flow',
@@ -191,6 +191,11 @@ export default {
       args: { ...base, maxRounds: 'three' },
     },
     { name: 'unknown phase', when: 'phase is neither refine nor run', args: { ...base, phase: 'Refine' } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside criteria | investigate | critique', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { criteria: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { criteria: 'ultra' } } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no planPath', when: 'args carry no planPath', args: { runId: 'flow', root: 'E:/flow' } },

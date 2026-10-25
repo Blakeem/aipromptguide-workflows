@@ -105,7 +105,7 @@ caveat, so a rubric that wants it judged names it under a weighted criterion.
 
 The JS conductor sequences `agent()` calls, passing only paths + verdicts (#1). Each agent is fresh.
 
-- **Analyst** (diverge · sonnet) — one per lens; reads the requirements + its lens, generates 2–4
+- **Analyst** (analyst · sonnet) — one per lens; reads the requirements + its lens, generates 2–4
   scored options, recommends one, notes keep-worthy elements, writes `lenses/<lens>.md`.
 - **Decider** (decide · opus) — reads the requirements + every lens file (+ every review file of the
   previous round); consolidates options, may build a hybrid, scores a **global weighted matrix**
@@ -234,7 +234,13 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   §3) · `target.repo` (absolute, read-only context) ·
   `target.lang`/`target.framework` (hints) · `maxRounds` (3; **throws** below 1 or non-numeric — it used
   to coerce, and a NaN bound silently produced a zero-round run reported as an ordinary result) ·
-  `models` (per-role tier: analyst/decide/review) · `agentTypes` (custom subagent per role — must exist
+  `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `analyst`,
+  `decide` and `review`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. The analyst role defaults to sonnet, the decide and review
+  roles default to opus, and every role defaults to `high`. The engine **throws** at launch, naming
+  the arg, on a value that is not an object, a key outside the role keys, and a value outside its
+  set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
+  launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist
   in your registry) · `stateDir` (override `runs/<runId>`).
 
 ## 9. State files (`runs/<runId>/`, outside every repo)

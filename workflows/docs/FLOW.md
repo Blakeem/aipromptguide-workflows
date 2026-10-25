@@ -18,11 +18,14 @@ flowchart TD
   x2[/"throw: args must include at least { runId, root, sources, brief#124;planPath }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: Invalid numeric arg"/]
-  x5[/"throw: Provide the brief"/]
-  x6[/"throw: args.sources is required"/]
-  x7[/"throw: source ids collide after slugging"/]
-  x8[/"throw: Every source reported zero doc files"/]
-  x9[/"throw: Curator returned nothing in round ..."/]
+  x5[/"throw: Invalid role map"/]
+  x6[/"throw: Unknown role key in a role map"/]
+  x7[/"throw: Illegal role value in a role map"/]
+  x8[/"throw: Provide the brief"/]
+  x9[/"throw: args.sources is required"/]
+  x10[/"throw: source ids collide after slugging"/]
+  x11[/"throw: Every source reported zero doc files"/]
+  x12[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -31,14 +34,17 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
+  S0 --> x8
+  S0 --> x9
+  S0 --> x10
   a1 --> a2
   a1 --> a3
-  a1 --> x8
+  a1 --> x11
   a2 --> a3
   a3 -.->|"the curator returns a gap the next round fills · +1 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x9
+  a3 --> x12
 ```
 
 ## Phases
@@ -59,12 +65,15 @@ flowchart TD
 | throw: args must include at least { runId, root, sources, brief\|planPath } | args carry no runId | throw (line 46) |
 | throw: args.root is required | args.root is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 59) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 89) |
-| throw: args.sources is required | args.sources is empty | throw (line 102) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 106) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 320) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 333) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 78) |
+| throw: Unknown role key in a role map | models carries a key outside gather \| scrub \| curate | throw (line 83) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 86) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 113) |
+| throw: args.sources is required | args.sources is empty | throw (line 126) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 130) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 344) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 357) |
 
 ## Coverage
 
-15 scenarios · 3/3 roles · 9/9 throw sites · 0/0 halt statuses · 11 terminal states.
+19 scenarios · 3/3 roles · 12/12 throw sites · 0/0 halt statuses · 14 terminal states.

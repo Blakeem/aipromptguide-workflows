@@ -11,6 +11,7 @@
 // ordering those tables cannot see — the throw lands before the first opus critic is ever spawned.
 import { readFileSync } from 'node:fs';
 import { runEngine, runTrace, throwsWith, readMeta, REPO_ROOT, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
@@ -559,3 +560,8 @@ section('a payload the loop cannot trust throws instead of running a round');
       `${name} throws before the first critic: ${terminal.message.slice(0, 45)}`);
   }
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'refine', defaults: { critic: 'opus', editor: 'opus' },
+  runs: [{ args: { ...baseArgs, maxRounds: 1 }, respond: { 'plan-critic': GAPS, 'plan-editor': FOLD_OK }, labels: { critic: 'plan-critic', editor: 'plan-editor' } }],
+});

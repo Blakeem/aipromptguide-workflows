@@ -26,7 +26,10 @@ flowchart TD
   x5[/"throw: args.target.repo is required"/]
   x6[/"throw: Invalid numeric arg"/]
   x7[/"throw: Invalid severity floor"/]
-  x8[/"throw: Plan critic returned nothing in round ..."/]
+  x8[/"throw: Invalid role map"/]
+  x9[/"throw: Unknown role key in a role map"/]
+  x10[/"throw: Illegal role value in a role map"/]
+  x11[/"throw: Plan critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -35,11 +38,14 @@ flowchart TD
   S0 --> x5
   S0 --> x6
   S0 --> x7
+  S0 --> x8
+  S0 --> x9
+  S0 --> x10
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t5
-  a1 --> x8
+  a1 --> x11
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
   a2 --> t3
   a2 --> t4
@@ -74,8 +80,11 @@ flowchart TD
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 62) |
 | throw: Invalid severity floor | critiqueSeverity is outside blocking \| major \| minor | throw (line 73) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 343) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 91) |
+| throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 367) |
 
 ## Coverage
 
-17 scenarios · 2/2 roles · 8/8 throw sites · 8/8 halt statuses · 16 terminal states.
+21 scenarios · 2/2 roles · 11/11 throw sites · 8/8 halt statuses · 19 terminal states.

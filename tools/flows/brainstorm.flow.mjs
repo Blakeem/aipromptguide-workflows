@@ -44,12 +44,17 @@ export default {
       terminal: 'nothing produced (every generator failed)',
     },
 
-    // ---- the six throw sites, in the order the engine checks them -----------------------------
+    // ---- the nine throw sites, in the order the engine checks them -----------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside generate', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { generate: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { generate: 'ultra' } } },
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow', lenses: ['a'] } },
     { name: 'no lenses', when: 'args.lenses is empty', args: { runId: 'flow', root: 'E:/flow', brief: 'b' } },
     {

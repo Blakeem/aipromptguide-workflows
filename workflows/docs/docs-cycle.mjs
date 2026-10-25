@@ -66,9 +66,33 @@ const FIDELITY_N  = num(A.fidelitySample, 'fidelitySample', 0, 3);     // files 
 
 // Per-role model tiers + OPTIONAL custom subagent types. Docs work is simple next to code — every role
 // defaults to a fast tier: gather + curate copy/organize/judge (sonnet); scrub strips junk (haiku).
-const M  = { gather: 'sonnet', scrub: 'haiku', curate: 'sonnet', ...(A.models ?? {}) };
+const ROLE_KEYS = ['gather', 'scrub', 'curate'];
+const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'fable']);
+const VALID_EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
+const DEFAULT_EFFORT = 'high';
+// Copy of develop's roleMap, since an engine cannot import: a test pins the copies equal.
+// Static lead clauses: gen-flows labels each throw node from them.
+const roleMap = (name, value, legal) => {
+  if (value === undefined) return {};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Invalid role map: args.${name} must be an object that maps a role key to a value; got ${JSON.stringify(value)}.`);
+  }
+  const entries = Object.entries(value);
+  for (const [role, setting] of entries) {
+    if (!ROLE_KEYS.includes(role)) {
+      throw new Error(`Unknown role key in a role map: args.${name} names ${JSON.stringify(role)}, and the role keys are ${ROLE_KEYS.join(' | ')}.`);
+    }
+    if (!legal.has(setting)) {
+      throw new Error(`Illegal role value in a role map: args.${name}.${role} is ${JSON.stringify(setting)}, and it must be one of ${[...legal].join(' | ')}.`);
+    }
+  }
+  return Object.fromEntries(entries);
+};
+const M  = { gather: 'sonnet', scrub: 'haiku', curate: 'sonnet', ...roleMap('models', A.models, VALID_MODELS) };
+const EF = { gather: DEFAULT_EFFORT, scrub: DEFAULT_EFFORT, curate: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
 const AT = { ...(A.agentTypes ?? {}) };
-const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+log(`docs: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`);
 
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');

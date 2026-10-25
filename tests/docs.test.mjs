@@ -3,6 +3,7 @@
 // visible in the log instead. Everything else about this engine is held by tools/flows/docs.flow.mjs
 // (its throw sites, both exits of the gap loop, a dead gatherer, a zero-file source).
 import { runEngine, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/docs/docs-cycle.mjs';
 
@@ -172,3 +173,8 @@ section('nextStep states the set\'s counts and leads with the foreign-content wa
   const foreignAt = step.indexOf('WARN THE USER FIRST: E:/r/runs/t/docs held');
   ok(foreignAt !== -1 && foreignAt < step.indexOf('Present the set'), 'and the foreign-content warning sits before "Present the set"');
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'docs', defaults: { gather: 'sonnet', scrub: 'haiku', curate: 'sonnet' },
+  runs: [{ args: baseArgs, respond: { gather: GATHER, scrub: { files_cleaned: 1 }, curate: CURATE }, labels: { gather: 'gather', scrub: 'scrub', curate: 'curate' } }],
+});

@@ -15,9 +15,12 @@ flowchart TD
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, lenses, brief#124;planPath }"/]
   x3[/"throw: args.root is required"/]
-  x4[/"throw: Provide the problem framing"/]
-  x5[/"throw: args.lenses is required"/]
-  x6[/"throw: lens ids collide after slugging"/]
+  x4[/"throw: Invalid role map"/]
+  x5[/"throw: Unknown role key in a role map"/]
+  x6[/"throw: Illegal role value in a role map"/]
+  x7[/"throw: Provide the problem framing"/]
+  x8[/"throw: args.lenses is required"/]
+  x9[/"throw: lens ids collide after slugging"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -25,6 +28,9 @@ flowchart TD
   S0 --> x4
   S0 --> x5
   S0 --> x6
+  S0 --> x7
+  S0 --> x8
+  S0 --> x9
   a1 --> t1
   a1 --> t2
 ```
@@ -44,10 +50,13 @@ flowchart TD
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 24) |
 | throw: args must include at least { runId, root, lenses, brief\|planPath } | args carry no runId | throw (line 27) |
 | throw: args.root is required | args.root is missing | throw (line 30) |
-| throw: Provide the problem framing | neither brief nor planPath | throw (line 59) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 74) |
-| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 78) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 49) |
+| throw: Unknown role key in a role map | models carries a key outside generate | throw (line 54) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 57) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 83) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 98) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 102) |
 
 ## Coverage
 
-9 scenarios · 1/1 roles · 6/6 throw sites · 0/0 halt statuses · 8 terminal states.
+13 scenarios · 1/1 roles · 9/9 throw sites · 0/0 halt statuses · 11 terminal states.

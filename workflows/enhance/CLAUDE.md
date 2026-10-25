@@ -171,7 +171,13 @@ inline.
   (`transformative`|`high`|`moderate`|`marginal`; default `moderate`) · `categories` (override the
   finding enum — default `efficiency`, `simplification`, `removal`, `robustness`, `capability`,
   `operator-effort`, `consistency`, `observability`, `cost`) · `target.lang`/`target.framework` (hints) ·
-  `models` (per-role tier: find/verify; both default opus) · `agentTypes` (custom subagent per role —
+  `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `find` and
+  `verify`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
+  `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
+  outside the role keys, and a value outside its set. Choose each role's model by the task and how much
+  judgment the role needs, as the develop guide §3 says. One launch log line names each role's model and
+  effort) · `agentTypes` (custom subagent per role —
   must exist in your registry) · `stateDir` (override `runs/<runId>`).
 
 Agent count is bounded and visible up front: **≤ 2 × lenses** (one finder each, plus a verifier only

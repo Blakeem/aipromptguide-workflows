@@ -1,6 +1,7 @@
 // brainstorm/brainstorm-cycle.mjs: the concurrent generator fan-out.
 // Focus: the control plane. Each variation lives in its folder, so the schema and the return carry only its index.
 import { runEngine, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 
 const ENGINE = 'workflows/brainstorm/brainstorm-cycle.mjs';
 const baseArgs = { runId: 't', root: 'E:/r', brief: 'Design a landing page', lenses: ['minimalist', 'playful'] };
@@ -37,3 +38,8 @@ section('a dead generator lands in failed as one { id, stage } entry, and the re
     'failed holds one entry naming the dead lens and the generate stage');
   ok(!('phase' in out), 'the return has no phase key');
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'brainstorm', defaults: { generate: 'opus' },
+  runs: [{ args: baseArgs, respond: { generate: GEN }, labels: { generate: 'generate' } }],
+});

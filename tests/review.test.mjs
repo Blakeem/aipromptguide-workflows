@@ -2,6 +2,7 @@
 // Focus: the lens ARRAY (several angles over the same files, one issue file, one verifier) and the
 // issue file the verifier writes, the triaged inventory a develop fix-mode block is built from.
 import { runEngine, runTrace, throwsWith, section, ok, eq } from './harness.mjs';
+import { pinRoleMaps } from './role-map-pin.mjs';
 import { emitList, parseBlocks, parseFileKeys, validate } from '../tools/plan-block.mjs';
 
 const ENGINE = 'workflows/debug/review.mjs';
@@ -140,7 +141,7 @@ section('an empty lens array reads as unset, never as zero reviewers');
     const { calls, logs } = await run(args, { 'review': NO_FINDINGS });
     eq(calls.length, 1, `${name}: one reviewer ran`);
     ok(calls[0].prompt.includes(mandate), `${name}: with the expected mandate`);
-    ok(/1 reviewer\(s\)/.test(logs[0]), `${name}: the reviewer count logged matches`);
+    ok(logs.some((l) => /1 reviewer\(s\)/.test(l)), `${name}: the reviewer count logged matches`);
   }
 }
 
@@ -658,3 +659,12 @@ section('nextStep carries the presentation rules the guide held');
   const { out: two } = await run({ units: [UNIT, { ...UNIT, id: 'u2' }] }, { 'review': { wrote_clean_marker: true, findings: [] } });
   ok(two.nextStep.includes('cover only the 2 unit(s) this run reviewed'), `the counts are scoped to this run's units: ${two.nextStep.slice(0, 200)}`);
 }
+
+await pinRoleMaps({
+  engine: ENGINE, name: 'review', defaults: { review: 'opus', verify: 'opus' },
+  runs: [{
+    args: { ...baseArgs, units: [UNIT] },
+    respond: { review: { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] }, verify: { wrote_file: true, verdicts: [keep('u1-1')] } },
+    labels: { review: 'review', verify: 'verify' },
+  }],
+});

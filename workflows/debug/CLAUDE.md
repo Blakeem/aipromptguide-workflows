@@ -243,9 +243,13 @@ with `units` from `gen-units.mjs`.
   the rename. `focused` makes each **Fix:** line the minimal fix. `proactive` makes it the
   fix with the best long-term result. Neither changes what counts as a finding. The reviewer prompt and
   the verifier prompt each say the policy and that prompt's own scope and routing rules override any
-  other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`agentTypes` (the
-  `review` and `verify` roles, both opus by default. Set another model for them only when the user
-  asks. A saved memory preference counts as asking).
+  other instruction about scope, a memory line or a CLAUDE.md included) · `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
+  are `review` and `verify`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
+  `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
+  outside the role keys, and a value outside its set. Choose each role's model by the task and the
+  change's risk, as the develop guide §3 says. One launch log line names each role's model and
+  effort).
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
   `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every clean unit whose reviewer

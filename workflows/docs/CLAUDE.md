@@ -165,7 +165,13 @@ Full schema + defaults: the Config block atop `docs-cycle.mjs`. Pass `args` inli
   exactly the failure it exists to prevent) · `maxRounds`
   (2; **throws** unless it is a number in 1–50) · `testbed` (how to empirically verify non-official
   claims — §3) · `target.repo` (absolute —
-  required for `repo` sources) · `models` (per-role tier: gather/scrub/curate) · `agentTypes` (custom
+  required for `repo` sources) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `gather`,
+  `scrub` and `curate`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. The gather and curate roles default to sonnet, the scrub role
+  defaults to haiku, and every role defaults to `high`. The engine **throws** at launch, naming the
+  arg, on a value that is not an object, a key outside the role keys, and a value outside its set.
+  Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
+  launch log line names each role's model and effort) · `agentTypes` (custom
   subagent per role — must exist in your registry) · `stateDir` (override `runs/<runId>`).
 
 ## 8. State files (`runs/<runId>/`, outside every repo — or `outDir`)

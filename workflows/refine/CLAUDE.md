@@ -104,8 +104,13 @@ Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical 
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
   **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `blockTool` (default
   `<root>/tools/plan-block.mjs`, the editor's re-validation command — pre-allowlist it) ·
-  `conventions` · `reference` · `models`/`agentTypes` (keep the critic and editor on opus, and set another
-  model for them only when the user asks. A saved memory preference counts as asking) · `stateDir`.
+  `conventions` · `reference` · `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
+  are `critic` and `editor`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
+  `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key
+  outside the role keys, and a value outside its set. Choose each role's model by the task and the
+  change's risk, as the develop guide §3 says. One launch log line names each role's model and
+  effort) · `stateDir`.
 - **Return:** `status` · `halted` (true on `needs-answers`, `dismissal-contested` and every
   `BLOCKED` halt) · `haltReason` (empty when `halted` is false) · `nextStep` (§2) · `failed` (always
   empty: both roles are solo, so a dead critic throws and a dead editor halts) · `rounds` ·

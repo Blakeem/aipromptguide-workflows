@@ -79,7 +79,12 @@ Full schema + defaults: the Config block atop `brainstorm-cycle.mjs`. Pass `args
   `"a 1-page Markdown proposal"`; default a Markdown doc) · `kind` (noun for the thing, e.g. `"web
   design"`, `"product idea"`) · `constraints` (shared, applied to every lens) · `references` (array of
   doc paths each generator may draw on — the "refs" mode) · `target.repo` (absolute path, read-only
-  context only) · `target.lang`/`target.framework` (hints) · `models.generate` (default opus) ·
+  context only) · `target.lang`/`target.framework` (hints) · `models`/`efforts` (`models` and `efforts` map a role key to a value. The only role key is
+  `generate`. A model is `opus | sonnet | haiku | fable` and an effort is
+  `low | medium | high | xhigh | max`. The role defaults to opus and to `high`. The engine
+  **throws** at launch, naming the arg, on a value that is not an object, a key outside the role
+  keys, and a value outside its set. Choose each role's model by the task and how much judgment the role needs, as
+  the develop guide §3 says. One launch log line names each role's model and effort) ·
   `agentTypes.generate` (custom subagent — must exist in your registry) · `stateDir` (override
   `runs/<runId>`).
 
