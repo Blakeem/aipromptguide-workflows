@@ -203,7 +203,7 @@ dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP. Grep th
 
 BLOCK METADATA is part of what you judge. Each \`## Plan: <id>\` block opens with a preamble run of
 \`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | parked |
-blocked), \`model\` (opus | sonnet), plus informational \`test_selector\` and \`depends_on\`. A \`gate\`
+blocked), \`model\` (opus | sonnet | haiku | fable), \`effort\` (low | medium | high | xhigh | max), plus informational \`test_selector\` and \`depends_on\`. A \`gate\`
 ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
 red-baseline | build-only; fix takes green). File keys \`goal\` / \`ordered\` / \`suite\` / \`sweep\` sit above
 the first block.

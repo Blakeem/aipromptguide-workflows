@@ -1,11 +1,21 @@
 # tests
 
 ```bash
-node tests/run.mjs              # everything
+node tests/run.mjs              # everything, several files at once
 node tests/run.mjs migrate      # just files matching "migrate"
+node tests/run.mjs --jobs 1     # one file at a time
 ```
 
-Exit 0 green, 1 red. The suite needs no dependencies, config or network. It runs in about a second.
+Exit 0 green, 1 red. The suite needs no dependencies, config or network.
+
+The runner runs each test file in its own child process, at most `--jobs` at once. The default is the CPU count,
+capped at the number of selected files. A `--jobs` value that is not a positive integer exits 1. Each file's
+output prints as one chunk, in sorted file order. A file fails when its process ends without reporting its
+assertions, ends on a signal, or exits with a code its reported failures do not explain.
+
+A test file runs beside every other test file. It must not depend on another file's module state and must not
+share a resource with one. Keep fixtures in a `mkdtemp` folder of its own. Never write into the checkout,
+use a fixed path or port, or change a global git config.
 
 **This is also the gate.** When you run a workflow *against this repo*, point both gates at it:
 

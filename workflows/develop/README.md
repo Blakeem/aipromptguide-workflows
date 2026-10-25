@@ -13,8 +13,15 @@ Each `## Plan:` block names its `mode`, and the mode picks the instructions the 
 | `section` | One slice of a goal that spans many call sites, such as a migration or upgrade | The criteria are met and every call site the block owns is converted |
 | `fix` | One triaged issue inventory from debug or your own testing | Each ACTIONABLE issue is fixed at its root cause and no other entry was touched |
 
-A block can also name its developer model in a `model:` line, picked by how complex the block is. The
-reviewers always use the run's review models, which default to Opus.
+A block can also name its developer model in a `model:` line (`opus`, `sonnet`, `haiku` or `fable`), picked
+by the task. Sonnet takes common work, opus takes complex or risky work, haiku takes a bulk text
+replacement, and fable runs only when you ask for it. The review roles use the run's `models`, which
+default to Opus, and every role runs at the `high` reasoning level unless the run's `efforts` says
+otherwise. A block's `effort:` line (`low`, `medium`, `high`, `xhigh` or `max`) sets its developer's level
+instead, and Claude writes one only when you ask for a level other than the run's. Claude saves the role
+models and efforts you ask to keep for a repo in the repo's project settings with `project-settings.mjs
+set-roles`, and the next run of that repo takes them from `project-settings.mjs roles`. A role you name for a run wins
+over the saved one.
 
 A run's `changePolicy` is `focused` by default. Claude asks which policy a repo takes the first time
 and saves the answer. The developer sorts the code into three zones. Task code is the code its block

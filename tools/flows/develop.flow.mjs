@@ -124,6 +124,11 @@ export default {
     { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
     { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },
     { name: 'planContext is retired', when: 'a plans row carries planContext', args: { ...base, plans: [{ ...BLOCKS[0], planContext: 'full' }] } },
+    // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
+    { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
+    { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
+    { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { develop: 'gpt' } } },
+    { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { develop: 'ultra' } } },
     // The developer and fix acceptance append to the backlog folder, so a run without one has nowhere to
     // record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
     { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },
@@ -148,7 +153,8 @@ export default {
     // A gate is legal only for its OWN mode: red-baseline is a section gate, and a feature block that got
     // it would be judged by a rule its frame never applies.
     { name: 'block gate is illegal for its mode', when: 'a feature block asks for gate red-baseline', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', gate: 'red-baseline' }] } },
-    { name: 'block model is not a known model', when: 'a block names a model outside opus | sonnet', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', model: 'gpt' }] } },
+    { name: 'block model is not a known model', when: 'a block names a model outside opus | sonnet | haiku | fable', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', model: 'gpt' }] } },
+    { name: 'block effort is not a known level', when: 'a block names an effort outside low | medium | high | xhigh | max', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', effort: 'ultra' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
     { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
     // Every block's body lives in a plan FILE, addressed by id. A row with no path would hand the developer

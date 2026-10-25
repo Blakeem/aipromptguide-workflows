@@ -187,6 +187,7 @@ against (halt); an unreachable feature does not (flag).
 
 `node tests/run.mjs`. See [`README.md`](README.md) for the API; the short version:
 
+- **A test file runs beside the others**, so it shares no resource with them. [`README.md`](README.md) lists the rules.
 - **Test failure paths.** The happy path is exercised constantly by real runs. Halts, parks, dead agents,
   contradictory returns and bad args are what rot silently — and are where every real defect has been.
 - **`respond: { 'label': null }` simulates a dead agent** — one character, and it covers §3's number-one

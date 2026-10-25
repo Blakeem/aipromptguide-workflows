@@ -37,7 +37,7 @@ import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, valid
 const USAGE = `usage:
   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
       upsert ONE metadata line. A plan id targets the block preamble (mode, gate, status,
-      test_selector, depends_on, model); an issue id targets that entry's "- key:" run.
+      test_selector, depends_on, model, effort); an issue id targets that entry's "- key:" run.
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
@@ -496,9 +496,9 @@ function blockFiles(block, repo) {
 
 /**
  * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
- * lines. Blocks are sorted by developer model, then by the first file they touch, so a pass holds one model
- * and neighbouring code. A block over the cap alone, or one with nothing ACTIONABLE, stays its own row. A
- * pass sits where its first member did.
+ * lines. Blocks are sorted by developer model, then effort, then by the first file they touch, so a pass holds
+ * one model, one effort and neighbouring code. A block over the cap alone, or one with nothing ACTIONABLE,
+ * stays its own row. A pass sits where its first member did.
  */
 function packPasses(args, folded, repo, cap, note) {
   if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
@@ -509,18 +509,18 @@ function packPasses(args, folded, repo, cap, note) {
     const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
     const files = blockFiles(block, repo);
     if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry, so it is not a plan to build\n`); continue; }
-    candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '' });
+    candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
   }
-  candidates.sort((a, b) => a.model.localeCompare(b.model) || a.first.localeCompare(b.first) || a.index - b.index);
+  candidates.sort((a, b) => a.model.localeCompare(b.model) || a.effort.localeCompare(b.effort) || a.first.localeCompare(b.first) || a.index - b.index);
 
   const passes = [];
   let open = null;
   for (const c of candidates) {
     const added = [...c.files].filter(([f]) => !open?.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
     const clash = open && c.issues.some((id) => open.issues.has(id));
-    // One pass runs one developer. A block with no model takes the run's default, which --pack cannot see.
-    if (!open || clash || open.model !== c.model || open.loc + added > cap) {
-      open = { members: [], files: new Map(), issues: new Set(), loc: 0, model: c.model };
+    // One pass runs one developer. A block with no model or effort takes the run's default, which --pack cannot see.
+    if (!open || clash || open.model !== c.model || open.effort !== c.effort || open.loc + added > cap) {
+      open = { members: [], files: new Map(), issues: new Set(), loc: 0, model: c.model, effort: c.effort };
       passes.push(open);
     }
     open.members.push(c);
@@ -536,7 +536,8 @@ function packPasses(args, folded, repo, cap, note) {
     if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
     const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues }));
     const model = pass.model ? { model: pass.model } : {};
-    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', ...model, blocks: members });
+    const effort = pass.effort ? { effort: pass.effort } : {};
+    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', ...model, ...effort, blocks: members });
     for (const m of pass.members) if (m !== head) replaced.set(m.index, null);
     note(`packed ${members.map((m) => m.id).join(', ')} into ${id} (${pass.loc} lines)\n`);
   }

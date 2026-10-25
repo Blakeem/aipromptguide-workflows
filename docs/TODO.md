@@ -16,6 +16,10 @@ args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required
    interval heartbeat, which the wt-land reviewer noted and the build declined because wt.mjs is
    wholly synchronous. Worth doing only if real gates start tripping 75 mid-gate; until then the
    playbook's rule (set `--stale-ms` above the slowest gate) covers it.
+7. **Per-role models and efforts in the other engines** — give refine, debug's review, enhance,
+   brainstorm, decide, investigate and docs an `efforts` map and develop's `roleMap` validation of `models`
+   and `efforts`. Each already has a per-role `models` map that it spreads unchecked, and none of them sets a
+   reasoning level, so each agent takes the runtime's default.
 
 ## Judgment-only (stays in tests/CLAUDE.md §3 — not mechanically checkable)
 
@@ -25,7 +29,7 @@ args-JSON guard, prose-sniff tripwire, top-level attestation sweep, and required
 
 ## Done since filing
 
-- **Worktree parallelism** — BUILT 2026-08-01 (wt-tooling roadmap: `tools/wt.mjs`, `tests/wt.test.mjs`,
+- **Worktree parallelism** — BUILT 2026-08-01 (wt-tooling roadmap: `tools/wt.mjs`, `tests/wt-*.test.mjs`,
   playbook `docs/worktree-batches.md`). First live parallel batch ran 2026-08-02 (batch h1, below).
 - **Item 2, schema-scoped attestation matching** — BUILT 2026-08-02 (batch h1, `attestation-scoping`):
   receiver-bound `consumed()`, alias rule, ambiguity = extractor error (three local renames), explicit

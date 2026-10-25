@@ -46,7 +46,8 @@ section('a BARE numeric flag is rejected too');
 
 section('valid caps reach the manifest, and --no-pack is recorded as PACK false');
 {
-  const out = join(tmpdir(), 'aipg-gen-units-test', 'manifest.json');
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-gen-units-caps-'));
+  const out = join(dir, 'manifest.json');
   try {
     const r = runCli(['--repo', REPO_ROOT, '--src', 'tools', '--ext', '.mjs', '--no-pack', '--unit-loc', '1500', '--out', out]);
     eq(r.code, 0, `a valid run succeeds: ${r.stderr.split('\n')[0]}`);
@@ -55,7 +56,7 @@ section('valid caps reach the manifest, and --no-pack is recorded as PACK false'
     eq(caps.UNIT_LOC, 1500, 'an explicit cap is carried through');
     eq(caps.CAP_FILES, 24, 'an absent flag still gets its default');
   } finally {
-    rmSync(join(tmpdir(), 'aipg-gen-units-test'), { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   }
 }
 

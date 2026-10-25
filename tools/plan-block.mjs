@@ -47,7 +47,8 @@ const PREAMBLE_KEYS = {
   status: ['todo', 'done', 'skip', 'parked', 'blocked'],
   test_selector: null,
   depends_on: null,
-  model: ['opus', 'sonnet'],                   // the block's developer model, else the run's models.develop
+  model: ['opus', 'sonnet', 'haiku', 'fable'], // the block's developer model, else the run's models.develop
+  effort: ['low', 'medium', 'high', 'xhigh', 'max'], // the block's developer reasoning level, else the run's efforts.develop
 };
 const ISSUE_KEYS = {
   id: null,                                    // kebab, and equal to its heading's id (checked in validate)
@@ -65,7 +66,8 @@ const ISSUE_KEYS = {
 // The two runs a write tool upserts into, each with the noun its failures name. Exported because a key
 // must be checked against its table BEFORE a line is spliced in: a key outside `[a-z_]+` builds a line
 // that ENDS the run instead of joining it, so a round-trip parse afterwards never sees it and the edit is
-// written as junk prose at exit 0. One copy of the grammar, read here and by tools/plan-edit.mjs.
+// written as junk prose at exit 0. One copy of the grammar, read here, by tools/plan-edit.mjs, and for
+// the role model and effort sets by tools/project-settings.mjs.
 export const RUN_KEYS = {
   file: { keys: FILE_KEYS, what: 'file key' },
   preamble: { keys: PREAMBLE_KEYS, what: 'preamble key' },
@@ -455,8 +457,8 @@ export function listObject(blocks, source, fileKeys = null) {
     const gate = readGate(block.body);
     if (!gate) missing.push(`${block.id} (mode ${block.mode})`);
     else if (!gates.includes(gate)) bad.push(`${block.id} (${gate}, mode ${block.mode})`);
-    const { status = 'todo', model } = block.preamble.values;
-    return { id: block.id, title: block.title || block.id, mode: block.mode, gate, status, ...(model ? { model } : {}) };
+    const { status = 'todo', model, effort } = block.preamble.values;
+    return { id: block.id, title: block.title || block.id, mode: block.mode, gate, status, ...(model ? { model } : {}), ...(effort ? { effort } : {}) };
   });
 
   if (missing.length) {
@@ -490,8 +492,9 @@ export function listObject(blocks, source, fileKeys = null) {
 export function emitList(blocks, source, fileKeys = null) {
   const { blocks: rows, ...head } = listObject(blocks, source, fileKeys);
   const model = (r) => (r.model ? `, "model": ${JSON.stringify(r.model)}` : '');
+  const effort = (r) => (r.effort ? `, "effort": ${JSON.stringify(r.effort)}` : '');
   const row = (r) => `    { "id": ${JSON.stringify(r.id)}, "title": ${JSON.stringify(r.title)}`
-    + `, "mode": ${JSON.stringify(r.mode)}, "gate": ${JSON.stringify(r.gate)}, "status": ${JSON.stringify(r.status)}${model(r)} }`;
+    + `, "mode": ${JSON.stringify(r.mode)}, "gate": ${JSON.stringify(r.gate)}, "status": ${JSON.stringify(r.status)}${model(r)}${effort(r)} }`;
   return `{\n  "goal": ${JSON.stringify(head.goal)}, "ordered": ${head.ordered}`
     + `, "suite": ${JSON.stringify(head.suite)}, "sweep": ${JSON.stringify(head.sweep)},\n`
     + `  "blocks": [\n${rows.map(row).join(',\n')}\n  ]\n}\n`;
@@ -506,7 +509,7 @@ const USAGE = `usage:
   node tools/plan-block.mjs <plan.md|plan-name> --list     print the control object as JSON
 
   Blocks are "## Plan: <id>", with file keys (goal, ordered, suite, sweep, synced), a block preamble
-  (mode, gate, status, test_selector, depends_on, model) and, under a fix-mode block, "### [<id>]"
+  (mode, gate, status, test_selector, depends_on, model, effort) and, under a fix-mode block, "### [<id>]"
   issue entries. --list emits { goal, ordered, suite, sweep, blocks: [...] }.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;

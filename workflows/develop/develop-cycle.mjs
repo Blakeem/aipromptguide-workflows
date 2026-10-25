@@ -83,12 +83,36 @@ if (CONTEXT_ROWS.length) {
   throw new Error(`args.plans[].planContext is retired: plans [${CONTEXT_ROWS.join(', ')}] carry it. Every agent gets its block through the plan-block command, which already names the whole plan file for neighbour context, so drop the key.`);
 }
 
-// Set an agentType only when it exists in your registry. The blind critic is opus because the fast tier
-// surfaced one deep defect per round on large diffs. Sweep is opus too: the runtime relays the launching
-// user message to every agent, and a sonnet agent may follow it over its task.
-const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'opus', ...(A.models ?? {}) };
+const ROLE_KEYS = ['develop', 'park', 'quality', 'acceptance', 'sweep'];
+const VALID_MODELS = new Set(['opus', 'sonnet', 'haiku', 'fable']);
+const VALID_EFFORTS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
+const DEFAULT_EFFORT = 'high';
+// Static lead clauses: gen-flows labels each throw node from them. A role map that coerced would send an
+// agent to an unintended model or effort, and the run would never say so.
+const roleMap = (name, value, legal) => {
+  if (value === undefined) return {};
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`Invalid role map: args.${name} must be an object that maps a role key to a value; got ${JSON.stringify(value)}.`);
+  }
+  const entries = Object.entries(value);
+  for (const [role, setting] of entries) {
+    if (!ROLE_KEYS.includes(role)) {
+      throw new Error(`Unknown role key in a role map: args.${name} names ${JSON.stringify(role)}, and the role keys are ${ROLE_KEYS.join(' | ')}.`);
+    }
+    if (!legal.has(setting)) {
+      throw new Error(`Illegal role value in a role map: args.${name}.${role} is ${JSON.stringify(setting)}, and it must be one of ${[...legal].join(' | ')}.`);
+    }
+  }
+  return Object.fromEntries(entries);
+};
+// park has no default: it follows its block's developer.
+// The blind critic is opus because the fast tier surfaced one deep defect per round on large diffs. Sweep is
+// opus too: the runtime relays the launching user message to every agent, and a sonnet agent may follow it over its task.
+const M  = { develop: 'opus', quality: 'opus', acceptance: 'opus', sweep: 'opus', ...roleMap('models', A.models, VALID_MODELS) };
+const EF = { develop: DEFAULT_EFFORT, quality: DEFAULT_EFFORT, acceptance: DEFAULT_EFFORT, sweep: DEFAULT_EFFORT, ...roleMap('efforts', A.efforts, VALID_EFFORTS) };
+// Set an agentType only when it exists in your registry.
 const AT = { ...(A.agentTypes ?? {}) };
-const roleOpts = (role, extra) => ({ model: M[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
+const roleOpts = (role, extra) => ({ model: M[role], effort: EF[role], ...(AT[role] ? { agentType: AT[role] } : {}), ...extra });
 
 // Every engine line goes through logLine: a bare log() escapes the budget and can push status lines past the cap.
 const STATUS_LOG = 'status-sync ';
@@ -240,12 +264,17 @@ if (BAD_GATES.length) {
   throw new Error(`plan gate(s) [${BAD_GATES.join(', ')}] are not legal for their block's mode. A gate decides what "done" MEANS for its block, so an unrecognized value must never coerce. Omit the field entirely to take the green default.`);
 }
 
-// A typed model the runtime may not know would fail the developer call mid-run, after earlier blocks staged.
-const VALID_MODELS = new Set(['opus', 'sonnet']);
+// A typed model or effort the runtime may not know would fail the developer call mid-run, after earlier blocks staged.
 const BAD_MODELS = RAW.filter((p) => p.model != null && !VALID_MODELS.has(p.model))
   .map((p) => `${p.id}: ${JSON.stringify(p.model)}`);
 if (BAD_MODELS.length) {
-  throw new Error(`plan model(s) [${BAD_MODELS.join(', ')}] are not one of opus | sonnet. A model picks its block's developer, so an unrecognized value must never coerce. Omit the field entirely to take the run's models.develop.`);
+  throw new Error(`plan model(s) [${BAD_MODELS.join(', ')}] are not one of opus | sonnet | haiku | fable. A model picks its block's developer, so an unrecognized value must never coerce. Omit the field entirely to take the run's models.develop.`);
+}
+
+const BAD_EFFORTS = RAW.filter((p) => p.effort != null && !VALID_EFFORTS.has(p.effort))
+  .map((p) => `${p.id}: ${JSON.stringify(p.effort)}`);
+if (BAD_EFFORTS.length) {
+  throw new Error(`plan effort(s) [${BAD_EFFORTS.join(', ')}] are not one of low | medium | high | xhigh | max. An effort sets its block's developer reasoning level, so an unrecognized value must never coerce. Omit the field entirely to take the run's efforts.develop.`);
 }
 
 // `status` is what the todo filter selects on, so a typo is a block silently skipped (or, worse, a
@@ -263,6 +292,7 @@ const ALL_PLANS = RAW.map((p) => ({
   gate: p.gate ?? 'green',
   status: p.status ?? 'todo',
   model: p.model ?? null,
+  effort: p.effort ?? null,
   blocks: p.blocks ? p.blocks.map((b) => ({ id: b.id, planPath: abs(b.planPath), issues: b.issues })) : null,
 }));
 
@@ -1597,6 +1627,7 @@ if (!pending.length) {
 }
 
 logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}, changePolicy=${CHANGE_POLICY}]`);
+logLine(`develop: roles ${ROLE_KEYS.map((r) => `${r}=${M[r] ?? '(developer)'}/${EF[r] ?? '(developer)'}`).join(', ')}`);
 
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
 // Also logged per block as one or more STATUS_LOG lines: run logs survive a failed or stopped run, and
@@ -1788,10 +1819,11 @@ for (const p of pending) {
     break;
   }
 
-  // A block's model picks its developer and park agent only. Reviews stay on the run's models.
+  // A block's model and effort pick its developer, and its park agent when models.park or efforts.park is unset. Reviews stay on the run's models and efforts.
   const devModel = p.model ?? M.develop;
-  logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
+  const devEffort = p.effort ?? EF.develop;
+  logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}${p.effort ? `, effort=${p.effort}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   for (const b of p.blocks ?? [p]) startedBacklogFiles.add(backlogFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
@@ -1844,12 +1876,12 @@ for (const p of pending) {
     let dev;
     if (!closing) {
       dev = await agent(developPrompt(p, round, reviewPath), roleOpts('develop', {
-        model: devModel, schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
+        model: devModel, effort: devEffort, schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
       }));
     } else {
       logLine(`  ↻ ${p.id}: round ${MAX_ROUNDS} ended without a passed acceptance → closing pass (r${round}), with no blind review after it`);
       dev = await agent(developPrompt(p, round, reviewPath), roleOpts('develop', {
-        model: devModel, schema: developSchema(p.mode, true), phase: 'Develop', label: `develop-closing ${p.id}`,
+        model: devModel, effort: devEffort, schema: developSchema(p.mode, true), phase: 'Develop', label: `develop-closing ${p.id}`,
       }));
     }
 
@@ -2227,7 +2259,8 @@ for (const p of pending) {
     // passed-regression halt names a review file that earlierReviews never holds.
     const keptReviews = [...new Set([...earlierReviews, reviewPath])].filter(Boolean);
     const pk = await agent(parkPrompt(p, reviewPath, keptReviews, escalated, parkKind || haltKind, halted, closingWhy, closingRecorded), roleOpts('develop', {
-      model: devModel, schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
+      // park reads agentTypes.develop: the engine looks up no agentTypes.park key.
+      model: M.park ?? devModel, effort: EF.park ?? devEffort, schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
     }));
     // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.
     const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;

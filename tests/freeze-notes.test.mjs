@@ -1,6 +1,8 @@
 // tools/freeze-notes.mjs — the frozen copy a live test runs must still BE the engine: the same agents in
 // the same order, each prompt the original plus the note, and nothing else changed.
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { REPO_ROOT, ENGINES, runTrace, section, ok, eq } from './harness.mjs';
 import { freeze } from '../tools/freeze-notes.mjs';
 import developFlow from '../tools/flows/develop.flow.mjs';
@@ -15,14 +17,13 @@ for (const engine of ENGINES) {
 }
 
 section('a frozen engine runs the same path, and every prompt ends with the note');
-// Under runs/, which git ignores: the harness loads an engine by its path in this checkout. brainstorm is
-// here because its only call sits in a parallel() thunk with no `await`, which the first version missed.
+// In a folder of its own under the temp dir, since test files run beside each other and none writes into the
+// checkout. brainstorm is here because its only call sits in a parallel() thunk with no `await`.
 for (const flow of [developFlow, brainstormFlow]) {
-  const dir = `${REPO_ROOT}/runs/_engines/_freeze-test`;
-  const frozenPath = `runs/_engines/_freeze-test/${flow.engine.split('/').pop()}`;
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(`${REPO_ROOT}/${frozenPath}`, freeze(readFileSync(`${REPO_ROOT}/${flow.engine}`, 'utf8'), 'E:/state/notes', 'test').text);
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-freeze-'));
+  const frozenPath = join(dir, flow.engine.split('/').pop());
   try {
+    writeFileSync(frozenPath, freeze(readFileSync(`${REPO_ROOT}/${flow.engine}`, 'utf8'), 'E:/state/notes', 'test').text);
     const scenario = flow.scenarios.find((s) => s.respond);
     const plain = await runTrace(flow.engine, scenario);
     const frozen = await runTrace(frozenPath, scenario);

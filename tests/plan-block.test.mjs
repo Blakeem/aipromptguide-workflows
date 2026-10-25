@@ -342,10 +342,48 @@ section('a preamble model line names the block\'s developer, and its --list row 
   eq(String(planFails(SONNET) || listOf(SONNET).blocks[0].model), 'sonnet', 'and the parsed row carries model: sonnet');
 
   const fault = planFails(ONE('gate: green\nmodel: gpt\n'));
-  ok(/illegal preamble key "model: gpt" — model takes opus \| sonnet/.test(fault), `an unknown model fails loudly, naming the key and the legal values: ${fault}`);
+  ok(/illegal preamble key "model: gpt" — model takes opus \| sonnet \| haiku \| fable/.test(fault), `an unknown model fails loudly, naming the key and the four legal values: ${fault}`);
+
+  const rowModel = (m) => { const plan = ONE(`gate: green\nmodel: ${m}\n`); return planFails(plan) || listOf(plan).blocks[0].model; };
+  eq(['opus', 'sonnet', 'haiku', 'fable'].map(rowModel).join(','), 'opus,sonnet,haiku,fable', 'all four model names parse and reach the row');
+  ok(/illegal preamble key "model: gemini"/.test(planFails(ONE('gate: green\nmodel: gemini\n'))), 'a fifth name is rejected');
+
+  // The engines cannot import tools/*.mjs, so each keeps its own copy of the model set.
+  const legal = (/model takes ([a-z |]+)/.exec(fault) || [])[1] || '';
+  const engineText = readFileSync(join(REPO_ROOT, 'workflows/develop/develop-cycle.mjs'), 'utf8');
+  const refineText = readFileSync(join(REPO_ROOT, 'workflows/refine/refine-cycle.mjs'), 'utf8');
+  ok(legal.includes('fable'), `the fault message lists the legal models: ${legal}`);
+  ok(engineText.includes(`are not one of ${legal}.`), 'develop\'s plan-model throw lists the same models as plan-block');
+  ok(engineText.includes(`new Set(['${legal.split(' | ').join('\', \'')}'])`), 'develop\'s VALID_MODELS holds the same models as plan-block');
+  ok(refineText.includes(`\\\`model\\\` (${legal})`), 'the refine critic prompt lists the same models as plan-block');
 
   const plain = emitList(validate(parseBlocks(ONE()), 'test'), 'test');
   ok(!Object.hasOwn(listOf(ONE()).blocks[0], 'model') && !/"model"/.test(plain), 'a block without the line has no model field in its row');
+}
+
+section('a preamble effort line names the block\'s developer reasoning level, and its --list row carries it only when set');
+{
+  const listText = (plan) => {
+    try { return emitList(validate(parseBlocks(plan), 'test'), 'test', parseFileKeys(plan)); } catch (e) { return e.message; }
+  };
+  ok(/"status": "todo", "effort": "xhigh" \}/.test(listText(ONE('gate: green\neffort: xhigh\n'))), 'an effort: xhigh block parses, and --list prints "effort" after "status"');
+  ok(/"model": "sonnet", "effort": "low" \}/.test(listText(ONE('gate: green\nmodel: sonnet\neffort: low\n'))), 'a block with both lines prints "effort" after "model"');
+
+  const rowEffort = (e) => { const plan = ONE(`gate: green\neffort: ${e}\n`); return planFails(plan) || listOf(plan).blocks[0].effort; };
+  eq(['low', 'medium', 'high', 'xhigh', 'max'].map(rowEffort).join(','), 'low,medium,high,xhigh,max', 'all five levels parse and reach the row');
+
+  const fault = planFails(ONE('gate: green\neffort: ultra\n'));
+  ok(/illegal preamble key "effort: ultra" — effort takes low \| medium \| high \| xhigh \| max/.test(fault), `an unknown level fails loudly, naming the key and the five legal values: ${fault}`);
+
+  // The engine cannot import tools/*.mjs, so it keeps its own copy of the level set.
+  const legal = (/effort takes ([a-z |]+)/.exec(fault) || [])[1] || '';
+  const engineText = readFileSync(join(REPO_ROOT, 'workflows/develop/develop-cycle.mjs'), 'utf8');
+  ok(legal.includes('xhigh'), `the fault message lists the legal levels: ${legal}`);
+  ok(engineText.includes(`are not one of ${legal}.`), 'develop\'s plan-effort throw lists the same levels as plan-block');
+  ok(engineText.includes(`new Set(['${legal.split(' | ').join('\', \'')}'])`), 'develop\'s VALID_EFFORTS holds the same levels as plan-block');
+
+  const plain = emitList(validate(parseBlocks(ONE()), 'test'), 'test');
+  ok(!Object.hasOwn(listOf(ONE()).blocks[0], 'effort') && !/"effort"/.test(plain), 'a block without the line has no effort field in its row');
 }
 
 section('every scanner reports positions into the RAW bytes — a splice cannot corrupt a BOM or a CRLF');

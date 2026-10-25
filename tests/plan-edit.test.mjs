@@ -325,7 +325,8 @@ section('every set failure exits 1 naming the problem, with the file\'s bytes un
     [['set', file, 'bus-parser', ' status=done'], /unknown preamble key " status"/, 'a key with a leading space'],
     [['set', file, 'bus-parser', 'status=nearly'], /illegal preamble key "status: nearly"/, 'an illegal block enum names the key AND the value'],
     [['set', file, 'bus-parser', 'mode=fixup'], /illegal preamble key "mode: fixup"/, 'an illegal mode'],
-    [['set', file, 'bus-parser', 'model=gpt'], /illegal preamble key "model: gpt" — model takes opus \| sonnet/, 'an illegal developer model'],
+    [['set', file, 'bus-parser', 'model=gpt'], /illegal preamble key "model: gpt" — model takes opus \| sonnet \| haiku \| fable/, 'an illegal developer model'],
+    [['set', file, 'bus-parser', 'effort=ultra'], /illegal preamble key "effort: ultra" — effort takes low \| medium \| high \| xhigh \| max/, 'an illegal developer effort'],
     [['set', file, 'null-deref', 'severity=urgent'], /illegal issue key "severity: urgent"/, 'an illegal issue enum'],
     [['set', file, 'null-deref', 'decision=MAYBE'], /illegal issue key "decision: MAYBE"/, 'an illegal decision'],
     [['set', file, 'null-deref', 'status=nearly'], /illegal issue key "status: nearly"/, 'and an illegal issue status — the enums differ by run'],
@@ -662,6 +663,17 @@ section('set writes a block\'s model line, and args passes it into that block\'s
   eq(rows.map((r) => `${r.id}=${r.model ?? '-'}`).join(','), 'bus-parser=sonnet,inventory=-,triage=-', `args carries the model on its block's row: ${err ?? ''}`);
 }
 
+section('set writes a block\'s effort line, and args passes it into that block\'s row only');
+{
+  const plan = fixture();
+  const before = read(plan);
+  eq(fails('set', plan, 'bus-parser', 'effort=xhigh'), '', 'set effort=xhigh succeeds');
+  eq(read(plan), before.replace('gate: build-only\n', 'gate: build-only\neffort: xhigh\n'), 'and appends the line to the block\'s preamble');
+  const { out, err } = argsWith(configWith([]), plan);
+  const rows = err ? [] : JSON.parse(out).plans;
+  eq(rows.map((r) => `${r.id}=${r.effort ?? '-'}`).join(','), 'bus-parser=xhigh,inventory=-,triage=-', `args carries the effort on its block's row: ${err ?? ''}`);
+}
+
 section('several plans make one args object, and plans that disagree on a file key fail');
 {
   const a = fixture(DEST, 'a.md');
@@ -752,6 +764,21 @@ section('--pack never puts two developer models, or a model beside none, in one 
   eq(plans.map((r) => `${r.id}:${r.model ?? '-'}`).join(','), 'sa-plus-1:sonnet,op:opus,none:-',
     `the opus block and the block with no model each stay alone, and the pass of sonnet blocks carries model sonnet: ${err ?? notes.trim()}`);
   eq(plans[0]?.blocks?.map((m) => m.id).join(','), 'sa,sb', 'that pass holds both sonnet blocks, though other blocks share their first file');
+}
+
+section('--pack never puts two developer efforts, or an effort beside none, in one pass');
+{
+  const dir = tmpDir();
+  const withEffort = (path, effort) => { writeFileSync(path, read(path).replace('gate: green\n', `gate: green\neffort: ${effort}\n`)); return path; };
+  const hi = withEffort(inventory(dir, 'hi', [{ id: 'hi-1', file: 'src/a.js', loc: 10 }]), 'xhigh');
+  const lo = withEffort(inventory(dir, 'lo', [{ id: 'lo-1', file: 'src/a.js', loc: 10 }]), 'low');
+  const none = inventory(dir, 'none', [{ id: 'none-1', file: 'src/a.js', loc: 10 }]);
+  const hi2 = withEffort(inventory(dir, 'hi2', [{ id: 'hi2-1', file: 'src/b.js', loc: 10 }]), 'xhigh');
+  const { out, notes, err } = packed(configWith([]), dir, 3000, hi, lo, none, hi2);
+  const plans = err ? [] : JSON.parse(out).plans;
+  eq(plans.map((r) => `${r.id}:${r.effort ?? '-'}`).join(','), 'hi-plus-1:xhigh,lo:low,none:-',
+    `the low block and the block with no effort each stay alone, and the pass of xhigh blocks carries effort xhigh: ${err ?? notes.trim()}`);
+  eq(plans[0]?.blocks?.map((m) => m.id).join(','), 'hi,hi2', 'that pass holds both xhigh blocks, though other blocks share their first file');
 }
 
 section('--pack refuses an ordered plan set and a bad cap');

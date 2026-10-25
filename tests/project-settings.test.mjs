@@ -1,16 +1,16 @@
 // tools/project-settings.mjs: the per-repo settings store and backlog folder, driven as a child process against real git.
 //
-// Fixtures live under mkdtemp(os.tmpdir(), 'aipg-settings-') and never under REPO_ROOT, as in wt.test.mjs, and each is
+// Fixtures live under mkdtemp(os.tmpdir(), 'aipg-settings-') and never under REPO_ROOT, as in wt-helpers.mjs, and each is
 // removed in `finally`. Every git child, the tool's included, reads only a config file inside the fixture and stops
 // its repository search at the fixture, so the machine's own git config never reaches a case.
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { STORE_FILE, projectName, repoKey, savedKey, withPolicy } from '../tools/project-settings.mjs';
+import { EFFORTS, MODELS, ROLE_KEYS, STORE_FILE, projectName, repoKey, savedKey, withPolicy, withRoles } from '../tools/project-settings.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/project-settings.mjs');
 const FOLDS_CASE = foldsCase(process.platform);
@@ -64,6 +64,8 @@ function withFixture(fn) {
     check: (dir) => cli('check', '--root', state, '--repo', dir),
     backlog: (dir) => cli('backlog', '--root', state, '--repo', dir),
     set: (dir, policy) => cli('set', '--root', state, '--repo', dir, '--policy', policy),
+    roles: (dir) => cli('roles', '--root', state, '--repo', dir),
+    setRoles: (dir, ...flags) => cli('set-roles', '--root', state, '--repo', dir, ...flags),
     store: () => JSON.parse(readFileSync(storePath, 'utf8')),
   };
   fx.setEmail(USER);
@@ -87,7 +89,7 @@ withFixture((fx) => {
   eq(fx.check(two).stdout, `focused ${keyOf(two)}\n`, 'check prints the second repo\'s saved policy');
   eq(JSON.stringify(fx.store()),
     JSON.stringify({ [keyOf(one)]: { changePolicy: 'proactive' }, [keyOf(two)]: { changePolicy: 'focused' } }),
-    'the store maps each key to an object whose one field is changePolicy');
+    'a store that holds only policies maps each key to an object whose one field is changePolicy');
   eq(fx.set(one, 'focused').code, 0, 'set replaces a saved policy');
   eq(JSON.stringify(fx.store()),
     JSON.stringify({ [keyOf(two)]: { changePolicy: 'focused' }, [keyOf(one)]: { changePolicy: 'focused' } }),
@@ -247,33 +249,201 @@ withFixture((fx) => {
   eq(r.stdout, `missing ${keyOf(long)} recommend=proactive\n`, `${LONG_HISTORY} commits by the user recommend proactive (${r.stderr.trim()})`);
 });
 
-section('a store that is not a JSON object of repo settings fails check and set, and set leaves its bytes');
+section('a store that is not a JSON object of repo settings fails every verb that reads it, and a write leaves its bytes');
 for (const [what, bytes, cause] of [
   ['a store that does not parse', '{ "E:/r": ', /does not parse as JSON/],
   ['a store that holds an array', '[{ "changePolicy": "focused" }]\n', /does not hold a JSON object/],
-  ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object whose one field is changePolicy/],
+  ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object of repo settings/],
   ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
-    /gives "E:\/x" the field "theme", which is not changePolicy, the one field a repo takes/],
-  ['a store value with no changePolicy', '{ "E:/x": {} }\n', /gives "E:\/x" no changePolicy field/],
+    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, models, efforts/],
   ['a changePolicy outside the two policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
     /gives "E:\/x" a changePolicy of "lenient", which is neither focused nor proactive/],
   ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
     /gives "E:\/x" a changePolicy of "strict", which is neither focused nor proactive/],
+  ['a models value that is not an object', '{ "E:/x": { "models": "opus" } }\n',
+    /gives "E:\/x" models of "opus", which is not an object that maps a role key to a value/],
+  ['an efforts value that is an array', '{ "E:/x": { "efforts": ["high"] } }\n',
+    /gives "E:\/x" efforts of \["high"\], which is not an object that maps a role key to a value/],
+  ['a models role outside the five', '{ "E:/x": { "models": { "reviewer": "opus" } } }\n',
+    /gives "E:\/x" the role "reviewer" in models, and the role keys are develop \| park \| quality \| acceptance \| sweep/],
+  ['a models value outside the model names', '{ "E:/x": { "models": { "develop": "gpt" } } }\n',
+    /gives "E:\/x" the models value of "gpt" for develop, which is none of opus \| sonnet \| haiku \| fable/],
+  ['an efforts value outside the reasoning levels', '{ "E:/x": { "efforts": { "sweep": "extreme" } } }\n',
+    /gives "E:\/x" the efforts value of "extreme" for sweep, which is none of low \| medium \| high \| xhigh \| max/],
+  ['an efforts value that is not a string', '{ "E:/x": { "efforts": { "park": 3 } } }\n',
+    /gives "E:\/x" the efforts value of 3 for park/],
 ]) {
   withFixture((fx) => {
     const repo = fx.repo('r');
     mkdirSync(fx.state);
     writeFileSync(fx.storePath, bytes);
-    const check = fx.check(repo);
-    ok(check.code === 1 && cause.test(check.stderr) && check.stderr.includes(fx.storePath),
-      `${what}: check exits 1 naming the store and the cause (${check.stderr.trim()})`);
-    const set = fx.set(repo, 'focused');
-    ok(set.code === 1 && cause.test(set.stderr) && set.stderr.includes(fx.storePath),
-      `${what}: set exits 1 naming the store and the cause`);
-    eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what}: set leaves the store byte-identical`);
-    eq(readdirSync(fx.state).join(','), STORE_FILE, `${what}: set leaves no temp file`);
+    for (const [verb, result] of [['check', fx.check(repo)], ['roles', fx.roles(repo)]]) {
+      ok(result.code === 1 && cause.test(result.stderr) && result.stderr.includes(fx.storePath) && result.stdout === '',
+        `${what}: ${verb} exits 1 naming the store and the cause (${result.stderr.trim()})`);
+    }
+    for (const [verb, result] of [['set', fx.set(repo, 'focused')], ['set-roles', fx.setRoles(repo, '--models', 'develop=opus')]]) {
+      ok(result.code === 1 && cause.test(result.stderr) && result.stderr.includes(fx.storePath),
+        `${what}: ${verb} exits 1 naming the store and the cause`);
+      eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what}: ${verb} leaves the store byte-identical`);
+    }
+    eq(readdirSync(fx.state).join(','), STORE_FILE, `${what}: a write leaves no temp file`);
   });
 }
+
+section('a store value with no field is a valid empty settings object');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  mkdirSync(fx.state);
+  writeFileSync(fx.storePath, `${JSON.stringify({ 'E:/x': {} })}\n`);
+  eq(fx.check(repo).stdout, `missing ${keyOf(repo)} recommend=proactive\n`, 'check reads another key\'s empty settings as valid');
+  eq(fx.roles(repo).stdout, '{"models":{},"efforts":{}}\n', 'roles reads the same store as valid');
+});
+
+section('roles prints the saved maps, an empty object for a map not saved, and never asks or recommends');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  fx.commit(repo, 'other@example.invalid');
+  const none = fx.roles(repo);
+  eq(none.stdout, '{"models":{},"efforts":{}}\n', 'a repo with no store prints two empty maps');
+  ok(none.code === 0 && none.stderr === '', 'roles exits 0 with no output on stderr');
+  ok(!existsSync(fx.state), 'roles writes nothing');
+  mkdirSync(fx.state);
+  writeFileSync(fx.storePath, `${JSON.stringify({ [keyOf(repo)]: { changePolicy: 'proactive', models: { quality: 'sonnet' } } })}\n`);
+  eq(fx.roles(repo).stdout, '{"models":{"quality":"sonnet"},"efforts":{}}\n', 'a saved models map prints beside an empty efforts map');
+  writeFileSync(fx.storePath, `${JSON.stringify({ [keyOf(repo)]: { efforts: { develop: 'max', sweep: 'low' } } })}\n`);
+  eq(fx.roles(repo).stdout, '{"models":{},"efforts":{"develop":"max","sweep":"low"}}\n', 'a saved efforts map prints beside an empty models map');
+});
+
+section('set-roles merges each named role, keeps every other setting and prints what it saved');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const other = fx.repo('other');
+  const key = keyOf(repo);
+  eq(fx.set(repo, 'proactive').code, 0, 'the fixture policy is saved');
+  eq(fx.set(other, 'focused').code, 0, 'a second repo\'s policy is saved');
+  const first = fx.setRoles(repo, '--models', 'develop=sonnet,quality=opus', '--efforts', 'develop=xhigh');
+  eq(first.code, 0, 'set-roles exits 0');
+  eq(first.stdout, `set-roles ${key} {"models":{"develop":"sonnet","quality":"opus"},"efforts":{"develop":"xhigh"}} in ${fx.storePath}\n`,
+    'set-roles names the key, the saved maps and the store');
+  eq(fx.store()[key].changePolicy, 'proactive', 'the saved policy survives');
+  eq(fx.store()[keyOf(other)].changePolicy, 'focused', 'the second repo survives');
+  const merged = fx.setRoles(repo, '--models', 'quality=haiku,sweep=fable');
+  eq(merged.stdout, `set-roles ${key} {"models":{"develop":"sonnet","quality":"haiku","sweep":"fable"},"efforts":{"develop":"xhigh"}} in ${fx.storePath}\n`,
+    'a named role replaces its value, a new role joins, and an unnamed role and the other map stay');
+  eq(fx.roles(repo).stdout, '{"models":{"develop":"sonnet","quality":"haiku","sweep":"fable"},"efforts":{"develop":"xhigh"}}\n', 'roles prints the merged maps');
+  eq(fx.check(repo).stdout, `proactive ${key}\n`, 'check still prints the saved policy');
+  const removed = fx.setRoles(repo, '--models', 'develop=default,quality=default,sweep=default', '--efforts', 'park=default');
+  eq(removed.code, 0, 'the value default exits 0');
+  eq(fx.roles(repo).stdout, '{"models":{},"efforts":{"develop":"xhigh"}}\n', 'default removes each named role, and removing an unsaved role is a no-op');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'proactive', efforts: { develop: 'xhigh' } }), 'a map left empty leaves the store');
+  eq(readdirSync(fx.state).join(','), STORE_FILE, 'no temp file is left beside the store');
+});
+
+section('set-roles that changes nothing writes no store');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  const empty = fx.setRoles(repo, '--models', 'develop=default');
+  eq(empty.code, 0, 'removing a role of an unsaved repo exits 0');
+  eq(empty.stdout, `set-roles ${key} {"models":{},"efforts":{}} in ${fx.storePath}\n`, 'it prints the empty maps');
+  ok(!existsSync(fx.storePath), 'it creates no store');
+  eq(fx.setRoles(repo, '--models', 'develop=opus').code, 0, 'a role is saved');
+  // An old mtime, so any rewrite of the store shows as a new one.
+  const past = new Date('2000-01-01T00:00:00Z');
+  utimesSync(fx.storePath, past, past);
+  const before = readFileSync(fx.storePath, 'utf8');
+  eq(fx.setRoles(repo, '--models', 'develop=opus', '--efforts', 'park=default').code, 0, 'the saved value and an unsaved removal exit 0');
+  eq(statSync(fx.storePath).mtimeMs, past.getTime(), 'the store file is not rewritten');
+  eq(readFileSync(fx.storePath, 'utf8'), before, 'the store stays byte-for-byte unchanged');
+  eq(fx.setRoles(repo, '--models', 'develop=default').code, 0, 'removing the last saved role exits 0');
+  eq(JSON.stringify(fx.store()), JSON.stringify({}), 'the repo it leaves with no setting has no store entry');
+});
+
+section('a role-only repo reads missing from check, and set then adds its policy');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  eq(fx.setRoles(repo, '--efforts', 'develop=high').code, 0, 'set-roles creates the store for a repo with no policy');
+  eq(fx.check(repo).stdout, `missing ${key} recommend=proactive\n`, 'check prints missing with the recommendation, as for an unsaved repo');
+  eq(fx.set(repo, 'focused').code, 0, 'set saves the policy');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ efforts: { develop: 'high' }, changePolicy: 'focused' }), 'the saved efforts survive the policy');
+  eq(fx.check(repo).stdout, `focused ${key}\n`, 'check prints the policy');
+});
+
+section('set-roles rejects a bad argument with its cause and leaves the store byte-for-byte unchanged');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  mkdirSync(fx.state);
+  const bytes = `${JSON.stringify({ [key]: { changePolicy: 'focused', models: { develop: 'opus' } } }, null, 2)}\n`;
+  writeFileSync(fx.storePath, bytes);
+  for (const [what, flags, cause] of [
+    ['no role flag', [], /set-roles needs --models or --efforts/],
+    ['a role outside the five', ['--models', 'reviewer=opus'], /--models names the role "reviewer", and the role keys are develop \| park \| quality \| acceptance \| sweep/],
+    ['a model outside its set', ['--models', 'develop=gpt'], /--models gives develop the value "gpt", which is none of opus \| sonnet \| haiku \| fable \| default/],
+    ['an effort outside its set', ['--efforts', 'develop=extreme'], /--efforts gives develop the value "extreme", which is none of low \| medium \| high \| xhigh \| max \| default/],
+    ['a model given to --efforts', ['--efforts', 'develop=opus'], /--efforts gives develop the value "opus"/],
+    ['an effort given to --models', ['--models', 'develop=high'], /--models gives develop the value "high"/],
+    ['a pair with no value', ['--models', 'develop'], /--models has the pair "develop", which is not <role>=<value>/],
+    ['a pair with an empty value', ['--models', 'develop='], /--models has the pair "develop=", which is not <role>=<value>/],
+    ['a pair with an empty role', ['--efforts', '=high'], /--efforts has the pair "=high", which is not <role>=<value>/],
+    ['a pair with two equals signs', ['--models', 'develop=opus=sonnet'], /--models has the pair "develop=opus=sonnet"/],
+    ['an empty pair after a comma', ['--models', 'develop=opus,'], /--models has the pair "", which is not <role>=<value>/],
+    ['a role named twice', ['--models', 'develop=opus,develop=sonnet'], /--models names the role develop twice/],
+    ['a valid --models and a bad --efforts', ['--models', 'develop=sonnet', '--efforts', 'park=extreme'], /--efforts gives park the value "extreme"/],
+    ['a flag given twice', ['--models', 'develop=opus', '--models', 'park=opus'], /--models was given twice/],
+    ['a value that looks like a flag', ['--models', '--efforts'], /--models needs a value/],
+    ['an unknown flag', ['--policy', 'focused'], /unknown flag "--policy" for set-roles/],
+  ]) {
+    const r = fx.setRoles(repo, ...flags);
+    ok(r.code === 1 && cause.test(r.stderr) && r.stderr.startsWith('project-settings: ') && r.stdout === '',
+      `${what} exits 1 naming the cause (${r.stderr.trim().slice(0, 140)})`);
+    eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what} leaves the store byte-for-byte unchanged`);
+  }
+  eq(readdirSync(fx.state).join(','), STORE_FILE, 'no rejection leaves a temp file');
+  const absent = fx.repo('absent');
+  eq(fx.setRoles(absent, '--models', 'develop=gpt').code, 1, 'a rejection on a repo with no store exits 1');
+  eq(readFileSync(fx.storePath, 'utf8'), bytes, 'and writes no key for it');
+});
+
+section('withRoles keeps the other settings, drops a map it empties and folds the key');
+eq(JSON.stringify(withRoles({ 'E:/Work/R': { changePolicy: 'focused', models: { park: 'haiku' } }, 'E:/x': focused }, 'e:/work/r',
+  { models: { develop: 'opus' }, efforts: { sweep: 'max' } }, true)),
+JSON.stringify({ 'E:/x': focused, 'e:/work/r': { changePolicy: 'focused', models: { park: 'haiku', develop: 'opus' }, efforts: { sweep: 'max' } } }),
+'a folding set merges into the other spelling and keeps the other key');
+eq(JSON.stringify(withRoles({ k: { models: { park: 'haiku' } } }, 'k', { models: { park: 'default' } }, false)), JSON.stringify({}),
+  'default removes the last role, its map and the key it leaves empty');
+const frozen = { k: { models: { park: 'haiku' } } };
+withRoles(frozen, 'k', { models: { park: 'opus' } }, false);
+eq(JSON.stringify(frozen), JSON.stringify({ k: { models: { park: 'haiku' } } }), 'withRoles never mutates the store it is given');
+
+section('the engine\'s role keys, model names and reasoning levels match the copies project-settings uses');
+const engineSource = readFileSync(join(REPO_ROOT, 'workflows/develop/develop-cycle.mjs'), 'utf8');
+/** The three sets the engine declares, read from its source, or a name for each it fails to declare. */
+function engineSets(source) {
+  const quoted = (pattern) => {
+    const hit = pattern.exec(source);
+    return hit === null ? null : [...hit[1].matchAll(/'([^']*)'/g)].map((m) => m[1]);
+  };
+  return {
+    roleKeys: quoted(/const ROLE_KEYS = \[([^\]]*)\]/),
+    models: quoted(/const VALID_MODELS = new Set\(\[([^\]]*)\]\)/),
+    efforts: quoted(/const VALID_EFFORTS = new Set\(\[([^\]]*)\]\)/),
+  };
+}
+/** The names of the sets in which `sets` differs from the copies in project-settings, order included. */
+const differingSets = (sets) => Object.entries({ roleKeys: ROLE_KEYS, models: MODELS, efforts: EFFORTS })
+  .filter(([name, copy]) => JSON.stringify(sets[name]) !== JSON.stringify(copy)).map(([name]) => name);
+eq(differingSets(engineSets(engineSource)).join(','), '', 'the engine\'s three sets equal the copies in project-settings');
+for (const [name, from, to] of [
+  ['roleKeys', "'sweep']", "'sweep', 'extra']"],
+  ['models', "'fable'])", "'fable', 'gpt'])"],
+  ['efforts', "'max'])", "'max', 'extreme'])"],
+]) {
+  ok(engineSource.includes(from), `the engine source holds ${from}, which the scratch copy changes`);
+  eq(differingSets(engineSets(engineSource.replace(from, to))).join(','), name, `a scratch copy of the engine with a changed ${name} set fails only the ${name} check`);
+}
+ok(differingSets(engineSets('')).length === 3, 'an engine source that declares none of the sets fails all three checks');
 
 section('a bad argument exits 1 and writes nothing');
 withFixture((fx) => {

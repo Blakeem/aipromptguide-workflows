@@ -1048,6 +1048,99 @@ section('a block\'s model picks its developer and park agent, and the reviews ke
   ok(/plan model\(s\) \[block-a: "gpt"\]/.test(msg) && /opus \| sonnet/.test(msg), `model gpt throws naming the row and the legal values: ${msg.slice(0, 60)}`);
 }
 
+section('models and efforts take the five role keys, default every effort to high, and park follows its developer');
+// An efforts level reaches the role's agent as opts.effort. A role the map leaves unset must pass high, never undefined.
+{
+  const optOf = (calls, prefix, key) => calls.filter((c) => c.label.startsWith(prefix)).map((c) => c.opts[key]).join(',');
+  const effortsOf = (calls) => ['develop', 'quality', 'acceptance', 'final-sweep'].map((l) => optOf(calls, l, 'effort')).join('|');
+  const SWEPT = { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' };
+  const SWEEP_RUN = { ...GREEN_RUN, 'final-sweep': SWEEP_OK };
+  const PARK_RUN = { develop: { ...DEV_OK, needs_user: true }, park: PARK_OK };
+  const PARKED = { ...ONE_BLOCK, ordered: true };
+  const parkOf = (r) => `${optOf(r.calls, 'park', 'model')}|${optOf(r.calls, 'park', 'effort')}`;
+
+  const unset = await run(SWEEP_RUN, SWEPT);
+  eq(effortsOf(unset.calls), 'high|high|high|high', 'an efforts map left out passes high to every role');
+
+  const efforts = { develop: 'low', park: 'max', quality: 'medium', acceptance: 'xhigh', sweep: 'low' };
+  const set = await run(SWEEP_RUN, { ...SWEPT, efforts });
+  eq(effortsOf(set.calls), 'low|medium|xhigh|low', 'each role\'s efforts level reaches its own agent');
+  const partial = await run(SWEEP_RUN, { ...SWEPT, efforts: { quality: 'max' } });
+  eq(effortsOf(partial.calls), 'high|max|high|high', 'a role the map leaves out still passes high');
+
+  const parkDefault = await run(PARK_RUN, { ...PARKED, models: { develop: 'sonnet' }, efforts: { develop: 'medium' } });
+  eq(parkOf(parkDefault), 'sonnet|medium', 'park follows the developer\'s model and effort when models.park and efforts.park are unset');
+  const parkBlock = await run(PARK_RUN, { ...PARKED, plans: [{ ...BLOCKS[0], model: 'haiku' }] });
+  eq(parkOf(parkBlock), 'haiku|high', 'and follows its block\'s model line');
+  const parkSet = await run(PARK_RUN, { ...PARKED, plans: [{ ...BLOCKS[0], model: 'haiku' }], models: { park: 'fable' }, efforts });
+  eq(parkOf(parkSet), 'fable|max', 'models.park and efforts.park outrank the developer\'s');
+  eq(`${optOf(parkSet.calls, 'develop', 'model')}|${optOf(parkSet.calls, 'develop', 'effort')}`, 'haiku|low', 'while the developer keeps its block\'s model and efforts.develop');
+
+  for (const model of ['haiku', 'fable']) {
+    const row = await run(GREEN_RUN, { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], model }] });
+    eq(optOf(row.calls, 'develop', 'model'), model, `a block row with model ${model} reaches the developer`);
+  }
+
+  const ledger = await run(GREEN_RUN, { ...ONE_BLOCK, efforts: { develop: 'xhigh' } });
+  eq(String(ledger.out.ledger[0]?.effort ?? ''), 'xhigh', 'the ledger row records the developer effort');
+  eq(String(unset.out.ledger[0]?.effort ?? ''), 'high', 'and records the high default');
+
+  const rolesLine = (logs) => logs.find((l) => l.startsWith('develop: roles ')) ?? '';
+  eq(rolesLine(unset.logs), 'develop: roles develop=opus/high, park=(developer)/(developer), quality=opus/high, acceptance=opus/high, sweep=opus/high', 'one launch line names each role\'s model and effort, and park follows the developer when unset');
+  eq(rolesLine(parkSet.logs), 'develop: roles develop=opus/low, park=fable/max, quality=opus/medium, acceptance=opus/xhigh, sweep=opus/low', 'and it names the values the maps set');
+}
+
+section('a row\'s effort sets its developer, closing pass and park agent, and an illegal one throws');
+{
+  const effortOf = (calls, label) => calls.filter((c) => c.label.startsWith(label)).map((c) => c.opts.effort).join(',');
+  const EFFORT_ROW = { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], effort: 'xhigh' }] };
+
+  const row = await run(GREEN_RUN, { ...EFFORT_ROW, efforts: { develop: 'low', quality: 'medium' } });
+  eq(`${effortOf(row.calls, 'develop')}|${effortOf(row.calls, 'quality')}`, 'xhigh|medium', 'a row\'s effort outranks efforts.develop for its developer, and quality keeps efforts.quality');
+  eq(String(row.out.ledger[0]?.effort ?? ''), 'xhigh', 'the ledger records the developer\'s row effort');
+  ok(row.logs.some((l) => l.startsWith('▶ block block-a [mode=feature, gate=build-only, effort=xhigh]')), 'the block-start line names the row\'s effort');
+
+  const fallback = await run(GREEN_RUN, { ...ONE_BLOCK, efforts: { develop: 'low' } });
+  eq(effortOf(fallback.calls, 'develop'), 'low', 'a row with no effort takes efforts.develop');
+
+  const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
+    quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS), park: PARK_OK }, { ...EFFORT_ROW, maxRounds: 1, efforts: { develop: 'low' } });
+  eq(effortOf(closing.calls, 'develop-closing'), 'xhigh', 'the closing pass takes the row\'s effort');
+
+  const parkRun = { develop: { ...DEV_OK, needs_user: true }, park: PARK_OK };
+  const parkRow = await run(parkRun, { ...EFFORT_ROW, ordered: true, efforts: { develop: 'low' } });
+  eq(effortOf(parkRow.calls, 'park'), 'xhigh', 'park falls back to the row\'s effort');
+  const parkSet = await run(parkRun, { ...EFFORT_ROW, ordered: true, efforts: { develop: 'low', park: 'medium' } });
+  eq(`${effortOf(parkSet.calls, 'park')}|${effortOf(parkSet.calls, 'develop')}`, 'medium|xhigh', 'efforts.park outranks the row\'s effort, and the developer keeps it');
+
+  const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], effort: 'ultra' }] }, respond: {} });
+  ok(/plan effort\(s\) \[block-a: "ultra"\]/.test(msg) && /low \| medium \| high \| xhigh \| max/.test(msg), `effort ultra throws naming the row and the legal values: ${msg.slice(0, 60)}`);
+}
+
+section('models and efforts throw at launch, naming the arg, on a bad shape, key or value');
+// JSON.parse makes __proto__ an own key, which an object literal would turn into a prototype instead.
+{
+  const ROLE_KEYS = 'develop | park | quality | acceptance | sweep';
+  const jsonArgs = (arg, mapJson) => JSON.parse(`${JSON.stringify(ONE_BLOCK).slice(0, -1)},"${arg}":${mapJson}}`);
+  for (const arg of ['models', 'efforts']) {
+    const legal = arg === 'models' ? 'opus | sonnet | haiku | fable' : 'low | medium | high | xhigh | max';
+    const good = arg === 'models' ? 'opus' : 'high';
+    const bad = arg === 'models' ? 'gpt' : 'ultra';
+    for (const [shape, mapJson] of [['an array', '["develop"]'], ['null', 'null'], ['a string', '"high"']]) {
+      const msg = await throwsWith(ENGINE, { args: jsonArgs(arg, mapJson), respond: {} });
+      ok(msg.startsWith(`Invalid role map: args.${arg} must be an object`), `${arg} as ${shape} throws naming the arg: ${msg.slice(0, 70)}`);
+    }
+    for (const key of ['planner', 'constructor', 'toString', '__proto__']) {
+      const msg = await throwsWith(ENGINE, { args: jsonArgs(arg, `{"${key}":"${good}"}`), respond: {} });
+      ok(msg.includes(`args.${arg} names "${key}"`) && msg.includes(ROLE_KEYS), `${arg} key ${key} throws and lists the five role keys: ${msg.slice(0, 90)}`);
+    }
+    const value = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, [arg]: { quality: bad } }, respond: {} });
+    ok(value.includes(`args.${arg}.quality is "${bad}"`) && value.includes(legal), `${arg} value ${bad} throws naming the role, the value and the legal set: ${value.slice(0, 90)}`);
+    const inherited = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, [arg]: { develop: 'constructor' } }, respond: {} });
+    ok(inherited.includes(`args.${arg}.develop is "constructor"`), `a value named like an inherited member throws: ${inherited.slice(0, 70)}`);
+  }
+}
+
 section('a gate that never goes green surfaces the developer\'s own diagnostics');
 // The developer re-runs the gate live, so once the round budget is gone the run log holds the only copy of
 // why it was red. Without these the operator has to re-run the gate to find out.

@@ -48,7 +48,14 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    It first folds every finished develop run's statuses into the plan files (below), then prints
    `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread that
    object into the args, and add `backlogDir`, the folder that
-   `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints (§4, §10). Several
+   `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints (§4, §10). Also add
+   `models` and `efforts` from the JSON line `node <project-settings.mjs> roles --root <root> --repo <target.repo>`
+   prints. A role the user names for the run wins over the repo's saved value. When the user names role
+   settings to keep for the repo, save them with
+   `node <project-settings.mjs> set-roles --root <root> --repo <target.repo> [--models <role>=<value>,...] [--efforts <role>=<value>,...]`,
+   where the value `default` removes a role's saved value. The approval summary shows each role's model and
+   effort and where each came from: the run, the block's `model:` or `effort:` line, the repo's saved settings,
+   or the default. Several
    files make one run, as long as their file keys agree. When you know the
    last launch's Workflow run id (`wf_...`), pass `--expect <id>`: it fails loudly if that run's record is
    missing, which is the sign Claude Code moved or changed its run records. For fix-mode files, add
@@ -84,7 +91,8 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
 
 The grammar lives with the tool (`tools/CLAUDE.md`): optional frontmatter, file keys
 (`goal`/`ordered`/`suite`/`sweep`), a `## Plan: <id> - <title>` header per block with a preamble run
-(`mode`/`gate`/`status`/`model`, where `model` is `opus | sonnet`, the block's developer model, plus
+(`mode`/`gate`/`status`/`model`/`effort`, where `model` is `opus | sonnet | haiku | fable`, the block's developer model,
+and `effort` is `low | medium | high | xhigh | max`, the block's developer reasoning level, plus
 informational `test_selector`/`depends_on`), bodies read verbatim.
 Gates per mode: `feature` takes `green | build-only`; `section` takes
 `green | red-baseline | build-only`; `fix` takes `green` only. A file holding any section-mode block
@@ -95,13 +103,25 @@ verify-first, vanished issues marked stale). `--list` fails on a `todo` fix bloc
 entry. debug's review.mjs writes these files; hand-authored external inventories use the same shape.
 
 **Choosing a block's developer model.** Set `model:` on each block while writing the plan. The user may
-override it. Judge by how many layers of abstraction the block crosses and how much logic it holds.
-`sonnet` takes common work: backend changes, minor frontend changes, interface or design changes that
-are not major, a new API endpoint or MCP tool, simple interface features or updates, and fixes from a
-debug inventory. `opus` takes complex logic, security work, mission-critical code, and changes that need
-an understanding of deeper layers of abstraction. When unsure, leave the line out, so the run's
-`models.develop` applies. The blind reviewer, acceptance and the sweep always run on the run's review
-models. Show each block's model in the approval summary.
+override it. Read the repo's saved `models.develop` first (`project-settings.mjs roles`, §2 step 3).
+When it is saved, write a block's `model:` line only where the user asks for a different model for that block,
+since the line overrides the saved value. A saved `efforts.develop` works the same way for `effort:`. Judge by how many layers of abstraction the block crosses and
+how much logic it holds.
+Sonnet and opus develop about equally well on most tasks, so `sonnet` takes common work: backend
+changes, minor frontend changes, interface or design changes that are not major, a new API endpoint or
+MCP tool, simple interface features or updates, and fixes from a debug inventory. `opus` takes complex
+logic, security work, mission-critical code, and changes that need an understanding of deeper layers of
+abstraction. `haiku` takes a bulk text replacement or a very simple change across the codebase. `fable`
+runs only when the user asks for it, since the user controls how many tokens a run spends. When unsure,
+leave the line out, so the run's `models.develop` applies. Show each block's model and effort in the approval
+summary.
+
+**Choosing the review roles' models.** Sonnet reviews worse than opus. The quality, acceptance and sweep
+roles run on opus for a major feature or a risky change, and may run on sonnet for a low-risk change, such
+as a doc or comment fix. Set them through `models` (§9).
+
+**Reasoning level.** Every role runs at `high` unless `efforts` says otherwise (§9). A block may set `effort:`
+beside `model:`, and sets it only when the user asks for a level other than the run's, since `high` suits every model.
 
 ## 4. Pre-run setup (your job — no setup agent)
 
@@ -186,7 +206,7 @@ folder.
     connect to.
 
   Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --policy <answer>`.
-- When `check` or `set` exits 1, show the user its message, which names the cause, and run the step
+- When `check`, `set`, `roles` or `set-roles` exits 1, show the user its message, which names the cause, and run the step
   again once the cause is fixed.
 - Show the policy in the approval summary.
 
@@ -405,9 +425,9 @@ that share a prefix get separate files.
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath, mode, gate, status,
-  model? }` rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status,
-  model?, blocks: [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no
-  `planPath` **throws** naming it. A `model` outside `opus | sonnet` **throws** naming the row.) · `target.repo` (**throws** if missing) ·
+  model?, effort? }` rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status,
+  model?, effort?, blocks: [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no
+  `planPath` **throws** naming it. A `model` outside `opus | sonnet | haiku | fable` or an `effort` outside `low | medium | high | xhigh | max` **throws** naming the row.) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
   `green` — deliberately pending-scoped, so an all-done relaunch reaches its terminal) · `backlogDir`
   (the absolute folder `project-settings.mjs backlog` prints, §10. **Throws** when missing, relative or
@@ -418,7 +438,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 - **Return:** `status` · `halted`/`haltReason` · `regression` (true when any block's ledger entry reads
   true. An entry follows the last acceptance verdict that reports the field, and a passing verdict that
   omits the field sets it false) · `plansDone` · `parked` · `ledger` (per block, with a
-  status of the form `<token> (<meaning>)`, the developer `model` it ran on, `rounds`, `closingPass`
+  status of the form `<token> (<meaning>)`, the developer `model` and `effort` it ran on, `rounds`, `closingPass`
   (true when the block ran its closing pass, §6), and per-issue `results` in fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
@@ -433,10 +453,17 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `strict`, the old name of `focused`, throws with a message that names the rename. It sets the
   developer's build aim and whether it fixes a pre-existing defect it notices in connected code, and §4 says how to
   choose it) ·
-  `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
-  (keep the quality, acceptance and sweep roles on opus, and set another model for them only when the
-  user asks. A saved memory preference counts as asking. The develop role is opus by default, and a
-  block's `model:` line overrides `models.develop` for that block's developer and park agent, §3) ·
+  `minPlanBudget` (**throws** on non-numbers) · `models`/`efforts`/`agentTypes`
+  (`models` and `efforts` map a role key to a value. The role keys are `develop` (the developer, the
+  closing pass included), `park`, `quality`, `acceptance` and `sweep`. A model is `opus | sonnet |
+  haiku | fable` and an effort is `low | medium | high | xhigh | max`. The develop, quality, acceptance
+  and sweep roles default to opus. Every role defaults to `high`. A block's `model:` and `effort:` lines override
+  `models.develop` and `efforts.develop` for that block's developer. The park role takes `models.park`, else its block's
+  developer model, and takes `efforts.park`, else the block's developer effort. `agentTypes` has no park key, so the park agent takes `agentTypes.develop`. The engine **throws** at
+  launch, naming the arg, on a value that is not an object, a key outside the role keys, and a value
+  outside its set. Choose the review roles' models as §3 says. Role settings saved in the repo's settings
+  (§2 step 3) count as the user asking for them, as a saved memory preference does. One launch log line
+  names each role's model and effort) ·
   `stateDir` · `runOnly` · `continueParked` (block ids whose round 1 restores the parked patch, §7.
   **Throws** on a non-array or an id outside the pending blocks).
 - **Retired:** `startAt`, `reviewSeverity` (the developer's risk judgment decides when a blind review

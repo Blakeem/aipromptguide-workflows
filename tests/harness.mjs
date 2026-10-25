@@ -20,6 +20,7 @@
 
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { readFileSync } from 'node:fs';
+import { isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const REPO_ROOT = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
@@ -145,7 +146,7 @@ async function execute(enginePath, { args, respond = {}, budget } = {}) {
   let thrown = null;
   let terminal = { kind: 'return', status: '', message: '' };
   try {
-    const src = readFileSync(`${REPO_ROOT}/${enginePath}`, 'utf8')
+    const src = readFileSync(isAbsolute(enginePath) ? enginePath : `${REPO_ROOT}/${enginePath}`, 'utf8')
       .replace('export const meta', 'const meta');
     out = await new Function(
       'agent', 'parallel', 'pipeline', 'phase', 'log', 'args', 'budget', 'workflow',
@@ -180,7 +181,7 @@ async function execute(enginePath, { args, respond = {}, budget } = {}) {
 
 /**
  * Run an engine against scripted agents. Throws whatever the engine throws.
- * @param {string} enginePath  repo-relative, e.g. 'workflows/develop/develop-cycle.mjs'
+ * @param {string} enginePath  repo-relative, e.g. 'workflows/develop/develop-cycle.mjs', or absolute for a copy outside the checkout
  * @param {object} o
  * @param {object} o.args      the args the engine sees
  * @param {object|function} o.respond  scripted agent returns (see toResponder)
