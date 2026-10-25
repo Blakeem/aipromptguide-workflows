@@ -17,6 +17,10 @@ where `<target.repo>` is the repo the run works on. When the task does not name 
 for it, since the working directory may be another repo. Then follow
 `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy" on its output.
 
+Right after the change policy, settle commit mode. Run
+`node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" commit --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`
+and follow the same guide's §4 "Choosing commit mode" on its output.
+
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/debug/CLAUDE.md` and follow it exactly.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
 
@@ -26,6 +30,7 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - develop's `blockTool` arg: `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
 - Args, status and triage tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`
+- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`
 - Unit slicer (plain Node, run directly): `${CLAUDE_PLUGIN_ROOT}/workflows/debug/gen-units.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`. Never the plugin install dir,
   which is version-swapped on update.

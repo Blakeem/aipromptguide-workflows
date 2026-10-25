@@ -8,7 +8,7 @@ Two files here, and one engine elsewhere:
   Each issue file is a fix-mode plan file.
 - **Fixing** is `../develop/develop-cycle.mjs` in fix mode. It builds the triaged issue files behind
   the same two-stage review every build gets (blind quality, then issue-aware acceptance) and stages
-  accepted work. Its guide is `../develop/CLAUDE.md`.
+  accepted work, or commits it in commit mode. Its guide is `../develop/CLAUDE.md`.
 
 Built to `../../principles/WORKFLOW-PRINCIPLES.md` (the `#N` markers below).
 
@@ -172,15 +172,16 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      one block, to sanity-check cost and quality.
    - Before launch, ask the user how to settle a dirty tree, under the rules in develop §4, and confirm
      the gates are green.
-   - Then follow `../develop/CLAUDE.md` from §2 step 3. Leave `commit` out of the launch args and skip
-     develop §4 "Choosing commit mode", since debug stages the fixes and never commits them.
+   - Then follow `../develop/CLAUDE.md` from §2 step 3, with `commit` as develop §4 "Choosing commit mode"
+     settles it.
    - After the run, add `git status --porcelain` and a spot-read of the riskiest fixes to develop §6's
      ground-truth checks.
    - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, what
-     is staged (`git diff --cached --stat`), the NEEDS-USER questions after the research step in
+     is staged (`git diff --cached --stat`) in stage mode or each commit with its sha and the issue files it
+     holds (from the run's `nextStep`) in commit mode, the NEEDS-USER questions after the research step in
      `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
      each), the entries in `DECISIONS.md`, and every parked block with its patch path and the user's
-     options, and **never commit**: the user reviews and commits.
+     options. In stage mode, **never commit**: the user reviews and commits.
 
 ## External inventory (skip `review.mjs`)
 

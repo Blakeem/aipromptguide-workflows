@@ -163,7 +163,7 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   default.
 - **A repo saves its commit choice.** Setup asks once whether develop should commit for you, and
   `project-settings.mjs set --commit on|off` saves the answer. The `commit` verb reads it back. debug's fix
-  phase always stages.
+  phase follows the same choice.
 - **Setup offers to hide Claude's author details.** When you turn commit mode on, `tools/attribution.mjs`
   checks your Claude Code settings and, if you agree, sets the three attribution keys that hide the
   co-author trailer, the pull request line and the session trailer.

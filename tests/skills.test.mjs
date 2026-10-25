@@ -66,16 +66,11 @@ for (const name of SKILLS) {
       'body follows the develop guide\'s policy procedure on the check\'s output');
     ok(body.includes('- Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`'),
       'the path list maps the guide\'s project-settings tool');
-    // Only develop commits, so debug runs no commit step.
     const commitCheck = body.indexOf('node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" commit --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>');
-    if (name === 'develop') {
-      ok(commitCheck > policyCheck && commitCheck < handover, 'body settles commit mode after the change policy and before it hands over to the guide');
-      ok(body.includes('§4 "Choosing commit mode"'), 'body follows the develop guide\'s commit mode procedure on the commit verb\'s output');
-      ok(body.includes('- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`'),
-        'the path list maps the guide\'s attribution tool');
-    } else {
-      ok(commitCheck < 0, 'body runs no commit step, since this workflow does not commit');
-    }
+    ok(commitCheck > policyCheck && commitCheck < handover, 'body settles commit mode after the change policy and before it hands over to the guide');
+    ok(body.includes('§4 "Choosing commit mode"'), 'body follows the develop guide\'s commit mode procedure on the commit verb\'s output');
+    ok(body.includes('- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`'),
+      'the path list maps the guide\'s attribution tool');
   } else {
     ok(policyCheck < 0, 'body runs no project-settings check, since this workflow takes no change policy');
   }
