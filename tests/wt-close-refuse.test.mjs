@@ -8,10 +8,10 @@ if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
 } else {
 
-section('close REFUSES a dirty worktree, an --into worktree with tracked changes, a call from inside the worktree, and a bad --into');
+section('close REFUSES a dirty worktree, an --into worktree with changes where the fast-forward writes, a call from inside the worktree, and a bad --into');
 await withFixture(({ root, repo }) => {
   const feat = opened(repo, 'feat');
-  const tip = commitFile(feat, 'f.txt', 'feature\n');
+  const tip = commitFile(feat, 'a.txt', 'feature\n');
   const mainAt = sha(repo, 'refs/heads/main');
   const gate = gateCmd(root, 'green', GATE_GREEN);
 
@@ -24,8 +24,8 @@ await withFixture(({ root, repo }) => {
 
   writeFileSync(at(repo, 'a.txt'), 'edited, not committed\n');
   const intoDirty = closeIn(repo, 'feat', 'main', gate);
-  eq(intoDirty.code, 40, 'a main worktree with a modified tracked file exits 40');
-  ok(/staged or modified tracked files \(a\.txt\)/.test(intoDirty.stderr), `...naming it: ${firstLine(intoDirty.stderr)}`);
+  eq(intoDirty.code, 40, 'a main worktree with a modified tracked file the fast-forward writes exits 40');
+  ok(/uncommitted changes at paths the fast-forward writes \(a\.txt\)/.test(intoDirty.stderr), `...naming it: ${firstLine(intoDirty.stderr)}`);
   unchanged(root, repo, feat, 'feat', mainAt, tip);
   eq(readOr(at(repo, 'a.txt')), 'edited, not committed\n', '...and the edit is still there');
   eq(git(repo, ['checkout', '--', 'a.txt']).code, 0, 'revert the edit');

@@ -3,23 +3,24 @@
 //
 // The store is <root>/projects.json, a JSON object that maps a repo key to the repo's settings, an object whose
 // optional fields are `changePolicy` (focused, proactive or auto, where auto leaves the run's pick to Claude), `commit` (a
-// boolean, whether develop commits each accepted block) and `models` and `efforts` (each maps a role key to the
-// model or reasoning level develop gives that role). The key is the repo's main checkout, so a linked worktree
-// shares its settings and its backlog folder.
+// boolean, whether develop commits each accepted block), `provision` (the command that readies a fresh run worktree,
+// or `none`) and `models` and `efforts` (each maps a role key to the model or reasoning level develop gives that
+// role). The key is the repo's main checkout, so a linked worktree shares its settings and its backlog folder.
 //
 //   node tools/project-settings.mjs check --root <dir> --repo <dir>      # "<policy> <key>" or "missing <key> recommend=<policy>"
 //   node tools/project-settings.mjs backlog --root <dir> --repo <dir>    # "<root>/backlog/<project>/"
 //   node tools/project-settings.mjs set --root <dir> --repo <dir> [--policy focused|proactive|auto] [--commit on|off]
-//                                                                         # "set <key> [<policy>] [commit=<on|off>] in <store>"
+//                                       [--provision "<cmd>"|none]       # "set <key> [<policy>] [commit=<on|off>] [provision] in <store>"
 //   node tools/project-settings.mjs commit --root <dir> --repo <dir>     # "on <key>", "off <key>" or "missing <key>"
+//   node tools/project-settings.mjs provision --root <dir> --repo <dir>  # {"key":"...","provision":"<cmd>"|"none"|null}
 //   node tools/project-settings.mjs roles --root <dir> --repo <dir>      # {"models":{...},"efforts":{...}}
 //   node tools/project-settings.mjs set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]
 //                                                                         # "set-roles <key> {...} in <store>"
 //
 // The recommendation is proactive when the repo has no commits or every commit's author email is the user's
 // `git config user.email`, and focused otherwise. A repo that saved no policy reads `missing` from check, whatever else
-// it saved. set needs --policy or --commit and keeps every other saved setting. backlog reads no setting and creates
-// nothing. commit and roles never ask or recommend. set-roles merges each named role
+// it saved. set needs --policy, --commit or --provision and keeps every other saved setting. backlog reads no setting and
+// creates nothing. commit, provision and roles never ask or recommend. set-roles merges each named role
 // into the saved map, and the value `default` removes that role's saved value. Every failure exits 1 with its cause
 // on stderr, and a write never replaces a store it cannot parse. Ordinary Node: `node --check` applies.
 
@@ -46,19 +47,20 @@ export const ROLE_KEYS = ['develop', 'park', 'quality', 'acceptance', 'sweep'];
 export const MODELS = RUN_KEYS.preamble.keys.model;
 export const EFFORTS = RUN_KEYS.preamble.keys.effort;
 const ROLE_SETS = { models: MODELS, efforts: EFFORTS };
-const SETTING_FIELDS = ['changePolicy', 'commit', ...Object.keys(ROLE_SETS)];
+const SETTING_FIELDS = ['changePolicy', 'commit', 'provision', ...Object.keys(ROLE_SETS)];
 const COMMIT_CHOICES = { on: true, off: false };
 const UNSET = 'default';
 const VERBS = {
   check: { required: ['root', 'repo'], anyOf: [] },
   backlog: { required: ['root', 'repo'], anyOf: [] },
-  set: { required: ['root', 'repo'], anyOf: ['policy', 'commit'] },
+  set: { required: ['root', 'repo'], anyOf: ['policy', 'commit', 'provision'] },
   commit: { required: ['root', 'repo'], anyOf: [] },
+  provision: { required: ['root', 'repo'], anyOf: [] },
   roles: { required: ['root', 'repo'], anyOf: [] },
   'set-roles': { required: ['root', 'repo'], anyOf: Object.keys(ROLE_SETS) },
 };
-const USAGE = 'usage: node tools/project-settings.mjs check|backlog|commit|roles --root <dir> --repo <dir>'
-  + ` | set --root <dir> --repo <dir> [--policy ${POLICIES.join('|')}] [--commit on|off]`
+const USAGE = 'usage: node tools/project-settings.mjs check|backlog|commit|provision|roles --root <dir> --repo <dir>'
+  + ` | set --root <dir> --repo <dir> [--policy ${POLICIES.join('|')}] [--commit on|off] [--provision "<cmd>"|none]`
   + ' | set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]';
 const FOLDS_CASE = foldsCase(process.platform);
 
@@ -166,6 +168,11 @@ export function withCommit(store, key, commit, foldCase) {
   return withSettings(store, key, (settings) => ({ ...settings, commit }), foldCase);
 }
 
+/** The store with `key`'s provision command set to `provision`, a command or `none`. */
+export function withProvision(store, key, provision, foldCase) {
+  return withSettings(store, key, (settings) => ({ ...settings, provision }), foldCase);
+}
+
 /** The store with each role that `updates` names merged into `key`'s saved `models` and `efforts` maps. `updates`
  *  maps a field to a role map. The value `default` removes a role, and a map left empty is dropped. */
 export function withRoles(store, key, updates, foldCase) {
@@ -216,6 +223,9 @@ function settingsProblem(key, settings) {
   }
   if (Object.hasOwn(settings, 'commit') && typeof settings.commit !== 'boolean') {
     return `gives ${name} a commit of ${JSON.stringify(settings.commit)}, which is neither true nor false`;
+  }
+  if (Object.hasOwn(settings, 'provision') && (typeof settings.provision !== 'string' || !settings.provision.trim())) {
+    return `gives ${name} a provision of ${JSON.stringify(settings.provision)}, which is not a command or "none"`;
   }
   const problems = Object.entries(ROLE_SETS)
     .filter(([field]) => Object.hasOwn(settings, field))
@@ -320,33 +330,68 @@ function onlyAuthor(repo, email) {
 
 const rolesOf = (settings) => ({ models: settings.models ?? {}, efforts: settings.efforts ?? {} });
 
+/** The repo key, the store path and the settings saved for `repo` under `root`. Throws on a bad repo or store. */
+export function repoSettings(root, repo) {
+  // Input
+  const storePath = join(resolve(root), STORE_FILE);
+  const key = repoKey(realpathSync.native(gitCommonDir(resolve(repo))));
+  const store = readStore(storePath);
+  const saved = savedKey(store, key, FOLDS_CASE);
+
+  // Output
+  return { key, storePath, store, settings: saved === null ? {} : store[saved] };
+}
+
+/** Saves `policy` and the boolean `commit` for `repo` under `root`, each only when given, and keeps every other setting. */
+export function saveRepoSettings(root, repo, { policy, commit }) {
+  // Input
+  const { key, storePath, store } = repoSettings(root, repo);
+  let next = store;
+
+  // Process
+  if (policy !== undefined) next = withPolicy(next, key, policy, FOLDS_CASE);
+  if (commit !== undefined) next = withCommit(next, key, commit, FOLDS_CASE);
+
+  // Output
+  if (next !== store) writeStore(storePath, next);
+}
+
+/** proactive when every commit of `repo` is the user's own, else focused. */
+export async function recommendedPolicy(repo) {
+  return (await onlyAuthor(resolve(repo), userEmail(resolve(repo)))) ? 'proactive' : 'focused';
+}
+
 async function main(argv) {
   // Input
   const { verb, opt } = parseArgv(argv);
   const repo = resolve(opt.repo);
   const root = resolve(opt.root);
-  const storePath = join(root, STORE_FILE);
   const key = repoKey(realpathSync.native(gitCommonDir(repo)));
 
   // Process and output
   if (verb === 'backlog') return `${toPosix(join(root, BACKLOG_DIR, projectName(key, FOLDS_CASE)))}/\n`;
-  const store = readStore(storePath);
-  const saved = savedKey(store, key, FOLDS_CASE);
-  const savedSettings = saved === null ? {} : store[saved];
+  const { storePath, store, settings: savedSettings } = repoSettings(root, repo);
   if (verb === 'set') {
     const policyChosen = Object.hasOwn(opt, 'policy');
     const commitChosen = Object.hasOwn(opt, 'commit');
+    const provisionChosen = Object.hasOwn(opt, 'provision');
     let next = store;
     if (policyChosen) next = withPolicy(next, key, opt.policy, FOLDS_CASE);
     if (commitChosen) next = withCommit(next, key, opt.commit, FOLDS_CASE);
+    if (provisionChosen) next = withProvision(next, key, opt.provision, FOLDS_CASE);
     writeStore(storePath, next);
-    const savedWords = [policyChosen ? opt.policy : null, commitChosen ? `commit=${opt.commit ? 'on' : 'off'}` : null].filter(Boolean);
+    const savedWords = [
+      policyChosen ? opt.policy : null,
+      commitChosen ? `commit=${opt.commit ? 'on' : 'off'}` : null,
+      provisionChosen ? 'provision' : null,
+    ].filter(Boolean);
     return `set ${key} ${savedWords.join(' ')} in ${storePath}\n`;
   }
   if (verb === 'commit') {
     if (!Object.hasOwn(savedSettings, 'commit')) return `missing ${key}\n`;
     return `${savedSettings.commit ? 'on' : 'off'} ${key}\n`;
   }
+  if (verb === 'provision') return `${JSON.stringify({ key, provision: savedSettings.provision ?? null })}\n`;
   if (verb === 'roles') return `${JSON.stringify(rolesOf(savedSettings))}\n`;
   if (verb === 'set-roles') {
     const updates = Object.fromEntries(Object.keys(ROLE_SETS).filter((f) => Object.hasOwn(opt, f)).map((f) => [f, opt[f]]));
@@ -357,8 +402,7 @@ async function main(argv) {
     return `set-roles ${key} ${JSON.stringify(rolesOf(nextSettings))} in ${storePath}\n`;
   }
   if (Object.hasOwn(savedSettings, 'changePolicy')) return `${savedSettings.changePolicy} ${key}\n`;
-  const recommendation = (await onlyAuthor(repo, userEmail(repo))) ? 'proactive' : 'focused';
-  return `missing ${key} recommend=${recommendation}\n`;
+  return `missing ${key} recommend=${await recommendedPolicy(repo)}\n`;
 }
 
 // Realpath both sides, since a link in the script path makes argv[1] differ from import.meta.url and the CLI

@@ -110,13 +110,13 @@ export function writeSettings(path, settings) {
   renameSync(temp, target);
 }
 
-function main(argv) {
+/** The plugin's Read rules, the user settings path, the settings as read, whether every rule is present, and the
+ *  settings with them added. `invokedScript` is the path the caller ran, a tool in this plugin's `tools/` folder. */
+export function accessState(invokedScript) {
   // Input
-  const [verb] = argv;
-  if (argv.length !== 1 || !VERBS.includes(verb)) throw new Error(USAGE);
   // Node realpaths the main module, so only argv[1] keeps the ${CLAUDE_PLUGIN_ROOT} spelling through a link.
   // Whether the scriptPath gate matches that spelling or the resolved one is unmeasured, so both are granted.
-  const invokedRoot = dirname(dirname(resolve(process.argv[1])));
+  const invokedRoot = dirname(dirname(resolve(invokedScript)));
   const realRoot = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
   const pluginName = JSON.parse(readFileSync(join(realRoot, '.claude-plugin', 'plugin.json'), 'utf8')).name;
   const userSettings = settingsPath();
@@ -131,6 +131,16 @@ function main(argv) {
     granted = folded.settings;
     present = present && folded.present;
   }
+
+  // Output
+  return { rules, userSettings, settings, present, granted, pluginRoot: realRoot };
+}
+
+function main(argv) {
+  // Input
+  const [verb] = argv;
+  if (argv.length !== 1 || !VERBS.includes(verb)) throw new Error(USAGE);
+  const { rules, userSettings, present, granted } = accessState(process.argv[1]);
   const spelled = rules.join(' ');
 
   // Output

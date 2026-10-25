@@ -13,7 +13,7 @@
 //   clean --repo <abs> --key <chain>                                      after that chain has landed
 //   clean --repo <abs> --batch <name>                                     after the batch has landed
 //   open  --repo <abs> --name <n> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]   one change, no batch
-//   close --repo <abs> --name <n> --into <branch> --gate "<cmd>"          merge that change, then remove it
+//   close --repo <abs> --name <n> [--into <branch>] --gate "<cmd>" [--stage]   merge or stage that change, then remove it
 //   close --repo <abs> --name <n> --discard                               trash that change unmerged
 //
 // "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
@@ -30,13 +30,16 @@
 //
 // `open` and `close` build one change in its own worktree on `aipg/<n>`. They install no hook and take no
 // lock, since both guard the sibling chains of a batch and a single change has none. So `close` refuses an
-// `--into` that is a batch's integration or chain branch, which only `land` moves. `close --into` rebases
+// `--into` that is a batch's integration or chain branch, which only `land` moves. `open` records the branch it
+// cut from in the branch's config, and `close` takes that branch when `--into` is omitted. `close --into` rebases
 // `aipg/<n>` onto `<into>` when `<into>` has a commit it lacks, gates the exact commit `<into>` will point at,
-// moves `<into>` to it only by fast-forward, and verifies the move. Only then does it remove the worktree the
-// way `clean` does and delete `aipg/<n>`. A refusal before the rebase changes nothing. Each later stop keeps
-// the steps already done, such as a rebased `aipg/<n>`, a moved `<into>` or a worktree in the trash. Running
-// close again finishes the steps left (see `closeInto`). `close --discard` trashes the worktree with its
-// uncommitted work and keeps the branch.
+// moves `<into>` to it only by fast-forward, and verifies the move. With `--stage` it first commits the worktree's
+// staged work as one carrier commit, and after the gate it stages the change in the worktree that has `<into>`
+// checked out instead of moving `<into>`. That worktree may hold other uncommitted work, and only a change at a
+// path the landing writes is refused. Only then does it remove the worktree the way `clean` does and delete
+// `aipg/<n>`. A refusal before the rebase changes nothing. Each later stop keeps the steps already done, such as
+// a rebased `aipg/<n>`, a moved `<into>` or a worktree in the trash. Running close again finishes the steps left
+// (see `closeInto`). `close --discard` trashes the worktree with its uncommitted work and keeps the branch.
 //
 // Every M-number in this file is a measurement label of the decide run `worktree-parallelism-1`
 // (2026-07-29).
@@ -75,9 +78,10 @@
 //
 // `land` and `close` are the only verbs that WRITE commits, all on `aipg/*` branches and all by this deterministic
 // script. `land` writes an index-only accept commit of the chain's accepted work, a sync merge, and the landing
-// merge. `close`'s rebase rewrites the `aipg/<n>` commits onto `<into>` and adds no change of its own, and `<into>`
-// moves only by fast-forward. So every change that reaches the user's own branches is one the user committed
-// (WORKFLOW-PRINCIPLES.md #9).
+// merge. `close --stage` writes one carrier commit of the staged work on `aipg/<n>`. `close`'s rebase rewrites the
+// `aipg/<n>` commits onto `<into>` and adds no change of its own, and `<into>` moves only by fast-forward, or not at all
+// with `--stage`. So every change that reaches the user's own branches is one the user committed, or an accepted block
+// that the commit mode the user chose committed (WORKFLOW-PRINCIPLES.md #9).
 //
 // stdout carries ONE value: the worktree path the verb acted on (prep's and open's is the `target.repo` an
 // engine run is handed; land's is the integration worktree; close's is the worktree it removed). Everything a
@@ -109,9 +113,10 @@
 //       fast-forward would delete ignored files, whose rebase git refused, left unfinished, stopped with no
 //       conflicted file or left uncommitted changes, whose gate changed the tree it judged, whose `<into>`
 //       is checked out in two worktrees, under another name or in a folder that is gone or holds another
-//       repository, whose `<into>` worktree has tracked changes, untracked files in the way of the
-//       fast-forward or an unfinished operation, whose merge did not verify, or whose branch moved before
-//       its delete.
+//       repository, whose `<into>` worktree has uncommitted changes or untracked files in the way of the
+//       fast-forward or the staged work, or an unfinished operation, whose merge or staged work did not verify,
+//       whose `--stage` has no worktree on `<into>` or staged work beside unaccepted work, whose omitted
+//       `--into` has no recorded base, or whose branch moved before its delete.
 //       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
@@ -1650,11 +1655,24 @@ function open(opt) {
     recovery: `Fix the cause, remove it with node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, delete the branch with git -C ${shellQuote(repo)} branch -D ${branch}, then run open again.`,
   });
   worktree = findBranch(listWorktrees(repo), branch)?.path ?? path;
+  // Branch config goes with the branch when close deletes it, so the record outlives no change.
+  mustGit(repo, ['config', baseKey(branch), base], `recording ${base} as the base of ${branch}`);
   if (provision !== undefined) runProvision(provision, worktree, `node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, which keeps the branch`);
 
   // Output
   process.stderr.write(`opened ${branch} off ${base} in ${worktree}\n`);
   process.stdout.write(`${worktree}\n`);
+}
+
+/** The config key that holds the branch `open` cut `branch` from. */
+const baseKey = (branch) => `branch.${branch}.aipgbase`;
+
+/** The base `open` recorded for `branch`, or '' when none is recorded. */
+function recordedBase(repo, branch) {
+  const r = git(repo, ['config', '--get', baseKey(branch)]);
+  if (r.code === 1) return '';
+  if (r.code !== 0) throw unsafe(`reading the base of ${branch} failed: ${gitError(r)}`);
+  return r.stdout.trim();
 }
 
 /** Deletes `branch` when `into` contains it, and returns whether it did. */
@@ -1701,21 +1719,26 @@ function offBranch(path, head, branch, exists, chains = []) {
 
 /**
  * Step 2 of `closeInto` when no worktree is on `aipg/<name>`. A close that stopped after its removal left the
- * branch, which `into` contains, so it is deleted. A branch with commits `into` lacks is refused.
+ * branch, which `into` contains, or with `stage` holds staged, so it is deleted. Any other branch with commits
+ * `into` lacks is refused.
  */
-function closeWithoutWorktree(repo, branch, into, exists) {
+function closeWithoutWorktree(repo, branch, into, exists, stage) {
   // Process
   if (!exists) {
     git(repo, ['worktree', 'prune']);
     process.stderr.write(`no worktree and no branch ${branch}, so there is nothing to close\n`);
     return;
   }
-  if (!deleteIfMerged(repo, branch, into)) {
+  if (deleteIfMerged(repo, branch, into)) {
+    process.stderr.write(`no worktree is on ${branch}, and ${into} contains it, so the branch was deleted\n`);
+    return;
+  }
+  if (!stage || !deleteIfStaged(repo, branch, into)) {
     throw unsafe(`no worktree is on ${branch}, and it holds commits ${into} lacks, so close cannot gate them. Check it out in a free folder with git -C ${shellQuote(repo)} worktree add <folder> ${branch}, then run close again.`);
   }
 
   // Output
-  process.stderr.write(`no worktree is on ${branch}, and ${into} contains it, so the branch was deleted\n`);
+  process.stderr.write(`no worktree is on ${branch}, and its work is staged on ${into}, so the branch was deleted\n`);
 }
 
 /**
@@ -1833,16 +1856,28 @@ function gateTip(worktree, branch, into, gate, tip, before) {
   }
 }
 
+/** The paths whose content differs between the trees of `from` and `to`, a rename as its two paths. */
+const changedPaths = (cwd, from, to) => nulNames(mustGit(cwd, ['diff', '--name-only', '--no-renames', '-z', from, to],
+  `listing the paths ${to} changes from ${from}`, { maxBuffer: LISTING_MAX_BUFFER }));
+
+/** The tracked paths of the worktree at `path` with staged or unstaged changes. */
+function changedTrackedPaths(path) {
+  const unstaged = nulNames(mustGit(path, ['diff', '--name-only', '--no-renames', '-z'], `listing the modified files of ${path}`, { maxBuffer: LISTING_MAX_BUFFER }));
+  const staged = nulNames(mustGit(path, ['diff', '--cached', '--name-only', '--no-renames', '-z'], `listing the staged files of ${path}`, { maxBuffer: LISTING_MAX_BUFFER }));
+  return [...new Set([...unstaged, ...staged])];
+}
+
 /**
- * Why the worktree at `path`, which has `into` checked out, must not take a fast-forward from `from` to `to`,
- * or null. An untracked file at a path the fast-forward adds, inside one or above one is refused here, since
- * git's own refusal names neither the worktree nor the recovery. git deletes an ignored file in those places
- * without a word. Other untracked files may stay.
+ * Why the worktree at `path`, which has `into` checked out, must not take the `landing` (a fast-forward or the
+ * staged work) from `from` to `to`, or null. The user may keep working there, so only a change at a path the
+ * landing writes is refused, which git would refuse too without naming the worktree or the recovery. An untracked
+ * file at a path the landing adds, inside one or above one is refused for the same reason. git deletes an ignored
+ * file in those places without a word.
  */
-function fastForwardProblem(path, from, to) {
+function landingProblem(path, from, to, landing) {
   // Input
   const operation = operationInProgress(path);
-  let tracked = [];
+  let overlapping = [];
   let added = [];
   let blocking = [];
   let doomed = [];
@@ -1850,13 +1885,13 @@ function fastForwardProblem(path, from, to) {
   // Process
   // Cheapest first, since the file listings of a main checkout can run to hundreds of MB.
   if (operation) return `It has ${operation[1]} in progress (${operation[0]}). Finish or abort it there, then run close again.`;
-  tracked = outputLines(mustGit(path, ['status', '--porcelain', '--untracked-files=no'], `reading the status of ${path}`));
-  if (tracked.length) return `It has staged or modified tracked files (${fileList(tracked)}). Commit them or set them aside, then run close again.`;
+  overlapping = filesInTheWay(changedTrackedPaths(path), changedPaths(path, from, to));
+  if (overlapping.length) return `It has uncommitted changes at paths the ${landing} writes (${nameList(overlapping)}). Commit them or set them aside, then run close again.`;
   added = addedPaths(path, from, to);
   blocking = filesInTheWay(untrackedFiles(path), added);
-  if (blocking.length) return `It holds untracked files in the way of the fast-forward (${nameList(blocking)}). Move them out of it, then run close again.`;
+  if (blocking.length) return `It holds untracked files in the way of the ${landing} (${nameList(blocking)}). Move them out of it, then run close again.`;
   doomed = filesInTheWay(ignoredFiles(path), added);
-  if (doomed.length) return `The fast-forward would delete ignored files there without a word (${nameList(doomed)}). Move them out of it, then run close again.`;
+  if (doomed.length) return `The ${landing} would delete ignored files there without a word (${nameList(doomed)}). Move them out of it, then run close again.`;
 
   // Output
   return null;
@@ -1942,7 +1977,7 @@ function fastForward(repo, name, into, intoOld, tip) {
   // Input
   const intoRef = headsRef(into);
   const holder = intoHolder(repo, into);
-  const problem = holder ? fastForwardProblem(holder.path, intoOld, tip) : null;
+  const problem = holder ? landingProblem(holder.path, intoOld, tip, 'fast-forward') : null;
   const movedAway = () => fail(`${into} moved while close ran, so it was not fast-forwarded and ${singleBranch(name)} keeps its gated work. Run close again.`, EXIT_CONFLICT);
   let moved = null;
 
@@ -1962,11 +1997,100 @@ function fastForward(repo, name, into, intoOld, tip) {
 }
 
 /**
- * `close --into`: merges `aipg/<name>` into `into` only by fast-forward, after gating the exact commit `into`
- * will point at, then removes the worktree and deletes the branch. A refusal before the rebase changes nothing.
- * A close run again after a later stop finishes the steps left, since steps 2, 4 and 5 skip what is done.
+ * Step 3 of `close --stage`. Commits the staged work in `worktree` to `branch` as one carrier commit, so the rebase
+ * and the gate handle it as they handle a commit. The carrier never reaches the user's branch, since `--stage` lands
+ * only its changes, so it is built with commit-tree and runs no commit hook. Work no acceptance staged is refused.
  */
-function closeInto(repo, name, into, gate) {
+function carryStaged(worktree, branch, name) {
+  // Input
+  const staged = git(worktree, ['diff', '--cached', '--quiet']);
+  const unstaged = porcelainLines(worktree).filter((line) => line[1] !== ' ');
+  let tree = '';
+  let parent = '';
+  let carrier = '';
+
+  // Process
+  if (staged.code === 0) return;
+  if (staged.code !== 1) throw unsafe(`reading the staged work of ${worktree} failed: ${gitError(staged)}`);
+  if (unstaged.length) {
+    throw unsafe(`${worktree} holds work beside its staged work that no acceptance staged (${fileList(unstaged)}), so close lands nothing. Set it aside as develop's guide says, then run close again.`);
+  }
+  tree = mustGit(worktree, ['write-tree'], `writing the staged tree of ${worktree}`).trim();
+  parent = commitOf(worktree, 'HEAD');
+  carrier = mustGit(worktree, ['commit-tree', tree, '-p', parent, '-m', `${name}: accepted`], `committing the staged work of ${worktree}`, UNATTENDED).trim();
+  mustGit(worktree, ['update-ref', '-m', `aipg close ${name}`, headsRef(branch), carrier, parent], `moving ${branch} to the carrier commit ${carrier}`, UNATTENDED);
+
+  // Output
+  process.stderr.write(`carried the staged work of ${branch} in commit ${carrier}\n`);
+}
+
+/** Whether the index of the worktree at `path` holds `tip`'s content at each of `paths`. */
+function stagedAt(path, tip, paths) {
+  const differing = new Set(nulNames(mustGit(path, ['diff', '--cached', '--name-only', '--no-renames', '-z', tip],
+    `comparing the index of ${path} with ${tip}`, { maxBuffer: LISTING_MAX_BUFFER })).map(foldName));
+  return paths.every((p) => !differing.has(foldName(p)));
+}
+
+/**
+ * Step 7 of `close --stage`. Applies the changes from `intoOld` to `tip` to the index and files of the worktree that has
+ * `into` checked out, and leaves `into` where it is, so the user reviews and commits them. A change already staged there
+ * is not applied twice, which lets a close run again after a later stop finish.
+ */
+function applyStaged(repo, name, into, intoOld, tip) {
+  // Input
+  const holder = intoHolder(repo, into);
+  const paths = changedPaths(repo, intoOld, tip);
+  let problem = null;
+  let patch = '';
+  let applied = null;
+
+  // Process
+  if (!holder) {
+    throw unsafe(`--stage stages the work in the worktree that has ${into} checked out, and none has it, so ${into} is untouched. Check ${into} out, then run close again.`);
+  }
+  if (commitOf(repo, headsRef(into)) !== intoOld) {
+    throw fail(`${into} moved while close ran, so nothing was staged and ${singleBranch(name)} keeps its gated work. Run close again.`, EXIT_CONFLICT);
+  }
+  if (stagedAt(holder.path, tip, paths)) {
+    process.stderr.write(`the worktree at ${holder.path} already has the work of ${singleBranch(name)} staged\n`);
+    return;
+  }
+  problem = landingProblem(holder.path, intoOld, tip, 'staged work');
+  if (problem) throw unsafe(`cannot stage the work in the worktree at ${holder.path}, so it is untouched. ${problem}`);
+  patch = mustGit(repo, ['diff', '--binary', '--full-index', '--no-renames', intoOld, tip], `reading the changes of ${singleBranch(name)}`, { maxBuffer: GATE_MAX_BUFFER });
+  applied = git(holder.path, ['apply', '--index', '--whitespace=nowarn'], { input: patch, maxBuffer: GATE_MAX_BUFFER });
+  if (applied.code !== 0) throw unsafe(`staging the work of ${singleBranch(name)} in ${holder.path} failed, and git apply changed nothing: ${gitError(applied)}`);
+
+  // Output
+  if (!stagedAt(holder.path, tip, paths)) {
+    throw unsafe(`the work of ${singleBranch(name)} was applied in ${holder.path} but its index does not match ${tip}. Nothing was removed. Check git -C ${shellQuote(holder.path)} diff --cached, then run close again.`);
+  }
+  process.stderr.write(`staged the work of ${singleBranch(name)} in ${holder.path}, and ${into} stays at ${intoOld}\n`);
+}
+
+/**
+ * Deletes `branch` once the worktree that has `into` checked out holds its work staged, and returns whether it did.
+ * The work is the change from where `branch` left `into` to its tip.
+ */
+function deleteIfStaged(repo, branch, into) {
+  // Input
+  const holder = intoHolder(repo, into);
+  const tip = commitOf(repo, headsRef(branch));
+  const from = mustGit(repo, ['merge-base', headsRef(into), tip], `finding where ${branch} left ${into}`).trim();
+
+  // Process + Output
+  if (!holder || !stagedAt(holder.path, tip, changedPaths(repo, from, tip))) return false;
+  mustGit(repo, ['branch', '-D', branch], `deleting ${branch}`, UNATTENDED);
+  return true;
+}
+
+/**
+ * `close --into`: merges `aipg/<name>` into `into` only by fast-forward, after gating the exact commit `into`
+ * will point at, then removes the worktree and deletes the branch. With `stage`, it stages the gated change in the
+ * worktree that has `into` checked out instead, and `into` stays where it is. A refusal before the rebase changes
+ * nothing. A close run again after a later stop finishes the steps left, since steps 2 to 5 and 7 skip what is done.
+ */
+function closeInto(repo, name, into, gate, stage = false) {
   // Input
   const branch = singleBranch(name);
   const branchRef = headsRef(branch);
@@ -2005,11 +2129,14 @@ function closeInto(repo, name, into, gate) {
   strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
   if (strayRefused) throw strayRefused;
   if (!entry) {
-    closeWithoutWorktree(repo, branch, into, exists);
+    closeWithoutWorktree(repo, branch, into, exists, stage);
     return;
   }
 
-  // 3. The worktree passes every removal check and is on its branch.
+  // 3. With stage, the staged work becomes a commit first. The worktree passes every removal check and is on its branch.
+  if (stage && pathExists(entry.path) && headRef(entry.path) === branchRef && !operationInProgress(entry.path)) {
+    carryStaged(entry.path, branch, name);
+  }
   present = checkRemovable(repo, entry, entries[0].path, opts);
   head = present ? headRef(entry.path) : '';
   if (present && head !== branchRef) throw offBranch(entry.path, shortBranch(head) || head, branch, exists);
@@ -2026,15 +2153,17 @@ function closeInto(repo, name, into, gate) {
     intoOld = commitOf(repo, intoRef);
     tip = rebaseOnto(entry.path, branch, into, intoOld, before);
     gateTip(entry.path, branch, into, gate, tip, before);
-    fastForward(repo, name, into, intoOld, tip);
+    if (stage) applyStaged(repo, name, into, intoOld, tip);
+    else fastForward(repo, name, into, intoOld, tip);
   }
 
-  // 8. Removal, re-read in case the gate's run changed the registration, then the branch `into` contains.
+  // 8. Removal, re-read in case the gate's run changed the registration, then the branch `into` contains or, with
+  // stage, holds staged.
   removeWorktree(repo, findBranch(worktreesForClean(repo), branch) ?? entry, entries[0].path, opts);
-  if (!deleteIfMerged(repo, branch, into)) {
+  if (!deleteIfMerged(repo, branch, into) && !(stage && deleteIfStaged(repo, branch, into))) {
     branchAt = commitOf(repo, branchRef);
     throw unsafe(branchAt === tip
-      ? `the worktree at ${entry.path} went to the trash, but ${into} no longer contains ${branch}, so the branch is kept. Check ${into}, then run close again.`
+      ? `the worktree at ${entry.path} went to the trash, but ${into} no longer ${stage ? 'holds the work staged' : 'contains it'}, so ${branch} is kept. Check ${into}, then run close again.`
       : `the worktree at ${entry.path} went to the trash, but ${branch} moved from ${tip} to ${branchAt}, so the branch is kept. Check it out in a free folder with git -C ${shellQuote(repo)} worktree add <folder> ${branch}, then run close again, which gates it.`);
   }
   intoAt = commitOf(repo, intoRef);
@@ -2076,16 +2205,34 @@ function closeDiscard(repo, name) {
 }
 
 function close(opt) {
+  // Input
   const repo = requireRepo(opt);
   const name = requireSingleName(opt);
-  const hasInto = opt.into !== undefined;
+  const branch = singleBranch(name);
   const discard = opt.discard === true;
-  if (hasInto === discard) {
-    throw fail(`close takes exactly one of --into <branch> or --discard (${hasInto ? 'both were given' : 'neither was given'})`);
+  const stage = opt.stage === true;
+  let into = opt.into;
+  let gate = '';
+
+  // Process
+  if (discard && (opt.into !== undefined || opt.gate !== undefined || stage)) {
+    throw fail('close --discard takes no --into, --gate or --stage, since it merges nothing');
   }
-  if (discard && opt.gate !== undefined) throw fail('close --discard takes no --gate, since it merges nothing');
-  if (discard) closeDiscard(repo, name);
-  else closeInto(repo, name, opt.into, requireCommand(opt, 'gate'));
+  if (discard) {
+    closeDiscard(repo, name);
+    return;
+  }
+  gate = requireCommand(opt, 'gate');
+  if (into === undefined) into = recordedBase(repo, branch);
+  if (opt.into === undefined && !into && !isLocalBranch(repo, branch)) {
+    git(repo, ['worktree', 'prune']);
+    process.stderr.write(`no branch ${branch}, so there is nothing to close\n`);
+    return;
+  }
+  if (opt.into === undefined && !into) throw unsafe(`open recorded no base for ${branch}, so name the branch to merge it into with --into`);
+
+  // Output
+  closeInto(repo, name, into, gate, stage);
 }
 
 // =============================================================================
@@ -2098,7 +2245,7 @@ const VERBS = {
   land: { fn: land, flags: ['repo', 'batch', 'key', 'gate', 'scope-file', 'wait-ms', 'stale-ms'] },
   clean: { fn: clean, flags: ['repo', 'batch', 'key'] },
   open: { fn: open, flags: ['repo', 'name', 'base', 'dir', 'provision'] },
-  close: { fn: close, flags: ['repo', 'name', 'into', 'gate'], switches: ['discard'] },
+  close: { fn: close, flags: ['repo', 'name', 'into', 'gate'], switches: ['discard', 'stage'] },
 };
 
 const USAGE = `usage:
@@ -2108,7 +2255,7 @@ const USAGE = `usage:
   node tools/wt.mjs clean --repo <abs> --key <chain>
   node tools/wt.mjs clean --repo <abs> --batch <name>
   node tools/wt.mjs open  --repo <abs> --name <name> [--base <branch>] [--dir <abs>] [--provision "<cmd>"]
-  node tools/wt.mjs close --repo <abs> --name <name> --into <branch> --gate "<cmd>"
+  node tools/wt.mjs close --repo <abs> --name <name> [--into <branch>] --gate "<cmd>" [--stage]
   node tools/wt.mjs close --repo <abs> --name <name> --discard`;
 
 // A name becomes a ref segment AND a directory name, so a slash or a space would silently reshape both.
