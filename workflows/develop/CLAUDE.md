@@ -228,7 +228,13 @@ Settle a run's choice in these steps.
 
   Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --commit on|off`.
   `set` takes `--policy` and `--commit` together and keeps every other saved setting.
-- When `commit` or `set` exits 1, show the user its message, which names the cause, and run the step
+- When the user answers on, run `node <attribution.mjs> check`, where `<attribution.mjs>` is this checkout's
+  `tools/attribution.mjs`. On `hidden <settings>`, go on. On
+  `shown <keys> in <settings>`, ask once: "Do you want me to stop adding Claude's author details to commits and
+  pull requests?" On yes, run `node <attribution.mjs> set`, which hides each shown key and keeps every other
+  setting. Claude Code reloads settings live. Commits that develop makes carry only the block's title, so the
+  question covers the commits and pull requests Claude makes outside a run.
+- When `commit`, `set` or `attribution.mjs` exits 1, show the user its message, which names the cause, and run the step
   again once the cause is fixed.
 - Show the choice and where it came from, the run or the repo's saved choice, in the approval summary.
 

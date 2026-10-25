@@ -71,6 +71,8 @@ for (const name of SKILLS) {
     if (name === 'develop') {
       ok(commitCheck > policyCheck && commitCheck < handover, 'body settles commit mode after the change policy and before it hands over to the guide');
       ok(body.includes('§4 "Choosing commit mode"'), 'body follows the develop guide\'s commit mode procedure on the commit verb\'s output');
+      ok(body.includes('- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`'),
+        'the path list maps the guide\'s attribution tool');
     } else {
       ok(commitCheck < 0, 'body runs no commit step, since this workflow does not commit');
     }

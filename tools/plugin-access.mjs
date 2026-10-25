@@ -24,7 +24,7 @@ const VERBS = ['check', 'grant'];
 const DRIVE_RE = /^([A-Za-z]):\//;
 
 const toPosix = (p) => p.replace(/\\/g, '/').replace(/(.)\/+$/, '$1');
-const isJsonObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+export const isJsonObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 
 /** The folder to grant. A cache install sits at <cache>/<marketplace>/<plugin>/<version>, and the
  *  version folder changes on every update, so the rule covers the plugin folder above it. */
@@ -75,7 +75,13 @@ export function withRule(settings, rule) {
   return { settings: { ...settings, permissions: { ...permissions, allow: [...allow, rule] } }, present: false };
 }
 
-function readSettings(path) {
+/** The user settings file: <$CLAUDE_CONFIG_DIR or ~/.claude>/settings.json. */
+export function settingsPath() {
+  return join(process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude'), 'settings.json');
+}
+
+/** The parsed settings at `path`, `{}` when the file is missing. Throws naming the cause when it does not parse. */
+export function readSettings(path) {
   if (!existsSync(path)) return {};
   try {
     return JSON.parse(readFileSync(path, 'utf8'));
@@ -86,7 +92,7 @@ function readSettings(path) {
 
 // Through a temp file and a rename, so a failed write cannot leave the user's settings half-written.
 // The rename lands on a link's target with the target's mode, so a dotfiles link and a 600 file survive.
-function writeSettings(path, settings) {
+export function writeSettings(path, settings) {
   // Input
   const existed = existsSync(path);
   const dangling = !existed && lstatSync(path, { throwIfNoEntry: false })?.isSymbolicLink() === true;
@@ -113,8 +119,8 @@ function main(argv) {
   const invokedRoot = dirname(dirname(resolve(process.argv[1])));
   const realRoot = fileURLToPath(new URL('..', import.meta.url)).replace(/[\\/]$/, '');
   const pluginName = JSON.parse(readFileSync(join(realRoot, '.claude-plugin', 'plugin.json'), 'utf8')).name;
-  const settingsPath = join(process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude'), 'settings.json');
-  const settings = readSettings(settingsPath);
+  const userSettings = settingsPath();
+  const settings = readSettings(userSettings);
   let granted = settings;
   let present = true;
 
@@ -128,10 +134,10 @@ function main(argv) {
   const spelled = rules.join(' ');
 
   // Output
-  if (present) return `granted ${spelled} in ${settingsPath}\n`;
-  if (verb === 'check') return `missing ${spelled} in ${settingsPath}\n`;
-  writeSettings(settingsPath, granted);
-  return `granted ${spelled} in ${settingsPath} (added)\n`;
+  if (present) return `granted ${spelled} in ${userSettings}\n`;
+  if (verb === 'check') return `missing ${spelled} in ${userSettings}\n`;
+  writeSettings(userSettings, granted);
+  return `granted ${spelled} in ${userSettings} (added)\n`;
 }
 
 // Realpath both sides, as the other tools do. A link in the script path otherwise makes the CLI a no-op.

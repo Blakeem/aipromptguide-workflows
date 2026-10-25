@@ -32,5 +32,6 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Args tool (operator-side, before every launch, also applies finished runs' statuses):
   `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`
+- Attribution tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/attribution.mjs`
 
 $ARGUMENTS
