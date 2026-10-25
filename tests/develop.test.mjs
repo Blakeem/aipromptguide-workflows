@@ -29,9 +29,8 @@ const BLOCKS = [onBus({ id: 'block-a', mode: 'feature', gate: 'build-only' }),
   onBus({ id: 'block-b', mode: 'section', gate: 'build-only' })];
 // The folder `project-settings.mjs backlog` prints, outside the target repo, as every launch passes.
 const BACKLOG = 'E:/r/backlog/repo-0a1b2c3d';
-// A copy of the engine's hash, so a change to the file names that later runs share fails here. A backlog
-// file's id ends in the hash of its raw [runId, block id] pair, and this form holds for a runId and a block
-// id that are their own slugs.
+// A copy of the engine's hash, so a change to the backlog file names that later runs share fails here. A file's
+// id ends in the hash of its raw [runId, block id] pair, which holds for a runId and block id that are slugs.
 const fnv1a = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
 const backlogFileId = (id, runId = 't') => `${runId}-${id}-${fnv1a(JSON.stringify([runId, id]))}`;
 const backlogFile = (id, runId) => `${BACKLOG}/${backlogFileId(id, runId)}.md`;
@@ -444,7 +443,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
 
 section('a block whose last round fails gets one closing pass with no blind review');
 // No round is left for a blind review, so the closing pass makes only low-risk fixes. It reaches acceptance
-// only when it recorded nothing and owes no review, and otherwise parks naming each recorded entry.
+// only when it listed nothing and owes no review, and otherwise parks naming each listed entry.
 {
   const CLOSING_OK = { ...DEV_OK, review_needed: false, recorded_entries: [] };
   const ONE_ROUND = { ...ONE_BLOCK, maxRounds: 1 };
@@ -467,7 +466,7 @@ section('a block whose last round fails gets one closing pass with no blind revi
     && closer.includes('list its id in recorded_entries, and write no DISMISSED line for it'),
     'it makes each low-risk fix and records the rest as backlog entries naming the fix');
   ok(closer.includes('or, in this closing pass, RECORDED as BUILD says'), 'the matrix counts a recorded finding as routed');
-  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is continued and accepted."'),
+  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is accepted in a later launch or dropped."'),
     'each recorded entry names the park that holds the code it describes');
   ok(closer.includes('When the dedup forbids the append, list the id of the entry that holds the item in recorded_entries instead.'),
     'an item an entry already holds is listed by that entry\'s id, not appended again');
@@ -485,14 +484,14 @@ section('a block whose last round fails gets one closing pass with no blind revi
 
   const recorded = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
   ok(!recorded.labels.includes('acceptance block-a r2') && recorded.labels.includes('park:block-a'), 'a recorded entry parks the block with no acceptance');
-  ok(parkText(recorded).includes('its closing pass parked it without acceptance: it recorded 1 backlog entry whose fix needs a blind review')
-    && parkText(recorded).includes('each backlog entry the closing pass recorded, by its id: t-block-a-x-1.'),
+  ok(parkText(recorded).includes('its closing pass parked it without acceptance: it listed 1 backlog entry whose fix needs a blind review')
+    && parkText(recorded).includes('each backlog entry the closing pass listed, by its id: t-block-a-x-1.'),
     'and its park record names the entry and why');
-  ok(recorded.logs.some((l) => /the closing pass parks the block without acceptance: it recorded 1 backlog entry/.test(l)), 'the log says so');
+  ok(recorded.logs.some((l) => /the closing pass parks the block without acceptance: it listed 1 backlog entry/.test(l)), 'the log says so');
 
   for (const [what, closingReturn, why] of [
     ['a change it judged not low risk', { ...CLOSING_OK, review_needed: true }, 'its changes owe a blind review, since a round since its last blind review judged a change not low risk or gave no judgment'],
-    ['an unusable list of entries', { ...CLOSING_OK, recorded_entries: 'none' }, 'it returned no usable list of the backlog entries it recorded'],
+    ['an unusable list of entries', { ...CLOSING_OK, recorded_entries: 'none' }, 'it returned no usable list of the backlog entries it listed'],
   ]) {
     const r = await run({ develop: develop(closingReturn), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
     ok(!r.labels.includes('acceptance block-a r2') && r.labels.includes('park:block-a') && parkText(r).includes(why),
@@ -547,6 +546,22 @@ section('a block whose last round fails gets one closing pass with no blind revi
   const deadCloseAcc = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, null), park: PARK_OK }, ONE_ROUND);
   ok(/Acceptance verifier for block block-a returned nothing in the closing pass \(round 2 in its file names\)/.test(deadCloseAcc.out.haltReason),
     'a dead closing acceptance names the closing pass too');
+  // Every other halt that names its round must name the closing pass, whose file-name number exceeds the round budget.
+  const CLOSING_NAME = 'the closing pass (round 2 in its file names)';
+  // Only an ordered run halts on an escalation, so that row takes the ordered args.
+  for (const [kind, closingReturn, closingAcceptance, extraArgs = {}] of [
+    ['a closing developer that could not obtain its plan', { ...CLOSING_OK, plan_obtained: false }, ACC_FAIL],
+    ['a closing developer that did not confirm staying unstaged', { ...CLOSING_OK, unstaged_confirmed: false }, ACC_FAIL],
+    ['a closing developer that escalated a user-only decision', { ...CLOSING_OK, needs_user: true }, ACC_FAIL, { ordered: true }],
+    ['a closing acceptance that could not obtain its plan', CLOSING_OK, { ...ACC_FAIL, plan_obtained: false }],
+    ['a closing acceptance that passed with a regression', CLOSING_OK, { ...ACC_PASS, staged: false, regression: true }],
+    ['a closing acceptance that failed the block but staged it', CLOSING_OK, { ...ACC_FAIL, staged: true }],
+    ['a closing acceptance that failed the block without confirming its review file', CLOSING_OK, { ...ACC_FAIL, wrote_file: false }],
+  ]) {
+    const r = await run({ develop: develop(closingReturn), quality: CLEAN, acceptance: firstRound(ACC_FAIL, closingAcceptance), park: PARK_OK }, { ...ONE_ROUND, ...extraArgs });
+    ok(r.out.halted === true && r.out.haltReason.includes(CLOSING_NAME) && !/\bround 2\b(?! in its file names)/.test(r.out.haltReason),
+      `${kind}: the halt reason names the closing pass: ${r.out.haltReason.slice(0, 120)}`);
+  }
 }
 
 section('fix acceptance records a harm with a separate cause in its block\'s backlog file, never a gap');
@@ -666,7 +681,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
   const HEADER = (fileId, id) => `A new file starts with the four lines "## Plan: ${fileId} - backlog from block ${id} of run t", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
   const ENTRY = (fileId) => `with n one past the highest n in that file's entry ids: ### [${fileId}-<n>] <title> - id: ${fileId}-<n> - status: open - file: <path>:<line> - severity: <low | medium | high | critical> - category: <category> - effort: <trivial | small | medium | large> - decision: NEEDS_USER **What:** <the defect, the input or path that reaches it, and its harm> **Fix:** <the change that closes it>`;
   const DISMISSED_TOO = 'Write the defect\'s DISMISSED line too, since the blind reviewer reads that file and never this one.';
-  const NO_ENTRY = { focused: 'A false positive and a nit get no entry.', proactive: 'A false positive gets no entry, and a nit goes under CLEANUP below.' };
+  const NO_ENTRY = { focused: 'A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.', proactive: 'A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.' };
   // Its own bullet after RECORD's closing-line rule, since its trigger is a cleanup and not a dropped defect.
   const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a refactor or a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves. • AMEND (6a)`;
   const CLASS_ENTRY = 'A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first place, and its **What:** names the class.';
@@ -3275,7 +3290,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
     const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, changePolicy: bad } });
     ok(msg.startsWith('Invalid args.changePolicy: it must be one of focused, proactive') && msg.includes(JSON.stringify(bad)),
       `changePolicy ${JSON.stringify(bad)} throws naming the value: ${msg.slice(0, 90)}`);
-    ok(msg.endsWith("It is not coerced, since it sets the developer's build aim and whether it fixes a defect it notices in connected code."),
+    ok(msg.endsWith("It is not coerced, since it sets the developer's build aim and whether it fixes a pre-existing defect it notices in connected code."),
       `changePolicy ${JSON.stringify(bad)} says what the policy sets`);
     ok(!msg.includes('now named focused'), `changePolicy ${JSON.stringify(bad)} carries no rename sentence`);
   }

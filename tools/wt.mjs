@@ -1584,7 +1584,7 @@ function requireLocalBranch(repo, targets, branch, flag) {
   // storedBranch answers '' for no branch, so an empty `branch` would otherwise pass.
   if (stored && stored === branch) return branch;
   throw unsafe(stored
-    ? `${flag} "${branch}" names branch ${stored} in another case, so pass ${flag} ${stored}`
+    ? `${flag} "${branch}" names branch ${stored} in another case, so pass ${flag} ${shellQuote(stored)}`
     : `${flag} "${branch}" is not a local branch in ${repo}`);
 }
 
@@ -1612,7 +1612,7 @@ function resolveOpenBase(repo, targets, base) {
   if (!current) throw detachedBase(repo);
   stored = storedBranch(targets, current);
   if (stored && stored !== current) {
-    throw unsafe(`the current branch "${current}" of ${repo} names branch ${stored} in another case, so name the branch to cut from with --base ${stored}`);
+    throw unsafe(`the current branch "${current}" of ${repo} names branch ${stored} in another case, so name the branch to cut from with --base ${shellQuote(stored)}`);
   }
   if (!stored) throw unsafe(`the current branch "${current}" of ${repo} has no commit yet, so name the branch to cut from with --base`);
 
@@ -1873,7 +1873,7 @@ function holderProblem(repo, into, holder) {
 
   // Process + Output
   if (branch !== into) {
-    return `The worktree at ${path} has it checked out as ${branch}, which names the same branch. Once no rebase or bisect runs there, switch it with git -C ${shellQuote(path)} switch ${into}, then run close again.`;
+    return `The worktree at ${path} has it checked out as ${branch}, which names the same branch. Once no rebase or bisect runs there, switch it with git -C ${shellQuote(path)} switch ${shellQuote(into)}, then run close again.`;
   }
   if (!present && locked) {
     return `${gone}, and it is locked${lockReason ? ` (${lockReason})` : ''}, so "git worktree prune" keeps it. If the folder is on a drive that is not mounted, mount it. Otherwise run git -C ${shellQuote(repo)} worktree unlock ${shellQuote(path)} and ${pruneCommand(repo)}. Then run close again.`;

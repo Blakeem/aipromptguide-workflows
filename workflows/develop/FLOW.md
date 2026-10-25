@@ -152,7 +152,7 @@ flowchart TD
 | Develop | Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run's changePolicy in six phases, in this order. PATTERNS follows the repo's existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block's BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block's BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer's severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-&lt;id&gt;-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round's changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block's required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry's root cause, apart from code its block's text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block's text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the staged baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the staged baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the staged baseline already had that no requirement of its block names. Each real defect at low or above that the staged baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block's file in the project's backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block's last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review's findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it. |
 | Quality | BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-&lt;id&gt;-rN.md. Clean means no finding and no contested dismissal. Runs in a block's first round with a satisfied gate in a launch, and in a later round only when a round since the block's last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. Never runs on the closing pass. |
 | Acceptance | Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block's last blind review holds against that round's own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-&lt;id&gt;-rN.md; on pass, STAGES that block (git add, never commit) - the accepted baseline advances. |
-| Park | On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-&lt;id&gt;.patch, then clears it from the tree. A closing pass that recorded a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass's work, and the park record names each recorded entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed - NEEDS-USER.md carries the restore command. |
+| Park | On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-&lt;id&gt;.patch, then clears it from the tree. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass's work, and the park record names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed - NEEDS-USER.md carries the restore command. |
 | Sweep | Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory - a dead sweep never halts. |
 
 ## Loops
@@ -173,7 +173,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| done (all blocks staged) | every block accepts and the sweep runs · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · continueParked names block-a and every block accepts · the last round fails and the closing pass makes only low-risk fixes | derived |
+| done (all blocks staged) | every block accepts and the sweep runs · changePolicy is proactive and a feature block accepts · the whole-goal sweep dies · sweep:none on a fully accepted run · the blind review finds defects · acceptance finds gaps · the developer judges every change since the last blind review low risk · a fix block fixes an issue and accepts · changePolicy is proactive and a fix block fixes an issue and accepts · a packed pass of two fix blocks fixes its issues and accepts · every issue in a fix block is stale · continueParked names block-a and every block accepts · the last round fails and the closing pass makes only low-risk fixes | derived |
 | partial slice complete (every selected block staged) | runOnly builds a subset of the blocks | derived |
 | nothing to run (no todo blocks) | no block still has status todo | derived |
 | run complete (N block(s) parked) | the block gate is never green · a block parks and ordered is false · the developer hits a user-only blocker in an unordered run · the closing pass records a backlog entry | derived |
@@ -204,22 +204,22 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: args.startAt is retired | args carry a top-level startAt | throw (line 74) |
 | throw: The top-level args.planPath is retired | args carry a top-level planPath | throw (line 77) |
 | throw: args.plans[].planContext is retired | a plans row carries planContext | throw (line 83) |
-| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 157) |
-| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 160) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 168) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 173) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 178) |
-| throw: Invalid goal key | goal is a number | throw (line 182) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 187) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 205) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 213) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 220) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 231) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 239) |
-| throw: plan model(s) [...] are not one of opus \| sonnet | a block names a model outside opus \| sonnet | throw (line 247) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 255) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 271) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 282) |
+| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 158) |
+| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 161) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 169) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 174) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 179) |
+| throw: Invalid goal key | goal is a number | throw (line 183) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 188) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 206) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 214) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 221) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 232) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 240) |
+| throw: plan model(s) [...] are not one of opus \| sonnet | a block names a model outside opus \| sonnet | throw (line 248) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 256) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 272) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 283) |
 | throw: args.gates.build is required | args.gates.build is missing | throw (line 1522) |
 | throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1534) |
 | throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1541) |
@@ -229,4 +229,4 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 
 ## Coverage
 
-73 scenarios · 6/6 roles · 33/33 throw sites · 15/15 halt statuses · 53 terminal states.
+75 scenarios · 6/6 roles · 33/33 throw sites · 15/15 halt statuses · 53 terminal states.

@@ -59,9 +59,10 @@ export default {
       terminal: 'inventory written (the clean unit never reached verify)',
     },
     {
-      // A dead reviewer pushes `{ id: <unit id>, stage: 'review', lens }` to `failed` (review.mjs:414-419),
-      // its unit gets no marker (:438) and is excluded from unitsReviewed (:509). No extra agent spawns, so
-      // this declared terminal is the only place the map can separate it from a clean unit.
+      // A dead reviewer pushes `{ id: <unit id>, stage: 'review', lens }` to `failed` (the `failed.push` in the
+      // `!rev` branch), its unit gets no marker (`lensDied` skips the `marker: false` push) and is excluded
+      // from `unitsReviewed`. No extra agent spawns, so this declared terminal is the only place the map
+      // can separate it from a clean unit.
       name: 'a dead reviewer beside a clean one',
       when: 'a reviewer dies (its unit is reported in failed, unmarked)',
       args: { ...base, units: [unit('u1'), unit('u2')] },
@@ -69,7 +70,7 @@ export default {
       terminal: 'no inventory (a reviewer died: unit reported in failed, re-review it)',
     },
     {
-      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs:394-432 loops lenses INSIDE the
+      // 2 units x 2 lenses = 4 calls in ONE pipeline stage (review.mjs runs the lens loop INSIDE the per-unit
       // stage): two CONCURRENT lanes, each running its lenses SEQUENTIALLY. Expected rendering is one
       // `review` node annotated concurrent, plus a SELF-LOOP for the next lens — and no review → review
       // edge attributable to the differing unit id, which `group.item` is what rules out.

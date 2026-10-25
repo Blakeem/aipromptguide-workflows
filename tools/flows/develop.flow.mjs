@@ -178,6 +178,13 @@ export default {
       respond: GREEN_RUN,
     },
     {
+      // The proactive policy renders its own prompt lines, so the prompt snapshot needs a run that sets it.
+      name: 'a feature block accepts under the proactive policy',
+      when: 'changePolicy is proactive and a feature block accepts',
+      args: { ...base, changePolicy: 'proactive', plans: [BLOCKS[0]] },
+      respond: GREEN_RUN,
+    },
+    {
       // A sweep that RAN AND DIED. `out.status` is still `done (all blocks staged)` — only the sweep entry in
       // `failed` says the goal-coverage check is missing — so this path exists in the map on this scenario alone.
       name: 'the final sweep dies',
@@ -262,6 +269,12 @@ export default {
       name: 'a fix block closes its issues',
       when: 'a fix block fixes an issue and accepts',
       args: { ...base, plans: [FIX_BLOCK] },
+      respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
+    },
+    {
+      name: 'a fix block closes its issues under the proactive policy',
+      when: 'changePolicy is proactive and a fix block fixes an issue and accepts',
+      args: { ...base, changePolicy: 'proactive', plans: [FIX_BLOCK] },
       respond: { develop: FIX_DONE, quality: CLEAN, acceptance: ACC_FIX, 'final-sweep': SWEEP_OK },
     },
     {

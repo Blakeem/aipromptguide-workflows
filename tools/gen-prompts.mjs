@@ -40,11 +40,14 @@ function fence(text) {
   return '~'.repeat(Math.max(4, longest + 1));
 }
 
+const PER_BLOCK_HASH = /\b[0-9a-f]{8}\b/g;
+
 /** A call's variant key: its role, its schema, and its prompt with the item id, every hash and every number masked. */
 function variantKey(c) {
   const item = c.label.slice(c.role.length).replace(/[\s:/]+r\d+$/, '').replace(/^[\s:/]+/, '').trim();
-  // An engine's fnv1a hash differs per block. An 8-digit number matches too, so both take the number's mask.
-  const masked = (item ? c.prompt.split(item).join('<item>') : c.prompt).replace(/\b[0-9a-f]{8}\b/g, 'N').replace(/\d+/g, 'N');
+  const itemMasked = item ? c.prompt.split(item).join('<item>') : c.prompt;
+  // An engine's fnv1a hash differs per block. An all-digit hash also matches the number mask, so both use N.
+  const masked = itemMasked.replace(PER_BLOCK_HASH, 'N').replace(/\d+/g, 'N');
   return `${c.role}\u0000${c.schema}\u0000${masked}`;
 }
 

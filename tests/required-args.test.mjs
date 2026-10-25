@@ -195,6 +195,12 @@ for (const { engine, baseArgs, respond, required } of SWEEP) {
     const msg = await throwsWith(engine, { args, respond: {} });
     ok(msg !== '', `${path} = ${what} throws: ${msg.slice(0, 50)}`);
   }
+
+  // The message is the only place an operator sees the list, so a required arg the table has and it lacks stays hidden.
+  const row = SWEEP.find((r) => r.engine === engine);
+  const names = new Set(row.required.map((e) => (typeof e === 'string' ? e : e.path).split('.')[0]));
+  const missingRunId = await throwsWith(engine, { args: without(DEVELOP_ARGS, 'runId'), respond: {} });
+  for (const name of names) ok(missingRunId.includes(name), `the missing-runId message names ${name}: ${missingRunId.slice(0, 80)}`);
 }
 
 // ---------------------------------------------------------------------------------------------

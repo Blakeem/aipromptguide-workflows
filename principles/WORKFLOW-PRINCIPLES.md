@@ -150,7 +150,8 @@ The developer writes no "what I did" report, since its code is its output (#8). 
 developer also records each real defect the staged baseline already had that it logs because its
 code-zone routing leaves the defect unchanged, under its decision matrix's rule 2 or as a sibling
 path, in code no other block owns. Under the proactive change policy, it also records each cleanup it
-noticed and did not make outside the code its block's required changes add or change. Each record
+noticed and did not make outside the code its block's required changes add or change. In its closing pass, it also
+records each finding in its block's own diff whose fix needs a blind review. Each record
 goes to that block's file in the project's backlog folder, an untriaged issue inventory the user
 triages like debug's `issues/`. The developer adds a closing line to an entry in any file in that
 folder whose defect a fix it logs closes. Reviewers write only their numbered review files. One

@@ -30,7 +30,7 @@ close to the task. Its developer builds minimally. It leaves unchanged any probl
 already had that its change neither causes nor exposes. `proactive` is for the best code. Its developer
 builds each feature and section block with the change that has the best long-term result. In those
 blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
-cleanup there, such as a clearer name, in the backlog and leaves the code unchanged.
+cleanup outside task code, such as a clearer name, in the backlog and leaves the code unchanged.
 
 ## How it works
 
@@ -65,11 +65,11 @@ Every block runs the same loop, up to `maxRounds`.
    sends the next round to the blind reviewer.
 4. If the last round fails, a **closing pass** runs one more developer with no blind review after it.
    It makes each fix that is low risk and records each risky fix in the project's backlog. Acceptance
-   then runs once more, but only when the closing pass recorded nothing and no change still needs a
+   then runs once more, but only when the closing pass listed no backlog entry and no change still needs a
    blind review.
 5. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
    nothing is lost and the next block starts clean. The park record names each backlog entry the
-   closing pass recorded and each plan file of the block. Park also keeps copies of the block's reviews
+   closing pass listed and each plan file of the block. Park also keeps copies of the block's reviews
    and ledgers.
 
 Settings at the top of the plan file control the run.
@@ -111,7 +111,8 @@ defaults the developer took, a pointer to each plan amendment and each fix the d
 problem the code already had that its block did not require (`DECISIONS.md`), each parked patch, and
 the sweep result (`SWEEP.md`).
 
-The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
+The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work
+and, from a block's closing pass, the findings in the block's own work whose fixes need a blind review,
 in one file per block of each run. Under `proactive`, it also holds the cleanups the developer noticed
 and did not make. To work the backlog, run `/aipg:develop work the backlog`, or tell Claude to work
 the backlog with the develop workflow. You triage the entries with Claude. Then develop builds the

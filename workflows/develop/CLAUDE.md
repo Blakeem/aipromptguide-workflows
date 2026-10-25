@@ -131,7 +131,7 @@ models. Show each block's model in the approval summary.
   stays out. Never clear the state dir (§8), a plan file or debug's `issues/`.
 
 **Choosing the change policy.** `changePolicy` sets the developer's build aim and whether it fixes a
-defect it notices in the code its block's changes connect to. The engine defines three code zones, and
+pre-existing defect it notices in the code its block's changes connect to. The engine defines three code zones, and
 every developer and acceptance prompt renders that one definition:
 - Task code is the code the block's required changes add or change. Every line such a change adds or
   changes is task code in full, so a pre-existing finding on such a line is a task code finding. In a
@@ -225,7 +225,7 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   backlog file (§10), so a later run can fix it. Under `proactive` it also records there each
   cleanup outside task code that it noticed and did not make, such as a refactor or a nit. A false
   positive and anything in code another block owns get no entry, and under `focused` neither does a
-  nit. In a pass, the entry goes to the file of the member whose entry's fix led to it. The
+  nit it drops that way. In a pass, the entry goes to the file of the member whose entry's fix led to it. The
   dismissal line stays, since the blind reviewer never reads a backlog file. When a fix it logs to
   `DECISIONS.md` closes a defect that an entry in any backlog file holds, it adds a `**Closed by:**`
   line to that entry and leaves the entry's status and decision as they are, since a park clears the
@@ -319,9 +319,9 @@ fix of the last review's findings and gaps that is low risk, and records each on
 an entry in its block's backlog file (§10), with a `**Fix:**` line naming the fix, a
 `**Parked with:**` line naming the block and no DISMISSED line, under both policies. It returns those
 entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
-that holds the item instead. When it recorded no entry and no blind review is owed, acceptance runs
+that holds the item instead. When it listed no entry and no blind review is owed, acceptance runs
 once more. A pass stages the block and a fail parks it. Otherwise the engine parks the block with the
-closing pass's work in its patch, and the park entry in `NEEDS-USER.md` names each recorded entry. A
+closing pass's work in its patch, and the park entry in `NEEDS-USER.md` names each listed entry. A
 block never reaches acceptance with a change that needs a blind review and has none.
 
 Gate semantics per block: `green` = build + the block's verification passed
@@ -431,7 +431,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `changePolicy` (`focused|proactive`, default `focused`, any other value **throws**, and
   `strict`, the old name of `focused`, throws with a message that names the rename. It sets the
-  developer's build aim and whether it fixes a defect it notices in connected code, and §4 says how to
+  developer's build aim and whether it fixes a pre-existing defect it notices in connected code, and §4 says how to
   choose it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`agentTypes`
   (keep the quality, acceptance and sweep roles on opus, and set another model for them only when the
@@ -444,7 +444,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of its
   round is not low risk, and a non-boolean counts as true) and, in the closing pass only,
-  `recorded_entries` (the ids of the backlog entries it recorded) · acceptance's `risk_misclassified`
+  `recorded_entries` (the ids of the backlog entries it listed, appended or already there) · acceptance's `risk_misclassified`
   (true when its risk audit found a gap) · the blind reviewer's `issue_count`, which counts every
   finding at every tier. `minor_count`, the old count of findings below a review's bar, is retired.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.
@@ -475,23 +475,25 @@ whose `**What:**` names theirs.
 When the user asks to work the backlog:
 
 1. Run `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` and read each file in
-   the folder it prints. Before the folder existed, develop wrote its entries to
-   `<root>/plans/<runId>/NEW-ISSUES-<block id>.md`. Move each such file that holds an entry waiting on
-   the user (step 2) into the folder as `<runId>-NEW-ISSUES-<block id>.md`, so this triage and the
-   writers' dedup read it.
+   the folder it prints.
 2. List the entries that wait on the user, grouped by severity, highest first, with the cleanup entries
    last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or `DEFER`, or while it is
    ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed or did not land sets.
-   An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status,
-   since no build works it, so `- status: open` alone never lists an entry.
+   An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
+   unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
+   `**Parked with:**` line with a note naming its parked block, and leave it out of the triage in
+   step 3 while it is held.
 3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
    option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the staged code
    holds that fix, and triage it like the rest when the code does not. Hold an entry with a
-   `**Parked with:**` line until its block is continued and accepted, since the code it names sits in
-   that block's parked patch. Then skip it once the staged code holds its fix, and triage it like the
-   rest when the code does not. A `status: todo` file left with no ACTIONABLE entry and no entry that
-   waits on the user is not a plan, so set it to `status: skip`, as debug's triage does.
+   `**Parked with:**` line until its block is accepted in a later launch, whether continued or
+   redone, since the code it names sits in that block's parked patch. Release the hold when the block
+   is dropped. Once the hold ends, skip the entry when the staged code holds its fix, and triage it
+   like the rest when the code does not. Set `- status: fixed` on each entry skipped because the staged
+   code holds its fix, since the writers' dedup treats an open entry as still holding the defect.
+   A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
+   plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with
    `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>` and a develop launch in fix
    mode, from §2 step 3. A file whose `status:` is not `todo`, such as a `done` file whose

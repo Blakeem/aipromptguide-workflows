@@ -2052,12 +2052,12 @@ if (!foldsCase(process.platform)) {
     const mainAt = sha(repo, 'refs/heads/main');
     // A loose ref is a file, so git finds refs/heads/Main as the file of branch main.
     const refused = [
-      [closeIn(repo, 'feat', 'Main', gate), /--into "Main" names branch main in another case, so pass --into main/, 'close --into Main'],
+      [closeIn(repo, 'feat', 'Main', gate), rx`--into "Main" names branch main in another case, so pass --into ${Q}main${Q}`, 'close --into Main'],
       [closeIn(repo, 'feat', 'AIPG/feat', gate), /--into "AIPG\/feat" names branch aipg\/feat in another case/, 'close --into AIPG/feat'],
       [closeIn(repo, 'FEAT', 'main', gate), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT'],
       [discardIn(repo, 'FEAT'), /--name "FEAT" gives branch aipg\/FEAT, which this file system finds as branch aipg\/feat/, 'close --name FEAT --discard'],
       [openIn(repo, 'FEAT'), rx`branch aipg\/feat already exists .*does not tell apart from aipg\/FEAT.*Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${Q}.*${Q} branch -D aipg\/feat\.`, 'open --name FEAT'],
-      [openIn(repo, 'other', ['--base', 'MAIN']), /--base "MAIN" names branch main in another case, so pass --base main/, 'open --base MAIN'],
+      [openIn(repo, 'other', ['--base', 'MAIN']), rx`--base "MAIN" names branch main in another case, so pass --base ${Q}main${Q}`, 'open --base MAIN'],
     ];
     for (const [r, expected, what] of refused) {
       eq(r.code, 40, `${what} exits 40`);
@@ -2067,11 +2067,24 @@ if (!foldsCase(process.platform)) {
     eq(git(repo, ['for-each-ref', '--format=%(refname)', 'refs/heads/']).stdout.trim().split('\n').join(','), 'refs/heads/aipg/feat,refs/heads/main', '...no branch was added or renamed');
     eq(worktreePaths(repo).length, 2, '...and no worktree was added');
 
+    // A branch name may hold a `$`, so each printed command carries the stored name through shellQuote.
+    // On win32 shellQuote uses double quotes, in which a `$` still expands (tools/wt.mjs:162-163).
+    eq(git(repo, ['branch', 'dev$x']).code, 0, 'create a branch whose name holds a $');
+    const oddBase = openIn(repo, 'odd', ['--base', 'DEV$X']);
+    eq(oddBase.code, 40, 'open --base DEV$X exits 40');
+    ok(oddBase.stderr.includes(`so pass --base ${shellQuote('dev$x')}`), `...printing the stored name quoted: ${firstLine(oddBase.stderr)}`);
+    eq(git(repo, ['checkout', '-q', 'DEV$X']).code, 0, 'check the branch out as DEV$X');
+    const oddCurrent = openIn(repo, 'odd');
+    eq(oddCurrent.code, 40, 'open with no --base on DEV$X exits 40');
+    ok(oddCurrent.stderr.includes(`cut from with --base ${shellQuote('dev$x')}`), `...printing the stored name quoted: ${firstLine(oddCurrent.stderr)}`);
+    eq(git(repo, ['checkout', '-q', 'main']).code, 0, 'check main out again');
+    eq(git(repo, ['branch', '-D', 'dev$x']).code, 0, 'delete the branch whose name holds a $');
+
     // git accepts the checkout and writes HEAD as refs/heads/Main, which reads the loose ref file of main.
     eq(git(repo, ['checkout', '-q', 'Main']).code, 0, 'check main out in the main worktree as Main');
     const variant = closeIn(repo, 'feat', 'main', gate);
     eq(variant.code, 40, `close --into main while a worktree has it checked out as Main exits 40 (${firstLine(variant.stderr)})`);
-    ok(/has it checked out as Main, which names the same branch\..*switch main/.test(variant.stderr), '...naming the worktree and the switch');
+    ok(rx`has it checked out as Main, which names the same branch\..*switch ${Q}main${Q}`.test(variant.stderr), '...naming the worktree and the switch');
     unchanged(root, repo, feat, 'feat', mainAt, tip);
     eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...and the main worktree shows no change');
     eq(git(repo, ['checkout', '-q', 'main']).code, 0, 'check main out as main');
