@@ -75,6 +75,17 @@ const GREEN_RUN = { develop: DEV_OK, 'develop-closing': CLOSING_OK, quality: CLE
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
 
+// Commit mode: the round-1 developer also counts staged files, and acceptance reports the commit it made. A
+// row with no title takes its id as the title, so a landed commit's subject is the block id.
+const COMMIT_BASE = { ...base, commit: true };
+const DEV_COMMIT = { ...DEV_OK, baseline_staged_files: 0 };
+const SHAS = { 'block-a': 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678', 'block-b': 'b1c2d3e4f5061728394a5b6c7d8e9f0123456789', 'block-c': 'c1d2e3f405162738495a6b7c8d9e0f1234567890' };
+const committedAs = (acc) => (label) => {
+  const id = label.split(' ')[1];
+  return { ...acc, committed: true, commit_sha: SHAS[id], commit_subject: id, tree_matches: true, tree_clean: true };
+};
+const COMMIT_RUN = { ...GREEN_RUN, develop: DEV_COMMIT, acceptance: committedAs(ACC_PASS) };
+
 // The floor has to stop BETWEEN blocks, not before the first one: "block-a landed, block-b waits for a
 // resume" is the branch, and a constant `remaining` only ever draws "nothing ran". The one per-run state a
 // budget can see is the live `calls` array a respond function is handed, and a reference to it goes STALE
@@ -118,6 +129,8 @@ export default {
     { name: 'non-numeric bound', when: 'maxRounds is not a number', args: { ...base, maxRounds: 'three' } },
     // A coerced policy would silently widen or narrow every developer's diff.
     { name: 'unknown change policy', when: 'changePolicy is outside focused | proactive', args: { ...base, changePolicy: 'lenient' } },
+    // The string "true" is truthy, so a coerced commit arg could commit what the operator meant to stage.
+    { name: 'commit is not a boolean', when: 'commit is the string "true"', args: { ...base, commit: 'true' } },
     // The developer's risk judgment decides when a blind review runs, so an ignored reviewSeverity would claim a bar the run never used.
     { name: 'reviewSeverity is retired', when: 'args carry reviewSeverity, any value', args: { ...base, reviewSeverity: 'medium' } },
     // Retired args throw rather than being ignored: each served only a hand-built payload.
@@ -156,6 +169,8 @@ export default {
     { name: 'block model is not a known model', when: 'a block names a model outside opus | sonnet | haiku | fable', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', model: 'gpt' }] } },
     { name: 'block effort is not a known level', when: 'a block names an effort outside low | medium | high | xhigh | max', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', effort: 'ultra' }] } },
     { name: 'block status is not a known status', when: 'a block names an unknown status', args: { ...base, plans: [{ id: 'block-a', mode: 'feature', status: 'wip' }] } },
+    // In commit mode a title is its commit's entire message, and git joins a multi-line subject into one line.
+    { name: 'block title is not one line', when: 'commit is true and a block title spans two lines', args: { ...base, commit: true, plans: [{ ...BLOCKS[0], title: 'one\ntwo' }] } },
     { name: 'a pass is malformed', when: 'a pass entry is not mode fix with two or more members', args: { ...base, plans: [{ id: 'pass-a', mode: 'feature', blocks: [] }] } },
     // Every block's body lives in a plan FILE, addressed by id. A row with no path would hand the developer
     // an empty plan reference, and it would build nothing while reporting success.
@@ -506,6 +521,43 @@ export default {
       when: 'the closing pass records a backlog entry',
       args: { ...base, maxRounds: 1 },
       respond: { ...GREEN_RUN, 'develop-closing': { ...CLOSING_OK, recorded_entries: ['flow-block-a-1'] }, acceptance: ACC_FAIL, park: PARK_OK },
+    },
+
+    // ---- commit mode: acceptance commits each accepted block, and a commit that misses halts --------
+    {
+      // The commit-mode prompts, the sweep's commit list and the commit-mode done terminal.
+      name: 'every block commits first time',
+      when: 'commit is true and every block accepts and commits',
+      args: COMMIT_BASE,
+      respond: COMMIT_RUN,
+    },
+    {
+      // Puts the commit-mode fix frame in the prompt snapshot. Adds no node or edge.
+      name: 'a fix block commits',
+      when: 'commit is true and a fix block fixes an issue, accepts and commits',
+      args: { ...COMMIT_BASE, plans: [FIX_BLOCK] },
+      respond: { develop: devFix([{ issue_id: 'i-1', status: 'FIXED' }], { baseline_staged_files: 0 }), quality: CLEAN, acceptance: committedAs(ACC_FIX), 'final-sweep': SWEEP_OK },
+    },
+    {
+      // The next commit would carry staged work no reviewer passed, so it halts before any reviewer, unparked.
+      name: 'the index held staged work',
+      when: 'commit is true and files were staged before round 1',
+      args: COMMIT_BASE,
+      respond: { develop: { ...DEV_COMMIT, baseline_staged_files: 2 } },
+    },
+    {
+      // Every landing check halts at the one commit-unverified site, so one failed check reaches it.
+      name: 'the commit fails a landing check',
+      when: 'acceptance passes but its commit does not land as asked',
+      args: COMMIT_BASE,
+      respond: { ...COMMIT_RUN, acceptance: { ...committedAs(ACC_PASS)('acceptance block-a r1'), committed: false, commit_sha: '', commit_subject: '' } },
+    },
+    {
+      // A second route into the rejected-staged terminal: work it failed sits in a commit, not the index.
+      name: 'acceptance commits a rejected block',
+      when: 'acceptance fails a block but reports a commit',
+      args: COMMIT_BASE,
+      respond: { ...COMMIT_RUN, acceptance: { ...ACC_FAIL, committed: true, commit_sha: SHAS['block-a'], commit_subject: 'block-a', tree_clean: true }, park: PARK_OK },
     },
   ],
 };

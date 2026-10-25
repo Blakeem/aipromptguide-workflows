@@ -166,7 +166,7 @@ export function batchOf(root, repo, keys) {
   return { intWt: join(root, 'aipg-int-b1'), chains };
 }
 
-/** An engine's RESTING state: accepted work STAGED, never committed (tests/CLAUDE.md §4). */
+/** An engine's stage-mode RESTING state: accepted work STAGED, not committed (tests/CLAUDE.md §4). */
 export function stage(worktree, file, content) {
   const path = at(worktree, file);
   mkdirSync(dirname(path), { recursive: true });

@@ -132,7 +132,7 @@ Besides code and develop's risk files, the developer's only outputs are four app
   may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
   also appends each parked block's record to it.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
-  plan amendment pointer. Under either change policy, it also records each fix of a defect the staged
+  plan amendment pointer. Under either change policy, it also records each fix of a defect the accepted
   baseline already had that develop's developer made and its block did not require. The user reads it
   at run end, and the acceptance stage reads it.
   It is never a question. A flag-and-proceed item is recorded here, and the developer continues with a
@@ -147,7 +147,7 @@ covered. They are the run's convergence mechanism, not a record of it. Their wri
 sequential, which is the only reason a shared append-only file is safe.
 
 The developer writes no "what I did" report, since its code is its output (#8). In develop, the
-developer also records each real defect the staged baseline already had that it logs because its
+developer also records each real defect the accepted baseline already had that it logs because its
 code-zone routing leaves the defect unchanged, under its decision matrix's rule 2 or as a sibling
 path, in code no other block owns. Under the proactive change policy, it also records each cleanup it
 noticed and did not make outside the code its block's required changes add or change. In its closing pass, it also
@@ -177,15 +177,19 @@ Every schema holds only decisions, never prose. A return value exists so that th
 to carry a message.
 
 ### 9. One staging, at the end
-Only the final acceptance gate stages (`git add`), and only on pass. Nothing is ever committed, since
-the user commits. Staging at the end is the regression boundary (staged is the accepted baseline,
-unstaged is the work under review), and it lets features be built back to back without overlap.
+Only the final acceptance gate stages (`git add`), and only on pass. Nothing is committed, since the
+user commits, unless the user turns on develop's commit mode. There that gate also commits each block
+it stages, on the branch the user checked out, with the repo's hooks and signing. The accepted
+baseline is what is staged, or HEAD in commit mode, and the unstaged tree is the work under review.
+That boundary at the end is the regression boundary, and it lets features be built back to back
+without overlap.
 
 A deterministic script the operator invokes may write commits on the `aipg/*` branches it owns, since
 no agent decides those commits. These are the accept, sync, and landing commits of `tools/wt.mjs land`
 and the rebased commits of `tools/wt.mjs close`. The rebase of `close` adds no change of its own, and
 `close` moves the user's branch only by fast-forward. So every change that reaches the user's own
-branches is one the user committed.
+branches is one the user committed, or an accepted block that the commit mode the user turned on
+committed.
 
 ### 10. Statelessness is a feature
 Each agent starts cold and re-reads what it needs. For one bounded feature the re-read is cheap, and it
@@ -441,7 +445,8 @@ Use these as yes/no checks when reviewing any workflow.
       later work depends on that block? (#7)
 - [ ] Do return schemas hold decisions only, with content in files? (#8)
 - [ ] Does every return carry the shared return fields (Mechanics)?
-- [ ] Is there a single staging step, at the end, on pass, and never a commit? (#9)
+- [ ] Is there a single staging step, at the end, on pass, with a commit only in a commit mode the user
+      turned on? (#9)
 - [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved to a patch
       instead of discarded or left unstaged? Is the restore command in the user notes? (#9, Mechanics)
 - [ ] Is each fact kept in one canonical place, with agents linked to it and never handed copies or

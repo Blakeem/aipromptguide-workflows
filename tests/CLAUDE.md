@@ -150,18 +150,22 @@ against (halt); an unreachable feature does not (flag).
 
 ## 4. Invariants you must not break
 
-- **Every terminal exit leaves a clean unstaged tree.** Accepted work is staged, unfinished work is
-  *parked* (saved to `parked-<id>.patch`, then cleared). This is load-bearing: it is what makes the
-  round-1 clean-baseline precondition correct **on a resume**, not just a fresh run. Add a new exit path
-  and it must either park or have changed nothing. The two deliberate exceptions are a dirty baseline
-  (nothing was changed; that work is the operator's) and passed-but-unstaged (the work is good and one
-  `git add` fixes it — parking would be worse).
+- **Every terminal exit leaves a clean unstaged tree.** Accepted work is staged, or committed in commit
+  mode. Unfinished work is *parked* (saved to `parked-<id>.patch`, then cleared). This is load-bearing:
+  it is what makes the round-1 clean-baseline precondition correct **on a resume**, not just a fresh
+  run. Add a new exit path and it must either park or have changed nothing. The three deliberate
+  exceptions are a dirty baseline (nothing was changed; that work is the operator's), passed-but-unstaged
+  (the work is good and one `git add` fixes it — parking would be worse), and a commit-mode halt whose
+  tree is dirty after the commit step, a `commit-unverified` or `acceptance-regression` halt that names the
+  tree dirty check (a hook, the gate run or an unstaged block file may have left the change, so the
+  operator inspects it before anything parks it).
 - **Save strictly before clear.** If the patch cannot be written, leave the tree exactly as it is.
 - **Never tell a user to apply a parked patch and then resume.** It makes the tree dirty and the round-1
   precondition rejects it. The honest options are *resume clean and redo* or *apply and finish by hand* —
   and never `git add -A` the restored work, which promotes un-reviewed code into the accepted baseline
   where the blind reviewer cannot see it and every later regression check treats it as known-good.
-- **Staging is the only boundary, and nothing is ever committed.** The user commits.
+- **Staging is the boundary, and only acceptance in commit mode commits.** In stage mode the user
+  commits. In commit mode acceptance commits each block it accepted, and the accepted baseline is HEAD.
 - **The blind reviewer is blind by *placement*.** Run-state lives outside the target repo so it cannot
   reach the issue files, and the blind prompt's only run-state paths point into its own
   `runs/<runId>/gate/` (its review files + DISMISSED ledgers). Never hand it a path into

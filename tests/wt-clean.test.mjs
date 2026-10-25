@@ -55,7 +55,7 @@ await withFixture(({ root, repo }) => {
   const intWt = join(root, 'aipg-int-b1');
   const hook = hookOf(intWt);
 
-  // The resting state of a finished engine run is accepted work STAGED, never committed
+  // The resting state of a finished stage-mode engine run is accepted work STAGED, not committed
   // (tests/CLAUDE.md §4), so this is what a `clean` fired one step ahead of the land meets.
   writeFileSync(at(chain, 'wip.txt'), 'accepted, not yet landed\n');
   eq(git(chain, ['add', '-A']).code, 0, 'stage work in the chain worktree');

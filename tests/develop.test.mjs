@@ -65,7 +65,7 @@ const FAIL_PARKS = '• Otherwise → return pass=false (do NOT stage); the bloc
 // The bullet also names where a prescribed construction's regression goes, in each mode's own word for the prescriber.
 const PRESCRIBER = { feature: "the block's text", section: "the block's text", fix: "an entry's **Fix:** line" };
 const REGRESSION_BULLET = (mode) => `• A REGRESSION that any review of this block names, a blind review included, that the acceptance review counted, or that your SELF-REVIEW found is a bug, so never DROP it under 1, 2, 6b or 8. FIX it at any tier (6a when the fix conflicts with the plan), or ESCALATE it (7) with the default you took when only a change in other code closes it. A regression that a construction ${PRESCRIBER[mode]} prescribes causes is fixed under 6a, with an amendment that cites the regression as its defect evidence. When that fix would change a choice that ${PRESCRIBER[mode]} says the user made, it goes to rule 7's branch that cannot proceed, so the block parks with the user's question in ${STATE}/NEEDS-USER.md.`;
-const REGRESSION_DEF = "A regression here is a behavior of the staged baseline that the acceptance check below counts as regressed, or a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false.";
+const REGRESSION_DEF = "A regression here is a behavior of the accepted baseline that the acceptance check below counts as regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.";
 const OWNED_CODE = 'in code no other block of the plan owns';
 // The engine's one zone map, which every developer and acceptance prompt renders.
 const TASK_CODE = {
@@ -98,7 +98,7 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   ok(/add -A/.test(out.haltReason) && /diff --binary > E:\/r\/runs\/t\/set-aside-<n>\.patch/.test(out.haltReason),
     'and gives both remedies');
   // develop keeps accepted blocks only in the index, and `git stash -u` resets the index to HEAD.
-  ok(!/stash -u/.test(out.haltReason) && /unpathed `git reset`, `git rm` or `git stash` touches the staged baseline/.test(out.haltReason),
+  ok(!/stash -u/.test(out.haltReason) && /unpathed `git reset`, `git rm` or `git stash` touches the index, which holds the accepted baseline/.test(out.haltReason),
     'the set-aside never stashes, and says why');
   // A fresh run has no state dir yet, so an unguarded failed save would be followed by the clear.
   ok(/mkdir -p E:\/r\/runs\/t/.test(out.haltReason)
@@ -412,7 +412,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
         copyFileSync(realIndex, index);
         git(['-C', repo, 'add', '-A'], { GIT_INDEX_FILE: index });
         const tree = git(['-C', repo, 'write-tree'], { GIT_INDEX_FILE: index });
-        ok(before.equals(readFileSync(realIndex)), `${where} round ${round}: the real index, the staged baseline, is unchanged`);
+        ok(before.equals(readFileSync(realIndex)), `${where} round ${round}: the real index, the accepted baseline, is unchanged`);
         return tree;
       };
 
@@ -434,7 +434,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
       ok(/^\+round two$/m.test(hunks) && !/^[+-](round one|one)$/m.test(hunks),
         `${where}: and its hunks add no line of the first round`);
       eq(git(['-C', repo, 'diff', '--name-status', 'HEAD', first]).replace(/\r/g, '').split('\n').sort().join('\n'), 'A\taccepted.txt\nA\tone.txt\nM\ta.txt',
-        `${where}: the first snapshot holds the staged baseline and the first round's files, the new one included`);
+        `${where}: the first snapshot holds the accepted baseline and the first round's files, the new one included`);
     }
   } finally {
     rmSync(tmp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
@@ -685,7 +685,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
   // Its own bullet after RECORD's closing-line rule, since its trigger is a cleanup and not a dropped defect.
   const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a refactor or a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves. • AMEND (6a)`;
   const CLASS_ENTRY = 'A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first place, and its **What:** names the class.';
-  const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1. Confirm at triage that the staged code holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
+  const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1. Confirm at triage that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
   const FILE_A = backlogFile('fix-a');
   const FILE_B = backlogFile('fix-b');
   const recordRule = (dev, policy, id, where) => {
@@ -1393,7 +1393,7 @@ section('continueParked is validated before any agent runs');
   const empty = await run(GREEN_RUN, { ...baseArgs, continueParked: [] });
   ok(empty.calls.length === plain.calls.length && empty.calls.every((c, i) => c.prompt === plain.calls[i].prompt),
     'an empty continueParked leaves every prompt unchanged');
-  ok(/If it IS 0, implement this block from\nscratch on top of the staged baseline/.test(plain.prompt('develop block-a r1')),
+  ok(/If it IS 0, implement this block from\nscratch on top of the accepted baseline/.test(plain.prompt('develop block-a r1')),
     'and round 1 still implements from scratch');
 }
 
@@ -1551,7 +1551,7 @@ section('acceptance that stages while reporting unreachable is only FLAGGED');
 
 section('acceptance that passed without staging halts without parking');
 // The work is good and one `git add` both preserves it and cleans the tree, so parking would be strictly
-// worse. But the run cannot advance onto an unstaged baseline either.
+// worse. But the run cannot advance onto an unaccepted baseline either.
 {
   const { out, labels } = await run({ ...GREEN_RUN, acceptance: { ...ACC_PASS, staged: false } });
   ok(!labels.some((l) => l.startsWith('park')), 'did NOT park good accepted work');
@@ -2377,7 +2377,7 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
     ok(a.includes(mode === 'fix' ? 'EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS.' : 'EVERY DEFECT YOU WRITE COUNTS.'), `${mode}: every defect acceptance writes counts`);
     ok(a.includes('a third-party one included'), `${mode}: a third-party caller's behavior is in the regression bar`);
     ok(a.includes("Not a regression: - a test the gate step's suite rule allows to be red."), `${mode}: a suite-allowed red test is not a regression`);
-    ok(a.includes("Every other such break or change is a regression. So is a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false."), `${mode}: a comment or doc sentence the cycle made false is a regression`);
+    ok(a.includes("Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false."), `${mode}: a comment or doc sentence the cycle made false is a regression`);
     ok(a.includes('- a line number that another file cites, since every edit moves lines.'), `${mode}: a cited line number the edit moved is not`);
     ok(a.includes('prescribes the construction that causes it'), `${mode}: a prescribed regression still counts`);
     ok(a.includes('unreached by any current caller'), `${mode}: an unreached regression still counts`);
@@ -2422,7 +2422,7 @@ section('acceptance lists what is not a regression from one rule, in every mode 
       ok(a.includes(item) && !a.includes(removedDefect(mode, otherZones(zones))),
         `${policy} ${mode}: the list holds the removed-defect item with its conditions and the zones a ${policy} ${mode} block may change: ${zones}`);
       ok(at('Not a regression:') < at(item) && at(item) < at('Every other such break or change is a regression.')
-        && at('Every other such break or change is a regression.') < at('So is a comment or doc sentence that was true in the staged baseline'),
+        && at('Every other such break or change is a regression.') < at('So is a comment or doc sentence that was true in the accepted baseline'),
         `${policy} ${mode}: the definition, then the list, then the rule that everything else counts`);
       ok((policy === 'proactive') === a.includes(`- a behavior change that a "PROACTIVE ${id}:" line in`),
         `${policy} ${mode}: the PROACTIVE item is ${policy === 'proactive' ? 'listed' : 'absent'}`);
@@ -3305,7 +3305,7 @@ section('a changed line is task code in full, the fixer follows each Fix line an
   }
 }
 
-section('changePolicy defaults to focused, sets the developer\'s build aim and zone routing, logs each fix of a defect already in the staged baseline under its tag, and any other value throws');
+section('changePolicy defaults to focused, sets the developer\'s build aim and zone routing, logs each fix of a defect already in the accepted baseline under its tag, and any other value throws');
 // The user's CLAUDE.md and auto memory reach every agent too, so each developer prompt names the policy as the override.
 {
   const policyLine = (policy) => `CHANGE POLICY: ${policy}. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.`;
@@ -3332,16 +3332,16 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   const route = "Hunt the task code in that scope for every finding at every tier. In the connected code in that scope, check your change's effects. Route each finding through the ZONE ROUTING above and the DECISION MATRIX below. In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round. A regression here";
   const close = 'This is NOT a general code review. Make THIS block correct, testable and production-safe, make the fixes the ZONE ROUTING allows, and touch nothing else. Return ONLY the decision fields';
   const contest = '• A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every change you make. NEVER log the same dismissal twice.';
-  const FIX_NOUN = 'fix of a defect already in the staged baseline';
+  const FIX_NOUN = 'fix of a defect already in the accepted baseline';
   const loggedFixRule = (tag, id, mode) => `${tag} (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each ${FIX_NOUN} that you made, in any zone, without ${REQUIRED_BY[mode]} requiring it, and that no earlier round logged, naming its file:line, what changed and why: \`${tag} ${id}: <file:line> — <what changed> — <why>\``;
   const loggedFixItem = (tag, id, zones) => `- a behavior change that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect, that the change alters no other behavior, that it lies ${OWNED_CODE}, and that it lies ${zones}. Every other such break or change is a regression.`;
   const loggedFixExcuse = (tag, zones) => `Nor does it count a removed defect that a ${tag} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${zones}.`;
-  const step4 = '4. REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
+  const step4 = '4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
   const settled = (tag, policy) => `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per ${FIX_NOUN} that this run's ${policy} change policy let the developer make, a record. A ${tag} line is never skipped for its stated reason, since the regression rule below judges each one.`;
   const decisionsNext = (tag, policy) => `Show the user each entry in ${STATE}/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a ${FIX_NOUN} that the ${policy} change policy allowed. Show a ${tag} line only after you confirm the code still holds its change, since a later round or a park can undo it`;
 
-  ok(bus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=focused]')), 'the default run\'s start line names focused');
-  ok(proBus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=proactive]')), 'a proactive run\'s start line names proactive');
+  ok(bus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=focused, commit=false]')), 'the default run\'s start line names focused');
+  ok(proBus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=proactive, commit=false]')), 'a proactive run\'s start line names proactive');
 
   for (const [policy, frames] of Object.entries(FRAMES_BY_POLICY)) {
     const tag = policy.toUpperCase();
@@ -3359,7 +3359,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       ok(dev.includes(contest), `${where}: a contested pre-existing finding at any tier that the zone routing leaves escalates with no change`);
       ok(dev.includes(REGRESSION_BULLET(mode)), `${where}: the MATRIX's regression bullet fixes a regression at any tier`);
       ok(dev.includes(`${REGRESSION_DEF} After the blind review`), `${where}: the SELF-REVIEW defines a regression, a falsified comment or doc sentence included`);
-      ok(dev.includes(loggedFixRule(tag, id, mode)) && !dev.includes(`${otherTag} (this run`), `${where}: each fix of a defect already in the staged baseline that ${REQUIRED_BY[mode]} does not require gets one ${tag} line in DECISIONS`);
+      ok(dev.includes(loggedFixRule(tag, id, mode)) && !dev.includes(`${otherTag} (this run`), `${where}: each fix of a defect already in the accepted baseline that ${REQUIRED_BY[mode]} does not require gets one ${tag} line in DECISIONS`);
       ok(dev.includes(loggedFixExcuse(tag, zones)) && !dev.includes(otherTag), `${where}: the SELF-REVIEW states acceptance's logged-fix excuse in the zones acceptance names, and no other tag`);
       ok((policy === 'focused' || mode === 'fix') === dev.includes('minimally and surgically'), `${where}: ${policy === 'focused' || mode === 'fix' ? 'the build is minimal and surgical' : 'no "minimally and surgically"'}`);
       ok(dev !== '' && !dev.includes('a little better'), `${where}: no closing line asks to leave touched lines a little better`);
@@ -3398,7 +3398,7 @@ section('every developer and acceptance prompt renders one code-zone map, the de
 // One zone map in every prompt keeps the developer's routing and acceptance's regression items on the same code.
 {
   const count = (text, s) => text.split(s).length - 1;
-  const routing = (policy) => `ZONE ROUTING - what you fix in each zone under this run's ${policy} change policy. A pre-existing finding is one the staged baseline already had that the diff neither introduces nor exposes. - Task code: hunt it, and fix every finding in it at every tier, a defect the staged baseline already had included. - Connected code: fix a finding the diff introduces or exposes there.`;
+  const routing = (policy) => `ZONE ROUTING - what you fix in each zone under this run's ${policy} change policy. A pre-existing finding is one the accepted baseline already had that the diff neither introduces nor exposes. - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already had included. - Connected code: fix a finding the diff introduces or exposes there.`;
   const fixesConnected = 'Fix a pre-existing defect there when its fix is low risk under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.';
   const keepsConnected = 'Leave every pre-existing finding there unchanged.';
   const routingTail = "- Other code: never change it. Close a finding the diff introduces or exposes there, such as a build break or a regression, at its source in task or connected code. When only a change in other code closes it, ESCALATE it (7). Never hunt outside task code. Read connected code to check your change's effects, and route what you notice there by these rules. A fix still follows the DECISION MATRIX's rules for a plan conflict (6a, 6b) and a user-only choice (7). Rule 2 of the DECISION MATRIX drops each pre-existing finding these rules do not fix, and RECORD below says which of them get a backlog entry.";
@@ -3440,4 +3440,390 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   const closer = flat(closing.prompt('develop-closing block-a'));
   ok(count(closer, CODE_ZONES('feature')) === 1 && closer.includes(`${routing('proactive')} ${fixesConnected} ${routingTail}`),
     'the closing pass renders the same zone map and routing');
+}
+
+// ---------------------------------------------------------------------------------------------
+// Commit mode: acceptance commits each accepted block, and the accepted baseline is HEAD
+// ---------------------------------------------------------------------------------------------
+// A quote and a non-ASCII letter, so the title reaches the commit file through JSON, never through shell quoting.
+const TITLE = 'Add the "fast" path for ünïcode';
+const SHA = '0123456789abcdef0123456789abcdef01234567';
+const C_BLOCK = { ...BLOCKS[0], title: TITLE };
+const COMMIT_ONE = { ...ONE_BLOCK, commit: true, plans: [C_BLOCK] };
+const DEV_C = { ...DEV_OK, baseline_staged_files: 0 };
+const ACC_C = { ...ACC_PASS, committed: true, commit_sha: SHA, commit_subject: TITLE, tree_matches: true, tree_clean: true };
+const C_RUN = { develop: DEV_C, quality: CLEAN, acceptance: ACC_C };
+const nextOf = (out) => String(out?.nextStep ?? '');
+const UNVERIFIED = 'BLOCKED (a block passed but its commit did not land as asked)';
+const HALTED_NEXT = 'The run halted, so the index may hold work: check `git -C E:/repo diff --cached --stat` against the halt reason above.';
+const schemaOf = (r, prefix) => r.calls.find((c) => c.label.startsWith(prefix))?.opts?.schema ?? { required: [], properties: {} };
+
+section('commit takes true or false, and any other value throws naming the arg and the value');
+{
+  for (const bad of ['true', 'false', 1, null]) {
+    const msg = await throwsWith(ENGINE, { args: { ...ONE_BLOCK, commit: bad } });
+    ok(msg.startsWith('Invalid commit arg: args.commit must be true or false') && msg.includes(`got ${JSON.stringify(bad)}`),
+      `commit ${JSON.stringify(bad)} throws naming args.commit and the value`);
+  }
+  eq((await run(GREEN_RUN, { ...ONE_BLOCK, commit: false })).out.status, 'done (all blocks staged)', 'commit false is stage mode');
+  eq((await run(GREEN_RUN, ONE_BLOCK)).out.status, 'done (all blocks staged)', 'an absent commit is stage mode');
+  eq((await run(C_RUN, COMMIT_ONE)).out.status, 'done (all blocks committed)', 'commit true is commit mode');
+}
+
+section('in commit mode a block title must be one line of text, since it is the commit\'s entire message');
+{
+  for (const bad of ['one\ntwo', '   ', 7, null]) {
+    const msg = await throwsWith(ENGINE, { args: { ...COMMIT_ONE, plans: [{ ...BLOCKS[0], title: bad }] } });
+    ok(msg.startsWith('plan title(s) [block-a: ') && msg.includes(JSON.stringify(bad)), `title ${JSON.stringify(bad)} throws in commit mode`);
+    eq((await run(GREEN_RUN, { ...ONE_BLOCK, plans: [{ ...BLOCKS[0], title: bad }] })).out.status, 'done (all blocks staged)',
+      `title ${JSON.stringify(bad)} is ignored in stage mode, which commits nothing`);
+  }
+  const untitled = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_subject: 'block-a' } }, { ...COMMIT_ONE, plans: [BLOCKS[0]] });
+  ok(flat(untitled.prompt('acceptance block-a')).includes('which is the JSON string "block-a", decoded'), 'a row with no title commits under its id, as plan-block.mjs prints it');
+  eq(untitled.out.status, 'done (all blocks committed)', 'and its id is the subject the engine checks');
+  // `plan-edit.mjs args --pack` prints a pass row's own title.
+  const pass = await run({ develop: { ...DEV_C, results: [{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FIXED' }] }, quality: CLEAN,
+    acceptance: { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }, { issue_id: 'i-2', actually_fixed: true }], backlog_entries: 0, backlog_blocks: [], gap_count: 0, committed: true, commit_sha: SHA, commit_subject: 'pass of block-c, block-d', tree_matches: true, tree_clean: true } },
+  { ...COMMIT_ONE, plans: [{ id: 'pass-1', title: 'pass of block-c, block-d', mode: 'fix', gate: 'green', blocks: [
+    { id: 'block-c', planPath: 'E:/plans/one.md', issues: ['i-1'] }, { id: 'block-d', planPath: 'E:/plans/two.md', issues: ['i-2'] }] }] });
+  ok(flat(pass.prompt('acceptance pass-1')).includes('which is the JSON string "pass of block-c, block-d", decoded'), 'a pass commits under its row title');
+  eq(pass.out.ledger[0].commit, SHA, 'and records its commit');
+}
+
+section('in commit mode a round-1 developer that finds staged files halts before any reviewer, and never parks');
+{
+  const halt = await run({ develop: { ...DEV_C, baseline_staged_files: 2 }, park: PARK_OK }, COMMIT_ONE);
+  eq(halt.calls.length, 1, 'only the developer ran, no reviewer spawned');
+  ok(!halt.labels.some((l) => l.startsWith('park')), 'did NOT park the operator\'s staged work');
+  eq(halt.out.status, 'BLOCKED (the index held staged work - nothing was built)', 'status');
+  ok(nextOf(halt.out).endsWith(HALTED_NEXT) && !nextOf(halt.out).includes('Nothing is staged.'), 'nextStep points at the index, never says nothing is staged');
+  const reason = String(halt.out.haltReason ?? '');
+  ok(reason.includes('2 file(s)') && reason.includes('`git -C E:/repo diff --cached --stat`') && /commit them/.test(reason) && /unstage them/.test(reason),
+    'the halt reason names the count and the command, and says to commit or unstage them');
+  eq(`${syncOf(halt.out)} ${halt.out.ledger[0]?.status}`, 'block-a=blocked BLOCKED (staged baseline)', 'statusSync marks the block blocked, and the ledger says why');
+  const dev = flat(halt.prompt('develop block-a r1'));
+  ok(dev.includes('Then run `git -C E:/repo diff --cached --name-only` and report baseline_staged_files') && dev.includes('If either count is NOT 0, STOP RIGHT THERE'),
+    'round 1 counts staged files and stops on either count');
+  ok(schemaOf(halt, 'develop').required.includes('baseline_staged_files'), 'the developer schema requires the staged count');
+  for (const bad of [undefined, null, '', false]) {
+    const r = await run({ ...C_RUN, develop: { ...DEV_C, baseline_staged_files: bad } }, COMMIT_ONE);
+    ok(r.logs.some((l) => /empty-index precondition was NOT verified/.test(l)), `a staged count of ${JSON.stringify(bad)} is not silently an empty index`);
+  }
+  const later = await run({ ...C_RUN, quality: firstRound(FLAGGED, CLEAN) }, COMMIT_ONE);
+  ok(later.prompt('develop block-a r2').includes('Report baseline_dirty_files=-1 and baseline_staged_files=-1.'), 'a later round reports -1 for both counts');
+  const stage = await run({ ...GREEN_RUN, develop: { ...DEV_OK, baseline_staged_files: 3 } }, ONE_BLOCK);
+  eq(stage.out.status, 'done (all blocks staged)', 'stage mode, whose index holds the accepted blocks, never halts on a staged count');
+  ok(!stage.prompt('develop block-a r1').includes('baseline_staged_files') && !('baseline_staged_files' in schemaOf(stage, 'develop').properties),
+    'and never asks for one');
+}
+
+section('a commit-mode pass commits with the block title through a file, and the ledger, log and nextStep name the commit');
+{
+  const r = await run(C_RUN, COMMIT_ONE);
+  const acc = flat(r.prompt('acceptance block-a r1'));
+  ok(acc.includes(`newly-created files>\`, then COMMIT as step 9 says; return pass=true, staged=true.`) && !acc.includes('NEVER commit'),
+    'the pass bullet stages, then commits');
+  ok(acc.includes(`which is the JSON string ${JSON.stringify(TITLE)}, decoded, as the one line of ${STATE}/commit-block-a.txt`)
+    && acc.includes('with no quotes, no other line and no trailer'), 'the title goes into the commit file as the message\'s one line');
+  ok(r.prompt('acceptance block-a r1').includes('\n9. COMMIT, on a pass whose diff is not empty:'), 'the COMMIT step is its own numbered step after DECIDE, not part of the fail bullet');
+  ok(acc.includes('Run `git -C E:/repo write-tree` and keep the tree id it prints.')
+    && acc.includes('tree_matches=true only when `git -C E:/repo log -1 --format=%T` prints the tree id you kept')
+    && acc.includes(`When it prints another, append both tree ids to ${STATE}/acceptance-review-block-a-r1.md, the kept one first.`),
+  'the commit\'s tree is checked against the tree staged before it, and a mismatch records both trees');
+  ok(acc.includes(`Run \`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\`.`) && acc.includes('Never pass `--no-verify`, `--no-gpg-sign` or `--amend`.'),
+    'it commits from that file, and never skips a hook or signing or amends');
+  ok(acc.includes(`append its full output to ${STATE}/acceptance-review-block-a-r1.md, leave the work staged, and return committed=false`)
+    && acc.includes('commit_subject from `git -C E:/repo log -1 --format=%s`')
+    && acc.includes('return tree_clean=true only when `git -C E:/repo status --porcelain` then prints nothing'),
+    'a refused commit leaves its output in the acceptance file, and the subject and tree come from git');
+  ok(['committed', 'commit_sha', 'commit_subject', 'tree_matches', 'tree_clean'].every((k) => schemaOf(r, 'acceptance').required.includes(k)), 'the acceptance schema requires the five commit fields');
+  eq(r.out.status, 'done (all blocks committed)', 'status');
+  eq(r.out.ledger[0].commit, SHA, 'the ledger records the commit');
+  eq(`${syncOf(r.out)} ${r.out.ledger[0].status}`, 'block-a=done done (committed)', 'statusSync marks the block done, and the ledger says committed');
+  ok(r.logs.some((l) => l.includes(`acceptance PASSED — COMMITTED ${SHA}`)), 'the pass log line names the commit');
+  ok(r.logs.some((l) => l.startsWith('develop: 1/1 block(s) to build') && l.endsWith(', commit=true]')), 'the launch line names commit mode');
+  const next = nextOf(r.out);
+  ok(next.includes(`Committed: block-a (${SHA}).`) && next.endsWith('Nothing is staged.') && !next.includes('Nothing is committed') && !next.includes('Staged/accepted'),
+    'nextStep names the commit and says nothing is staged');
+  ok(next.includes('run the full gates, `git -C E:/repo show --stat <sha>` for each commit above,') && !next.includes('diff --cached --stat'),
+    'and verifies the run by its commits');
+  ok(r.out.reviewTrail.endsWith('a git commit marks each accepted block.'), 'the review trail names the commit');
+
+  const stage = await run(GREEN_RUN, ONE_BLOCK);
+  eq(stage.out.ledger[0].commit, null, 'stage mode records no commit');
+  const sacc = flat(stage.prompt('acceptance block-a r1'));
+  ok(sacc.includes('newly-created files>` (NEVER commit); return pass=true, staged=true.') && !sacc.includes('COMMIT, on a pass') && !sacc.includes('committed=false'),
+    'stage-mode acceptance never commits');
+  ok(!('committed' in schemaOf(stage, 'acceptance').properties), 'and its schema has no commit field');
+  ok(nextOf(stage.out).includes('Staged/accepted: block-a.') && nextOf(stage.out).endsWith('Nothing is committed — you commit.'), 'stage-mode nextStep keeps its wording');
+}
+
+section('a commit-mode pass halts commit-unverified on each failed landing check, alone, and names it with the reported value');
+{
+  const TWO = { ...COMMIT_ONE, plans: [C_BLOCK, { ...BLOCKS[1], title: 'next block' }] };
+  const cases = [
+    ['not committed', { committed: false, commit_sha: '', commit_subject: '' },
+      (s) => s.includes('(1) not committed: committed=false.') && s.includes('A commit hook or commit signing may have refused the commit.')
+        && s.includes(`STAGED and not committed, and the hook output is in ${STATE}/acceptance-review-block-a-r1.md`)
+        && s.includes(`run \`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\``) && !s.includes('show --stat')],
+    ['unverified sha', { commit_sha: 'none' },
+      (s) => s.includes(`(1) unverified sha: commit_sha="none" beside commit_subject=${JSON.stringify(TITLE)} names no commit id`)
+        && s.includes('`git -C E:/repo log -1 --stat`') && !s.includes('show --stat')],
+    ['wrong subject', { commit_subject: 'rewritten by a hook' },
+      (s) => s.includes(`(1) wrong subject: commit_subject="rewritten by a hook" is not the block's title ${JSON.stringify(TITLE)}.`)
+        && s.includes(`Inspect the commit with \`git -C E:/repo show --stat ${SHA}\`.`)],
+    ['tree changed', { tree_matches: false },
+      (s) => s.includes('(1) tree changed: tree_matches=false.') && s.includes('A pre-commit hook may have rewritten and re-staged files')
+        && s.includes(`${STATE}/acceptance-review-block-a-r1.md names both tree ids`) && s.includes(`\`git -C E:/repo diff <staged tree id> ${SHA}\``)],
+    ['tree dirty', { tree_clean: false },
+      (s) => s.includes('(1) tree dirty: tree_clean=false.') && s.includes('A commit hook, the gate run, or a block file acceptance did not stage may have left these changes')
+        && s.includes('`git -C E:/repo status --porcelain` lists them')],
+  ];
+  // A landed commit is rejected by its revert, a commit with no verified sha is found first, and staged work is unstaged.
+  const REJECT = {
+    'not committed': 'once you unstage and set its files aside, to `todo`',
+    'unverified sha': 'once you revert each commit it made with `git -C E:/repo revert <sha>`, to `todo`',
+    'wrong subject': `once you revert it with \`git -C E:/repo revert ${SHA}\`, to \`todo\``,
+    'tree changed': `once you revert it with \`git -C E:/repo revert ${SHA}\`, to \`todo\``,
+    'tree dirty': `once you revert it with \`git -C E:/repo revert ${SHA}\`, to \`todo\``,
+  };
+  for (const [name, over, reasonOk] of cases) {
+    const r = await run({ ...C_RUN, acceptance: { ...ACC_C, ...over }, park: PARK_OK }, TWO);
+    const reason = String(r.out.haltReason ?? '');
+    eq(r.out.status, UNVERIFIED, `${name}: status`);
+    ok(reasonOk(reason) && reason.includes('Its commit failed 1 landing check(s): (1)') && !reason.includes('(2)'), `${name}: the reason names that check alone, with its reported value`);
+    ok(reason.includes('set its `status:` to `done`') && reason.includes(REJECT[name]), `${name}: and the recovery, with the reject step its landing needs`);
+    ok(r.logs.some((l) => l.endsWith(`its commit failed ${name} → halting the run`)), `${name}: the log line names the check`);
+    ok(!r.labels.some((l) => l.startsWith('park') || l.includes('block-b')), `${name}: nothing parks and the next block never starts`);
+    eq(syncOf(r.out), 'block-a=blocked', `${name}: statusSync marks the block blocked`);
+    ok(!reason.includes('confirmed closed'), `${name}: a feature block's halt names no fix issues`);
+  }
+  const fixHalt = await run({ ...C_RUN, develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { baseline_staged_files: 0 }),
+    acceptance: { ...FIX_PASS, committed: true, commit_sha: SHA, commit_subject: 'rewritten by a hook', tree_matches: true, tree_clean: true } },
+  { ...FIX_ONE, commit: true });
+  ok(String(fixHalt.out.haltReason ?? '').includes(`also set each fix issue that ${STATE}/acceptance-review-fix-a-r1.md confirmed closed to \`fixed\` or \`stale\``),
+    'a fix block\'s commit halt names the issue reset its kept work needs');
+  const refused = await run({ ...C_RUN, acceptance: { ...ACC_C, committed: false } }, COMMIT_ONE);
+  eq(refused.out.ledger[0]?.commit, null, 'a sha beside committed=false is not recorded as a commit');
+  eq(refused.out.ledger[0]?.status, 'done (staged, its commit not made)', 'and the ledger says the work is staged');
+  ok(nextOf(refused.out).endsWith(HALTED_NEXT), 'nextStep never claims nothing is staged');
+  ok(nextOf(refused.out).includes('Accepted but its commit not made, its work staged: block-a.') && !nextOf(refused.out).includes('Accepted with no commit of their own'),
+    'nextStep lists a refused commit as staged work, never as a no-op');
+  const padded = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_subject: `${TITLE}\n` } }, COMMIT_ONE);
+  eq(padded.out.status, 'done (all blocks committed)', 'a subject reported with a trailing newline still matches its title');
+  const sha256 = `${SHA}${SHA.slice(0, 24)}`;
+  const longSha = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_sha: sha256 } }, COMMIT_ONE);
+  eq(`${longSha.out.status} ${longSha.out.ledger[0]?.commit}`, `done (all blocks committed) ${sha256}`, 'a SHA-256 commit id is a verified sha');
+  for (const [name, over, value] of [['an omitted committed', { committed: undefined }, 'not committed: committed=undefined'],
+    ['an omitted tree_clean', { tree_clean: undefined }, 'tree dirty: tree_clean=undefined'],
+    ['an omitted tree_matches', { tree_matches: undefined }, 'tree changed: tree_matches=undefined'],
+    ['a 41-digit sha', { commit_sha: `${SHA}0` }, `unverified sha: commit_sha="${SHA}0"`]]) {
+    const r = await run({ ...C_RUN, acceptance: { ...ACC_C, ...over } }, COMMIT_ONE);
+    ok(r.out.status === UNVERIFIED && String(r.out.haltReason ?? '').includes(value), `${name} never reads as a landed commit that passed its check`);
+  }
+  // A no-op returns the reviewed tree, so a blank sha beside another tree may hide a commit a hook rewrote.
+  const noOpMatch = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_sha: '', commit_subject: '', tree_matches: false } }, COMMIT_ONE);
+  ok(noOpMatch.out.status === UNVERIFIED && String(noOpMatch.out.haltReason ?? '').includes('(1) unverified sha: commit_sha="" beside commit_subject="" names no commit id')
+    && String(noOpMatch.out.haltReason ?? '').includes('this verdict reported tree_matches=false.'), 'a blank sha beside tree_matches=false is no no-op');
+  // committed=true with a sha means the work is in HEAD, so a staged=false beside it must not drop that commit.
+  const committedUnstaged = await run({ ...C_RUN, acceptance: { ...ACC_C, staged: false } }, COMMIT_ONE);
+  eq(committedUnstaged.out.status, 'done (all blocks committed)', 'a pass that reports staged=false beside a landed commit lands as that commit');
+  eq(committedUnstaged.out.ledger[0]?.commit, SHA, 'and the ledger records the commit');
+  eq(committedUnstaged.out.ledger[0]?.contradicted, true, 'and flags the self-contradiction for audit');
+  ok(committedUnstaged.logs.some((l) => l.includes(`staged=false beside commit ${SHA}`)), 'and the log names the contradiction');
+  const unstagedRegression = await run({ ...C_RUN, acceptance: { ...ACC_C, staged: false, regression: true } }, COMMIT_ONE);
+  ok(String(unstagedRegression.out.haltReason ?? '').includes(`reject → revert it with \`git -C E:/repo revert ${SHA}\``),
+    'a staged=false regression pass with a landed commit names the revert of that commit, never a park');
+  ok(!unstagedRegression.labels.some((l) => l.startsWith('park')), 'and parks nothing');
+}
+
+section('a commit-mode pass that fails several landing checks names every one, in check order');
+{
+  for (const [over, names] of [
+    [{ commit_subject: 'rewritten by a hook', tree_matches: false }, ['wrong subject', 'tree changed']],
+    [{ commit_subject: 'rewritten by a hook', tree_matches: false, tree_clean: false }, ['wrong subject', 'tree changed', 'tree dirty']],
+    [{ commit_sha: 'N/A', tree_clean: false }, ['unverified sha', 'tree dirty']],
+  ]) {
+    const r = await run({ ...C_RUN, acceptance: { ...ACC_C, ...over } }, COMMIT_ONE);
+    const reason = String(r.out.haltReason ?? '');
+    const at = names.map((n, i) => reason.indexOf(`(${i + 1}) ${n}: `));
+    eq(r.out.status, UNVERIFIED, `${names.join(' + ')}: one commit-unverified halt`);
+    ok(reason.includes(`Its commit failed ${names.length} landing check(s): (1) ${names[0]}: `) && at.every((n, i) => n > (i ? at[i - 1] : 0)) && !reason.includes(`(${names.length + 1})`),
+      `${names.join(' + ')}: the reason numbers every failed check in check order`);
+    ok(r.logs.some((l) => l.endsWith(`its commit failed ${names.join(', ')} → halting the run`)), `${names.join(' + ')}: the log line names them in the same order`);
+  }
+}
+
+section('a commit-mode pass whose sha is a placeholder, or blank beside a subject, is a commit the engine cannot verify');
+{
+  for (const [name, over] of [['"none" on a no-op', { commit_sha: 'none', commit_subject: '' }], ['"N/A" on a commit', { commit_sha: 'N/A' }],
+    ['a blank sha beside a subject and another tree', { commit_sha: '', tree_matches: false }]]) {
+    const r = await run({ ...C_RUN, acceptance: { ...ACC_C, ...over } }, COMMIT_ONE);
+    const reason = String(r.out.haltReason ?? '');
+    eq(r.out.status, UNVERIFIED, `${name}: it halts commit-unverified`);
+    ok(reason.includes('(1) unverified sha: ') && !reason.includes('(2)') && !reason.includes('show --stat'), `${name}: the reason names the sha check alone and no show command`);
+    eq(`${r.out.ledger[0]?.commit} ${r.out.ledger[0]?.status}`, 'null done (commit unverified)', `${name}: the ledger records no commit and says it is unverified`);
+    ok(nextOf(r.out).includes('Accepted with a commit the engine could not verify: block-a.') && !nextOf(r.out).includes('Committed:')
+      && !nextOf(r.out).includes('Accepted with no commit of their own'), `${name}: nextStep lists it as unverified, never as a commit or a no-op`);
+    ok(r.logs.some((l) => l.includes('acceptance PASSED — COMMIT UNVERIFIED')), `${name}: the pass log line says unverified`);
+  }
+}
+
+section('an acceptance-regression halt on a commit-mode pass appends the same failed landing checks');
+{
+  const regressed = await run({ ...C_RUN, acceptance: { ...ACC_C, regression: true } }, COMMIT_ONE);
+  const rr = String(regressed.out.haltReason ?? '');
+  ok(rr.includes(`COMMITTED as ${SHA}`) && rr.includes(`Inspect \`git -C E:/repo show --stat ${SHA}\``) && rr.includes(`reject → revert it with \`git -C E:/repo revert ${SHA}\``) && !rr.includes('unstage'),
+    'a committed regression names the commit and its revert, never an unstage');
+  ok(!rr.includes('landing check'), 'a regression whose commit landed as asked names no landing check');
+  eq(regressed.out.status, 'BLOCKED (a block staged or committed while self-reporting a regression)', 'the commit-mode regression status names the commit');
+  const both = String((await run({ ...C_RUN, acceptance: { ...ACC_C, regression: true, commit_subject: 'rewritten by a hook', tree_matches: false } }, COMMIT_ONE)).out.haltReason ?? '');
+  const direct = String((await run({ ...C_RUN, acceptance: { ...ACC_C, commit_subject: 'rewritten by a hook', tree_matches: false } }, COMMIT_ONE)).out.haltReason ?? '');
+  const list = direct.slice(direct.indexOf(' Its commit failed'), direct.indexOf(' Inspect the commit with'));
+  ok(list.startsWith(' Its commit failed 2 landing check(s): (1) wrong subject: ') && both.endsWith(list),
+    'the regression reason ends with the list the commit-unverified reason names');
+  const unverifiedRegression = await run({ ...C_RUN, acceptance: { ...ACC_C, regression: true, commit_sha: 'none' } }, COMMIT_ONE);
+  const ur = String(unverifiedRegression.out.haltReason ?? '');
+  ok(ur.includes('was COMMITTED with no verified sha by acceptance') && ur.includes('Inspect `git -C E:/repo log -1 --stat`')
+    && ur.includes('reject → revert each commit it made with `git -C E:/repo revert <sha>`') && !ur.includes('unstage') && !ur.includes('revert none'),
+  'a regression on a commit with no verified sha finds it from HEAD and names its revert, never an unstage');
+  ok(unverifiedRegression.logs.some((l) => l.includes('block-a: committed while self-reporting a REGRESSION')), 'and its log line says committed');
+  const stagedRegression = await run({ ...C_RUN, acceptance: { ...ACC_C, regression: true, committed: false, commit_sha: '' } }, COMMIT_ONE);
+  eq(stagedRegression.out.ledger[0]?.status, 'done (staged, its commit not made)', 'a regression pass whose commit did not land is staged, never a no-op');
+  ok(nextOf(stagedRegression.out).endsWith(HALTED_NEXT), 'and nextStep never claims nothing is staged');
+  const sr = String(stagedRegression.out.haltReason ?? '');
+  ok(sr.includes('(1) not committed: committed=false.') && sr.includes(`the hook output is in ${STATE}/acceptance-review-block-a-r1.md`)
+    && sr.includes(`\`git -C E:/repo commit -F ${STATE}/commit-block-a.txt\``), 'and its halt reason names the refused commit, the hook output and the commit that keeps the work');
+}
+
+section('a commit-mode no-op pass makes no commit, lands, and has no subject to check');
+{
+  const r = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_sha: '', commit_subject: '' } }, COMMIT_ONE);
+  eq(r.out.status, 'done (all blocks committed)', 'a no-op pass lands');
+  eq(r.out.ledger[0].commit, null, 'the ledger records no commit');
+  eq(r.out.ledger[0].status, 'done (no-op, nothing to commit)', 'and says why');
+  ok(nextOf(r.out).includes('Accepted with no commit of their own: block-a.') && !nextOf(r.out).includes('Committed:')
+    && nextOf(r.out).includes('run the full gates, `git -C E:/repo log --stat`,'), 'nextStep says the block made no commit');
+  ok(flat(r.prompt('acceptance block-a r1')).includes('Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says'),
+    'the no-op bullet makes no commit and says what to return');
+  const dirty = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_sha: '', commit_subject: '', tree_clean: false } }, COMMIT_ONE);
+  eq(dirty.out.status, UNVERIFIED, 'a no-op pass that left the tree dirty still halts');
+  ok(String(dirty.out.haltReason ?? '').includes('(1) tree dirty: tree_clean=false.'), 'and names the dirty tree');
+}
+
+section('commit-mode acceptance that fails a block but reports a commit halts and names the revert');
+{
+  const r = await run({ ...C_RUN, acceptance: { ...ACC_FAIL, committed: true, commit_sha: SHA, commit_subject: TITLE, tree_clean: true }, park: PARK_OK }, COMMIT_ONE);
+  eq(r.out.status, 'BLOCKED (acceptance failed a block but staged or committed it)', 'it takes the rejected-staged halt');
+  eq(r.out.ledger[0]?.status, 'BLOCKED (acceptance committed a rejected block)', 'the ledger says the rejected block was committed');
+  const staged = await run({ ...C_RUN, acceptance: { ...ACC_FAIL, staged: true, committed: false, commit_sha: '', commit_subject: '', tree_matches: false, tree_clean: true }, park: PARK_OK }, COMMIT_ONE);
+  eq(staged.out.ledger[0]?.status, 'BLOCKED (acceptance staged a rejected block)', 'a rejected block that was only staged says staged');
+  ok(nextOf(staged.out).endsWith(HALTED_NEXT), 'and nextStep never claims nothing is staged');
+  ok(String(r.out.haltReason ?? '').includes(`revert it with \`git -C E:/repo revert ${SHA}\``), 'the halt reason names the revert of that commit');
+  ok(r.prompt('park').includes('revert its commit with `git -C E:/repo revert <sha>`'), 'park is told the commit-mode cause');
+  ok(flat(r.prompt('acceptance block-a r1')).includes('return pass=false (do NOT stage or commit, and return committed=false and commit_sha "")'),
+    'the fail bullet forbids a commit');
+  // A sha beside committed=false may be HEAD before this block, and its revert would undo an accepted block.
+  const stale = await run({ ...C_RUN, acceptance: firstRound({ ...ACC_FAIL, committed: false, commit_sha: SHA, commit_subject: TITLE, tree_clean: true }, ACC_C) }, COMMIT_ONE);
+  eq(stale.out.status, 'done (all blocks committed)', 'a fail that reports committed=false re-rounds, whatever sha it names');
+  const placeholder = await run({ ...C_RUN, acceptance: { ...ACC_FAIL, committed: true, commit_sha: 'none', commit_subject: TITLE, tree_clean: true }, park: PARK_OK }, COMMIT_ONE);
+  const pr = String(placeholder.out.haltReason ?? '');
+  eq(placeholder.out.ledger[0]?.status, 'BLOCKED (acceptance committed a rejected block)', 'a fail that reports a commit with a placeholder sha still halts as committed');
+  ok(pr.includes('reported commit "none"') && pr.includes('Inspect `git -C E:/repo log -1 --stat`') && pr.includes('revert each commit it made with `git -C E:/repo revert <sha>`')
+    && !pr.includes('revert none'), 'and finds the commit from HEAD, never reverting the placeholder');
+  // A fail must return committed=false, so committed=true with blank fields still reports a commit.
+  const blankFail = await run({ ...C_RUN, acceptance: { ...ACC_FAIL, committed: true, commit_sha: '', commit_subject: '', tree_matches: true, tree_clean: true }, park: PARK_OK }, COMMIT_ONE);
+  eq(blankFail.out.ledger[0]?.status, 'BLOCKED (acceptance committed a rejected block)', 'a fail that reports committed=true with a blank sha halts as committed, never as a no-op');
+}
+
+section('a refused commit fails only the not committed check, since git status lists its staged work');
+{
+  const r = await run({ ...C_RUN, acceptance: { ...ACC_C, committed: false, commit_sha: '', commit_subject: '', tree_matches: false, tree_clean: false } }, COMMIT_ONE);
+  const reason = String(r.out.haltReason ?? '');
+  eq(r.out.status, UNVERIFIED, 'a refused commit halts commit-unverified');
+  ok(reason.includes('Its commit failed 1 landing check(s): (1) not committed: ') && !reason.includes('tree dirty'),
+    'and never blames a hook rewrite for the staged work');
+}
+
+section('a dead acceptance verifier in commit mode names the HEAD its block started from and what to undo');
+{
+  const SHAS = { 'block-a': 'a'.repeat(40) };
+  const accFor = (label) => (label.includes('block-b') ? null : { ...ACC_PASS, committed: true, commit_sha: SHAS['block-a'], commit_subject: 'block-a', tree_matches: true, tree_clean: true });
+  const second = await run({ develop: DEV_C, quality: CLEAN, acceptance: accFor, park: PARK_OK }, { ...baseArgs, commit: true, plans: BLOCKS });
+  const reason = String(second.out.haltReason ?? '');
+  eq(second.out.status, 'BLOCKED (an agent returned nothing - it was skipped or died; its unstaged work is parked, and a dead acceptance may have staged or committed)',
+    'commit mode: the status says a dead acceptance may have staged or committed');
+  ok(reason.includes('Acceptance verifier for block block-b returned nothing') && reason.includes('It may have staged or committed the block before it died.')
+    && reason.includes(`HEAD before this block was ${SHAS['block-a']}, the last commit of this launch`)
+    && reason.includes('`git -C E:/repo log -1 --stat`') && reason.includes('`git -C E:/repo revert <sha>`')
+    && reason.includes('`git -C E:/repo diff --cached --stat` lists any files it staged') && !reason.includes('nothing was staged'),
+    'commit mode: the reason names the last commit, the revert and the staged check');
+  const first = await run({ ...C_RUN, acceptance: null, park: PARK_OK }, COMMIT_ONE);
+  ok(String(first.out.haltReason ?? '').includes('HEAD before this block was the HEAD this launch started from'), 'commit mode: the first block names the launch HEAD');
+  const stage = await run({ ...GREEN_RUN, acceptance: null, park: PARK_OK });
+  ok(String(stage.out.haltReason ?? '').includes("It may have staged the block's files before it died: check `git -C E:/repo diff --cached --stat`")
+    && !String(stage.out.haltReason ?? '').includes('nothing was staged'), 'stage mode: the reason names the staged check, never "nothing was staged"');
+}
+
+section('the commit-mode sweep spot-checks each commit of this launch, and stage mode the staged diff');
+{
+  const SHAS = { 'block-a': 'a'.repeat(40), 'block-b': 'b'.repeat(40) };
+  const args = { ...baseArgs, commit: true, goal: 'g', sweep: 'goal-coverage', plans: BLOCKS };
+  const accFor = (label) => {
+    const id = label.split(' ')[1];
+    return { ...ACC_PASS, committed: true, commit_sha: SHAS[id], commit_subject: id, tree_matches: true, tree_clean: true };
+  };
+  const r = await run({ develop: DEV_C, quality: CLEAN, acceptance: accFor, 'final-sweep': SWEEP_OK }, args);
+  const s = flat(r.prompt('final-sweep'));
+  ok(s.includes(`block-a: \`git -C E:/repo show --stat ${SHAS['block-a']}\``) && s.includes(`block-b: \`git -C E:/repo show --stat ${SHAS['block-b']}\``),
+    'the sweep lists each commit with its show command');
+  ok(s.includes('A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`.'), 'and names where an earlier launch\'s commits are');
+  ok(s.includes('its work is COMMITTED') && s.includes("every file in this launch's commits") && !s.includes('diff --staged'), 'and never spot-checks the empty staged diff');
+  ok(nextOf(r.out).includes(`Committed: block-a (${SHAS['block-a']}), block-b (${SHAS['block-b']}).`), 'nextStep names both commits in block order');
+  const stage = await run({ develop: DEV_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK }, { ...args, commit: false });
+  const ss = flat(stage.prompt('final-sweep'));
+  ok(ss.includes('Spot-check the staged diff (`git -C E:/repo diff --staged --stat`)') && ss.includes('its work is STAGED') && !ss.includes('show --stat'),
+    'stage mode spot-checks the staged diff');
+}
+
+section('every prompt and halt names the accepted baseline in its mode\'s own terms');
+{
+  const c = await run({ ...C_RUN, quality: firstRound(FLAGGED, CLEAN) }, COMMIT_ONE);
+  const s = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  for (const [mode, r] of [['commit', c], ['stage', s]]) {
+    const named = r.calls.filter((call) => call.prompt.includes('staged baseline')).map((call) => call.label);
+    ok(named.length === 0, `${mode}: no prompt names a "staged baseline"${named.length ? `: ${named.join(', ')}` : ''}`);
+  }
+  const dev = flat(c.prompt('develop block-a r1'));
+  ok(dev.includes('ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged.')
+    && dev.includes('HEAD already holds the blocks this run accepted before this one, each as its own commit. Leave HEAD and the index as they are: never commit, reset or revert.')
+    && !dev.includes('The staged index already holds'), 'commit mode: the developer is told HEAD holds the accepted blocks');
+  const sdev = flat(s.prompt('develop block-a r1'));
+  ok(sdev.includes('ACCEPTED blocks are STAGED (the accepted baseline).') && sdev.includes('The staged index already holds the blocks this run accepted before this one.'),
+    'stage mode: the developer is told the index holds them');
+  ok(flat(c.prompt('quality block-a r1')).includes('HEAD is the ACCEPTED baseline, each accepted block one commit — context only')
+    && flat(s.prompt('quality block-a r1')).includes('`git -C E:/repo diff --staged` is the ACCEPTED baseline — context only'), 'the blind reviewer is told where the baseline lives in each mode');
+  ok(flat(c.prompt('quality block-a r1')).includes('A first-column `A` or `M` is STAGED, and only its unstaged half')
+    && !flat(c.prompt('quality block-a r1')).includes('file is baseline'), 'commit mode never tells the blind reviewer that staged content is baseline');
+  const acc = flat(c.prompt('acceptance block-a r2'));
+  ok(acc.includes('HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).')
+    && acc.includes('A regression is any behavior the accepted baseline (HEAD, which holds each accepted block as its own commit) gave'),
+    'commit-mode acceptance compares against HEAD');
+  ok(flat(s.prompt('acceptance block-a r2')).includes('A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave'),
+    'stage-mode acceptance compares against the index');
+  const park = await run({ ...C_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...COMMIT_ONE, maxRounds: 1 });
+  const pk = flat(park.prompt('park'));
+  ok(pk.includes('You commit nothing: only acceptance commits, and only a block it accepted.') && !pk.includes('Nothing is EVER committed')
+    && pk.includes('would each stage it where no reviewer reads it and the next commit carries it'), 'commit-mode park commits nothing and names what staging would do');
+  const dirty = String((await run({ develop: { ...DEV_C, baseline_dirty_files: 2 } }, COMMIT_ONE)).out.haltReason ?? '');
+  ok(dirty.includes('Commit it (`git -C E:/repo add -A`, then `git -C E:/repo commit`) to KEEP it') && dirty.includes('without touching HEAD, which holds every accepted block as a commit')
+    && dirty.includes('never `git add -A` or commit it'), 'the commit-mode dirty-baseline halt keeps the operator\'s edits by a commit');
+  const unconfirmed = String((await run({ develop: { ...DEV_C, unstaged_confirmed: false }, park: PARK_OK }, COMMIT_ONE)).out.haltReason ?? '');
+  ok(unconfirmed.includes("acceptance's commit takes whatever is staged") && !unconfirmed.includes('diff --staged` as the accepted baseline'),
+    'the commit-mode staging halt names the commit that would carry self-staged work');
+  const unstaged = String((await run({ ...C_RUN, acceptance: { ...ACC_C, staged: false, committed: false, commit_sha: '', commit_subject: '' } }, COMMIT_ONE)).out.haltReason ?? '');
+  ok(unstaged.includes("and commit them with the block's title as the entire message"), 'the commit-mode passed-unstaged halt says to commit as well as stage');
+  const none = await run({}, { ...COMMIT_ONE, plans: [{ ...C_BLOCK, status: 'done' }] });
+  ok(nextOf(none.out).includes('(run the full gates, `git -C E:/repo log --stat`).') && !nextOf(none.out).includes('and commit.'),
+    'the commit-mode nothing-to-run terminal verifies by the log and never says to commit');
 }

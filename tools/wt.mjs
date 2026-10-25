@@ -1067,9 +1067,10 @@ function moveToTrash(repo, path) {
 
 /**
  * Refuses, with exit 40 and nothing changed, a worktree whose removal could lose work or reach another
- * folder, and returns whether its folder is present. An engine run's resting state is accepted work staged
- * and never committed (tests/CLAUDE.md §4), so a dirty tree is refused. A folder already gone skips the
- * checks that read it. `entry` comes from `worktreesForClean`, and `mainPath` is the main worktree's path.
+ * folder, and returns whether its folder is present. An engine run leaves its accepted work staged, or
+ * committed in develop's commit mode (tests/CLAUDE.md §4). Staged work has not landed, so a dirty tree is
+ * refused. A folder already gone skips the checks that read it. `entry` comes from `worktreesForClean`, and
+ * `mainPath` is the main worktree's path.
  * `discard` lets unlanded work and an unfinished operation go to the trash with the folder, and
  * `unlandedAdvice` replaces the land, commit or by-hand trash that the unlanded-work refusal names.
  */

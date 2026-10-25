@@ -1,13 +1,13 @@
 export const meta = {
   name: 'develop-cycle',
-  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass), looped per round, then one closing pass when the last round fails; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
-  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath>`, spreads the object it prints and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, never committed. Reuse one runId across resumes.',
+  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
+  whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath>`, spreads the object it prints and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, and committed only when args.commit is true. Reuse one runId across resumes.',
   phases: [
-    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the staged baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the staged baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the staged baseline already had that no requirement of its block names. Each real defect at low or above that the staged baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it.' },
+    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-<id>-rN.md. Clean means no finding and no contested dismissal. Runs in a block\'s first round with a satisfied gate in a launch, and in a later round only when a round since the block\'s last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. Never runs on the closing pass.' },
-    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add, never commit) — the accepted baseline advances.' },
+    { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block\'s title as the entire message — the accepted baseline advances.' },
     { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass\'s work, and the park record names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
-    { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory — a dead sweep never halts.' },
+    { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, or in commit mode this launch\'s commits, writes SWEEP.md. Advisory — a dead sweep never halts.' },
   ],
 };
 
@@ -63,6 +63,11 @@ if (!VALID_CHANGE_POLICY.has(CHANGE_POLICY)) {
   throw new Error(`Invalid args.changePolicy: it must be one of focused, proactive; got ${JSON.stringify(A.changePolicy)}.${renamed} It is not coerced, since it sets the developer's build aim and whether it fixes a pre-existing defect it notices in connected code.`);
 }
 const PROACTIVE = CHANGE_POLICY === 'proactive';
+// The string "false" is truthy, so a coerced value could commit every accepted block the operator meant to stage.
+if (A.commit !== undefined && typeof A.commit !== 'boolean') {
+  throw new Error(`Invalid commit arg: args.commit must be true or false; got ${JSON.stringify(A.commit)}. It decides whether acceptance commits each accepted block, so it is not coerced. Omit it, or pass false, to stage each accepted block.`);
+}
+const COMMIT = A.commit === true;
 // Ignored, it would leave the operator believing a bar the run never used.
 if (A.reviewSeverity !== undefined) {
   throw new Error(`args.reviewSeverity is retired: the developer's risk judgment decides when a blind review runs, and every blind review reports findings at every tier, so drop this key. Got reviewSeverity ${JSON.stringify(A.reviewSeverity)}.`);
@@ -264,7 +269,7 @@ if (BAD_GATES.length) {
   throw new Error(`plan gate(s) [${BAD_GATES.join(', ')}] are not legal for their block's mode. A gate decides what "done" MEANS for its block, so an unrecognized value must never coerce. Omit the field entirely to take the green default.`);
 }
 
-// A typed model or effort the runtime may not know would fail the developer call mid-run, after earlier blocks staged.
+// A typed model or effort the runtime may not know would fail the developer call mid-run, after earlier blocks were accepted.
 const BAD_MODELS = RAW.filter((p) => p.model != null && !VALID_MODELS.has(p.model))
   .map((p) => `${p.id}: ${JSON.stringify(p.model)}`);
 if (BAD_MODELS.length) {
@@ -278,15 +283,26 @@ if (BAD_EFFORTS.length) {
 }
 
 // `status` is what the todo filter selects on, so a typo is a block silently skipped (or, worse, a
-// finished one rebuilt over its own staged baseline). Omitted keeps the 'todo' default.
+// finished one rebuilt over its own accepted baseline). Omitted keeps the 'todo' default.
 const BAD_STATUS = RAW.filter((p) => p.status != null && !VALID_STATUS.has(p.status))
   .map((p) => `${p.id}: ${JSON.stringify(p.status)}`);
 if (BAD_STATUS.length) {
   throw new Error(`plan status(es) [${BAD_STATUS.join(', ')}] are not one of todo | done | skip | parked | blocked. Status drives which blocks this run builds, so an unrecognized value must never coerce. Omit the field entirely to take the todo default.`);
 }
 
+// A commit's entire message is its block's title, and git joins a multi-line subject into one line.
+const BAD_TITLES = COMMIT
+  ? RAW.filter((p) => p.title !== undefined && (typeof p.title !== 'string' || !p.title.trim() || /[\r\n]/.test(p.title)))
+    .map((p) => `${p.id}: ${JSON.stringify(p.title)}`)
+  : [];
+if (BAD_TITLES.length) {
+  throw new Error(`plan title(s) [${BAD_TITLES.join(', ')}] are not one line of text. In commit mode a block's title is its commit's entire message, so it never coerces. Spread what "plan-edit.mjs args <planPath>" prints: each row carries its block's header title.`);
+}
+
 const ALL_PLANS = RAW.map((p) => ({
   id: String(p.id),
+  // plan-block.mjs falls back to the id for a header with no title.
+  title: (typeof p.title === 'string' && p.title.trim()) || String(p.id),
   planPath: p.planPath ? abs(p.planPath) : '',
   mode: p.mode,
   gate: p.gate ?? 'green',
@@ -351,6 +367,7 @@ const dismissedName  = (id) => `DISMISSED-${slug(id)}.md`;
 const dismissedFile  = (id) => `${GATE_DIR}/${dismissedName(id)}`;  // terse ledger; developer → reviewers (anti-spin) — PER BLOCK
 // MATRIX 6a overrides, read by acceptance and the sweep. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
+const commitFile     = (id) => `${STATE_DIR}/commit-${slug(id)}.txt`;  // commit mode: the block's title, the commit's message
 const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
 // A second park renames the first patch here. A slug holds no dot, so no block's own patch matches.
 const parkedPrevPatch = (id) => `${STATE_DIR}/parked-${slug(id)}.prev<n>.patch`;
@@ -403,10 +420,14 @@ function gateOk(gate, dev) {
 // so a round that only SKIPPED entries cannot claim work it never did. `closing` marks the closing pass.
 const developSchema = (mode, closing) => ({
   type: 'object',
-  required: ['plan_obtained', 'baseline_dirty_files', ...(mode === 'fix' ? ['results'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'backlog_entries', 'backlog_blocks', 'review_needed', ...(closing ? ['recorded_entries'] : [])],
+  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), ...(mode === 'fix' ? ['results'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'backlog_entries', 'backlog_blocks', 'review_needed', ...(closing ? ['recorded_entries'] : [])],
   properties: {
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
+    // Commit mode only: acceptance's commit would carry anything staged, which no reviewer reads.
+    ...(COMMIT ? {
+      baseline_staged_files: { type: 'integer', description: 'ROUND 1 ONLY: how many files were STAGED BEFORE you touched anything. 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
+    } : {}),
     ...(mode === 'fix' ? {
       results: {
         type: 'array',
@@ -455,34 +476,44 @@ const QUALITY_SCHEMA = {
   },
 };
 
+const STAGED_TERM = `true if you ran \`git add\` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; ${COMMIT ? 'then commit as your prompt says' : 'NEVER commit'})`;
 const acceptanceSchema = (mode) => {
   // Per mode, because the descriptions are each frame's acceptance contract.
   // `|| {}` lets tests/static.test.mjs evaluate the schema with no mode to read its field names.
   const terms = {
     feature: {
       pass: 'true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
+      staged: STAGED_TERM,
       reachable: 'the feature is actually wired in / reachable from the app entry points',
       suite: 'observed outcome of running the FULL gates',
     },
     section: {
       pass: 'true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
+      staged: STAGED_TERM,
       reachable: 'this block\'s change is actually wired in / reachable — every call site converted, route mounted, symbol exported',
       suite: 'observed outcome of running the block gate (and, where the goal expects it, the full gates)',
     },
     fix: {
       pass: 'true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, every earlier finding is closed or declined, the gate is green, the risk audit is clean, and nothing regressed',
-      staged: 'true if you ran `git add` on this block\'s files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)',
+      staged: STAGED_TERM,
       suite: 'observed outcome of running the FULL gates',
     },
   }[mode] || {};
   return {
     type: 'object',
-    required: mode === 'fix'
+    required: [...(mode === 'fix'
       ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'fix_checks', 'backlog_entries', 'backlog_blocks']
-      : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'reachable', 'evidence_recorded'],
+      : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'reachable', 'evidence_recorded']),
+    ...(COMMIT ? ['committed', 'commit_sha', 'commit_subject', 'tree_matches', 'tree_clean'] : [])],
     properties: {
+      // Commit mode only: landingChecks reads these, and any failed check halts the run.
+      ...(COMMIT ? {
+        committed: { type: 'boolean', description: 'true when this block\'s commit exists, or on a LEGITIMATE NO-OP pass that made no commit. false when you made no commit on a pass, such as when a hook or signing refused it, and on every fail' },
+        commit_sha: { type: 'string', description: 'the new commit\'s sha (`git log -1 --format=%H`), or "" when you made no commit' },
+        commit_subject: { type: 'string', description: 'the new commit\'s subject (`git log -1 --format=%s`), or "" when you made no commit' },
+        tree_matches: { type: 'boolean', description: 'true when the new commit\'s tree (`git log -1 --format=%T`) is the tree id `git write-tree` printed before you committed, or on a LEGITIMATE NO-OP pass that made no commit' },
+        tree_clean: { type: 'boolean', description: 'true when `git status --porcelain` printed nothing after your commit step' },
+      } : {}),
       plan_obtained: { type: 'boolean', description: 'true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run.' },
       wrote_file:  { type: 'boolean', description: 'true ONLY if you wrote your review file this round' },
       pass:        { type: 'boolean', description: terms.pass },
@@ -561,6 +592,15 @@ const ACC_SUITE_LINE = SUITE === 'green'
   ? 'The EXISTING suite must still be green — reddening it is a regression, not an accepted block.'
   : 'Do NOT treat the intentionally-red rest of the suite as a failure: judge THIS block on its own selector.';
 
+// Where each mode keeps the accepted baseline. Commit mode commits each accepted block, so nothing stays staged.
+const BASELINE_DEF = COMMIT ? 'HEAD, which holds each accepted block as its own commit' : 'the staged index, or HEAD when nothing is staged';
+// No reviewer reads the index, so staged work escapes review in both modes. Only what then carries it differs.
+const STAGED_HARM = COMMIT ? 'where no reviewer reads it and the next commit carries it' : 'into the accepted baseline';
+// Acceptance compares the unstaged diff against this for regressions.
+const ACC_BASELINE_LINE = COMMIT
+  ? 'HEAD = accepted baseline, each accepted block one commit (compare against it for regressions).'
+  : `\`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).`;
+
 // The closing pass takes the number after the last round, so its files sort after every round's.
 const CLOSING_ROUND = MAX_ROUNDS + 1;
 // A halt reason names the closing pass, since its file-name number exceeds the round budget the operator set.
@@ -602,8 +642,8 @@ const changeZones = (mode) => (fixesConnected(mode)
   ? 'in task code or in connected code'
   : 'in task code, or in connected code where the change closes a defect the diff introduces or exposes');
 const ZONE_ROUTING = (mode) => `ZONE ROUTING - what you fix in each zone under this run's ${CHANGE_POLICY} change policy. A pre-existing
-  finding is one the staged baseline already had that the diff neither introduces nor exposes.
-  - Task code: hunt it, and fix every finding in it at every tier, a defect the staged baseline already
+  finding is one the accepted baseline already had that the diff neither introduces nor exposes.
+  - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
     ${fixesConnected(mode) ? `Fix a pre-existing defect there when its fix is low risk under the RISK QUESTIONS below,
@@ -618,7 +658,7 @@ const ZONE_ROUTING = (mode) => `ZONE ROUTING - what you fix in each zone under t
 // A fix of a baseline defect that no requirement names changes a baseline behavior, so acceptance needs the
 // developer's DECISIONS line to tell it from a regression.
 const LOGGED_FIX_TAG = PROACTIVE ? 'PROACTIVE' : 'FOCUSED';
-const BASELINE_FIX = 'fix of a defect already in the staged baseline';
+const BASELINE_FIX = 'fix of a defect already in the accepted baseline';
 // What makes a behavior change part of the block's work, in acceptance's regression rule and the logged-fix line.
 const requiredBy = (mode) => (mode === 'fix' ? 'an ACTIONABLE entry' : 'a criterion of this block');
 // The source of a construction the developer must follow, in the DECISION MATRIX's regression bullet.
@@ -726,7 +766,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     When you append a ${LOGGED_FIX_TAG} line below, ${grepBacklog('the path of the file the fix changes', 'the fix')}.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block ${id} r${round}. Confirm at triage that the staged code holds the fix.
+      **Closed by:** block ${id} r${round}. Confirm at triage that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
 ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
     ${OWNED_CODE}, that you noticed and did not make, such as a refactor or a nit. Route, count,
@@ -804,7 +844,7 @@ const CHECKLIST = `CHECKLIST:
   - maintainability: the nit list in the scale above.`;
 
 // The developer's SELF-REVIEW and acceptance's regression rule share this wording, so they cannot drift.
-const DOC_REGRESSION = "a comment or doc sentence that was true in the staged baseline and that this cycle's diff made false";
+const DOC_REGRESSION = "a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false";
 // One rule for both acceptance frames, so they cannot drift. Its removed-defect and logged-fix items repeat
 // the zones the developer's rules let it change, which nothing else checks.
 const regressionRule = (id, mode) => {
@@ -814,7 +854,7 @@ const regressionRule = (id, mode) => {
     review file under ${parkedReviewsDir(id)}/, when that folder exists, also counts as an earlier review of
     this block. The copies of ${dismissedName(id)} and ${DECISIONS_NAME} there are not reviews.` : '';
   return `${CODE_ZONES(mode)}
-A regression is any behavior the staged baseline (HEAD when nothing is staged) gave a caller or
+A regression is any behavior the accepted baseline (${BASELINE_DEF}) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
 ${requiredBy(mode)} requiring it. A change counts as required only when ${requiredBy(mode)} names that change.
 A break that a prescribed construction causes, which ${requiredBy(mode)} does not name, is not required,
@@ -837,16 +877,16 @@ developer fixes it, with an amendment when ${prescriber} prescribes it, or escal
 when only a change in other code closes it. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.`;
 };
-const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the staged baseline. Confirm that no
+const REGRESSION_STEP = `REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.`;
 // Mirrors what each ACCEPTANCE_FRAME prompt checks. A change to one needs the same change to the other.
 const regressionExcuses = (mode) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies ${UNCLAIMED_CODE}, and ${changeZones(mode)}. Nor does it count a removed defect that a ${LOGGED_FIX_TAG} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${changeZones(mode)}.`;
 const RISK_CHECK = 'that each risk answer of a round no blind review judged holds against that round\'s own hunks';
 const ACCEPTANCE_CHECKS = {
-  feature: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, ${RISK_CHECK}, and that the gate is satisfied. ${regressionExcuses('feature')}`,
-  section: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, ${RISK_CHECK}, and that this block's gate meets its expectation. ${regressionExcuses('section')}`,
-  fix: `After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the staged baseline regressed, ${RISK_CHECK}, and that the gate is satisfied. ${regressionExcuses('fix')}`,
+  feature: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, ${RISK_CHECK}, and that the gate is satisfied. ${regressionExcuses('feature')}`,
+  section: `After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, ${RISK_CHECK}, and that this block's gate meets its expectation. ${regressionExcuses('section')}`,
+  fix: `After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, ${RISK_CHECK}, and that the gate is satisfied. ${regressionExcuses('fix')}`,
 };
 const PHASES = 'the six phases PATTERNS, BUILD, HARDEN, SIBLINGS, SELF-REVIEW and CLASSIFY, in this order';
 // The developer's CLASSIFY phase, the closing pass and acceptance's risk audit all render these, so a
@@ -860,7 +900,7 @@ const RISK_QUESTIONS = `RISK QUESTIONS - answer each one for a change:
     could falsify?
 Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.`;
-// A temporary index holds the snapshot, since the real index is the staged baseline and `git add -A` on it
+// A temporary index holds the snapshot, since the real index holds the accepted baseline and `git add -A` on it
 // would stage this block's work. `--git-path index` finds a linked worktree's own index.
 const SNAPSHOT_LINE = 'Snapshot:';
 const snapshotIndex = (id, round) => `${STATE_DIR}/scratch/snapshot-${slug(id)}-r${round}.index`;
@@ -913,7 +953,7 @@ const SELF_REVIEW = (mode) => `SELF-REVIEW: before you return, apply the SEVERIT
    scope, check your change's effects. Route each finding through the ZONE ROUTING above and the
    DECISION MATRIX below.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
-   A regression here is a behavior of the staged baseline that the acceptance check below counts as
+   A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or ${DOC_REGRESSION}.
    ${ACCEPTANCE_CHECKS[mode]}
 ${SEVERITY_SCALE}
@@ -1045,7 +1085,7 @@ const continueOpening = (p) => `CONTINUE from this block's
 parked patch instead of implementing it from scratch:
   a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output.
   b. Restore the patch with a PLAIN \`git -C ${REPO} apply ${parkedPatch(p.id)}\`, never with \`--3way\`,
-     \`--index\` or \`--cached\`: each of those stages the restored work into the accepted baseline.
+     \`--index\` or \`--cached\`: each of those stages the restored work ${STAGED_HARM}.
   c. Run \`git -C ${REPO} add -N -- <file>\` on each new file the patch created
      (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
   d. Confirm \`git -C ${REPO} diff --cached --stat\` is the same as the output step a kept.
@@ -1079,17 +1119,20 @@ const closingRework = (id, reviewPath) => `CLOSING PASS. ${reviewPath ? `READ ${
 const developPrompt = (p, round, reviewPath) => {
   const closing = round === CLOSING_ROUND;
   // Identical in every frame — only the task lines in DEVELOP_FRAME switch on mode.
+  // Commit mode also counts staged files, since acceptance's commit would carry them unreviewed.
   const opening = round === 1
     ? `ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
-ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
+ACCEPTED blocks are ${COMMIT ? 'COMMITTED (the accepted baseline is HEAD), so nothing is staged' : 'STAGED (the accepted baseline)'}. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
   \`git -C ${REPO} diff --name-only\` (unstaged tracked edits)
   \`git -C ${REPO} status --porcelain\`, lines starting \`??\` (untracked files, which \`git diff\` OMITS)
 Report baseline_dirty_files = the count of DISTINCT files across those two lists (do NOT count
-staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
-immediately with that count. The run halts for the operator. If it IS 0, ${CONTINUE.has(p.id)
+staged-only entries). ${COMMIT ? `Then run \`git -C ${REPO} diff --cached --name-only\` and report baseline_staged_files = the
+count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and
+return immediately with both counts. The run halts for the operator. If both are 0, ` : `If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
+immediately with that count. The run halts for the operator. If it IS 0, `}${CONTINUE.has(p.id)
       ? continueOpening(p)
-      : 'implement this block from\nscratch on top of the staged baseline.'}`
+      : 'implement this block from\nscratch on top of the accepted baseline.'}`
     : `${closing
       ? `Round ${MAX_ROUNDS} ended without a passed acceptance, so you are this block's CLOSING PASS, and no
 blind review follows you. The engine parks the block when you record an entry or when its changes since
@@ -1100,7 +1143,7 @@ already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.`
 working tree: build ON it, do NOT revert or redo it.`
         : `A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.`}
-Report baseline_dirty_files=-1.`;
+Report baseline_dirty_files=-1${COMMIT ? ' and baseline_staged_files=-1' : ''}.`;
   // A feature or section round that answers a review routes its findings in place of the build, and a fix
   // round routes them beside its entry rules. A round after a red gate with no review still owes round 1's BUILD.
   const reviewRework = reviewPath
@@ -1115,8 +1158,11 @@ block. Do not duplicate or re-litigate an entry.`;
   const staging = `LEAVE EVERYTHING UNSTAGED — do NOT \`git add\` content and do NOT commit. EXCEPTION: for any file
    you CREATE, run \`git -C ${REPO} add -N <file>\` (intent-to-add, so reviewers' \`git diff\` sees it;
    it does not stage content). Set unstaged_confirmed=true. Anything YOU stage is reviewed by nobody
-   and HALTS the run. The staged index already holds the blocks this run accepted before this one.
-   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file
+   and HALTS the run. ${COMMIT
+    ? `HEAD already holds the blocks this run accepted before this one, each as its own
+   commit. Leave HEAD and the index as they are: never commit, reset or revert. You may still edit any file`
+    : `The staged index already holds the blocks this run accepted before this one.
+   Leave the index as it is: never unstage, restage or revert those blocks. You may still edit any file`}
    this block needs, including one an earlier block changed.`;
   const zones = `${CODE_ZONES(p.mode)}\n${ZONE_ROUTING(p.mode)}`;
   return DEVELOP_FRAME[p.mode](p, round, { opening, ledgerNote, zones, staging, rework });
@@ -1146,9 +1192,9 @@ SCOPE — review ONLY this cycle's UNSTAGED work:
   \`git -C ${REPO} diff --stat\` first, then read it file by file.
   \`git -C ${REPO} status --porcelain\` then READ every untracked file (\`??\`) — \`git diff\` OMITS those.
   A \` A\` entry (intent-to-add) is a new file \`git diff\` already shows in full. A first-column \`A\` or
-  \`M\` is STAGED: the staged half of an \`AM\` or \`MM\` file is baseline, and only its unstaged half
+  \`M\` is STAGED${COMMIT ? ', and' : ': the staged half of an \`AM\` or \`MM\` file is baseline, and'} only its unstaged half
   (\`git -C ${REPO} diff -- <file>\`) is this cycle's work.
-  \`git -C ${REPO} diff --staged\` is the ACCEPTED baseline — context only, do NOT review it.
+  ${COMMIT ? 'HEAD is the ACCEPTED baseline, each accepted block one commit' : `\`git -C ${REPO} diff --staged\` is the ACCEPTED baseline`} — context only, do NOT review it.
 
 ${SEVERITY_SCALE}
 
@@ -1220,9 +1266,28 @@ A line whose reason starts \`ESCALATED:\` records a default routed to the user, 
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.`;
 // A closing pass has no later round, so a failed closing acceptance parks the block.
-const failBullet = (round) => `Otherwise → return pass=false (do NOT stage); ${round === CLOSING_ROUND
+const failBullet = (round) => `Otherwise → return pass=false (do NOT stage${COMMIT ? ' or commit, and return committed=false and commit_sha ""' : ''}); ${round === CLOSING_ROUND
   ? 'the block parks, with your review file as its diagnosis.'
   : 'the gaps you wrote drive the next develop round.'}`;
+// Follows each pass bullet's `git add`: stage mode never commits, and commit mode commits by step 9.
+const ADD_NOTE = COMMIT ? ', then COMMIT as step 9 says' : ' (NEVER commit)';
+const NO_OP_COMMIT = COMMIT ? ' Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says.' : '';
+// The title goes through a file, so no shell quoting touches it. A hook or signing that refuses the commit halts
+// the run, so the step never skips one. The tree id kept before the commit catches a hook that rewrites and
+// re-stages files, which leaves the tree clean.
+const commitStep = (p, round) => (COMMIT ? `
+9. COMMIT, on a pass whose diff is not empty: write the block's title, which is the JSON string
+   ${JSON.stringify(p.title)}, decoded, as the one line of ${commitFile(p.id)} (create ${STATE_DIR}/
+   if needed), with no quotes, no other line and no trailer. Run \`git -C ${REPO} write-tree\` and keep the
+   tree id it prints. Run \`git -C ${REPO} commit -F ${commitFile(p.id)}\`.
+   Never pass \`--no-verify\`, \`--no-gpg-sign\` or \`--amend\`. When the commit fails, such as when a hook or
+   signing refuses it, append its full output to ${acceptanceFile(p.id, round)}, leave the work staged, and
+   return committed=false, commit_sha "", commit_subject "" and tree_matches=false. When it succeeds,
+   return committed=true, commit_sha from \`git -C ${REPO} log -1 --format=%H\`, commit_subject from
+   \`git -C ${REPO} log -1 --format=%s\`, and tree_matches=true only when
+   \`git -C ${REPO} log -1 --format=%T\` prints the tree id you kept. When it prints another, append both
+   tree ids to ${acceptanceFile(p.id, round)}, the kept one first. On every pass, return tree_clean=true
+   only when \`git -C ${REPO} status --porcelain\` then prints nothing.` : '');
 
 const REVIEW_STATUS = `This round's blind code review passed, or did not run because the developer judged each
 change since the block's last blind review low risk, which your RISK AUDIT checks.`;
@@ -1259,7 +1324,7 @@ non-blocking section.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
-  \`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).
+  ${ACC_BASELINE_LINE}
 
 PROCEDURE:
 1. ROOT-CAUSE COMPLETENESS. The developer claims these issues FIXED:
@@ -1306,15 +1371,15 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
      earlier finding closed or declined, gate green, risk audit clean, no regression →
-     \`git -C ${REPO} add <this block's changed AND newly-created files>\` (NEVER commit); return
+     \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE}; return
      pass=true, staged=true.
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
      a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
-     invent changes to justify it.
+     invent changes to justify it.${NO_OP_COMMIT}
    • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no claimed fix accounts for
      a change, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
-   • ${failBullet(round)}
+   • ${failBullet(round)}${commitStep(p, round)}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 
@@ -1363,7 +1428,7 @@ Drop any other concern silently. Your file holds no notes, observations or non-b
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   \`git -C ${REPO} diff\` + \`git -C ${REPO} status --porcelain\` (READ new files).
-  \`git -C ${REPO} diff --staged\` = accepted baseline (compare against it for regressions).
+  ${ACC_BASELINE_LINE}
 
 PROCEDURE:
 1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
@@ -1382,12 +1447,12 @@ PROCEDURE:
    clean."
 8. DECIDE:
    • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
-     clean, no regression → \`git -C ${REPO} add <this block's changed AND newly-created files>\` (NEVER commit);
+     clean, no regression → \`git -C ${REPO} add <this block's changed AND newly-created files>\`${ADD_NOTE};
      return pass=true, staged=true.
-   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the staged baseline
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • ${failBullet(round)}
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it.${NO_OP_COMMIT}
+   • ${failBullet(round)}${commitStep(p, round)}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 };
@@ -1403,7 +1468,9 @@ const parkReason = (haltKind) => ({
   'agent-dead': 'an agent returned nothing (skipped or died)',
   'plan-unreadable': 'an agent could not obtain its plan',
   'staging-unconfirmed': `the developer did not confirm its work stayed unstaged; inspect \`git -C ${REPO} diff --cached\` for self-staged work`,
-  'rejected-staged': `acceptance rejected the block but staged it anyway; inspect \`git -C ${REPO} diff --cached\` and unstage this block's files`,
+  'rejected-staged': COMMIT
+    ? `acceptance rejected the block but staged or committed it anyway; inspect \`git -C ${REPO} diff --cached\` and \`git -C ${REPO} log -1\`, then unstage this block's files or revert its commit with \`git -C ${REPO} revert <sha>\``
+    : `acceptance rejected the block but staged it anyway; inspect \`git -C ${REPO} diff --cached\` and unstage this block's files`,
   'review-unwritten': 'a reviewer reported a failing verdict but did not confirm writing its review file',
   'passed-regression': 'acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is',
 }[haltKind] || `the run halted (${haltKind || 'unknown halt'})`);
@@ -1458,7 +1525,7 @@ ${ENV}
 STAGING CONTRACT:
   • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
-  • Nothing is EVER committed.
+  • ${COMMIT ? 'You commit nothing: only acceptance commits, and only a block it accepted.' : 'Nothing is EVER committed.'}
 
 SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
 produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
@@ -1478,11 +1545,11 @@ PROCEDURE:
    \`--binary\` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
    block's work, and every file it created is in it via \`git add -N\`.
    Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CLEAR. Restore every tracked file this block modified to the staged baseline:
+2. CLEAR. Restore every tracked file this block modified to the accepted baseline:
    \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file it CREATED, the
    ones step 1 marked included, with \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry
    and the file together. Deleting the file alone leaves the entry, and \`git diff\` stays non-empty.
-   Always name the files: an unpathed \`git reset\` or \`git rm\` touches the staged baseline. An
+   Always name the files: an unpathed \`git reset\` or \`git rm\` touches the index, which holds the accepted baseline. An
    intent-to-add file is safe to remove because the step 1 patch carries it.
    Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
 3. RECORD. First copy each file below that exists into ${parkedReviewsDir(p.id)}/<k>/, with k one past
@@ -1499,8 +1566,8 @@ ${[...reviews, dismissedFile(p.id), DECISIONS].map((path) => `     ${path}`).joi
      relaunch of this block rewrites that file` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
    - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
      \`git -C ${REPO} apply ${parkedPatch(p.id)}\`. Say that it restores the work UNSTAGED, with new
-     files untracked, and that \`--3way\`, \`--index\` and \`--cached\` would each stage it into the accepted
-     baseline. When step 1 renamed an earlier patch, one more line naming the \`.prev<n>.patch\` path
+     files untracked, and that \`--3way\`, \`--index\` and \`--cached\` would each stage it
+     ${STAGED_HARM}. When step 1 renamed an earlier patch, one more line naming the \`.prev<n>.patch\` path
      where that earlier attempt's patch now lives. When the diff was already empty, in their place the
      line "Saved work: none (the tree held no changes)", and, when ${parkedPatch(p.id)} already exists,
      a line naming it as this block's earlier saved work.
@@ -1511,16 +1578,25 @@ ${[...reviews, dismissedFile(p.id), DECISIONS].map((path) => `     ${path}`).joi
      developer redo it — the default, with the patch kept for reference. To continue from the patch
      instead, add \`continueParked:["${p.id}"]\` to that relaunch: its round-1 developer restores the
      patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
-     \`git add -A\` the restored work: that folds UN-reviewed code into the accepted baseline.
+     \`git add -A\` the restored work: that stages UN-reviewed code ${STAGED_HARM}.
 Do NOT modify any file outside this block's work.
 Return saved + cleared + gates_green + patch_bytes via the schema.`;
 
-const sweepPrompt = (doneIds) => `
-You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is STAGED. Verify, against the
+// Commit mode stages nothing, so the spot check reads each commit this launch made, which only the engine can list.
+const spotCheckStep = (commits) => (COMMIT
+  ? `Spot-check this launch's commits, each with the command beside its block:
+${commits.map((c) => `     ${c.id}: \`git -C ${REPO} show --stat ${c.sha}\``).join('\n') || '     (none: every block this launch accepted was a no-op that made no commit)'}
+   A block an earlier launch accepted has its commit before these, in \`git -C ${REPO} log --stat\`. Do these
+   commits and the earlier ones plausibly cover every block's acceptance?`
+  : `Spot-check the staged diff (\`git -C ${REPO} diff --staged --stat\`): does it plausibly cover every
+   block's acceptance?`);
+
+const sweepPrompt = (doneIds, commits) => `
+You are the FINAL COMPLETENESS SWEEP. Every block is done and its work is ${COMMIT ? 'COMMITTED' : 'STAGED'}. Verify, against the
 repo itself, that the GOAL is fully achieved. Find what the plan MISSED. Do not re-review accepted work.
 Read the approved plan file(s) VERBATIM and IN FULL (ENV's never-the-whole-plan-file rule does not apply to
 this role, and for this role "the files this block touches" means the files the goal or the plan names,
-every file in the staged diff, and every file a step-1 grep hits): ${PLAN_FILES.join(' , ')}.
+every file in ${COMMIT ? "this launch's commits" : 'the staged diff'}, and every file a step-1 grep hits): ${PLAN_FILES.join(' , ')}.
 ${ENV}
 COMPLETED BLOCKS: ${doneIds.join(', ')}
 Before step 1, READ ${DECISIONS} and every ${STATE_DIR}/AMENDED-<id>.md (list ${STATE_DIR}/ to find them), each
@@ -1536,8 +1612,7 @@ PROCEDURE (read-only except step 4):
 2. Run each distinct gate command once (build and test may be the same command) and record the real
    outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
-3. Spot-check the staged diff (\`git -C ${REPO} diff --staged --stat\`): does it plausibly cover every
-   block's acceptance? Look for suspiciously-untouched areas the GOAL names.
+3. ${spotCheckStep(commits)} Look for suspiciously-untouched areas the GOAL names.
 4. WRITE ${SWEEP_FILE}: the suite result, then each gap (title + file:line evidence + a suggested
    follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
@@ -1591,12 +1666,12 @@ if (pending.some((p) => p.gate === 'green') && (typeof A.gates?.test !== 'string
   throw new Error('args.gates.test is required when any block being built has gate:"green": the shell command that runs the verification (non-zero exit = fail). A block that legitimately has none takes gate:"build-only" instead.');
 }
 
-const reviewTrail = `Numbered review files show every iteration: quality-review-<id>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<id>-rN.md in ${STATE_DIR}/; git staging marks each accepted block.`;
+const reviewTrail = `Numbered review files show every iteration: quality-review-<id>-rN.md in ${GATE_DIR}/ — the blind reviewer's whole world, which is why nothing carrying the plan lives in it — and acceptance-review-<id>-rN.md in ${STATE_DIR}/; ${COMMIT ? 'a git commit' : 'git staging'} marks each accepted block.`;
 
 // A terminal, not a throw: an all-done relaunch is legitimate, and the caller must tell it from bad args.
 if (!pending.length) {
   logLine(`develop: no todo blocks selected out of ${ALL_PLANS.length} — nothing to run`);
-  // A halt resolved to done by hand (acceptance-regression keep, passed-unstaged, log-cap) leaves no later
+  // A halt resolved to done by hand (an INSPECT_LANDING keep, passed-unstaged, log-cap) leaves no later
   // run that sweeps, so an all-done relaunch is the last place to say the sweep may never have run.
   const sweepNeverRan = SWEEP_MODE === 'goal-coverage' && isFullRun && ALL_PLANS
     .filter((p) => p.status !== 'skip')
@@ -1622,11 +1697,11 @@ if (!pending.length) {
     backlogEntries: 0,
     backlogFiles: [],
     reviewTrail,
-    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, \`git -C ${REPO} diff --cached --stat\`) and commit.${sweepNote}`,
+    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, ${COMMIT ? `\`git -C ${REPO} log --stat\`)` : `\`git -C ${REPO} diff --cached --stat\`) and commit`}.${sweepNote}`,
   };
 }
 
-logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}, changePolicy=${CHANGE_POLICY}]`);
+logLine(`develop: ${pending.length}/${ALL_PLANS.length} block(s) to build${runOnly ? ` (runOnly: ${runOnly.join(', ')})` : ''} [maxRounds=${MAX_ROUNDS}, ordered=${ORDERED}, suite=${SUITE}, changePolicy=${CHANGE_POLICY}, commit=${COMMIT}]`);
 logLine(`develop: roles ${ROLE_KEYS.map((r) => `${r}=${M[r] ?? '(developer)'}/${EF[r] ?? '(developer)'}`).join(', ')}`);
 
 const ledger = [];               // in-memory, returned to the orchestrator (NOT a written file — #6)
@@ -1644,9 +1719,22 @@ let haltKind = '';
 const doneIds = [];
 // Fix blocks that ended on the round-1 no-changes terminal. A value, so the result never parses a status.
 const noChangeIds = [];
+// Each commit-mode pass's landing state by block id. A value, so the result never parses a status.
+const landingStates = new Map();
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
 // tree. The only honest recoveries are a clean relaunch or finishing the parked patch by hand.
 const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. Once `plan-edit.mjs args` has applied the statuses of this run, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
+
+/**
+ * What a dead acceptance verifier may have left past park's reach, which saves only unstaged work. It runs
+ * `git add`, and in commit mode the commit and its hooks, before it returns, so it can die after either.
+ */
+function deadAcceptanceCheck() {
+  if (!COMMIT) return `It may have staged the block's files before it died: check \`git -C ${REPO} diff --cached --stat\` for them before you relaunch.`;
+  const priorSha = ledger.filter((r) => r.commit).pop()?.commit;
+  const priorHead = priorSha ? `${priorSha}, the last commit of this launch` : 'the HEAD this launch started from';
+  return `It may have staged or committed the block before it died. Before you flip the block to todo, run \`git -C ${REPO} log -1 --stat\`. HEAD before this block was ${priorHead}, so a newer commit is this block's, and no landing check ran on it: revert it with \`git -C ${REPO} revert <sha>\`. Then \`git -C ${REPO} diff --cached --stat\` lists any files it staged: unstage them with \`git -C ${REPO} restore --staged -- <files>\` and set them aside.`;
+}
 
 /**
  * Folds one writer's backlog report into the run's count. A report it cannot use makes the count
@@ -1768,6 +1856,104 @@ function judgePlanAcceptance(acc) {
   };
 }
 
+// A commit id. SHA-1 ids are 40 hex digits and SHA-256 ids are 64.
+const SHA_PATTERN = /^[0-9a-f]{40}([0-9a-f]{24})?$/i;
+const trimmedText = (value) => (typeof value === 'string' ? value.trim() : '');
+// The halts that leave an accepted block's work in the baseline or the index for the operator to inspect.
+const INSPECT_LANDING = new Set(['acceptance-regression', 'commit-unverified']);
+/** The recovery a commit-mode pass halt names. Its fix issues synced needs-attention, so a kept fix block lands them by hand. */
+function inspectStatus(p, round, landing) {
+  const issueNote = p.mode === 'fix'
+    ? ` When you set it \`done\`, also set each fix issue that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
+    : '';
+  return `This run recorded the block as \`blocked\`. Once \`plan-edit.mjs args\` has applied this run's statuses, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote} Then relaunch with fresh \`plan-edit.mjs args\`.`;
+}
+
+/**
+ * How a commit-mode verdict landed its block. Only committed=true beside a sha of commit-id shape names a
+ * commit, since a sha beside committed=false may be HEAD before this block, whose revert would undo accepted
+ * work. `claimed` means the verdict reports some commit, verified or not. committed=true is a no-op only in the
+ * no-op shape the prompt asks for, since a fail must return committed=false and a no-op has the reviewed tree.
+ */
+function landingOf(acc) {
+  const committed = acc.committed === true;
+  const reportedSha = trimmedText(acc.commit_sha);
+  const subject = trimmedText(acc.commit_subject);
+  const sha = committed && SHA_PATTERN.test(reportedSha) ? reportedSha : '';
+  const noOpShape = acc.pass === true && reportedSha === '' && subject === '' && acc.tree_matches === true;
+  const claimed = committed && !noOpShape;
+  let state = 'no-op';
+  if (!committed) state = 'refused';
+  else if (sha) state = 'committed';
+  else if (claimed) state = 'unverified';
+  return { committed, sha, subject, claimed, state };
+}
+
+/**
+ * How a halt names a block's landed work and how the operator inspects and rejects it. A claimed commit with
+ * no verified sha is found from HEAD, never reverted by a guessed id. `landing` is null in stage mode.
+ */
+function landedRecovery(landing) {
+  if (landing?.sha) {
+    return { landed: `COMMITTED as ${landing.sha}`, view: `git -C ${REPO} show --stat ${landing.sha}`, reject: `revert it with \`git -C ${REPO} revert ${landing.sha}\`` };
+  }
+  if (landing?.claimed) {
+    return { landed: 'COMMITTED with no verified sha', view: `git -C ${REPO} log -1 --stat`, reject: `revert each commit it made with \`git -C ${REPO} revert <sha>\`` };
+  }
+  return { landed: 'STAGED', view: `git -C ${REPO} diff --cached`, reject: 'unstage and set its files aside' };
+}
+
+// An accepted block's ledger status in commit mode, by its landing state.
+const LANDED_STATUS = {
+  refused: 'done (staged, its commit not made)',
+  committed: 'done (committed)',
+  unverified: 'done (commit unverified)',
+  'no-op': 'done (no-op, nothing to commit)',
+};
+
+/** What an accepted pass did with its work, for its log line. `landing` is null in stage mode. */
+function landedNote(landing) {
+  if (!landing) return 'STAGED';
+  return {
+    refused: 'STAGED, its commit NOT made',
+    committed: `COMMITTED ${landing.sha}`,
+    unverified: 'COMMIT UNVERIFIED',
+    'no-op': 'NO-OP, no commit',
+  }[landing.state];
+}
+
+/**
+ * Every landing check a commit-mode pass fails, in the order its halt reason names them, each quoting the
+ * value acceptance reported. The subject and tree checks need a verified sha. The dirty-tree check needs
+ * committed=true, a no-op included, since a refused commit leaves its reviewed work staged and so listed.
+ * Empty when the commit landed as asked.
+ */
+function landingChecks(p, round, acc, landing) {
+  const checks = [];
+  if (!landing.committed) {
+    checks.push({ name: 'not committed', text: `committed=${JSON.stringify(acc.committed)}. A commit hook or commit signing may have refused the commit. The block's work is STAGED and not committed, and the hook output is in ${acceptanceFile(p.id, round)}. To keep the work, fix the cause, then run \`git -C ${REPO} commit -F ${commitFile(p.id)}\`, whose one line is the block's title.` });
+  }
+  if (landing.state === 'unverified') {
+    checks.push({ name: 'unverified sha', text: `commit_sha=${JSON.stringify(acc.commit_sha)} beside commit_subject=${JSON.stringify(acc.commit_subject)} names no commit id, so the engine cannot tell which commit, if any, holds the work. A no-op reports a blank sha and subject with tree_matches=true, and this verdict reported tree_matches=${JSON.stringify(acc.tree_matches)}. Find the commit, if any, with \`git -C ${REPO} log -1 --stat\`.` });
+  }
+  if (landing.sha && landing.subject !== p.title) {
+    checks.push({ name: 'wrong subject', text: `commit_subject=${JSON.stringify(acc.commit_subject)} is not the block's title ${JSON.stringify(p.title)}. A commit-msg hook may have rewritten the message.` });
+  }
+  if (landing.sha && acc.tree_matches !== true) {
+    checks.push({ name: 'tree changed', text: `tree_matches=${JSON.stringify(acc.tree_matches)}. The commit's tree is not the tree acceptance staged and reviewed. A pre-commit hook may have rewritten and re-staged files, so the commit may hold changes no reviewer passed. ${acceptanceFile(p.id, round)} names both tree ids, and \`git -C ${REPO} diff <staged tree id> ${landing.sha}\` shows what changed between them.` });
+  }
+  if (landing.committed && acc.tree_clean !== true) {
+    checks.push({ name: 'tree dirty', text: `tree_clean=${JSON.stringify(acc.tree_clean)}. The working tree is not clean after the commit step. A commit hook, the gate run, or a block file acceptance did not stage may have left these changes, and the next block would judge them as its own. \`git -C ${REPO} status --porcelain\` lists them. Inspect each change before you commit it or set it aside.` });
+  }
+  return checks;
+}
+
+/** The failed landing checks as halt-reason text, numbered in check order, or '' when none failed. */
+function landingText(checks) {
+  if (!checks.length) return '';
+  return ` Its commit failed ${checks.length} landing check(s): ${checks.map((c, i) => `(${i + 1}) ${c.name}: ${c.text}`).join(' ')}`;
+}
+
 /** One block's status edits as STATUS_LOG lines: whole edits in order, packed greedily up to STATUS_LINE_MAX chars. */
 function statusLines(edits) {
   const headLength = STATUS_LOG.length + 1;
@@ -1802,7 +1988,7 @@ function finishBlock(p, rec, blockStatus, fix) {
 for (const p of pending) {
   if (halted) break;
   // Budget guard: when the user set a token target (e.g. "+500k"), stop CLEANLY between blocks rather
-  // than letting an agent() call throw mid-block. Accepted blocks are STAGED; resume continues.
+  // than letting an agent() call throw mid-block. Accepted blocks stay staged, or committed in commit mode; resume continues.
   if (budget.total && budget.remaining() < MIN_PLAN_BUDGET) {
     halted = true;   // so the reason + resume instruction surface in the return value
     haltKind = 'budget';
@@ -1823,7 +2009,7 @@ for (const p of pending) {
   const devModel = p.model ?? M.develop;
   const devEffort = p.effort ?? EF.develop;
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}${p.effort ? `, effort=${p.effort}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null, commit: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   for (const b of p.blocks ?? [p]) startedBacklogFiles.add(backlogFile(b.id));
   // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
@@ -1856,8 +2042,8 @@ for (const p of pending) {
   let closingWhy = '';
   let closingRecorded = [];
   let accepted = false;
-  // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1
-  // dirty-baseline halt, which changed nothing — that work is the OPERATOR's and must never be parked.
+  // `escalated` distinguishes the halts that leave real work in the tree (park it) from a round-1 baseline
+  // halt (dirty-baseline, staged-baseline), which changed nothing. That work is the OPERATOR's: never park it.
   let escalated = false;
   // The escalation's kind when it parks without halting the run (needs-user in an unordered run).
   let parkKind = '';
@@ -1915,9 +2101,26 @@ for (const p of pending) {
         halted = true;
         rec.status = 'BLOCKED (dirty baseline)';
         haltKind = 'dirty-baseline';
-        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then settle it one of two ways. \`git -C ${REPO} add -A\` to KEEP it when it is your own pre-existing edits (folds it into the accepted baseline). Or SET IT ASIDE without touching the staged index, which holds every accepted block. First remove the untracked build output and caches (they regenerate). If \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled. Otherwise mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, create the state dir if needed (\`mkdir -p ${STATE_DIR}\`), save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses (the patch carries the new files too), and confirm that patch exists and is non-empty. SAVE BEFORE YOU CLEAR: if it does not, stop and clear nothing. Then restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`, then confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached\` is unchanged. Restore it later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the staged baseline. If the dirt is an earlier interrupted develop run's unfinished block, never \`git add -A\` it (no reviewer passed it): set it aside as above. Nothing was built, but this run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
-        logLine(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (git add -A only your own edits; set the rest aside as a git diff --binary patch, never git stash, which takes the staged baseline too — steps in the halt reason)`);
+        haltReason = `Block ${p.id} was not started: ${dirty} file(s) in ${REPO} already held UNSTAGED or untracked work. The unstaged tree IS the reviewers' scope, so this run would review and judge that work as its own. Inspect it (git -C ${REPO} status --porcelain), then settle it one of two ways. ${COMMIT
+          ? `Commit it (\`git -C ${REPO} add -A\`, then \`git -C ${REPO} commit\`) to KEEP it when it is your own pre-existing edits (folds it into the accepted baseline). Or SET IT ASIDE without touching HEAD, which holds every accepted block as a commit.`
+          : `\`git -C ${REPO} add -A\` to KEEP it when it is your own pre-existing edits (folds it into the accepted baseline). Or SET IT ASIDE without touching the staged index, which holds every accepted block.`} First remove the untracked build output and caches (they regenerate). If \`git -C ${REPO} status --porcelain\` then lists no \`??\` file and \`git -C ${REPO} diff\` is empty, the tree is settled. Otherwise mark each remaining \`??\` untracked file with \`git -C ${REPO} add -N -- <file>\`, create the state dir if needed (\`mkdir -p ${STATE_DIR}\`), save \`git -C ${REPO} diff --binary > ${STATE_DIR}/set-aside-<n>.patch\` with an n no file there uses (the patch carries the new files too), and confirm that patch exists and is non-empty. SAVE BEFORE YOU CLEAR: if it does not, stop and clear nothing. Then restore the modified tracked files with \`git -C ${REPO} checkout -- <files>\`, drop each intent-to-add file with \`git -C ${REPO} rm -f -q -- <file>\`, then confirm \`git -C ${REPO} status --porcelain\` lists no \`??\` file, \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} diff --cached\` is unchanged. Restore it later with a plain \`git -C ${REPO} apply <patch>\`, never \`--3way\`, which stages what it restores. An unpathed \`git reset\`, \`git rm\` or \`git stash\` touches the index, which holds the accepted baseline. If the dirt is an earlier interrupted develop run's unfinished block, never \`git add -A\`${COMMIT ? ' or commit' : ''} it (no reviewer passed it): set it aside as above. Nothing was built, but this run recorded the block as \`blocked\`. Once the tree is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+        logLine(`  ✋ ${p.id}: ${dirty} pre-existing unstaged/untracked file(s) in ${REPO} → halting before any review agent (${COMMIT ? 'commit' : 'git add -A'} only your own edits; set the rest aside as a git diff --binary patch, never git stash, which takes the index too — steps in the halt reason)`);
         break;
+      }
+      // Commit mode only: acceptance's commit would carry staged work that no reviewer passed. Guarded like
+      // the dirty count, since a missing value must never read as an empty index.
+      if (COMMIT) {
+        const stagedCount = dev.baseline_staged_files;
+        if (typeof stagedCount !== 'number' || !Number.isFinite(stagedCount)) {
+          logLine(`  ⚠ ${p.id} r1: developer did not report baseline_staged_files — the empty-index precondition was NOT verified`);
+        } else if (stagedCount > 0) {
+          halted = true;
+          rec.status = 'BLOCKED (staged baseline)';
+          haltKind = 'staged-baseline';
+          haltReason = `Block ${p.id} was not started: ${stagedCount} file(s) in ${REPO} were already STAGED. This run commits each accepted block, so the next commit would carry staged work that no reviewer passed. Inspect them (\`git -C ${REPO} diff --cached --stat\`), then commit them when they are your own reviewed work, or unstage them with \`git -C ${REPO} restore --staged -- <files>\`. Nothing was built, but this run recorded the block as \`blocked\`. Once the index is settled, run \`plan-edit.mjs args\` (it applies that status), set this block's \`status:\` back to \`todo\`, run \`plan-edit.mjs args\` again, and relaunch with those args.`;
+          logLine(`  ✋ ${p.id}: ${stagedCount} file(s) already staged in ${REPO} → halting before any review agent (commit or unstage them — git -C ${REPO} diff --cached --stat)`);
+          break;
+        }
       }
     }
 
@@ -1946,7 +2149,9 @@ for (const p of pending) {
       halted = true;
       escalated = true;   // real work is probably in the tree → park it rather than abandon it
       haltKind = 'staging-unconfirmed';
-      haltReason = `Developer for block ${p.id} did not confirm its work stayed UNSTAGED in ${roundName(round)} (unstaged_confirmed=${JSON.stringify(dev.unstaged_confirmed)}). The staged index is the one surface neither reviewer checks — the blind critic reads \`git diff\`, acceptance treats \`git diff --staged\` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect \`git -C ${REPO} diff --cached\` before resuming.`;
+      haltReason = `Developer for block ${p.id} did not confirm its work stayed UNSTAGED in ${roundName(round)} (unstaged_confirmed=${JSON.stringify(dev.unstaged_confirmed)}). The staged index is the one surface neither reviewer checks — the blind critic reads \`git diff\`, ${COMMIT
+        ? "and acceptance's commit takes whatever is staged — so anything staged here would be reviewed by nobody and then committed as known-good"
+        : 'acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good'}. Inspect \`git -C ${REPO} diff --cached\` before resuming.`;
       if (dev.needs_user === true) {
         rec.needsUser = true;
         haltReason += ` The developer also escalated a user-only decision (see ${NEEDS_USER}).`;
@@ -2111,7 +2316,7 @@ for (const p of pending) {
       halted = true;
       escalated = true;
       haltKind = 'agent-dead';
-      haltReason = `Acceptance verifier for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — that is NOT a gap verdict, and nothing was staged. ${DEAD_AGENT_RECOVERY}`;
+      haltReason = `Acceptance verifier for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — that is NOT a gap verdict. ${deadAcceptanceCheck()} ${DEAD_AGENT_RECOVERY}`;
       rec.status = 'BLOCKED (agent died)';
       // It may have appended a backlog entry before it died.
       if (fix) backlogUnknown = true;
@@ -2140,27 +2345,42 @@ for (const p of pending) {
     if (fix) recordBacklog(p, round, 'acceptance', acc.backlog_entries, acc.backlog_blocks);
     // Per mode: a fix schema has no evidence_recorded or reachable, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
+    const landing = COMMIT ? landingOf(acc) : null;
+    const landedSha = landing?.sha ?? '';
     if (acc?.pass === true) {
       rec.reachable = verdict.reachable;
       // A thin pass (#14) is flagged for audit, not failed: acceptance already staged.
       rec.thinEvidence = verdict.thin;
       // Flag every contradiction. Halt only on the regression: staged work becomes every later baseline.
-      rec.contradicted = acc?.regression === true || verdict.open || Number(acc?.gap_count) > 0 || acc?.risk_misclassified === true;
+      // A reported commit holds the block's work whatever staged reports, so it lands below as a staged pass.
+      const committedUnstaged = landing?.claimed === true && acc.staged !== true;
+      rec.contradicted = acc?.regression === true || verdict.open || Number(acc?.gap_count) > 0 || acc?.risk_misclassified === true || committedUnstaged;
       const scoreNote = verdict.score ? ` — ${verdict.score}` : '';
       const thinNote = rec.thinEvidence ? ` ⚠ THIN EVIDENCE (${verdict.evidence}) — audit ${acceptanceFile(p.id, round)}` : '';
-      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}, risk_misclassified=${acc?.risk_misclassified}, gap_count=${acc?.gap_count}) — audit ${acceptanceFile(p.id, round)}` : '';
+      const contraNote = rec.contradicted ? ` ⚠ CONTRADICTS ITS OWN PASS (regression=${acc?.regression}, ${verdict.contraDetail}, risk_misclassified=${acc?.risk_misclassified}, gap_count=${acc?.gap_count}${committedUnstaged ? `, staged=${acc.staged} beside commit ${landedSha || JSON.stringify(acc.commit_sha)}` : ''}) — audit ${acceptanceFile(p.id, round)}` : '';
       if (acc.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)}`);
-      if (acc?.staged === true) {
+      if (acc?.staged === true || committedUnstaged) {
         accepted = true;
         rec.staged = true;
-        logLine(`  ✓ ${p.id}: acceptance PASSED${scoreNote} — STAGED (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
-        // Halt, not re-round (the next blind diff cannot see staged work) and not park (park never
-        // touches the baseline). The block stays "done (staged)".
+        // One function names every failed check, so the regression and commit-unverified reasons cannot drift.
+        const failedChecks = landing ? landingChecks(p, round, acc, landing) : [];
+        rec.commit = landedSha || null;
+        if (landing) landingStates.set(p.id, landing.state);
+        rec.status = landing ? LANDED_STATUS[landing.state] : 'done (staged)';
+        logLine(`  ✓ ${p.id}: acceptance PASSED${scoreNote} — ${landedNote(landing)} (${verdict.reachNote}gate=${acc?.suite_result || 'n/a'})${thinNote}${contraNote}`);
+        // Halt, not re-round (the next blind diff cannot see accepted work) and not park (park never
+        // touches the baseline). The block stays "done".
         if (acc?.regression === true) {
+          const { landed, view, reject } = landedRecovery(landing);
           halted = true;
           haltKind = 'acceptance-regression';
-          haltReason = `Block ${p.id} was STAGED by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`git -C ${REPO} diff --cached\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → unstage and set its files aside, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.`;
-          logLine(`  ✋ ${p.id}: staged while self-reporting a REGRESSION → halting the run (inspect git -C ${REPO} diff --cached)`);
+          haltReason = `Block ${p.id} was ${landed} by acceptance while the SAME verdict reported regression=true — a self-contradictory return (see ${acceptanceFile(p.id, round)}). Its work is now the baseline every later block would be judged against, so the run stops here. Inspect \`${view}\`, then keep or reject the work as workflows/develop/CLAUDE.md §6 describes for acceptance-regression. Edit the block's plan-file status only after \`plan-edit.mjs args\` has applied this run's statuses (keep → done, reject → ${reject}, then todo), and relaunch with fresh \`plan-edit.mjs args\`: the plan file selects the todo blocks.${landingText(failedChecks)}`;
+          logLine(`  ✋ ${p.id}: ${landing?.claimed ? 'committed' : 'staged'} while self-reporting a REGRESSION → halting the run (inspect ${view})`);
+        } else if (failedChecks.length) {
+          halted = true;
+          haltKind = 'commit-unverified';
+          haltReason = `Block ${p.id} passed acceptance in ${roundName(round)}.${landingText(failedChecks)}${landedSha ? ` Inspect the commit with \`git -C ${REPO} show --stat ${landedSha}\`.` : ''} ${inspectStatus(p, round, landing)}`;
+          logLine(`  ✋ ${p.id}: its commit failed ${failedChecks.map((c) => c.name).join(', ')} → halting the run`);
         }
         break;
       }
@@ -2180,22 +2400,26 @@ for (const p of pending) {
       halted = true;
       rec.status = 'done-unstaged (verifier passed but did NOT stage)';
       haltKind = 'passed-unstaged';
-      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>) so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done.`;
+      haltReason = `Block ${p.id} passed acceptance but its work was left UNSTAGED. Stage its files (git -C ${REPO} add <files>)${COMMIT ? ` and commit them with the block's title as the entire message (git -C ${REPO} commit -F <a file holding that title>)` : ''} so the baseline advances, then relaunch: the next \`plan-edit.mjs args\` marks the block done.`;
       logLine(`  ✋ ${p.id}: acceptance passed but NOT staged → halting (staging boundary)`);
       break;
     }
-    // Rejected work in the index skips every later review and becomes the baseline they judge against.
-    if (acc.staged === true) {
+    // Rejected work in the index or in a commit skips every later review and becomes the baseline they judge against.
+    const committedRejected = landing?.claimed === true;
+    if (acc.staged === true || committedRejected) {
       const accCite = acc.wrote_file === true
         ? `see ${acceptanceFile(p.id, round)}`
         : `it did not confirm writing ${acceptanceFile(p.id, round)}, so that file may not exist`;
+      const { view: commitView, reject: commitRevert } = landedRecovery(landing);
       halted = true;
       escalated = true;   // park saves any unstaged remainder and leaves the index alone
       haltKind = 'rejected-staged';
-      haltReason = `Acceptance REJECTED block ${p.id} in ${roundName(round)} but reported staged=true (${accCite}), so work it failed may now sit in the accepted baseline. Inspect \`git -C ${REPO} diff --cached\` and unstage this block's files before resuming.`;
-      rec.status = 'BLOCKED (acceptance staged a rejected block)';
+      haltReason = committedRejected
+        ? `Acceptance REJECTED block ${p.id} in ${roundName(round)} but reported commit ${landedSha || JSON.stringify(acc.commit_sha)} (${accCite}), so work it failed may now sit in the accepted baseline. Inspect \`${commitView}\` and ${commitRevert} before resuming.`
+        : `Acceptance REJECTED block ${p.id} in ${roundName(round)} but reported staged=true (${accCite}), so work it failed may now sit in the accepted baseline. Inspect \`git -C ${REPO} diff --cached\` and unstage this block's files before resuming.`;
+      rec.status = committedRejected ? 'BLOCKED (acceptance committed a rejected block)' : 'BLOCKED (acceptance staged a rejected block)';
       if (acc.wrote_file !== true) logLine(`  ⚠ ${p.id} r${round}: acceptance verifier did not confirm writing ${acceptanceFile(p.id, round)}`);
-      logLine(`  ✋ ${p.id} r${round}: acceptance failed the block but staged it → halting (inspect git -C ${REPO} diff --cached)`);
+      logLine(`  ✋ ${p.id} r${round}: acceptance failed the block but ${committedRejected ? `committed it → halting (inspect ${commitView})` : `staged it → halting (inspect git -C ${REPO} diff --cached)`}`);
       break;
     }
     if (acc.wrote_file !== true) {
@@ -2225,12 +2449,12 @@ for (const p of pending) {
   }
 
   if (accepted) {
-    // accepted implies staged: the passed-but-unstaged case halts above.
-    rec.status = 'done (staged)';
+    // Only the staged branch above sets accepted, and it set rec.status. A pass left unstaged halts instead.
     doneIds.push(p.id);
-    // Staged while self-reporting a regression: the work IS in the baseline, but the operator must inspect
-    // it before anything builds on it, so the plan file says blocked, never done.
-    finishBlock(p, rec, haltKind === 'acceptance-regression' ? 'blocked' : 'done', fix);
+    // Accepted while self-reporting a regression, or with a commit that did not land as asked: the work IS in
+    // the baseline or the index, but the operator must inspect it before anything builds on it, so the plan
+    // file says blocked, never done.
+    finishBlock(p, rec, INSPECT_LANDING.has(haltKind) ? 'blocked' : 'done', fix);
     continue;
   }
 
@@ -2243,8 +2467,8 @@ for (const p of pending) {
   }
 
   // ---- PARK: save this block's work, then clear the tree ------------------------------------------
-  // Clearing gives the next block's blind reviewer a diff of its own. Skipped on a dirty-baseline halt,
-  // whose tree holds the operator's work.
+  // Clearing gives the next block's blind reviewer a diff of its own. Skipped on a halt that sets no
+  // `escalated`, such as a round-1 baseline halt (dirty-baseline, staged-baseline), whose tree is the operator's.
   if (!(halted && !escalated)) {
     // Ordered blocks depend on their predecessors landing.
     if (ORDERED && !halted) {
@@ -2326,6 +2550,8 @@ let sweep = null;
 let sweepDied = false;     // the sweep RAN and DIED, which the return's `failed` entry reports
 let sweepFileNote = '';
 let sweepGapCount = null;  // null when the sweep returned no valid count: unknown, never zero
+// Commit mode: each commit this launch made, in block order, for the sweep's spot check and nextStep.
+const launchCommits = ledger.filter((r) => r.commit).map((r) => ({ id: r.id, sha: r.commit }));
 const goalCovered = !halted && ALL_PLANS
   .filter((p) => p.status !== 'skip')
   .every((p) => p.status === 'done' || doneIds.includes(p.id));
@@ -2337,10 +2563,10 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
   haltReason = `Stopped before the goal-coverage sweep: Claude Code keeps only a run's first ${LOG_CAP} log lines, and the last block's status lines fell past them. Every block is done, but the sweep did not run: verify coverage against the goal yourself.`;
 } else if (SWEEP_MODE === 'goal-coverage' && goalCovered) {
   phase('Sweep');
-  sweep = await agent(sweepPrompt(doneIds), roleOpts('sweep', {
+  sweep = await agent(sweepPrompt(doneIds, launchCommits), roleOpts('sweep', {
     schema: SWEEP_SCHEMA, phase: 'Sweep', label: 'final-sweep',
   }));
-  // A dead sweep is not a clean sweep. It does not halt: every block is staged, and the sweep is advisory.
+  // A dead sweep is not a clean sweep. It does not halt: every block is accepted, and the sweep is advisory.
   sweepDied = !sweep;
   // The sweep file is cited only when the sweep attested writing it.
   sweepFileNote = sweep?.wrote_file === true
@@ -2348,7 +2574,7 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
     : `${SWEEP_FILE} was not written, so the gap count comes from the sweep's return alone`;
   sweepGapCount = Number.isInteger(sweep?.gap_count) && sweep.gap_count >= 0 ? sweep.gap_count : null;
   logLine(sweepDied
-    ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is staged, but NOTHING verified the goal was fully covered: check coverage against the goal yourself.`
+    ? `  ⚠ sweep: the final completeness check DIED — it did not run, and ${SWEEP_FILE} was not written. Every block is ${COMMIT ? 'committed' : 'staged'}, but NOTHING verified the goal was fully covered: check coverage against the goal yourself.`
     : sweep.complete
       ? `sweep: no goal-coverage gaps found (suite: ${sweep.suite_result || 'n/a'})`
       : sweepGapCount === null
@@ -2359,7 +2585,7 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
 // =============================================================================
 // Result (control plane → the orchestrating agent; durable progress lives in git + the review-file trail)
 // =============================================================================
-// Every block this run SELECTED is staged. Scoped to `pending` (the todo slice), not to the whole array:
+// Every block this run SELECTED is accepted (staged, or committed in commit mode). Scoped to `pending` (the todo slice), not to the whole array:
 // entries already `done` in the plan file are the accepted baseline, not work this run owed.
 const allDone = isFullRun && !halted && pending.length > 0 && doneIds.length === pending.length;
 const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
@@ -2378,7 +2604,7 @@ const continuedEmptyPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared 
 // A patchless park that never confirmed a clear may still hold the work in the tree or a patch file.
 const unclearedParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared !== true);
 // Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
-// block stopped by a halt that never parks (dirty-baseline, passed-unstaged).
+// block stopped by a halt that never parks (dirty-baseline, staged-baseline, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 const noChangePlans = blockedPlans.filter((r) => noChangeIds.includes(r.id));
 const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id));
@@ -2388,6 +2614,7 @@ const RESEARCH_FIRST = 'research each question in it first (develop guide §6), 
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
   'dirty-baseline':  'BLOCKED (working tree was not clean — nothing was built)',
+  'staged-baseline': 'BLOCKED (the index held staged work - nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
   'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',
@@ -2396,22 +2623,44 @@ const HALT_STATUS = {
   'passed-regression': 'BLOCKED (a block passed but flagged a regression and was not staged - its work is parked)',
   'acceptance-regression': 'BLOCKED (a block staged while self-reporting a regression)',
   'rejected-staged': 'BLOCKED (acceptance failed a block but staged it)',
+  'commit-unverified': 'BLOCKED (a block passed but its commit did not land as asked)',
   'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file)',
   'parked':          'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)',
   'park-unsafe':     'BLOCKED (a parked block left the tree unsafe)',
   'budget':          'stopped on token budget (fewer tokens remain than minPlanBudget)',
   'log-cap':         'stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps)',
 };
+// Commit mode's wording for the halts whose work may sit in a commit. It stays apart from HALT_STATUS, which
+// gen-flows reads as a literal with no engine scope.
+const COMMIT_HALT_STATUS = {
+  'agent-dead': 'BLOCKED (an agent returned nothing - it was skipped or died; its unstaged work is parked, and a dead acceptance may have staged or committed)',
+  'acceptance-regression': 'BLOCKED (a block staged or committed while self-reporting a regression)',
+  'rejected-staged': 'BLOCKED (acceptance failed a block but staged or committed it)',
+};
 const status = halted
-  ? (HALT_STATUS[haltKind] || 'halted (a block needs attention)')
+  ? ((COMMIT && COMMIT_HALT_STATUS[haltKind]) || HALT_STATUS[haltKind] || 'halted (a block needs attention)')
   : allDone
-    ? 'done (all blocks staged)'
+    ? `done (all blocks ${COMMIT ? 'committed' : 'staged'})`
     : parkedPlans.length || blockedPlans.length
       ? `run complete (${[
         parkedPlans.length ? `${parkedPlans.length} block(s) parked` : '',
         blockedPlans.length ? `${blockedPlans.length} block(s) blocked` : '',
       ].filter(Boolean).join(' and ')})`
-      : 'partial slice complete (every selected block staged)';
+      : `partial slice complete (every selected block ${COMMIT ? 'committed' : 'staged'})`;
+
+// Commit mode names each accepted block's commit, by which the operator verifies the run, and stages nothing.
+const landedIds = (state) => doneIds.filter((id) => landingStates.get(id) === state);
+const noCommitIds = landedIds('no-op');
+const refusedIds = landedIds('refused');
+const unverifiedIds = landedIds('unverified');
+const acceptedLine = COMMIT
+  ? `${launchCommits.length ? `Committed: ${launchCommits.map((c) => `${c.id} (${c.sha})`).join(', ')}. ` : ''}${noCommitIds.length ? `Accepted with no commit of their own: ${noCommitIds.join(', ')}. ` : ''}${refusedIds.length ? `Accepted but its commit not made, its work staged: ${refusedIds.join(', ')}. ` : ''}${unverifiedIds.length ? `Accepted with a commit the engine could not verify: ${unverifiedIds.join(', ')}. ` : ''}`
+  : `${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}`;
+let acceptedView = `\`git -C ${REPO} diff --cached --stat\``;
+if (COMMIT) acceptedView = launchCommits.length ? `\`git -C ${REPO} show --stat <sha>\` for each commit above` : `\`git -C ${REPO} log --stat\``;
+let closingLine = 'Nothing is committed — you commit.';
+// Several halts leave work in the index, such as a refused commit or files staged before round 1.
+if (COMMIT) closingLine = halted ? `The run halted, so the index may hold work: check \`git -C ${REPO} diff --cached --stat\` against the halt reason above.` : 'Nothing is staged.';
 
 logLine(`develop: ${status} — ${doneIds.length}/${pending.length} block(s) done [${ledger.reduce((s, r) => s + r.qualityRounds, 0)} quality pass(es)]`);
 
@@ -2460,12 +2709,12 @@ return {
     : ''}${haltedPlans.length
     ? `${haltedPlans.length} block(s) halted and are NOT done: ${haltedPlans.map((r) => r.id).join(', ')} - the halt reason above says what each needs. `
     : ''}${amendedIds.length
-    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${DECISIONS}) before you commit, and fold anything you agree with back into the plan file. `
+    ? `PLAN AMENDED for: ${amendedIds.join(', ')}. The developer overrode a plan clause it verified prescribes a real defect — read ${STATE_DIR}/AMENDED-<id>.md (and the pointer lines in ${DECISIONS})${COMMIT ? '' : ' before you commit'}, and fold anything you agree with back into the plan file. `
     : ''}${sweep && sweep.complete !== true
     ? `The sweep reported goal-coverage gaps — ${sweepFileNote}. `
     : ''}${backlogFiles.size || backlogUnknown
     ? `${backlogUnknown
       ? `A developer or fix verifier returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG_DIR}/ for entries this run added: ${[...startedBacklogFiles].sort().join(', ')}.`
       : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or cleanup for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done or skip, since a relaunch of a parked or blocked block may still append to its file. `
-    : ''}${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}Verify the end state yourself: run the full gates, \`git -C ${REPO} diff --cached --stat\`, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. Nothing is committed — you commit.`,
+    : ''}${acceptedLine}Verify the end state yourself: run the full gates, ${acceptedView}, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
 };

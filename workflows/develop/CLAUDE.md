@@ -5,7 +5,7 @@
 bounded feature, wired in and reachable), `section` (one slice of a breadth-spanning goal, every call
 site converted) or `fix` (one issue inventory from debug's review or your own testing, ACTIONABLE
 entries only). Per block: `develop → blind quality → plan-aware acceptance`, **staging each accepted
-block** before the next. Built to
+block**, and in commit mode committing it (§6), before the next. Built to
 `../../principles/WORKFLOW-PRINCIPLES.md`; follow those before changing the engine.
 
 ## 1. Scope (check FIRST)
@@ -73,17 +73,18 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    passed-but-unstaged block → `done`, a park within the round budget → `parked`, every other halt or
    a fix block whose report in round 1 was all SKIPPED or empty → `blocked`. The exception: an accepted
    block whose verdict also reported a regression (halt `acceptance-regression`) syncs `blocked` while
-   its work stays staged. Its FIXED and STALE issues sync `needs-attention`, as in a block that did not
+   its work stays staged or committed, and so does a commit-mode block whose commit did not land as
+   asked (§6, "Commit mode"). Their FIXED and STALE issues sync `needs-attention`, as in a block that did not
    land, and §6 says how to resolve both. A fix block whose report
    in round 1 was all STALE, or STALE plus SKIPPED, counts as accepted only once acceptance confirms
    each STALE claim. Fix issues map FIXED → `fixed` and STALE → `stale` only when their block landed
    and acceptance confirmed the claim. FAILED in any block → `needs-attention`. FIXED or STALE in a
    block that did not land, or a claim acceptance refuted → `needs-attention` too. SKIPPED keeps
    `open`. The
-   plan file is the selection truth and git staging is the landed truth. After resolving a `parked` or
+   plan file is the selection truth and git staging, or HEAD in commit mode, is the landed truth. After resolving a `parked` or
    `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's `status:`
-   back to `todo`, then run step 3 again for the launch args. An `acceptance-regression` block whose
-   staged work you keep is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
+   back to `todo`, then run step 3 again for the launch args. A block whose staged or committed work you
+   keep after `acceptance-regression` or a commit-mode pass halt is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
 
@@ -126,8 +127,9 @@ beside `model:`, and sets it only when the user asks for a level other than the 
 ## 4. Pre-run setup (your job — no setup agent)
 
 - **Clean unstaged tree, engine-enforced** on round 1 (halts before any reviewer spawns). Settle a
-  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline, or set the dirt aside
-  without touching the staged index, which holds every accepted block. To set it aside, first remove
+  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline (in commit mode, commit
+  them as well), or set the dirt aside without touching the accepted baseline, which the staged index
+  holds in stage mode and HEAD holds in commit mode. To set it aside, first remove
   the untracked build output and caches (they regenerate). If `git status --porcelain` then lists no
   `??` file and `git diff` is empty, the tree is settled. Otherwise mark each remaining `??` untracked
   file with `git -C <repo> add -N -- <file>`, save `git -C <repo> diff --binary` to a new patch under
@@ -137,7 +139,7 @@ beside `model:`, and sets it only when the user asks for a level other than the 
   intent-to-add file with `git -C <repo> rm -f -q -- <file>`, and confirm `git status --porcelain`
   lists no `??` file, `git diff` is empty and `git diff --cached` is unchanged. Restore it later with
   a plain `git -C <repo> apply <patch>`, never `--3way`, which stages what it restores. An unpathed
-  `git reset`, `git rm` or `git stash` touches the staged baseline. If the dirt is an interrupted
+  `git reset`, `git rm` or `git stash` touches the index, which holds the accepted baseline. If the dirt is an interrupted
   develop run's unfinished block, never `git add -A` it (no reviewer passed it): set it aside and
   relaunch. A dirty-baseline halt records its block `blocked`, so after settling the tree run §2
   step 3, set that block's `status:` back to `todo`, and run step 3 again for the launch args.
@@ -164,11 +166,11 @@ every developer and acceptance prompt renders that one definition:
 - Other code is everything else.
 
 Under both policies, the developer hunts only task code and fixes every finding there at every tier, a
-defect the staged baseline already had included. It also fixes each finding the diff introduces or
+defect the accepted baseline already had included. It also fixes each finding the diff introduces or
 exposes in connected code. The developer reads connected code only to check its change's effects. It never
 changes other code. It closes a finding the diff introduces or exposes there, such as a build break, at
 its source in task or connected code, and escalates the finding when only a change in other code closes
-it. A pre-existing finding is one, at any tier, that the staged baseline already had and that the diff
+it. A pre-existing finding is one, at any tier, that the accepted baseline already had and that the diff
 neither introduces nor exposes. Each real pre-existing defect at low or above that the developer logs
 because its zone routing leaves the defect unchanged, under the decision matrix's rule 2 or as a
 sibling path (§5), apart from one in code another block owns, goes to the backlog (§10). The policies
@@ -182,7 +184,7 @@ differ as follows.
   connected code unchanged, as under `focused`. The developer also records each cleanup outside task
   code that it noticed and did not make.
 
-Each fix of a defect the staged baseline already had that no criterion of the block or ACTIONABLE entry
+Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE entry
 requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance excuses such
 a fix from its regression check only when it lies in a zone the policy lets the developer change, lies
 in no code another block of the plan owns, removes a real defect, and alters no other behavior. Those
@@ -258,9 +260,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   code contradicts. A review is clean when it holds no finding and no contested dismissal, and its
   file then reads `No findings.` It may contest a dismissal at any tier. §6 says which rounds it
   runs in.
-- **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a block the staged baseline already satisfies passes without inventing changes). In fix
+- **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a block the accepted baseline already satisfies passes without inventing changes). In fix
   mode, any unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent
-  that stages. It reads every earlier review file of its block and counts an earlier finding as a
+  that stages, and in commit mode the only agent that commits. It reads every earlier review file of its block and counts an earlier finding as a
   gap unless the code closes it on every sibling path or the dismissal ledger declines it. A ledger
   line whose reason starts `SKIPPED:` declines a finding, and acceptance may override it. A line
   whose reason starts `ESCALATED:` records a default routed to the user, and acceptance holds it. It
@@ -303,7 +305,7 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 ## 6. Loop, gates & verification
 
-`develop → quality (must be clean) → acceptance (stages on pass)`, up to `maxRounds` (default 5) per
+`develop → quality (must be clean) → acceptance (stages on pass, and commits in commit mode)`, up to `maxRounds` (default 5) per
 block, then one closing pass when the last round fails.
 
 **Risk-gated review.** The developer's CLASSIFY phase answers four risk questions for each change its
@@ -320,7 +322,7 @@ when every answer is no. The developer writes the answers to `risk-<id>-rN.md` a
 `review_needed`, true when any change is not low risk. Each risk file starts with the line
 `Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
 makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
-a copy of the real index. The real index, the staged baseline, is never written. The blind review
+a copy of the real index. The real index, which holds the accepted baseline, is never written. The blind review
 runs in a block's first round with a satisfied gate in a launch, a block continued from its parked
 patch included. A later round gets one when a round since the block's last blind review returned
 `review_needed` true or no boolean, or an acceptance verdict since then returned
@@ -352,7 +354,8 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
 passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
-`rejected-staged`, `review-unwritten`, `passed-regression` and `log-cap`. `rejected-staged` means
+`rejected-staged`, `review-unwritten`, `passed-regression` and `log-cap`. Commit mode adds
+`staged-baseline` and `commit-unverified`, which **Commit mode** below describes. `rejected-staged` means
 acceptance failed a block but staged it, so inspect `git diff --cached` and unstage that block's files
 before resuming. `passed-regression` means acceptance passed a block but flagged a regression and
 staged nothing. Its work is parked and the block ends `blocked`. Never stage that work as it is.
@@ -368,12 +371,48 @@ review file.
 1,000 log lines, and a relaunch builds the rest. A block whose status lines overrun that room still
 finishes. Its lines past 1,000 survive only in the return's `statusSync`, and the next block halts. When
 that block was the last in a `sweep: goal-coverage` run, the run halts before the sweep. Every block is
-then done, so a relaunch has nothing to build, and you verify coverage against the goal yourself. Every exit
-leaves a clean tree except passed-but-unstaged and a `park-unsafe` halt whose park did not confirm a
-clear. Verify ground truth yourself after every run: run the
-gates, `git diff --cached`, grep integration points, read the latest acceptance reviews, audit every
-`DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `DECISIONS.md`, the files in
-`backlogFiles` and `SWEEP.md`.
+then done, so a relaunch has nothing to build, and you verify coverage against the goal yourself. Every
+exit leaves a clean tree except passed-but-unstaged, a commit-mode halt whose reason names the tree
+dirty check, and a `park-unsafe` halt whose park did not confirm a clear.
+Verify ground truth yourself after every run: run the gates, `git diff --cached` (in commit mode,
+`git -C <repo> log --stat` over the run's commits), grep integration points, read the latest acceptance
+reviews, audit every `DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `DECISIONS.md`,
+the files in `backlogFiles` and `SWEEP.md`.
+
+**Commit mode.** With `commit: true`, acceptance stages each accepted block, then commits it with the
+block's title as the entire message: it writes the title to `<stateDir>/commit-<id>.txt` and runs
+`git -C <repo> commit -F` on that file. It never passes `--no-verify`, `--no-gpg-sign` or `--amend`, so
+the repo's commit hooks and signing run. A legitimate no-op pass makes no commit. The accepted baseline
+is HEAD, and nothing stays staged between blocks. Each commit lands on the branch the repo has checked
+out, so run commit mode on a branch or in a worktree. Round 1 halts with `staged-baseline`, before any
+reviewer, when files were staged before the block started, since the next commit would carry them
+unreviewed. `git -C <repo> diff --cached --stat` lists them: commit or unstage them. A pass halts the
+run with `commit-unverified` when its commit fails a landing check. The checks, in the order the halt
+reason numbers them, are:
+- not committed: the commit did not land. A hook or signing may have refused it, the work stays
+  staged, and the hook output is in the acceptance file.
+  `git -C <repo> commit -F <stateDir>/commit-<id>.txt` keeps the work.
+- unverified sha: acceptance reported a commit whose `commit_sha` is not 40 or 64 hex digits, such as
+  `"none"`, or is blank beside a subject or beside a `tree_matches` that is not true, since a no-op
+  reports the reviewed tree. `git -C <repo> log -1 --stat` finds the commit, if any.
+- wrong subject: the commit's subject is not the block's title. A commit-msg hook may have rewritten it.
+- tree changed: the commit's tree is not the tree acceptance staged. A pre-commit hook may have
+  rewritten and re-staged files.
+- tree dirty: the tree is not clean after the commit step. A commit hook, the gate run, or a block file
+  acceptance did not stage may have left the changes. `git -C <repo> status --porcelain` lists them.
+
+The wrong subject and tree changed checks run only on a valid sha. The tree dirty check runs only when
+`committed` is true, since a refused commit leaves its reviewed work staged. The reason names every failed check with
+the value acceptance reported, then `git -C <repo> show --stat <sha>` on a valid sha. An
+`acceptance-regression` reason on a commit-mode pass ends with the same list. `commit-unverified` syncs
+the block `blocked`. Settle the work, run §2 step 3, then set the block's `status:` to `done` when the
+accepted baseline holds its reviewed work, or to `todo` to rebuild it. For a fix block set to `done`,
+also set each fix issue that its acceptance file confirmed closed to `fixed` or `stale`, as for
+`acceptance-regression`. To reject a committed block after `acceptance-regression`, `commit-unverified` or
+`rejected-staged`, run `git -C <repo> revert <sha>` in place of the unstage. Park is the same in both modes.
+An acceptance verifier that dies may have committed or staged its block, which park never saves. Its
+`agent-dead` reason names the HEAD the block started from. Before you relaunch, revert any newer commit
+that `git -C <repo> log -1 --stat` shows and unstage what `git -C <repo> diff --cached --stat` lists.
 
 **Research NEEDS-USER before asking.** For each unanswered question the blocks named in `nextStep`
 wrote to `NEEDS-USER.md`, park records under `## Parked block: <id>` excluded, read the code, the docs
@@ -384,9 +423,10 @@ overrule them.
 
 ## 7. Resume
 
-Durable state = git staging + the plan file's status lines + the review-file trail. A relaunch with
-args from a fresh `plan-edit.mjs args` (never the previous args object) rebuilds pending from `todo`,
-with the finished runs already applied. `runOnly` is the one explicit slice, and an unknown id throws.
+Durable state = git staging (HEAD's commits in commit mode) + the plan file's status lines + the
+review-file trail. A relaunch with args from a fresh `plan-edit.mjs args` (never the previous args
+object) rebuilds pending from `todo`, with the finished runs already applied. `runOnly` is the one
+explicit slice, and an unknown id throws.
 When the run-record fold is unavailable (records past `cleanupPeriodDays`, or `--expect` fails), recover
 with `runOnly` or by editing the statuses in the plan file. A `resumeFromRunId` replay of a run launched
 with a retired arg throws at launch.
@@ -407,15 +447,19 @@ regression.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
 unreviewed work. Set it aside with §4's save-and-clear, which saves it to a patch under the state dir
-and leaves the staged index alone, then relaunch clean. Never `git add -A` it.
+and leaves the staged index alone, then relaunch clean. Never `git add -A` it. In commit mode the killed
+block's acceptance may have committed or staged its work, and no landing check read it. Before you
+relaunch, revert a commit that `git -C <repo> log -1 --stat` shows with the killed block's title as its
+subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> diff --cached --stat` lists.
 
 ## 8. State files (`runs/<runId>/`, outside every repo)
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `risk-<id>-rN.md` (the
 developer's risk answers for round N, outside `gate/`, §6, starting with the line
 `Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` ·
-`DECISIONS.md` · `parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier park of the same
-block) · `parked-<id>-reviews/<k>/` (the review files one park of the block kept, and its copies of
+`DECISIONS.md` · `commit-<id>.txt` (commit mode: the block's title, its commit's message) ·
+`parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier park of the same block) ·
+`parked-<id>-reviews/<k>/` (the review files one park of the block kept, and its copies of
 `DISMISSED-<id>.md` and `DECISIONS.md`) · `SWEEP.md` · `scratch/` (the agents' plan block copies and
 test logs, never in `gate/`).
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
@@ -424,8 +468,8 @@ that share a prefix get separate files.
 ## 9. Args reference
 
 Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical source).
-- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, planPath, mode, gate, status,
-  model?, effort? }` rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, mode: fix, gate, status,
+- **Required:** `runId` · `root` · `plans` (non-empty array of `{ id, title?, planPath, mode, gate, status,
+  model?, effort? }` rows that `plan-edit.mjs args` prints, or a `--pack` pass `{ id, title?, mode: fix, gate, status,
   model?, effort?, blocks: [{ id, planPath, issues }] }`. Malformed **throws** naming the shape. A row with no
   `planPath` **throws** naming it. A `model` outside `opus | sonnet | haiku | fable` or an `effort` outside `low | medium | high | xhigh | max` **throws** naming the row.) · `target.repo` (**throws** if missing) ·
   `gates.build` (**throws** if missing) · `gates.test` (**throws** when any PENDING block's gate is
@@ -439,20 +483,28 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   true. An entry follows the last acceptance verdict that reports the field, and a passing verdict that
   omits the field sets it false) · `plansDone` · `parked` · `ledger` (per block, with a
   status of the form `<token> (<meaning>)`, the developer `model` and `effort` it ran on, `rounds`, `closingPass`
-  (true when the block ran its closing pass, §6), and per-issue `results` in fix mode) · `statusSync` (the
+  (true when the block ran its closing pass, §6), `commit` (the sha of the block's commit, null in stage
+  mode, on a no-op pass, when the commit did not land or failed the unverified sha check, and on a block
+  acceptance rejected, whose commit the halt reason names), and per-issue `results` in fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
   entry means the sweep did not run) · `backlogEntries` (every mode, the entries developers and fix
   verifiers added to the backlog this run, null when one returned no usable report) · `backlogFiles`
   (the sorted backlog files the developers and fix verifiers named, null when `backlogEntries` is
   null) · `nextStep` (when the run added entries, it names the folder, the files and the count, and
-  asks you to report each added entry's severity and title to the user).
+  asks you to report each added entry's severity and title to the user. In commit mode it names each
+  committed block with its sha. It says nothing is staged when the run did not halt, and otherwise
+  points at `git diff --cached --stat`).
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `changePolicy` (`focused|proactive`, default `focused`, any other value **throws**, and
   `strict`, the old name of `focused`, throws with a message that names the rename. It sets the
   developer's build aim and whether it fixes a pre-existing defect it notices in connected code, and §4 says how to
-  choose it) ·
+  choose it) · `commit` (`true | false`, default `false`, any other value **throws** naming the arg and
+  the value. `false` stages each accepted block, and `true` commits it, §6 "Commit mode". In commit mode
+  a row's `title`, which `plan-edit.mjs args` prints, is the commit's entire message, a title that is
+  not one line of text **throws** naming the row, and a row with no title commits under its id. The
+  launch log line names it) ·
   `minPlanBudget` (**throws** on non-numbers) · `models`/`efforts`/`agentTypes`
   (`models` and `efforts` map a role key to a value. The role keys are `develop` (the developer, the
   closing pass included), `park`, `quality`, `acceptance` and `sweep`. A model is `opus | sonnet |
@@ -471,8 +523,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of its
   round is not low risk, and a non-boolean counts as true) and, in the closing pass only,
-  `recorded_entries` (the ids of the backlog entries it listed, appended or already there) · acceptance's `risk_misclassified`
-  (true when its risk audit found a gap) · the blind reviewer's `issue_count`, which counts every
+  `recorded_entries` (the ids of the backlog entries it listed, appended or already there) · in commit
+  mode, the round-1 developer's `baseline_staged_files` (the files staged before it touched anything,
+  above 0 halts `staged-baseline`, and a non-number is logged as unverified) · acceptance's `risk_misclassified`
+  (true when its risk audit found a gap) · in commit mode, acceptance's `committed`, `commit_sha`,
+  `commit_subject`, `tree_matches` and `tree_clean`, which the landing checks of §6 "Commit mode" read, and a failed check halts `commit-unverified` · the blind reviewer's `issue_count`, which counts every
   finding at every tier. `minor_count`, the old count of findings below a review's bar, is retired.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.
 
@@ -512,13 +567,13 @@ When the user asks to work the backlog:
    step 3 while it is held.
 3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
-   option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the staged code
+   option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the accepted baseline
    holds that fix, and triage it like the rest when the code does not. Hold an entry with a
    `**Parked with:**` line until its block is accepted in a later launch, whether continued or
    redone, since the code it names sits in that block's parked patch. Release the hold when the block
-   is dropped. Once the hold ends, skip the entry when the staged code holds its fix, and triage it
-   like the rest when the code does not. Set `- status: fixed` on each entry skipped because the staged
-   code holds its fix, since the writers' dedup treats an open entry as still holding the defect.
+   is dropped. Once the hold ends, skip the entry when the accepted baseline holds its fix, and triage it
+   like the rest when the code does not. Set `- status: fixed` on each entry skipped because the accepted
+   baseline holds its fix, since the writers' dedup treats an open entry as still holding the defect.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with

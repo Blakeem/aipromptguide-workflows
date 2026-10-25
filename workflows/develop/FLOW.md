@@ -37,6 +37,10 @@ flowchart TD
   t18(["BLOCKED (a parked block left the tree unsafe)"])
   t19(["stopped on token budget (fewer tokens remain than minPlanBudget)"])
   t20(["stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps)"])
+  t21(["done (all blocks committed)"])
+  t22(["BLOCKED (the index held staged work - nothing was built)"])
+  t23(["BLOCKED (a block passed but its commit did not land as asked)"])
+  t24(["BLOCKED (acceptance failed a block but staged or committed it)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
   x3[/"throw: args must include at least { runId, root, target, gates, backlogDir, plans:[{id, planPath, mode, gate, status}] }"/]
@@ -44,36 +48,38 @@ flowchart TD
   x5[/"throw: args.target.repo is required"/]
   x6[/"throw: Invalid numeric arg"/]
   x7[/"throw: Invalid args.changePolicy"/]
-  x8[/"throw: args.reviewSeverity is retired"/]
-  x9[/"throw: args.startAt is retired"/]
-  x10[/"throw: The top-level args.planPath is retired"/]
-  x11[/"throw: args.plans[].planContext is retired"/]
-  x12[/"throw: Invalid role map"/]
-  x13[/"throw: Unknown role key in a role map"/]
-  x14[/"throw: Illegal role value in a role map"/]
-  x15[/"throw: Missing or relative args.backlogDir"/]
-  x16[/"throw: args.backlogDir is inside the target repo"/]
-  x17[/"throw: Invalid ordered key"/]
-  x18[/"throw: Invalid suite key"/]
-  x19[/"throw: Invalid sweep key"/]
-  x20[/"throw: Invalid goal key"/]
-  x21[/"throw: Missing goal key"/]
-  x22[/"throw: plans entries at index [...] are not objects carrying a string id"/]
-  x23[/"throw: plan id(s) [...] are not kebab slugs"/]
-  x24[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
-  x25[/"throw: pass entries [...] are malformed"/]
-  x26[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
-  x27[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
-  x28[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
-  x29[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; parked #124; blocked"/]
-  x30[/"throw: plans [...] carry no planPath"/]
-  x31[/"throw: duplicate plan id(s) [...] in args.plans"/]
-  x32[/"throw: args.gates.build is required"/]
-  x33[/"throw: Invalid slice arg"/]
-  x34[/"throw: args.runOnly ... matches no plan id"/]
-  x35[/"throw: Invalid continueParked arg"/]
-  x36[/"throw: Invalid continueParked id"/]
-  x37[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
+  x8[/"throw: Invalid commit arg"/]
+  x9[/"throw: args.reviewSeverity is retired"/]
+  x10[/"throw: args.startAt is retired"/]
+  x11[/"throw: The top-level args.planPath is retired"/]
+  x12[/"throw: args.plans[].planContext is retired"/]
+  x13[/"throw: Invalid role map"/]
+  x14[/"throw: Unknown role key in a role map"/]
+  x15[/"throw: Illegal role value in a role map"/]
+  x16[/"throw: Missing or relative args.backlogDir"/]
+  x17[/"throw: args.backlogDir is inside the target repo"/]
+  x18[/"throw: Invalid ordered key"/]
+  x19[/"throw: Invalid suite key"/]
+  x20[/"throw: Invalid sweep key"/]
+  x21[/"throw: Invalid goal key"/]
+  x22[/"throw: Missing goal key"/]
+  x23[/"throw: plans entries at index [...] are not objects carrying a string id"/]
+  x24[/"throw: plan id(s) [...] are not kebab slugs"/]
+  x25[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
+  x26[/"throw: pass entries [...] are malformed"/]
+  x27[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
+  x28[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
+  x29[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
+  x30[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; parked #124; blocked"/]
+  x31[/"throw: plan title(s) [...] are not one line of text"/]
+  x32[/"throw: plans [...] carry no planPath"/]
+  x33[/"throw: duplicate plan id(s) [...] in args.plans"/]
+  x34[/"throw: args.gates.build is required"/]
+  x35[/"throw: Invalid slice arg"/]
+  x36[/"throw: args.runOnly ... matches no plan id"/]
+  x37[/"throw: Invalid continueParked arg"/]
+  x38[/"throw: Invalid continueParked id"/]
+  x39[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
   S0 --> a1
   S0 --> t3
   S0 --> x1
@@ -113,6 +119,8 @@ flowchart TD
   S0 --> x35
   S0 --> x36
   S0 --> x37
+  S0 --> x38
+  S0 --> x39
   a1 -.->|"L1 ×5"| a1
   a1 ==>|"next item"| a1
   a1 --> a2
@@ -121,6 +129,7 @@ flowchart TD
   a1 --> a5
   a1 --> t7
   a1 --> t16
+  a1 --> t22
   a2 -.->|"a block parks and ordered is false · +5 more (×2)"| a4
   a2 --> a5
   a3 -.->|"the blind review finds defects · +1 more (×2)"| a1
@@ -139,6 +148,7 @@ flowchart TD
   a4 --> t9
   a4 --> t19
   a4 --> t20
+  a4 --> t23
   a5 ==>|"next item"| a1
   a5 --> t4
   a5 --> t5
@@ -150,18 +160,20 @@ flowchart TD
   a5 --> t15
   a5 --> t17
   a5 --> t18
+  a5 --> t24
   a6 --> t1
+  a6 --> t21
 ```
 
 ## Phases
 
 | Phase | What happens |
 |---|---|
-| Develop | Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run's changePolicy in six phases, in this order. PATTERNS follows the repo's existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block's BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block's BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer's severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-&lt;id&gt;-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round's changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block's required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry's root cause, apart from code its block's text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block's text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the staged baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the staged baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the staged baseline already had that no requirement of its block names. Each real defect at low or above that the staged baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block's file in the project's backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block's last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review's findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it. |
+| Develop | Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run's changePolicy in six phases, in this order. PATTERNS follows the repo's existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block's BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block's BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer's severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-&lt;id&gt;-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round's changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block's required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry's root cause, apart from code its block's text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block's text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block's file in the project's backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block's last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review's findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it. |
 | Quality | BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-&lt;id&gt;-rN.md. Clean means no finding and no contested dismissal. Runs in a block's first round with a satisfied gate in a launch, and in a later round only when a round since the block's last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. Never runs on the closing pass. |
-| Acceptance | Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block's last blind review holds against that round's own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-&lt;id&gt;-rN.md; on pass, STAGES that block (git add, never commit) - the accepted baseline advances. |
+| Acceptance | Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block's last blind review holds against that round's own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-&lt;id&gt;-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block's title as the entire message - the accepted baseline advances. |
 | Park | On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-&lt;id&gt;.patch, then clears it from the tree. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass's work, and the park record names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed - NEEDS-USER.md carries the restore command. |
-| Sweep | Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, writes SWEEP.md. Advisory - a dead sweep never halts. |
+| Sweep | Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, or in commit mode this launch's commits, writes SWEEP.md. Advisory - a dead sweep never halts. |
 
 ## Loops
 
@@ -201,6 +213,10 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (a parked block left the tree unsafe) | park could not clear the tree · park reports saved=false with bytes on disk · the build is red after parking | derived |
 | stopped on token budget (fewer tokens remain than minPlanBudget) | too few tokens left to start the next block | derived |
 | stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps) | the next status line could fall past the runtime's 1,000 kept log lines · the last block's status lines fell past the runtime's 1,000 kept log lines | derived |
+| done (all blocks committed) | commit is true and every block accepts and commits · commit is true and a fix block fixes an issue, accepts and commits | derived |
+| BLOCKED (the index held staged work - nothing was built) | commit is true and files were staged before round 1 | derived |
+| BLOCKED (a block passed but its commit did not land as asked) | acceptance passes but its commit does not land as asked | derived |
+| BLOCKED (acceptance failed a block but staged or committed it) | acceptance fails a block but reports a commit | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
 | throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the plan-edit.mjs args object is nested under plans | throw (line 28) |
 | throw: args must include at least { runId, root, target, gates, backlogDir, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
@@ -208,37 +224,39 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 39) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
 | throw: Invalid args.changePolicy | changePolicy is outside focused \| proactive | throw (line 63) |
-| throw: args.reviewSeverity is retired | args carry reviewSeverity, any value | throw (line 68) |
-| throw: args.startAt is retired | args carry a top-level startAt | throw (line 74) |
-| throw: The top-level args.planPath is retired | args carry a top-level planPath | throw (line 77) |
-| throw: args.plans[].planContext is retired | a plans row carries planContext | throw (line 83) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 95) |
-| throw: Unknown role key in a role map | models carries a key outside the five role keys | throw (line 100) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 103) |
-| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 182) |
-| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 185) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 193) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 198) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 203) |
-| throw: Invalid goal key | goal is a number | throw (line 207) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 212) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 230) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 238) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 245) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 256) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 264) |
-| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 271) |
-| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 277) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 285) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 302) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 313) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 1552) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1564) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1571) |
-| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1578) |
-| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1584) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1591) |
+| throw: Invalid commit arg | commit is the string "true" | throw (line 68) |
+| throw: args.reviewSeverity is retired | args carry reviewSeverity, any value | throw (line 73) |
+| throw: args.startAt is retired | args carry a top-level startAt | throw (line 79) |
+| throw: The top-level args.planPath is retired | args carry a top-level planPath | throw (line 82) |
+| throw: args.plans[].planContext is retired | a plans row carries planContext | throw (line 88) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 100) |
+| throw: Unknown role key in a role map | models carries a key outside the five role keys | throw (line 105) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 108) |
+| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 187) |
+| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 190) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 198) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 203) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 208) |
+| throw: Invalid goal key | goal is a number | throw (line 212) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 217) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 235) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 243) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 250) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 261) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 269) |
+| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 276) |
+| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 282) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| parked \| blocked | a block names an unknown status | throw (line 290) |
+| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 299) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 318) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 329) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 1627) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1639) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1646) |
+| throw: Invalid continueParked arg | continueParked is a bare block id string | throw (line 1653) |
+| throw: Invalid continueParked id | continueParked holds an id this run does not build | throw (line 1659) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1666) |
 
 ## Coverage
 
-80 scenarios · 6/6 roles · 37/37 throw sites · 15/15 halt statuses · 57 terminal states.
+87 scenarios · 6/6 roles · 39/39 throw sites · 17/17 halt statuses · 63 terminal states.

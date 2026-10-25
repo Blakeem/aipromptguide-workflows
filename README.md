@@ -7,8 +7,8 @@ orchestration that *guide the AI* through real engineering work.
 Each workflow is a background **Workflow engine** (a `.mjs` script) paired with a `CLAUDE.md` operator
 guide. The guide is the prompt. It drives **plan mode** and the human approval gate *outside* the engine,
 then runs the engine to do the work. The **build** workflows leave the result test-verified, wired in,
-and staged for you to commit. The **generative** ones leave cited files for you to use. Either way,
-**nothing is ever committed for you**.
+and staged for you to commit, unless you turn on develop's commit mode, which commits each accepted
+block. The **generative** ones leave cited files for you to use and never commit.
 
 ## The workflows
 
@@ -23,10 +23,10 @@ and staged for you to commit. The **generative** ones leave cited files for you 
 | **[investigate](workflows/investigate/)** | `/aipg:investigate` | [map](workflows/investigate/FLOW.md) | **Search**: find an answer that already exists and qualify it against fixed **pass/fail** criteria, until nothing qualifying is left unsearched. |
 | **[docs](workflows/docs/)** | `/aipg:docs` | [map](workflows/docs/FLOW.md) | **Provision**: copy the docs a project needs **verbatim** (web/repo/files) → curate + index into a folder the LLM builds against. |
 
-develop is the one **build** workflow. It writes the code, reviews it and stages it. refine and debug
-produce the plan files develop builds. The last five are **generative** and read only. They produce
-proposals, creative options, a decision, a determination, or a curated doc set, with no code and nothing
-staged or committed.
+develop is the one **build** workflow. It writes the code, reviews it and stages it, and in commit mode
+it commits it. refine and debug produce the plan files develop builds. The last five are **generative**
+and read only. They produce proposals, creative options, a decision, a determination, or a curated doc
+set, with no code and nothing staged or committed.
 
 Two pairs are worth keeping straight. For `debug` and `enhance`, something the system gets **wrong** is
 a defect, which debug fixes. Something it could do **better** is an enhancement, which enhance proposes
@@ -880,7 +880,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 ## Requirements
 
 - **Claude Code** with the background **Workflow** capability.
-- The target is a **git repository** (staging is how regressions are caught, and you do the commit).
+- The target is a **git repository** (staging is how regressions are caught, and you do the commit
+  unless develop's commit mode is on).
 - **Build and test commands** for your project. You provide them, and the engines run them and read
   pass/fail.
 - For frontend work: optionally a browser/MCP driver (Chrome DevTools MCP, Playwright, MCP inspector),

@@ -198,4 +198,5 @@ deterministic. `land` writes the index-only accept commit, the sync merge and th
 Nothing else in a batch touches your branches, and the merge of `aipg/int-<batch>` into anything of
 yours is stage 7, done by you (WORKFLOW-PRINCIPLES.md #9). The rebase of `close` rewrites the
 `aipg/<name>` commits and adds no change of its own. Since the `--into` branch moves only by
-fast-forward, every change that reaches it is one you committed.
+fast-forward, every change that reaches it is one you committed, or an accepted block that develop's
+commit mode, which you turned on, committed.
