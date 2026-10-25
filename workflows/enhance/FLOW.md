@@ -50,7 +50,7 @@ flowchart TD
 | Phase | What happens |
 |---|---|
 | Find | One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -&gt; what it would do instead -&gt; the concrete cost that removes. A lens that finds nothing writes its own clean proposals/&lt;lens&gt;.md marker. |
-| Verify | Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x effort, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim. |
+| Verify | Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim. |
 
 ## Terminal states
 

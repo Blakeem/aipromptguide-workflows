@@ -64,7 +64,7 @@ function inventoryFromVerifierPrompt(ids) {
     .replace("<that file's LOC from UNIT FILES>", '120')
     .replace('<your confirmed severity>', 'high')
     .replace('<category>', 'correctness')
-    .replace('<matrix effort>', 'small')
+    .replace('<matrix size>', 'small')
     .replace('<ACTIONABLE | NEEDS_USER | DEFER>', 'ACTIONABLE');
   return `${head}\n${ids.map(fill).join('\n')}\n`;
 }

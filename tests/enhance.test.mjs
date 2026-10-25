@@ -13,7 +13,7 @@ const baseArgs = {
 };
 const CANDIDATE = {
   title: 'fold the two verifier roles into one', category: 'simplification',
-  impact: 'high', effort: 'small', files: ['workflows/enhance/enhance-cycle.mjs:330'],
+  impact: 'high', size: 'small', files: ['workflows/enhance/enhance-cycle.mjs:330'],
   today: 'each lens spawns its own verifier', instead: 'one verifier reads every lens',
   cost_removed: 'one agent per lens',
 };
@@ -74,7 +74,7 @@ section('a candidate the verifier judges too risky is rejected, counted, and kep
 // The operator's one filter for "this would regress something the workflow needs" is this count and the
 // rejection line in the lens file. A too_risky verdict routed anywhere but REJECT would reach triage.
 {
-  const verdict = (id, extra) => ({ candidate_id: id, is_real: true, impact: 'high', effort: 'small', decision: 'REJECT', ...extra });
+  const verdict = (id, extra) => ({ candidate_id: id, is_real: true, impact: 'high', size: 'small', decision: 'REJECT', ...extra });
   const { out } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
     respond: {
@@ -171,6 +171,25 @@ section('a defect has its own channel: a DEFECT: candidate and a Defects to rout
   ok(/A candidate that mixes a defect with a separable enhancement keeps its enhancement\n\s+half/.test(verifyText), 'and rule 4 keeps the enhancement half of a mixed candidate');
 }
 
+section('the work-size field is named size in both schemas, the prompts and the kept rows, and effort is gone');
+{
+  const { calls, out, prompt } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: { find: FOUND, verify: { wrote_file: true, verdicts: [{ candidate_id: 'efficiency-1', is_real: true, impact: 'high', size: 'small', decision: 'ADOPT' }] } },
+  });
+  const candidate = calls.find((c) => c.label.startsWith('find')).opts.schema.properties.candidates.items;
+  const verdict = calls.find((c) => c.label.startsWith('verify')).opts.schema.properties.verdicts.items;
+  for (const [name, item] of [['candidate', candidate], ['verdict', verdict]]) {
+    ok(item.required.includes('size') && 'size' in item.properties, `the ${name} schema requires size`);
+    ok(!item.required.includes('effort') && !('effort' in item.properties), `and the ${name} schema holds no effort field`);
+  }
+  const v = prompt('verify');
+  ok(v.includes('impact/size :: title'), 'the candidate list header says impact/size');
+  ok(v.includes('- size: <your confirmed size>'), 'the proposal template holds a size line');
+  ok(!/\beffort\b/i.test(v), 'and the verify prompt names no effort');
+  eq(out.lenses[0].kept[0]?.size, 'small', 'the kept row carries the verdict size');
+}
+
 section('the ROADMAP trigger is a contract change across files, not a file count');
 {
   const { prompt } = await runEngine(ENGINE, {
@@ -178,7 +197,7 @@ section('the ROADMAP trigger is a contract change across files, not a file count
     respond: { find: FOUND, verify: VERIFIED },
   });
   const verifyText = prompt('verify');
-  ok(/effort == large OR the change alters a contract across files/.test(verifyText), 'the ROADMAP line names a contract change');
+  ok(/size == large OR the change alters a contract across files/.test(verifyText), 'the ROADMAP line names a contract change');
   ok(/A doc-only edit across many files is not a contract change and\n\s+does not trigger ROADMAP\./.test(verifyText), 'and excludes a doc-only edit');
   ok(!/touches many files\/contracts at once/.test(verifyText), 'the file-count trigger is gone');
 }
@@ -213,7 +232,7 @@ section('a submitted candidate with no verdict is counted and named, never silen
     args: { ...baseArgs, lenses: ['efficiency'] },
     respond: {
       find: { wrote_clean_marker: false, candidates: [CANDIDATE, { ...CANDIDATE, title: 'second' }] },
-      verify: { wrote_file: true, verdicts: [{ candidate_id: 'efficiency-1', is_real: true, impact: 'high', effort: 'small', decision: 'ADOPT' }] },
+      verify: { wrote_file: true, verdicts: [{ candidate_id: 'efficiency-1', is_real: true, impact: 'high', size: 'small', decision: 'ADOPT' }] },
     },
   });
   eq(out.lenses[0].counts.unjudged, 1, 'the lens counts the unjudged candidate');

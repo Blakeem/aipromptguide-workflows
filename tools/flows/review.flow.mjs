@@ -39,7 +39,7 @@ const verifier = (perUnit) => (label) => ({
     is_real: true,
     severity: 'high',
     decision: 'ACTIONABLE',
-    matrix: { clarity: 'clear', effort: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false },
+    matrix: { clarity: 'clear', size: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false },
   })),
 });
 

@@ -7,11 +7,11 @@ this file is stale.
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
 | review | 1 | 1 | 3417 | a clean unit beside one with findings |
-| verify | 1 | 1 | 6797 | a clean unit beside one with findings |
+| verify | 1 | 1 | 6791 | a clean unit beside one with findings |
 | review | 2 | 1 | 3003 | two lenses per unit |
 | review | 3 | 1 | 3129 | two lenses per unit |
-| verify | 2 | 1 | 7280 | two lenses per unit |
-| verify | 3 | 1 | 7280 | two lenses per unit |
+| verify | 2 | 1 | 7274 | two lenses per unit |
+| verify | 3 | 1 | 7274 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -200,7 +200,7 @@ Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
+  size         : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
   blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
   scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
   architectural: true if it questions a design/structural decision
@@ -211,7 +211,7 @@ ROUTING (apply in order; first match wins):
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
@@ -252,7 +252,7 @@ status: todo
 - loc: <that file's LOC from UNIT FILES>
 - severity: <your confirmed severity>
 - category: <category>
-- effort: <matrix effort>
+- size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters in production>
@@ -323,7 +323,7 @@ Set wrote_file=true and return all verdicts via the schema.
             "type": "object",
             "required": [
               "clarity",
-              "effort",
+              "size",
               "blast_radius",
               "scope",
               "architectural"
@@ -336,7 +336,7 @@ Set wrote_file=true and return all verdicts via the schema.
                   "ambiguous"
                 ]
               },
-              "effort": {
+              "size": {
                 "type": "string",
                 "enum": [
                   "trivial",
@@ -680,7 +680,7 @@ Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
+  size         : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
   blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
   scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
   architectural: true if it questions a design/structural decision
@@ -691,7 +691,7 @@ ROUTING (apply in order; first match wins):
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
@@ -733,7 +733,7 @@ status: todo
 - severity: <your confirmed severity>
 - category: <category>
 - lens: <the lens id, without brackets, from the kept candidate's line>
-- effort: <matrix effort>
+- size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters>
@@ -805,7 +805,7 @@ Set wrote_file=true and return all verdicts via the schema.
             "type": "object",
             "required": [
               "clarity",
-              "effort",
+              "size",
               "blast_radius",
               "scope",
               "architectural"
@@ -818,7 +818,7 @@ Set wrote_file=true and return all verdicts via the schema.
                   "ambiguous"
                 ]
               },
-              "effort": {
+              "size": {
                 "type": "string",
                 "enum": [
                   "trivial",
@@ -905,7 +905,7 @@ Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
+  size         : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
   blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
   scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
   architectural: true if it questions a design/structural decision
@@ -916,7 +916,7 @@ ROUTING (apply in order; first match wins):
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write a precise, minimal **Fix:** line)
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
@@ -958,7 +958,7 @@ status: todo
 - severity: <your confirmed severity>
 - category: <category>
 - lens: <the lens id, without brackets, from the kept candidate's line>
-- effort: <matrix effort>
+- size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters>
@@ -1030,7 +1030,7 @@ Set wrote_file=true and return all verdicts via the schema.
             "type": "object",
             "required": [
               "clarity",
-              "effort",
+              "size",
               "blast_radius",
               "scope",
               "architectural"
@@ -1043,7 +1043,7 @@ Set wrote_file=true and return all verdicts via the schema.
                   "ambiguous"
                 ]
               },
-              "effort": {
+              "size": {
                 "type": "string",
                 "enum": [
                   "trivial",

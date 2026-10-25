@@ -756,7 +756,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>

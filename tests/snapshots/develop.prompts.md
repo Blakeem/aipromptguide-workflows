@@ -6,43 +6,43 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 24061 | every block accepts first time |
+| develop | 1 | 1 | 24059 | every block accepts first time |
 | quality | 1 | 1 | 8380 | every block accepts first time |
 | acceptance | 1 | 1 | 11663 | every block accepts first time |
-| develop | 2 | 1 | 24486 | every block accepts first time |
+| develop | 2 | 1 | 24484 | every block accepts first time |
 | acceptance | 2 | 2 | 11944 | every block accepts first time |
 | final-sweep | 1 | 1 | 2930 | every block accepts first time |
-| develop | 3 | 1 | 24702 | a feature block accepts under the proactive policy |
+| develop | 3 | 1 | 24700 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 1 | 11539 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 2921 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 23585 | quality flags the first round |
+| develop | 4 | 1 | 23583 | quality flags the first round |
 | acceptance | 4 | 1 | 11662 | quality flags the first round |
-| develop | 5 | 1 | 23955 | quality flags the first round |
+| develop | 5 | 1 | 23953 | quality flags the first round |
 | acceptance | 5 | 2 | 11943 | quality flags the first round |
-| develop | 6 | 1 | 23581 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 23579 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 11660 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 23951 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 23949 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 11941 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 13421 | a later round is judged low risk |
 | acceptance | 9 | 2 | 13702 | a later round is judged low risk |
-| develop | 8 | 1 | 23511 | the gate never goes green |
-| develop-closing | 1 | 1 | 24737 | the gate never goes green |
+| develop | 8 | 1 | 23509 | the gate never goes green |
+| develop-closing | 1 | 1 | 24735 | the gate never goes green |
 | park | 1 | 1 | 5936 | the gate never goes green |
-| develop | 9 | 1 | 23936 | the gate never goes green |
-| develop-closing | 2 | 1 | 25107 | the gate never goes green |
+| develop | 9 | 1 | 23934 | the gate never goes green |
+| develop-closing | 2 | 1 | 25105 | the gate never goes green |
 | acceptance | 10 | 1 | 11715 | a parked block, and the run carries on |
 | acceptance | 11 | 1 | 11770 | a parked block, and the run carries on |
 | acceptance | 12 | 1 | 11825 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 24830 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 24828 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 13707 | a parked block, and the run carries on |
 | park | 2 | 1 | 6222 | a parked block, and the run carries on |
 | park | 3 | 1 | 6273 | an ordered run stops at a parked block |
-| develop | 10 | 2 | 25801 | a fix block closes its issues |
+| develop | 10 | 2 | 25799 | a fix block closes its issues |
 | acceptance | 14 | 3 | 14979 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 2921 | a fix block closes its issues |
-| develop | 11 | 2 | 26317 | a fix block closes its issues under the proactive policy |
+| develop | 11 | 2 | 26315 | a fix block closes its issues under the proactive policy |
 | acceptance | 15 | 3 | 14985 | a fix block closes its issues under the proactive policy |
-| develop | 12 | 2 | 26158 | a pass of two fix blocks closes its issues |
+| develop | 12 | 2 | 26156 | a pass of two fix blocks closes its issues |
 | acceptance | 16 | 3 | 15302 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 2951 | a pass of two fix blocks closes its issues |
 | acceptance | 17 | 3 | 14978 | every issue is already fixed |
@@ -54,20 +54,20 @@ this file is stale.
 | park | 9 | 1 | 5840 | the developer dies |
 | park | 10 | 1 | 5910 | developer escalates |
 | park | 11 | 1 | 5951 | developer escalates in an ordered run |
-| develop | 13 | 1 | 25157 | a parked block is continued from its patch |
+| develop | 13 | 1 | 25155 | a parked block is continued from its patch |
 | acceptance | 18 | 1 | 11942 | a parked block is continued from its patch |
 | acceptance | 19 | 1 | 13487 | a closing pass reaches acceptance |
-| develop-closing | 4 | 1 | 25200 | a closing pass reaches acceptance |
+| develop-closing | 4 | 1 | 25198 | a closing pass reaches acceptance |
 | acceptance | 20 | 2 | 13768 | a closing pass reaches acceptance |
 | park | 12 | 1 | 6257 | a closing pass records a fix that needs review |
 | park | 13 | 1 | 6257 | a closing pass records a fix that needs review |
-| develop | 14 | 3 | 24232 | every block commits first time |
+| develop | 14 | 3 | 24230 | every block commits first time |
 | quality | 2 | 1 | 8333 | every block commits first time |
 | acceptance | 21 | 4 | 13073 | every block commits first time |
-| develop | 15 | 3 | 24657 | every block commits first time |
+| develop | 15 | 3 | 24655 | every block commits first time |
 | acceptance | 22 | 5 | 13354 | every block commits first time |
 | final-sweep | 5 | 1 | 3242 | every block commits first time |
-| develop | 16 | 4 | 25972 | a fix block commits |
+| develop | 16 | 4 | 25970 | a fix block commits |
 | acceptance | 23 | 6 | 16389 | a fix block commits |
 | final-sweep | 6 | 1 | 3149 | a fix block commits |
 | park | 14 | 1 | 6304 | acceptance commits a rejected block |
@@ -299,7 +299,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -995,7 +995,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -1629,7 +1629,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -2257,7 +2257,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -2810,7 +2810,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -3362,7 +3362,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -3915,7 +3915,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -4902,7 +4902,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -5269,7 +5269,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -5746,7 +5746,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -6117,7 +6117,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -7081,7 +7081,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -7919,7 +7919,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -8645,7 +8645,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -9305,7 +9305,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -11163,7 +11163,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -11947,7 +11947,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -12766,7 +12766,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -13505,7 +13505,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
@@ -14198,7 +14198,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - file: <path>:<line>
       - severity: <low | medium | high | critical>
       - category: <category>
-      - effort: <trivial | small | medium | large>
+      - size: <trivial | small | medium | large>
       - decision: NEEDS_USER
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>

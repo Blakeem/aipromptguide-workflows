@@ -14,7 +14,7 @@ const run = (args, respond) => runEngine(ENGINE, { args: { ...baseArgs, units: [
 const DESTRUCT = { id: 'destructive', mandate: 'auditing for DESTRUCTIVE behavior', categories: ['data-loss', 'irreversible-op'], findingNoun: 'destructive DEFECTS', matters: ' unattended' };
 const FLOW     = { id: 'control-flow', mandate: 'auditing CONTROL-FLOW', categories: ['control-flow', 'null-handling'] };
 
-const MATRIX  = { clarity: 'clear', effort: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false };
+const MATRIX  = { clarity: 'clear', size: 'small', blast_radius: 'local', scope: 'in-scope', architectural: false };
 const keep    = (id, extra = {}) => ({ finding_id: id, is_real: true, severity: 'high', decision: 'ACTIONABLE', matrix: MATRIX, ...extra });
 const finding = (extra) => ({ file: 'a.js', line: '1', severity: 'high', title: 'T', detail: 'd', ...extra });
 const NO_FINDINGS = { wrote_clean_marker: false, findings: [] };
@@ -251,6 +251,21 @@ section('the return carries no issues index, and the verifier is asked for no th
   eq(out.inventory.actionable, 1, 'counted actionable');
 }
 
+section('the matrix field is named size in the verdict schema, the decision matrix and the entry template');
+{
+  const { byLabel, prompt } = await run({}, {
+    'review': { wrote_clean_marker: false, findings: [finding({ category: 'correctness' })] },
+    'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
+  });
+  const matrix = byLabel('verify')[0]?.opts.schema?.properties?.verdicts?.items?.properties?.matrix;
+  ok(matrix?.required.includes('size') && matrix.properties.size?.enum.join() === 'trivial,small,medium,large', 'the matrix requires size with the four sizes');
+  ok(!matrix?.required.includes('effort') && !('effort' in (matrix?.properties || {})), 'and holds no effort field');
+  const v = prompt('verify');
+  ok(v.includes('\n  size         : trivial (one-liner)'), 'the decision matrix scores size');
+  ok(v.includes('- size: <matrix size>'), 'the entry template writes a size line');
+  ok(!/\beffort\b/i.test(v), 'and the verify prompt names no effort');
+}
+
 section('the verdict schema holds decisions only, and the prompt points every fix at the file');
 // The verifier writes its fix, options and recommendation into the issue file first, so a schema copy is emitted after it and read by nothing.
 {
@@ -289,7 +304,7 @@ section('the verifier confirms a behavior a **Fix:** line prescribes, and its on
 section('each entry records the lens that found it, and only when the lenses are set');
 // A lens id is the only trace of which brief raised a finding once the verifier folds candidates.
 {
-  const LENS_LINE = "\n- category: <category>\n- lens: <the lens id, without brackets, from the kept candidate's line>\n- effort:";
+  const LENS_LINE = "\n- category: <category>\n- lens: <the lens id, without brackets, from the kept candidate's line>\n- size:";
   const FOLD = "A fold across lenses lists each folded candidate's lens id on its `- lens:` line, comma-separated.";
   const two = await run({ units: [{ ...UNIT, lens: [DESTRUCT, FLOW] }] }, {
     'review:u1/destructive':  { wrote_clean_marker: false, findings: [finding({ category: 'data-loss' })] },
@@ -303,7 +318,7 @@ section('each entry records the lens that found it, and only when the lenses are
     'review': { wrote_clean_marker: false, findings: [finding({ category: 'data-loss' })] },
     'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
   });
-  ok(one.prompt('verify').includes('\n- category: <category>\n- lens: destructive\n- effort:'), 'one set lens: the template names its id');
+  ok(one.prompt('verify').includes('\n- category: <category>\n- lens: destructive\n- size:'), 'one set lens: the template names its id');
   ok(!one.prompt('verify').includes(FOLD), 'and carries no fold rule, since one lens cannot fold across lenses');
 
   const unset = await run({}, {
@@ -334,7 +349,7 @@ section('the verifier writes a fix-mode PLAN block, and its own template parses 
   // <placeholder> filled. Asserting the template's lines proves the words; parsing it proves the format.
   const FILL = {
     id: 'workflows-debug-p1-1', status: 'open', file: 'a.js:1', loc: '10',
-    severity: 'high', category: 'correctness', effort: 'small', decision: 'ACTIONABLE',
+    severity: 'high', category: 'correctness', size: 'small', decision: 'ACTIONABLE',
   };
   const fixture = v.split('\n-----\n')[1].split('\n')
     .filter((l) => !l.startsWith('(for EACH'))
@@ -503,7 +518,7 @@ section('changePolicy defaults to focused, proactive prescribes the best long-te
   const keptRules = {
     review: ['- Stay INSIDE this unit\'s files.', 'Report DEFECTS, not redesigns. No speculative rewrites, no gold-plating, no scope creep.'],
     verify: ['- scope == scope-creep -> REJECT (do not pursue)',
-      '- effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)',
+      '- size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)',
       'The **Fix:** line covers every file, string or path its **What:** names as wrong, and never tells the fixer to leave one of them unchanged.'],
   };
   for (const role of ['review', 'verify']) {

@@ -229,13 +229,13 @@ const VERIFY_SCHEMA = {
           is_real: { type: 'boolean' },
           severity: { type: 'string', enum: ['critical', 'high', 'medium', 'low'], description: 'YOUR confirmed severity (reviewers over-rate; correct it)' },
           decision: { type: 'string', enum: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'REJECT'] },
-          // No harness line reads matrix: it is the verifier's routing scaffold and the source of each entry's `- effort:` line.
+          // No harness line reads matrix: it is the verifier's routing scaffold and the source of each entry's `- size:` line.
           matrix: {
             type: 'object',
-            required: ['clarity', 'effort', 'blast_radius', 'scope', 'architectural'],
+            required: ['clarity', 'size', 'blast_radius', 'scope', 'architectural'],
             properties: {
               clarity: { type: 'string', enum: ['clear', 'ambiguous'] },
-              effort: { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
+              size: { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
               blast_radius: { type: 'string', enum: ['local', 'cross-cutting'] },
               scope: { type: 'string', enum: ['in-scope', 'scope-creep'] },
               architectural: { type: 'boolean' },
@@ -356,7 +356,7 @@ Candidates that merely share a file and category are NOT duplicates.
 
 DECISION MATRIX — score each real finding on:
   clarity      : clear (one obvious correct fix) | ambiguous (multiple valid fixes / unclear intent)
-  effort       : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
+  size         : trivial (one-liner) | small (localized, <~30 lines) | medium (<~150 lines, this unit) | large
   blast_radius : local (this unit) | cross-cutting (touches shared contracts / many files)
   scope        : in-scope (a real defect in current behavior) | scope-creep (nice-to-have / new feature)
   architectural: true if it questions a design/structural decision
@@ -367,7 +367,7 @@ ROUTING (apply in order; first match wins):
   - architectural == true -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
   - clarity == ambiguous with materially different valid fixes -> NEEDS_USER (fill its **Options:** and
     **Recommendation:** lines)
-  - effort == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
+  - size == large OR blast_radius == cross-cutting -> DEFER (too big for an autonomous batch)
   - otherwise -> ACTIONABLE (write ${ROUTED_FIX_LINE})
 An alternative that another fix clearly dominates is not a materially different valid fix. You may
 narrow a suggested fix to the part you verified. The **Fix:** line covers every file, string or path
@@ -408,7 +408,7 @@ status: todo
 - loc: <that file's LOC from UNIT FILES>
 - severity: <your confirmed severity>
 - category: <category>
-${lensLine}- effort: <matrix effort>
+${lensLine}- size: <matrix size>
 - decision: <ACTIONABLE | NEEDS_USER | DEFER>
 
 **What:** <detail — what's wrong and why it matters${multi ? '' : lenses[0].matters}>

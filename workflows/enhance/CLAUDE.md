@@ -3,7 +3,7 @@
 `enhance-cycle.mjs` audits a system that **already works** for **enhancements** — bigger changes worth
 writing up, not nits. It fans out one **finder per lens** across the WHOLE scope (breadth, not file
 slices — cross-cutting enhancements are the point), then a **verifier per lens** that kills anything the
-system already does, scores impact × effort, routes each survivor, and writes one verbatim
+system already does, scores impact × size, routes each survivor, and writes one verbatim
 `proposals/<lens>.md`. Then it **STOPS**. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
 *generative* workflow honoring the core (#1–4, #6, #8, #11–17); it writes no code, stages nothing, and
 never commits.
@@ -104,7 +104,7 @@ noise.
   cost is not real or cannot be substantiated from the code; (3) it is taste; (4) it is a **defect**, not
   an enhancement — rejected with `is_defect`, so you can route it to debug; (5) its verified **risk
   outweighs** the cost removed, such as breaking something the system needs or leaving a required
-  instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/effort (finders over-rate)
+  instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/size (finders over-rate)
   and **writes** `proposals/<lens>.md` verbatim. A real candidate it scores below the floor keeps
   `is_real` true and is rejected as below the floor.
 

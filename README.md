@@ -156,6 +156,10 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **debug and enhance name their work-size estimate `size`.** The estimate was `effort`, which a block
+  preamble also uses for a reasoning level. The values and the routing rule are unchanged. An issue entry
+  in a plan or backlog file that holds `- effort:` now fails `plan-block.mjs --list` with a message that
+  names the entry and says to rename the line to `- size:`.
 - **Every workflow takes a model and a reasoning level per role.** refine, debug, enhance, brainstorm,
   decide, investigate and docs take the `efforts` arg beside `models`, and every role runs at `high` by
   default. A launch fails on an unknown role or value in either arg, as it does for develop. Each run logs

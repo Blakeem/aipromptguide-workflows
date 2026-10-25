@@ -150,7 +150,7 @@ function checkOneLine(key, value) {
  */
 function withKeySet(plan, id, key, value) {
   const { block, entry } = findTarget(plan, id);
-  const { keys: schema, what } = entry ? RUN_KEYS.issue : RUN_KEYS.preamble;
+  const { keys: schema, what, renamed } = entry ? RUN_KEYS.issue : RUN_KEYS.preamble;
   const keys = entry ? entry.keys : block.preamble.keys;
 
   // Checked HERE rather than by the round-trip parse below, which structurally cannot see it: a key
@@ -159,6 +159,9 @@ function withKeySet(plan, id, key, value) {
   // file gains a junk line while the setting the operator asked for is silently dropped, at exit 0.
   // OWN property, never `in`: `in` walks Object.prototype, so `valueOf` and eleven other inherited names
   // passed this guard and were spliced in as exactly that junk line.
+  if (renamed && Object.hasOwn(renamed, key)) {
+    throw new Error(`the ${what} "${key}" was renamed to "${renamed[key]}", so set ${renamed[key]}=<value>`);
+  }
   if (!Object.hasOwn(schema, key)) {
     throw new Error(`unknown ${what} "${key}" — the ${what}s are: ${Object.keys(schema).join(', ')}`);
   }

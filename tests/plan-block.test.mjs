@@ -355,6 +355,13 @@ section('every metadata fault exits 1 naming the offending key, value or id');
   eq(lensValue, 'bugs', 'and its lens value is read');
   ok(/illegal issue key "severity: urgent"/.test(planFails(fix('### [x-y] t\n- lens: bugs\n- severity: urgent'))),
     'a `- lens:` line leaves the entry\'s other keys validated');
+  let sizeValue = '';
+  try { sizeValue = parseBlocks(fix('### [x-y] t\n- size: small'))[0].issues[0].values.size; } catch (e) { sizeValue = e.message; }
+  eq(sizeValue, 'small', 'an entry with a `- size:` line parses and its value is read');
+  const renamedFault = planFails(fix('### [x-y] t\n- severity: high\n- effort: small'));
+  ok(/issue entry \[x-y\] holds "- effort: small"/.test(renamedFault), `a \`- effort:\` issue line fails naming its entry and the line: ${renamedFault}`);
+  ok(/"effort" was renamed to "size", so rename the key on that line/.test(renamedFault), `and says the key was renamed to size and to rename the line: ${renamedFault}`);
+  eq(planFails(ONE('gate: green\neffort: low\n')), '', 'a block preamble keeps its `effort:` reasoning level');
   ok(/issue id "Not Kebab".*kebab/.test(planFails(fix('### [Not Kebab] t'))), 'a non-kebab entry id');
   ok(/heading id and the id key disagree/.test(planFails(fix('### [x-y] t\n- id: z-w'))),
     'an `- id:` that contradicts its heading');

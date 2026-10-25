@@ -39,8 +39,10 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, `model`, `effort`, plus informational
-`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. `model` takes
-`opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
+`test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`, `status`, `file`, `loc`,
+`severity`, `category`, `lens`, `size`, `decision` and `theme`. A `- effort:` line in an entry fails the parse with a
+message that names the entry and says the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an
+issue entry with the same rename. `model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
 names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
 array of `{ id, title, mode, gate, status }`, defaults applied, and a row carries `model` or `effort` only when
 its block sets one. The file keys are the first lines of the file, after any frontmatter and before any heading, and a file key anywhere else above the first block (outside a code fence) fails the parse. Each other metadata run is the contiguous `key: value` lines under its heading, leading blank lines crossed. A

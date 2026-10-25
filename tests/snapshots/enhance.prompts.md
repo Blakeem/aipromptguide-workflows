@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 3763 | two lenses propose |
-| verify | 1 | 1 | 7423 | two lenses propose |
-| verify | 2 | 1 | 7451 | two lenses propose |
+| find | 1 | 1 | 3761 | two lenses propose |
+| verify | 1 | 1 | 7415 | two lenses propose |
+| verify | 2 | 1 | 7443 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -60,7 +60,7 @@ RULES:
 - NO RESTATING THE DESIGN. Describing back what the system does is not a finding.
 - BE HONEST ABOUT RISK. What could this break or make worse? A proposal with no stated downside reads
   as unexamined.
-- Impact is the SYSTEM's outcome, not how interesting the change is. Effort is the work to land it.
+- Impact is the SYSTEM's outcome, not how interesting the change is. Size is the work to land it.
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
@@ -99,7 +99,7 @@ Return candidates via the schema. An empty array (a clean lens) is a normal, goo
           "title",
           "category",
           "impact",
-          "effort",
+          "size",
           "today",
           "instead",
           "cost_removed"
@@ -132,7 +132,7 @@ Return candidates via the schema. An empty array (a clean lens) is a normal, goo
               "marginal"
             ]
           },
-          "effort": {
+          "size": {
             "type": "string",
             "enum": [
               "trivial",
@@ -204,7 +204,7 @@ THIS IS AN ENHANCEMENT AUDIT:
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
 LENS: efficiency — efficiency
-CANDIDATES (candidate_id :: category :: impact/effort :: title):
+CANDIDATES (candidate_id :: category :: impact/size :: title):
   - efficiency-1 :: simplification :: high/small :: fold the two verifier roles into one
       files:   workflows/enhance/enhance-cycle.mjs:330
       today:   each lens spawns its own verifier
@@ -237,7 +237,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
-  effort : trivial | small | medium | large
+  size   : trivial | small | medium | large
 A real candidate you score below the moderate floor keeps is_real=true and its honest impact, and the
 ROUTING line "impact below the moderate floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
@@ -247,7 +247,7 @@ ROUTING (apply in order; first match wins):
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
     -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
-  - effort == large OR the change alters a contract across files (a return field, an arg, a status
+  - size == large OR the change alters a contract across files (a return field, an arg, a status
     string or a file format that more than one file reads or writes) -> ROADMAP (real, but needs
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
@@ -270,7 +270,7 @@ note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is 
 - files: <file:line, comma-separated>
 - category: <category>
 - impact: <your confirmed impact>
-- effort: <your confirmed effort>
+- size: <your confirmed size>
 - decision: <ADOPT | ROADMAP | NEEDS_USER>
 - theme: <theme>
 
@@ -318,7 +318,7 @@ Set wrote_file=true and return all verdicts via the schema.
           "candidate_id",
           "is_real",
           "impact",
-          "effort",
+          "size",
           "decision"
         ],
         "properties": {
@@ -339,7 +339,7 @@ Set wrote_file=true and return all verdicts via the schema.
             ],
             "description": "YOUR confirmed impact (finders over-rate; correct it)"
           },
-          "effort": {
+          "size": {
             "type": "string",
             "enum": [
               "trivial",
@@ -409,7 +409,7 @@ THIS IS AN ENHANCEMENT AUDIT:
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
 LENS: simplification — simplification
-CANDIDATES (candidate_id :: category :: impact/effort :: title):
+CANDIDATES (candidate_id :: category :: impact/size :: title):
   - simplification-1 :: simplification :: high/small :: fold the two verifier roles into one
       files:   workflows/enhance/enhance-cycle.mjs:330
       today:   each lens spawns its own verifier
@@ -442,7 +442,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
-  effort : trivial | small | medium | large
+  size   : trivial | small | medium | large
 A real candidate you score below the moderate floor keeps is_real=true and its honest impact, and the
 ROUTING line "impact below the moderate floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
@@ -452,7 +452,7 @@ ROUTING (apply in order; first match wins):
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
     -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
-  - effort == large OR the change alters a contract across files (a return field, an arg, a status
+  - size == large OR the change alters a contract across files (a return field, an arg, a status
     string or a file format that more than one file reads or writes) -> ROADMAP (real, but needs
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
@@ -475,7 +475,7 @@ note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is 
 - files: <file:line, comma-separated>
 - category: <category>
 - impact: <your confirmed impact>
-- effort: <your confirmed effort>
+- size: <your confirmed size>
 - decision: <ADOPT | ROADMAP | NEEDS_USER>
 - theme: <theme>
 
@@ -523,7 +523,7 @@ Set wrote_file=true and return all verdicts via the schema.
           "candidate_id",
           "is_real",
           "impact",
-          "effort",
+          "size",
           "decision"
         ],
         "properties": {
@@ -544,7 +544,7 @@ Set wrote_file=true and return all verdicts via the schema.
             ],
             "description": "YOUR confirmed impact (finders over-rate; correct it)"
           },
-          "effort": {
+          "size": {
             "type": "string",
             "enum": [
               "trivial",

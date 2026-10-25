@@ -172,8 +172,8 @@ section('an absent key is appended to the END of its run, or under the header wh
 
   const entry = fixture();
   const beforeEntry = read(entry);
-  run(['set', entry, 'null-deref', 'effort=1h']);
-  eq(read(entry), beforeEntry.replace('- decision: ACTIONABLE\n', '- decision: ACTIONABLE\n- effort: 1h\n'),
+  run(['set', entry, 'null-deref', 'size=1h']);
+  eq(read(entry), beforeEntry.replace('- decision: ACTIONABLE\n', '- decision: ACTIONABLE\n- size: 1h\n'),
     'an issue run: directly after its last "- key:" line, and the prose bullet below is not touched');
 
   const emptyRun = fixture();
@@ -317,6 +317,7 @@ section('every set failure exits 1 naming the problem, with the file\'s bytes un
     [['set', file, 'nope', 'status=done'], /no id "nope"/, 'an unknown id, listing the ids that do exist'],
     [['set', file, 'bus-parser', 'goal=x'], /unknown preamble key "goal"/, 'a key the block namespace does not have'],
     [['set', file, 'null-deref', 'sevrity=high'], /unknown issue key "sevrity"/, 'a key the issue namespace does not have'],
+    [['set', file, 'null-deref', 'effort=small'], /issue key "effort" was renamed to "size", so set size=<value>/, 'the issue key renamed to size'],
     // A key outside `[a-z_]+` writes a line that ENDS the run rather than joining it, so a reparse of the
     // edited text sees no new key at all: these are refused before the splice or not at all.
     [['set', file, 'bus-parser', 'test-selector=npm test'], /unknown preamble key "test-selector"/, 'a hyphen where the key has an underscore'],

@@ -1,10 +1,10 @@
 export const meta = {
   name: 'enhance-cycle',
-  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), then a verifier per lens that confirms each candidate against the real code, kills anything the system ALREADY does, scores impact x effort, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no fix sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), then a verifier per lens that confirms each candidate against the real code, kills anything the system ALREADY does, scores impact x size, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no fix sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
   whenToUse: 'Audit a system you already have for ENHANCEMENTS — bigger changes worth writing up, not nits: make it more efficient, simpler, cheaper, more robust, less work to operate, or smaller (removing a role/file/arg/code path is a first-class enhancement). The main agent settles the scope + the lenses with the user, then runs this engine. Each lens gets the whole scope and returns a verified, impact-scored, human-triage-ready proposal file. It then STOPS: YOU triage, and adopted proposals become plan-file blocks that refine-cycle converges and develop-cycle builds (feature mode, or section mode for a goal spanning many call sites). NOT for defects/bugs/typos — those are the debug workflow, whose inventory feeds an autonomous fixer. NOT for open-ended creative variations (brainstorm-cycle) or for concluding among competing approaches (decide-cycle).',
   phases: [
     { title: 'Find', detail: 'One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
-    { title: 'Verify', detail: 'Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x effort, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim.' },
+    { title: 'Verify', detail: 'Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim.' },
   ],
 };
 
@@ -160,12 +160,12 @@ const FIND_SCHEMA = {
       type: 'array',
       items: {
         type: 'object',
-        required: ['title', 'category', 'impact', 'effort', 'today', 'instead', 'cost_removed'],
+        required: ['title', 'category', 'impact', 'size', 'today', 'instead', 'cost_removed'],
         properties: {
           title:        { type: 'string', description: 'short, specific, stable' },
           category:     { type: 'string', enum: CATEGORIES },
           impact:       { type: 'string', enum: ['transformative', 'high', 'moderate', 'marginal'] },
-          effort:       { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
+          size:         { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
           files:        { type: 'array', items: { type: 'string' }, description: 'the file(s) this touches, repo-relative, with line numbers where you can give them' },
           today:        { type: 'string', description: 'what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design' },
           instead:      { type: 'string', description: 'what it would do instead — concrete enough to hand to a builder' },
@@ -186,12 +186,12 @@ const VERIFY_SCHEMA = {
       type: 'array',
       items: {
         type: 'object',
-        required: ['candidate_id', 'is_real', 'impact', 'effort', 'decision'],
+        required: ['candidate_id', 'is_real', 'impact', 'size', 'decision'],
         properties: {
           candidate_id: { type: 'string' },
           is_real:      { type: 'boolean', description: 'false if the system ALREADY does this, the claimed cost does not exist, or you could not substantiate it from the code. A real candidate below the impact floor stays true: its impact score rejects it.' },
           impact:       { type: 'string', enum: ['transformative', 'high', 'moderate', 'marginal'], description: 'YOUR confirmed impact (finders over-rate; correct it)' },
-          effort:       { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
+          size:         { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
           decision:     { type: 'string', enum: ['ADOPT', 'ROADMAP', 'NEEDS_USER', 'REJECT'] },
           is_defect:    { type: 'boolean', description: 'true if this is really a BUG in current behavior, not an enhancement. Always REJECT these, and say so.' },
           too_risky:    { type: 'boolean', description: 'true if the risk you verified outweighs the cost removed. Always REJECT these, and name the risk.' },
@@ -252,7 +252,7 @@ RULES:
 - NO RESTATING THE DESIGN. Describing back what the system does is not a finding.
 - BE HONEST ABOUT RISK. What could this break or make worse? A proposal with no stated downside reads
   as unexamined.
-- Impact is the SYSTEM's outcome, not how interesting the change is. Effort is the work to land it.
+- Impact is the SYSTEM's outcome, not how interesting the change is. Size is the work to land it.
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
@@ -276,8 +276,8 @@ else. For each candidate below, inspect the ACTUAL code to decide whether it is 
 USER'S ATTENTION, correct its impact, and route it.
 ${ENV}
 LENS: ${lens.id} — ${lens.focus}
-CANDIDATES (candidate_id :: category :: impact/effort :: title):
-${items.map((i) => `  - ${i.id} :: ${i.c.category} :: ${i.c.impact}/${i.c.effort} :: ${i.c.title}
+CANDIDATES (candidate_id :: category :: impact/size :: title):
+${items.map((i) => `  - ${i.id} :: ${i.c.category} :: ${i.c.impact}/${i.c.size} :: ${i.c.title}
       files:   ${(i.c.files || []).join(', ') || '(none given)'}
       today:   ${i.c.today}
       instead: ${i.c.instead}
@@ -309,7 +309,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
 
 For each SURVIVOR, score and route:
   impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
-  effort : trivial | small | medium | large
+  size   : trivial | small | medium | large
 A real candidate you score below the ${MIN_IMPACT_NAME} floor keeps is_real=true and its honest impact, and the
 ROUTING line "impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
@@ -319,7 +319,7 @@ ROUTING (apply in order; first match wins):
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
     -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
-  - effort == large OR the change alters a contract across files (a return field, an arg, a status
+  - size == large OR the change alters a contract across files (a return field, an arg, a status
     string or a file format that more than one file reads or writes) -> ROADMAP (real, but needs
     planning, not a single change). A doc-only edit across many files is not a contract change and
     does not trigger ROADMAP.
@@ -342,7 +342,7 @@ note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is 
 - files: <file:line, comma-separated>
 - category: <category>
 - impact: <your confirmed impact>
-- effort: <your confirmed effort>
+- size: <your confirmed size>
 - decision: <ADOPT | ROADMAP | NEEDS_USER>
 - theme: <theme>
 
@@ -454,7 +454,7 @@ const results = await pipeline(
     return {
       lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts,
       kept: verdicts.filter((x) => x.decision !== 'REJECT')
-        .map((x) => ({ id: x.candidate_id, decision: x.decision, impact: x.impact, effort: x.effort, theme: x.theme || '' })),
+        .map((x) => ({ id: x.candidate_id, decision: x.decision, impact: x.impact, size: x.size, theme: x.theme || '' })),
     };
   },
 );

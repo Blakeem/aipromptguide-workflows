@@ -50,6 +50,8 @@ const PREAMBLE_KEYS = {
   model: ['opus', 'sonnet', 'haiku', 'fable'], // the block's developer model, else the run's models.develop
   effort: ['low', 'medium', 'high', 'xhigh', 'max'], // the block's developer reasoning level, else the run's efforts.develop
 };
+// An issue key renamed to another, so an old plan or backlog file fails with the new name instead of a bare unknown key.
+const RENAMED_ISSUE_KEYS = { effort: 'size' };
 const ISSUE_KEYS = {
   id: null,                                    // kebab, and equal to its heading's id (checked in validate)
   status: ['open', 'fixed', 'stale', 'needs-attention'],
@@ -58,7 +60,7 @@ const ISSUE_KEYS = {
   severity: ['critical', 'high', 'medium', 'low'],
   category: null,
   lens: null,
-  effort: null,
+  size: null,
   decision: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'SKIP'],
   theme: null,
 };
@@ -71,7 +73,7 @@ const ISSUE_KEYS = {
 export const RUN_KEYS = {
   file: { keys: FILE_KEYS, what: 'file key' },
   preamble: { keys: PREAMBLE_KEYS, what: 'preamble key' },
-  issue: { keys: ISSUE_KEYS, what: 'issue key' },
+  issue: { keys: ISSUE_KEYS, what: 'issue key', renamed: RENAMED_ISSUE_KEYS },
 };
 
 const MODE_GATES = {
@@ -150,9 +152,12 @@ function valueSpan(line, colonAt) {
  * The enum guard lives here rather than in validate(): this is the only place that sees all three runs,
  * and validate() never receives the file keys at all.
  *
+ * `renamed` is `{ owner, keys: { oldKey: newKey } }` for a run whose key was renamed: the old key fails
+ * naming the `owner` entry and the line to rewrite.
+ *
  * @returns {{values:object, keys:Array, start:number, end:number}} positions are into `text` itself.
  */
-function scanRun(text, from, schema, lineRe, what) {
+function scanRun(text, from, schema, lineRe, what, renamed = null) {
   const values = {};
   const keys = [];
   let end = from;
@@ -165,6 +170,9 @@ function scanRun(text, from, schema, lineRe, what) {
 
     // OWN properties on both, never `in`: `in` walks Object.prototype, so `constructor` and `__proto__`
     // would pass the unknown-key guard and then read as set twice, a key nobody set.
+    if (renamed && Object.hasOwn(renamed.keys, key)) {
+      throw new Error(`${renamed.owner} holds "${quoted}" — the ${what} "${key}" was renamed to "${renamed.keys[key]}", so rename the key on that line and keep its value`);
+    }
     if (!Object.hasOwn(schema, key)) {
       throw new Error(`unknown ${what} "${key}" in "${quoted}" — the ${what}s are: ${Object.keys(schema).join(', ')}`);
     }
@@ -283,7 +291,8 @@ export function parseIssues(text, from, to) {
   const { keys: schema, what } = RUN_KEYS.issue;
   return headings.map(({ id, title, start, headingEnd }) => {
     const runFrom = nextLineStart(text, headingEnd);
-    const run = scanRun(text, runStart(text, runFrom), schema, ISSUE_KEY_LINE_RE, what);
+    const renamed = { owner: `issue entry [${id}]`, keys: RENAMED_ISSUE_KEYS };
+    const run = scanRun(text, runStart(text, runFrom), schema, ISSUE_KEY_LINE_RE, what, renamed);
     return { id, title, values: run.values, keys: run.keys, runFrom, start, end: bounds.find((b) => b > start) ?? to };
   });
 }

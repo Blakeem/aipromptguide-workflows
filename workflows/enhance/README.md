@@ -7,7 +7,7 @@ bigger changes worth writing up, not nits. It reports, and you decide. Nothing i
 
 You name the scope and the angles to audit from. Claude runs one finder per angle across the *whole*
 scope, a verifier per angle throws out everything the system already does, then each surviving proposal
-lands scored by impact and effort in a file you triage. Adopted proposals become
+lands scored by impact and size in a file you triage. Adopted proposals become
 blocks in a [`develop-cycle`](../develop/) plan file to get built.
 
 ### What sets it apart
@@ -69,7 +69,7 @@ Claude reads `aipg/workflows/enhance/CLAUDE.md`, decides the scope and lenses wi
    states what the code does today (with the line), what it would do instead, and the specific cost the
    change removes.
 3. **Verifies.** A verifier per lens checks each candidate against the real code, rejects what doesn't
-   survive, re-scores impact and effort, and routes the rest.
+   survive, re-scores impact and size, and routes the rest.
 4. **Stops.** Claude presents the proposals and triages them with you.
 
 A workflow runs in the background and **can't ask you questions mid-run**, so the audit stops at the
@@ -87,7 +87,7 @@ explains what was thrown out and why. Every proposal carries:
 - **Instead** states the change, concrete enough to hand to a builder
 - **Removes** names the specific cost it removes
 - **Risk** states what it could break or make worse
-- **impact / effort / decision** holds the two scores and one of `ADOPT` (ready to build), `ROADMAP` (real,
+- **impact / size / decision** holds the two scores and one of `ADOPT` (ready to build), `ROADMAP` (real,
   but needs planning), or `NEEDS_USER` (a call only you can make, with options and a recommendation)
 
 Read the ADOPT items first, then decide scope. Each line in the `Defects to route` section is a defect
