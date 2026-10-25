@@ -156,8 +156,22 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
-- **debug and enhance name their work-size estimate `size`.** The estimate was `effort`, which a block
-  preamble also uses for a reasoning level. The values and the routing rule are unchanged. An issue entry
+- **develop can commit each accepted block.** With `commit: true`, acceptance commits each block it passes,
+  and the commit message is the block's title. The repo's commit hooks run. A refused commit, a rewritten
+  subject or a tree a hook changed halts the run with one `commit-unverified` reason that lists every
+  failed check. A run that starts with files already staged halts before any review. Stage mode stays the
+  default.
+- **A repo saves its commit choice.** Setup asks once whether develop should commit for you, and
+  `project-settings.mjs set --commit on|off` saves the answer. The `commit` verb reads it back. debug's fix
+  phase always stages.
+- **Setup offers to hide Claude's author details.** When you turn commit mode on, `tools/attribution.mjs`
+  checks your Claude Code settings and, if you agree, sets the three attribution keys that hide the
+  co-author trailer, the pull request line and the session trailer.
+- **The change policy can be `auto`.** A repo can save `focused`, `proactive` or `auto`. With `auto`,
+  Claude picks the policy for each run and states the reason in the approval summary. The develop guide
+  says when each policy fits.
+- **debug, enhance and develop's backlog entries name the work-size estimate `size`.** The estimate was
+  `effort`, which a block preamble also uses for a reasoning level. The values and the routing rule are unchanged. An issue entry
   in a plan or backlog file that holds `- effort:` now fails `plan-block.mjs --list` with a message that
   names the entry and says to rename the line to `- size:`.
 - **Every workflow takes a model and a reasoning level per role.** refine, debug, enhance, brainstorm,
