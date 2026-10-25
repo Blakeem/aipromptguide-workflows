@@ -171,7 +171,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      one block, to sanity-check cost and quality.
    - Before launch, ask the user how to settle a dirty tree, under the rules in develop §4, and confirm
      the gates are green.
-   - Then follow `../develop/CLAUDE.md` from §2 step 3.
+   - Then follow `../develop/CLAUDE.md` from §2 step 3. Leave `commit` out of the launch args and skip
+     develop §4 "Choosing commit mode", since debug stages the fixes and never commits them.
    - After the run, add `git status --porcelain` and a spot-read of the riskiest fixes to develop §6's
      ground-truth checks.
    - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, what

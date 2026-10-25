@@ -42,7 +42,9 @@ cleanup outside task code, such as a clearer name, in the backlog and leaves the
 A run can commit each accepted block instead of only staging it. The `commit` arg turns this on. Each
 accepted block that changed code becomes one commit whose message is the block's title, on the branch
 you have checked out, so run it on a branch or in a worktree. Your repo's commit hooks run, and a commit
-that a hook or signing refuses halts the run with the block's work staged.
+that a hook or signing refuses halts the run with the block's work staged. Claude asks once per repo
+whether to commit and saves the answer in the repo's project settings with `project-settings.mjs set
+--commit`. The next run of that repo takes it from `project-settings.mjs commit`.
 
 ## How it works
 

@@ -53,7 +53,7 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    prints. A role the user names for the run wins over the repo's saved value. When the user names role
    settings to keep for the repo, save them with
    `node <project-settings.mjs> set-roles --root <root> --repo <target.repo> [--models <role>=<value>,...] [--efforts <role>=<value>,...]`,
-   where the value `default` removes a role's saved value. The approval summary shows each role's model and
+   where the value `default` removes a role's saved value. Also add `commit` as §4, "Choosing commit mode", settles it. The approval summary shows each role's model and
    effort and where each came from: the run, the block's `model:` or `effort:` line, the repo's saved settings,
    or the default. Several
    files make one run, as long as their file keys agree. When you know the
@@ -211,6 +211,26 @@ folder.
 - When `check`, `set`, `roles` or `set-roles` exits 1, show the user its message, which names the cause, and run the step
   again once the cause is fixed.
 - Show the policy in the approval summary.
+
+**Choosing commit mode.** The `commit` arg (§9) sets whether acceptance commits each accepted block
+(§6, "Commit mode"). The tool saves each repo's choice in `<root>/projects.json` beside its policy.
+Settle a run's choice in these steps.
+
+- A choice the user names for a run wins.
+- Otherwise, before §2 step 3, run `node <project-settings.mjs> commit --root <root> --repo <target.repo>`.
+  It prints `on <key>`, `off <key>` or `missing <key>`, and it never asks or recommends. Use `on` as
+  `commit: true` and `off` as `commit: false`. A worktree takes its main checkout's choice.
+- On `missing <key>`, ask the user once: "Do you want me to commit each accepted block for you?" The
+  question says:
+  - Each accepted block becomes one commit on the checked-out branch, with the block's title as its message.
+  - The repo's commit hooks run, and a refused commit halts the run.
+  - A branch or a worktree keeps the commits off the main branch.
+
+  Then save the answer with `node <project-settings.mjs> set --root <root> --repo <target.repo> --commit on|off`.
+  `set` takes `--policy` and `--commit` together and keeps every other saved setting.
+- When `commit` or `set` exits 1, show the user its message, which names the cause, and run the step
+  again once the cause is fixed.
+- Show the choice and where it came from, the run or the repo's saved choice, in the approval summary.
 
 ## 5. Roles
 

@@ -2,20 +2,24 @@
 // the folder that holds the project's backlog.
 //
 // The store is <root>/projects.json, a JSON object that maps a repo key to the repo's settings, an object whose
-// optional fields are `changePolicy` (the policy develop and debug take, focused or proactive) and `models` and
-// `efforts` (each maps a role key to the model or reasoning level develop gives that role). The key is the repo's
-// main checkout, so a linked worktree shares its settings and its backlog folder.
+// optional fields are `changePolicy` (the policy develop and debug take, focused or proactive), `commit` (a
+// boolean, whether develop commits each accepted block) and `models` and `efforts` (each maps a role key to the
+// model or reasoning level develop gives that role). The key is the repo's main checkout, so a linked worktree
+// shares its settings and its backlog folder.
 //
 //   node tools/project-settings.mjs check --root <dir> --repo <dir>      # "<policy> <key>" or "missing <key> recommend=<policy>"
 //   node tools/project-settings.mjs backlog --root <dir> --repo <dir>    # "<root>/backlog/<project>/"
-//   node tools/project-settings.mjs set --root <dir> --repo <dir> --policy focused|proactive    # "set <key> <policy> in <store>"
+//   node tools/project-settings.mjs set --root <dir> --repo <dir> [--policy focused|proactive] [--commit on|off]
+//                                                                         # "set <key> [<policy>] [commit=<on|off>] in <store>"
+//   node tools/project-settings.mjs commit --root <dir> --repo <dir>     # "on <key>", "off <key>" or "missing <key>"
 //   node tools/project-settings.mjs roles --root <dir> --repo <dir>      # {"models":{...},"efforts":{...}}
 //   node tools/project-settings.mjs set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]
 //                                                                         # "set-roles <key> {...} in <store>"
 //
 // The recommendation is proactive when the repo has no commits or every commit's author email is the user's
-// `git config user.email`, and focused otherwise. A repo that saved only role settings reads `missing` from check.
-// backlog reads no setting and creates nothing. roles never asks or recommends. set-roles merges each named role
+// `git config user.email`, and focused otherwise. A repo that saved no policy reads `missing` from check, whatever else
+// it saved. set needs --policy or --commit and keeps every other saved setting. backlog reads no setting and creates
+// nothing. commit and roles never ask or recommend. set-roles merges each named role
 // into the saved map, and the value `default` removes that role's saved value. Every failure exits 1 with its cause
 // on stderr, and a write never replaces a store it cannot parse. Ordinary Node: `node --check` applies.
 
@@ -42,16 +46,19 @@ export const ROLE_KEYS = ['develop', 'park', 'quality', 'acceptance', 'sweep'];
 export const MODELS = RUN_KEYS.preamble.keys.model;
 export const EFFORTS = RUN_KEYS.preamble.keys.effort;
 const ROLE_SETS = { models: MODELS, efforts: EFFORTS };
-const SETTING_FIELDS = ['changePolicy', ...Object.keys(ROLE_SETS)];
+const SETTING_FIELDS = ['changePolicy', 'commit', ...Object.keys(ROLE_SETS)];
+const COMMIT_CHOICES = { on: true, off: false };
 const UNSET = 'default';
 const VERBS = {
   check: { required: ['root', 'repo'], anyOf: [] },
   backlog: { required: ['root', 'repo'], anyOf: [] },
-  set: { required: ['root', 'repo', 'policy'], anyOf: [] },
+  set: { required: ['root', 'repo'], anyOf: ['policy', 'commit'] },
+  commit: { required: ['root', 'repo'], anyOf: [] },
   roles: { required: ['root', 'repo'], anyOf: [] },
   'set-roles': { required: ['root', 'repo'], anyOf: Object.keys(ROLE_SETS) },
 };
-const USAGE = 'usage: node tools/project-settings.mjs check|backlog|roles --root <dir> --repo <dir> | set --root <dir> --repo <dir> --policy focused|proactive'
+const USAGE = 'usage: node tools/project-settings.mjs check|backlog|commit|roles --root <dir> --repo <dir>'
+  + ' | set --root <dir> --repo <dir> [--policy focused|proactive] [--commit on|off]'
   + ' | set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]';
 const FOLDS_CASE = foldsCase(process.platform);
 
@@ -110,10 +117,14 @@ function parseArgv(argv) {
   if (anyOf.length && !anyOf.some((f) => Object.hasOwn(opt, f))) {
     throw new Error(`${verb} needs ${anyOf.map((f) => `--${f}`).join(' or ')}. ${USAGE}`);
   }
-  if (verb === 'set' && !POLICIES.includes(opt.policy)) {
+  if (Object.hasOwn(opt, 'policy') && !POLICIES.includes(opt.policy)) {
     throw new Error(opt.policy === RETIRED_POLICY
       ? `--policy "${RETIRED_POLICY}" is now named focused. Pass --policy focused.`
       : `--policy "${opt.policy}" is neither focused nor proactive`);
+  }
+  if (Object.hasOwn(opt, 'commit')) {
+    if (!Object.hasOwn(COMMIT_CHOICES, opt.commit)) throw new Error(`--commit "${opt.commit}" is neither on nor off`);
+    opt.commit = COMMIT_CHOICES[opt.commit];
   }
   for (const [name, legal] of Object.entries(ROLE_SETS)) {
     if (Object.hasOwn(opt, name)) opt[name] = parseRolePairs(name, opt[name], legal);
@@ -148,6 +159,11 @@ function withSettings(store, key, change, foldCase) {
 /** The store with `key`'s policy set to `policy`. */
 export function withPolicy(store, key, policy, foldCase) {
   return withSettings(store, key, (settings) => ({ ...settings, changePolicy: policy }), foldCase);
+}
+
+/** The store with `key`'s commit choice set to the boolean `commit`. */
+export function withCommit(store, key, commit, foldCase) {
+  return withSettings(store, key, (settings) => ({ ...settings, commit }), foldCase);
 }
 
 /** The store with each role that `updates` names merged into `key`'s saved `models` and `efforts` maps. `updates`
@@ -197,6 +213,9 @@ function settingsProblem(key, settings) {
   if (unknown !== undefined) return `gives ${name} the field ${JSON.stringify(unknown)}, and the fields a repo takes are ${SETTING_FIELDS.join(', ')}`;
   if (Object.hasOwn(settings, 'changePolicy') && !POLICIES.includes(settings.changePolicy)) {
     return `gives ${name} a changePolicy of ${JSON.stringify(settings.changePolicy)}, which is neither focused nor proactive`;
+  }
+  if (Object.hasOwn(settings, 'commit') && typeof settings.commit !== 'boolean') {
+    return `gives ${name} a commit of ${JSON.stringify(settings.commit)}, which is neither true nor false`;
   }
   const problems = Object.entries(ROLE_SETS)
     .filter(([field]) => Object.hasOwn(settings, field))
@@ -315,8 +334,18 @@ async function main(argv) {
   const saved = savedKey(store, key, FOLDS_CASE);
   const savedSettings = saved === null ? {} : store[saved];
   if (verb === 'set') {
-    writeStore(storePath, withPolicy(store, key, opt.policy, FOLDS_CASE));
-    return `set ${key} ${opt.policy} in ${storePath}\n`;
+    const policyChosen = Object.hasOwn(opt, 'policy');
+    const commitChosen = Object.hasOwn(opt, 'commit');
+    let next = store;
+    if (policyChosen) next = withPolicy(next, key, opt.policy, FOLDS_CASE);
+    if (commitChosen) next = withCommit(next, key, opt.commit, FOLDS_CASE);
+    writeStore(storePath, next);
+    const savedWords = [policyChosen ? opt.policy : null, commitChosen ? `commit=${opt.commit ? 'on' : 'off'}` : null].filter(Boolean);
+    return `set ${key} ${savedWords.join(' ')} in ${storePath}\n`;
+  }
+  if (verb === 'commit') {
+    if (!Object.hasOwn(savedSettings, 'commit')) return `missing ${key}\n`;
+    return `${savedSettings.commit ? 'on' : 'off'} ${key}\n`;
   }
   if (verb === 'roles') return `${JSON.stringify(rolesOf(savedSettings))}\n`;
   if (verb === 'set-roles') {

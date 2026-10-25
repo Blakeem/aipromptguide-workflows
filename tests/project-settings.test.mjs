@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { EFFORTS, MODELS, ROLE_KEYS, STORE_FILE, projectName, repoKey, savedKey, withPolicy, withRoles } from '../tools/project-settings.mjs';
+import { EFFORTS, MODELS, ROLE_KEYS, STORE_FILE, projectName, repoKey, savedKey, withCommit, withPolicy, withRoles } from '../tools/project-settings.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/project-settings.mjs');
 const FOLDS_CASE = foldsCase(process.platform);
@@ -64,6 +64,8 @@ function withFixture(fn) {
     check: (dir) => cli('check', '--root', state, '--repo', dir),
     backlog: (dir) => cli('backlog', '--root', state, '--repo', dir),
     set: (dir, policy) => cli('set', '--root', state, '--repo', dir, '--policy', policy),
+    setWith: (dir, ...flags) => cli('set', '--root', state, '--repo', dir, ...flags),
+    commitOf: (dir) => cli('commit', '--root', state, '--repo', dir),
     roles: (dir) => cli('roles', '--root', state, '--repo', dir),
     setRoles: (dir, ...flags) => cli('set-roles', '--root', state, '--repo', dir, ...flags),
     store: () => JSON.parse(readFileSync(storePath, 'utf8')),
@@ -255,11 +257,15 @@ for (const [what, bytes, cause] of [
   ['a store that holds an array', '[{ "changePolicy": "focused" }]\n', /does not hold a JSON object/],
   ['a store value that is a bare policy', '{ "E:/x": "focused" }\n', /maps "E:\/x" to "focused", which is not an object of repo settings/],
   ['a store value with an unknown field', '{ "E:/x": { "changePolicy": "focused", "theme": "dark" } }\n',
-    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, models, efforts/],
+    /gives "E:\/x" the field "theme", and the fields a repo takes are changePolicy, commit, models, efforts/],
   ['a changePolicy outside the two policies', '{ "E:/x": { "changePolicy": "lenient" } }\n',
     /gives "E:\/x" a changePolicy of "lenient", which is neither focused nor proactive/],
   ['a changePolicy of the retired name strict', '{ "E:/x": { "changePolicy": "strict" } }\n',
     /gives "E:\/x" a changePolicy of "strict", which is neither focused nor proactive/],
+  ['a commit that is a string', '{ "E:/x": { "commit": "on" } }\n',
+    /gives "E:\/x" a commit of "on", which is neither true nor false/],
+  ['a commit that is null', '{ "E:/x": { "commit": null } }\n',
+    /gives "E:\/x" a commit of null, which is neither true nor false/],
   ['a models value that is not an object', '{ "E:/x": { "models": "opus" } }\n',
     /gives "E:\/x" models of "opus", which is not an object that maps a role key to a value/],
   ['an efforts value that is an array', '{ "E:/x": { "efforts": ["high"] } }\n',
@@ -277,11 +283,12 @@ for (const [what, bytes, cause] of [
     const repo = fx.repo('r');
     mkdirSync(fx.state);
     writeFileSync(fx.storePath, bytes);
-    for (const [verb, result] of [['check', fx.check(repo)], ['roles', fx.roles(repo)]]) {
+    for (const [verb, result] of [['check', fx.check(repo)], ['roles', fx.roles(repo)], ['commit', fx.commitOf(repo)]]) {
       ok(result.code === 1 && cause.test(result.stderr) && result.stderr.includes(fx.storePath) && result.stdout === '',
         `${what}: ${verb} exits 1 naming the store and the cause (${result.stderr.trim()})`);
     }
-    for (const [verb, result] of [['set', fx.set(repo, 'focused')], ['set-roles', fx.setRoles(repo, '--models', 'develop=opus')]]) {
+    for (const [verb, result] of [['set', fx.set(repo, 'focused')], ['set --commit', fx.setWith(repo, '--commit', 'on')],
+      ['set-roles', fx.setRoles(repo, '--models', 'develop=opus')]]) {
       ok(result.code === 1 && cause.test(result.stderr) && result.stderr.includes(fx.storePath),
         `${what}: ${verb} exits 1 naming the store and the cause`);
       eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what}: ${verb} leaves the store byte-identical`);
@@ -370,6 +377,106 @@ withFixture((fx) => {
   eq(fx.check(repo).stdout, `focused ${key}\n`, 'check prints the policy');
 });
 
+section('commit prints on, off or missing, never asks or recommends, and writes nothing');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  fx.commit(repo, 'other@example.invalid');
+  const none = fx.commitOf(repo);
+  eq(none.stdout, `missing ${key}\n`, 'a repo with no store prints missing and the key, with no recommendation');
+  ok(none.code === 0 && none.stderr === '', 'commit exits 0 with no output on stderr');
+  ok(!existsSync(fx.state), 'commit writes nothing');
+  eq(fx.set(repo, 'focused').code, 0, 'the fixture policy is saved');
+  eq(fx.commitOf(repo).stdout, `missing ${key}\n`, 'a repo that saved only a policy prints missing');
+  writeFileSync(fx.storePath, `${JSON.stringify({ [key]: { changePolicy: 'focused', commit: true } })}\n`);
+  eq(fx.commitOf(repo).stdout, `on ${key}\n`, 'a saved true prints on');
+  writeFileSync(fx.storePath, `${JSON.stringify({ [key]: { commit: false } })}\n`);
+  eq(fx.commitOf(repo).stdout, `off ${key}\n`, 'a saved false prints off, with no policy saved');
+  const linked = join(fx.root, 'linked');
+  eq(fx.git(repo, 'worktree', 'add', '-q', linked, '-b', 'side').code, 0, 'the fixture worktree is added');
+  eq(fx.commitOf(linked).stdout, `off ${key}\n`, 'a linked worktree reads its main checkout\'s choice');
+});
+
+section('set --commit saves the choice and keeps every other saved setting');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const other = fx.repo('other');
+  const key = keyOf(repo);
+  eq(fx.set(other, 'focused').code, 0, 'a second repo\'s policy is saved');
+  eq(fx.set(repo, 'proactive').code, 0, 'the fixture policy is saved');
+  eq(fx.setRoles(repo, '--models', 'develop=sonnet', '--efforts', 'park=low').code, 0, 'the fixture roles are saved');
+  const on = fx.setWith(repo, '--commit', 'on');
+  eq(on.code, 0, 'set --commit on exits 0');
+  eq(on.stdout, `set ${key} commit=on in ${fx.storePath}\n`, 'set names the key, the commit choice and the store');
+  eq(JSON.stringify(fx.store()[key]),
+    JSON.stringify({ changePolicy: 'proactive', models: { develop: 'sonnet' }, efforts: { park: 'low' }, commit: true }),
+    'the commit field is the boolean true, and the policy and both role maps stay');
+  eq(fx.store()[keyOf(other)].changePolicy, 'focused', 'the second repo survives');
+  eq(fx.commitOf(repo).stdout, `on ${key}\n`, 'commit prints on');
+  eq(fx.check(repo).stdout, `proactive ${key}\n`, 'check prints the policy as before');
+  const off = fx.setWith(repo, '--commit', 'off');
+  eq(off.stdout, `set ${key} commit=off in ${fx.storePath}\n`, 'set --commit off names the choice');
+  eq(JSON.stringify(fx.store()[key]),
+    JSON.stringify({ changePolicy: 'proactive', models: { develop: 'sonnet' }, efforts: { park: 'low' }, commit: false }),
+    'the commit field is the boolean false, and every other setting stays');
+  eq(fx.commitOf(repo).stdout, `off ${key}\n`, 'commit prints off');
+  eq(fx.set(repo, 'focused').code, 0, 'a later set --policy exits 0');
+  eq(fx.store()[key].commit, false, 'a later set --policy keeps the commit choice');
+  eq(fx.setRoles(repo, '--models', 'develop=default').code, 0, 'a later set-roles exits 0');
+  eq(fx.store()[key].commit, false, 'a later set-roles keeps the commit choice');
+  eq(fx.roles(repo).stdout, '{"models":{},"efforts":{"park":"low"}}\n', 'roles prints the maps that set-roles left');
+  eq(readdirSync(fx.state).join(','), STORE_FILE, 'no temp file is left beside the store');
+});
+
+section('set takes --policy and --commit together, and a repo that saved only a commit choice reads missing from check');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  const both = fx.setWith(repo, '--policy', 'focused', '--commit', 'on');
+  eq(both.code, 0, 'set with both flags exits 0');
+  eq(both.stdout, `set ${key} focused commit=on in ${fx.storePath}\n`, 'set names the policy and the commit choice');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'focused', commit: true }), 'both fields are saved');
+  const reversed = fx.setWith(repo, '--commit', 'off', '--policy', 'proactive');
+  eq(reversed.stdout, `set ${key} proactive commit=off in ${fx.storePath}\n`, 'the flag order does not change the output');
+  eq(JSON.stringify(fx.store()[key]), JSON.stringify({ changePolicy: 'proactive', commit: false }), 'both fields are replaced');
+  const only = fx.repo('only');
+  eq(fx.setWith(only, '--commit', 'on').code, 0, 'set --commit alone creates the store entry for a repo with no policy');
+  eq(fx.check(only).stdout, `missing ${keyOf(only)} recommend=proactive\n`, 'check prints missing with the recommendation');
+  eq(fx.set(only, 'focused').code, 0, 'set saves the policy');
+  eq(JSON.stringify(fx.store()[keyOf(only)]), JSON.stringify({ commit: true, changePolicy: 'focused' }), 'the saved commit choice survives the policy');
+  eq(fx.check(only).stdout, `focused ${keyOf(only)}\n`, 'check prints only the policy, though the repo saved a commit choice');
+});
+
+section('a bad --commit argument exits 1 with its cause and leaves the store byte-for-byte unchanged');
+withFixture((fx) => {
+  const repo = fx.repo('r');
+  const key = keyOf(repo);
+  mkdirSync(fx.state);
+  const bytes = `${JSON.stringify({ [key]: { changePolicy: 'focused', commit: true } }, null, 2)}\n`;
+  writeFileSync(fx.storePath, bytes);
+  for (const [what, flags, cause] of [
+    ['true as the value', ['--commit', 'true'], /--commit "true" is neither on nor off/],
+    ['an upper-case value', ['--commit', 'ON'], /--commit "ON" is neither on nor off/],
+    ['an inherited member name', ['--commit', 'constructor'], /--commit "constructor" is neither on nor off/],
+    ['a flag with no value', ['--commit'], /--commit needs a value/],
+    ['a flag given twice', ['--commit', 'on', '--commit', 'off'], /--commit was given twice/],
+    ['a valid --policy and a bad --commit', ['--policy', 'proactive', '--commit', 'maybe'], /--commit "maybe" is neither on nor off/],
+    ['a bad --policy and a valid --commit', ['--commit', 'off', '--policy', 'lenient'], /--policy "lenient" is neither focused nor proactive/],
+    ['neither flag', [], /set needs --policy or --commit/],
+  ]) {
+    const r = fx.setWith(repo, ...flags);
+    ok(r.code === 1 && cause.test(r.stderr) && r.stderr.startsWith('project-settings: ') && r.stdout === '',
+      `${what} exits 1 naming the cause (${r.stderr.trim().slice(0, 140)})`);
+    eq(readFileSync(fx.storePath, 'utf8'), bytes, `${what} leaves the store byte-for-byte unchanged`);
+  }
+  for (const verb of ['commit', 'check']) {
+    const r = fx.cli(verb, '--root', fx.state, '--repo', repo, '--commit', 'on');
+    ok(r.code === 1 && r.stderr.includes(`unknown flag "--commit" for ${verb}`), `${verb} takes no --commit (${r.stderr.trim().slice(0, 100)})`);
+  }
+  eq(readFileSync(fx.storePath, 'utf8'), bytes, 'the unknown flags leave the store byte-for-byte unchanged');
+  eq(readdirSync(fx.state).join(','), STORE_FILE, 'no rejection leaves a temp file');
+});
+
 section('set-roles rejects a bad argument with its cause and leaves the store byte-for-byte unchanged');
 withFixture((fx) => {
   const repo = fx.repo('r');
@@ -405,6 +512,16 @@ withFixture((fx) => {
   eq(fx.setRoles(absent, '--models', 'develop=gpt').code, 1, 'a rejection on a repo with no store exits 1');
   eq(readFileSync(fx.storePath, 'utf8'), bytes, 'and writes no key for it');
 });
+
+section('withCommit keeps the other settings, folds the key and never mutates');
+eq(JSON.stringify(withCommit({ 'E:/Work/R': { changePolicy: 'focused', models: { park: 'haiku' } }, 'E:/x': focused }, 'e:/work/r', true, true)),
+  JSON.stringify({ 'E:/x': focused, 'e:/work/r': { changePolicy: 'focused', models: { park: 'haiku' }, commit: true } }),
+  'a folding set adds the choice to the other spelling and keeps the other key');
+eq(JSON.stringify(withCommit({ k: { commit: true } }, 'k', false, false)), JSON.stringify({ k: { commit: false } }),
+  'a later choice replaces the saved one, and false stays a saved field');
+const frozenCommit = { k: { changePolicy: 'focused' } };
+withCommit(frozenCommit, 'k', true, false);
+eq(JSON.stringify(frozenCommit), JSON.stringify({ k: { changePolicy: 'focused' } }), 'withCommit never mutates the store it is given');
 
 section('withRoles keeps the other settings, drops a map it empties and folds the key');
 eq(JSON.stringify(withRoles({ 'E:/Work/R': { changePolicy: 'focused', models: { park: 'haiku' } }, 'E:/x': focused }, 'e:/work/r',
@@ -459,7 +576,7 @@ withFixture((fx) => {
     ['no verb', [], /no verb given/],
     ['an unknown flag', ['check', '--root', fx.state, '--repo', repo, '--policy', 'focused'], /unknown flag "--policy" for check/],
     ['a policy passed to backlog', ['backlog', '--root', fx.state, '--repo', repo, '--policy', 'focused'], /unknown flag "--policy" for backlog/],
-    ['a missing flag', ['set', '--root', fx.state, '--repo', repo], /set needs --policy/],
+    ['a missing flag', ['set', '--root', fx.state, '--repo', repo], /set needs --policy or --commit/],
     ['a backlog with no --root', ['backlog', '--repo', repo], /backlog needs --root/],
     ['a flag with no value', ['check', '--root', fx.state, '--repo'], /--repo needs a value/],
     ['a blank value', ['check', '--root', ' ', '--repo', repo], /--root needs a value/],

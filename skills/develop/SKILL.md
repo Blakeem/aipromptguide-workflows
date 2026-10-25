@@ -17,6 +17,10 @@ where `<target.repo>` is the repo the run works on. When the task does not name 
 for it, since the working directory may be another repo. Then follow
 `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` §4 "Choosing the change policy" on its output.
 
+Right after the change policy, settle commit mode. Run
+`node "${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs" commit --root "${CLAUDE_PLUGIN_DATA}" --repo <target.repo>`
+and follow the same guide's §4 "Choosing commit mode" on its output.
+
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md` and follow it exactly.
 When the task is to work the project's backlog, start at its §10 "Working the backlog".
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":
