@@ -35,6 +35,8 @@ const BACKLOG = 'E:/r/backlog/repo-0a1b2c3d';
 const fnv1a = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
 const backlogFileId = (id, runId = 't') => `${runId}-${id}-${fnv1a(JSON.stringify([runId, id]))}`;
 const backlogFile = (id, runId) => `${BACKLOG}/${backlogFileId(id, runId)}.md`;
+// A copy of the engine's rule, so a change to the one rule every backlog writer applies fails here.
+const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
 // The grep wording of both backlog writers: the dedup before an append, and the Closed-by lookup.
 const GREP = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
 const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
@@ -470,8 +472,10 @@ section('a block whose last round fails gets one closing pass with no blind revi
     && closer.includes('with a **Fix:** line naming the fix you would make')
     && closer.includes('list its id in recorded_entries, and write no DISMISSED line for it'),
     'it makes each low-risk fix and records the rest as backlog entries naming the fix');
+  ok(closer.includes("That line sets the entry's \"- decision:\" to NEEDS_USER, by RECORD's decision rule."),
+    'a recorded entry carries a Parked-with line, so the decision rule gives it NEEDS_USER');
   ok(closer.includes('or, in this closing pass, RECORDED as BUILD says'), 'the matrix counts a recorded finding as routed');
-  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is accepted in a later launch or dropped."'),
+  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped."'),
     'each recorded entry names the park that holds the code it describes');
   ok(closer.includes('When the dedup forbids the append, list the id of the entry that holds the item in recorded_entries instead.'),
     'an item an entry already holds is listed by that entry\'s id, not appended again');
@@ -570,8 +574,8 @@ section('a block whose last round fails gets one closing pass with no blind revi
 }
 
 section('fix acceptance records a harm with a separate cause in its block\'s backlog file, never a gap');
-// A fix loop converges because its inventory is closed at triage, so the verifier routes such a harm to a
-// file the user triages instead of failing a fix whose own root cause is closed.
+// A fix loop converges because its inventory is closed at triage, so the verifier routes such a harm to
+// its block's backlog file instead of failing a fix whose own root cause is closed.
 {
   const DEV_FIXED = fixDev([{ issue_id: 'i-1', status: 'FIXED' }]);
   const ran = (r) => r.labels.some((l) => l.startsWith('acceptance'));
@@ -580,7 +584,8 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   const TO_CHECK = (...files) => `so check these files in the project's backlog folder ${BACKLOG}/ for entries this run added: ${files.join(', ')}.`;
   const found = await run({ develop: DEV_FIXED, quality: CLEAN, acceptance: { ...FIX_PASS, backlog_entries: 2, backlog_blocks: ['fix-a'] } }, FIX_ONE);
   const acc = flat(found.prompt('acceptance'));
-  ok(acc.includes(`${FILE_A} only, never to your review file`) && acc.includes('"- decision: NEEDS_USER"')
+  ok(acc.includes(`${FILE_A} only, never to your review file`) && acc.includes('"- status: open" and a **What:** that names the source issue id.')
+    && !acc.includes('so that the user triages it before anything fixes it')
     && acc.includes(`"## Plan: ${backlogFileId('fix-a')} - backlog from block fix-a of run t", "mode: fix", "gate: green" and "status: todo"`),
     'the verifier is told its block\'s backlog file, that a new issue stays out of the review file, and how the file is shaped');
   ok(acc.includes(`with the id "${backlogFileId('fix-a')}-<n>" (n one past the highest n in that file's entry ids)`)
@@ -602,7 +607,7 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   ok(found.logs.some((l) => l.includes(`acceptance added 2 backlog entries to ${FILE_A}`)), 'and the round logs it');
   ok(found.out.nextStep.includes(`This run added 2 entries to the project's backlog folder ${BACKLOG}/, in: ${FILE_A}.`),
     'the nextStep names the folder, the file and the count');
-  ok(found.out.nextStep.includes('Report each added entry\'s severity, or cleanup for an entry with no severity line, and its title to the user.'),
+  ok(found.out.nextStep.includes('Report each added entry\'s severity, or its category for an entry with no severity line, and its title to the user.'),
     'and has the operator report each added entry to the user');
   ok(found.out.nextStep.includes('Work the backlog as the develop guide\'s "Working the backlog" says once each file\'s block is done or skip'),
     'and sends the triage to the guide once the block is done or skipped');
@@ -684,26 +689,32 @@ section('a developer records each real defect its zone routing leaves unchanged 
   const RECORD = `• RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above ${OWNED_CODE}, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also append ONE entry for it`;
   const OWN_FILE = (id) => ` to ${backlogFile(id)} only. Count it in backlog_entries and name "${id}" in backlog_blocks.`;
   const HEADER = (fileId, id) => `A new file starts with the four lines "## Plan: ${fileId} - backlog from block ${id} of run t", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
-  const ENTRY = (fileId) => `with n one past the highest n in that file's entry ids: ### [${fileId}-<n>] <title> - id: ${fileId}-<n> - status: open - file: <path>:<line> - severity: <low | medium | high | critical> - category: <category> - size: <trivial | small | medium | large> - decision: NEEDS_USER **What:** <the defect, the input or path that reaches it, and its harm> **Fix:** <the change that closes it>`;
+  const ENTRY = (fileId) => `with n one past the highest n in that file's entry ids: ### [${fileId}-<n>] <title> - id: ${fileId}-<n> - status: open - file: <path>:<line> - severity: <low | medium | high | critical> - category: <category> - size: <trivial | small | medium | large> - decision: <ACTIONABLE | NEEDS_USER> **What:** <the defect, the input or path that reaches it, and its harm> **Fix:** <the change that closes it>`;
   const DISMISSED_TOO = 'Write the defect\'s DISMISSED line too, since the blind reviewer reads that file and never this one.';
   const NO_ENTRY = { focused: 'A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.', proactive: 'A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.' };
   // Its own bullet after RECORD's closing-line rule, since its trigger is a cleanup and not a dropped defect.
-  const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a refactor or a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves. • AMEND (6a)`;
+  const CLEANUP = `Leave its status and decision as they are, since a park clears the fix from the tree. • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code, ${OWNED_CODE}, that you noticed and did not make, such as a nit. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the cleanup, the code it touches and what it improves.`;
+  // Both policies, after the CLEANUP bullet when there is one.
+  const FEATURE = `• FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside this block's scope, ${OWNED_CODE}, instead of building it. Route, count, dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** names the feature or refactor, the code it touches and what it adds or improves. • AMEND (6a)`;
+  const ESCALATION_ENTRY = (id) => `Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER" and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:** states the other option. When the default lies in code this block's diff adds or changes, add the line "**Parked with:** block ${id}. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree. Write to`;
   const CLASS_ENTRY = 'A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first place, and its **What:** names the class.';
-  const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1. Confirm at triage that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
+  const CLOSE = (tag, id) => `When you append a ${tag} line below, ${GREP('the path of the file the fix changes', 'the fix')}. When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's **Fix:** line in that file: **Closed by:** block ${id} r1 of run ${baseArgs.runId}. Confirm before the entry is built that the accepted baseline holds the fix. Leave its status and decision as they are, since a park clears the fix from the tree.`;
   const FILE_A = backlogFile('fix-a');
   const FILE_B = backlogFile('fix-b');
   const recordRule = (dev, policy, id, where) => {
     ok(dev.includes(`${RECORD}${OWN_FILE(id)}`), `${where}: a declined defect the zone routing leaves unchanged goes to its block's own backlog file`);
     ok(dev.includes(DISMISSED_TOO) && dev.includes(NO_ENTRY[policy]), `${where}: a false positive gets no entry, and the DISMISSED line stays`);
     ok(policy === 'proactive'
-      ? dev.includes(CLEANUP) && !dev.includes(NO_ENTRY.focused)
-      : !dev.includes('CLEANUP') && !dev.includes('category: cleanup'),
+      ? dev.includes(`${CLEANUP} ${FEATURE}`) && !dev.includes(NO_ENTRY.focused)
+      : dev.includes(`since a park clears the fix from the tree. ${FEATURE}`) && !dev.includes('CLEANUP') && !dev.includes('category: cleanup'),
     policy === 'proactive' ? `${where}: a cleanup outside task code gets an entry with no severity` : `${where}: a nit or other cleanup gets no entry`);
     ok(dev.includes(HEADER(backlogFileId(id), id)), `${where}: a new file takes the backlog header naming the block and the run`);
     ok(dev.includes(DEDUP('defect')) && !dev.includes('read every *.md'), `${where}: the folder is grepped for the file path and the name at the defect, and each matching entry is read, so nothing open is appended twice`);
-    ok(dev.includes(ENTRY(backlogFileId(id))), `${where}: each entry copies debug's issue-file shape, numbered within its file and held at NEEDS_USER`);
+    ok(dev.includes(ENTRY(backlogFileId(id))), `${where}: each entry copies debug's issue-file shape, numbered within its file, its decision set by the decision rule`);
     ok(dev.includes(CLASS_ENTRY), `${where}: a class-level DISMISSED line gets one entry`);
+    ok(dev.includes(DECISION_RULE) && !dev.includes('NEEDS_USER holds the entry'), `${where}: the entry's decision follows the one rule, and the old always-NEEDS_USER sentence is gone`);
+    ok(dev.includes(FEATURE), `${where}: a feature or refactor outside the block's scope gets a NEEDS_USER entry with no severity`);
+    ok(dev.includes(ESCALATION_ENTRY(id)), `${where}: an escalated choice the developer proceeds past gets a NEEDS_USER entry that states the question, the default and the other option`);
     ok(dev.includes(CLOSE(policy.toUpperCase(), id)), `${where}: a logged fix of a recorded defect finds its entry by the path and the name at the fix, and marks it closed in whichever file holds it`);
   };
 
@@ -716,6 +727,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
     recordRule(flat(fixed.prompt('develop')), policy, 'fix-a', `${policy} fix`);
     ok(flat(fixed.prompt('acceptance')).includes(HEADER(backlogFileId('fix-a'), 'fix-a')), `${policy} fix: acceptance's fix frame takes the same header`);
     ok(!flat(fixed.prompt('acceptance')).includes('CLEANUP'), `${policy} fix: acceptance records no cleanup`);
+    ok(flat(fixed.prompt('acceptance')).includes(DECISION_RULE), `${policy} fix: acceptance sets a new issue's decision by the same rule`);
 
     const FEATURE_FILE = backlogFile('block-a');
     const recorded = await run({ ...GREEN_RUN, develop: { ...DEV_OK, backlog_entries: 2, backlog_blocks: ['block-a'] } },
@@ -3377,7 +3389,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       ok(acc.includes(loggedFixItem(tag, id, zones)) && !acc.includes(otherTag),
         `${where}: the last "Not a regression" item excuses a ${tag}-logged fix of a defect only in code no other block owns and ${zones}`);
       ok(acc.includes('escalates it when only a change in other code closes it. Once'), `${where}: acceptance names other code as the escalation's limit`);
-      ok(!acc.includes('refactor'), `${where}: acceptance excuses no refactor`);
+      ok(!acc.replace(DECISION_RULE, '').includes('refactor'), `${where}: acceptance excuses no refactor`);
       ok(acc.includes(step4), `${where}: acceptance's regression step defers to the "Not a regression" list`);
     }
   }

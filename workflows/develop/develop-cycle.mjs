@@ -3,7 +3,7 @@ export const meta = {
   description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
   whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath>`, spreads the object it prints and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, and committed only when args.commit is true. Reuse one runId across resumes.',
   phases: [
-    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds once the user triages it. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a refactor or a nit. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it.' },
+    { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds, the ACTIONABLE entries without triage and the rest once the user triages them. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it also records a feature or refactor outside its block\'s scope, and each choice it escalated and proceeded past by a default. It sets each entry\'s decision by one rule: ACTIONABLE for a defect or cleanup with one clear, small fix that changes no user-visible behavior, stored data or public contract, and NEEDS_USER for every other entry. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-<id>-rN.md. Clean means no finding and no contested dismissal. Runs in a block\'s first round with a satisfied gate in a launch, and in a later round only when a round since the block\'s last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. Never runs on the closing pass.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block\'s title as the entire message — the accepted baseline advances.' },
     { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass\'s work, and the park record names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
@@ -374,7 +374,7 @@ const parkedPrevPatch = (id) => `${STATE_DIR}/parked-${slug(id)}.prev<n>.patch`;
 // A relaunch rewrites the round-numbered review files, so a park keeps its copies in a folder of its own here.
 const parkedReviewsDir = (id) => `${STATE_DIR}/parked-${slug(id)}-reviews`;
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
-// A closed inventory is what lets a fix loop converge, so an entry found mid-run waits for the user's triage.
+// A closed inventory is what lets a fix loop converge, so an entry found mid-run goes to the backlog and never joins the running inventory.
 // One fixed file per source block, so its triage never waits on another block's relaunch. Every run on the
 // project shares the folder, and two (runId, block id) pairs can slug and join alike, such as run "a" with
 // block "b-c" and run "a-b" with block "c", so the name ends in a hash of the raw pair.
@@ -640,7 +640,7 @@ const CODE_ZONES = (mode) => `CODE ZONES - every piece of code lies in one of th
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
     that describe it, apart from code this block's text excludes or another block of the plan owns.
   - Other code: everything else.`;
-// A fix block's entries are the user's triage, so under both policies it leaves to the backlog a defect in
+// A fix block's entries are its only scope, so under both policies it leaves to the backlog a defect in
 // connected code that its diff neither introduces nor exposes.
 const fixesConnected = (mode) => PROACTIVE && mode !== 'fix';
 // Where acceptance excuses a fix of a defect, in the words both its items and the developer's SELF-REVIEW use.
@@ -694,6 +694,13 @@ const backlogHeader = (p) => `A new file starts with the four lines "## Plan: ${
 // defect it names that is live again gets a new entry.
 const grepBacklog = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG_DIR}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
 const backlogDedup = (item) => `Before you append, create ${BACKLOG_DIR}/ if it does not exist, then ${grepBacklog('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
+
+// The one rule every backlog writer applies to an entry's decision, so a later run builds a clear small fix
+// without triage and the user sees only the entries that hold a choice.
+const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
+
+// The hold a park puts on an entry whose code the park removes from the tree, read by the backlog triage.
+const parkedWithLine = (id) => `"**Parked with:** block ${id}. Triage this entry once that block is accepted or dropped."`;
 
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
@@ -763,23 +770,27 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    ${DECISION_RULE}
     When you append a ${LOGGED_FIX_TAG} line below, ${grepBacklog('the path of the file the fix changes', 'the fix')}.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block ${id} r${round}. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block ${id} r${round} of run ${RUN_ID}. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
 ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
-    ${OWNED_CODE}, that you noticed and did not make, such as a refactor or a nit. Route, count,
+    ${OWNED_CODE}, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
     "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the
     cleanup, the code it touches and what it improves.
-` : ''}  • AMEND (6a): append ONE entry to ${amendedFile(id)}:
+` : ''}  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, ${OWNED_CODE}, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
+  • AMEND (6a): append ONE entry to ${amendedFile(id)}:
       \`## Plan amendment: ${id} r${round}\`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
       real), and what you built instead.
@@ -793,6 +804,11 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
       ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) in the DROP shape above, its reason
       \`ESCALATED: <the default you took, ≤15 words>\`, because the blind reviewer is NOT shown ${DECISIONS}
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies ${OWNED_CODE}, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      ${parkedWithLine(id)} after the **Fix:** line, since a park removes that code from the tree.
     Write to ${NEEDS_USER} only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • ${LOGGED_FIX_TAG} (this run's change policy): append ONE line to ${DECISIONS} for each ${BASELINE_FIX}
@@ -1039,8 +1055,8 @@ Return ONLY the decision fields via the schema (no prose report).`;
 };
 
 // Verify-first because entries come from a past snapshot. ACTIONABLE-only because the decision line is
-// the user's triage. Every round reports each entry's status, so a later round's BUILD keeps the entry
-// rules beside its rework.
+// set by the user's triage or by the backlog writers' decision rule. Every round reports each entry's
+// status, so a later round's BUILD keeps the entry rules beside its rework.
 const fixDevelop = (p, round, { opening, ledgerNote, zones, staging, rework }) => `
 You are the FIXER. Resolve the verified issues in ${blockRef(p)}. Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own \`- decision:\` line and
@@ -1113,8 +1129,8 @@ const closingRework = (id, reviewPath) => `CLOSING PASS. ${reviewPath ? `READ ${
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block ${id}. Triage this entry once that block is
-   accepted in a later launch or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line ${parkedWithLine(id)}, since the engine parks the block with the code the entry names.
+   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -1350,8 +1366,8 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    ${backlogHeader(p)}
    ${backlogDedup('harm')}
    Each entry copies the shape of the block's own entries, with the id "${backlogEntryId(p)}" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. ${DECISION_RULE}
    The developer reports these issues STALE (already absent from the current code):
 ${claimedStale.map((id) => `     - ${id}`).join('\n') || '     (none reported stale)'}
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -2721,6 +2737,6 @@ return {
     : ''}${backlogFiles.size || backlogUnknown
     ? `${backlogUnknown
       ? `A developer or fix verifier returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG_DIR}/ for entries this run added: ${[...startedBacklogFiles].sort().join(', ')}.`
-      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or cleanup for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done or skip, since a relaunch of a parked or blocked block may still append to its file. `
+      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done or skip, since a relaunch of a parked or blocked block may still append to its file. `
     : ''}${acceptedLine}Verify the end state yourself: run the full gates, ${acceptedView}, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
 };

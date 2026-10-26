@@ -6,46 +6,46 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 24172 | every block accepts first time |
+| develop | 1 | 1 | 25721 | every block accepts first time |
 | quality | 1 | 1 | 8894 | every block accepts first time |
 | acceptance | 1 | 1 | 12139 | every block accepts first time |
-| develop | 2 | 1 | 24597 | every block accepts first time |
+| develop | 2 | 1 | 26146 | every block accepts first time |
 | acceptance | 2 | 2 | 12420 | every block accepts first time |
 | final-sweep | 1 | 1 | 3254 | every block accepts first time |
-| develop | 3 | 1 | 24813 | a feature block accepts under the proactive policy |
+| develop | 3 | 1 | 26348 | a feature block accepts under the proactive policy |
 | acceptance | 3 | 1 | 12015 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 3245 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 23696 | quality flags the first round |
+| develop | 4 | 1 | 25245 | quality flags the first round |
 | acceptance | 4 | 1 | 12138 | quality flags the first round |
-| develop | 5 | 1 | 24066 | quality flags the first round |
+| develop | 5 | 1 | 25615 | quality flags the first round |
 | acceptance | 5 | 2 | 12419 | quality flags the first round |
-| develop | 6 | 1 | 23692 | acceptance finds gaps, then passes |
+| develop | 6 | 1 | 25241 | acceptance finds gaps, then passes |
 | acceptance | 6 | 1 | 12136 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 24062 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 25611 | acceptance finds gaps, then passes |
 | acceptance | 7 | 2 | 12417 | acceptance finds gaps, then passes |
 | acceptance | 8 | 1 | 13897 | a later round is judged low risk |
 | acceptance | 9 | 2 | 14178 | a later round is judged low risk |
-| develop | 8 | 1 | 23622 | the gate never goes green |
-| develop-closing | 1 | 1 | 24848 | the gate never goes green |
+| develop | 8 | 1 | 25171 | the gate never goes green |
+| develop-closing | 1 | 1 | 26462 | the gate never goes green |
 | park | 1 | 1 | 5936 | the gate never goes green |
-| develop | 9 | 1 | 24047 | the gate never goes green |
-| develop-closing | 2 | 1 | 25218 | the gate never goes green |
+| develop | 9 | 1 | 25596 | the gate never goes green |
+| develop-closing | 2 | 1 | 26832 | the gate never goes green |
 | acceptance | 10 | 1 | 12191 | a parked block, and the run carries on |
 | acceptance | 11 | 1 | 12246 | a parked block, and the run carries on |
 | acceptance | 12 | 1 | 12301 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 24941 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 26555 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 14183 | a parked block, and the run carries on |
 | park | 2 | 1 | 6222 | a parked block, and the run carries on |
 | park | 3 | 1 | 6273 | an ordered run stops at a parked block |
-| develop | 10 | 2 | 25912 | a fix block closes its issues |
-| acceptance | 14 | 3 | 15455 | a fix block closes its issues |
+| develop | 10 | 2 | 27461 | a fix block closes its issues |
+| acceptance | 14 | 3 | 15861 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 3245 | a fix block closes its issues |
-| develop | 11 | 2 | 26428 | a fix block closes its issues under the proactive policy |
-| acceptance | 15 | 3 | 15461 | a fix block closes its issues under the proactive policy |
-| develop | 12 | 2 | 26269 | a pass of two fix blocks closes its issues |
-| acceptance | 16 | 3 | 15778 | a pass of two fix blocks closes its issues |
+| develop | 11 | 2 | 27963 | a fix block closes its issues under the proactive policy |
+| acceptance | 15 | 3 | 15867 | a fix block closes its issues under the proactive policy |
+| develop | 12 | 2 | 27825 | a pass of two fix blocks closes its issues |
+| acceptance | 16 | 3 | 16184 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 3275 | a pass of two fix blocks closes its issues |
-| acceptance | 17 | 3 | 15454 | every issue is already fixed |
+| acceptance | 17 | 3 | 15860 | every issue is already fixed |
 | park | 4 | 1 | 6081 | passed with a regression, not staged |
 | park | 5 | 1 | 5996 | acceptance stages a rejected block |
 | park | 6 | 1 | 5916 | the quality reviewer fails a block without its file |
@@ -54,21 +54,21 @@ this file is stale.
 | park | 9 | 1 | 5840 | the developer dies |
 | park | 10 | 1 | 5910 | developer escalates |
 | park | 11 | 1 | 5951 | developer escalates in an ordered run |
-| develop | 13 | 1 | 25268 | a parked block is continued from its patch |
+| develop | 13 | 1 | 26817 | a parked block is continued from its patch |
 | acceptance | 18 | 1 | 12418 | a parked block is continued from its patch |
 | acceptance | 19 | 1 | 13963 | a closing pass reaches acceptance |
-| develop-closing | 4 | 1 | 25311 | a closing pass reaches acceptance |
+| develop-closing | 4 | 1 | 26925 | a closing pass reaches acceptance |
 | acceptance | 20 | 2 | 14244 | a closing pass reaches acceptance |
 | park | 12 | 1 | 6257 | a closing pass records a fix that needs review |
 | park | 13 | 1 | 6257 | a closing pass records a fix that needs review |
-| develop | 14 | 3 | 24343 | every block commits first time |
+| develop | 14 | 3 | 25892 | every block commits first time |
 | quality | 2 | 1 | 8847 | every block commits first time |
 | acceptance | 21 | 4 | 13662 | every block commits first time |
-| develop | 15 | 3 | 24768 | every block commits first time |
+| develop | 15 | 3 | 26317 | every block commits first time |
 | acceptance | 22 | 5 | 13943 | every block commits first time |
 | final-sweep | 5 | 1 | 3566 | every block commits first time |
-| develop | 16 | 4 | 26083 | a fix block commits |
-| acceptance | 23 | 6 | 16978 | a fix block commits |
+| develop | 16 | 4 | 27632 | a fix block commits |
+| acceptance | 23 | 6 | 17384 | a fix block commits |
 | final-sweep | 6 | 1 | 3473 | a fix block commits |
 | park | 14 | 1 | 6304 | acceptance commits a rejected block |
 
@@ -300,17 +300,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -325,6 +329,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -997,17 +1006,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1022,6 +1035,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -1632,22 +1650,26 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a PROACTIVE line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
   • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
-    in code no other block of the plan owns, that you noticed and did not make, such as a refactor or a nit. Route, count,
+    in code no other block of the plan owns, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
     "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the
     cleanup, the code it touches and what it improves.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -1662,6 +1684,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • PROACTIVE (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -2261,17 +2288,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2286,6 +2317,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -2815,17 +2851,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -2840,6 +2880,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -3368,17 +3413,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -3393,6 +3442,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -3922,17 +3976,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -3947,6 +4005,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -4912,17 +4975,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -4937,6 +5004,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -5112,8 +5184,8 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is
-   accepted in a later launch or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -5279,17 +5351,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r6. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r6`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -5304,6 +5380,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -5756,17 +5837,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -5781,6 +5866,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -5957,8 +6047,8 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block is
-   accepted in a later launch or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -6127,17 +6217,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r6. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r6`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -6152,6 +6246,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -6927,8 +7026,8 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is
-   accepted in a later launch or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -7094,17 +7193,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r6. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r6 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r6`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -7119,6 +7222,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -7933,17 +8041,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-c r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -7958,6 +8070,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-c. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -8205,8 +8322,8 @@ PROCEDURE:
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -8660,22 +8777,26 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a PROACTIVE line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-c r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
   • CLEANUP (this run's change policy): append ONE entry for each cleanup outside task code,
-    in code no other block of the plan owns, that you noticed and did not make, such as a refactor or a nit. Route, count,
+    in code no other block of the plan owns, that you noticed and did not make, such as a nit. Route, count,
     dedup and number it as a RECORD entry. It takes RECORD's shape with "- category: cleanup" and no
     "- severity:" line, since severity takes only critical, high, medium or low. Its **What:** names the
     cleanup, the code it touches and what it improves.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -8690,6 +8811,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-c. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • PROACTIVE (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -8937,8 +9063,8 @@ PROCEDURE:
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -9321,17 +9447,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-c-plus-1 r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-c-plus-1 r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c-plus-1.md:
       `## Plan amendment: block-c-plus-1 r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -9346,6 +9476,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-c-plus-1. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -9597,8 +9732,8 @@ PROCEDURE:
    A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "<that file's name without .md>-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -9921,8 +10056,8 @@ PROCEDURE:
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      - i-1
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.
@@ -11181,17 +11316,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -11206,6 +11345,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -11797,8 +11941,8 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block is
-   accepted in a later launch or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
@@ -11967,17 +12111,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r2. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r2 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r2`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -11992,6 +12140,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -12787,17 +12940,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-a r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-a r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-a.md:
       `## Plan amendment: block-a r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -12812,6 +12969,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-a.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-a. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -13527,17 +13689,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-b r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-b r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-b.md:
       `## Plan amendment: block-b r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -13552,6 +13718,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-b.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-b. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -14221,17 +14392,21 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       - severity: <low | medium | high | critical>
       - category: <category>
       - size: <trivial | small | medium | large>
-      - decision: NEEDS_USER
+      - decision: <ACTIONABLE | NEEDS_USER>
       **What:** <the defect, the input or path that reaches it, and its harm>
       **Fix:** <the change that closes it>
     A DISMISSED line that covers a class of places gets one entry. Its "- file:" line names the first
     place, and its **What:** names the class.
-    NEEDS_USER holds the entry for the user's triage before anything fixes it.
+    Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
     When you append a FOCUSED line below, grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the fix changes and for the name of the function or identifier at the fix, and read each entry that a grep matches.
     When an entry that a grep matches holds the defect that line's fix closes, add one line after that entry's
     **Fix:** line in that file:
-      **Closed by:** block block-c r1. Confirm at triage that the accepted baseline holds the fix.
+      **Closed by:** block block-c r1 of run flow. Confirm before the entry is built that the accepted baseline holds the fix.
     Leave its status and decision as they are, since a park clears the fix from the tree.
+  • FEATURE (both change policies): append ONE entry for each feature or refactor you noticed that lies outside
+    this block's scope, in code no other block of the plan owns, instead of building it. Route, count, dedup and number it as a RECORD entry. It
+    takes RECORD's shape with "- category: feature", "- decision: NEEDS_USER" and no "- severity:" line.
+    Its **What:** names the feature or refactor, the code it touches and what it adds or improves.
   • AMEND (6a): append ONE entry to E:/flow/runs/flow/AMENDED-block-c.md:
       `## Plan amendment: block-c r1`
       then the plan clause you overrode (QUOTED verbatim), the defect (file:line + one line on why it is
@@ -14246,6 +14421,11 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
       E:/flow/runs/flow/gate/DISMISSED-block-c.md (create E:/flow/runs/flow/gate/ if it does not exist) in the DROP shape above, its reason
       `ESCALATED: <the default you took, ≤15 words>`, because the blind reviewer is NOT shown E:/flow/runs/flow/DECISIONS.md
       and would re-raise your default every round until this block parks.
+      Also append ONE backlog entry for it when the choice lies in code no other block of the plan owns, routed, counted, deduped and
+      numbered as a RECORD entry. It takes RECORD's shape with "- category: decision", "- decision: NEEDS_USER"
+      and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
+      states the other option. When the default lies in code this block's diff adds or changes, add the line
+      "**Parked with:** block block-c. Triage this entry once that block is accepted or dropped." after the **Fix:** line, since a park removes that code from the tree.
     Write to E:/flow/runs/flow/NEEDS-USER.md only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • FOCUSED (this run's change policy): append ONE line to E:/flow/runs/flow/DECISIONS.md for each fix of a defect already in the accepted baseline
@@ -14498,8 +14678,8 @@ PROCEDURE:
    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
-   the highest n in that file's entry ids), "- status: open", "- decision: NEEDS_USER" and a **What:** that
-   names the source issue id, so that the user triages it before anything fixes it.
+   the highest n in that file's entry ids), "- status: open" and a **What:** that
+   names the source issue id. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    The developer reports these issues STALE (already absent from the current code):
      (none reported stale)
    For EACH, read its full entry and confirm against the CURRENT code that the defect is truly absent.

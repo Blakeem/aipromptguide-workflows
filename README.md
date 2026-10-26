@@ -157,6 +157,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **Each develop backlog entry says whether it is ready to build.** The developer marks an entry
+  `ACTIONABLE` when it is a defect or a cleanup with one clear, small fix that changes no user-visible
+  behavior, stored data or public contract. Develop builds it without triage. Every other entry is
+  `NEEDS_USER` and waits for you. The developer also records a feature or refactor outside its block's
+  scope, and a choice it escalated and proceeded past by a default, as `NEEDS_USER` entries.
 - **develop builds in a worktree and lands the result on your branch.** Each run builds in a worktree
   of its own, so you can keep working in your checkout while it runs. Once the plan is done, the
   accepted work lands on the branch you have checked out, committed or staged as you chose at setup.

@@ -151,11 +151,15 @@ The developer writes no "what I did" report, since its code is its output (#8). 
 developer also records each real defect the accepted baseline already had that it logs because its
 code-zone routing leaves the defect unchanged, under its decision matrix's rule 2 or as a sibling
 path, in code no other block owns. Under the proactive change policy, it also records each cleanup it
-noticed and did not make outside the code its block's required changes add or change. In its closing pass, it also
-records each finding in its block's own diff whose fix needs a blind review. Each record
-goes to that block's file in the project's backlog folder, an untriaged issue inventory the user
-triages like debug's `issues/`. The developer adds a closing line to an entry in any file in that
-folder whose defect a fix it logs closes. Reviewers write only their numbered review files. One
+noticed and did not make outside the code its block's required changes add or change. It also
+records each feature or refactor it noticed outside its block's scope, and each choice it escalated
+and proceeded past by a default. In its closing pass, it also records each finding in its block's
+own diff whose fix needs a blind review. Each record goes to that block's file in the project's
+backlog folder, an issue inventory. A defect or cleanup record with one clear, small fix that
+changes no user-visible behavior, stored data or public contract, and with no parked-block hold, is
+marked ACTIONABLE and a later run builds it. The user triages every other record like debug's
+`issues/`. The developer adds a closing line to an entry in any file in that folder whose defect a
+fix it logs closes. Reviewers write only their numbered review files. One
 exception is develop's fix-mode acceptance verifier, which appends a harm with a separate cause to its
 source block's backlog file. A critic, an editor or a verifier may write one scratch probe beside the
 listed files. Its temporary directory sits outside the repo and the run-state dir. Nothing outside

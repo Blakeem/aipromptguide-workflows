@@ -319,7 +319,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   plan owns. Under both policies, a real defect at low or above that it logs because its zone
   routing leaves the defect unchanged, under rule 2 or as a sibling path, also goes to its block's
   backlog file (§10), so a later run can fix it. Under `proactive` it also records there each
-  cleanup outside task code that it noticed and did not make, such as a refactor or a nit. A false
+  cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it
+  also records there a feature or refactor it noticed outside its block's scope, instead of building
+  it, and each choice it escalated and proceeded past by a default. A false
   positive and anything in code another block owns get no entry, and under `focused` neither does a
   nit it drops that way. In a pass, the entry goes to the file of the member whose entry's fix led to it. The
   dismissal line stays, since the blind reviewer never reads a backlog file. When a fix it logs to
@@ -607,9 +609,13 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 
 ## 10. Working the backlog
 
-The backlog folder holds what develop leaves for later on one project, across all of its runs. It is
-the folder `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints, and every
-launch passes it as `backlogDir`. A run's entries for one block go to one file there,
+The backlog folder is the one place for the work a run leaves for later on one project, across all of
+its runs. An entry is a defect, a cleanup, a feature or a decision. A defect is a real problem the run
+left in the code. A cleanup is a nit or a clearer name the run did not make. A feature is a feature or
+refactor outside a block's scope. A decision is a choice the developer escalated and proceeded past by
+a default. The folder is the one that
+`node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints, and every launch passes
+it as `backlogDir`. A run's entries for one block go to one file there,
 `<file id>.md`, created with the first entry. `<file id>` is `<run slug>-<block slug>-<pair hash>`:
 - `<run slug>` is the runId through the engine's `slug()`, or `run-` and the engine's `fnv1a()` hash of
   the runId when that slug is empty, as for a runId with no ASCII letter or digit.
@@ -621,7 +627,14 @@ launch passes it as `backlogDir`. A run's entries for one block go to one file t
 Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
 and `status: todo`. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
-`- decision: NEEDS_USER`. A cleanup entry carries `- category: cleanup` and no `- severity:` line.
+a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE` when the entry is a
+defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no
+user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a
+feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry
+with a `**Parked with:**` line. A later run builds an `ACTIONABLE` entry without triage, and a
+`NEEDS_USER` entry waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry
+carries `- category: feature` and a decision entry `- category: decision`, and both carry
+`- decision: NEEDS_USER`. These three kinds carry no `- severity:` line.
 Before the developer or fix acceptance appends an entry (§5), it greps the folder's `*.md` files by the
 file path and the name of the function or identifier at the defect, reads each matching entry, and
 never appends a defect that an entry with `- status: open` or `- status: needs-attention` already
@@ -631,23 +644,35 @@ whose `**What:**` names theirs.
 When the user asks to work the backlog:
 
 1. Run `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` and read each file in
-   the folder it prints.
-2. List the entries that wait on the user, grouped by severity, highest first, with the cleanup entries
-   last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or `DEFER`, or while it is
-   ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed or did not land sets.
+   the folder it prints. For each entry with a `**Closed by:**` line and a `- status:` of `open` or
+   `needs-attention`, confirm the accepted baseline holds the fix. When it does, set `- status: fixed`
+   and leave the entry out of the steps below, since the writers' dedup treats an open entry as still
+   holding the defect. When the code does not hold the fix and the entry carries no `**Parked with:**`
+   line yet, find the run the line names. When it names none, ask the user which run closed the entry,
+   since an older engine wrote that line into any file of the folder. When that run's NEEDS-USER.md, in
+   its state folder, holds the heading line `## Parked block: <the block id the line names>` as an
+   entire line, or that run halted `park-unsafe` on that block, hold the entry, since building it would
+   collide with that block's unlanded work. Every park writes that entry, under the pass
+   id for a packed pass, whether the block ended `parked` or `blocked`. To hold it, set its
+   `- decision: NEEDS_USER` and add the line `**Parked with:** block <id>. Triage this entry once that
+   block is accepted or dropped.` after its `**Fix:**` line. Step 3 owns an entry once it carries that
+   line. Otherwise treat the entry like the rest.
+2. List only the entries that wait on the user, grouped by severity, highest first, with the entries
+   that carry no severity last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or
+   `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
+   or did not land sets.
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
    unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
    `**Parked with:**` line with a note naming its parked block, and leave it out of the triage in
    step 3 while it is held.
 3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
-   option the user chose. Skip an entry with a `**Closed by:**` line once you confirm the accepted baseline
-   holds that fix, and triage it like the rest when the code does not. Hold an entry with a
-   `**Parked with:**` line until its block is accepted in a later launch, whether continued or
+   option the user chose. Hold an entry with a
+   `**Parked with:**` line until its block is accepted, in this launch or a later one, whether continued or
    redone, since the code it names sits in that block's parked patch. Release the hold when the block
    is dropped. Once the hold ends, skip the entry when the accepted baseline holds its fix, and triage it
    like the rest when the code does not. Set `- status: fixed` on each entry skipped because the accepted
-   baseline holds its fix, since the writers' dedup treats an open entry as still holding the defect.
+   baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with

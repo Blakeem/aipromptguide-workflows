@@ -137,8 +137,13 @@ the sweep result (`SWEEP.md`).
 The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work
 and, from a block's closing pass, the findings in the block's own work whose fixes need a blind review,
 in one file per block of each run. Under `proactive`, it also holds the cleanups the developer noticed
-and did not make. To work the backlog, run `/aipg:develop work the backlog`, or tell Claude to work
-the backlog with the develop workflow. You triage the entries with Claude. Then develop builds the
+and did not make. Under both policies, it holds each feature or refactor the developer noticed outside
+a block's scope and each choice it escalated and proceeded past by a default. Each entry says whether
+it is ready to build. An entry is `ACTIONABLE` when it is a defect or a cleanup with one clear, small
+fix that changes no user-visible behavior, stored data or public contract. Develop builds it without
+triage. Every other entry is `NEEDS_USER` and waits for you. To work the backlog, run
+`/aipg:develop work the backlog`, or tell Claude to work the backlog with the develop workflow. You
+triage the `NEEDS_USER` entries with Claude. Then develop builds the `ACTIONABLE` entries and the
 entries you approve.
 
 ## Requirements
