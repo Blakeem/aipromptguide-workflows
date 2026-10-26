@@ -2,7 +2,11 @@
 // node:child_process. Around wt's `git branch --no-track` that creates a new branch, it acts out another process
 // that won the race to create the same branch, as two concurrent opens or preps of one name do. AIPG_GIT_RACE names
 // what that process has done by then. AIPG_GIT_TRANSLATED, when set, acts out a git that translates its refusal of
-// the create, which git leaves untranslated when GIT_TEXTDOMAINDIR names no directory.
+// the create, which git leaves untranslated when GIT_TEXTDOMAINDIR names no directory. AIPG_ADD_RACE, set in place of
+// AIPG_GIT_RACE, acts out a concurrent `git worktree add` that has created its `commondir` file and not yet written
+// it, around each of the first <n> runs of each git subcommand it names as `<subcommand>:<n>`, such as
+// `worktree add:2,branch -D:1`. AIPG_ADD_RACE_FILE=locked acts out an add that has unlinked its `locked` file
+// instead. With AIPG_GIT_TRANSLATED set, git's `failed to read` message from a raced call is translated.
 import { execFileSync as realExecFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { registerHooks } from 'node:module';
@@ -38,6 +42,45 @@ const RACES = {
   },
 };
 
+const addRaces = new Map(String(process.env.AIPG_ADD_RACE ?? '').split(',').filter(Boolean).map((race) => {
+  const at = race.lastIndexOf(':');
+  const count = Number(race.slice(at + 1));
+  if (at < 1 || !Number.isInteger(count) || count < 1) throw new Error(`git-race-stub: AIPG_ADD_RACE entries must read <subcommand>:<n>, got ${race}`);
+  return [race.slice(0, at), count];
+}));
+
+/** Writes the files a concurrent add has made by then under `repo`'s common dir, and returns their removal. */
+function halfAdded(repo) {
+  const dir = resolve(repo, gitIn(repo, ['rev-parse', '--git-common-dir']).trim(), 'worktrees', 'aipg-racer');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(resolve(dir, 'gitdir'), `${resolve(dirname(repo), 'aipg-racer', '.git').replace(/\\/g, '/')}\n`);
+  if (process.env.AIPG_ADD_RACE_FILE === 'locked') {
+    // A folder makes git find the file and then fail to read it, as the add's unlink between the two does.
+    writeFileSync(resolve(dir, 'commondir'), '../..\n');
+    writeFileSync(resolve(dir, 'HEAD'), 'ref: refs/heads/main\n');
+    mkdirSync(resolve(dir, 'locked'));
+  } else {
+    writeFileSync(resolve(dir, 'commondir'), '');
+  }
+  return () => rmSync(dir, { recursive: true, force: true });
+}
+
+/** Runs a git call, around a half-made add when it is one of the runs `AIPG_ADD_RACE` names. */
+function raceAdd(cmd, args, opts) {
+  const subcommand = cmd === 'git' ? [...addRaces.keys()].find((name) => args.slice(2).join(' ').startsWith(name)) : undefined;
+  if (subcommand === undefined || addRaces.get(subcommand) < 1) return realExecFileSync(cmd, args, opts);
+  addRaces.set(subcommand, addRaces.get(subcommand) - 1);
+  const finish = halfAdded(args[1]);
+  try {
+    return realExecFileSync(cmd, args, opts);
+  } catch (err) {
+    if (process.env.AIPG_GIT_TRANSLATED) err.stderr = String(err.stderr ?? '').replace(/failed to read/g, 'Lesen fehlgeschlagen von');
+    throw err;
+  } finally {
+    finish();
+  }
+}
+
 /** Whether git translates its messages under `env`. With no GIT_TEXTDOMAINDIR, git reads its own translations. */
 function translates(env) {
   const dir = env?.GIT_TEXTDOMAINDIR;
@@ -52,6 +95,7 @@ function translates(env) {
 const translate = (stderr) => String(stderr ?? '').replace(/a branch named '(.*)' already exists/, "ein Branch namens '$1' existiert bereits");
 
 export function execFileSync(cmd, args, opts) {
+  if (addRaces.size) return raceAdd(cmd, args, opts);
   const race = RACES[process.env.AIPG_GIT_RACE];
   if (!race) throw new Error(`git-race-stub: AIPG_GIT_RACE must be one of ${Object.keys(RACES).join(', ')}`);
   // tools/wt.mjs runs every git call as `git -C <dir> <subcommand> ...`, and its new-branch create is

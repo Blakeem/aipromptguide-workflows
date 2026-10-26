@@ -131,7 +131,6 @@
 
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
-import { devNull } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
@@ -333,12 +332,32 @@ const fileList = (lines, cap) => nameList(lines.map((l) => l.slice(3).trim()).fi
 // Discovery — every path in this tool comes from here, never from stored state
 // =============================================================================
 
-// A concurrent `worktree add` holds a `locked` file while it initializes. `worktree list` can see it
-// exist, lose it to the add's unlink, and die reading it (M26), so that one failure is retried. The pattern reads
-// git's English message, and git skips its translations when GIT_TEXTDOMAINDIR names no directory.
-const WORKTREE_LIST_RACE = /failed to read .*locked/;
-const WORKTREE_LIST_ATTEMPTS = 5;
-const WORKTREE_LIST_OPTS = { env: { ...process.env, GIT_TEXTDOMAINDIR: devNull } };
+// A concurrent `worktree add` creates its `commondir` file before it writes it, and unlinks its `locked` file when it
+// finishes. A git call that reads every worktree, such as `worktree list`, `worktree add` or `branch -D`, dies reading
+// the empty `commondir`, or a `locked` file it saw exist and then lost (M26), so that one failure is retried. The pattern matches the file's path,
+// which git prints untranslated, so the call keeps the operator's environment.
+const ADD_RACE = /worktrees[\\/][^\\/\s]+[\\/](?:locked|commondir)\b/;
+const ADD_RACE_ATTEMPTS = 5;
+
+/**
+ * `git(repo, args, opts)`, run again while it dies reading the files of a concurrent `worktree add`. `onFailure`,
+ * when given, sees each failed result before the retry decision and may throw to stop the retries.
+ */
+function gitPastAddRace(repo, args, opts, onFailure = null) {
+  // Input
+  let r = null;
+
+  // Process
+  for (let attempt = 1; attempt <= ADD_RACE_ATTEMPTS; attempt++) {
+    r = git(repo, args, opts);
+    if (r.code === 0) break;
+    onFailure?.(r);
+    if (!ADD_RACE.test(r.stderr)) break;
+  }
+
+  // Output
+  return r;
+}
 
 /**
  * `[{ path, branch, locked, lockReason, main, bare }]` for every worktree of the repo. `branch` is '' for an
@@ -347,14 +366,10 @@ const WORKTREE_LIST_OPTS = { env: { ...process.env, GIT_TEXTDOMAINDIR: devNull }
  * bare repository, which has no checkout.
  */
 function listWorktrees(repo) {
-  const listArgs = ['worktree', 'list', '--porcelain'];
-  let listed = git(repo, listArgs, WORKTREE_LIST_OPTS);
+  const listed = gitPastAddRace(repo, ['worktree', 'list', '--porcelain']);
   const entries = [];
   let current = null;
 
-  for (let attempt = 1; attempt < WORKTREE_LIST_ATTEMPTS && listed.code !== 0 && WORKTREE_LIST_RACE.test(listed.stderr); attempt++) {
-    listed = git(repo, listArgs, WORKTREE_LIST_OPTS);
-  }
   if (listed.code !== 0) throw unsafe(`listing the worktrees failed: ${firstLine(listed.stderr) || `git exited ${listed.code}`}`);
 
   for (const line of outputLines(listed.stdout)) {
@@ -509,28 +524,36 @@ function createdThenFailed(repo, branch, added, what, recovery) {
 }
 
 /**
+ * git's result for a `git worktree add` of `path` on `branch`, which is run again while it dies reading the files of
+ * a concurrent add and no worktree holds `branch`. Throws what `createdThenFailed` returns.
+ */
+function addWorktree(repo, branch, path, what, recovery) {
+  return gitPastAddRace(repo, ['worktree', 'add', path, branch], HOOK_ROOM, (added) => {
+    const kept = createdThenFailed(repo, branch, added, what, recovery);
+    if (kept) throw kept;
+  });
+}
+
+/**
  * Creates `branch` at `start`, then a worktree on it at `path`, or exits 40 naming `what` and, for a worktree git
  * created before it failed, `recovery`. The create fails for a branch that exists or that another process is
- * creating, so its exit code says whether this call owns the branch. No decision reads git's message, so both calls
- * keep the operator's environment for their hooks and checkout filters. A failed add deletes the branch this call
- * owns once no worktree holds it, so a later attempt does not fail on it.
+ * creating, so its exit code says whether this call owns the branch. No decision reads git's translated words, so
+ * every call keeps the operator's environment for their hooks and checkout filters. A failed add deletes the branch
+ * this call owns once no worktree holds it, so a later attempt does not fail on it.
  */
 function addWorktreeOnNewBranch(repo, branch, path, start, { what, recovery }) {
   // Input
   let created = null;
   let added = null;
-  let kept = null;
   let dropped = null;
   let note = '';
 
   // Process
   created = git(repo, ['branch', '--no-track', branch, start], HOOK_ROOM);
   if (created.code !== 0) throw unsafe(`${what}: ${gitError(created)}`);
-  added = git(repo, ['worktree', 'add', path, branch], HOOK_ROOM);
+  added = addWorktree(repo, branch, path, what, recovery);
   if (added.code === 0) return;
-  kept = createdThenFailed(repo, branch, added, what, recovery);
-  if (kept) throw kept;
-  dropped = git(repo, ['branch', '-D', branch], HOOK_ROOM);
+  dropped = gitPastAddRace(repo, ['branch', '-D', branch], HOOK_ROOM);
   note = dropped.code === 0
     ? `. The branch ${branch} that this call created was deleted`
     : `. The branch ${branch} that this call created is left behind (${gitError(dropped)}), so before trying again, delete it with git -C ${shellQuote(repo)} branch -D ${branch}`;
@@ -546,8 +569,8 @@ function addIntegrationWorktree(repo, batch, base, path) {
   // `clean --batch` removes the worktree and KEEPS the branch (the user decides where the finished
   // integration goes), so re-initialising the same batch must re-use the branch rather than fail on it.
   if (isLocalBranch(repo, branch)) {
-    const added = git(repo, ['worktree', 'add', path, branch], HOOK_ROOM);
-    if (added.code !== 0) throw createdThenFailed(repo, branch, added, what, recovery) ?? unsafe(`${what}: ${gitError(added)}`);
+    const added = addWorktree(repo, branch, path, what, recovery);
+    if (added.code !== 0) throw unsafe(`${what}: ${gitError(added)}`);
   } else {
     addWorktreeOnNewBranch(repo, branch, path, resolveBase(repo, base), { what, recovery });
   }
@@ -1753,11 +1776,17 @@ function recordedBase(repo, branch) {
   return r.stdout.trim();
 }
 
+/** Deletes `branch`, past the files of a concurrent `worktree add`, or exits 40. */
+function mustDeleteBranch(repo, branch) {
+  const dropped = gitPastAddRace(repo, ['branch', '-D', branch], UNATTENDED);
+  if (dropped.code !== 0) throw unsafe(`deleting ${branch} failed: ${gitError(dropped)}`);
+}
+
 /** Deletes `branch` when `into` contains it, and returns whether it did. */
 function deleteIfMerged(repo, branch, into) {
   if (!contains(repo, headsRef(into), headsRef(branch))) return false;
   // -D after that check, since -d judges against the current HEAD, which may be another branch.
-  mustGit(repo, ['branch', '-D', branch], `deleting ${branch}`, UNATTENDED);
+  mustDeleteBranch(repo, branch);
   return true;
 }
 
@@ -2201,7 +2230,7 @@ function deleteIfStaged(repo, branch, into) {
 
   // Process + Output
   if (!holder || !stagedAt(holder.path, tip, changedPaths(repo, from, tip))) return false;
-  mustGit(repo, ['branch', '-D', branch], `deleting ${branch}`, UNATTENDED);
+  mustDeleteBranch(repo, branch);
   return true;
 }
 

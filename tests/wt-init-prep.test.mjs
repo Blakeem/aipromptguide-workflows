@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { HOOK } from '../tools/wt.mjs';
-import { SCRIPT, wt, GIT_OVERFLOW_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit, under, excludeLines } from './wt-helpers.mjs';
+import { SCRIPT, wt, GIT_OVERFLOW_STUB, GIT_RACE_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit, under, excludeLines } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -245,6 +245,45 @@ await withFixture(async ({ root, repo }) => {
   for (const key of keys) ok(paths.includes(norm(under(repo, `aipg-${key}`))), `aipg-${key} is registered`);
   eq(paths.length, 5, 'main + integration + 3 chains — nothing lost to the race');
   eq(git(repo, ['stash', 'list']).stdout.trim(), '', 'three concurrent self-tests left the stash stack empty');
+});
+
+section("prep, open and close retry a git call that dies reading a concurrent add's half-written commondir, five runs at most (M26)");
+await withFixture(({ repo }) => {
+  // A concurrent add creates its commondir before it writes it, and a git call that reads every worktree dies on
+  // the empty file.
+  const race = (key, races, env = {}) => wtStubbed(GIT_RACE_STUB, ['prep', '--repo', repo, '--batch', 'b1', '--key', key], { AIPG_ADD_RACE: races, ...env });
+  eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init a batch');
+
+  const typo = race('typo', 'worktree add');
+  ok(typo.code !== 0 && /AIPG_ADD_RACE entries must read <subcommand>:<n>, got worktree add/.test(typo.stderr), 'a mistyped AIPG_ADD_RACE entry fails as a fixture error');
+
+  const added = race('added', 'worktree add:4');
+  eq(added.code, 0, `prep whose worktree add meets the race four times exits 0 (${firstLine(added.stderr)})`);
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-added'))), '...with its worktree registered');
+
+  const listed = race('listed', 'worktree list:4');
+  eq(listed.code, 0, `prep whose worktree list meets the race four times exits 0 (${firstLine(listed.stderr)})`);
+
+  const unlocked = race('unlocked', 'worktree list:4', { AIPG_ADD_RACE_FILE: 'locked' });
+  eq(unlocked.code, 0, `prep whose worktree list loses a concurrent add's locked file four times exits 0 (${firstLine(unlocked.stderr)})`);
+
+  const translated = race('local', 'worktree add:1', { AIPG_GIT_TRANSLATED: '1' });
+  eq(translated.code, 0, `the race under a git that translates its messages is retried too (${firstLine(translated.stderr)})`);
+
+  const lost = race('lost', 'worktree add:5,branch -D:1');
+  eq(lost.code, 40, 'prep whose worktree add meets the race five times exits 40');
+  ok(/aipg-racer\/commondir/.test(lost.stderr), `...giving git's reason: ${firstLine(lost.stderr)}`);
+  ok(/that this call created was deleted/.test(lost.stderr), '...and says its branch was deleted, past a race on the delete');
+  eq(sha(repo, 'refs/heads/aipg/b1/lost'), '', '...which it was');
+  ok(!worktreePaths(repo).includes(norm(under(repo, 'aipg-lost'))), '...and registers no worktree');
+
+  const opened = wtStubbed(GIT_RACE_STUB, ['open', '--repo', repo, '--name', 'feat'], { AIPG_ADD_RACE: 'worktree add:1' });
+  eq(opened.code, 0, `open whose worktree add meets the race once exits 0 (${firstLine(opened.stderr)})`);
+
+  eq(wt(['open', '--repo', repo, '--name', 'done']).code, 0, 'open a worktree whose branch main already contains');
+  const closed = wtStubbed(GIT_RACE_STUB, ['close', '--repo', repo, '--name', 'done', '--into', 'main', '--gate', 'node -e 0'], { AIPG_ADD_RACE: 'branch -D:4' });
+  eq(closed.code, 0, `close whose branch delete meets the race four times exits 0 (${firstLine(closed.stderr)})`);
+  eq(sha(repo, 'refs/heads/aipg/done'), '', '...and deletes the branch');
 });
 
 section('init cuts the integration branch from the current branch, and prep the chain branch from the integration branch, when a tag has the same name');
