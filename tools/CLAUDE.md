@@ -73,7 +73,7 @@ and acceptance schemas is that signal, and develop halts on an explicit `false`.
 ```bash
 node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>          # upsert one metadata line
 node tools/plan-edit.mjs move <src> <issue-id> <dest> <block-id>             # relocate one issue entry
-node tools/plan-edit.mjs args <plan.md> [<plan.md> ...] [--expect <wf-id>] [--pack <repo> [--loc-cap <n>]]
+node tools/plan-edit.mjs args [<plan.md> ...] [--expect <wf-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>]]
                                                                              # fold finished runs, print develop's args
 ```
 
@@ -99,6 +99,14 @@ folded fails `args`, and one that names none is skipped with a note. A changed d
 `args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
 `tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records expire
 after `cleanupPeriodDays` (30 by default).
+
+`--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an entry with
+`- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that also holds an
+`ACTIONABLE` entry with `- status: needs-attention` is not added, since the fix-mode developer would rebuild that entry
+without the user. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
+set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file keys, so they take the given
+plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
+ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`

@@ -155,6 +155,15 @@ cd aipg && git pull        # refreshes every workflow's CLAUDE.md + engine
 
 What's changed, newest first: new workflows, changes to how they work, and bugs worth knowing about.
 
+### 2026-10-26
+
+- **A `proactive` develop run builds the backlog's ready entries.** Before the run lands, Claude builds every
+  `todo` or `done` backlog file that holds an `ACTIONABLE` entry with `status: open` in one more launch in the same run
+  worktree. `plan-edit.mjs args --backlog <dir>` selects those files, sets a `done` one back to `todo`, and
+  works with `--pack`. It needs an unordered plan set, and it works with no plan file. It skips a file that holds an
+  `ACTIONABLE` entry whose fix failed, until you skip that entry. A file whose entry you approve again is built by naming it. A `focused` run
+  builds the backlog only when you ask. The setup question for the change policy says so.
+
 ### 2026-10-25
 
 - **A develop block lands when its closing acceptance finds no blocking problem.** After the last

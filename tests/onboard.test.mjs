@@ -59,6 +59,10 @@ withFixture(USER, (fx) => {
   eq(questionsOf(r.stdout), 'Plugin access, Change policy, Delivery, Attribution', 'all four questions, in order');
   eq(optionsOf(r.stdout, 'policy'), 'proactive focused auto', 'the user\'s own repo recommends proactive');
   eq(optionsOf(r.stdout, 'delivery'), 'commit stage', '...and commit');
+  const optionLine = (flag) => r.stdout.split('\n').find((l) => l.startsWith(`  --policy ${flag}:`)) ?? '';
+  ok(optionLine('proactive').includes('also builds every ready entry in the project\'s backlog on each run'), 'the proactive option says it builds the backlog on each run');
+  ok(optionLine('proactive').includes('more tokens per run, and fewer in total than reaching the same code quality later'), '...and what that costs and saves');
+  ok(!optionLine('focused').includes('backlog'), 'the focused option does not claim it');
   ok(/one AskUserQuestion call/.test(r.stdout), 'the operator is told to ask them in one call');
   ok(r.stdout.includes(`Save: node "${CLI}" save --root "${fx.state}" --repo "${fx.repo}" <flags>`), 'the save command names the tool, root and repo');
   ok(!existsSync(fx.settingsPath) && !existsSync(fx.state), 'check writes nothing');

@@ -10,7 +10,7 @@
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
 import { parseBlocks, resolveRoadmap, validate, run as planBlock } from '../tools/plan-block.mjs';
 import { run } from '../tools/plan-edit.mjs';
@@ -500,7 +500,7 @@ function argsWith(configDir, ...argv) {
   try {
     return { out: run(['args', ...argv], (l) => notes.push(l)), notes: notes.join('') };
   } catch (e) {
-    return { err: e.message };
+    return { err: e.message, notes: notes.join('') };
   } finally {
     if (saved === undefined) delete process.env.CLAUDE_CONFIG_DIR;
     else process.env.CLAUDE_CONFIG_DIR = saved;
@@ -634,6 +634,10 @@ section('a status line the runtime cut short blocks only the plans it names');
   const failed = argsWith(configWith([cutOwn]), bystander, own);
   ok(/run wf_cut \(.*, 2026-09-25T10:00:00\.000Z\) .*cut short, and it names .*own\.md.*"synced:" file key to 2026-09-25T10:00:00\.000Z/.test(failed.err ?? ''), `a cut line naming a plan fails, naming the run's timestamp: ${(failed.err ?? 'no error').slice(0, 140)}`);
   eq(read(own) + read(bystander), ownBefore + bystanderBefore, 'and writes neither plan, not even the one it could fold');
+
+  const foreignCut = withCut(many(other, ['inbox', 'later', 'old-one']), { runId: 'wf_foreign', timestamp: '2026-09-25T09:30:00.000Z' });
+  const noted = argsWith(configWith([foreignCut, cutOwn]), own);
+  ok(/run wf_cut \(/.test(noted.err ?? '') && /skipped 1 status line\(s\) the runtime cut short in run wf_foreign/.test(noted.notes ?? ''), `a given plan that fails to fold still gets the skip note of a run naming no plan given: ${(noted.notes ?? 'no notes').slice(0, 90)}`);
 
   const older = record({ runId: 'wf_older', timestamp: '2026-09-25T09:00:00.000Z', blocks: [[status('bus-parser', 'parked', own)]] });
   const both = argsWith(configWith([cutOwn, older]), own);
@@ -843,6 +847,135 @@ section('--pack refuses an ordered plan set and a bad cap');
   ok(/needs a plan set with ordered: false/.test(packed(configWith([]), dir, 0, ordered).err ?? ''), 'an ordered file is refused, since packing regroups blocks');
   ok(/usage:/.test(argsWith(configWith([]), a, '--pack', dir, '--loc-cap', 'lots').err ?? ''), 'a cap that is not a whole number is a usage error');
   ok(/usage:/.test(argsWith(configWith([]), a, '--loc-cap', '10').err ?? ''), 'and so is a cap without --pack');
+}
+
+// ---------------------------------------------------------------------------------------------
+// args --backlog — the project's ready backlog files join the plan set
+// ---------------------------------------------------------------------------------------------
+
+/** A backlog folder file: one fix block named `name`, with the file's own status line. */
+function backlogFile(dir, name, status, entries) {
+  const path = inventory(dir, name, entries);
+  run(['set', path, name, `status=${status}`]);
+  return path;
+}
+const withBacklog = (config, dir, ...argv) => argsWith(config, ...argv, '--backlog', dir);
+
+section('--backlog adds only the todo or done files that hold an open ACTIONABLE entry');
+{
+  const dir = tmpDir();
+  const ready = backlogFile(dir, 'ready', 'todo', [{ id: 'r-1', file: 'a.js', status: 'open' }]);
+  backlogFile(dir, 'bare', 'todo', [{ id: 'b-1', file: 'h.js' }]);
+  const reopen = backlogFile(dir, 'reopen', 'done', [{ id: 'o-1', file: 'b.js', status: 'fixed' }, { id: 'o-2', file: 'b.js', status: 'open' }]);
+  const skipped = backlogFile(dir, 'skipped', 'todo', [{ id: 's-1', file: 'c.js', decision: 'SKIP', status: 'open' }]);
+  const waiting = backlogFile(dir, 'waiting', 'todo', [{ id: 'w-1', file: 'd.js', status: 'needs-attention' }]);
+  const mixed = backlogFile(dir, 'mixed', 'todo', [{ id: 'm-1', file: 'd.js', status: 'needs-attention' }, { id: 'm-2', file: 'd.js', status: 'open' }]);
+  const finished = backlogFile(dir, 'finished', 'done', [{ id: 'f-1', file: 'e.js', status: 'fixed' }]);
+  const parked = backlogFile(dir, 'parked', 'backlogged', [{ id: 'p-1', file: 'g.js', status: 'open' }]);
+  const stray = join(dir, 'notes.txt');
+  writeFileSync(stray, 'not a plan');
+  const before = Object.fromEntries([ready, skipped, waiting, mixed, finished, parked].map((p) => [p, read(p)]));
+
+  const { out, err } = withBacklog(configWith([]), dir);
+  ok(!err, `it succeeds with no plan file: ${err ?? ''}`);
+  const args = JSON.parse(out);
+  eq(args.plans.map((r) => `${r.id}=${r.status}`).join(','), 'bare=todo,ready=todo,reopen=todo', 'only the todo files and the done file with an open or status-less entry are rows, and the done one reads todo');
+  eq(args.ordered, false, 'the set is unordered');
+  ok(args.plans.every((r) => r.planPath.endsWith(`${r.id}.md`)), 'each row names its own file');
+  ok(/^status: todo$/m.test(read(reopen)) && !/^status: done$/m.test(read(reopen)), 'the done file was set to todo on disk');
+  ok([ready, skipped, waiting, mixed, finished, parked].every((p) => read(p) === before[p]), 'every other file keeps its bytes, and a file with a needs-attention ACTIONABLE entry waits for triage');
+}
+
+section('--backlog adds to the given plans, takes their file keys, and never lists a file twice');
+{
+  const dir = tmpDir();
+  const backlog = tmpDir();
+  const given = fixture(`goal: tidy up\n\n${read(inventory(dir, 'given', [{ id: 'g-1', file: 'x.js' }]))}`, 'given.md', dir);
+  const inFolder = backlogFile(backlog, 'inbox', 'todo', [{ id: 'i-1', file: 'y.js', status: 'open' }]);
+  const twice = withBacklog(configWith([]), backlog, inFolder);
+  ok(!twice.err, `a folder file also named as a plan is accepted: ${twice.err ?? ''}`);
+  eq(JSON.parse(twice.out).plans.map((r) => r.id).join(','), 'inbox', 'and is one row');
+
+  const both = withBacklog(configWith([]), backlog, given);
+  const args = JSON.parse(both.out);
+  eq(args.plans.map((r) => r.id).join(','), 'given,inbox', 'the folder file follows the given plan');
+  eq(args.goal, 'tidy up', 'the set takes the given plan\'s goal, which the backlog file has no key to disagree with');
+}
+
+section('--backlog composes with --pack, and refuses an ordered plan set');
+{
+  const backlog = tmpDir();
+  backlogFile(backlog, 'one', 'todo', [{ id: 'n-1', file: 'shared.js', loc: 10, status: 'open' }]);
+  backlogFile(backlog, 'two', 'done', [{ id: 'w-1', file: 'shared.js', loc: 10, status: 'open' }]);
+  const { out, notes, err } = argsWith(configWith([]), '--backlog', backlog, '--pack', backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'one-plus-1', 'the two backlog files pack into one pass');
+  ok(/packed one, two into one-plus-1/.test(notes), `the note names both: ${notes.trim()}`);
+
+  const dir = tmpDir();
+  const ordered = fixture(`ordered: true\n\n${read(inventory(dir, 'o', [{ id: 'o-1', file: 'y.js', loc: 10 }]))}`, 'ord.md', dir);
+  const done = backlogFile(tmpDir(), 'late', 'done', [{ id: 'l-1', file: 'z.js', status: 'open' }]);
+  const before = read(done);
+  ok(/needs a plan set with ordered: false/.test(withBacklog(configWith([]), join(done, '..'), ordered).err ?? ''), 'an ordered plan file is refused');
+  eq(read(done), before, 'and the done file stays done on disk');
+}
+
+section('--backlog folds a finished run into a backlog file before it chooses');
+{
+  const backlog = tmpDir();
+  const file = backlogFile(backlog, 'built', 'todo', [{ id: 'b-1', file: 'a.js', status: 'open' }]);
+  const config = configWith([record({ blocks: [[status('built', 'done', file), status('b-1', 'fixed', file)]] })]);
+  const { err } = withBacklog(config, backlog);
+  ok(/nothing to build/.test(err ?? ''), `an entry the last run fixed is not built again: ${err ?? ''}`);
+  const text = read(file);
+  ok(/^status: done$/m.test(text) && /^- status: fixed$/m.test(text) && /^synced: /m.test(text), 'the fold is written although the file joined no run');
+}
+
+section('--backlog writes the needs-attention a failed run synced, so the entry reaches triage');
+{
+  const backlog = tmpDir();
+  const file = backlogFile(backlog, 'failed', 'todo', [{ id: 'x-1', file: 'a.js', status: 'open' }]);
+  const config = configWith([record({ blocks: [[status('x-1', 'needs-attention', file)]] })]);
+  const first = withBacklog(config, backlog);
+  ok(/nothing to build/.test(first.err ?? ''), `the failed entry is not rebuilt without the user: ${first.err ?? ''}`);
+  ok(/^- status: needs-attention$/m.test(read(file)) && !/^- status: open$/m.test(read(file)), 'and its status is on disk');
+}
+
+section('--backlog fails on a folder it cannot read, and skips a cut record line naming a file it does not fold');
+{
+  const dir = tmpDir();
+  const notAFolder = inventory(dir, 'plain', [{ id: 'p-1', file: 'a.js' }]);
+  ok(/cannot read the backlog folder/.test(withBacklog(configWith([]), notAFolder).err ?? ''), 'a file passed as the folder is an error that says so');
+
+  const backlog = tmpDir();
+  const idle = backlogFile(backlog, 'idle', 'todo', [{ id: 'i-1', file: 'a.js', decision: 'NEEDS_USER', status: 'open' }]);
+  const ready = backlogFile(backlog, 'ready', 'todo', [{ id: 'r-1', file: 'b.js', status: 'open' }]);
+  // The runtime keeps a long line's head and tail, so the cut line still names the plan path in its head.
+  const cutRecord = (planPath) => {
+    const full = `status-sync ${JSON.stringify([status('i-1', 'fixed', planPath.split(sep).join('/'))])}`;
+    const head = full.indexOf('","id"') + 6;
+    return { ...record({ runId: 'wf_cut' }), logs: [[full.slice(0, head), '', '... [9 characters truncated] ...', '', full.slice(-40)].join('\n')] };
+  };
+  const skipped = withBacklog(configWith([cutRecord(idle)]), backlog);
+  ok(!skipped.err, `a cut line naming a file with no ACTIONABLE entry does not block the launch: ${skipped.err ?? ''}`);
+  eq(JSON.parse(skipped.out).plans.map((r) => r.id).join(','), 'ready', 'and the ready file still builds');
+  ok(/cut short, and it names .*ready.md/.test(withBacklog(configWith([cutRecord(ready)]), backlog).err ?? ''), 'a cut line naming a file it builds fails');
+}
+
+section('--backlog with nothing ready fails, and a missing folder adds nothing');
+{
+  const backlog = tmpDir();
+  backlogFile(backlog, 'idle', 'todo', [{ id: 'd-1', file: 'a.js', decision: 'NEEDS_USER', status: 'open' }]);
+  ok(/nothing to build/.test(withBacklog(configWith([]), backlog).err ?? ''), 'no ready file and no plan is an error that says so');
+
+  const dir = tmpDir();
+  const given = inventory(dir, 'given', [{ id: 'g-1', file: 'x.js' }]);
+  const missing = join(dir, 'no-such-folder');
+  const { out, notes, err } = withBacklog(configWith([]), missing, given);
+  ok(!err, `a plan with a missing backlog folder still builds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'given', 'the folder adds no row');
+  ok(/no backlog folder at/.test(notes), `and the note says so: ${notes.trim()}`);
+  ok(/usage:/.test(argsWith(configWith([])).err ?? ''), 'no plan and no --backlog is still a usage error');
 }
 
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

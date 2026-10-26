@@ -8,7 +8,7 @@
 //
 //   node tools/plan-edit.mjs set <plan.md|plan-name> <id> <key>=<value>
 //   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
-//   node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>] [--pack <repo> [--loc-cap <n>]]
+//   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>] [--pack <repo> [--loc-cap <n>]]
 //
 // It parses nothing of its own. plan-block.mjs locates the metadata runs and reports their positions in the
 // RAW bytes, so a BOM'd or CRLF file splices without corruption, and the edited text goes back through that
@@ -40,10 +40,14 @@ const USAGE = `usage:
       test_selector, depends_on, model, effort); an issue id targets that entry's "- key:" run.
   node tools/plan-edit.mjs move <src.md|src-name> <issue-id> <dest.md|dest-name> <block-id>
       cut one "### [<id>]" entry and append it, verbatim, to the end of a fix-mode block.
-  node tools/plan-edit.mjs args <plan.md|plan-name> [<plan> ...] [--expect <wf-run-id>]
+  node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>]
                             [--pack <repo> [--loc-cap <lines>]]
       fold every finished develop run's status edits into the plan files, then print develop's
       args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
+      --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
+      ACTIONABLE entry and no needs-attention ACTIONABLE entry, and sets a done one to todo. It writes
+      the folded statuses of every todo or done backlog file with an ACTIONABLE entry. It needs a plan set with
+      ordered: false, and it lets the plan list be empty.
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       All-or-nothing: one bad edit in any file writes no file at all.
@@ -452,10 +456,15 @@ function foldRecords(plan, records, note) {
   return { path: plan.path, text, blocks: validate(parseBlocks(text), plan.path) };
 }
 
-/** develop's args: one set of file keys, which every plan must agree on, and every block as a row. */
-function mergeArgs(plans) {
-  const heads = plans.map((p) => ({ path: p.path, ...listObject(p.blocks, p.path, parseFileKeys(p.text)) }));
-  const [first] = heads;
+/**
+ * develop's args: one set of file keys, which every plan must agree on, and every block as a row. A backlog
+ * file carries no file keys of its own, so it takes the given plans' keys, and the defaults when none is given.
+ */
+function mergeArgs(plans, backlog = []) {
+  const headOf = (p) => ({ path: p.path, ...listObject(p.blocks, p.path, parseFileKeys(p.text)) });
+  const heads = plans.map(headOf);
+  const added = backlog.map(headOf);
+  const [first] = heads.length ? heads : added;
   for (const h of heads) {
     for (const k of ['goal', 'ordered', 'suite', 'sweep']) {
       if (h[k] !== first[k]) {
@@ -463,8 +472,69 @@ function mergeArgs(plans) {
       }
     }
   }
-  const plansRows = heads.flatMap((h) => h.blocks.map((b) => ({ ...b, planPath: h.path })));
+  const plansRows = [...heads, ...added].flatMap((h) => h.blocks.map((b) => ({ ...b, planPath: h.path })));
   return { goal: first.goal, ordered: first.ordered, suite: first.suite, sweep: first.sweep, plans: plansRows };
+}
+
+// =============================================================================
+// --backlog — the project's ready backlog files join the plan set
+// =============================================================================
+
+const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
+const blockStatus = (block) => block.preamble.values.status ?? 'todo';
+const BACKLOG_STATUSES = ['todo', 'done'];
+
+/** An entry a run can build without the user: ACTIONABLE, and neither closed nor waiting on the user. */
+const isReady = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open';
+
+/** An ACTIONABLE entry whose fix failed. A fix-mode developer rebuilds it with its file, so its file waits for triage. */
+const waitsOnUser = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && keyOf(entry, 'status') === 'needs-attention';
+
+/** A block a --backlog launch builds: a todo block, or a done one that took a new ready entry, with no entry waiting on the user. */
+const isBacklogBlock = (block) => BACKLOG_STATUSES.includes(blockStatus(block))
+  && block.issues.some(isReady) && !block.issues.some(waitsOnUser);
+
+/** The `.md` files of the backlog folder. A folder no run has written an entry to yet does not exist, and holds none. */
+function backlogPaths(dir, note) {
+  try {
+    return readdirSync(dir).filter((name) => name.endsWith('.md')).sort().map((name) => join(dir, name));
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw new Error(`cannot read the backlog folder ${dir}: ${err.message}`);
+    note(`no backlog folder at ${dir}, so --backlog adds nothing\n`);
+    return [];
+  }
+}
+
+/** The plan with each done block that holds a ready entry set back to todo. */
+function reopenDone(plan) {
+  let next = plan;
+  for (const block of plan.blocks.filter((b) => blockStatus(b) === 'done' && isBacklogBlock(b))) {
+    const text = withKeySet(next, block.id, 'status', 'todo');
+    next = { path: next.path, text, blocks: validate(parseBlocks(text), next.path) };
+  }
+  return next;
+}
+
+/**
+ * The todo or done backlog files of `dir` that hold an ACTIONABLE entry, each with its run records folded in, as plans with
+ * their `original` text. A `chosen` file also has its done blocks set to todo. Every folded file is returned, so
+ * the caller writes the fold of a file no launch builds, such as one whose fix failed. A fold never changes an
+ * entry's decision, so a file with no ACTIONABLE entry is skipped before it is folded, which keeps its records
+ * from blocking the launch.
+ */
+function foldBacklog(dir, given, records, note) {
+  const taken = new Set(given.map((p) => fileKey(p.path)));
+  const folds = [];
+  for (const path of backlogPaths(dir, note)) {
+    if (taken.has(fileKey(path))) continue;
+    const plan = loadPlan(path);
+    const holdsActionable = plan.blocks.some((b) => BACKLOG_STATUSES.includes(blockStatus(b)) && b.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'));
+    if (!holdsActionable) continue;
+    const folded = foldRecords(plan, records, note);
+    const chosen = folded.blocks.some(isBacklogBlock);
+    folds.push({ ...(chosen ? reopenDone(folded) : folded), original: plan.text, chosen });
+  }
+  return folds;
 }
 
 // =============================================================================
@@ -475,8 +545,6 @@ function mergeArgs(plans) {
 // ~350k-token ceiling past which token cost climbs. Recalibrate against real runs' token counts.
 const DEFAULT_LOC_CAP = 5000;
 const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists still costs a read
-
-const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
 
 /** The entries a developer will actually work: ACTIONABLE, and not already closed by an earlier run. */
 const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
@@ -556,11 +624,11 @@ function runArgs(argv, note) {
   const paths = [];
   for (let i = 0; i < argv.length; i++) {
     if (!argv[i].startsWith('--')) { paths.push(argv[i]); continue; }
-    if (!['--expect', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
+    if (!['--expect', '--backlog', '--pack', '--loc-cap'].includes(argv[i]) || !argv[i + 1]) throw new Error(USAGE);
     flags[argv[i]] = argv[++i];
   }
   const cap = flags['--loc-cap'] === undefined ? DEFAULT_LOC_CAP : Number(flags['--loc-cap']);
-  if (!paths.length || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
+  if ((!paths.length && !flags['--backlog']) || !Number.isInteger(cap) || cap < 1 || (flags['--loc-cap'] && !flags['--pack'])) throw new Error(USAGE);
   const expect = flags['--expect'] ?? null;
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
@@ -570,15 +638,25 @@ function runArgs(argv, note) {
   if (expect && !records.some((r) => r.runId === expect)) {
     throw new Error(`no develop run record for ${expect} under ${join(configDir, 'projects')} — the run is still going, or Claude Code moved its run records (update findRunRecords in tools/plan-edit.mjs)`);
   }
-  for (const r of records.filter((x) => x.cut.length && !plans.some((p) => x.cut.some((line) => namesPlan(line, p.path))))) {
+  const backlog = flags['--backlog'] ? foldBacklog(flags['--backlog'], plans, records, note) : [];
+  const known = [...plans, ...backlog];
+  for (const r of records.filter((x) => x.cut.length && !known.some((p) => x.cut.some((line) => namesPlan(line, p.path))))) {
     note(`skipped ${r.cut.length} status line(s) the runtime cut short in run ${r.runId} (${r.path}), since their surviving text names no plan given here\n`);
   }
   const folded = plans.map((p) => foldRecords(p, records, note));
-  const merged = mergeArgs(folded);
-  const args = flags['--pack'] ? packPasses(merged, folded, flags['--pack'], cap, note) : merged;
+  const added = backlog.filter((f) => f.chosen);
+  const writes = [...folded.map((f, i) => ({ f, was: plans[i].text })), ...backlog.map((f) => ({ f, was: f.original }))];
+  const flush = () => { for (const { f, was } of writes) if (f.text !== was) writeFileSync(f.path, f.text); };
+  if (!folded.length && !added.length) {
+    flush();
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE and status open and no ACTIONABLE entry with status needs-attention, so there is nothing to build`);
+  }
+  const merged = mergeArgs(folded, added);
+  if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');
+  const args = flags['--pack'] ? packPasses(merged, [...folded, ...added], flags['--pack'], cap, note) : merged;
 
   // Output
-  for (const [i, f] of folded.entries()) if (f.text !== plans[i].text) writeFileSync(f.path, f.text);
+  flush();
   return `${JSON.stringify(args, null, 2)}\n`;
 }
 

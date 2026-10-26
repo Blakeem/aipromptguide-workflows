@@ -120,7 +120,17 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    keep after `acceptance-regression` or a commit-mode pass halt is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
-6. **Land the run on the user's branch.** First compare `git -C <the user's checkout> branch --show-current`
+6. **Build the backlog, then land the run on the user's branch.** Under `proactive`, once the plan has
+   no `todo` block left and before the landing below, build the ready backlog entries once, in the same
+   run worktree. First apply §10 step 1 to the folder, so an entry whose fix the run already made is closed.
+   Then run `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` and launch with
+   its output as steps 3 and 4 say. When it exits 1 with a message that ends `nothing to build`, no file
+   holds a ready entry, so skip the launch. The entries that launch adds wait for the next run, so one
+   follow-up launch runs per run. An ACTIONABLE entry whose fix failed has `status: needs-attention` and
+   waits for the user (§10 step 2), and `args --backlog` leaves out every file that holds one until the user
+   skips that entry. A file whose entry the user approves again is built by naming it (§10 step 4). Under `focused`, skip this paragraph.
+
+   Land the run next. First compare `git -C <the user's checkout> branch --show-current`
    with `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`, the branch `open` recorded. When they
    differ, ask the user which branch takes the run and pass `--into <that branch>` to close. Stage delivery
    stages the work in the worktree that has that branch checked out. So when no worktree has it checked out,
@@ -249,13 +259,16 @@ because its zone routing leaves the defect unchanged, under the decision matrix'
 sibling path (§5), apart from one in code another block owns, goes to the backlog (§10). The policies
 differ as follows.
 - `focused` aims for working code that stays close to the task. Its developer builds minimally and
-  surgically. It leaves every pre-existing finding in connected code unchanged.
+  surgically. It leaves every pre-existing finding in connected code unchanged. The run builds the backlog
+  only when the user asks (§10).
 - `proactive` aims for the best code. Its developer builds each feature and section block with the
   change that has the best long-term result. In a feature or section block, it also fixes a pre-existing
   defect in connected code when the fix is low risk under the risk questions (§6). It leaves every other
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
   connected code unchanged, as under `focused`. The developer also records each cleanup outside task
-  code that it noticed and did not make.
+  code that it noticed and did not make. The run also builds every ready entry in the project's backlog
+  (§2 step 6), so it fixes issues across the codebase over time. It uses more tokens per run, and fewer in
+  total than reaching the same code quality later.
 
 Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE entry
 requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance excuses such
@@ -768,8 +781,12 @@ When the user asks to work the backlog:
    plan, so set it to `status: skip`, as debug's triage does.
 4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with
    `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>` and a develop launch in fix
-   mode, from §2 step 3. A file whose `status:` is not `todo`, such as a `done` file whose
-   needs-attention entry the user approved again, first takes §2 step 5's order: run `args` on it, set
+   mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>` takes the place of naming the
+   files. It adds every `todo` or `done` file that holds an ACTIONABLE entry with `- status: open` and none
+   with `- status: needs-attention`, sets each `done` one to `todo`, and prints an unordered set, so it refuses
+   an ordered plan file. A file that holds an ACTIONABLE entry with `- status: needs-attention`, such as one whose
+   entry the user approved again in step 3, is never added, so name it as a file. A file whose `status:` is
+   not `todo`, such as a `done` file whose needs-attention entry the user approved again, first takes §2 step 5's order: run `args` on it, set
    its `status:` to `todo`, then run `args` again for the launch. A `backlogged` file never takes that
    order, since its park entry carries its ACTIONABLE entries. The round-1 developer of a file whose
    ACTIONABLE entry carries a `- branch:` line restores that branch's work first (§7).
