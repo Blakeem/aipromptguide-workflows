@@ -259,25 +259,28 @@ because its zone routing leaves the defect unchanged, under the decision matrix'
 sibling path (§5), apart from one in code another block owns, goes to the backlog (§10). The policies
 differ as follows.
 - `focused` aims for working code that stays close to the task. Its developer builds minimally and
-  surgically. It leaves every pre-existing finding in connected code unchanged. The run builds the backlog
-  only when the user asks (§10).
-- `proactive` aims for the best code. Its developer builds each feature and section block with the
-  change that has the best long-term result. In a feature or section block, it also fixes a pre-existing
-  defect in connected code when the fix is low risk under the risk questions (§6). It leaves every other
+  surgically. In a feature or section block, it fixes a pre-existing defect in connected code only when
+  the defect lies in a function or method that holds task code and the fix is low risk under the risk
+  questions (§6). It leaves every other pre-existing finding in connected code unchanged. The run builds
+  the backlog only when the user asks (§10).
+- `proactive` aims for the best code. Its developer builds each feature and section block with the change
+  that has the best long-term result. In a feature or section block, it also fixes a pre-existing defect
+  in connected code when the fix is low risk under the risk questions (§6). It leaves every other
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
-  connected code unchanged, as under `focused`. The developer also records each cleanup outside task
-  code that it noticed and did not make. The run also builds every ready entry in the project's backlog
-  (§2 step 6), so it fixes issues across the codebase over time. It uses more tokens per run, and fewer in
-  total than reaching the same code quality later.
+  connected code unchanged, as a fix block does under `focused`. The developer also records each cleanup
+  outside task code that it noticed and did not make. The run also builds every ready entry in the
+  project's backlog (§2 step 6), so it fixes issues across the codebase over time. It uses more tokens
+  per run, and fewer in total than reaching the same code quality later.
 
 Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE entry
 requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance excuses such
 a fix from its regression check only when it lies in a zone the policy lets the developer change, lies
 in no code another block of the plan owns, removes a real defect, and alters no other behavior. Those
 zones are task code and connected code where the fix closes a defect the diff introduces or exposes.
-Under `proactive`, a feature or section block adds the rest of its connected code. Every developer
-prompt says the policy and the prompt's own scope rules override any other instruction about scope, a
-memory line or a CLAUDE.md included.
+Under `focused`, a feature or section block adds the connected code in a function or method that holds
+task code. Under `proactive`, a feature or section block adds the rest of its connected code. Every
+developer prompt says the policy and the prompt's own scope rules override any other instruction about
+scope, a memory line or a CLAUDE.md included.
 **The setup check.** Every answer a run needs from the user is asked once per repo, together, at the start.
 Run `node <onboard.mjs> check --root <root> --repo <the user's checkout>` before §2 step 1, where `<onboard.mjs>`
 is this checkout's `tools/onboard.mjs`. It prints `ready <key> policy=<policy> delivery=<commit|stage>` once

@@ -6,58 +6,58 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 25912 | every block accepts first time |
-| quality | 1 | 1 | 8929 | every block accepts first time |
-| acceptance | 1 | 1 | 12180 | every block accepts first time |
-| develop | 2 | 1 | 26337 | every block accepts first time |
-| acceptance | 2 | 2 | 12461 | every block accepts first time |
+| develop | 1 | 1 | 26658 | every block accepts first time |
+| quality | 1 | 1 | 9138 | every block accepts first time |
+| acceptance | 1 | 1 | 12537 | every block accepts first time |
+| develop | 2 | 1 | 27083 | every block accepts first time |
+| acceptance | 2 | 2 | 12818 | every block accepts first time |
 | final-sweep | 1 | 1 | 3254 | every block accepts first time |
-| develop | 3 | 1 | 26539 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 1 | 12056 | a feature block accepts under the proactive policy |
+| develop | 3 | 1 | 26982 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 1 | 12265 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 3245 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 25436 | quality flags the first round |
-| acceptance | 4 | 1 | 12179 | quality flags the first round |
-| develop | 5 | 1 | 25806 | quality flags the first round |
-| acceptance | 5 | 2 | 12460 | quality flags the first round |
-| develop | 6 | 1 | 25432 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 12177 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 25802 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 12458 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 13938 | a later round is judged low risk |
-| acceptance | 9 | 2 | 14219 | a later round is judged low risk |
-| develop | 8 | 1 | 25362 | the gate never goes green |
-| develop-closing | 1 | 1 | 26800 | the gate never goes green |
-| quality | 2 | 1 | 8989 | the gate never goes green |
-| acceptance | 10 | 3 | 15185 | the gate never goes green |
+| develop | 4 | 1 | 26182 | quality flags the first round |
+| acceptance | 4 | 1 | 12536 | quality flags the first round |
+| develop | 5 | 1 | 26552 | quality flags the first round |
+| acceptance | 5 | 2 | 12817 | quality flags the first round |
+| develop | 6 | 1 | 26178 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 12534 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 26548 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 12815 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 14295 | a later round is judged low risk |
+| acceptance | 9 | 2 | 14576 | a later round is judged low risk |
+| develop | 8 | 1 | 26108 | the gate never goes green |
+| develop-closing | 1 | 1 | 27546 | the gate never goes green |
+| quality | 2 | 1 | 9198 | the gate never goes green |
+| acceptance | 10 | 3 | 15542 | the gate never goes green |
 | park | 1 | 1 | 9270 | the gate never goes green |
-| develop | 9 | 1 | 25787 | the gate never goes green |
-| develop-closing | 2 | 1 | 27170 | the gate never goes green |
-| acceptance | 11 | 4 | 15466 | the gate never goes green |
-| acceptance | 12 | 1 | 12232 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 12287 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 12342 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 26893 | a parked block, and the run carries on |
-| acceptance | 15 | 3 | 17196 | a parked block, and the run carries on |
-| develop | 10 | 1 | 25894 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 12174 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 25414 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 12171 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 12226 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 12281 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 12336 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 26875 | an ordered run stops at a parked block |
-| acceptance | 21 | 3 | 17190 | an ordered run stops at a parked block |
+| develop | 9 | 1 | 26533 | the gate never goes green |
+| develop-closing | 2 | 1 | 27916 | the gate never goes green |
+| acceptance | 11 | 4 | 15823 | the gate never goes green |
+| acceptance | 12 | 1 | 12589 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 12644 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 12699 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 27639 | a parked block, and the run carries on |
+| acceptance | 15 | 3 | 17553 | a parked block, and the run carries on |
+| develop | 10 | 1 | 26640 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 12531 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 26160 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 12528 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 12583 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 12638 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 12693 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 27621 | an ordered run stops at a parked block |
+| acceptance | 21 | 3 | 17547 | an ordered run stops at a parked block |
 | park | 2 | 1 | 9282 | an ordered run stops at a parked block |
-| develop | 12 | 2 | 30316 | a fix block closes its issues |
-| acceptance | 22 | 5 | 17371 | a fix block closes its issues |
+| develop | 12 | 2 | 30755 | a fix block closes its issues |
+| acceptance | 22 | 5 | 17580 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 3245 | a fix block closes its issues |
-| develop | 13 | 2 | 30818 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 5 | 17377 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 2 | 30708 | a pass of two fix blocks closes its issues |
-| acceptance | 24 | 5 | 17701 | a pass of two fix blocks closes its issues |
+| develop | 13 | 2 | 31261 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 5 | 17586 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 2 | 31147 | a pass of two fix blocks closes its issues |
+| acceptance | 24 | 5 | 17910 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 3275 | a pass of two fix blocks closes its issues |
-| acceptance | 25 | 5 | 17370 | every issue is already fixed |
-| develop | 15 | 2 | 30298 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 25 | 5 | 17579 | every issue is already fixed |
+| develop | 15 | 2 | 30737 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 9585 | passed with a regression, not staged |
 | park | 4 | 1 | 8715 | acceptance stages a rejected block |
 | park | 5 | 1 | 9438 | the quality reviewer fails a block without its file |
@@ -70,21 +70,21 @@ this file is stale.
 | park | 12 | 1 | 9103 | the acceptance verifier dies |
 | park | 13 | 1 | 8469 | developer escalates |
 | park | 14 | 1 | 8459 | developer escalates in an ordered run |
-| acceptance | 26 | 3 | 16976 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 27263 | a closing acceptance lands the block |
-| acceptance | 27 | 4 | 17257 | a closing acceptance lands the block |
-| acceptance | 28 | 3 | 15239 | a closing pass gets a blind review |
-| acceptance | 29 | 4 | 15520 | a closing pass gets a blind review |
+| acceptance | 26 | 3 | 17333 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 28009 | a closing acceptance lands the block |
+| acceptance | 27 | 4 | 17614 | a closing acceptance lands the block |
+| acceptance | 28 | 3 | 15596 | a closing pass gets a blind review |
+| acceptance | 29 | 4 | 15877 | a closing pass gets a blind review |
 | park | 15 | 1 | 9420 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 9420 | a closing acceptance finds a blocking gap |
-| develop | 16 | 3 | 26083 | every block commits first time |
-| quality | 3 | 1 | 8882 | every block commits first time |
-| acceptance | 30 | 6 | 13703 | every block commits first time |
-| develop | 17 | 3 | 26508 | every block commits first time |
-| acceptance | 31 | 7 | 13984 | every block commits first time |
+| develop | 16 | 3 | 26829 | every block commits first time |
+| quality | 3 | 1 | 9091 | every block commits first time |
+| acceptance | 30 | 6 | 14060 | every block commits first time |
+| develop | 17 | 3 | 27254 | every block commits first time |
+| acceptance | 31 | 7 | 14341 | every block commits first time |
 | final-sweep | 5 | 1 | 3566 | every block commits first time |
-| develop | 18 | 4 | 30518 | a fix block commits |
-| acceptance | 32 | 8 | 19111 | a fix block commits |
+| develop | 18 | 4 | 30957 | a fix block commits |
+| acceptance | 32 | 8 | 19320 | a fix block commits |
 | final-sweep | 6 | 1 | 3473 | a fix block commits |
 | park | 17 | 1 | 8844 | acceptance commits a rejected block |
 
@@ -125,6 +125,8 @@ immediately with that count. The run halts for the operator. If it IS 0, impleme
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -137,7 +139,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -153,6 +156,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
@@ -180,7 +184,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -478,6 +482,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   test:  npm test
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
 temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
@@ -622,6 +627,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -669,11 +675,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -829,6 +835,8 @@ immediately with that count. The run halts for the operator. If it IS 0, impleme
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -841,7 +849,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -857,6 +866,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement this block's steps. WIRE IT IN so the change is actually reachable — convert
@@ -887,7 +897,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1192,6 +1202,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -1239,11 +1250,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -1476,6 +1487,8 @@ immediately with that count. The run halts for the operator. If it IS 0, impleme
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
+allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -1505,6 +1518,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
@@ -1842,6 +1856,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2116,6 +2131,8 @@ working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -2128,7 +2145,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -2144,6 +2162,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md
@@ -2171,7 +2190,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -2476,6 +2495,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2523,11 +2543,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -2677,6 +2697,8 @@ working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -2689,7 +2711,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -2705,6 +2728,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md
@@ -2735,7 +2759,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3040,6 +3064,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3087,11 +3112,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -3243,6 +3268,8 @@ working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -3255,7 +3282,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -3271,6 +3299,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
@@ -3298,7 +3327,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -3603,6 +3632,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3650,11 +3680,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -3804,6 +3834,8 @@ working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -3816,7 +3848,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -3832,6 +3865,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-b-r1.md
@@ -3862,7 +3896,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -4167,6 +4201,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4214,11 +4249,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -4365,6 +4400,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4412,11 +4448,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -4582,6 +4618,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4629,11 +4666,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -4807,6 +4844,8 @@ tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -4819,7 +4858,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -4835,6 +4875,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
@@ -4862,7 +4903,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -5175,6 +5216,8 @@ do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -5187,7 +5230,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -5203,6 +5247,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. Each failure the gate run below shows is your work list. Route each item through the DECISION
@@ -5240,7 +5285,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -5547,6 +5592,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   test:  npm test
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
 temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
@@ -5692,6 +5738,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -5739,11 +5786,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -6060,6 +6107,8 @@ tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -6072,7 +6121,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -6088,6 +6138,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement this block's steps. WIRE IT IN so the change is actually reachable — convert
@@ -6118,7 +6169,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6432,6 +6483,8 @@ do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -6444,7 +6497,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -6460,6 +6514,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. Each failure the gate run below shows is your work list. Route each item through the DECISION
@@ -6500,7 +6555,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -6815,6 +6870,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -6862,11 +6918,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -7049,6 +7105,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7096,11 +7153,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -7245,6 +7302,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7292,11 +7350,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -7442,6 +7500,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7489,11 +7548,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -7648,6 +7707,8 @@ do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -7660,7 +7721,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -7676,6 +7738,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
@@ -7714,7 +7777,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -8029,6 +8092,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -8076,11 +8140,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -8297,6 +8361,8 @@ immediately with that count. The run halts for the operator. If it IS 0, impleme
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -8309,7 +8375,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -8325,6 +8392,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
@@ -8352,7 +8420,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -8657,6 +8725,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -8704,11 +8773,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -8857,6 +8926,8 @@ working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -8869,7 +8940,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -8885,6 +8957,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
@@ -8912,7 +8985,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -9217,6 +9290,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9264,11 +9338,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -9412,6 +9486,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9459,11 +9534,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -9608,6 +9683,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9655,11 +9731,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -9805,6 +9881,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9852,11 +9929,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -10011,6 +10088,8 @@ do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -10023,7 +10102,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -10039,6 +10119,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
@@ -10077,7 +10158,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -10392,6 +10473,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -10439,11 +10521,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -10820,6 +10902,8 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -10848,6 +10932,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -11230,6 +11315,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -11613,6 +11699,8 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
+allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -11641,6 +11729,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -12028,6 +12117,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -12338,6 +12428,8 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -12366,6 +12458,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -12751,6 +12844,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -13098,6 +13192,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -13407,6 +13502,8 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -13435,6 +13532,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -15399,6 +15497,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -15446,11 +15545,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -15661,6 +15760,8 @@ do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -15673,7 +15774,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -15689,6 +15791,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
@@ -15730,7 +15833,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -16045,6 +16148,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -16092,11 +16196,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -16302,6 +16406,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -16349,11 +16454,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -16535,6 +16640,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -16582,11 +16688,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -17044,6 +17150,8 @@ return immediately with both counts. The run halts for the operator. If both are
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -17056,7 +17164,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -17072,6 +17181,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement the plan's steps. WIRE IT IN so the feature is actually reachable
@@ -17099,7 +17209,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -17402,6 +17512,7 @@ Never run them in full. Run the test command only for ONE targeted test that con
   test:  npm test
 Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
 temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
 
 Before reviewing, READ this if it exists. It holds the settled decisions:
@@ -17546,6 +17657,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -17593,11 +17705,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-a:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -17791,6 +17903,8 @@ return immediately with both counts. The run halts for the operator. If both are
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code this block's required changes add or change.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -17803,7 +17917,8 @@ ZONE ROUTING - what you fix in each zone under this run's focused change policy.
   - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already
     had included.
   - Connected code: fix a finding the diff introduces or exposes there.
-    Leave every pre-existing finding there unchanged.
+    Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk
+    under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.
   - Other code: never change it. Close a finding the diff introduces or exposes there, such as a build
     break or a regression, at its source in task or connected code. When only a change in other code
     closes it, ESCALATE it (7).
@@ -17819,6 +17934,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: Implement this block's steps. WIRE IT IN so the change is actually reachable — convert
@@ -17849,7 +17965,7 @@ code, BUILD's run is the one you report.
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that every call site this block owns is converted, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that this block's gate meets its expectation. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code. Nor does it count a removed defect that a FOCUSED line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -18159,6 +18275,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -18206,11 +18323,11 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change a criterion of this block requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
   - a behavior change that a "FOCUSED block-b:" line in
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
-    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -18512,6 +18629,8 @@ Every branch stays as it was. Otherwise set restore_failed to "" and restored_br
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
+Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
+outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
   - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
@@ -18540,6 +18659,7 @@ skipped, such as HARDEN after a change to comments alone, or SIBLINGS when the r
 When any phase after BUILD changed code, run the gate once more under BUILD's rules after the last such
 phase and before CLASSIFY. That run's outcome is the one you report. When no phase after BUILD changed
 code, BUILD's run is the one you report.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 1. VERIFY-FIRST: the entries come from a PAST snapshot. For EACH, read the CURRENT code and confirm the
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
@@ -18927,6 +19047,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
 This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.

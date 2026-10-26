@@ -37,8 +37,10 @@ Under both policies, the developer fixes every problem in task code at any size.
 problem its change causes or exposes in connected code. It never changes other code. When its change
 causes or exposes a problem there, it fixes the cause in task or connected code. If only a change in
 other code can fix the problem, the developer escalates it. `focused` is for working code that stays
-close to the task. Its developer builds minimally. It leaves unchanged any problem the connected code
-already had that its change neither causes nor exposes. `proactive` is for the best code. Its developer
+close to the task. Its developer builds minimally. In a feature or section block, it also fixes a defect
+the connected code already had when the defect lies in a function or method that holds task code
+and the fix is low risk. It leaves unchanged every other problem the connected code already had that its
+change neither causes nor exposes. `proactive` is for the best code. Its developer
 builds each feature and section block with the change that has the best long-term result. In those
 blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
 cleanup outside task code, such as a clearer name, in the backlog and leaves the code unchanged. A

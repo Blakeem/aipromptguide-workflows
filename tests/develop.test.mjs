@@ -92,12 +92,14 @@ const TASK_CODE = {
   fix: "the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns. Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding",
 };
 const CODE_ZONES = (mode) => `CODE ZONES - every piece of code lies in one of three zones: - Task code: ${TASK_CODE[mode]}. - Connected code: the code a reach step from the task code finds, which is its callers and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it, apart from code this block's text excludes or another block of the plan owns. - Other code: everything else.`;
-// Only a proactive feature or section block may change connected code for a defect its diff neither introduces nor exposes.
+// A feature or section block may change connected code for a defect its diff neither introduces nor exposes: any such
+// defect under proactive, and one in a function or method that holds task code under focused.
 const CHANGE_ZONES = {
   connected: 'in task code or in connected code',
+  changedFunction: 'in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code',
   diffOnly: 'in task code, or in connected code where the change closes a defect the diff introduces or exposes',
 };
-const changeZones = (policy, mode) => (policy === 'proactive' && mode !== 'fix' ? CHANGE_ZONES.connected : CHANGE_ZONES.diffOnly);
+const changeZones = (policy, mode) => (mode === 'fix' ? CHANGE_ZONES.diffOnly : policy === 'proactive' ? CHANGE_ZONES.connected : CHANGE_ZONES.changedFunction);
 
 // ---------------------------------------------------------------------------------------------
 // Round preconditions, in the order the engine checks them
@@ -2762,7 +2764,7 @@ section('acceptance counts every defect it writes, in every mode: a prescribed o
 section('acceptance lists what is not a regression from one rule, in every mode and under both policies, and the developer\'s SELF-REVIEW and SIBLINGS phases name the removed-defect exception and its zones');
 // The developer's sibling rule removed a defect on a sibling path of a required fix, and acceptance counted that change as a regression.
 {
-  const otherZones = (zones) => (zones === CHANGE_ZONES.connected ? CHANGE_ZONES.diffOnly : CHANGE_ZONES.connected);
+  const otherZones = (zones) => Object.values(CHANGE_ZONES).filter((z) => z !== zones);
   const removedDefect = (mode, zones) => `- a removed defect: a change that closes a finding an earlier review of this block named, or that closes the same defect on a sibling path of a change ${REQUIRED_BY[mode]} requires or of such a finding. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect and is that same defect, that the change alters no other behavior, that it lies in code this block's text does not exclude and ${OWNED_CODE}, and that it lies ${zones}.`;
   const removedDefectExcuse = (zones) => `Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and ${OWNED_CODE}, and ${zones}.`;
   const passage = (r, id) => {
@@ -2780,7 +2782,7 @@ section('acceptance lists what is not a regression from one rule, in every mode 
       const otherWording = mode === 'fix' ? REQUIRED_BY.feature : REQUIRED_BY.fix;
       ok(a.includes(`without ${REQUIRED_BY[mode]} requiring it. A change counts as required only when ${REQUIRED_BY[mode]} names that change. A break that a prescribed construction causes, which ${REQUIRED_BY[mode]} does not name, is not required, so it is a regression. Not a regression: - a test`) && !a.includes(`without ${otherWording} requiring it`),
         `${policy} ${mode}: the definition keeps this frame's requirement wording, then opens the "Not a regression" list`);
-      ok(a.includes(item) && !a.includes(removedDefect(mode, otherZones(zones))),
+      ok(a.includes(item) && otherZones(zones).every((o) => !a.includes(removedDefect(mode, o))),
         `${policy} ${mode}: the list holds the removed-defect item with its conditions and the zones a ${policy} ${mode} block may change: ${zones}`);
       ok(at('Not a regression:') < at(item) && at(item) < at('Every other such break or change is a regression.')
         && at('Every other such break or change is a regression.') < at('So is a comment or doc sentence that was true in the accepted baseline'),
@@ -2790,7 +2792,7 @@ section('acceptance lists what is not a regression from one rule, in every mode 
       ok((policy === 'focused') === a.includes(`- a behavior change that a "FOCUSED ${id}:" line in`),
         `${policy} ${mode}: the FOCUSED item is ${policy === 'focused' ? 'listed' : 'absent'}`);
       const dev = flat(r.prompt(`develop ${id}`));
-      ok(dev.includes(removedDefectExcuse(zones)) && !dev.includes(removedDefectExcuse(otherZones(zones))),
+      ok(dev.includes(removedDefectExcuse(zones)) && otherZones(zones).every((o) => !dev.includes(removedDefectExcuse(o))),
         `${policy} ${mode}: the developer's SELF-REVIEW states acceptance's removed-defect excuse with acceptance's two scope conditions and the same zones`);
       ok(dev.includes(SIBLINGS_STEP),
         `${policy} ${mode}: the SIBLINGS phase fixes each sibling path the zone routing fixes, and leaves excluded and other-block code to a DISMISSED line`);
@@ -2798,9 +2800,9 @@ section('acceptance lists what is not a regression from one rule, in every mode 
   }
   const feature = passage(bus, 'block-a');
   const asBlockA = (text, id) => text.replace(`"FOCUSED ${id}:"`, '"FOCUSED block-a:"');
-  const fixAsFeature = asBlockA(passage(fixBus, 'fix-a'), 'fix-a').replaceAll(REQUIRED_BY.fix, REQUIRED_BY.feature).replaceAll("an entry's **Fix:**", "this block's own text");
+  const fixAsFeature = asBlockA(passage(fixBus, 'fix-a'), 'fix-a').replaceAll(REQUIRED_BY.fix, REQUIRED_BY.feature).replaceAll("an entry's **Fix:**", "this block's own text").replaceAll(CHANGE_ZONES.diffOnly, CHANGE_ZONES.changedFunction);
   ok(feature !== '' && asBlockA(passage(bus, 'block-b'), 'block-b') === feature && fixAsFeature === feature,
-    'focused: every frame renders one passage, apart from the block id and the fix frame\'s ACTIONABLE-entry and **Fix:** wording');
+    'focused: every frame renders one passage, apart from the block id, the fix frame\'s ACTIONABLE-entry and **Fix:** wording, and its zones, which leave out a function that holds task code');
   ok(passage(proBus, 'block-a') !== '' && passage(proBus, 'block-b').replace('"PROACTIVE block-b:"', '"PROACTIVE block-a:"') === passage(proBus, 'block-a'),
     'proactive: the feature and section frames render one passage, apart from the block id');
   ok(passage(proFixBus, 'fix-a') !== '' && passage(proFixBus, 'fix-a').replace('"PROACTIVE fix-a:"', '"FOCUSED fix-a:"') === passage(fixBus, 'fix-a'),
@@ -3762,7 +3764,9 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   const count = (text, s) => text.split(s).length - 1;
   const routing = (policy) => `ZONE ROUTING - what you fix in each zone under this run's ${policy} change policy. A pre-existing finding is one the accepted baseline already had that the diff neither introduces nor exposes. - Task code: hunt it, and fix every finding in it at every tier, a defect the accepted baseline already had included. - Connected code: fix a finding the diff introduces or exposes there.`;
   const fixesConnected = 'Fix a pre-existing defect there when its fix is low risk under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.';
+  const sameFunctionFix = 'Fix a pre-existing defect there that lies in a function or method that holds task code, when its fix is low risk under the RISK QUESTIONS below, and leave every other pre-existing finding there unchanged.';
   const keepsConnected = 'Leave every pre-existing finding there unchanged.';
+  const connectedRule = (policy, mode) => (mode === 'fix' ? keepsConnected : policy === 'proactive' ? fixesConnected : sameFunctionFix);
   const routingTail = "- Other code: never change it. Close a finding the diff introduces or exposes there, such as a build break or a regression, at its source in task or connected code. When only a change in other code closes it, ESCALATE it (7). Never hunt outside task code. Read connected code to check your change's effects, and route what you notice there by these rules. A fix still follows the DECISION MATRIX's rules for a plan conflict (6a, 6b) and a user-only choice (7). Rule 2 of the DECISION MATRIX drops each pre-existing finding these rules do not fix, and RECORD below says which of them get a backlog entry.";
   // The retired per-policy bounds, the proactive past-reach permission and the focused rule 4 and SELF-REVIEW threshold.
   const RETIRED = [
@@ -3786,10 +3790,10 @@ section('every developer and acceptance prompt renders one code-zone map, the de
         `${where}: the developer reads the zone map, then the zone routing, before its phases`);
       ok(acc.indexOf(zoneMap) >= 0 && acc.indexOf(zoneMap) < acc.indexOf('A regression is any behavior') && !acc.includes('ZONE ROUTING'),
         `${where}: acceptance reads the zone map just before the regression rule, and no routing`);
-      const proactiveConnected = policy === 'proactive' && mode !== 'fix';
-      ok(dev.includes(`${routing(policy)} ${proactiveConnected ? fixesConnected : keepsConnected} ${routingTail}`)
-        && !dev.includes(proactiveConnected ? keepsConnected : fixesConnected),
-        `${where}: connected code takes a fix of a defect the diff introduces or exposes${proactiveConnected ? ', and of a pre-existing one only when its fix is low risk' : ', and never another change'}, and other code takes none, a break the diff causes there closed at its source or escalated`);
+      const rule = connectedRule(policy, mode);
+      ok(dev.includes(`${routing(policy)} ${rule} ${routingTail}`)
+        && [fixesConnected, keepsConnected, sameFunctionFix].filter((r) => r !== rule).every((r) => !dev.includes(r)),
+        `${where}: connected code takes a fix of a defect the diff introduces or exposes, and of a pre-existing one only ${mode === 'fix' ? 'never' : policy === 'proactive' ? 'when its fix is low risk' : 'in a function or method that holds task code when its fix is low risk'}, and other code takes none, a break the diff causes there closed at its source or escalated`);
       for (const [label, text] of [['developer', dev], ['acceptance', acc], ['blind reviewer', q]]) {
         const named = RETIRED.filter((s) => text.includes(s));
         ok(text !== '' && named.length === 0, `${where}: the ${label} prompt names no per-policy bound or past-reach permission${named.length ? `: ${named.join(' | ')}` : ''}`);
@@ -3802,6 +3806,35 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   const closer = flat(closing.prompt('develop-closing block-a'));
   ok(count(closer, CODE_ZONES('feature')) === 1 && closer.includes(`${routing('proactive')} ${fixesConnected} ${routingTail}`),
     'the closing pass renders the same zone map and routing');
+}
+
+section('the developer opens its scope rules with one stance paragraph per policy, and three prompts carry the tools sentence');
+// The stance reads before the zone routing it points to, and the focused same-function rule reaches acceptance in the same words.
+{
+  const count = (text, x) => text.split(x).length - 1;
+  const STANCE = {
+    proactive: 'You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.',
+    focused: 'Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.',
+  };
+  const TOOLS = 'Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.';
+  for (const [policy, frames] of Object.entries(FRAMES_BY_POLICY)) {
+    const other = policy === 'focused' ? 'proactive' : 'focused';
+    for (const [mode, id, r] of frames) {
+      const where = `${policy} ${mode}`;
+      const dev = flat(r.prompt(`develop ${id}`));
+      const acc = flat(r.prompt(`acceptance ${id}`));
+      const q = flat(r.prompt(`quality ${id}`));
+      ok(count(dev, STANCE[policy]) === 1 && !dev.includes(STANCE[other]) && dev.indexOf(STANCE[policy]) < dev.indexOf('ZONE ROUTING - what'),
+        `${where}: the developer prompt holds the ${policy} stance once, above the zone routing, and not the ${other} stance`);
+      for (const [label, text] of [['developer', dev], ['blind review', q], ['acceptance', acc]]) {
+        ok(count(text, TOOLS) === 1, `${where}: the ${label} prompt holds the tools sentence once`);
+      }
+      const sameFunction = 'lies in a function or method that holds task code';
+      const expected = policy === 'focused' && mode !== 'fix';
+      ok(expected === dev.includes(sameFunction) && expected === acc.includes(sameFunction),
+        `${where}: the developer's routing and acceptance's regression rule ${expected ? 'both' : 'neither'} name the function or method that holds task code`);
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------------------------
