@@ -2,7 +2,7 @@
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
-import { GIT_OVERFLOW_STUB, wtStubbed, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, stage, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit } from './wt-helpers.mjs';
+import { GIT_OVERFLOW_STUB, wtStubbed, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, trashedAt, stage, commitFile, gateCmd, GATE_GREEN, openIn, closeIn, opened, ledgerGate, ledgerRuns, unchanged, hookIn, hasGit, under } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -213,7 +213,7 @@ await withFixture(({ root, repo }) => {
 
   const r = openIn(repo, 'third');
   eq(r.code, 0, `open exits 0 under a post-checkout hook that writes 2 MiB (${firstLine(r.stderr)})`);
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-third'))), '...registering the worktree');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-third'))), '...registering the worktree');
 });
 await withFixture(({ root, repo }) => {
   const gate = gateCmd(root, 'green', GATE_GREEN);

@@ -54,8 +54,9 @@ whose message is the block's title, and your branch moves to those commits when 
 repo's commit hooks run, and a commit that a hook or signing refuses halts the run with the block's work
 staged.
 
-The run builds in a worktree beside your repo, so you can keep working in your checkout. When your
-branch gained commits during the run, the run is rebased onto them and its gate runs again before it
+The run builds in a worktree in your repo's `.claude/worktrees` folder, unless you saved another folder
+with `project-settings.mjs set --worktree-dir`, so you can keep working in your checkout. When your branch
+gained commits during the run, the run is rebased onto them and its gate runs again before it
 lands. Claude resolves a conflict itself and names each file it resolved. Your uncommitted work stays
 where it is, and Claude asks you only when it sits at a path the run changed.
 

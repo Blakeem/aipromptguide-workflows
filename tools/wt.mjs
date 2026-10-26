@@ -16,6 +16,9 @@
 //   close --repo <abs> --name <n> [--into <branch>] --gate "<cmd>" [--stage]   merge or stage that change, then remove it
 //   close --repo <abs> --name <n> --discard                               trash that change unmerged
 //
+// With no --dir, `init` and `open` put each worktree in `.claude/worktrees/` of the main worktree, or beside a bare repository, and first add that
+// folder to the repo's `info/exclude`, so `git status` in the checkout lists none. `--dir` names another parent folder instead.
+//
 // "after it has landed" is a precondition `clean` enforces. `clean` moves the worktree folder to the
 // operating system's trash through tools/trash.mjs and then runs `git worktree prune`. It never runs
 // `git worktree remove`, which deletes the folder and every ignored file in it. It refuses with exit 40
@@ -117,7 +120,8 @@
 //       fast-forward or the staged work, an ignored file in the way of the staged work, or an unfinished
 //       operation, whose merge or staged work did not verify, whose `--stage` has no worktree on `<into>` or
 //       staged work beside unaccepted work, whose omitted `--into` has no recorded base, or whose branch
-//       moved before its delete.
+//       moved before its delete, a worktree being cleaned or closed whose folder holds another registered
+//       worktree, or an open or init whose info/exclude cannot be read or appended to.
 //       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
@@ -126,11 +130,11 @@
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
 import { execFileSync } from 'node:child_process';
-import { chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { appendFileSync, chmodSync, closeSync, mkdirSync, openSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { devNull } from 'node:os';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { TrashError, foldsCase, isWithin, trash } from './trash.mjs';
+import { TrashError, foldsCase, isWithin, realpathLoose, trash } from './trash.mjs';
 
 export const EXIT_OK = 0;
 export const EXIT_NOTHING = 10;
@@ -188,6 +192,8 @@ const chainBranch = (batch, key) => `aipg/${batch}/${key}`;
 const singleBranch = (name) => `aipg/${name}`;
 const intDir = (batch) => `aipg-int-${batch}`;
 const chainDir = (key) => `aipg-${key}`;
+const WORKTREE_PARENT = join('.claude', 'worktrees');
+const WORKTREE_EXCLUDE_LINE = '/.claude/worktrees/';
 
 // =============================================================================
 // Process + failure helpers
@@ -335,9 +341,10 @@ const WORKTREE_LIST_ATTEMPTS = 5;
 const WORKTREE_LIST_OPTS = { env: { ...process.env, GIT_TEXTDOMAINDIR: devNull } };
 
 /**
- * `[{ path, branch, locked, lockReason, main }]` for every worktree of the repo. `branch` is '' for an
+ * `[{ path, branch, locked, lockReason, main, bare }]` for every worktree of the repo. `branch` is '' for an
  * entry on no local branch, such as a detached one, `lockReason` is '' for an entry locked with no reason,
- * and `main` marks the first entry, which git always lists as the main worktree.
+ * `main` marks the first entry, which git always lists as the main worktree, and `bare` marks the entry of a
+ * bare repository, which has no checkout.
  */
 function listWorktrees(repo) {
   const listArgs = ['worktree', 'list', '--porcelain'];
@@ -352,8 +359,10 @@ function listWorktrees(repo) {
 
   for (const line of outputLines(listed.stdout)) {
     if (line.startsWith('worktree ')) {
-      current = { path: line.slice('worktree '.length).trim(), branch: '', locked: false, lockReason: '', main: entries.length === 0 };
+      current = { path: line.slice('worktree '.length).trim(), branch: '', locked: false, lockReason: '', main: entries.length === 0, bare: false };
       entries.push(current);
+    } else if (line === 'bare' && current) {
+      current.bare = true;
     } else if (line.startsWith('branch ') && current) {
       current.branch = shortBranch(line.slice('branch '.length).trim());
     } else if ((line === 'locked' || line.startsWith('locked ')) && current) {
@@ -423,6 +432,53 @@ function writeHook(path) {
 // =============================================================================
 // init — the ONLY verb that checks-then-acts, which is why it runs before any fan-out
 // =============================================================================
+
+/**
+ * `{ dir, underCheckout }`: the folder that holds the worktrees init or open creates, and whether it is the
+ * default folder under the checkout. That is `--dir` if given, else `.claude/worktrees` under the main worktree, so a
+ * default worktree never nests in a linked one that `close` could trash, and the `info/exclude` line matches it when
+ * `--repo` names a subfolder. A bare repository has no checkout, so it keeps the folder beside it, whichever of its
+ * worktrees `--repo` names.
+ */
+function worktreeParent(repo, opt) {
+  // Input
+  let main = null;
+
+  // Process
+  if (opt.dir !== undefined) return { dir: requireAbsolute(opt, 'dir'), underCheckout: false };
+  main = listWorktrees(repo).find((e) => e.main);
+  if (main.bare) return { dir: dirname(main.path), underCheckout: false };
+
+  // Output
+  return { dir: join(main.path, WORKTREE_PARENT), underCheckout: true };
+}
+
+/**
+ * Adds `/.claude/worktrees/` to the repo's `info/exclude` before the first worktree is made under the default
+ * folder, so `git status` in the user's checkout lists none. It edits no `.gitignore`, which the user's team shares.
+ * `--dir` is the operator's choice and the guides direct it outside the checkout, so only the default folder gets a line.
+ */
+function ensureWorktreeExcluded(repo, parent) {
+  // Input
+  let file = '';
+  let text = '';
+
+  // Process
+  if (!parent.underCheckout) return;
+  file = join(gitCommonDir(repo), 'info', 'exclude');
+  try {
+    text = readFileSync(file, 'utf8');
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw unsafe(`cannot read ${file}, which must list ${WORKTREE_EXCLUDE_LINE} before a worktree is made under the checkout's ${WORKTREE_PARENT} folder: ${err.message}`);
+  }
+  if (text.split(/\r?\n/).some((line) => line.trim() === WORKTREE_EXCLUDE_LINE)) return;
+  try {
+    mkdirSync(dirname(file), { recursive: true });
+    appendFileSync(file, `${text === '' || text.endsWith('\n') ? '' : '\n'}${WORKTREE_EXCLUDE_LINE}\n`);
+  } catch (err) {
+    throw unsafe(`cannot add ${WORKTREE_EXCLUDE_LINE} to ${file}, so the worktrees under the checkout's ${WORKTREE_PARENT} folder would show in git status: ${err.message}`);
+  }
+}
 
 const detachedBase = (repo) => unsafe(`--base was omitted and ${repo} is on a DETACHED HEAD — git has no machine-independent "default branch" in a local repo, so name the branch to cut from with --base`);
 
@@ -504,7 +560,7 @@ function init(opt) {
   // Input
   const repo = requireRepo(opt);
   const batch = requireName(opt, 'batch');
-  const parent = opt.dir === undefined ? dirname(repo) : requireAbsolute(opt, 'dir');
+  const parent = worktreeParent(repo, opt);
 
   // Process
   // Git resolves a relative hooks path inside EACH worktree, so no single hook file could guard every chain.
@@ -520,7 +576,8 @@ function init(opt) {
     throw unsafe(`batch "${other.branch.slice('aipg/int-'.length)}" is already active in ${other.path} — one batch at a time: land it and run "clean --batch" before starting "${batch}"`);
   }
 
-  const integration = mine ? mine.path : addIntegrationWorktree(repo, batch, opt.base, resolve(parent, intDir(batch)));
+  if (!mine) ensureWorktreeExcluded(repo, parent);
+  const integration = mine ? mine.path : addIntegrationWorktree(repo, batch, opt.base, resolve(parent.dir, intDir(batch)));
   const hook = hookPath(integration);
   const state = hookState(hook);
   if (state === 'foreign') {
@@ -1015,6 +1072,10 @@ function folderProblem(repo, path, mainPath, { discard, unlandedAdvice }) {
   const real = realpathSync.native(path);
   const cwd = realpathSync.native(process.cwd());
   const repoReal = realpathSync.native(repo);
+  const nested = listWorktrees(repo).filter((e) => {
+    const other = realpathLoose(e.path);
+    return other !== real && isWithin(other, real, FOLDS_CASE);
+  });
   const operation = discard ? null : operationInProgress(path);
   const dirty = discard ? '' : unlandedFiles(path);
 
@@ -1022,6 +1083,9 @@ function folderProblem(repo, path, mainPath, { discard, unlandedAdvice }) {
   if (isWithin(cwd, real, FOLDS_CASE)) return `The working directory ${cwd} is inside it. Change to a directory outside it and run this command again.`;
   if (isWithin(repoReal, real, FOLDS_CASE)) {
     return `The --repo path ${repo} is inside it, and the prune after the move runs there. Run this command again with --repo ${shellQuote(mainPath)}.`;
+  }
+  if (nested.length > 0) {
+    return `It holds the registered worktree${nested.length === 1 ? '' : 's'} ${nested.map((e) => e.path).join(', ')}, and the prune after the move would drop ${nested.length === 1 ? 'its' : 'their'} registration with any unlanded work. Close or move ${nested.length === 1 ? 'it' : 'them'} first, then run this command again.`;
   }
   if (operation) {
     return `It has ${operation[1]} in progress (${operation[0]}), and "git worktree prune" would delete that state outside the trash. Finish or abort it there, then run this command again.`;
@@ -1643,10 +1707,10 @@ function open(opt) {
   // Input
   const repo = requireRepo(opt);
   const name = requireSingleName(opt);
-  const parent = opt.dir === undefined ? dirname(repo) : requireAbsolute(opt, 'dir');
+  const parent = worktreeParent(repo, opt);
   const provision = opt.provision === undefined ? undefined : requireCommand(opt, 'provision');
   const branch = singleBranch(name);
-  const path = resolve(parent, chainDir(name));
+  const path = resolve(parent.dir, chainDir(name));
   let targets = new Map();
   let base = '';
   let existing = '';
@@ -1663,6 +1727,7 @@ function open(opt) {
     alias = existing === branch ? '' : `, which this file system does not tell apart from ${branch}`;
     throw unsafe(`branch ${existing} already exists in ${repo}${alias}${holder ? `, and the worktree at ${holder.path} is on it, so finish that change with close` : ''}. Pick another --name, or, once its commits are merged or not needed, delete the branch with git -C ${shellQuote(repo)} branch -D ${existing}.`);
   }
+  ensureWorktreeExcluded(repo, parent);
   addWorktreeOnNewBranch(repo, branch, path, headsRef(base), {
     what: `cannot create the worktree for "${name}" at ${path}`,
     recovery: `Fix the cause, remove it with node ${shellQuote(WT_SCRIPT)} close --repo ${shellQuote(repo)} --name ${name} --discard, delete the branch with git -C ${shellQuote(repo)} branch -D ${branch}, then run open again.`,

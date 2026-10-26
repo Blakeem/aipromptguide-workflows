@@ -74,13 +74,25 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    reviewer reads, apart from the user's own edits, so the user can keep working in their checkout.
    - When `git -C <the user's checkout> worktree list --porcelain` lists no worktree on `aipg/<runId>`, which holds on
      the first launch of a `runId` and after step 6 landed it, run `node <project-settings.mjs> provision --root <root> --repo <the user's checkout>`.
-     A fresh worktree holds only tracked files, so on `"provision":null` work out once the command that
-     readies one for the gates: the repo's install command from its lockfile, plus a copy of each ignored
-     file the gates read from the user's checkout, such as `.env`. The platform's shell runs it in the
-     worktree. Save it with `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --provision "<cmd>"`,
+     It prints `provision` and `worktreeDir`, each null when unsaved. A fresh worktree holds only tracked
+     files, so on `"provision":null` work out once the command that readies one for the gates. The default
+     provision command copies every file git ignores in the user's checkout into the worktree, except the
+     folder that holds the run worktrees and what the project's own setup command rebuilds, such as
+     installed dependencies, build output and caches, and then runs that setup command. When the
+     project's checks use something outside the worktree that two runs would share, two runs of that
+     project do not run at the same time. The platform's shell runs the command in the worktree. Save it with
+     `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --provision "<cmd>"`,
      or `--provision none` when the gates need nothing.
+   - With no `--dir`, `open` makes the run worktree in `<the user's checkout>/.claude/worktrees/` and adds
+     that folder to the repo's `info/exclude`, so `git status` in the checkout lists no run worktree. When
+     the project's files reference a path outside the checkout by a relative path, that path resolves only
+     when the worktree sits beside the checkout. So save the checkout's parent folder once with
+     `node <project-settings.mjs> set --root <root> --repo <the user's checkout> --worktree-dir <the checkout's parent folder>`.
+     `--worktree-dir default` removes the saved folder. When the project's checks walk the checkout's folders or
+     search parent folders, as `docs/worktree-batches.md` describes, save a folder outside the checkout instead.
    - Then run `node <wt.mjs> open --repo <the user's checkout> --name <runId> --provision "<cmd>"`, leaving
-     `--provision` out on `none`, where `<wt.mjs>` is this checkout's `tools/wt.mjs`. It cuts
+     `--provision` out on `none` and adding `--dir <worktreeDir>` when `worktreeDir` is set, where
+     `<wt.mjs>` is this checkout's `tools/wt.mjs`. It cuts
      `aipg/<runId>` from the user's current branch, records that branch as the one step 6 lands on, and
      prints the run worktree's path. A provision that fails exits 40 and keeps the worktree, so fix the
      command, save it again, and rerun it there by hand.
@@ -90,7 +102,7 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    `CLAUDE.md`, "Launch from a notification turn"). The engine builds the `status: todo` blocks in file
    order; `done`/`skip`/`backlogged`/`parked`/`blocked` are never selected. `parked` is what an older
    engine wrote for a park.
-5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
+5. **Check the result (§6).** The run's statuses reach the plan file on the next step 3, with no
    step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
    file's `synced:` key, oldest first, all or nothing. The engine decides every value. An accepted or
@@ -149,8 +161,10 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    stage delivery it stages the run's change in the user's checkout and leaves the branch where it is.
    The user may have uncommitted work in their checkout, and close refuses only a change at a path the
    landing writes. Then close removes the run worktree and deletes `aipg/<runId>`. Branch on its exit code:
-   - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only tracked
-     files, and report the result with the run's summary.
+   - `0`: landed. Run the full gate in the user's checkout, since the run worktree held only the tracked
+     files and the ignored files that provision copied. Report the result with the run's summary: each
+     landed block, each backlog entry the run added with its decision, and each `DECISIONS.md` line,
+     showing a logged fix line only after you confirm the landed code still holds its change.
    - `20`: the rebase conflicted with commits the branch gained during the run, or the branch moved
      while close ran. Resolve it yourself in the run worktree: run `git rebase <branch>`, read both sides
      of each conflicted file and keep both intents, `git add` it, run `git rebase --continue`, then run
@@ -530,10 +544,12 @@ that block was the last in a `sweep: goal-coverage` run, the run halts before th
 then done, so a relaunch has nothing to build, and you verify coverage against the goal yourself. Every
 exit leaves a clean tree except passed-but-unstaged, a commit-mode halt whose reason names the tree
 dirty check, and a `park-unsafe` halt whose park did not confirm a clear.
-Verify ground truth yourself after every run: run the gates, `git diff --cached` (in commit mode,
-`git -C <repo> log --stat` over the run's commits), grep integration points, read the latest acceptance
-reviews, audit every `DISMISSED-<id>.md` and `AMENDED-<id>.md`, surface `NEEDS-USER.md`, `DECISIONS.md`,
-the files in `backlogFiles` and `SWEEP.md`.
+After every run, grep integration points, read every `AMENDED-<id>.md` and surface `NEEDS-USER.md`,
+`DECISIONS.md`, the files in `backlogFiles` and `SWEEP.md`. Before landing, do not re-run the gates,
+read the review files or audit the `DISMISSED-<id>.md` files, since acceptance and the gate of
+`wt.mjs close` cover them. Do not view the accepted diff, apart from a record a guide asks for, such as
+debug's stat record in stage delivery. Once §2 step 6 says the run lands, land it there and report its
+summary.
 
 **Commit mode.** With `commit: true`, acceptance stages each accepted block, then commits it with the
 block's title as the entire message: it writes the title to `<stateDir>/commit-<id>.txt` and runs
@@ -660,8 +676,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   verifiers and closing acceptances added to the backlog this run, null when one returned no usable
   report) · `backlogFiles` (the sorted backlog files the developers, fix verifiers and closing
   acceptances named, null when `backlogEntries` is null) · `nextStep` (when the run added entries,
-  it names the folder, the files and the count, and asks you to report each added entry's severity
-  and title to the user. In commit mode it names each committed block with its sha. It says nothing
+  it names the folder, the files and the count, and asks you to report each added entry's severity,
+  title and decision to the user. In commit mode it names each committed block with its sha. It says nothing
   is staged when the run did not halt, and otherwise points at `git diff --cached --stat`).
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on

@@ -4,25 +4,28 @@
 // The store is <root>/projects.json, a JSON object that maps a repo key to the repo's settings, an object whose
 // optional fields are `changePolicy` (focused, proactive or auto, where auto leaves the run's pick to Claude), `commit` (a
 // boolean, whether develop commits each accepted block), `provision` (the command that readies a fresh run worktree,
-// or `none`) and `models` and `efforts` (each maps a role key to the model or reasoning level develop gives that
+// or `none`), `worktreeDir` (the absolute folder that holds the run worktrees, when it is not the default one under
+// the repo) and `models` and `efforts` (each maps a role key to the model or reasoning level develop gives that
 // role). The key is the repo's main checkout, so a linked worktree shares its settings and its backlog folder.
 //
 //   node tools/project-settings.mjs check --root <dir> --repo <dir>      # "<policy> <key>" or "missing <key> recommend=<policy>"
 //   node tools/project-settings.mjs backlog --root <dir> --repo <dir>    # "<root>/backlog/<project>/"
 //   node tools/project-settings.mjs set --root <dir> --repo <dir> [--policy focused|proactive|auto] [--commit on|off]
-//                                       [--provision "<cmd>"|none]       # "set <key> [<policy>] [commit=<on|off>] [provision] in <store>"
+//                                       [--provision "<cmd>"|none] [--worktree-dir <abs dir>|default]
+//                                                                         # "set <key> [<policy>] [commit=<on|off>] [provision] [worktreeDir] in <store>"
 //   node tools/project-settings.mjs commit --root <dir> --repo <dir>     # "on <key>", "off <key>" or "missing <key>"
-//   node tools/project-settings.mjs provision --root <dir> --repo <dir>  # {"key":"...","provision":"<cmd>"|"none"|null}
+//   node tools/project-settings.mjs provision --root <dir> --repo <dir>  # {"key":"...","provision":"<cmd>"|"none"|null,"worktreeDir":"<abs dir>"|null}
 //   node tools/project-settings.mjs roles --root <dir> --repo <dir>      # {"models":{...},"efforts":{...}}
 //   node tools/project-settings.mjs set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]
 //                                                                         # "set-roles <key> {...} in <store>"
 //
 // The recommendation is proactive when the repo has no commits or every commit's author email is the user's
 // `git config user.email`, and focused otherwise. A repo that saved no policy reads `missing` from check, whatever else
-// it saved. set needs --policy, --commit or --provision and keeps every other saved setting. backlog reads no setting and
-// creates nothing. commit, provision and roles never ask or recommend. set-roles merges each named role
-// into the saved map, and the value `default` removes that role's saved value. Every failure exits 1 with its cause
-// on stderr, and a write never replaces a store it cannot parse. Ordinary Node: `node --check` applies.
+// it saved. set needs --policy, --commit, --provision or --worktree-dir, where `default` removes the saved
+// worktreeDir, and keeps every other saved setting. backlog reads no setting and creates nothing. commit,
+// provision and roles never ask or recommend. set-roles merges each named role into the saved map, and the
+// value `default` removes that role's saved value. Every failure exits 1 with its cause on stderr, and a
+// write never replaces a store it cannot parse. Ordinary Node: `node --check` applies.
 
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -47,20 +50,20 @@ export const ROLE_KEYS = ['develop', 'park', 'quality', 'acceptance', 'sweep'];
 export const MODELS = RUN_KEYS.preamble.keys.model;
 export const EFFORTS = RUN_KEYS.preamble.keys.effort;
 const ROLE_SETS = { models: MODELS, efforts: EFFORTS };
-const SETTING_FIELDS = ['changePolicy', 'commit', 'provision', ...Object.keys(ROLE_SETS)];
+const SETTING_FIELDS = ['changePolicy', 'commit', 'provision', 'worktreeDir', ...Object.keys(ROLE_SETS)];
 const COMMIT_CHOICES = { on: true, off: false };
 const UNSET = 'default';
 const VERBS = {
   check: { required: ['root', 'repo'], anyOf: [] },
   backlog: { required: ['root', 'repo'], anyOf: [] },
-  set: { required: ['root', 'repo'], anyOf: ['policy', 'commit', 'provision'] },
+  set: { required: ['root', 'repo'], anyOf: ['policy', 'commit', 'provision', 'worktree-dir'] },
   commit: { required: ['root', 'repo'], anyOf: [] },
   provision: { required: ['root', 'repo'], anyOf: [] },
   roles: { required: ['root', 'repo'], anyOf: [] },
   'set-roles': { required: ['root', 'repo'], anyOf: Object.keys(ROLE_SETS) },
 };
 const USAGE = 'usage: node tools/project-settings.mjs check|backlog|commit|provision|roles --root <dir> --repo <dir>'
-  + ` | set --root <dir> --repo <dir> [--policy ${POLICIES.join('|')}] [--commit on|off] [--provision "<cmd>"|none]`
+  + ` | set --root <dir> --repo <dir> [--policy ${POLICIES.join('|')}] [--commit on|off] [--provision "<cmd>"|none] [--worktree-dir <abs dir>|${UNSET}]`
   + ' | set-roles --root <dir> --repo <dir> [--models <role>=<value>,...] [--efforts <role>=<value>,...]';
 const FOLDS_CASE = foldsCase(process.platform);
 
@@ -132,6 +135,9 @@ function parseArgv(argv) {
     if (!Object.hasOwn(COMMIT_CHOICES, opt.commit)) throw new Error(`--commit "${opt.commit}" is neither on nor off`);
     opt.commit = COMMIT_CHOICES[opt.commit];
   }
+  if (Object.hasOwn(opt, 'worktree-dir') && opt['worktree-dir'] !== UNSET && !isAbsolute(opt['worktree-dir'])) {
+    throw new Error(`--worktree-dir "${opt['worktree-dir']}" is neither an absolute path nor ${UNSET}`);
+  }
   for (const [name, legal] of Object.entries(ROLE_SETS)) {
     if (Object.hasOwn(opt, name)) opt[name] = parseRolePairs(name, opt[name], legal);
   }
@@ -175,6 +181,17 @@ export function withCommit(store, key, commit, foldCase) {
 /** The store with `key`'s provision command set to `provision`, a command or `none`. */
 export function withProvision(store, key, provision, foldCase) {
   return withSettings(store, key, (settings) => ({ ...settings, provision }), foldCase);
+}
+
+/** The store with `key`'s worktree folder set to the absolute path `dir`, or removed when `dir` is `default`. */
+export function withWorktreeDir(store, key, dir, foldCase) {
+  const change = (settings) => {
+    const next = { ...settings };
+    if (dir === UNSET) delete next.worktreeDir;
+    else next.worktreeDir = dir;
+    return next;
+  };
+  return withSettings(store, key, change, foldCase);
 }
 
 /** The store with each role that `updates` names merged into `key`'s saved `models` and `efforts` maps. `updates`
@@ -230,6 +247,9 @@ function settingsProblem(key, settings) {
   }
   if (Object.hasOwn(settings, 'provision') && (typeof settings.provision !== 'string' || !settings.provision.trim())) {
     return `gives ${name} a provision of ${JSON.stringify(settings.provision)}, which is not a command or "none"`;
+  }
+  if (Object.hasOwn(settings, 'worktreeDir') && (typeof settings.worktreeDir !== 'string' || !isAbsolute(settings.worktreeDir))) {
+    return `gives ${name} a worktreeDir of ${JSON.stringify(settings.worktreeDir)}, which is not an absolute path`;
   }
   const problems = Object.entries(ROLE_SETS)
     .filter(([field]) => Object.hasOwn(settings, field))
@@ -379,15 +399,18 @@ async function main(argv) {
     const policyChosen = Object.hasOwn(opt, 'policy');
     const commitChosen = Object.hasOwn(opt, 'commit');
     const provisionChosen = Object.hasOwn(opt, 'provision');
+    const worktreeDirChosen = Object.hasOwn(opt, 'worktree-dir');
     let next = store;
     if (policyChosen) next = withPolicy(next, key, opt.policy, FOLDS_CASE);
     if (commitChosen) next = withCommit(next, key, opt.commit, FOLDS_CASE);
     if (provisionChosen) next = withProvision(next, key, opt.provision, FOLDS_CASE);
+    if (worktreeDirChosen) next = withWorktreeDir(next, key, opt['worktree-dir'], FOLDS_CASE);
     writeStore(storePath, next);
     const savedWords = [
       policyChosen ? opt.policy : null,
       commitChosen ? `commit=${opt.commit ? 'on' : 'off'}` : null,
       provisionChosen ? 'provision' : null,
+      worktreeDirChosen ? 'worktreeDir' : null,
     ].filter(Boolean);
     return `set ${key} ${savedWords.join(' ')} in ${storePath}\n`;
   }
@@ -395,7 +418,7 @@ async function main(argv) {
     if (!Object.hasOwn(savedSettings, 'commit')) return `missing ${key}\n`;
     return `${savedSettings.commit ? 'on' : 'off'} ${key}\n`;
   }
-  if (verb === 'provision') return `${JSON.stringify({ key, provision: savedSettings.provision ?? null })}\n`;
+  if (verb === 'provision') return `${JSON.stringify({ key, provision: savedSettings.provision ?? null, worktreeDir: savedSettings.worktreeDir ?? null })}\n`;
   if (verb === 'roles') return `${JSON.stringify(rolesOf(savedSettings))}\n`;
   if (verb === 'set-roles') {
     const updates = Object.fromEntries(Object.keys(ROLE_SETS).filter((f) => Object.hasOwn(opt, f)).map((f) => [f, opt[f]]));

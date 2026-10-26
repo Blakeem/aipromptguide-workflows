@@ -679,8 +679,8 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   ok(found.logs.some((l) => l.includes(`acceptance added 2 backlog entries to ${FILE_A}`)), 'and the round logs it');
   ok(found.out.nextStep.includes(`This run added 2 entries to the project's backlog folder ${BACKLOG}/, in: ${FILE_A}.`),
     'the nextStep names the folder, the file and the count');
-  ok(found.out.nextStep.includes('Report each added entry\'s severity, or its category for an entry with no severity line, and its title to the user.'),
-    'and has the operator report each added entry to the user');
+  ok(found.out.nextStep.includes('Report each added entry\'s severity, or its category for an entry with no severity line, its title and its decision to the user.'),
+    'and has the operator report each added entry and its decision to the user');
   ok(found.out.nextStep.includes('Work the backlog as the develop guide\'s "Working the backlog" says once each file\'s block is done, skip or backlogged'),
     'and sends the triage to the guide once the block is done, skipped or backlogged');
   ok(!/\bmove\b|renumber|rename/i.test(found.out.nextStep), 'and never says to move, renumber or rename a file');
@@ -2108,7 +2108,12 @@ section('a healthy sweep is surfaced, sweep:none spawns none, and a halted run i
   const healthy = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, SWEPT);
   eq(healthy.out.status, 'done (all blocks staged)', 'status');
   eq(healthy.out.sweep?.suite, 'green', 'the sweep result is surfaced');
-  ok(/status --porcelain/.test(healthy.out.nextStep), 'nextStep carries the unstaged-tree check');
+  ok(healthy.out.nextStep.includes('Land the run with `wt.mjs close` once the develop guide says the run lands, and report the run\'s summary to the user: each landed block, each backlog entry named above, and each entry in '),
+    'nextStep tells the operator to land the run and report its summary');
+  ok(healthy.out.nextStep.includes('diff` is empty and `git -C ') && healthy.out.nextStep.includes('status --porcelain` lists no `??` file'),
+    'nextStep carries the unstaged-tree check that holds in stage and commit delivery');
+  ok(!/diff --cached --stat|run the full gates|review files|DISMISSED-<id>|auditing/.test(healthy.out.nextStep),
+    'and drops the gate re-run, the diff stat, the review-file reads and the DISMISSED audit');
 
   const none = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...baseArgs, sweep: 'none' });
   ok(!none.labels.includes('final-sweep'), 'sweep:none spawns no sweep agent');
@@ -2831,7 +2836,7 @@ section('a recorded amendment is logged, summed into the ledger and named in nex
   ok(!none.logs.some((l) => /plan amendment\(s\) recorded/.test(l)), 'a zero report logs nothing');
   eq(none.out.ledger[0].planAmendments, 0, 'the ledger record still carries the field');
   ok(!/PLAN AMENDED/.test(none.out.nextStep), 'and nextStep says nothing about amendments');
-  ok(String(none.out.nextStep ?? '').includes('auditing every declined finding. Show the user each entry in E:/r/runs/t/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a fix'),
+  ok(String(none.out.nextStep ?? '').includes('each entry in E:/r/runs/t/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a fix'),
     'the closing sentence still names DECISIONS, since an escalated default lands there with no amendment');
 }
 
@@ -3702,7 +3707,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   const loggedFixExcuse = (tag, zones) => `Nor does it count a removed defect that a ${tag} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${zones}.`;
   const step4 = '4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
   const settled = (tag, policy) => `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per ${FIX_NOUN} that this run's ${policy} change policy let the developer make, a record. A ${tag} line is never skipped for its stated reason, since the regression rule below judges each one.`;
-  const decisionsNext = (tag, policy) => `Show the user each entry in ${STATE}/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a ${FIX_NOUN} that the ${policy} change policy allowed. Show a ${tag} line only after you confirm the code still holds its change, since a later round or a park can undo it`;
+  const decisionsNext = (tag, policy) => `each entry in ${STATE}/DECISIONS.md if it exists, since each is a default the developer took, a plan amendment, or a ${FIX_NOUN} that the ${policy} change policy allowed. Show a ${tag} line only after you confirm the landed code still holds its change, since a later round or a park can undo it`;
 
   ok(bus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=focused, commit=false]')), 'the default run\'s start line names focused');
   ok(proBus.logs.some((l) => l.startsWith('develop: 2/2 block(s) to build') && l.endsWith(', changePolicy=proactive, commit=false]')), 'a proactive run\'s start line names proactive');
@@ -3946,8 +3951,8 @@ section('a commit-mode pass commits with the block title through a file, and the
   const next = nextOf(r.out);
   ok(next.includes(`Committed: block-a (${SHA}).`) && next.endsWith('Nothing is staged.') && !next.includes('Nothing is committed') && !next.includes('Staged/accepted'),
     'nextStep names the commit and says nothing is staged');
-  ok(next.includes('run the full gates, `git -C E:/repo show --stat <sha>` for each commit above,') && !next.includes('diff --cached --stat'),
-    'and verifies the run by its commits');
+  ok(next.includes('Land the run with `wt.mjs close`') && !next.includes('show --stat') && !next.includes('diff --cached --stat'),
+    'and sends the operator to land the run, not to view the commits');
   ok(r.out.reviewTrail.endsWith('a git commit marks each accepted block.'), 'the review trail names the commit');
 
   const stage = await run(GREEN_RUN, ONE_BLOCK);
@@ -4103,8 +4108,7 @@ section('a commit-mode no-op pass makes no commit, lands, and has no subject to 
   eq(r.out.status, 'done (all blocks committed)', 'a no-op pass lands');
   eq(r.out.ledger[0].commit, null, 'the ledger records no commit');
   eq(r.out.ledger[0].status, 'done (no-op, nothing to commit)', 'and says why');
-  ok(nextOf(r.out).includes('Accepted with no commit of their own: block-a.') && !nextOf(r.out).includes('Committed:')
-    && nextOf(r.out).includes('run the full gates, `git -C E:/repo log --stat`,'), 'nextStep says the block made no commit');
+  ok(nextOf(r.out).includes('Accepted with no commit of their own: block-a.') && !nextOf(r.out).includes('Committed:'), 'nextStep says the block made no commit');
   ok(flat(r.prompt('acceptance block-a r1')).includes('Make no commit, and return committed=true, commit_sha "", commit_subject "", tree_matches=true and tree_clean as step 9 says'),
     'the no-op bullet makes no commit and says what to return');
   const dirty = await run({ ...C_RUN, acceptance: { ...ACC_C, commit_sha: '', commit_subject: '', tree_clean: false } }, COMMIT_ONE);
@@ -4228,8 +4232,8 @@ section('every prompt and halt names the accepted baseline in its mode\'s own te
   const unstaged = String((await run({ ...C_RUN, acceptance: { ...ACC_C, staged: false, committed: false, commit_sha: '', commit_subject: '' } }, COMMIT_ONE)).out.haltReason ?? '');
   ok(unstaged.includes("and commit them with the block's title as the entire message"), 'the commit-mode passed-unstaged halt says to commit as well as stage');
   const none = await run({}, { ...COMMIT_ONE, plans: [{ ...C_BLOCK, status: 'done' }] });
-  ok(nextOf(none.out).includes('(run the full gates, `git -C E:/repo log --stat`).') && !nextOf(none.out).includes('and commit.'),
-    'the commit-mode nothing-to-run terminal verifies by the log and never says to commit');
+  ok(nextOf(none.out).includes('land it with `wt.mjs close` once the develop guide says the run lands') && !nextOf(none.out).includes('run the full gates') && !nextOf(none.out).includes('and commit.'),
+    'the commit-mode nothing-to-run terminal lands a held run with wt.mjs close and never says to re-run the gates or to commit');
 }
 
 // ---------------------------------------------------------------------------------------------

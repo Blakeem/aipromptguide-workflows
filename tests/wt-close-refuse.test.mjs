@@ -57,6 +57,26 @@ await withFixture(({ root, repo }) => {
   eq(closeIn(repo, 'feat', 'main', gate).code, 0, 'with every refusal cleared, close exits 0');
 });
 
+section('close REFUSES a worktree whose folder holds another registered worktree, with or without --discard, and changes nothing');
+await withFixture(({ root, repo }) => {
+  const gate = gateCmd(root, 'green', GATE_GREEN);
+  const outer = opened(repo, 'outer');
+  const outerTip = commitFile(outer, 'o.txt', 'outer\n');
+  const inner = opened(repo, 'inner', ['--dir', join(outer, '.claude', 'worktrees')]);
+  writeFileSync(at(inner, 'unlanded.txt'), 'unlanded work\n');
+
+  const refused = closeIn(repo, 'outer', 'main', gate);
+  eq(refused.code, 40, 'a worktree that holds another registered worktree exits 40');
+  ok(/holds the registered worktree .*inner/.test(refused.stderr), `...naming the inner worktree: ${firstLine(refused.stderr)}`);
+  unchanged(root, repo, outer, 'outer', sha(repo, 'refs/heads/main'), outerTip);
+  ok(worktreePaths(repo).includes(norm(inner)), '...and the inner worktree is still registered');
+  eq(readOr(at(inner, 'unlanded.txt')), 'unlanded work\n', '...with its unlanded file in place');
+
+  const discarded = discardIn(repo, 'outer');
+  eq(discarded.code, 40, 'close --discard refuses the same folder');
+  ok(worktreePaths(repo).includes(norm(inner)), '...and leaves the inner worktree registered');
+});
+
 section('close REFUSES to fast-forward an --into branch that the main worktree is mid-rebase of, and changes nothing');
 await withFixture(({ root, repo }) => {
   const gate = gateCmd(root, 'green', GATE_GREEN);

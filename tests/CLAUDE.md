@@ -405,7 +405,7 @@ node tests/run.mjs                                                   # here, aft
 ```
 
 `open` cuts `aipg/<name>` from `main`, whatever branch the checkout is on. Run `close` once the change is
-committed, since finished worktrees left for later pile up beside the repo. `close` rebases the branch
+committed, since finished worktrees left for later pile up in the checkout's `.claude/worktrees` folder, where a tool that walks the checkout reads them. `close` rebases the branch
 onto `main` when `main` has a commit the branch lacks, gates the exact commit `main` will point at, and
 fast-forwards `main` to it. Only then does it move the worktree folder to the trash and delete the
 branch. It refuses a worktree with modified, staged or untracked files, an unfinished operation or

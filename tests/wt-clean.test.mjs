@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, symlinkSync, w
 import { dirname, join, relative } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { HOOK, worktreeAdminDirs } from '../tools/wt.mjs';
-import { DATA_HOME, wt, TRASH_STUB, GIT_OVERFLOW_STUB, cleanStubbed, abs, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, hookOf, otherRepo, withFixture, trashedName, trashedAt, land, batchOf, stage, lockOf, writeLock, deadPid, hasGit } from './wt-helpers.mjs';
+import { DATA_HOME, wt, TRASH_STUB, GIT_OVERFLOW_STUB, cleanStubbed, abs, at, git, norm, firstLine, Q, rx, readOr, worktreePaths, sha, hookOf, otherRepo, withFixture, trashedName, trashedAt, land, batchOf, stage, lockOf, writeLock, deadPid, hasGit, under } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -13,8 +13,8 @@ section('clean moves the worktree to the trash, keeps the branch, and obeys the 
 await withFixture(async ({ root, repo }) => {
   wt(['init', '--repo', repo, '--batch', 'b1']);
   wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
-  const chain = join(root, 'aipg-alpha');
-  const intWt = join(root, 'aipg-int-b1');
+  const chain = under(repo, 'aipg-alpha');
+  const intWt = under(repo, 'aipg-int-b1');
   const hook = hookOf(intWt);
 
   const c1 = wt(['clean', '--repo', repo, '--key', 'alpha']);
@@ -36,7 +36,7 @@ await withFixture(async ({ root, repo }) => {
 });
 await withFixture(({ root, repo }) => {
   wt(['init', '--repo', repo, '--batch', 'b1']);
-  const intWt = join(root, 'aipg-int-b1');
+  const intWt = under(repo, 'aipg-int-b1');
   const hook = hookOf(intWt);
   const foreign = `${HOOK}# and then somebody edited it\n`;
   writeFileSync(hook, foreign);
@@ -51,8 +51,8 @@ section('clean REFUSES a worktree that still holds unlanded work, instead of mov
 await withFixture(({ root, repo }) => {
   wt(['init', '--repo', repo, '--batch', 'b1']);
   wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
-  const chain = join(root, 'aipg-alpha');
-  const intWt = join(root, 'aipg-int-b1');
+  const chain = under(repo, 'aipg-alpha');
+  const intWt = under(repo, 'aipg-int-b1');
   const hook = hookOf(intWt);
 
   // The resting state of a finished stage-mode engine run is accepted work STAGED, not committed
@@ -92,12 +92,12 @@ await withFixture(({ root, repo }) => {
   wt(['init', '--repo', repo, '--batch', 'b1']);
   wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
   wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'beta']);
-  const intWt = join(root, 'aipg-int-b1');
-  const beta = join(root, 'aipg-beta');
+  const intWt = under(repo, 'aipg-int-b1');
+  const beta = under(repo, 'aipg-beta');
   const hook = hookOf(intWt);
 
   eq(wt(['clean', '--repo', repo, '--key', 'alpha']).code, 0, 'alpha lands and is cleaned');
-  ok(trashedName(root, join(root, 'aipg-alpha')) !== '', '...moving alpha to the trash');
+  ok(trashedName(root, under(repo, 'aipg-alpha')) !== '', '...moving alpha to the trash');
 
   const refused = wt(['clean', '--repo', repo, '--batch', 'b1']);
   eq(refused.code, 40, 'clean --batch exits 40 while beta is still registered');

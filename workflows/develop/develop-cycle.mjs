@@ -1891,7 +1891,7 @@ if (!pending.length) {
     backlogEntries: 0,
     backlogFiles: [],
     reviewTrail,
-    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished — verify the end state yourself (run the full gates, ${COMMIT ? `\`git -C ${REPO} log --stat\`)` : `\`git -C ${REPO} diff --cached --stat\`) and commit`}.${sweepNote}`,
+    nextStep: `No block in args.plans has status:"todo"${runOnly ? ` within runOnly [${runOnly.join(', ')}]` : ''}. Nothing was built and nothing was changed. If work remains, set that block's status back to todo in its plan file and re-run; otherwise this roadmap is finished. When a run worktree still holds work, land it with \`wt.mjs close\` once the develop guide says the run lands, and report to the user.${sweepNote}`,
   };
 }
 
@@ -2409,7 +2409,7 @@ for (const p of pending) {
       break;
     }
     if (dev?.dismissed_count) {
-      logLine(`  ${p.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(p.id)} (audit these at the end)`);
+      logLine(`  ${p.id} r${round}: developer declined ${dev.dismissed_count} finding(s) → ${dismissedFile(p.id)} (acceptance judges them)`);
     }
     // MATRIX 6a: only the count travels (#1/#8). Coerced so garbage cannot poison the ledger total.
     const amendments = Number(dev?.plan_amendments) || 0;
@@ -2501,7 +2501,7 @@ for (const p of pending) {
       misclassified = false;
       if (quality?.contested_dismissals) {
         rec.contested += quality.contested_dismissals;
-        logLine(`  ⚠ ${p.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — ${closing ? 'the closing acceptance sorts each contest' : 'developer must fix or escalate, not re-dismiss'} (audit ${dismissedFile(p.id)})`);
+        logLine(`  ⚠ ${p.id} r${round}: quality CONTESTED ${quality.contested_dismissals} dismissal(s) — ${closing ? 'the closing acceptance sorts each contest' : 'developer must fix or escalate, not re-dismiss'} (${dismissedFile(p.id)})`);
       }
       // clean means no finding and no contest, so a clean:true beside either count
       // contradicts itself and must route its findings to the developer rather than on to acceptance.
@@ -2960,7 +2960,7 @@ const status = halted
       ].filter(Boolean).join(' and ')})`
       : `partial slice complete (every selected block ${COMMIT ? 'committed' : 'staged'})`;
 
-// Commit mode names each accepted block's commit, by which the operator verifies the run, and stages nothing.
+// Commit mode names each accepted block's commit for the run's report, and stages nothing.
 const landedIds = (state) => doneIds.filter((id) => landingStates.get(id) === state);
 const noCommitIds = landedIds('no-op');
 const refusedIds = landedIds('refused');
@@ -2968,8 +2968,6 @@ const unverifiedIds = landedIds('unverified');
 const acceptedLine = COMMIT
   ? `${launchCommits.length ? `Committed: ${launchCommits.map((c) => `${c.id} (${c.sha})`).join(', ')}. ` : ''}${noCommitIds.length ? `Accepted with no commit of their own: ${noCommitIds.join(', ')}. ` : ''}${refusedIds.length ? `Accepted but its commit not made, its work staged: ${refusedIds.join(', ')}. ` : ''}${unverifiedIds.length ? `Accepted with a commit the engine could not verify: ${unverifiedIds.join(', ')}. ` : ''}`
   : `${doneIds.length ? `Staged/accepted: ${doneIds.join(', ')}. ` : ''}`;
-let acceptedView = `\`git -C ${REPO} diff --cached --stat\``;
-if (COMMIT) acceptedView = launchCommits.length ? `\`git -C ${REPO} show --stat <sha>\` for each commit above` : `\`git -C ${REPO} log --stat\``;
 let closingLine = 'Nothing is committed — you commit.';
 // Several halts leave work in the index, such as a refused commit or files staged before round 1.
 if (COMMIT) closingLine = halted ? `The run halted, so the index may hold work: check \`git -C ${REPO} diff --cached --stat\` against the halt reason above.` : 'Nothing is staged.';
@@ -3051,6 +3049,6 @@ return {
     : ''}${backlogFiles.size || backlogUnknown
     ? `${backlogUnknown
       ? `A developer, fix verifier or closing acceptance returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG_DIR}/ for entries this run added: ${[...startedBacklogFiles].sort().join(', ')}.`
-      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
-    : ''}${acceptedLine}Verify the end state yourself: run the full gates, ${acceptedView}, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
+      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, its title and its decision to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
+    : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
 };

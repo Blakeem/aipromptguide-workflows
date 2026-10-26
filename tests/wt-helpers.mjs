@@ -62,6 +62,12 @@ export function abs(path, what) {
   return path;
 }
 export const at = (base, ...parts) => join(abs(base, 'base path'), ...parts);
+/** Where `open` and `init` put a worktree when --dir is omitted. */
+export const under = (repo, ...parts) => join(abs(repo, 'repo path'), '.claude', 'worktrees', ...parts);
+/** The fixture repo's info/exclude, which `open` and `init` add the default worktree folder to. */
+export const excludeFile = (repo) => at(repo, '.git', 'info', 'exclude');
+/** How many lines of the exclude file name the default worktree folder. */
+export const excludeLines = (repo) => readOr(excludeFile(repo)).split('\n').filter((l) => l.trim() === '/.claude/worktrees/').length;
 export const git = (cwd, args) => runCli('git', ['-C', abs(cwd, 'git cwd'), ...args]);
 
 /** The same directory can be spelled with either separator and either case on Windows. */
@@ -84,7 +90,7 @@ export const worktreePaths = (repo) => git(repo, ['worktree', 'list', '--porcela
 export const sha = (repo, ref) => git(repo, ['rev-parse', '--verify', '--quiet', ref]).stdout.trim();
 export const hookOf = (linkedWorktree) => git(linkedWorktree, ['rev-parse', '--git-path', 'hooks/reference-transaction']).stdout.trim();
 
-/** A repo whose parent directory is the temp root, so worktrees land beside it and die with it. */
+/** A repo whose parent directory is the temp root, so a worktree made with --dir <root> lands beside it and dies with it. */
 function makeFixture() {
   const root = realpathSync.native(mkdtempSync(join(tmpdir(), 'aipg-wt-')));
   const repo = join(root, 'r');
@@ -163,7 +169,7 @@ export function batchOf(root, repo, keys) {
     eq(r.code, 0, `prep ${key} exits 0 (${firstLine(r.stderr)})`);
     chains[key] = abs(r.stdout.trim(), `${key} worktree path`);
   }
-  return { intWt: join(root, 'aipg-int-b1'), chains };
+  return { intWt: under(repo, 'aipg-int-b1'), chains };
 }
 
 /** An engine's stage-mode RESTING state: accepted work STAGED, not committed (tests/CLAUDE.md §4). */

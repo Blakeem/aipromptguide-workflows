@@ -21,8 +21,14 @@ so guides link to it and do not copy it.
        └─ …
 ```
 
-Worktrees are created beside the repo (`--dir` overrides, given once to `init`). Nothing is stored:
-every verb rediscovers paths from `git worktree list --porcelain`, and one batch is active per repo
+`init` creates the integration worktree in `.claude/worktrees/` of the main worktree, and `prep` creates each chain
+beside it. `--dir` names another parent folder instead, given once to `init`. Before `init` makes the
+first worktree in the default folder, it appends the line `/.claude/worktrees/` to the repo's
+`info/exclude`, so `git status` in the checkout lists no worktree. It never edits a `.gitignore`.
+A tool that walks the checkout's folders, such as a test runner or linter, still reads those worktrees.
+A lookup that searches parent folders, such as one for installed dependencies or a config file, finds the checkout's copy when a worktree lacks its own.
+A project whose checks do either passes `--dir` with a folder outside the checkout. For a project with a saved `worktreeDir`, pass that folder to `init` as `--dir`, as the operator does for `open`.
+Nothing is stored: every verb rediscovers paths from `git worktree list --porcelain`, and one batch is active per repo
 at a time.
 
 ## The lifecycle
@@ -62,7 +68,8 @@ the trash location and the number of ignored files.
 - holds submodule git directories in its git directory, which `git worktree prune` would delete
   outside the trash,
 - holds the working directory of the process that runs `clean`,
-- holds the `--repo` path, since the prune after the move runs there.
+- holds the `--repo` path, since the prune after the move runs there,
+- holds another registered worktree, whose registration the prune after the move would drop.
 
 A rebase or bisect detaches HEAD. So `clean` finds that worktree by the branch the operation records,
 as git does, and `clean --batch` counts it as a chain still registered.
@@ -87,11 +94,12 @@ way, with its `runId` as the name (`workflows/develop/CLAUDE.md` §2 steps 4 and
 4  run the full suite in the main checkout (see "untracked files" below)
 ```
 
-`open` cuts `aipg/<name>` from the `--base` branch and checks it out in a worktree beside the repo.
-With `--base` omitted, it cuts from the current branch. It records that branch in the config of
-`aipg/<name>`, and `close` lands on it when `--into` is omitted. `--dir` places the worktree elsewhere, and
-`--provision` runs as it does for `prep`. Since the hook and the land lock guard the chains of a batch,
-`open` installs no hook and `close` takes no lock. A branch that already exists is refused. So is a
+`open` cuts `aipg/<name>` from the `--base` branch and checks it out in a worktree in `.claude/worktrees/` of the main worktree, after it adds that folder to `info/exclude`
+as `init` does. With `--base` omitted, it cuts from the current branch. It records that branch in the
+config of `aipg/<name>`, and `close` lands on it when `--into` is omitted. `--dir` names another parent
+folder. The operator passes the repo's saved `worktreeDir` setting there, as the develop guide's §2 step 4 says.
+`project-settings.mjs set --worktree-dir` saves it. `--provision` runs as it does for `prep`. Since the hook and the land lock guard the
+chains of a batch, `open` installs no hook and `close` takes no lock. A branch that already exists is refused. So is a
 name that starts with `int-` in any case, since `aipg/int-<x>` is the integration branch of batch
 `<x>`. When git creates the worktree and then exits nonzero, as it does on a failed post-checkout
 hook, `open` exits 40 and keeps the worktree. Its stderr relays git's output and names the commands

@@ -8,7 +8,7 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { HOOK } from '../tools/wt.mjs';
-import { SCRIPT, wt, GIT_OVERFLOW_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit } from './wt-helpers.mjs';
+import { SCRIPT, wt, GIT_OVERFLOW_STUB, wtStubbed, at, git, norm, firstLine, worktreePaths, sha, hookOf, withFixture, commitFile, spawnCli, hasGit, under, excludeLines } from './wt-helpers.mjs';
 
 if (!hasGit) {
   console.log('  ! SKIPPED — git is not on PATH, and every check in this file drives a real repo');
@@ -18,21 +18,32 @@ section('init cuts the integration branch, checks it out, and installs the hook'
 await withFixture(({ root, repo }) => {
   const r = wt(['init', '--repo', repo, '--batch', 'b1']);
   eq(r.code, 0, `init exits 0 (${firstLine(r.stderr)})`);
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-int-b1'))), 'the integration worktree sits beside the repo');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-int-b1'))), 'the integration worktree sits under .claude/worktrees in the repo');
   ok(sha(repo, 'refs/heads/aipg/int-b1') !== '', 'branch aipg/int-b1 exists');
   eq(sha(repo, 'refs/heads/aipg/int-b1'), sha(repo, 'refs/heads/main'), 'with --base omitted it is cut from the CURRENT HEAD branch');
 
-  const hook = hookOf(join(root, 'aipg-int-b1'));
+  const hook = hookOf(under(repo, 'aipg-int-b1'));
   ok(existsSync(hook), `the hook is at the --git-path location (${hook})`);
   eq(readFileSync(hook, 'utf8'), HOOK, 'the hook content is byte-exact');
 
   const again = wt(['init', '--repo', repo, '--batch', 'b1']);
   eq(again.code, 0, 'a second init of the SAME batch is a no-op exit 0');
   eq(worktreePaths(repo).length, 2, '...adding no second worktree');
+  eq(excludeLines(repo), 1, 'init added the .claude/worktrees line to info/exclude once');
+  eq(git(repo, ['status', '--porcelain']).stdout.trim(), '', '...so git status in the checkout lists no worktree');
 
   const other = wt(['init', '--repo', repo, '--batch', 'b2']);
   eq(other.code, 40, 'a second, DIFFERENT batch while b1 is active exits 40');
   ok(/already active/.test(other.stderr), `...naming the batch that holds it: ${firstLine(other.stderr)}`);
+});
+
+section('init with --dir adds no line to info/exclude, and prep puts a chain beside the integration worktree');
+await withFixture(({ root, repo }) => {
+  const alt = join(root, 'alt');
+  eq(wt(['init', '--repo', repo, '--batch', 'b1', '--dir', alt]).code, 0, 'init --dir exits 0');
+  eq(excludeLines(repo), 0, 'the exclude file gained no line');
+  const chain = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
+  eq(norm(chain.stdout.trim()), norm(join(alt, 'aipg-alpha')), 'prep follows the integration worktree into --dir');
 });
 
 section('--base picks the branch to cut from; a detached HEAD has no default to fall back to');
@@ -65,7 +76,7 @@ await withFixture(({ root, repo }) => {
   eq(r.code, 40, 'init exits 40 on a relative core.hooksPath');
   ok(/core\.hooksPath/.test(r.stderr), `...naming it: ${firstLine(r.stderr)}`);
   ok(!worktreePaths(repo).some((p) => /aipg-int-/.test(p)), '...creating no integration worktree');
-  ok(!existsSync(join(root, 'aipg-int-b1')), '...and no folder for one');
+  ok(!existsSync(under(repo, 'aipg-int-b1')), '...and no folder for one');
   eq(git(repo, ['branch', '--list', 'aipg/int-*']).stdout.trim(), '', '...and no aipg/int-* branch');
   ok(!existsSync(join(repo, '.husky', 'reference-transaction')), '...and no hook written');
 });
@@ -93,7 +104,7 @@ await withFixture(({ root, repo }) => {
   const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
   eq(r.code, 0, `prep exits 0 — its hook self-test passed (${firstLine(r.stderr)})`);
   const chain = r.stdout.trim();
-  eq(norm(chain), norm(join(root, 'aipg-alpha')), 'it prints the worktree path, beside the integration worktree');
+  eq(norm(chain), norm(under(repo, 'aipg-alpha')), 'it prints the worktree path, in the same folder as the integration worktree');
   ok(sha(repo, 'refs/heads/aipg/b1/alpha') !== '', 'the branch is exactly aipg/<batch>/<chain>');
   ok(!existsSync(at(chain, '.aipg-hook-probe')), 'the self-test left no probe file behind');
   eq(git(chain, ['status', '--porcelain']).stdout.trim(), '', '...a clean worktree');
@@ -111,7 +122,7 @@ await withFixture(({ root, repo }) => {
   git(chain, ['add', '-A']);
   eq(git(chain, ['commit', '-qm', 'alpha work']).code, 0, 'git commit in a batch worktree still works');
   eq(git(chain, ['branch', 'probe-branch']).code, 0, 'git branch still works');
-  eq(git(join(root, 'aipg-int-b1'), ['merge', '--no-ff', '-m', 'land alpha', 'aipg/b1/alpha']).code, 0, 'git merge into the integration worktree still works');
+  eq(git(under(repo, 'aipg-int-b1'), ['merge', '--no-ff', '-m', 'land alpha', 'aipg/b1/alpha']).code, 0, 'git merge into the integration worktree still works');
 
   // M31: the hook is scoped to aipg-* worktrees, so the user's own tree keeps git stash.
   writeFileSync(join(repo, 'a.txt'), 'changed\n');
@@ -133,9 +144,9 @@ await withFixture(({ root, repo }) => {
   eq(wt(['init', '--repo', repo, '--batch', 'b1']).code, 0, 'init exits 0 with that entry on the stack');
   const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha']);
   eq(r.code, 0, `prep exits 0 — the pre-existing entry is not the probe's residue (${firstLine(r.stderr)})`);
-  eq(norm(r.stdout.trim()), norm(join(root, 'aipg-alpha')), '...and it still prints the worktree path');
+  eq(norm(r.stdout.trim()), norm(under(repo, 'aipg-alpha')), '...and it still prints the worktree path');
   eq(git(repo, ['stash', 'list']).stdout.trim(), before, "...leaving the operator's own entry exactly as it was");
-  ok(!existsSync(join(root, 'aipg-alpha', '.aipg-hook-probe')), '...and no probe file behind');
+  ok(!existsSync(under(repo, 'aipg-alpha', '.aipg-hook-probe')), '...and no probe file behind');
 });
 
 section("an IGNORED probe file never makes the self-test pop the operator's own stash entry");
@@ -156,20 +167,20 @@ await withFixture(({ root, repo }) => {
   eq(r.code, 0, `prep exits 0 — the hook refused the probe although the repo ignores it (${firstLine(r.stderr)})`);
   eq(git(repo, ['stash', 'list']).stdout.trim(), list, "...the operator's stash list is unchanged");
   eq(git(repo, ['log', '-g', '--format=%H', 'refs/stash']).stdout.trim(), reflog, '...and so is the refs/stash reflog');
-  eq(git(join(root, 'aipg-alpha'), ['status', '--porcelain', '--ignored']).stdout.trim(), '', '...and the chain worktree is clean, probe included');
+  eq(git(under(repo, 'aipg-alpha'), ['status', '--porcelain', '--ignored']).stdout.trim(), '', '...and the chain worktree is clean, probe included');
 });
 
 section("prep's self-test catches a hook removed behind its back, and leaves no probe residue");
 await withFixture(({ root, repo }) => {
   wt(['init', '--repo', repo, '--batch', 'b1']);
-  rmSync(hookOf(join(root, 'aipg-int-b1')), { force: true });
+  rmSync(hookOf(under(repo, 'aipg-int-b1')), { force: true });
 
   const r = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'beta']);
   eq(r.code, 40, 'prep exits 40 when the stash probe is ACCEPTED');
   ok(/self-test FAILED/.test(r.stderr), `...saying which check failed: ${firstLine(r.stderr)}`);
   eq(git(repo, ['stash', 'list']).stdout.trim(), '', '...with no probe entry left on the shared stash stack');
-  ok(!existsSync(join(root, 'aipg-beta', '.aipg-hook-probe')), '...and no probe file left in the worktree');
-  eq(git(join(root, 'aipg-beta'), ['status', '--porcelain']).stdout.trim(), '', '...and a clean worktree');
+  ok(!existsSync(under(repo, 'aipg-beta', '.aipg-hook-probe')), '...and no probe file left in the worktree');
+  eq(git(under(repo, 'aipg-beta'), ['status', '--porcelain']).stdout.trim(), '', '...and a clean worktree');
 });
 
 section('--provision runs in the new worktree; a red one exits 40 and keeps the worktree');
@@ -182,12 +193,12 @@ await withFixture(({ root, repo }) => {
 
   const green = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'alpha', '--provision', `node "${good}"`]);
   eq(green.code, 0, `a zero-exit --provision keeps prep green (${firstLine(green.stderr)})`);
-  ok(existsSync(join(root, 'aipg-alpha', 'provisioned.txt')), '...and it ran with cwd = the new worktree');
+  ok(existsSync(under(repo, 'aipg-alpha', 'provisioned.txt')), '...and it ran with cwd = the new worktree');
 
   const red = wt(['prep', '--repo', repo, '--batch', 'b1', '--key', 'gamma', '--provision', `node "${bad}"`]);
   eq(red.code, 40, 'a nonzero --provision exits 40');
   ok(/provision blew up/.test(red.stderr), "...surfacing the command's own stderr");
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-gamma'))), '...and LEAVES the worktree registered');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-gamma'))), '...and LEAVES the worktree registered');
   ok(/left in place\. .*clean --repo .* --key gamma, which keeps the branch/.test(red.stderr), '...naming the clean --key that removes it');
 });
 
@@ -211,12 +222,12 @@ await withFixture(({ root, repo }) => {
   ok(/NOT a report that it failed/.test(r.stderr), '...and refusing to call an unobserved exit code a failure');
   ok(/1073741824 bytes/.test(r.stderr), "...naming the gate's limit it hit");
   ok(/left in place\. .*clean --repo .* --key alpha, which keeps the branch/.test(r.stderr), '...and the clean --key that removes the worktree it keeps');
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-alpha'))), '...which stays registered');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-alpha'))), '...which stays registered');
 
   const o = wtStubbed(GIT_OVERFLOW_STUB, ['open', '--repo', repo, '--name', 'feat', '--provision', 'node -e 0'], { AIPG_SHELL_OVERFLOW: '1' });
   eq(o.code, 40, 'an open whose provision overflows the buffer exits 40');
   ok(/KILLED .*left in place\. .*close --repo .* --name feat --discard, which keeps the branch/.test(o.stderr), `...naming the close --discard that removes the worktree it keeps: ${firstLine(o.stderr)}`);
-  ok(worktreePaths(repo).includes(norm(join(root, 'aipg-feat'))), '...which stays registered');
+  ok(worktreePaths(repo).includes(norm(under(repo, 'aipg-feat'))), '...which stays registered');
 });
 
 section('three CONCURRENT preps of distinct keys all succeed (M26)');
@@ -231,7 +242,7 @@ await withFixture(async ({ root, repo }) => {
   // ("already exists", "cannot lock ref HEAD", "index.lock: File exists") on runs that still registered.
   runs.forEach((r, i) => ok(!/^(fatal|error):/m.test(r.stderr), `concurrent prep ${keys[i]} raised no git error`));
   const paths = worktreePaths(repo);
-  for (const key of keys) ok(paths.includes(norm(join(root, `aipg-${key}`))), `aipg-${key} is registered`);
+  for (const key of keys) ok(paths.includes(norm(under(repo, `aipg-${key}`))), `aipg-${key} is registered`);
   eq(paths.length, 5, 'main + integration + 3 chains — nothing lost to the race');
   eq(git(repo, ['stash', 'list']).stdout.trim(), '', 'three concurrent self-tests left the stash stack empty');
 });

@@ -157,6 +157,16 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **Run worktrees live in the project's `.claude/worktrees` folder.** With no `--dir`, `wt.mjs open` and
+  `init` make each worktree there. Before the first one, they add `/.claude/worktrees/` to the repo's
+  `info/exclude`, so `git status` in your checkout lists no worktree. They never edit a `.gitignore`.
+  `project-settings.mjs set --worktree-dir <absolute dir>|default` saves another parent folder for a project
+  whose files reference a path outside the checkout by a relative path, and the `provision` verb prints it.
+  The develop guide's default provision command copies every ignored file into the worktree except the run-worktree folder
+  and what the project's setup command rebuilds, then runs that command.
+- **develop's closing steps are short.** The result's `nextStep` tells Claude to land the run with
+  `wt.mjs close` and to report the run's summary. It no longer re-runs the gates, views the accepted diff,
+  reads the review files or audits the DISMISSED files, since acceptance and the gate of `close` cover them.
 - **A `proactive` develop run builds the backlog's ready entries.** Before the run lands, Claude builds every
   `todo` or `done` backlog file that holds an `ACTIONABLE` entry with `status: open` in one more launch in the same run
   worktree. `plan-edit.mjs args --backlog <dir>` selects those files, sets a `done` one back to `todo`, and

@@ -47,7 +47,8 @@ section('no CR — and no other control byte — anywhere in the repo text');
   // `.cache` is tools/.cache — gitignored, downloaded third-party artifacts (minified mermaid carries
   // control bytes legitimately). It exists only in the main checkout, never in a fresh worktree, so a
   // scan that includes it goes green in a batch worktree's gate and red here — keep it skipped.
-  const SKIP = new Set(['.git', 'node_modules', 'runs', 'plans', '.cache']);
+  // `.claude` holds the run worktrees that wt.mjs opens in the checkout, and a live run may be mid-edit in them.
+  const SKIP = new Set(['.git', 'node_modules', 'runs', 'plans', '.cache', '.claude']);
   const walk = (dir, out = []) => {
     for (const name of readdirSync(dir)) {
       if (SKIP.has(name)) continue;

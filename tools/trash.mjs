@@ -112,7 +112,7 @@ export function isWithin(inner, outer, foldCase) {
 }
 
 /** The real path of `p`, resolved as far as it exists, so a location that is not created yet still compares. */
-function realpathLoose(p) {
+export function realpathLoose(p) {
   const missing = [];
   let dir = path.resolve(p);
   for (;;) {

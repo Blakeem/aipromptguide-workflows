@@ -3,7 +3,7 @@ import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { wt, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, stage, commitFile, gateCmd, GATE_GREEN, closeIn, discardIn, opened, hasGit, rx, Q } from './wt-helpers.mjs';
+import { wt, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, stage, commitFile, gateCmd, GATE_GREEN, closeIn, discardIn, opened, hasGit, rx, Q, under } from './wt-helpers.mjs';
 
 const closeTo = (repo, name, gate, extra = []) => wt(['close', '--repo', repo, '--name', name, '--gate', gate, ...extra]);
 const stagedNames = (repo) => git(repo, ['diff', '--cached', '--name-only']).stdout.split('\n').filter(Boolean).sort().join(' ');
@@ -32,8 +32,8 @@ await withFixture(({ root, repo }) => {
 
 section('close without --into REFUSES a branch open did not make, and changes nothing');
 await withFixture(({ root, repo }) => {
-  eq(git(repo, ['worktree', 'add', '-q', '-b', 'aipg/hand', at(root, 'aipg-hand')]).code, 0, 'add a worktree on aipg/hand by hand');
-  const tip = commitFile(at(root, 'aipg-hand'), 'h.txt', 'hand\n');
+  eq(git(repo, ['worktree', 'add', '-q', '-b', 'aipg/hand', under(repo, 'aipg-hand')]).code, 0, 'add a worktree on aipg/hand by hand');
+  const tip = commitFile(under(repo, 'aipg-hand'), 'h.txt', 'hand\n');
   const mainAt = sha(repo, 'refs/heads/main');
 
   const r = closeTo(repo, 'hand', gateCmd(root, 'green', GATE_GREEN));
