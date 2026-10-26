@@ -1637,8 +1637,8 @@ section('a landed fix block names each branch its acceptance could not delete');
 }
 
 section('a developer escalation parks first, then stops an ordered run');
-// parked[] is keyed on the branch and the `parked` flag, never the status prose: an escalated block keeps
-// BLOCKED and would otherwise have its branch reported nowhere in the return.
+// parked[] is keyed on the branch and the `parked` flag, never the status prose: an escalated block's status
+// text names its halt, so it would otherwise have its branch reported nowhere in the return.
 {
   const { out, labels, prompt } = await run({
     develop: { ...DEV_OK, needs_user: true },
@@ -1648,7 +1648,7 @@ section('a developer escalation parks first, then stops an ordered run');
   eq(out.status, 'BLOCKED (needs user input)', 'status');
   ok(!labels.some((l) => l.includes('block-b')), 'block-b never started');
   eq(out.parked[0]?.branch, UNFINISHED('block-a'), `the escalated block's branch is surfaced: ${out.parked[0]?.branch}`);
-  eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
+  eq(out.parked[0]?.status, 'backlogged (needs user)', 'the ledger row of a backlogged escalated block agrees with its plan status');
   eq(syncOf(out), 'block-a=backlogged', 'and its plan status is backlogged, since its entry holds its work');
   ok(/The tree is clean/.test(out.nextStep) && !/tree still holds/.test(out.nextStep),
     'nextStep says the tree is clean, never that it still holds the work');
@@ -1803,7 +1803,7 @@ section('an unordered run parks a needs-user block and continues');
   ok(labels.includes('park:block-a'), 'block-a was parked');
   ok(labels.some((l) => /block-b/.test(l)), 'block-b ran');
   eq(syncOf(out), 'block-a=backlogged,block-b=done', 'block-a is backlogged and block-b is done');
-  eq(out.parked[0]?.status, 'BLOCKED (needs user)', 'the escalated block keeps its BLOCKED status');
+  eq(out.parked[0]?.status, 'backlogged (needs user)', 'the ledger row of a backlogged escalated block agrees with its plan status');
   eq(out.status, 'run complete (1 block(s) parked)', 'status');
   ok(/REST OF THE RUN can continue/.test(prompt('park')), 'park is told the run continues');
   ok(/was halted: the developer escalated a user-only decision \(see E:\/r\/runs\/t\/question-block-a\.md\)/.test(prompt('park')), 'with the needs-user reason and the question file');
@@ -3459,7 +3459,8 @@ section('a failing reviewer that did not attest its review file halts instead of
   ok(!a.labels.includes('develop block-a r2'), 'acceptance: no developer is sent to it');
 
   const fixA = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: { ...FIX_GAP, wrote_file: false }, park: PARK_OK }, FIX_ONE);
-  eq(fixA.out.ledger[0].status, 'BLOCKED (review file not written)', 'fix-mode acceptance halts the same way');
+  eq(fixA.out.ledger[0].status, 'backlogged (review file not written)', 'fix-mode acceptance halts the same way, and its backlogged park shows in the ledger row');
+  ok(syncOf(fixA.out).startsWith('fix-a=backlogged'), 'and its plan status is backlogged');
 
   // On the clean and pass paths the verdict needs no file to act on, so only a warning is logged.
   const passes = await run({ ...GREEN_RUN, quality: { ...CLEAN, wrote_file: false }, acceptance: { ...ACC_PASS, wrote_file: false } }, ONE_BLOCK);

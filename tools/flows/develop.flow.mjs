@@ -459,8 +459,8 @@ export default {
       respond: { ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, saved: false } },
     },
     {
-      // A cleared tree is not a SAFE tree. This used to fold into the plain `parked` terminal because the
-      // engine never read `gates_green`.
+      // A cleared tree is not a SAFE tree. The engine reads `gates_green`, so a red build after parking is its
+      // own terminal.
       name: 'red build after parking',
       when: 'the build is red after parking',
       args: base,

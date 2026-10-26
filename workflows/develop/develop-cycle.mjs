@@ -2741,7 +2741,7 @@ for (const p of pending) {
     const contradictory = pk?.saved !== true && SHA_PATTERN.test(reportedSha);
     // Null when park made no commit. Every later branch mention keys on this, never naming work that was not saved.
     rec.branch = (pk?.saved === true || contradictory) ? branch : null;
-    // A value, so parked[] never parses status prose: an escalated block keeps its BLOCKED status.
+    // A value, so parked[] never parses status prose.
     rec.parked = true;
     // Only a confirmed clear proves a commitless park had nothing to save.
     rec.parkCleared = pk?.cleared === true;
@@ -2808,12 +2808,15 @@ for (const p of pending) {
   // continues. A held park, a park with no confirmed entry, a park no fix block can build and every halt that
   // never parked need the operator before the block may run again. A passed-but-unstaged block is `done`:
   // acceptance passed, and if the operator never stages it the next launch's clean-tree check halts on it. An
-  // escalated block keeps the BLOCKED status its halt set.
+  // escalated block keeps its halt's status text, but a backlogged one swaps BLOCKED for backlogged so the ledger
+  // row agrees with the plan status.
   rec.heldPark = rec.parked && HELD_PARK_HALTS.has(haltKind);
   const backlogged = rec.parked && rec.entryWritten && !rec.heldPark && parkBuildable(p);
   rec.backlogged = backlogged;
   if (rec.parked && !escalated) {
     rec.status = backlogged ? 'backlogged (not accepted within round budget)' : 'blocked (not accepted within round budget, and its park needs the operator)';
+  } else if (backlogged) {
+    rec.status = rec.status.replace(/^BLOCKED/, 'backlogged');
   }
   // Guards a future exit that sets no status: a leaked 'pending' reads as "still working".
   if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: block finished with no status set)';

@@ -49,19 +49,23 @@ Edit the matching `<engine>.test.mjs`, or drop in a new `*.test.mjs` and the run
 ```js
 import { runEngine, throwsWith, section, ok } from './harness.mjs';
 
-section('a failed plan parks and the roadmap carries on');
-const { out, labels } = await runEngine('workflows/feature/feature-cycle.mjs', {
+section('a block that acceptance fails parks and the plan carries on');
+const plan = 'E:/plans/bus.md';
+const { out, labels } = await runEngine('workflows/develop/develop-cycle.mjs', {
   args: { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' },
-          planPath: 'plans/roadmap.md', plans: [{ id: 'plan-a' }, { id: 'plan-b' }] },
+          backlogDir: 'E:/r/backlog/repo-0a1b2c3d', maxRounds: 1,
+          plans: [{ id: 'plan-a', planPath: plan, mode: 'feature', gate: 'build-only' },
+                  { id: 'plan-b', planPath: plan, mode: 'feature', gate: 'build-only' }] },
   respond: {
     'develop': { build_passed: true, test_outcome: 'passed', unstaged_confirmed: true },
-    'accept plan-a': { pass: false },        // longest matching prefix wins
-    'accept': { pass: true, staged: true },
+    'quality': { wrote_file: true, clean: true, issue_count: 0 },
+    'acceptance plan-a': { wrote_file: true, pass: false, staged: false, gap_count: 1 },   // longest matching prefix wins
+    'acceptance': { wrote_file: true, pass: true, staged: true, reachable: true, regression: false, gap_count: 0 },
     'park': { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true },
   },
 });
 ok(labels.includes('park:plan-a'), 'plan-a parked');
-ok(labels.some((l) => l.includes('plan-b')), 'the roadmap continued');
+ok(labels.some((l) => l.includes('plan-b')), 'the plan carried on');
 ```
 
 `respond` keys are matched against the agent's **label** by prefix, longest first. A value can be a
