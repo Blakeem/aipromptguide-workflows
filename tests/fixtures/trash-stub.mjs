@@ -1,8 +1,9 @@
 // Preloaded into a wt child with `node --import`, so tools/wt.mjs imports this module in place of
 // tools/trash.mjs. It acts out trash outcomes the real backends give only under a race.
+import { execFileSync } from 'node:child_process';
 import { renameSync } from 'node:fs';
 import { registerHooks } from 'node:module';
-import { TrashError } from '../../tools/trash.mjs';
+import { TrashError, trash as realTrash } from '../../tools/trash.mjs';
 
 // The local `trash` below shadows the star export of the same name.
 export * from '../../tools/trash.mjs';
@@ -22,6 +23,15 @@ const OUTCOMES = {
   },
   // A success report for a folder that never moved, which `git worktree prune` keeps registered.
   unmoved: (path) => ({ state: 'trashed', target: path, location: `${path}.nowhere`, verified: true }),
+  // The folder moves to the trash, then the index of the repo named by AIPG_TRASH_STUB_REPO is emptied, as a user
+  // unstaging the work would between close's staging and its branch delete.
+  unstage(path) {
+    const repo = process.env.AIPG_TRASH_STUB_REPO;
+    if (!repo) throw new Error('trash-stub: the unstage outcome needs AIPG_TRASH_STUB_REPO');
+    const outcome = realTrash(path);
+    execFileSync('git', ['-C', repo, 'reset', '-q']);
+    return outcome;
+  },
 };
 
 export function trash(path) {

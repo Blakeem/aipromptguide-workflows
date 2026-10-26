@@ -3,7 +3,7 @@ import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { section, ok, eq } from './harness.mjs';
 import { foldsCase } from '../tools/trash.mjs';
-import { wt, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, stage, commitFile, gateCmd, GATE_GREEN, closeIn, discardIn, opened, hasGit, rx, Q, under } from './wt-helpers.mjs';
+import { wt, wtStubbed, TRASH_STUB, at, git, norm, firstLine, readOr, worktreePaths, sha, withFixture, trashedName, stage, commitFile, gateCmd, GATE_GREEN, closeIn, discardIn, opened, hasGit, rx, Q, under } from './wt-helpers.mjs';
 
 const closeTo = (repo, name, gate, extra = []) => wt(['close', '--repo', repo, '--name', name, '--gate', gate, ...extra]);
 const stagedNames = (repo) => git(repo, ['diff', '--cached', '--name-only']).stdout.split('\n').filter(Boolean).sort().join(' ');
@@ -76,6 +76,22 @@ await withFixture(({ root, repo }) => {
   eq(sha(repo, 'refs/heads/aipg/feat'), '', '...the branch is deleted');
   ok(!worktreePaths(repo).includes(norm(feat)), '...the worktree is unregistered');
   ok(trashedName(root, feat) !== '', '...and in the trash');
+});
+
+section('close --stage KEEPS the branch when the staged work left the index of --into before the branch delete');
+await withFixture(({ root, repo }) => {
+  const feat = opened(repo, 'feat');
+  stage(feat, 's.txt', 'accepted\n');
+  const mainAt = sha(repo, 'refs/heads/main');
+
+  const r = wtStubbed(TRASH_STUB, ['close', '--repo', repo, '--name', 'feat', '--into', 'main', '--stage', '--gate', gateCmd(root, 'green', GATE_GREEN)],
+    { AIPG_TRASH_STUB: 'unstage', AIPG_TRASH_STUB_REPO: repo });
+  eq(r.code, 40, `close --stage exits 40 (${firstLine(r.stderr)})`);
+  ok(/went to the trash, but main no longer holds the work staged, so aipg\/feat is kept/.test(r.stderr), `...saying the work is not staged: ${firstLine(r.stderr)}`);
+  eq(stagedNames(repo), '', '...with nothing staged on main');
+  eq(sha(repo, 'refs/heads/main'), mainAt, '...main is where it was');
+  ok(sha(repo, 'refs/heads/aipg/feat') !== '', '...and aipg/feat is kept');
+  ok(trashedName(root, feat) !== '', '...after the worktree went to the trash');
 });
 
 section('close --stage rebases onto an --into that moved, gates the combined tree, and stages only the run\'s change');
