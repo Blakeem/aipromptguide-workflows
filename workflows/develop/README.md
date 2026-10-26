@@ -68,7 +68,8 @@ Every block runs the same loop, up to `maxRounds`.
 1. A **developer** works in six phases and leaves its work unstaged.
    - **Patterns.** It finds how the repo already does the same kind of thing.
    - **Build.** It builds the block and runs the gates. In a round that answers a review, it fixes or
-     logs each finding in that review. A feature or section block does not build the block again in
+     logs each finding in that review. It first confirms each finding against the code and treats a
+     suggested fix as a hint. A feature or section block does not build the block again in
      that round, and a fix block still works through its entries. Each later phase runs only a
      targeted test of its changes. The gates run once more after the last phase that changed code, and
      a phase with nothing to do is skipped.
@@ -87,10 +88,12 @@ Every block runs the same loop, up to `maxRounds`.
 2. A **blind quality reviewer** judges the unstaged diff on its own merits. It never sees the plan.
    Under both policies, it reports every problem it finds, from critical down to nit. It reviews the
    block's first round that meets its gate, and any later round with a change the developer judged
-   risky. A round with only low-risk changes goes straight to acceptance.
+   risky. A round with only low-risk changes goes straight to acceptance. Before it skips a finding
+   the developer declined, it checks the developer's reason against the code.
 3. An **acceptance verifier** checks the diff against the block and stages it on a pass. In commit
    mode it also commits it.
-   It also rechecks every finding raised earlier in the block. For a round the blind reviewer did not
+   It also rechecks every finding raised earlier in the block. A reason the developer gave for
+   declining a finding counts only when the code supports it. For a round the blind reviewer did not
    see, it checks each of the developer's risk answers against that round's own changes. A wrong answer
    sends the next round to the blind reviewer.
 4. If the last round fails, a **closing pass** runs one more developer, and no develop round follows

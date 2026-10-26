@@ -48,7 +48,7 @@ const PRO_ONE_BLOCK = { ...ONE_BLOCK, changePolicy: 'proactive' };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // Mirrors tools/flows/develop.flow.mjs, so "a healthy return" has one definition per engine.
-const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true };
+const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true, risk_snapshot: 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678' };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 // The backlog fields are what a closing acceptance reports, and an earlier round ignores them.
@@ -334,7 +334,7 @@ section('acceptance audits the risk file of each round since the block\'s last b
   const a3 = flat(r.prompt('acceptance block-a r3'));
   ok(a1.includes("RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false."),
     'a reviewed round has no risk file to audit');
-  ok(a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md The first line of each risk file') && !a3.includes('round 1'),
+  ok(a3.includes('developer judged each change low risk: E:/r/runs/t/risk-block-a-r2.md E:/r/runs/t/risk-block-a-r3.md The first line of each risk file') && !a3.includes('round 1, base in'),
     'round 3\'s acceptance audits rounds 2 and 3, which no blind review judged, and not round 1, which one did');
   ok(a3.includes('round 2, base in E:/r/runs/t/risk-block-a-r1.md, snapshot in E:/r/runs/t/risk-block-a-r2.md: git -C E:/repo diff <base> <snapshot>')
     && a3.includes('round 3, base in E:/r/runs/t/risk-block-a-r2.md, snapshot in E:/r/runs/t/risk-block-a-r3.md: git -C E:/repo diff <base> <snapshot>'),
@@ -395,7 +395,7 @@ section('every developer round records a snapshot of its tree in its risk file, 
     return [`cp "$(git -C ${repo} rev-parse --path-format=absolute --git-path index)" "${index}"`,
       `GIT_INDEX_FILE="${index}" git -C ${repo} add -A`, `GIT_INDEX_FILE="${index}" git -C ${repo} write-tree`].join(' ');
   };
-  const FIRST_LINE = 'Its first line is `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your last change, with these commands, which write a temporary index file (create E:/r/runs/t/scratch/ if needed) and never the real index. The last command prints the tree id:';
+  const FIRST_LINE = 'Its first line is `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your last change, with these commands, which write a temporary index file (create E:/r/runs/t/scratch/ if needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:';
   const pinned = (prompt, id, round, where) => {
     const text = flat(prompt);
     ok(text.includes(`${FIRST_LINE} ${snapshotLines(id, round)} After the first line, write one section per change`),
@@ -1452,7 +1452,7 @@ section('a park that saved no commit writes an entry built from the accepted bas
 // The fix block built from it restores nothing, so its Fix must name the origin block, never work on a branch.
 {
   const empty = flat((await run({ develop: { ...DEV_OK, needs_user: true }, park: PARK_EMPTY }, ONE_BLOCK)).prompt('park:block-a'));
-  ok(empty.includes('give "- file:" the path E:/plans/bus.md, and write this **Fix:** line instead: **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.'),
+  ok(empty.includes('give "- file:" the path E:/plans/bus.md, give "- size:" the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead: **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.'),
     'an entry with no branch says to build its origin block on the accepted baseline');
 }
 
@@ -2496,7 +2496,10 @@ section('MATRIX case 6 is SPLIT in every mode: 6a fixes a VERIFIED plan defect, 
     ok(quoted !== '' && flat(dev.slice(0, dev.indexOf('PRECEDENCE —'))).includes(flat(quoted)),
       `${mode}: and the frame carries that scope line above it: "${quoted}"`);
     ok(/Everywhere else the plan and the conventions\s+still bind/.test(dev), `${mode}: the override is confined to that clause`);
-    ok(/6b\. Conflicts with the plan but you did NOT verify it/.test(dev), `${mode}: 6b keeps the unverified case a DROP`);
+    ok(/6b\. Conflicts with the plan, and you did not verify that the plan's prescription is defective\s+→ DROP \+ LOG\./.test(dev)
+      && !/intentional \/ not a real-world code path/.test(dev), `${mode}: 6b keeps only the unverified case a DROP`);
+    ok(/→ DROP \+ LOG\. The DROP reason names the read or probe that showed the prescription works as\s+written\. A conflict that no read or probe settles goes to 7\./.test(dev),
+      `${mode}: a 6b drop rests on a checked fact, and an unsettled conflict escalates`);
     ok(dev.includes(`DROP (1, 2, 6b or 8): append ONE terse line to ${STATE}/gate/DISMISSED-${id}.md`),
       `${mode}: LOGGING routes the DROP at 1, 2, 6b and 8, not the whole of 6`);
     ok(/7\. A choice that changes user-visible behavior, stored data or a public contract/.test(dev), `${mode}: ESCALATE (case 7) is intact`);
@@ -3378,7 +3381,7 @@ section('every blind review reports each finding at every tier under both polici
         `${where}: it hunts and reports every tier, down to nit`);
       ok(q.includes(MAINTAINABILITY) && q.includes('Those four checks and the nit list bound your review of such a hunk.'),
         `${where}: its CHECKLIST keeps the nit list, a comment-only hunk included`);
-      ok(q.includes('If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:"'),
+      ok(q.includes('Before you skip a listed finding, check its stated reason against the code it cites. When the code contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the file:line that contradicts it.'),
         `${where}: it may contest a dismissal at any tier`);
       ok(q.includes('When you found nothing, write exactly "No findings."')
         && q.includes('clean (true if you found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and contested_dismissals via the schema.'),
@@ -3390,7 +3393,7 @@ section('every blind review reports each finding at every tier under both polici
     const q = flat(r.prompt('quality block-a'));
     ok(q.includes('A finding at medium or above names the concrete input or path that reaches it and its harm, cited by file:line. A real defect you cannot tie to a concrete input or path grades low at most.'),
       `${label}: only a medium or higher finding must name a concrete input`);
-    ok(q.includes('the input or path and the harm (for a finding at medium or above), and a concrete fix'),
+    ok(q.includes('the input or path and the harm (for a finding at medium or above), and a fix direction you checked against the code it would change.'),
       `${label}: the review file asks the input or path and the harm only of a medium or higher finding`);
   }
   const q = pro.prompt('quality block-a');
@@ -3694,7 +3697,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
     fix: 'NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.',
   };
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Leave a change that another block of the plan owns to that block.';
-  const fixScope = `Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${scopeLine.fix}`;
+  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${scopeLine.fix}`;
   const buildLine = {
     focused: {
       feature: `Build it minimally and surgically; match conventions; ${scopeLine.feature}`,
@@ -4266,4 +4269,165 @@ section('every develop prompt that writes a round file says to Read an earlier l
     ['the park message file and backlog entry', flat(park.prompt('park:block-a')), 1, 1],
   ];
   pinWriteNotes(sites);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Every develop agent checks what it is handed, and every handoff file is current
+// ---------------------------------------------------------------------------------------------
+section('the developer confirms each review finding, suggested fix and Fix line before it acts on one');
+// A reviewer and a fix entry each make claims another agent wrote, so the developer checks them against the code.
+{
+  const REVIEW_CLAIMS = "A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as \"CONTESTS DISMISSAL\" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below.";
+  const rework = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  ok(flat(rework.prompt('develop block-a r2')).includes(REVIEW_CLAIMS), 'a round that answers a review confirms each finding and treats its fix as a hint');
+  ok(!flat(rework.prompt('develop block-a r1')).includes("A review is another agent's claim."), 'round 1, which answers no review, carries no such rule');
+  // A refuted finding would otherwise be re-dropped against the contested-dismissal bullet and logged against the risk-gap note.
+  ok(flat(rework.prompt('develop block-a r2')).includes(`${REVIEW_CLAIMS} A gap for a wrong risk answer takes no fix and no log`),
+    'the risk-gap rule the claim check defers to follows it');
+  const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
+    quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...ONE_BLOCK, maxRounds: 1 });
+  ok(flat(closing.prompt('develop-closing block-a')).includes(`your work list. Route each item through the DECISION MATRIX below. ${REVIEW_CLAIMS} Where the matrix says FIX`),
+    'the closing pass confirms the last review\'s findings the same way');
+  const fixRework = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: firstRound(FLAGGED, CLEAN), acceptance: FIX_PASS }, FIX_ONE);
+  const fixR1 = flat(fixRework.prompt('develop fix-a r1'));
+  ok(flat(fixRework.prompt('develop fix-a r2')).includes(REVIEW_CLAIMS), 'a fix round that answers a review carries the rule too');
+  ok(fixR1.includes("Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it")
+    && fixR1.includes('A **Fix:** line you verify is defective goes under DECISION MATRIX rule 6a.'),
+    'VERIFY-FIRST checks each Fix line, and a defective one goes under 6a');
+  ok(fixR1.includes('Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line,'),
+    'the instruction to follow a Fix line is subject to that check');
+}
+
+section('every reviewer gives a fix direction it checked against the code');
+{
+  const DIRECTION = 'a fix direction you checked against the code it would change';
+  const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
+  ok(flat(feat.prompt('quality block-a r1')).includes(`and ${DIRECTION}. When you found nothing`), 'the blind reviewer');
+  ok(flat(bus.prompt('acceptance block-a r1')).includes(`each gap (title + file:line + ${DIRECTION})`)
+    && flat(bus.prompt('acceptance block-b r1')).includes(`each gap (title + file:line + ${DIRECTION})`), 'feature and section acceptance');
+  ok(flat(fixBus.prompt('acceptance fix-a r1')).includes(`each gap with ${DIRECTION} —`), 'fix acceptance');
+  ok(flat(feat.prompt('final-sweep')).includes(`a suggested follow-up block that gives ${DIRECTION})`), 'the sweep');
+  ok(!flat(feat.prompt('quality block-a r1')).includes('a concrete fix'), 'no reviewer asks for a concrete fix to apply');
+}
+
+section('a dismissal rests on a checked fact, and every reader checks it');
+{
+  const CHECKED = 'Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a read or a probe, fix it, or escalate it (7).';
+  for (const [mode, id, r] of FRAMES) {
+    ok(flat(r.prompt(`develop ${id}`)).includes(CHECKED), `${mode}: the drop rules ask a checked fact and never drop an unsettled finding`);
+  }
+  const LEDGER_CHECK = 'Check each such reason against the code it cites. A reason the code contradicts, or one that states no checked fact (a file and line read, or a command run and its output), declines nothing, so its finding counts as a gap.';
+  for (const [where, prompt] of [['feature', bus.prompt('acceptance block-a r1')], ['section', bus.prompt('acceptance block-b r1')], ['fix', fixBus.prompt('acceptance fix-a r1')]]) {
+    ok(flat(prompt).includes(`${OVERRIDE_SKIPPED} ${LEDGER_CHECK}`), `${where} acceptance checks each SKIPPED reason against the code`);
+  }
+  ok(flat(bus.prompt('quality block-a r1')).includes('Before you skip a listed finding, check its stated reason against the code it cites.'),
+    'the blind reviewer checks a reason before it skips the finding');
+  // Round 1 can only see an earlier launch's ledger, written against code this launch rebuilds.
+  const RECHECK = "In round 1 it holds only an earlier launch's lines. After STEP 0 and before you build, re-check each line against the current code, and remove each line whose finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal hides a finding in rebuilt code.";
+  const rounds = await run({ ...GREEN_RUN, quality: firstRound(FLAGGED, CLEAN) }, ONE_BLOCK);
+  ok(flat(rounds.prompt('develop block-a r1')).includes(RECHECK), 'the round-1 developer re-checks a carried ledger before it builds');
+  ok(!flat(rounds.prompt('develop block-a r2')).includes("an earlier launch's lines"), 'a later round keeps the ledger its own launch wrote');
+}
+
+section('the risk file is tied to the snapshot its developer returned');
+// A risk file an earlier launch left, or one a round never rewrote, must not pass as that round's.
+{
+  const tree = (c) => c.repeat(40);
+  const devSchema = bus.byLabel('develop block-a r1')[0]?.opts?.schema ?? {};
+  ok(String(devSchema.required ?? '').includes('risk_snapshot') && devSchema.properties?.risk_snapshot?.type === 'string',
+    'risk_snapshot is a required string in the developer schema');
+  const byRound = { 1: tree('a'), 2: tree('b'), 3: '' };
+  const r = await run({
+    develop: (label) => ({ ...DEV_OK, review_needed: false, risk_snapshot: byRound[Number(/r(\d+)$/.exec(label)?.[1])] }),
+    quality: CLEAN, acceptance: (label) => (/r[12]$/.test(label) ? ACC_FAIL : ACC_PASS),
+  }, ONE_BLOCK);
+  const a3 = flat(r.prompt('acceptance block-a r3'));
+  ok(a3.includes(`Each round's developer returned the tree id it wrote on its risk file's first line: round 1: ${tree('a')} round 2: ${tree('b')} round 3: none returned`),
+    'acceptance gets the tree id of each audited round and of its base round');
+  ok(a3.includes('Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round returned. A file whose line differs, or whose round returned none, counts as a missing file.'),
+    'a mismatch or a missing id counts as a missing risk file, which is a gap that sets risk_misclassified');
+  ok(r.logs.some((l) => /block-a r3: developer returned no tree id as risk_snapshot \(""\) → acceptance counts its risk file as missing/.test(l)),
+    'the log names a round whose developer returned no tree id');
+  ok(!r.logs.some((l) => /r[12]: developer returned no tree id/.test(l)), 'and no round that returned one');
+  const notTree = await run({ develop: firstRound(DEV_OK, { ...DEV_OK, review_needed: false, risk_snapshot: 'HEAD' }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, ONE_BLOCK);
+  ok(flat(notTree.prompt('acceptance block-a r2')).includes('round 2: none returned'), 'a value that is not a tree id counts as none');
+  const noField = await run({ develop: firstRound(DEV_OK, { ...DEV_OK, review_needed: false, risk_snapshot: undefined }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, ONE_BLOCK);
+  ok(flat(noField.prompt('acceptance block-a r2')).includes('round 2: none returned'), 'a missing value counts as none');
+  ok(!flat(r.prompt('acceptance block-a r1')).includes('returned the tree id'), 'a round the blind review judged has no snapshot to confirm');
+}
+
+section('the closing acceptance confirms each backlog entry the closing pass listed');
+{
+  const ONE_ROUND = { ...ONE_BLOCK, maxRounds: 1 };
+  const closingDev = (recorded) => (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: recorded } : DEV_OK);
+  const listed = await run({ develop: closingDev(['t-block-a-x-1', 't-block-a-x-2']), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
+  ok(flat(listed.prompt('acceptance block-a r2')).includes(`RECORDED ENTRIES. The closing pass listed these backlog entries, each holding a fix it did not make: t-block-a-x-1 t-block-a-x-2 Before you rely on one, confirm that ${BACKLOG}/<the id without its last "-<n>">.md holds a "### [<the id>]" entry. Each id with no such entry is a gap.`),
+    'each listed id is confirmed in the backlog file it names, and a missing one is a gap');
+  ok(!flat(listed.prompt('acceptance block-a r1')).includes('RECORDED ENTRIES'), 'an earlier round\'s acceptance has nothing to confirm');
+  const unusable = await run({ develop: closingDev(null), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
+  ok(flat(unusable.prompt('acceptance block-a r2')).includes('RECORDED ENTRIES. The closing pass returned no usable list of the backlog entries it listed, so no listed entry can be confirmed. Write that as a gap.'),
+    'an unusable list is a gap');
+  const none = await run({ develop: closingDev([]), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
+  ok(!flat(none.prompt('acceptance block-a r2')).includes('RECORDED ENTRIES'), 'an empty list adds no step');
+}
+
+section('a plan-unreadable halt names the bare plan command, and its park records the cause');
+{
+  const COMMAND = "`node 'E:/r/tools/plan-block.mjs' 'E:/plans/bus.md' 'block-a'`";
+  const dev = await run({ develop: { ...DEV_OK, plan_obtained: false }, park: PARK_OK }, ONE_BLOCK);
+  const reason = String(dev.out.haltReason ?? '');
+  ok(reason.includes(`Its plan command was ${COMMAND}. Run it yourself. A non-zero exit names the cause`) && !reason.includes('Redirect its output'),
+    'the developer halt carries the command, never the agent\'s instruction text');
+  const acc = await run({ ...GREEN_RUN, acceptance: { ...ACC_FAIL, plan_obtained: false }, park: PARK_OK }, ONE_BLOCK);
+  ok(String(acc.out.haltReason ?? '').includes(`Its plan command was ${COMMAND}. Run it yourself. A non-zero exit names the cause.`),
+    'so does the acceptance halt');
+  ok(flat(dev.prompt('park:block-a')).includes(`**What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run ${COMMAND} yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim:`),
+    'the park runs the command and writes its exit code and first error line under the Halted line');
+  const dead = await run({ ...GREEN_RUN, quality: null, park: PARK_OK }, ONE_BLOCK);
+  const deadPark = flat(dead.prompt('park:block-a'));
+  ok(deadPark.includes('**What:** <the line "Halted: an agent returned nothing') && !deadPark.includes('"Cause: '),
+    'a park for any other halt runs no plan command');
+  const pass = await run({ develop: { ...passDev([]), plan_obtained: false }, park: PARK_OK }, PASS_ARGS);
+  ok(String(pass.out.haltReason ?? '').includes("Its plan commands were `node 'E:/r/tools/plan-block.mjs' 'E:/plans/one.md' 'fix-a'`, `node 'E:/r/tools/plan-block.mjs' 'E:/plans/two.md' 'fix-b'`. Run each yourself."),
+    'a pass names each member\'s command');
+}
+
+section('every backlog writer keeps an existing file\'s header and reopens a skipped file');
+{
+  const RULE = 'An existing file keeps its header, and a new entry goes below its last entry. When the file\'s "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.';
+  const closingLands = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK),
+    quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...ONE_BLOCK, maxRounds: 1 });
+  const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+  for (const [where, prompt] of [['the developer', bus.prompt('develop block-a r1')], ['fix acceptance', fixBus.prompt('acceptance fix-a r1')],
+    ['the closing acceptance', closingLands.prompt('acceptance block-a r2')], ['park', park.prompt('park:block-a')]]) {
+    ok(flat(prompt).includes(RULE), `${where} carries the rule`);
+  }
+}
+
+section('every gate run keeps its entire output in a log under scratch');
+{
+  const gateRun = (name) => `Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to ${STATE}/scratch/gate-${name}-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.`;
+  const feat = await run({ ...GREEN_RUN, 'final-sweep': SWEEP_OK }, { ...ONE_BLOCK, sweep: 'goal-coverage', goal: 'g' });
+  const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
+  const sites = [
+    ['feature developer', bus.prompt('develop block-a r1'), 'develop-block-a-r1'],
+    ['section developer', bus.prompt('develop block-b r1'), 'develop-block-b-r1'],
+    ['fix developer', fixBus.prompt('develop fix-a r1'), 'develop-fix-a-r1'],
+    ['feature acceptance', bus.prompt('acceptance block-a r1'), 'acceptance-block-a-r1'],
+    ['section acceptance', bus.prompt('acceptance block-b r1'), 'acceptance-block-b-r1'],
+    ['fix acceptance', fixBus.prompt('acceptance fix-a r1'), 'acceptance-fix-a-r1'],
+    ['sweep', feat.prompt('final-sweep'), 'sweep'],
+    ['park', park.prompt('park:block-a'), 'park-block-a'],
+  ];
+  for (const [where, prompt, name] of sites) {
+    eq(flat(prompt).split(gateRun(name)).length - 1, 1, `${where}: runs its gates through the one rule, once`);
+  }
+}
+
+section('the rendered prompts name none of python, pytest, jest, npm, powershell or the backlog build command');
+// The rules apply in any project, so a project stack's command never appears in them.
+{
+  const rules = [bus.prompt('develop block-a r1'), fixBus.prompt('develop fix-a r1'), bus.prompt('acceptance block-a r1'), fixBus.prompt('acceptance fix-a r1'), bus.prompt('quality block-a r1')]
+    .map(flat).join(' ');
+  ok(!/\b(?:python|pytest|jest|npm|powershell|plan-edit\.mjs args --backlog)\b/i.test(rules), 'the rendered prompts name no stack-specific tool');
 }

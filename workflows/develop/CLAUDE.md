@@ -382,7 +382,14 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   repo already does the same kind of thing before it writes. BUILD builds the block, then runs the
   gate. In a feature or section block, a round that answers a review routes each finding and gap in
   that review through the decision matrix in place of the build. A fix block's round routes them
-  beside its entry rules. A round after a red gate with no review builds again. HARDEN handles edge
+  beside its entry rules. A round after a red gate with no review builds again. It treats each review
+  finding as another agent's claim. It confirms the finding against the current code before it acts
+  and drops a finding it refutes as a false positive, apart from a contested dismissal, which it fixes
+  or escalates. It reads a suggested fix as a hint and checks it
+  against the text it changes, the block's text, every sibling text that must agree with it and any
+  command or behavior the repo does not already use, then builds the fix that closes the confirmed
+  cause. In a fix block, VERIFY-FIRST checks each entry's `**Fix:**` line the same way, and a line it
+  verifies is defective goes under the matrix's verified-plan-defect case (6a). HARDEN handles edge
   cases, gives each expected failure a message that names its cause, logs where the repo logs, adds
   a test for each risky path and cleans up the code its round added or changed, at every tier.
   SIBLINGS is the sibling rule below. SELF-REVIEW applies the blind reviewer's severity scale, reach
@@ -390,13 +397,21 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   that its round neither changed nor read is outside the self-review, since each earlier round's
   self-review judged that round's code, and each blind review judges the entire block diff. CLASSIFY
   answers the risk questions (§6) for each change its round made, writes `risk-<id>-rN.md`, which
-  starts with a snapshot of its round's tree (§6), and returns `review_needed`. Each phase after
-  BUILD runs a targeted test while it works. The gate runs once more after the last phase that
-  changed code, and that run's outcome is the one it reports. A phase with nothing to do for its
+  starts with a snapshot of its round's tree (§6), and returns `review_needed` and the snapshot's
+  tree id as `risk_snapshot`. Each phase after BUILD runs a targeted test while it works. The gate
+  runs once more after the last phase that changed code, and that run's outcome is the one it
+  reports. Every gate run sets the shell tool's timeout to its maximum (600000 ms) and writes the
+  gate's entire output to a log under `scratch/`, which the agent then reads. Acceptance, the sweep
+  and park run their gates the same way. A phase with nothing to do for its
   round's changes is skipped. It routes each finding by the code zone it lies in, as §4 sets. It
   logs every finding it routes and does not fix, so none is dropped silently. A dismissal names one
-  place or the class of places it covers, and its reason holds for every place it names. It
-  escalates only a choice that changes user-visible behavior, stored data or a public contract and
+  place or the class of places it covers, and its reason holds for every place it names. The reason
+  states a fact it checked that round, the file and line it read or the command it ran and its
+  output. It never drops a finding it can neither confirm nor refute. It settles that finding with a
+  read or a probe, fixes it or escalates it. On a relaunch, the round-1 developer re-checks each line
+  that `DISMISSED-<id>.md` carries from an earlier launch against the current code before it builds,
+  and removes each line whose finding no longer applies or whose reason the code no longer supports.
+  It escalates only a choice that changes user-visible behavior, stored data or a public contract and
   that nothing it can read or check settles, or a blocker it cannot resolve in scope. One it cannot
   proceed without goes to `NEEDS-USER.md` in an ordered run, which halts on it, and to the block's
   own `question-<id>.md` in an unordered run. Park copies it into the block's backlog entry either
@@ -422,15 +437,19 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   policies. It works through a reach step over callers, siblings, duplicates and describing text,
   and a lens checklist that ends with the nit list. It also flags a new sentence that the repo's
   code contradicts. A review is clean when it holds no finding and no contested dismissal, and its
-  file then reads `No findings.` It may contest a dismissal at any tier. §6 says which rounds it
-  runs in.
+  file then reads `No findings.` Each finding gives a fix direction it checked against the code it
+  would change. Before it skips a dismissed finding, it checks the stated reason against the code,
+  and it contests a reason the code contradicts, at any tier. §6 says which rounds it runs in.
 - **Acceptance Verifier** — frame per mode; carries the legitimate no-op branch in both modes (a
   block the accepted baseline already satisfies passes without inventing changes). In fix mode, any
   unstaged or untracked change fails acceptance when no issue is claimed FIXED. Only agent that
   stages, and in commit mode the only agent that commits. It reads every earlier review file of its
   block and counts an earlier finding as a gap unless the code closes it on every sibling path or
-  the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding,
-  and acceptance may override it. A line whose reason starts `ESCALATED:` records a default routed
+  the dismissal ledger declines it. A ledger line whose reason starts `SKIPPED:` declines a finding
+  only when its reason holds. Acceptance checks each such reason against the code it cites, and a
+  reason the code contradicts or one that states no checked fact declines nothing, so its finding
+  counts as a gap. Acceptance may also override a line whose reason holds. Each gap it writes gives a
+  fix direction it checked against the code it would change. A line whose reason starts `ESCALATED:` records a default routed
   to the user, and acceptance holds it. It audits the risk file of each round since the block's last
   blind review, against that round's own hunks (§6). In the closing pass it sorts each gap as
   blocking or not blocking, and it lands the block when no gap blocks. Otherwise the block parks
@@ -492,9 +511,11 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   The entry's `**What:**` copies the escalated question, the halt reason, or the gaps of the last
   review file, whichever caused the park. After a closing acceptance it copies the blocking gaps
   first. A halt that parks a block with an escalated question copies the halt reason and then that
-  question. Its `**Fix:**` says to close those gaps on top of the branch's work, so each origin
-  block meets its criteria. An entry with no branch says to build each origin block on the accepted
-  baseline instead. The block syncs `backlogged`, and its work continues from that entry. A held
+  question. A `plan-unreadable` halt reason names the bare plan-block command, and its park runs
+  that command itself and writes its exit code and first error line under the entry's `Halted:`
+  line as the cause. Its `**Fix:**` says to close those gaps on top of the branch's work, so each
+  origin block meets its criteria. An entry with no branch says to build each origin block on the
+  accepted baseline instead, and its `- size:` gives the size of that build, since no work was saved. The block syncs `backlogged`, and its work continues from that entry. A held
   park syncs `blocked` instead, its entry is `NEEDS_USER` unless its park agent died or returned a
   report that contradicts itself, and §2 step 5 says which route its work then takes. Fix mode takes
   only gate `green`, so the park of a `red-baseline` block, or of a `build-only` block in a run with
@@ -504,7 +525,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   prompt does not name may come from an earlier launch of the block, so the agent ignores it.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
-  full gates, writes `SWEEP.md`. Advisory: a dead sweep is the `failed` entry
+  full gates, writes `SWEEP.md`, where each gap's follow-up block gives a fix direction it checked
+  against the code. Advisory: a dead sweep is the `failed` entry
   `{ id: 'sweep', stage: 'sweep' }`, never a halt.
 
 ## 6. Loop, gates & verification
@@ -533,7 +555,10 @@ last blind review returned `review_needed` true or no boolean, or an acceptance 
 returned `risk_misclassified` true. Any other round goes from the developer straight to acceptance.
 Git holds one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two
 snapshots. It runs `git diff <base> <snapshot>`, where `<snapshot>` is the line in that round's risk
-file and `<base>` is the line in the risk file of the round before it. It checks each answer in the
+file and `<base>` is the line in the risk file of the round before it. The engine hands acceptance
+the `risk_snapshot` each of those rounds returned, and acceptance confirms each file's snapshot line
+equals it before it audits. A line that differs, or a round that returned no tree id, counts as a
+missing file. It checks each answer in the
 risk file of each round since the last blind review against that round's hunks. A missing file, a
 missing snapshot line in an audited round's file or in its base file, a change the file does not
 judge low risk and an answer the hunks contradict are each a gap, and the verdict returns
@@ -545,7 +570,9 @@ fix of the last review's findings and gaps that is low risk, and records each on
 an entry in its block's backlog file (§10), with a `**Fix:**` line naming the fix, a
 `**Parked with:**` line naming the block and no DISMISSED line, under both policies. It returns those
 entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
-that holds the item instead. A blind review follows the closing pass when its changes owe one by the
+that holds the item instead. The closing acceptance confirms that each listed id names an entry in
+its backlog file before it relies on it, and a missing entry, or a list that is not usable, is a
+gap. A blind review follows the closing pass when its changes owe one by the
 rule above, whatever its gate, and the closing acceptance reads that review's file. A block never
 lands with a change that needs a blind review and has none.
 
@@ -754,7 +781,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `reviewSeverity` (the developer's risk judgment decides when a blind review runs, and every blind
   review reports every tier), a top-level `planPath` and `planContext` are retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of
-  its round is not low risk, and a non-boolean counts as true) and, in the closing pass only,
+  its round is not low risk, and a non-boolean counts as true), its `risk_snapshot` (the tree id on
+  its risk file's first line, which acceptance's risk audit confirms, and a value that is not a tree
+  id counts as no risk file) and, in the closing pass only,
   `recorded_entries` (the ids of the backlog entries it listed, appended or already there, which a
   park's entry names) · in commit mode, the round-1 developer's `baseline_staged_files` (the files
   staged before it touched anything, above 0 halts `staged-baseline`, and a non-number is logged as
@@ -786,7 +815,9 @@ there, `<file id>.md`, created with the first entry. `<file id>` is
 
 Each file is a fix-mode plan file. Its header is
 `## Plan: <file id> - backlog from block <block id> of run <runId>`, then `mode: fix`, `gate: green`
-and `status: todo`. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
+and `status: todo`. A writer that finds the file already there keeps its header and appends below
+its last entry. When the file's `status:` line reads `skip`, the writer sets it to `todo`, since
+`plan-edit.mjs args --backlog` builds only `todo` and `done` files. Its entries take debug's issue-file shape, with the id `<file id>-<n>` and
 a `- decision:` that the writer sets by one rule. The decision is `ACTIONABLE` when the entry is a
 defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no
 user-visible behavior, stored data or public contract. It is `NEEDS_USER` otherwise, such as a

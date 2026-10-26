@@ -6,87 +6,89 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 26658 | every block accepts first time |
-| quality | 1 | 1 | 9138 | every block accepts first time |
-| acceptance | 1 | 1 | 12537 | every block accepts first time |
-| develop | 2 | 1 | 27083 | every block accepts first time |
-| acceptance | 2 | 2 | 12818 | every block accepts first time |
-| final-sweep | 1 | 1 | 3254 | every block accepts first time |
-| develop | 3 | 1 | 26982 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 1 | 12265 | a feature block accepts under the proactive policy |
-| final-sweep | 2 | 1 | 3245 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 26182 | quality flags the first round |
-| acceptance | 4 | 1 | 12536 | quality flags the first round |
-| develop | 5 | 1 | 26552 | quality flags the first round |
-| acceptance | 5 | 2 | 12817 | quality flags the first round |
-| develop | 6 | 1 | 26178 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 12534 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 26548 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 12815 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 14295 | a later round is judged low risk |
-| acceptance | 9 | 2 | 14576 | a later round is judged low risk |
-| develop | 8 | 1 | 26108 | the gate never goes green |
-| develop-closing | 1 | 1 | 27546 | the gate never goes green |
-| quality | 2 | 1 | 9198 | the gate never goes green |
-| acceptance | 10 | 3 | 15542 | the gate never goes green |
-| park | 1 | 1 | 9270 | the gate never goes green |
-| develop | 9 | 1 | 26533 | the gate never goes green |
-| develop-closing | 2 | 1 | 27916 | the gate never goes green |
-| acceptance | 11 | 4 | 15823 | the gate never goes green |
-| acceptance | 12 | 1 | 12589 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 12644 | a parked block, and the run carries on |
-| acceptance | 14 | 1 | 12699 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 27639 | a parked block, and the run carries on |
-| acceptance | 15 | 3 | 17553 | a parked block, and the run carries on |
-| develop | 10 | 1 | 26640 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 12531 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 26160 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 12528 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 12583 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 12638 | an ordered run stops at a parked block |
-| acceptance | 20 | 1 | 12693 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 27621 | an ordered run stops at a parked block |
-| acceptance | 21 | 3 | 17547 | an ordered run stops at a parked block |
-| park | 2 | 1 | 9282 | an ordered run stops at a parked block |
-| develop | 12 | 2 | 30755 | a fix block closes its issues |
-| acceptance | 22 | 5 | 17580 | a fix block closes its issues |
-| final-sweep | 3 | 1 | 3245 | a fix block closes its issues |
-| develop | 13 | 2 | 31261 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 5 | 17586 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 2 | 31147 | a pass of two fix blocks closes its issues |
-| acceptance | 24 | 5 | 17910 | a pass of two fix blocks closes its issues |
-| final-sweep | 4 | 1 | 3275 | a pass of two fix blocks closes its issues |
-| acceptance | 25 | 5 | 17579 | every issue is already fixed |
-| develop | 15 | 2 | 30737 | an ordered run stops on a fix block that closes nothing |
-| park | 3 | 1 | 9585 | passed with a regression, not staged |
-| park | 4 | 1 | 8715 | acceptance stages a rejected block |
-| park | 5 | 1 | 9438 | the quality reviewer fails a block without its file |
-| park | 6 | 1 | 9438 | acceptance fails a block without its file |
-| park | 7 | 1 | 8845 | the developer staged its own work |
-| park | 8 | 1 | 9119 | developer never got its block |
-| park | 9 | 1 | 9010 | acceptance never got its block |
-| park | 10 | 1 | 8766 | the developer dies |
-| park | 11 | 1 | 8766 | the quality reviewer dies |
-| park | 12 | 1 | 9103 | the acceptance verifier dies |
-| park | 13 | 1 | 8469 | developer escalates |
-| park | 14 | 1 | 8459 | developer escalates in an ordered run |
-| acceptance | 26 | 3 | 17333 | a closing acceptance lands the block |
-| develop-closing | 5 | 1 | 28009 | a closing acceptance lands the block |
-| acceptance | 27 | 4 | 17614 | a closing acceptance lands the block |
-| acceptance | 28 | 3 | 15596 | a closing pass gets a blind review |
-| acceptance | 29 | 4 | 15877 | a closing pass gets a blind review |
-| park | 15 | 1 | 9420 | a closing acceptance finds a blocking gap |
-| park | 16 | 1 | 9420 | a closing acceptance finds a blocking gap |
-| develop | 16 | 3 | 26829 | every block commits first time |
-| quality | 3 | 1 | 9091 | every block commits first time |
-| acceptance | 30 | 6 | 14060 | every block commits first time |
-| develop | 17 | 3 | 27254 | every block commits first time |
-| acceptance | 31 | 7 | 14341 | every block commits first time |
-| final-sweep | 5 | 1 | 3566 | every block commits first time |
-| develop | 18 | 4 | 30957 | a fix block commits |
-| acceptance | 32 | 8 | 19320 | a fix block commits |
-| final-sweep | 6 | 1 | 3473 | a fix block commits |
-| park | 17 | 1 | 8844 | acceptance commits a rejected block |
+| develop | 1 | 1 | 28016 | every block accepts first time |
+| quality | 1 | 1 | 9256 | every block accepts first time |
+| acceptance | 1 | 1 | 13270 | every block accepts first time |
+| develop | 2 | 1 | 28441 | every block accepts first time |
+| acceptance | 2 | 2 | 13551 | every block accepts first time |
+| final-sweep | 1 | 1 | 3734 | every block accepts first time |
+| develop | 3 | 1 | 28340 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 1 | 12998 | a feature block accepts under the proactive policy |
+| final-sweep | 2 | 1 | 3725 | a feature block accepts under the proactive policy |
+| develop | 4 | 1 | 28227 | quality flags the first round |
+| acceptance | 4 | 1 | 13269 | quality flags the first round |
+| develop | 5 | 1 | 28597 | quality flags the first round |
+| acceptance | 5 | 2 | 13550 | quality flags the first round |
+| develop | 6 | 1 | 28223 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 13267 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 28593 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 13548 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 15417 | a later round is judged low risk |
+| acceptance | 9 | 2 | 15698 | a later round is judged low risk |
+| develop | 8 | 1 | 27170 | the gate never goes green |
+| develop-closing | 1 | 1 | 28608 | the gate never goes green |
+| quality | 2 | 1 | 9316 | the gate never goes green |
+| acceptance | 10 | 3 | 16468 | the gate never goes green |
+| park | 1 | 1 | 10008 | the gate never goes green |
+| develop | 9 | 1 | 27595 | the gate never goes green |
+| develop-closing | 2 | 1 | 28978 | the gate never goes green |
+| acceptance | 11 | 4 | 16749 | the gate never goes green |
+| acceptance | 12 | 1 | 13322 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 13377 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 13432 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 29684 | a parked block, and the run carries on |
+| acceptance | 15 | 3 | 18868 | a parked block, and the run carries on |
+| develop | 10 | 1 | 27998 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 13264 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 28205 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 13261 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 13316 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 13371 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 13426 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 29666 | an ordered run stops at a parked block |
+| acceptance | 21 | 3 | 18862 | an ordered run stops at a parked block |
+| park | 2 | 1 | 10020 | an ordered run stops at a parked block |
+| develop | 12 | 2 | 32659 | a fix block closes its issues |
+| acceptance | 22 | 5 | 18512 | a fix block closes its issues |
+| final-sweep | 3 | 1 | 3725 | a fix block closes its issues |
+| develop | 13 | 2 | 33165 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 5 | 18518 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 2 | 33058 | a pass of two fix blocks closes its issues |
+| acceptance | 24 | 5 | 18849 | a pass of two fix blocks closes its issues |
+| final-sweep | 4 | 1 | 3755 | a pass of two fix blocks closes its issues |
+| acceptance | 25 | 5 | 18511 | every issue is already fixed |
+| develop | 15 | 2 | 32641 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 10323 | passed with a regression, not staged |
+| park | 4 | 1 | 9453 | acceptance stages a rejected block |
+| park | 5 | 1 | 10176 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 10176 | acceptance fails a block without its file |
+| park | 7 | 1 | 9583 | the developer staged its own work |
+| park | 8 | 1 | 9668 | developer never got its block |
+| park | 9 | 1 | 9559 | acceptance never got its block |
+| park | 10 | 1 | 9504 | the developer dies |
+| park | 11 | 1 | 9504 | the quality reviewer dies |
+| park | 12 | 1 | 9841 | the acceptance verifier dies |
+| park | 13 | 1 | 9207 | developer escalates |
+| park | 14 | 1 | 9197 | developer escalates in an ordered run |
+| acceptance | 26 | 3 | 18648 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 30054 | a closing acceptance lands the block |
+| acceptance | 27 | 4 | 18929 | a closing acceptance lands the block |
+| acceptance | 28 | 3 | 16522 | a closing pass gets a blind review |
+| acceptance | 29 | 4 | 16803 | a closing pass gets a blind review |
+| acceptance | 30 | 3 | 18941 | a closing acceptance finds a blocking gap |
+| park | 15 | 1 | 10158 | a closing acceptance finds a blocking gap |
+| acceptance | 31 | 4 | 19222 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 10158 | a closing acceptance finds a blocking gap |
+| develop | 16 | 3 | 28187 | every block commits first time |
+| quality | 3 | 1 | 9209 | every block commits first time |
+| acceptance | 32 | 6 | 14793 | every block commits first time |
+| develop | 17 | 3 | 28612 | every block commits first time |
+| acceptance | 33 | 7 | 15074 | every block commits first time |
+| final-sweep | 5 | 1 | 4046 | every block commits first time |
+| develop | 18 | 4 | 32861 | a fix block commits |
+| acceptance | 34 | 8 | 20252 | a fix block commits |
+| final-sweep | 6 | 1 | 3953 | a fix block commits |
+| park | 17 | 1 | 9582 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -124,7 +126,10 @@ staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write no
 immediately with that count. The run halts for the operator. If it IS 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -165,6 +170,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -233,7 +239,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
@@ -273,8 +279,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -303,6 +310,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -310,7 +320,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -381,7 +391,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -395,6 +406,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -491,8 +506,9 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
     settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
-"CONTESTS DISMISSAL:", explaining why the reason does not hold.
+Before you skip a listed finding, check its stated reason against the code it cites. When the code
+contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
+file:line that contradicts it.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
@@ -566,7 +582,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
+harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.
@@ -645,6 +661,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -702,7 +721,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -717,10 +736,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -834,7 +854,10 @@ staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write no
 immediately with that count. The run halts for the operator. If it IS 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -878,6 +901,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -946,7 +970,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
@@ -986,8 +1010,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -1016,6 +1041,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -1023,7 +1051,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -1094,7 +1122,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -1108,6 +1137,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -1220,6 +1253,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -1277,7 +1313,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -1295,10 +1331,11 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -1408,12 +1445,12 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -1486,7 +1523,10 @@ staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write no
 immediately with that count. The run halts for the operator. If it IS 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -1527,6 +1567,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -1595,7 +1636,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
@@ -1635,8 +1676,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -1665,6 +1707,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -1672,7 +1717,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -1748,7 +1793,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -1762,6 +1808,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -1874,6 +1924,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -1931,7 +1984,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -1946,10 +1999,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -2059,12 +2113,12 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -2167,10 +2221,11 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -2239,7 +2294,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
@@ -2279,8 +2334,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -2309,6 +2365,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -2316,7 +2375,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -2387,7 +2446,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -2401,6 +2461,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -2513,6 +2577,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -2570,7 +2637,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -2585,10 +2652,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -2733,13 +2801,14 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/gate/quality-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -2808,7 +2877,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
@@ -2848,8 +2917,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -2878,6 +2948,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -2885,7 +2958,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -2956,7 +3029,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -2970,6 +3044,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -3082,6 +3160,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -3139,7 +3220,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -3157,10 +3238,11 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -3304,10 +3386,11 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -3376,7 +3459,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
@@ -3416,8 +3499,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -3446,6 +3530,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -3453,7 +3540,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -3524,7 +3611,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -3538,6 +3626,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -3650,6 +3742,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -3707,7 +3802,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -3722,10 +3817,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -3870,13 +3966,14 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-b-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -3945,7 +4042,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
@@ -3985,8 +4082,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -4015,6 +4113,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -4022,7 +4123,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -4093,7 +4194,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -4107,6 +4209,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -4219,6 +4325,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -4276,7 +4385,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -4294,10 +4403,11 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -4418,6 +4528,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -4475,7 +4588,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -4490,6 +4603,7 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r2.md
@@ -4499,6 +4613,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -4515,7 +4634,7 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -4636,6 +4755,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -4693,7 +4815,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -4711,6 +4833,7 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-b-r2.md
@@ -4720,6 +4843,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -4736,7 +4864,7 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -4884,6 +5012,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -4952,7 +5081,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
@@ -4992,8 +5121,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -5022,6 +5152,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -5029,7 +5162,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -5100,7 +5233,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -5114,6 +5248,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -5266,6 +5404,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -5334,7 +5473,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
@@ -5374,8 +5513,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -5405,6 +5545,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -5412,7 +5555,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -5484,6 +5627,7 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
+    "risk_snapshot",
     "recorded_entries"
   ],
   "properties": {
@@ -5498,6 +5642,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "recorded_entries": {
       "type": "array",
@@ -5601,8 +5749,9 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
     settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
-"CONTESTS DISMISSAL:", explaining why the reason does not hold.
+Before you skip a listed finding, check its stated reason against the code it cites. When the code
+contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
+file:line that contradicts it.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
@@ -5676,7 +5825,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r6.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
+harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.
@@ -5756,6 +5905,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -5821,7 +5973,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -5836,16 +5988,17 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-a-d48cf78a-<n>] <title>
@@ -6010,9 +6163,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -6026,7 +6179,8 @@ PROCEDURE:
      **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -6150,6 +6304,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -6218,7 +6373,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
@@ -6258,8 +6413,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -6288,6 +6444,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -6295,7 +6454,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -6366,7 +6525,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -6380,6 +6540,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -6536,6 +6700,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -6604,7 +6769,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r6.index" git -C E:/repo write-tree
@@ -6644,8 +6809,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -6675,6 +6841,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -6682,7 +6851,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -6754,6 +6923,7 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
+    "risk_snapshot",
     "recorded_entries"
   ],
   "properties": {
@@ -6768,6 +6938,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "recorded_entries": {
       "type": "array",
@@ -6888,6 +7062,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -6953,7 +7130,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -6971,16 +7148,17 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-b-7d7451b3-<n>] <title>
@@ -7123,6 +7301,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -7181,7 +7362,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -7196,10 +7377,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -7320,6 +7502,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -7379,7 +7564,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -7394,10 +7579,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -7518,6 +7704,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -7578,7 +7767,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -7593,10 +7782,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -7743,7 +7933,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
@@ -7758,6 +7948,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -7826,7 +8017,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
@@ -7866,8 +8057,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -7897,6 +8089,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -7904,7 +8099,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -7976,6 +8171,7 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
+    "risk_snapshot",
     "recorded_entries"
   ],
   "properties": {
@@ -7990,6 +8186,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "recorded_entries": {
       "type": "array",
@@ -8110,6 +8310,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -8179,7 +8382,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -8194,6 +8397,7 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r6.md
@@ -8203,6 +8407,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -8219,13 +8428,13 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-a-d48cf78a-<n>] <title>
@@ -8360,7 +8569,10 @@ staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write no
 immediately with that count. The run halts for the operator. If it IS 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -8401,6 +8613,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -8469,7 +8682,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
@@ -8509,8 +8722,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -8539,6 +8753,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -8546,7 +8763,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -8617,7 +8834,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -8631,6 +8849,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -8743,6 +8965,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -8800,7 +9025,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -8815,10 +9040,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -8962,10 +9188,11 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: READ E:/flow/runs/flow/acceptance-review-block-a-r1.md
    and route every finding and gap in it, at every tier, through the DECISION MATRIX below: fix it or
-   log it. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
+   log it. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -9034,7 +9261,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r2.index" git -C E:/repo write-tree
@@ -9074,8 +9301,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -9104,6 +9332,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -9111,7 +9342,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -9182,7 +9413,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -9196,6 +9428,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -9308,6 +9544,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -9365,7 +9604,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -9380,10 +9619,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -9504,6 +9744,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -9562,7 +9805,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r2.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -9577,10 +9820,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r3-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r3.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -9701,6 +9945,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -9760,7 +10007,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r3.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -9775,10 +10022,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r4-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r4.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -9899,6 +10147,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -9959,7 +10210,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r4.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -9974,10 +10225,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r5-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r5.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -10124,7 +10376,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-a-r5.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
@@ -10139,6 +10391,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -10207,7 +10460,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r6.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r6.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r6.index" git -C E:/repo write-tree
@@ -10247,8 +10500,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -10278,6 +10532,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -10285,7 +10542,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -10357,6 +10614,7 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
+    "risk_snapshot",
     "recorded_entries"
   ],
   "properties": {
@@ -10371,6 +10629,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "recorded_entries": {
       "type": "array",
@@ -10491,6 +10753,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -10560,7 +10825,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r5.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -10575,6 +10840,7 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r6-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r6.md
@@ -10584,6 +10850,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 6, base in E:/flow/runs/flow/risk-block-a-r5.md, snapshot in E:/flow/runs/flow/risk-block-a-r6.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 5: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 6: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -10600,13 +10871,13 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-a-d48cf78a-<n>] <title>
@@ -10771,9 +11042,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -10787,7 +11058,8 @@ PROCEDURE:
      **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -10849,7 +11121,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10901,7 +11173,10 @@ branch that failed and why (missing, or the `git apply` error), set restored_bra
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -10937,7 +11212,9 @@ Use the tools you have, such as web search or a browser, to check how something 
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
-   verified.
+   verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
+   Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
+   under DECISION MATRIX rule 6a.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -10953,6 +11230,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -11021,7 +11299,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
@@ -11061,8 +11339,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -11091,6 +11370,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -11098,7 +11380,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-c-eb03ab84-<n>] <title>
@@ -11172,7 +11454,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -11212,6 +11495,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -11332,6 +11619,9 @@ accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -11405,7 +11695,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open" and a **What:** that
@@ -11420,7 +11710,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -11435,14 +11725,14 @@ prints a block), and, for a feature or section block, the reachability of its wo
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
-5. Run the FULL gates (GATES above) once and record the real outcome.
+5. Run the FULL gates (GATES above) once and record the real outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
-   each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
+   each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
    held; no regression; risk audit clean."
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
@@ -11592,12 +11882,12 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -11646,7 +11936,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -11698,7 +11988,10 @@ branch that failed and why (missing, or the `git apply` error), set restored_bra
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -11734,7 +12027,9 @@ Use the tools you have, such as web search or a browser, to check how something 
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
-   verified.
+   verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
+   Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
+   under DECISION MATRIX rule 6a.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -11750,6 +12045,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -11818,7 +12114,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
@@ -11858,8 +12154,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -11888,6 +12185,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -11895,7 +12195,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive gets no entry, and a nit dropped under rule 2 or SIBLINGS goes under CLEANUP below.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-c-eb03ab84-<n>] <title>
@@ -11974,7 +12274,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -12014,6 +12315,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -12134,6 +12439,9 @@ accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -12207,7 +12515,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open" and a **What:** that
@@ -12222,7 +12530,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -12237,14 +12545,14 @@ prints a block), and, for a feature or section block, the reachability of its wo
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
-5. Run the FULL gates (GATES above) once and record the real outcome.
+5. Run the FULL gates (GATES above) once and record the real outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
-   each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
+   each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
    held; no regression; risk audit clean."
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
@@ -12375,7 +12683,7 @@ inside the target repo or E:/flow/runs/flow/gate/, and read those files, since t
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -12427,7 +12735,10 @@ branch that failed and why (missing, or the `git apply` error), set restored_bra
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -12463,7 +12774,9 @@ Use the tools you have, such as web search or a browser, to check how something 
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
-   verified.
+   verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
+   Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
+   under DECISION MATRIX rule 6a.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -12479,6 +12792,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-c-plus-1-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -12547,7 +12861,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-plus-1-r1.index" git -C E:/repo write-tree
@@ -12587,8 +12901,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -12617,6 +12932,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -12626,7 +12944,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name that block in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [<that file's name without .md>-<n>] <title>
@@ -12700,7 +13018,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -12740,6 +13059,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -12861,6 +13184,9 @@ accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -12937,7 +13263,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      - i-2 → E:/flow/backlog/repo-0a1b2c3d/flow-block-d-1bea48c5.md (block "block-d")
    Count it in backlog_entries and name that block in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: <that file's name without .md> - backlog from block <that block's id> of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "<that file's name without .md>-<n>" (n one past
    the highest n in that file's entry ids), "- status: open" and a **What:** that
@@ -12952,7 +13278,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -12967,14 +13293,14 @@ prints a block), and, for a feature or section block, the reachability of its wo
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
-5. Run the FULL gates (GATES above) once and record the real outcome.
+5. Run the FULL gates (GATES above) once and record the real outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-c-plus-1-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-c-plus-1-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
-   each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
+   each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
    held; no regression; risk audit clean."
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
@@ -13124,12 +13450,12 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check the staged diff (`git -C E:/repo diff --staged --stat`): does it plausibly cover every
    block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -13209,6 +13535,9 @@ accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -13282,7 +13611,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open" and a **What:** that
@@ -13297,7 +13626,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -13312,14 +13641,14 @@ prints a block), and, for a feature or section block, the reachability of its wo
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
-5. Run the FULL gates (GATES above) once and record the real outcome.
+5. Run the FULL gates (GATES above) once and record the real outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
-   each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
+   each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
    held; no regression; risk audit clean."
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
@@ -13449,7 +13778,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -13501,7 +13830,10 @@ branch that failed and why (missing, or the `git apply` error), set restored_bra
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -13537,7 +13869,9 @@ Use the tools you have, such as web search or a browser, to check how something 
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
-   verified.
+   verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
+   Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
+   under DECISION MATRIX rule 6a.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -13553,6 +13887,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -13621,7 +13956,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
@@ -13661,8 +13996,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -13691,6 +14027,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -13698,7 +14037,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-c-eb03ab84-<n>] <title>
@@ -13772,7 +14111,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -13812,6 +14152,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -13954,9 +14298,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -13970,7 +14314,8 @@ PROCEDURE:
      **What:** <the line "Halted: acceptance passed the block but flagged a regression and staged nothing, so its work must never be staged as it is.", then this halt reason, copied verbatim: Acceptance PASSED block block-a in round 1 but flagged a regression and staged nothing (see E:/flow/runs/flow/acceptance-review-block-a-r1.md). Its work was left UNSTAGED and is flagged as a regression, so never stage it as it is., then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14085,9 +14430,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14101,7 +14446,8 @@ PROCEDURE:
      **What:** <the line "Halted: acceptance rejected the block but staged it anyway; inspect `git -C E:/repo diff --cached` and unstage this block's files.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported staged=true (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo diff --cached` and unstage this block's files before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14216,9 +14562,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14232,7 +14578,8 @@ PROCEDURE:
      **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14347,9 +14694,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14363,7 +14710,8 @@ PROCEDURE:
      **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14478,9 +14826,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14494,7 +14842,8 @@ PROCEDURE:
      **What:** <the line "Halted: the developer did not confirm its work stayed unstaged; inspect `git -C E:/repo diff --cached` for self-staged work.", then this halt reason, copied verbatim: Developer for block block-a did not confirm its work stayed UNSTAGED in round 1 (unstaged_confirmed=false). The staged index is the one surface neither reviewer checks — the blind critic reads `git diff`, acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good. Inspect `git -C E:/repo diff --cached` before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14609,9 +14958,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14622,15 +14971,11 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: an agent could not obtain its plan.", then this halt reason, copied verbatim: Developer for block block-a could not obtain its plan (round 1). Its plan reference was: the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
-the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
-could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Run that yourself: a non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.>
+     **What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Developer for block block-a could not obtain its plan (round 1). Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause (an id matching no "## Plan:" block, a pruned or mistyped plan file, or the command not permitted in this environment). Nothing was built from a guess.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14745,9 +15090,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14758,15 +15103,11 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: an agent could not obtain its plan.", then this halt reason, copied verbatim: Acceptance verifier for block block-a could not obtain its plan (round 1), so it had no criteria to judge. Its plan reference was: the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
-Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
-target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
-the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
-could not read. The full plan file is at
-E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". Run that yourself: a non-zero exit names the cause.>
+     **What:** <the line "Halted: an agent could not obtain its plan.", then the cause: run `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'` yourself, and for each command write the line "Cause: <the command> exited <its exit code>: <the first line of its error output>", or "Cause: <the command> exited 0, so it reads the plan now" when it exits 0, then this halt reason, copied verbatim: Acceptance verifier for block block-a could not obtain its plan (round 1), so it had no criteria to judge. Its plan command was `node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'`. Run it yourself. A non-zero exit names the cause.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -14881,9 +15222,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -14897,7 +15238,8 @@ PROCEDURE:
      **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Developer for block block-a returned nothing in round 1 (agent skipped or died) — no work can be assumed either way. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -15012,9 +15354,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -15028,7 +15370,8 @@ PROCEDURE:
      **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Quality reviewer for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a clean review. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -15143,9 +15486,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -15159,7 +15502,8 @@ PROCEDURE:
      **What:** <the line "Halted: an agent returned nothing (skipped or died).", then this halt reason, copied verbatim: Acceptance verifier for block block-a returned nothing in round 1 (agent skipped or died) — that is NOT a gap verdict. It may have staged the block's files before it died: check `git -C E:/repo diff --cached --stat` for them before you pick the route the held-park rule gives this block. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, work that entry as the develop guide's "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -15274,9 +15618,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -15290,7 +15634,8 @@ PROCEDURE:
      **What:** <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/question-block-a.md, copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -15405,9 +15750,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -15421,7 +15766,8 @@ PROCEDURE:
      **What:** <the latest `## Question: block-a r<n>` entry in E:/flow/runs/flow/NEEDS-USER.md, copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -15515,6 +15861,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -15580,7 +15929,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-a-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -15595,6 +15944,7 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-a-r2.md
@@ -15604,6 +15954,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -15620,13 +15975,13 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-a-d48cf78a-<n>] <title>
@@ -15796,7 +16151,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 2. BUILD: CLOSING PASS. READ E:/flow/runs/flow/acceptance-review-block-b-r1.md. Every finding and gap in it, and each failure
    the gate run below shows, is your work list. Route each item through the DECISION
-   MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
+   MATRIX below. A review is another agent's claim. For each finding and gap, confirm it yourself against the current code, by reading the place it cites and following the input or path it names, or by running the check it names. A finding you refute is dropped under the DECISION MATRIX's false-positive rule (1), with the file:line that refutes it. Its suggested fix is a hint, never an instruction. Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. Build the fix that closes the confirmed cause, which may differ from the suggestion. A finding raised as "CONTESTS DISMISSAL" follows the DECISION MATRIX's rule for a contested dismissal, never rule 1. A gap for a wrong risk answer follows its own rule below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
    After that line, add the line "**Parked with:** block block-b. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
@@ -15814,6 +16169,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -15882,7 +16238,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r2.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r2.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r2.index" git -C E:/repo write-tree
@@ -15922,8 +16278,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -15953,6 +16310,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -15960,7 +16320,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -16032,6 +16392,7 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
+    "risk_snapshot",
     "recorded_entries"
   ],
   "properties": {
@@ -16046,6 +16407,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "recorded_entries": {
       "type": "array",
@@ -16166,6 +16531,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -16231,7 +16599,7 @@ PROCEDURE:
      E:/flow/runs/flow/acceptance-review-block-b-r1.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -16249,6 +16617,7 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
    developer judged each change low risk:
      E:/flow/runs/flow/risk-block-b-r2.md
@@ -16258,6 +16627,11 @@ PROCEDURE:
    first lines of the files named beside each command:
      round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
        git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
    Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
@@ -16274,13 +16648,13 @@ Each answer cites its evidence, such as a file:line or a count of the branches o
 or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-b-7d7451b3-<n>] <title>
@@ -16424,6 +16798,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -16490,7 +16867,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-a-r2.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -16505,16 +16882,17 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
      Count it in backlog_entries and name "block-a" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-a-d48cf78a-<n>] <title>
@@ -16658,6 +17036,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -16724,7 +17105,7 @@ PROCEDURE:
      E:/flow/runs/flow/gate/quality-review-block-b-r2.md
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -16742,16 +17123,17 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
    • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
      Count it in backlog_entries and name "block-b" in backlog_blocks.
-     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
      Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
      Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
        ### [flow-block-b-7d7451b3-<n>] <title>
@@ -16850,6 +17232,274 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
+## acceptance · variant 30 · schema 3
+
+`acceptance block-a r2` in "a closing acceptance finds a blocking gap"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-a   (mode: feature, gate: green)
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
+  - a behavior change that a "FOCUSED block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+RECORDED ENTRIES. The closing pass listed these backlog entries, each holding a fix it did not make:
+     flow-block-a-1
+Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md holds a "### [<the id>]" entry. Each
+id with no such entry is a gap.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
+   routed/bound/flagged and reachable from real entry points (grep to prove it).
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run the FULL gates (GATES above) once and record the real outcome.
+   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
+   and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
+6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
+   developer judged each change low risk:
+     E:/flow/runs/flow/risk-block-a-r2.md
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-a-r1.md, snapshot in E:/flow/runs/flow/risk-block-a-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
+RISK QUESTIONS - answer each one for a change:
+  - Systems: does the change need edits in more than one system to stay consistent?
+  - Paths: does it add or change many branches, loops, error paths or state transitions?
+  - Critical code: does it touch data writes, deletion, security, concurrency, a public contract, or code
+    whose behavior is hard to follow?
+  - Assumptions: does it rest on a judgment call or an assumption that an input, a platform or a caller
+    could falsify?
+Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
+or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "the feature is actually wired in / reachable from the app entry points"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the FULL gates"
+    }
+  }
+}
+~~~~
+
 ## park · variant 15 · schema 1
 
 `park:block-a` in "a closing acceptance finds a blocking gap"
@@ -16916,9 +17566,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -16932,7 +17582,8 @@ PROCEDURE:
      **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -16976,6 +17627,277 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
     },
     "notes": {
       "type": "string"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 31 · schema 4
+
+`acceptance block-b r2` in "a closing acceptance finds a blocking gap"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-b   (mode: section, gate: green)
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+Use the tools you have, such as web search or a browser, to check how something behaves, and run the project to see a change working when the project says how to run it and the run writes nothing in the repo.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
+  - a behavior change that a "FOCUSED block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, in connected code where the change closes a defect the diff introduces or exposes, or in connected code that lies in a function or method that holds task code.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+RECORDED ENTRIES. The closing pass listed these backlog entries, each holding a fix it did not make:
+     flow-block-a-1
+Before you rely on one, confirm that E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md holds a "### [<the id>]" entry. Each
+id with no such entry is a gap.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     E:/flow/runs/flow/acceptance-review-block-b-r1.md
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
+   converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
+   half-converted block is not done.
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
+   to this block, by its `test_selector:` line when it has one, else the test gate:
+   npm test). For gate=green the selector tests must PASS; for
+   gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
+   stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
+   unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r2-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
+6. RISK AUDIT. No blind review judged the changes of the rounds these risk files cover, since their
+   developer judged each change low risk:
+     E:/flow/runs/flow/risk-block-b-r2.md
+   The first line of each risk file is `Snapshot: <tree id>`, a snapshot of the working tree after
+   that round. Git holds one cumulative unstaged diff, so a round's own hunks are the diff between its
+   snapshot and its base, which these commands show. <snapshot> and <base> are the tree ids on the
+   first lines of the files named beside each command:
+     round 2, base in E:/flow/runs/flow/risk-block-b-r1.md, snapshot in E:/flow/runs/flow/risk-block-b-r2.md:
+       git -C E:/repo diff <base> <snapshot>
+   Each round's developer returned the tree id it wrote on its risk file's first line:
+     round 1: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+     round 2: a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
+   Before you use a file named above, confirm its `Snapshot:` line equals the tree id its round
+   returned. A file whose line differs, or whose round returned none, counts as a missing file.
+   Read each risk file, and check each answer it gives against the hunks of its own round under the RISK
+   QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
+   the base file named beside its command, a change it does not judge low risk, and an answer the hunks
+   contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
+RISK QUESTIONS - answer each one for a change:
+  - Systems: does the change need edits in more than one system to stay consistent?
+  - Paths: does it add or change many branches, loops, error paths or state transitions?
+  - Critical code: does it touch data writes, deletion, security, concurrency, a public contract, or code
+    whose behavior is hard to follow?
+  - Assumptions: does it rest on a judgment call or an assumption that an input, a platform or a caller
+    could falsify?
+Each answer cites its evidence, such as a file:line or a count of the branches or systems the change adds
+or touches, or is "no". A doubtful answer counts as yes. A change is low risk when every answer is no.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
+     Count it in backlog_entries and name "block-b" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-b-7d7451b3-<n>] <title>
+       - id: flow-block-b-7d7451b3-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the block gate (and, where the goal expects it, the full gates)"
     }
   }
 }
@@ -17047,9 +17969,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-b-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-b-7d7451b3-<n>] unfinished: <block title>
      - id: flow-block-b-7d7451b3-<n>
@@ -17063,7 +17985,8 @@ PROCEDURE:
      **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-b-7d7451b3 holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-b-7d7451b3 holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
@@ -17149,7 +18072,10 @@ count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change noth
 return immediately with both counts. The run halts for the operator. If both are 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -17190,6 +18116,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -17258,7 +18185,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-a-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-a-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-a-r1.index" git -C E:/repo write-tree
@@ -17298,8 +18225,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond the plan and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -17328,6 +18256,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -17335,7 +18266,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-a" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-a-d48cf78a-<n>] <title>
@@ -17407,7 +18338,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -17425,6 +18357,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -17521,8 +18457,9 @@ Before reviewing, READ this if it exists. It holds the settled decisions:
     settled yet. Do not search for it elsewhere.
 Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
 diff FRESH, catching new or nearby issues.
-If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
-"CONTESTS DISMISSAL:", explaining why the reason does not hold.
+Before you skip a listed finding, check its stated reason against the code it cites. When the code
+contradicts a reason, at any tier, raise the finding ONCE, prefixed "CONTESTS DISMISSAL:", citing the
+file:line that contradicts it.
 
 SCOPE — review ONLY this cycle's UNSTAGED work:
   `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
@@ -17596,7 +18533,7 @@ with the full checklist, and grade a contradiction in it by what an agent that f
 
 WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r1.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
 Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
-harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
+harm (for a finding at medium or above), and a fix direction you checked against the code it would change. When you found nothing, write
 exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
 found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
 contested_dismissals via the schema. Do NOT modify source, stage, or commit.
@@ -17631,7 +18568,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 30 · schema 6
+## acceptance · variant 32 · schema 6
 
 `acceptance block-a r1` in "every block commits first time"
 
@@ -17675,6 +18612,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -17732,7 +18672,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -17747,10 +18687,11 @@ PROCEDURE:
    Re-run the plan's configured verification method to confirm the feature behaves as specified.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-a-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -17902,7 +18843,10 @@ count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change noth
 return immediately with both counts. The run halts for the operator. If both are 0, implement this block from
 scratch on top of the accepted baseline.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -17946,6 +18890,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    the runner really executed your unit tests. Some runners silently ignore extra path args, so when in
    doubt run one file per invocation or use the runner's --filter.
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Build/lint must always pass.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-b-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -18014,7 +18959,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-b-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-b-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-b-r1.index" git -C E:/repo write-tree
@@ -18054,8 +18999,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond this block and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -18084,6 +19030,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -18091,7 +19040,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-b" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-b-7d7451b3-<n>] <title>
@@ -18163,7 +19112,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -18181,6 +19131,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -18249,7 +19203,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 31 · schema 7
+## acceptance · variant 33 · schema 7
 
 `acceptance block-b r1` in "every block commits first time"
 
@@ -18293,6 +19247,9 @@ OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer'
 ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
 OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
 A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -18350,7 +19307,7 @@ PROCEDURE:
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -18368,10 +19325,11 @@ PROCEDURE:
    gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
    stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
    unavailable here, say so in the file (do not fake it) and return pass=false.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-b-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
-   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + a fix direction you checked against the code it would change) —
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
@@ -18518,7 +19476,7 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check this launch's commits, each with the command beside its block:
      block-a: `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678`
@@ -18526,7 +19484,7 @@ PROCEDURE (read-only except step 4):
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -18575,7 +19533,7 @@ the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: 
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
-a **Fix:** instruction. Fix each one as its **Fix:** line instructs, minimally and surgically. Change nothing on
+a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
 behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -18628,7 +19586,10 @@ branch that failed and why (missing, or the `git apply` error), set restored_bra
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
-block. Do not duplicate or re-litigate an entry.
+block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
+STEP 0 and before you build, re-check each line against the current code, and remove each line whose
+finding no longer applies or whose reason the code no longer supports, so no earlier launch's dismissal
+hides a finding in rebuilt code.
 Make the smallest change that does the task, as a contractor in code that others depend on. Fix a defect
 outside the task only where the ZONE ROUTING below allows it. Record every other defect in the backlog as RECORD below says.
 CODE ZONES - every piece of code lies in one of three zones:
@@ -18664,7 +19625,9 @@ Use the tools you have, such as web search or a browser, to check how something 
    issue still exists. If it is already fixed or no longer applies, record it STALE. Never "fix" what
    isn't there. STALE means someone ELSE closed it before this run: an entry YOU fixed in an earlier
    round of this block stays FIXED every round, since its diff is still unstaged and still has to be
-   verified.
+   verified. Once you confirm an entry's issue exists, read its **Fix:** line as a suggested fix.
+   Before you apply any part of it, check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way. A **Fix:** line you verify is defective goes
+   under DECISION MATRIX rule 6a.
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
@@ -18680,6 +19643,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. SANITY-CHECK the runner really executed the tests. If a fix breaks the gate and you
    cannot resolve it within THAT fix's own scope, revert that change surgically, record the entry FAILED
    with the reason, and keep the rest.
+   Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-develop-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 4. HARDEN: in the code this round added or changed, handle edge cases, handle each expected failure
    with a message that names its cause, log where the repo logs, add a test for each risky path, and
    clean up the code you wrote, at every tier of the SEVERITY scale below.
@@ -18748,7 +19712,7 @@ CHECKLIST:
    QUESTIONS below. Write E:/flow/runs/flow/risk-block-c-r1.md (create E:/flow/runs/flow/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Its first line is
    `Snapshot: <tree id>`, the tree id of a snapshot of the working tree. Take the snapshot after your
    last change, with these commands, which write a temporary index file (create E:/flow/runs/flow/scratch/ if
-   needed) and never the real index. The last command prints the tree id:
+   needed) and never the real index. The last command prints the tree id, which you also return as risk_snapshot:
      cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/snapshot-block-c-r1.index"
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo add -A
      GIT_INDEX_FILE="E:/flow/runs/flow/scratch/snapshot-block-c-r1.index" git -C E:/repo write-tree
@@ -18788,8 +19752,9 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
       PRECEDENCE — that verified defect also outranks the "NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows"
       instruction above and the CONVENTIONS rubric. Everywhere else the plan and the conventions
       still bind.
-  6b. Conflicts with the plan but you did NOT verify it / intentional / not a real-world code path
-      → DROP + LOG.
+  6b. Conflicts with the plan, and you did not verify that the plan's prescription is defective
+      → DROP + LOG. The DROP reason names the read or probe that showed the prescription works as
+      written. A conflict that no read or probe settles goes to 7.
   7. A choice that changes user-visible behavior, stored data or a public contract, and that the plan,
       the code, the CONVENTIONS and a quick check cannot settle, OR a blocker you cannot resolve in scope
       → ESCALATE + LOG. Settle any other open choice yourself under 4, 5 or 8.
@@ -18818,6 +19783,9 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     The blind reviewer cannot read the plan, so the reason must be decidable from the code alone: never
     cite a plan id, block id, issue id or plan clause.
     A false-positive reason cites the file:line that refutes the finding.
+    Every SKIPPED reason states a fact you checked this round: the file and line you read, or the command you
+    ran and its output. A finding you can neither confirm nor refute is never dropped. Settle it with a
+    read or a probe, fix it, or escalate it (7).
   • RECORD (2 or SIBLINGS): when you DROP + LOG a real pre-existing defect at low or above
     in code no other block of the plan owns, under rule 2 or as a sibling path the SIBLINGS phase leaves unchanged, also
     append ONE entry for it
@@ -18825,7 +19793,7 @@ LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
     Count it in backlog_entries and name "block-c" in backlog_blocks.
     Write the defect's DISMISSED line too, since the blind reviewer reads that file and never this one.
     A false positive and a nit dropped under rule 2 or SIBLINGS get no entry.
-    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+    A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the defect, and read each entry that a grep matches. Never append a defect that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the defect is back in the code, so append a new entry whose **What:** names their ids.
     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
       ### [flow-block-c-eb03ab84-<n>] <title>
@@ -18900,7 +19868,8 @@ Return ONLY the decision fields via the schema (no prose report).
     "plan_amendments",
     "backlog_entries",
     "backlog_blocks",
-    "review_needed"
+    "review_needed",
+    "risk_snapshot"
   ],
   "properties": {
     "plan_obtained": {
@@ -18944,6 +19913,10 @@ Return ONLY the decision fields via the schema (no prose report).
     "review_needed": {
       "type": "boolean",
       "description": "your CLASSIFY phase's verdict: true when any change this round made is not low risk under the RISK QUESTIONS, false only when every change is low risk (a round that changed nothing is false)"
+    },
+    "risk_snapshot": {
+      "type": "string",
+      "description": "the tree id you wrote on the `Snapshot:` first line of your risk file this round, or \"\" when you wrote no risk file"
     },
     "build_passed": {
       "type": "boolean"
@@ -19020,7 +19993,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 32 · schema 8
+## acceptance · variant 34 · schema 8
 
 `acceptance block-c r1` in "a fix block commits"
 
@@ -19064,6 +20037,9 @@ accepts the overwrite, and never use its content.
 OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-c.md entries are the developer's judgment calls. A dismissed item that
 actually leaves a claimed fix incomplete or causes a regression OVERRIDES the dismissal: fail
 acceptance for it and record it in your review file. A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+Check each such reason against the code it cites. A reason the code contradicts, or one that states no
+checked fact (a file and line read, or a command run and its output), declines nothing, so its finding
+counts as a gap.
 A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
 hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
 fails acceptance. Name it in your file as held.
@@ -19137,7 +20113,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    new issue to E:/flow/backlog/repo-0a1b2c3d/flow-block-c-eb03ab84.md only, never to your review file.
    Count it in backlog_entries and name "block-c" in backlog_blocks. It sets no
    fix_check false, and it never excuses a regression or an unsatisfied gate.
-   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-c-eb03ab84 - backlog from block block-c of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the harm, and read each entry that a grep matches. Never append a harm that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the harm is back in the code, so append a new entry whose **What:** names their ids.
    Each entry copies the shape of the block's own entries, with the id "flow-block-c-eb03ab84-<n>" (n one past
    the highest n in that file's entry ids), "- status: open" and a **What:** that
@@ -19152,7 +20128,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
      (none: no review in this run has flagged this block)
    For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
    sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers, or (b)
-   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   E:/flow/runs/flow/gate/DISMISSED-block-c.md holds a line for it, with the OVERRIDE rule and its ledger-line rules above deciding whether that declined
    item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
    that no line in E:/flow/runs/flow/gate/DISMISSED-block-c.md covers keeps the same mechanism, and one neither closed nor declined
    each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
@@ -19167,14 +20143,14 @@ prints a block), and, for a feature or section block, the reachability of its wo
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
-5. Run the FULL gates (GATES above) once and record the real outcome.
+5. Run the FULL gates (GATES above) once and record the real outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-acceptance-block-c-r1-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
    The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
    and return pass=false.
 6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
 7. WRITE E:/flow/runs/flow/acceptance-review-block-c-r1.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
    per-issue root-cause verdict (with the residual path for any incomplete one), the earlier-findings
    result, the triage-held result, the regression result, the gate output, the risk-audit result, and
-   each gap — or "All fixes close their root cause; every earlier finding closed or declined; triage
+   each gap with a fix direction you checked against the code it would change — or "All fixes close their root cause; every earlier finding closed or declined; triage
    held; no regression; risk audit clean."
 8. DECIDE:
    • Every claimed fix complete, every STALE claim confirmed, no non-ACTIONABLE entry touched, every
@@ -19362,14 +20338,14 @@ PROCEDURE (read-only except step 4):
    Also grep every guide and README in the repo, including those of other components, for each file name,
    phrase or behavior the goal moves or renames.
 2. Run each distinct gate command once (build and test may be the same command) and record the real
-   outcome. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
+   outcome. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-sweep-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes. If the GOAL implies whole-suite green at the end, a red suite is a gap. If a red tail is
    expected, say which failures look expected vs surprising.
 3. Spot-check this launch's commits, each with the command beside its block:
      block-c: `git -C E:/repo show --stat c1d2e3f405162738495a6b7c8d9e0f1234567890`
    A block an earlier launch accepted has its commit before these, in `git -C E:/repo log --stat`. Do these
    commits and the earlier ones plausibly cover every block's acceptance? Look for suspiciously-untouched areas the GOAL names.
 4. WRITE E:/flow/runs/flow/SWEEP.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the suite result, then each gap (title + file:line evidence + a suggested
-   follow-up block) — or "No gaps found." Do NOT modify source code, stage, or commit.
+   follow-up block that gives a fix direction you checked against the code it would change) — or "No gaps found." Do NOT modify source code, stage, or commit.
 Report ONLY material, in-GOAL gaps — not improvements, not pre-existing issues. Return via the schema,
 with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count = the number of gaps you wrote to it
 (0 when none). Each gap's detail goes only in E:/flow/runs/flow/SWEEP.md.
@@ -19469,9 +20445,9 @@ PROCEDURE:
    commit holds it. When step 1 made no commit, clear nothing.
    Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
    `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
+   run the BUILD gate and record whether it is green. Run each gate command this step names with the shell tool's timeout set to its maximum (600000 ms), and write its entire output to E:/flow/runs/flow/scratch/gate-park-block-a-<build or test>.log, replacing that log's earlier content. Then read the end of that log and the command's exit code. A gate that may outlast that timeout runs in the background, writing the same log, and you read the log once it finishes.
 3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line. An existing file keeps its header, and a new entry goes below its last entry. When the file's "status:" line reads skip, set it to todo, since the backlog build takes only todo and done files.
    n is one past the highest n in that file's entry ids, or 1 when it has none:
      ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
      - id: flow-block-a-d48cf78a-<n>
@@ -19485,7 +20461,8 @@ PROCEDURE:
      **What:** <the line "Halted: acceptance rejected the block but staged or committed it anyway; inspect `git -C E:/repo diff --cached` and `git -C E:/repo log -1`, then unstage this block's files or revert its commit with `git -C E:/repo revert <sha>`.", then this halt reason, copied verbatim: Acceptance REJECTED block block-a in round 1 but reported commit a1b2c3d4e5f60718293a4b5c6d7e8f9012345678 (see E:/flow/runs/flow/acceptance-review-block-a-r1.md), so work it failed may now sit in the accepted baseline. Inspect `git -C E:/repo show --stat a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` and revert it with `git -C E:/repo revert a1b2c3d4e5f60718293a4b5c6d7e8f9012345678` before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
+   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, give "- size:"
+   the size of building each block the "- origin:" line names from the accepted baseline, since no work was saved, and write this **Fix:** line instead:
      **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
    Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.
    Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
