@@ -1,12 +1,12 @@
 export const meta = {
   name: 'develop-cycle',
-  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved to a patch and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
+  description: 'Plan-driven build engine, one approved plan FILE as the bus: implement the todo BLOCKS of that file — each a "## Plan: <id>" block the user approved — where the block\'s `mode` picks the frame the engine holds (feature = one bounded feature, wired in and reachable; section = one slice of a breadth-spanning goal, every call site converted; fix = a triaged issue inventory, every ACTIONABLE entry verified and closed). Per block: develop → BLIND pure-code review (must pass) on the block\'s first build and wherever the developer judges a change not low risk → plan-aware acceptance + regression review + an audit of the developer\'s risk judgment (stages on pass, and in commit mode commits), looped per round, then one closing pass when the last round fails; the accepted baseline advances block by block. A block that does not accept within its round budget is PARKED — its work saved as a commit on a branch that one backlog entry links, and cleared from the tree — after which an UNORDERED run CONTINUES and an ORDERED one STOPS (its later blocks depend on this one). Agents exchange messages as verbatim files; the harness only routes block ids, paths + verdicts.',
   whenToUse: 'Build the todo blocks of ONE approved plan file: bounded features (mode:"feature" — a new MCP tool/API endpoint/page/form, a contained enhancement, a design-needing bugfix), the ordered sections of a breadth-spanning goal (mode:"section" — a migration, upgrade, port, subsystem refactor), and/or triaged issue inventories (mode:"fix" — a block whose "### [<id>]" entries are the verified defects to close). The orchestrating agent authors the plan file OUTSIDE this engine (plan mode, then refine, then the user approves the final text), and the operator derives the args with `tools/plan-edit.mjs args <planPath>`, spreads the object it prints and adds backlogDir, the folder `tools/project-settings.mjs backlog` prints. Requires a CLEAN unstaged working tree; each accepted block is STAGED, and committed only when args.commit is true. Reuse one runId across resumes.',
   phases: [
     { title: 'Develop', detail: 'Developer reads its own block (verbatim, via the plan-block command) + the latest review that flagged issues, and works within the run\'s changePolicy in six phases, in this order. PATTERNS follows the repo\'s existing patterns. BUILD builds the block, then runs the gate. In a round that answers a review, a feature or section block\'s BUILD routes each finding and gap in it through the decision matrix in place of the build, and a fix block\'s BUILD routes them beside its entry rules. HARDEN handles edge cases, failure messages, logging, a test per risky path and cleanup at every tier in the code its round added or changed. SIBLINGS covers each sibling path of a fix. SELF-REVIEW applies the blind reviewer\'s severity scale, reach step and checklist to the code its round changed or read, since each earlier round had its own self-review and each blind review judges the entire block diff. CLASSIFY answers four risk questions (systems, paths, critical code, assumptions) for each change its round made, writes risk-<id>-rN.md and returns review_needed, true when any change is not low risk. Each phase after BUILD runs a targeted test while it works, the gate runs once more after the last phase that changed code, and a phase with nothing to do for its round\'s changes is skipped. It leaves changes UNSTAGED. Owns the decision matrix; halts only for a user-only decision. changePolicy sets the routing over three code zones: task code (the code its block\'s required changes add or change, plus in a fix block the sibling paths of each ACTIONABLE entry\'s root cause, apart from code its block\'s text excludes or another block owns), connected code (what a reach step from the task code finds, apart from code its block\'s text excludes or another block owns) and other code. Under both policies it hunts only task code, fixes every finding there at every tier, a defect the accepted baseline already had included, and fixes each finding its diff introduces or exposes in connected code. Only a proactive feature or section block also fixes a defect the accepted baseline already had in connected code that its diff neither introduces nor exposes, and only when that fix is low risk. Other code is never changed. A finding its diff introduces or exposes there is closed at its source in task or connected code, or escalated when only a change in other code closes it. It logs to DECISIONS.md, as a FOCUSED or PROACTIVE line, each fix of a defect the accepted baseline already had that no requirement of its block names. Each real defect at low or above that the accepted baseline already had and that its zone routing leaves unchanged, under rule 2 or as a sibling path, apart from one in code another block owns, goes to its block\'s file in the project\'s backlog folder (args.backlogDir), a fix-mode plan file a later run builds, the ACTIONABLE entries without triage and the rest once the user triages them. A proactive developer also records there each cleanup outside task code that it noticed and did not make, such as a nit. Under both policies it also records a feature or refactor outside its block\'s scope, and each choice it escalated and proceeded past by a default. It sets each entry\'s decision by one rule: ACTIONABLE for a defect or cleanup with one clear, small fix that changes no user-visible behavior, stored data or public contract, and NEEDS_USER for every other entry. When a block\'s last allowed round ends without a passed acceptance, one more developer, the closing pass, makes each fix of the last review\'s findings and gaps that is low risk and records each one that is not as a backlog entry naming the fix, with no blind review after it.' },
     { title: 'Quality', detail: 'BLIND pure-code critic: reads ONLY the unstaged diff (no plan, no spec, no goal), reports every finding the diff introduces or exposes at every tier, from critical down to nit, under both change policies, and writes quality-review-<id>-rN.md. Clean means no finding and no contested dismissal. Runs in a block\'s first round with a satisfied gate in a launch, and in a later round only when a round since the block\'s last blind review returned review_needed true or no boolean, or the previous acceptance verdict returned risk_misclassified. Otherwise the round goes from the developer straight to acceptance. Never runs on the closing pass.' },
     { title: 'Acceptance', detail: 'Plan-aware gate: every acceptance criterion of THIS block met + reachable + the block gate satisfied + no regression + every risk answer of each round since the block\'s last blind review holds against that round\'s own hunks (a wrong or missing one returns risk_misclassified, so the next round gets a blind review). Writes acceptance-review-<id>-rN.md; on pass, STAGES that block (git add), and in commit mode (args.commit) commits it with the block\'s title as the entire message — the accepted baseline advances.' },
-    { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work to parked-<id>.patch, then clears it from the tree. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass\'s work, and the park record names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — NEEDS-USER.md carries the restore command.' },
+    { title: 'Park', detail: 'On a block that did not accept within its round budget, or one the developer escalated: SAVES its work as a commit on the branch aipg-unfinished/<the block\'s backlog file id>, built with git plumbing through a temporary index so the repo\'s index stays untouched and no commit hook runs, then clears it from the tree, and appends one backlog entry that links the branch and says why the block parked. The block\'s plan status becomes backlogged once the park clears the tree, keeps the build green and confirms its entry, after a halt that cannot leave the block\'s work staged or committed, for a block whose work a green fix block can build: not a red-baseline block, nor a build-only block in a run with no test gate. After such a halt, a fix block\'s park also takes as a parent the tip of each branch its round 1 restored whose every entry the developer\'s last report gave FIXED, or whose diff the working tree still holds, deletes that branch and syncs its entry stale. Every other park syncs blocked, and nextStep says whether the operator sets it backlogged or rebuilds it from todo. A closing pass that listed a backlog entry, or whose changes still owe a blind review, parks its block with the closing pass\'s work, and the park entry names each listed entry. An UNORDERED run continues past a budget park or a needs-user escalation; an ORDERED run, or any other escalation, stops. Nothing is destroyed — a fix-mode block built from the entry restores the branch\'s work in its round 1.' },
     { title: 'Sweep', detail: 'Only when the plan file asks for it (sweep: goal-coverage) and every non-skip block is done: an independent agent re-greps the whole surface from the GOAL, runs the full gates, spot-checks the staged diff, or in commit mode this launch\'s commits, writes SWEEP.md. Advisory — a dead sweep never halts.' },
   ],
 };
@@ -81,6 +81,9 @@ if (A.startAt !== undefined) {
 if (A.planPath !== undefined) {
   throw new Error(`The top-level args.planPath is retired: every "plans" row that "plan-edit.mjs args <planPath>" prints carries its own planPath, so spread the object it prints and drop this key. Got planPath ${JSON.stringify(A.planPath)}.`);
 }
+if (A.continueParked !== undefined) {
+  throw new Error(`args.continueParked is retired: a park saves its block's work on a branch and appends one entry that links it to the block's file in the backlog folder. Continue that work through the backlog entry: once its "- decision:" is ACTIONABLE, build its file as a fix-mode block, and that block's round-1 developer restores the branch's work (develop guide, "Working the backlog"). Drop this key. Got continueParked ${JSON.stringify(A.continueParked)}.`);
+}
 const CONTEXT_ROWS = A.plans.map((p, i) => [p, i])
   .filter(([p]) => p?.planContext !== undefined)
   .map(([p, i]) => (typeof p.id === 'string' ? p.id : `index ${i}`));
@@ -153,7 +156,7 @@ const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const isAbsolute  = (p) => /^([a-zA-Z]:)?\//.test(p);
 const abs         = (p) => { const n = norm(p); return (ROOT && !isAbsolute(n)) ? `${ROOT}/${n}` : n; };
 // A long slug keeps a hash of its full form: two block ids sharing a 60-char prefix would otherwise share
-// every run-state file, the DISMISSED ledger and the parked patch included.
+// every run-state file, the DISMISSED ledger, the backlog file and the unfinished branch included.
 const fnv1a       = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(16).padStart(8, '0'); };
 const slug        = (s) => {
   const full = String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -225,7 +228,8 @@ const VALID_MODES  = new Set(['feature', 'section', 'fix']);
 // A fix block's gate is green ONLY: its entries are defects in working code, so a build-only or
 // red-baseline fix would stage a "closed" issue nothing ever ran.
 const MODE_GATES   = { feature: new Set(['green', 'build-only']), section: new Set(['green', 'red-baseline', 'build-only']), fix: new Set(['green']) };
-const VALID_STATUS = new Set(['todo', 'done', 'skip', 'parked', 'blocked']);
+// `parked` is what an older engine wrote for a park, so a plan file that still holds it stays valid.
+const VALID_STATUS = new Set(['todo', 'done', 'skip', 'backlogged', 'parked', 'blocked']);
 
 // Throw, not filter: dropping an entry with no id builds a shorter roadmap and reports success.
 const NO_ID = RAW.map((p, i) => [p, i])
@@ -287,7 +291,7 @@ if (BAD_EFFORTS.length) {
 const BAD_STATUS = RAW.filter((p) => p.status != null && !VALID_STATUS.has(p.status))
   .map((p) => `${p.id}: ${JSON.stringify(p.status)}`);
 if (BAD_STATUS.length) {
-  throw new Error(`plan status(es) [${BAD_STATUS.join(', ')}] are not one of todo | done | skip | parked | blocked. Status drives which blocks this run builds, so an unrecognized value must never coerce. Omit the field entirely to take the todo default.`);
+  throw new Error(`plan status(es) [${BAD_STATUS.join(', ')}] are not one of todo | done | skip | backlogged | parked | blocked. Status drives which blocks this run builds, so an unrecognized value must never coerce. Omit the field entirely to take the todo default.`);
 }
 
 // A commit's entire message is its block's title, and git joins a multi-line subject into one line.
@@ -326,7 +330,7 @@ for (const id of ALL_PLANS.flatMap((p) => [p.id, ...(p.blocks ?? []).map((b) => 
   SEEN_IDS.add(id);
 }
 if (DUPE_IDS.size) {
-  throw new Error(`duplicate plan id(s) [${[...DUPE_IDS].join(', ')}] in args.plans. Every per-block run-state file (reviews, DISMISSED, AMENDED, parked patch) is keyed by the bare id, so duplicates would overwrite each other.`);
+  throw new Error(`duplicate plan id(s) [${[...DUPE_IDS].join(', ')}] in args.plans. Every per-block run-state file (reviews, DISMISSED, AMENDED, backlog file, unfinished branch) is keyed by the bare id, so duplicates would overwrite each other.`);
 }
 
 // The sweep reads these. A plan file in the target repo has run-state's exposure (#3). Warn, not throw: a
@@ -359,6 +363,9 @@ const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r$
 // The developer's own judgment of its round, so it stays outside GATE_DIR, where it would anchor the blind reviewer.
 const riskFile       = (id, r) => `${STATE_DIR}/risk-${slug(id)}-r${r}.md`;
 const NEEDS_USER     = `${STATE_DIR}/NEEDS-USER.md`;            // full detail; for the user (may halt the run) — GLOBAL/cumulative
+// Only an ordered run halts on a developer's question. An unordered run carries on past it, so the question
+// goes to a file of its block's own, which park copies into the block's backlog entry.
+const questionFile   = (id) => (ORDERED ? NEEDS_USER : `${STATE_DIR}/question-${slug(id)}.md`);
 // Defaults the developer took, plan amendment pointers and the LOGGED_FIX_TAG lines, for the user to read,
 // never a question.
 const DECISIONS_NAME = 'DECISIONS.md';
@@ -368,11 +375,9 @@ const dismissedFile  = (id) => `${GATE_DIR}/${dismissedName(id)}`;  // terse led
 // MATRIX 6a overrides, read by acceptance and the sweep. It quotes plan text, so it stays outside GATE_DIR.
 const amendedFile    = (id) => `${STATE_DIR}/AMENDED-${slug(id)}.md`;
 const commitFile     = (id) => `${STATE_DIR}/commit-${slug(id)}.txt`;  // commit mode: the block's title, the commit's message
-const parkedPatch    = (id) => `${STATE_DIR}/parked-${slug(id)}.patch`;    // a block's work, saved before the tree is cleared
-// A second park renames the first patch here. A slug holds no dot, so no block's own patch matches.
-const parkedPrevPatch = (id) => `${STATE_DIR}/parked-${slug(id)}.prev<n>.patch`;
-// A relaunch rewrites the round-numbered review files, so a park keeps its copies in a folder of its own here.
-const parkedReviewsDir = (id) => `${STATE_DIR}/parked-${slug(id)}-reviews`;
+// Park's copy of the repo's index, so building the branch's commit never writes the index that holds the accepted baseline.
+const parkIndexFile  = (id) => `${STATE_DIR}/scratch/park-${slug(id)}.index`;
+const parkMessageFile = (id) => `${STATE_DIR}/scratch/park-${slug(id)}.msg`;  // the branch commit's message, so no shell quoting touches the title
 const SWEEP_FILE     = `${STATE_DIR}/SWEEP.md`;                 // final whole-goal completeness sweep
 // A closed inventory is what lets a fix loop converge, so an entry found mid-run goes to the backlog and never joins the running inventory.
 // One fixed file per source block, so its triage never waits on another block's relaunch. Every run on the
@@ -382,6 +387,9 @@ const RUN_SLUG       = slug(RUN_ID) || `run-${fnv1a(String(RUN_ID))}`;
 // The file's block id, and its entries' id prefix.
 const backlogId      = (id) => `${RUN_SLUG}-${slug(id)}-${fnv1a(JSON.stringify([String(RUN_ID), String(id)]))}`;
 const backlogFile    = (id) => `${BACKLOG_DIR}/${backlogId(id)}.md`;
+// A parked block's work, one commit per park, kept in the repo so it outlives the run worktree. A backlog id
+// is a kebab slug, so the name is a valid ref name.
+const unfinishedBranch = (id) => `aipg-unfinished/${backlogId(id)}`;
 
 // The blind variant (canContest=true) reads DISMISSED alone (see GATE_DIR) and may contest it. Only it
 // forbids prior reviews, which would anchor it (#5). Acceptance overrides instead.
@@ -389,7 +397,7 @@ const SETTLED = (id, canContest) => `Before reviewing, READ ${canContest ? 'this
   • ${dismissedFile(id)} — findings the developer declined for THIS block, each with a one-line reason.
     It exists only once the developer has declined something, so a missing file means nothing is
     settled yet. Do not search for it elsewhere.${canContest ? '' : `
-  • ${NEEDS_USER} — items already escalated to the user.
+  • ${questionFile(id)} — items already escalated to the user.
   • ${DECISIONS} — defaults the developer took, plan amendment pointers, and one line per ${BASELINE_FIX} that
     this run's ${CHANGE_POLICY} change policy let the developer make, a record. A
     ${LOGGED_FIX_TAG} line is never skipped for its stated reason, since the regression rule below judges each one.`}
@@ -421,7 +429,7 @@ function gateOk(gate, dev) {
 // so a round that only SKIPPED entries cannot claim work it never did. `closing` marks the closing pass.
 const developSchema = (mode, closing) => ({
   type: 'object',
-  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), ...(mode === 'fix' ? ['results'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'backlog_entries', 'backlog_blocks', 'review_needed', ...(closing ? ['recorded_entries'] : [])],
+  required: ['plan_obtained', 'baseline_dirty_files', ...(COMMIT ? ['baseline_staged_files'] : []), ...(mode === 'fix' ? ['results', 'restore_failed', 'restored_branches'] : []), 'build_passed', 'test_outcome', 'tests_run_count', 'full_suite_outcome', 'unstaged_confirmed', 'needs_user', 'plan_amendments', 'backlog_entries', 'backlog_blocks', 'review_needed', ...(closing ? ['recorded_entries'] : [])],
   properties: {
     plan_obtained:     { type: 'boolean', description: 'true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run.' },
     baseline_dirty_files:{ type: 'integer', description: 'ROUND 1 ONLY: how many DISTINCT files had UNSTAGED or untracked changes BEFORE you touched anything (staged files never count). 0 = clean, >0 HALTS the run. Report -1 on later rounds.' },
@@ -454,7 +462,12 @@ const developSchema = (mode, closing) => ({
     full_suite_outcome:{ type: 'string', enum: ['passed', 'failed', 'not-run', 'scoped-skip'], description: 'result of running the FULL test gate to confirm the EXISTING suite is not reddened. "scoped-skip" when this run is scoped to each block\'s own selector.' },
     verification_method:{ type: 'string', description: 'what was actually run to verify (e.g. "pytest -q", "phpunit --filter Bar", "curl localhost:3000/health"); note here if a configured MCP/tool was UNAVAILABLE in this environment' },
     unstaged_confirmed:{ type: 'boolean', description: 'true if all changes were left UNSTAGED (git add -N on new files only). Anything you staged is reviewed by NOBODY: say false rather than claim it. False HALTS the run.' },
-    needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to NEEDS-USER.md and cannot proceed' },
+    needs_user:        { type: 'boolean', description: 'true ONLY if a HARD blocker / user-only decision stopped you; you wrote a full entry to the question file your prompt names and cannot proceed' },
+    // Fix mode only: a branch the round-1 restore could not apply stops the block before any review.
+    ...(mode === 'fix' ? {
+      restore_failed: { type: 'string', description: 'ROUND 1 ONLY: the branch whose restore failed and why (missing, or the `git apply` error), or "" when every restore applied or none was due. Report "" on later rounds.' },
+      restored_branches: { type: 'integer', description: 'ROUND 1 ONLY: how many branches your restore applied into the tree. 0 when none was due or a restore failed. Report 0 on later rounds.' },
+    } : {}),
     dismissed_count:   { type: 'integer', description: 'how many review findings you declined and logged to this block\'s DISMISSED file this round (0 if none)' },
     // Required, unlike dismissed_count: an omitted field must not read as "none this round".
     plan_amendments:   { type: 'integer', description: 'entries you appended to this block\'s AMENDED file this round (MATRIX 6a). Report 0 when there were none.' },
@@ -503,7 +516,7 @@ const acceptanceSchema = (mode) => {
   return {
     type: 'object',
     required: [...(mode === 'fix'
-      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'fix_checks', 'backlog_entries', 'backlog_blocks']
+      ? ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'fix_checks', 'backlog_entries', 'backlog_blocks', 'branches_kept']
       : ['plan_obtained', 'wrote_file', 'pass', 'staged', 'earlier_reviews_read', 'risk_misclassified', 'reachable', 'evidence_recorded']),
     ...(COMMIT ? ['committed', 'commit_sha', 'commit_subject', 'tree_matches', 'tree_clean'] : [])],
     properties: {
@@ -536,6 +549,7 @@ const acceptanceSchema = (mode) => {
         },
         backlog_entries: { type: 'integer', description: 'entries you appended this round to the backlog files your prompt names (0 if none)' },
         backlog_blocks: { type: 'array', items: { type: 'string' }, description: 'the id of every block whose backlog file you appended to this round ([] if none)' },
+        branches_kept: { type: 'array', items: { type: 'string' }, description: 'each landed branch that still exists after the LANDED BRANCHES step: one its `git branch -D` left behind in commit mode, every one it listed in stage mode ([] when none)' },
       } : {
         reachable:   { type: 'boolean', description: terms.reachable },
         evidence_recorded: { type: 'boolean', description: 'true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file' },
@@ -549,17 +563,22 @@ const acceptanceSchema = (mode) => {
 
 // Park saves then clears, so every exit leaves a clean tree and the round-1 clean-baseline check holds
 // unconditionally, resume included.
-const PARK_SCHEMA = {
+// Per mode, because only a fix block's park supersedes the branches its round 1 restored.
+const parkSchema = (mode) => ({
   type: 'object',
-  required: ['saved', 'cleared', 'gates_green'],
+  required: ['saved', 'cleared', 'gates_green', 'commit_sha', 'entry_written', ...(mode === 'fix' ? ['superseded_entries'] : [])],
   properties: {
-    saved:       { type: 'boolean', description: 'true ONLY if the patch file was written and you confirmed it is non-empty. If false over a non-empty diff, you must NOT have cleared the tree.' },
-    cleared:     { type: 'boolean', description: 'true if `git diff` is empty after step 2, including a diff that was already empty' },
+    saved:       { type: 'boolean', description: 'true ONLY if step 1 made the commit, the branch points at it, and its tree differs from its first parent\'s tree. If false over work in the tree, you must NOT have cleared the tree.' },
+    cleared:     { type: 'boolean', description: 'true if `git diff` is empty and no untracked file the block created remains after step 2, including a tree that held no work' },
     gates_green: { type: 'boolean', description: 'true if the BUILD gate passes again after clearing (the tree is safe for what comes next)' },
-    patch_bytes: { type: 'integer', description: 'size of the written patch file — 0 means nothing was saved' },
+    commit_sha:  { type: 'string', description: 'the full id of the commit step 1 made, as commit-tree printed it, or "" when it made none' },
+    entry_written: { type: 'boolean', description: 'true ONLY if step 3 appended the backlog entry and the tool reported success' },
+    ...(mode === 'fix' ? {
+      superseded_entries: { type: 'array', items: { type: 'string' }, description: 'the id of each entry whose RESTORED branch step 1 deleted, or [] when step 1 made no commit or deleted none' },
+    } : {}),
     notes:       { type: 'string' },
   },
-};
+});
 
 const SWEEP_SCHEMA = {
   type: 'object',
@@ -614,7 +633,7 @@ const roundName = (round) => (round === CLOSING_ROUND ? `the closing pass (round
 // Names the round so an agent that finds no file for a round does not take the gap for an error.
 const ROUND_NOTE = (round) => `${round === CLOSING_ROUND
   ? `This is the closing pass, numbered round ${round} in its file names, after round ${MAX_ROUNDS} of at most ${MAX_ROUNDS}.`
-  : `This is round ${round} of at most ${MAX_ROUNDS}.`} Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round ${MAX_ROUNDS} when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, whose park kept its own copies, so ignore it.`;
+  : `This is round ${round} of at most ${MAX_ROUNDS}.`} Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round ${MAX_ROUNDS} when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.`;
 
 // Every agent also loads the user's CLAUDE.md and auto memory, either of which may set scope another way.
 // The prompt's own scope rules, 6a's PRECEDENCE included, carry the policy out, so they are not "other".
@@ -689,7 +708,8 @@ ${p.blocks.map((b) => `${indent}  - ${b.issues.join(', ')} → ${backlogFile(b.i
 ${indent}Count it in backlog_entries and name that block in backlog_blocks.`
   : `to ${backlogFile(p.id)} only${exclusion}.
 ${indent}Count it in backlog_entries and name "${p.id}" in backlog_blocks.`;
-const backlogHeader = (p) => `A new file starts with the four lines "## Plan: ${backlogFileId(p)} - backlog from block ${backlogBlockId(p)} of run ${RUN_ID}", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
+const headerLines = (fileId, blockId) => `A new file starts with the four lines "## Plan: ${fileId} - backlog from block ${blockId} of run ${RUN_ID}", "mode: fix", "gate: green" and "status: todo", then a blank line.`;
+const backlogHeader = (p) => headerLines(backlogFileId(p), backlogBlockId(p));
 // The folder keeps earlier runs' built files, so an entry that says fixed or stale holds no work, and a
 // defect it names that is live again gets a new entry.
 const grepBacklog = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG_DIR}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
@@ -700,7 +720,7 @@ const backlogDedup = (item) => `Before you append, create ${BACKLOG_DIR}/ if it 
 const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.`;
 
 // The hold a park puts on an entry whose code the park removes from the tree, read by the backlog triage.
-const parkedWithLine = (id) => `"**Parked with:** block ${id}. Triage this entry once that block is accepted or dropped."`;
+const parkedWithLine = (id) => `"**Parked with:** block ${id}. Triage this entry once that block's park entry lands, or the block is accepted or dropped."`;
 
 // Case 7's proceeding branch also writes DISMISSED: the blind reviewer never sees DECISIONS (see
 // GATE_DIR), so it would flag the escalated default every round until the block parks (#5).
@@ -744,7 +764,7 @@ const MATRIX = (p, round) => {
     A regression that a construction ${prescribingText(mode)} prescribes causes is fixed under 6a, with an
     amendment that cites the regression as its defect evidence. When that fix would change a choice that
     ${prescribingText(mode)} says the user made, it goes to rule 7's branch that cannot proceed, so the
-    block parks with the user's question in ${NEEDS_USER}.
+    block parks with the user's question in ${questionFile(id)}.
 
 LOGGING is your ONLY output besides code. Keep it minimal and unambiguous:
   • DROP (1, 2, 6b or 8): append ONE terse line to ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist):
@@ -797,8 +817,9 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
     Then append ONE POINTER line to ${DECISIONS}: the block id, the round, the defect's file:line, and
     the path ${amendedFile(id)}, with NO plan text. Count every entry you wrote in plan_amendments.
   • ESCALATE (7), in one of two branches:
-    - You CANNOT proceed without the answer: append a FULL, self-contained entry to ${NEEDS_USER} (all
-      the detail the user needs to decide) and set needs_user=true (this block stops and is parked).
+    - You CANNOT proceed without the answer: append a FULL, self-contained entry to ${questionFile(id)} (all
+      the detail the user needs to decide) under the heading \`## Question: ${id} r${round}\`, and set
+      needs_user=true (this block stops and is parked, and the park copies the entry into its backlog entry).
     - You can proceed with a defensible default: append an entry to ${DECISIONS} (the choice, the
       options, the default you took and why), leave needs_user=false, AND append ONE terse line to
       ${dismissedFile(id)} (create ${GATE_DIR}/ if it does not exist) in the DROP shape above, its reason
@@ -809,7 +830,7 @@ ${PROACTIVE ? `  • CLEANUP (this run's change policy): append ONE entry for ea
       and no "- severity:" line. Its **What:** states the question and the default you took, and its **Fix:**
       states the other option. When the default lies in code this block's diff adds or changes, add the line
       ${parkedWithLine(id)} after the **Fix:** line, since a park removes that code from the tree.
-    Write to ${NEEDS_USER} only a question the user must answer before a block can finish. Never write an
+    Write to ${questionFile(id)} only a question the user must answer before a block can finish. Never write an
     informational note, a test observation, a chore or a default you took to it.
   • ${LOGGED_FIX_TAG} (this run's change policy): append ONE line to ${DECISIONS} for each ${BASELINE_FIX}
     that you made, in any zone, without ${requiredBy(mode)} requiring it, and that no earlier round
@@ -871,10 +892,6 @@ const DOC_REGRESSION = "a comment or doc sentence that was true in the accepted 
 // the zones the developer's rules let it change, which nothing else checks.
 const regressionRule = (id, mode) => {
   const prescriber = mode === 'fix' ? "an entry's **Fix:**" : "this block's own text";
-  // A continued launch starts earlierReviews empty, so its parked findings are in the copies park kept.
-  const parkedReview = CONTINUE.has(id) ? ` This block continues its parked patch, so for this item every
-    review file under ${parkedReviewsDir(id)}/, when that folder exists, also counts as an earlier review of
-    this block. The copies of ${dismissedName(id)} and ${DECISIONS_NAME} there are not reviews.` : '';
   return `${CODE_ZONES(mode)}
 A regression is any behavior the accepted baseline (${BASELINE_DEF}) gave a caller or
 input, a third-party one included, that this cycle's work breaks or changes without
@@ -887,7 +904,7 @@ so it is a regression. Not a regression:
     closes the same defect on a sibling path of a change ${requiredBy(mode)} requires
     or of such a finding. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect and is that same defect, that the change alters no other
-    behavior, that it lies ${UNCLAIMED_CODE}, and that it lies ${changeZones(mode)}.${parkedReview}
+    behavior, that it lies ${UNCLAIMED_CODE}, and that it lies ${changeZones(mode)}.
   - a behavior change that a "${LOGGED_FIX_TAG} ${id}:" line in
     ${DECISIONS} names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
@@ -1102,28 +1119,51 @@ Return ONLY the decision fields via the schema (no prose report).`;
 
 const DEVELOP_FRAME = { feature: featureDevelop, section: sectionDevelop, fix: fixDevelop };
 
-// The restore follows the clean-baseline check, so the restored diff is the only unstaged work.
-const continueOpening = (p) => `CONTINUE from this block's
-parked patch instead of implementing it from scratch:
+// The entries whose branches round 1 restores. One wording keeps the restore and the landing on the same set.
+const BRANCH_ENTRIES = 'each ACTIONABLE entry whose "- status:" is absent, open or needs-attention and that carries a "- branch:" line';
+// A FAILED entry's restored work may be reverted, so only a verified fix proves the landed block holds that
+// branch's work.
+const LANDED_BRANCHES = `each distinct branch that the "- branch:" line of ${BRANCH_ENTRIES} names, when this verdict
+   returned a fix_check with actually_fixed=true for every such entry that names it`;
+// An origin block's own criteria, which a park entry's **What:** may not list, since it copies only why the block parked.
+const ORIGIN_CRITERIA = `every acceptance criterion of each block its "- origin:" line names (\`node '${BLOCK_TOOL}' '<plan file>' '<block id>'\`
+prints a block), and, for a feature or section block, the reachability of its work from real entry points`;
+// A park entry links a branch that holds a parked block's work. The restore follows the clean-baseline
+// check, so the restored diff is the only unstaged work, and both reviewers read it as this block's.
+// Every apply runs before any intent-to-add, so reversing a failed restore leaves the index untouched.
+// A landed block may hold a FAILED entry's restored work while its branch stays, so step b skips that branch.
+const RESTORE_OPENING = `fix this block's entries on top of the accepted
+baseline. First RESTORE unfinished work, once you have read your block and before VERIFY-FIRST.
+The branch of ${BRANCH_ENTRIES} holds a parked block's work.
   a. Run \`git -C ${REPO} diff --cached --stat\` and keep its output.
-  b. Restore the patch with a PLAIN \`git -C ${REPO} apply ${parkedPatch(p.id)}\`, never with \`--3way\`,
-     \`--index\` or \`--cached\`: each of those stages the restored work ${STAGED_HARM}.
-  c. Run \`git -C ${REPO} add -N -- <file>\` on each new file the patch created
-     (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
+  b. For each distinct branch those lines name, in turn: when
+     \`git -C ${REPO} rev-parse --verify --quiet refs/heads/<branch>\` prints nothing, the branch is missing,
+     so the restore FAILS for it (below). When \`git -C ${REPO} diff --stat <branch>^1 <branch>\` prints
+     nothing, the branch holds no work, so skip it. When
+     \`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply -R --check\` succeeds, the
+     accepted baseline already holds the branch's work, so skip it. Otherwise restore it with
+     \`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply\`, a PLAIN apply, never with
+     \`--3way\`, \`--index\` or \`--cached\`: each of those stages the restored work ${STAGED_HARM}.
+  c. Once every branch has applied, run \`git -C ${REPO} add -N -- <file>\` on each new file the restores
+     created (\`git -C ${REPO} status --porcelain\` lists it as \`??\`).
   d. Confirm \`git -C ${REPO} diff --cached --stat\` is the same as the output step a kept.
-  e. READ the latest \`## Parked block: ${p.id}\` entry in ${NEEDS_USER} and the review file that entry
-     names, then continue from the restored work.
-The restored diff is THIS block's own unstaged work.${p.mode === 'fix'
-    ? ' Report every entry the restored work closes as FIXED, never STALE.'
-    : ''}
-If ${parkedPatch(p.id)} is missing or \`git apply\` fails, confirm \`git -C ${REPO} diff\` is empty and that
-no file you created remains (a failed plain \`git apply\` changes nothing). Append an entry to
-${NEEDS_USER} naming ${parkedPatch(p.id)} and the apply error, set needs_user=true and STOP.`;
+The restored diff is THIS block's own unstaged work, and it is the work of the entry whose branch it is.
+An ACTIONABLE entry with an "- origin:" line holds a parked block's unfinished work. On top of its
+branch's work, which step b restored or the accepted baseline already holds, or on the accepted baseline
+when it carries no "- branch:" line, close the gaps its **What:** lists and meet ${ORIGIN_CRITERIA}. Report the entry FIXED once both hold, never STALE.
+If the restore FAILS for a branch, because it is missing or its \`git apply\` fails, reverse each branch
+step b already restored, the last one first, with
+\`git -C ${REPO} diff --binary <branch>^1 <branch> | git -C ${REPO} apply -R\`. Then confirm
+\`git -C ${REPO} diff\` is empty and that \`git -C ${REPO} status --porcelain\` lists no file the restores
+created (a failed plain \`git apply\` changes nothing). Change nothing else, set restore_failed to the
+branch that failed and why (missing, or the \`git apply\` error), set restored_branches to 0, and STOP.
+Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
+branches step b applied.`;
 
 // The misclassified verdict itself sends the next round to a blind review, so the gap holds no work.
 const RISK_GAP_NOTE = 'A gap for a wrong risk answer takes no fix and no log, since the blind review it triggers judges that change.';
 // A recorded item keeps no DISMISSED line, since it stays in the block's own diff and a relaunch's reviewers
-// must judge it again. Its entry names the park, since the code it describes leaves the tree for the patch.
+// must judge it again. Its entry names the park, since the code it describes leaves the tree for the branch.
 const closingRework = (id, reviewPath) => `CLOSING PASS. ${reviewPath ? `READ ${reviewPath}. Every finding and gap in it, and each failure
    the gate run below shows, is` : 'Each failure the gate run below shows is'} your work list. Route each item through the DECISION
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
@@ -1152,8 +1192,8 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged-only entries). ${COMMIT ? `Then run \`git -C ${REPO} diff --cached --name-only\` and report baseline_staged_files = the
 count of files it lists. If either count is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and
 return immediately with both counts. The run halts for the operator. If both are 0, ` : `If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
-immediately with that count. The run halts for the operator. If it IS 0, `}${CONTINUE.has(p.id)
-      ? continueOpening(p)
+immediately with that count. The run halts for the operator. If it IS 0, `}${p.mode === 'fix'
+      ? RESTORE_OPENING
       : 'implement this block from\nscratch on top of the accepted baseline.'}`
     : `${closing
       ? `Round ${MAX_ROUNDS} ended without a passed acceptance, so you are this block's CLOSING PASS, and no
@@ -1358,6 +1398,12 @@ ${claimedFixed.map((id) => `     - ${id}`).join('\n') || '     (none claimed fix
    path, an already-started async chain that still writes the bad state, an untouched branch or caller
    with the identical defect), that is actually_fixed=false — EVEN IF the described edit was made — and
    its residual path goes in your review file at step 7. Return one fix_check per claimed issue.
+   An entry with an "- origin:" line holds a parked block's unfinished work. When it also carries a
+   "- branch:" line, the developer restored that branch's work into the unstaged diff in round 1, unless
+   the accepted baseline already held it, and its fix is that entire branch work and every change made on
+   it: read every hunk of \`git -C ${REPO} diff <branch>^1 <branch>\` in the unstaged diff or the accepted
+   baseline. Return actually_fixed=true for an entry with an "- origin:" line only when the accepted
+   baseline with the unstaged diff closes every gap its **What:** lists and meets ${ORIGIN_CRITERIA}.
    A harm an entry lists can come from a DIFFERENT mechanism: a cause that shares no code path with the
    root cause you re-derived. That harm is a NEW ISSUE, not a residual path. A sibling path, caller or
    branch with the identical defect is always a residual path, and when unsure, treat it as one. Append a
@@ -1402,6 +1448,16 @@ ${reportedSkipped.map((id) => `     - ${id}`).join('\n') || '     (none reported
      a change, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
    • ${failBullet(round)}${commitStep(p, round)}
+${COMMIT
+    ? `10. DELETE LANDED BRANCHES, only on a pass that returns regression=false, committed=true, commit_subject equal to the block's title, tree_matches=true and tree_clean=true:
+   for ${LANDED_BRANCHES}, run \`git -C ${REPO} branch -D <branch>\`, since the landed block holds that
+   work. Every other branch, and every branch on any other verdict, stays, since the operator may reject
+   the work and rebuild it from the branch. Return branches_kept = each branch this step ran
+   \`git branch -D\` on that \`git -C ${REPO} rev-parse --verify --quiet refs/heads/<branch>\` still resolves after it, or [].`
+    : `9. LIST LANDED BRANCHES, only on a pass that returns regression=false, once step 8 has staged the block:
+   return branches_kept = ${LANDED_BRANCHES}, or []. Delete no branch: the user reviews the staged work
+   before committing it, so each branch stays until that commit, and a landing the user rejects can be
+   rebuilt from it. Every other verdict returns branches_kept=[].`}
 Return wrote_file=true ONLY if you wrote ${acceptanceFile(p.id, round)} this round.
 Do NOT modify source code. ${ACCEPTANCE_CHECK_RULE} Return ONLY the decision fields via the schema.`;
 
@@ -1484,9 +1540,9 @@ const ACCEPTANCE_FRAME = { feature: planAcceptance, section: planAcceptance, fix
 const acceptancePrompt = (p, round, claimedFixed = [], claimedStale = [], reportedSkipped = [], earlierReviews = [], riskRounds = []) =>
   ACCEPTANCE_FRAME[p.mode](p, round, { claimedFixed, claimedStale, reportedSkipped, earlierReviews, riskRounds });
 
-// Only needs-user writes a NEEDS-USER entry, so every other halt names its own cause for park to cite.
-const parkReason = (haltKind) => ({
-  'needs-user': `the developer escalated a user-only decision (see ${NEEDS_USER})`,
+// Only needs-user writes a question entry, so every other halt names its own cause for park to cite.
+const parkReason = (haltKind, id) => ({
+  'needs-user': `the developer escalated a user-only decision (see ${questionFile(id)})`,
   'agent-dead': 'an agent returned nothing (skipped or died)',
   'plan-unreadable': 'an agent could not obtain its plan',
   'staging-unconfirmed': `the developer did not confirm its work stayed unstaged; inspect \`git -C ${REPO} diff --cached\` for self-staged work`,
@@ -1509,100 +1565,175 @@ function closingParkClauses(recorded, reviewReason) {
   return clauses;
 }
 
-// A budget park always follows a closing pass, which names its own reason when it parked before acceptance.
-const parkWhy = (escalated, haltKind, closingWhy) => {
-  if (escalated) return parkReason(haltKind);
-  if (closingWhy) return `its closing pass parked it without acceptance: ${closingWhy}`;
-  return 'what the closing acceptance was still failing';
-};
-// Each entry the closing pass listed holds a fix that needs a blind review, which only the user can schedule.
-const closingRecordBullet = (p, recorded) => {
+// A closing pass that listed entries names them, since each holds a fix that needs a blind review, which only the user can schedule.
+const closingRecordNote = (p, recorded) => {
   if (recorded === null) {
-    return `
-   - that the closing pass returned no usable list of the backlog entries it listed, so the user checks
-     ${(p.blocks ?? [p]).map((b) => backlogFile(b.id)).join(', ')} for an entry whose fix needs a blind review`;
+    return `, then the line "The closing pass returned no usable list of the backlog entries it listed, so check ${(p.blocks ?? [p]).map((b) => backlogFile(b.id)).join(', ')} for an entry whose fix needs a blind review."`;
   }
   if (!recorded.length) return '';
-  return `
-   - each backlog entry the closing pass listed, by its id: ${recorded.join(', ')}. Say that each one's
-     **Fix:** line names a fix that needs a blind review, and that it sits in the file of ${BACKLOG_DIR}/
-     whose name its id starts with`;
+  return `, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: ${recorded.join(', ')}."`;
 };
 
-// Names the plan file of the block, or of each member of a pass, since the resume line cannot say "its plan file" without a path.
-const planFilesOf = (p) => (p.blocks
-  ? `the plan files of its members are ${p.blocks.map((b) => `\`${b.planPath}\` (block "${b.id}")`).join(', ')}`
-  : `the plan file of this block is \`${p.planPath}\``);
+/**
+ * What the park entry's **What:** copies, by the cause of the park. A budget park always follows a closing
+ * pass, which names its own reason when it parked before acceptance.
+ */
+function parkWhat(p, { escalated, userOnly, kind, haltText, closingWhy, closingRecorded, lastReviewPath }) {
+  const question = `the latest \`## Question: ${p.id} r<n>\` entry in ${questionFile(p.id)}, copied verbatim`;
+  if (userOnly && kind === 'needs-user') return question;
+  const review = lastReviewPath
+    ? `every finding and gap in ${lastReviewPath}, copied verbatim`
+    : 'the line "No review file exists, since no round before the closing pass had a satisfied gate."';
+  if (escalated) return `the line "Halted: ${parkReason(kind, p.id)}.", then this halt reason, copied verbatim: ${haltText}${lastReviewPath ? `, then ${review}` : ''}${userOnly ? `, then ${question}` : ''}`;
+  if (closingWhy) return `the line "Parked before acceptance: ${closingWhy}."${closingRecordNote(p, closingRecorded)}, then ${review}`;
+  return `the line "Parked: the closing acceptance still failed.", then ${review}`;
+}
 
-const parkPrompt = (p, lastReviewPath, reviews, escalated, haltKind, stopsRun, closingWhy = '', closingRecorded = []) => `
+// A park entry is built in fix mode, whose one gate is green (MODE_GATES.fix). A red-baseline block's tests
+// fail by design, and a build-only block's work meets green only through a test gate, so neither may continue there.
+const HAS_TEST_GATE = typeof GATES.test === 'string' && GATES.test.trim() !== '';
+const parkBuildable = (p) => p.gate !== 'red-baseline' && HAS_TEST_GATE;
+const unbuildableWhy = (p) => `the fix mode that builds a backlog entry takes only gate green, ${p.gate === 'red-baseline'
+  ? 'and the parked block\'s red-baseline tests fail by design'
+  : 'which needs a test gate, and the run that parked the block has none'}`;
+
+// Each member of a pass names its own plan block, since the parked work spans them all.
+const originOf = (p) => (p.blocks ? p.blocks.map((b) => `${b.planPath}#${b.id}`).join(', ') : `${p.planPath}#${p.id}`);
+
+// `needsUser` marks a block whose developer escalated a user-only question, whatever halt parked it.
+// `fixedIds` are the entries the developer's last report gave FIXED.
+const parkPrompt = (p, { lastReviewPath, escalated, haltKind, haltText, stopsRun, needsUser, closingWhy = '', closingRecorded = [], heldHalt = false, fixedIds = [] }) => {
+  const branch = unfinishedBranch(p.id);
+  const index = parkIndexFile(p.id);
+  const message = parkMessageFile(p.id);
+  const userOnly = escalated && needsUser;
+  // A fix block's round 1 restored its entries' branches, so its new commit holds their work and supersedes them.
+  // The operator picks a held park's route, so each restored branch then stays.
+  const supersedes = p.mode === 'fix' && !heldHalt;
+  const buildable = parkBuildable(p);
+  // A FAILED report may keep or revert an entry's restored work, so the working tree, which step 1e reads
+  // before step 2 clears it, decides for a branch whose entries are not all FIXED.
+  const restored = supersedes
+    ? `
+      This is a fix block, so its round 1 restored the work of each branch that the "- branch:" line of
+      ${BRANCH_ENTRIES} names (print its entries with ${(p.blocks ?? [p]).map((b) => `\`node '${BLOCK_TOOL}' '${b.planPath}' '${b.id}'\``).join(', ')}).
+      The developer's last report gave FIXED to ${fixedIds.length ? fixedIds.join(', ') : 'no entry'}. A FAILED report may keep or revert an entry's restored work.
+      Each distinct such branch other than ${branch} that \`git -C ${REPO} rev-parse --verify --quiet refs/heads/<it>\`
+      resolves is RESTORED when its every such entry that names it is on that FIXED list, or when
+      \`git -C ${REPO} diff --binary <it>^1 <it> | git -C ${REPO} apply -R --check\` succeeds, since the working tree
+      then still holds its work. Add \`-p <its tip>\` after the other parents for each RESTORED branch, so its
+      history stays in the new commit's. Every other branch and its entry stay as they are.`
+    : '';
+  const supersede = supersedes
+    ? `
+      Then delete each RESTORED branch with \`git -C ${REPO} branch -D <it>\`, since the new commit's history
+      holds its work, and return superseded_entries = the id of each entry whose branch you deleted.`
+    : '';
+  return `
 You are PARKING the plan block "${p.id}", which ${escalated
-    ? `was halted: ${parkReason(haltKind)}`
-    : 'did NOT reach acceptance within its round budget and its closing pass'}. SAVE its work to a patch, then clear it from
-the tree${stopsRun
+    ? `was halted: ${parkReason(haltKind, p.id)}`
+    : 'did NOT reach acceptance within its round budget and its closing pass'}. SAVE its work as a commit on the
+branch ${branch}, then clear it from the tree${stopsRun
     ? `. The run stops after you (${escalated ? 'only the user can unblock it' : 'the blocks after this one depend on it'}), so leave the repo in a
 known, buildable state the user can come back to`
     : ` so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
-scopes on the unstaged diff`}.
+scopes on the unstaged diff`}. Then append ONE backlog entry that links the branch. ${!buildable
+    ? `The engine keeps the block's plan status blocked, since ${unbuildableWhy(p)}, so the operator rebuilds the block from todo.`
+    : heldHalt
+      ? 'The engine keeps the block\'s plan status blocked until the operator picks the route its work takes.'
+      : 'The engine sets the block\'s plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.'}
 ${ENV}
 STAGING CONTRACT:
-  • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch.
+  • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
+    in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
+    this block created.
   • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
-  • ${COMMIT ? 'You commit nothing: only acceptance commits, and only a block it accepted.' : 'Nothing is EVER committed.'}
+  • The only commits you make are step 1's, and only ${branch} points at them. ${COMMIT ? 'Only acceptance commits on HEAD\'s branch, and only a block it accepted.' : 'Nothing is EVER committed on HEAD\'s branch.'}
 
-SAVE BEFORE YOU CLEAR. If the unstaged diff is NOT empty and step 1 cannot
-produce a non-empty patch, STOP: leave the tree exactly as it is, the intent-to-add entries step 1 made
-included, and return saved=false, cleared=false.
-An already-empty diff is not a stop: step 1 says what to do.
+SAVE BEFORE YOU CLEAR. If the tree holds this block's work and step 1 cannot make its commit, STOP: leave
+the tree exactly as it is, skip steps 2 and 3, and return saved=false, cleared=false, commit_sha "" and
+entry_written=false.${supersedes ? ' Return superseded_entries=[] whenever step 1 makes no commit.' : ''}${p.mode === 'fix' && !supersedes
+    ? ' Return superseded_entries=[], since the operator picks this park\'s route once its halt is resolved, so every branch its round 1 restored stays as it is.'
+    : ''} A tree that holds no work of this block is not a stop: step 1 says what to do.
 
 PROCEDURE:
-1. SAVE. \`git -C ${REPO} status --porcelain\` first. Mark each \`??\` untracked path this block created
-   intent-to-add with \`git -C ${REPO} add -N -- <path>\`, so the patch carries it. Skip build output and
-   caches. Only then check \`git -C ${REPO} diff\`. If it is EMPTY there is no patch to write — skip the
-   patch write, return saved=false, patch_bytes=0, with a note saying so, and continue at step 2.
-   Otherwise, if ${parkedPatch(p.id)} already exists, RENAME it to ${parkedPrevPatch(p.id)},
-   with n one past the highest existing .prev<n> number for this block, or 1 when none exists.
-   Never overwrite or delete either patch. Then write the block's work to ${parkedPatch(p.id)}
-   (create ${STATE_DIR}/ if needed):
-     \`git -C ${REPO} diff --binary > ${parkedPatch(p.id)}\`
-   \`--binary\` is REQUIRED: a plain diff cannot re-apply binary files. The unstaged diff IS exactly this
-   block's work, and every file it created is in it via \`git add -N\`.
-   Then CONFIRM the file exists and is non-empty, and record its size as patch_bytes.
-2. CLEAR. Restore every tracked file this block modified to the accepted baseline:
-   \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file it CREATED, the
-   ones step 1 marked included, with \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry
-   and the file together. Deleting the file alone leaves the entry, and \`git diff\` stays non-empty.
-   Always name the files: an unpathed \`git reset\` or \`git rm\` touches the index, which holds the accepted baseline. An
-   intent-to-add file is safe to remove because the step 1 patch carries it.
-   Confirm \`git -C ${REPO} diff\` is EMPTY, then run the BUILD gate and record whether it is green.
-3. RECORD. First copy each file below that exists into ${parkedReviewsDir(p.id)}/<k>/, with k one past
-   the highest numbered folder there, or 1 when none exists. Make that folder whenever at least one of
-   them exists, with or without a review file. Never overwrite or delete an earlier folder.
-${[...reviews, dismissedFile(p.id), DECISIONS].map((path) => `     ${path}`).join('\n')}
-   Then create ${NEEDS_USER} when it does not exist, and append ONE entry to it, under a
-   \`## Parked block: ${p.id}\` heading:
-   - that this block is **NOT done and NOT abandoned — a status record, not a dismissal**${stopsRun
-    ? `, and that the blocks after it were NOT attempted${ORDERED ? ', because they depend on this one' : ''}`
-    : '; the remaining blocks continued without it'}
-   - one line on why it was parked (${parkWhy(escalated, haltKind, closingWhy)})${escalated ? '' : closingRecordBullet(p, closingRecorded)}
-   - ${lastReviewPath ? `the diagnosis: the full path of the copy this step made of \`${lastReviewPath}\`, since a
-     relaunch of this block rewrites that file` : `that this block left no review file to cite; point the user at the run trail in ${STATE_DIR} instead of naming a file`}
-   - when step 1 saved a patch, the saved work \`${parkedPatch(p.id)}\` and the restore command, verbatim:
-     \`git -C ${REPO} apply ${parkedPatch(p.id)}\`. Say that it restores the work UNSTAGED, with new
-     files untracked, and that \`--3way\`, \`--index\` and \`--cached\` would each stage it
-     ${STAGED_HARM}. When step 1 renamed an earlier patch, one more line naming the \`.prev<n>.patch\` path
-     where that earlier attempt's patch now lives. When the diff was already empty, in their place the
-     line "Saved work: none (the tree held no changes)", and, when ${parkedPatch(p.id)} already exists,
-     a line naming it as this block's earlier saved work.
-   - how to resume: ${planFilesOf(p)}. Fix the blocker (sharpening this block in
-     the file named there if needed). Once \`node '${toolPath('plan-edit.mjs')}' args\` has applied this
-     run's statuses, set this block's \`status:\` back to \`todo\` in the file named there.
-     Then re-invoke with \`runOnly:["${p.id}"]\` from the CLEAN baseline and let the
-     developer redo it — the default, with the patch kept for reference. To continue from the patch
-     instead, add \`continueParked:["${p.id}"]\` to that relaunch: its round-1 developer restores the
-     patch after the clean-baseline check, and the block runs under full review. Do NOT tell the user to
-     \`git add -A\` the restored work: that stages UN-reviewed code ${STAGED_HARM}.
-Do NOT modify any file outside this block's work.
-Return saved + cleared + gates_green + patch_bytes via the schema.`;
+1. SAVE. Each command names the repo with \`-C\`, so it runs from any folder.
+   a. Create ${STATE_DIR}/scratch/ if needed, then seed a temporary index file with a copy of the repo's index:
+        \`cp "$(git -C ${REPO} rev-parse --path-format=absolute --git-path index)" "${index}"\`
+      Each command below that sets \`GIT_INDEX_FILE\` reads and writes only that copy. Delete the copy and
+      ${message} once step 1 ends, whichever way it ends.
+   b. BASE, the new commit's first parent, is a commit of the accepted baseline. ${COMMIT
+    ? `It is HEAD: \`git -C ${REPO} rev-parse HEAD\` prints it.`
+    : `Run \`GIT_INDEX_FILE="${index}" git -C ${REPO} write-tree\`, which prints the staged index's tree (an
+      intent-to-add entry takes no part in it). Then \`git -C ${REPO} commit-tree <that tree> -p HEAD -m "accepted baseline"\`
+      prints BASE.`}
+   c. Add the block's work to the copy with \`GIT_INDEX_FILE="${index}" git -C ${REPO} add -A\`. Then drop each
+      untracked path that is build output or a cache with \`GIT_INDEX_FILE="${index}" git -C ${REPO} rm --cached -r -q -- <path>\`.
+      Then \`GIT_INDEX_FILE="${index}" git -C ${REPO} write-tree\` prints WORK: the accepted baseline's tree
+      plus this block's unstaged tracked edits and untracked files.
+   d. TREE CHECK. When WORK is the tree that \`git -C ${REPO} rev-parse <BASE>^{tree}\` prints, the tree holds
+      no work of this block. Make no commit, leave the branch as it is, return saved=false and
+      commit_sha "", and continue at step 2.
+   e. COMMIT. Write \`unfinished: \` followed by the block's title, which is the JSON string
+      ${JSON.stringify(p.title)}, decoded, as the one line of ${message}, with no quotes and no other line.
+      ${REPLACE_NOTE} When \`git -C ${REPO} rev-parse --verify --quiet refs/heads/${branch}\` prints a commit id, that
+      earlier tip is the second parent, so earlier unfinished work stays in the branch's history: run
+      \`git -C ${REPO} commit-tree <WORK> -p <BASE> -p <tip> -F ${message}\`. Otherwise run it without
+      \`-p <tip>\`.${restored} The command prints NEW, and it runs no commit hook. Then run
+      \`git -C ${REPO} update-ref refs/heads/${branch} <NEW>\`.
+   f. Confirm \`git -C ${REPO} rev-parse ${branch}^{tree}\` prints WORK and \`git -C ${REPO} rev-parse ${branch}^1\`
+      prints BASE. Return saved=true and commit_sha=NEW.${supersede}
+2. CLEAR, only when step 1 made a commit. Restore every tracked file this block modified to the accepted
+   baseline: \`git -C ${REPO} checkout -- <files>\`. Remove each \`git add -N\` intent-to-add file the block
+   CREATED with \`git -C ${REPO} rm -f -q -- <file>\`: that drops the index entry and the file together.
+   Deleting the file alone leaves the entry, and \`git diff\` stays non-empty. Delete each other untracked
+   file the new commit holds: \`git -C ${REPO} diff --name-only --no-renames --diff-filter=A <BASE> <NEW>\` lists every
+   file it adds, and \`git -C ${REPO} status --porcelain\` lists the untracked ones as \`??\`. Always name
+   the files: an unpathed \`git reset\`, \`git rm\` or \`git clean\` touches the index, which holds the
+   accepted baseline, or files the new commit does not hold. A file is safe to remove because the new
+   commit holds it. When step 1 made no commit, clear nothing.
+   Either way, confirm \`git -C ${REPO} diff\` is EMPTY and \`git -C ${REPO} status --porcelain\` lists no
+   \`??\` file of this block apart from build output and caches, and return cleared=true only then. Then
+   run the BUILD gate and record whether it is green.
+3. RECORD. Append ONE entry to ${backlogFile(p.id)}, creating ${BACKLOG_DIR}/ if it does not exist.
+   ${headerLines(backlogId(p.id), p.id)}
+   n is one past the highest n in that file's entry ids, or 1 when it has none:
+     ### [${backlogId(p.id)}-<n>] unfinished: <block title>
+     - id: ${backlogId(p.id)}-<n>
+     - status: open
+     - file: <the first path \`git -C ${REPO} diff --name-only ${branch}^1 ${branch}\` prints>
+     - category: unfinished
+     - size: <trivial | small | medium | large: the work the gaps below leave>
+     - decision: <ACTIONABLE | NEEDS_USER>
+     - branch: ${branch}
+     - origin: ${originOf(p)}
+     **What:** <${parkWhat(p, { escalated, userOnly, kind: haltKind, haltText, closingWhy, closingRecorded, lastReviewPath })}>
+     **Fix:** ${buildable
+    ? 'Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.'
+    : `Fix mode cannot build this entry, since ${unbuildableWhy(p)}. Set this entry's "- status:" to stale and set each block the "- origin:" line names back to todo, which rebuilds it under its own gate.`}
+   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
+   when ${branch} holds an earlier park's work, give "- file:" the path ${p.blocks ? p.blocks[0].planPath : p.planPath}${buildable
+    ? `, and write this **Fix:** line instead:
+     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.`
+    : '.'}${supersedes ? `
+   When superseded_entries is not empty, end the **What:** with the line "Supersedes: <those ids>, whose
+   branches this entry's branch now holds." Then append to this entry's "- origin:" line, each after ", ",
+   every <planPath>#<block id> value that the "- origin:" line of those entries holds and this line does
+   not, since this entry now carries the work those blocks were built for.` : ''}
+   ${userOnly
+    ? 'Set "- decision: NEEDS_USER", since this park waits on a question only the user can answer.'
+    : !buildable
+      ? 'Set "- decision: NEEDS_USER", since no fix block can build this entry.'
+      : heldHalt
+        ? 'Set "- decision: NEEDS_USER", since the operator picks whether this entry or the block continues its work.'
+        : `When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. ${DECISION_RULE}`}
+   Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
+   four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
+   plan file is parsed.
+   Then return entry_written=true. ${WROTE_NOTE}
+Do NOT modify any file in the repo outside this block's work.
+Return saved + cleared + gates_green + commit_sha + entry_written${p.mode === 'fix' ? ' + superseded_entries' : ''} via the schema.`;
+};
 
 // Commit mode stages nothing, so the spot check reads each commit this launch made, which only the engine can list.
 const spotCheckStep = (commits) => (COMMIT
@@ -1650,9 +1781,8 @@ if (typeof A.gates?.build !== 'string' || !A.gates.build.trim()) {
 }
 
 // =============================================================================
-//   status:'todo'   — the only status this engine builds. done/skip/parked/blocked are never selected.
+//   status:'todo'   — the only status this engine builds. done/skip/backlogged/parked/blocked are never selected.
 //   runOnly: [ids]  — build exactly these blocks (in array order).
-//   continueParked: [ids] — these pending blocks restore their parked patch in round 1 instead of redoing it.
 // =============================================================================
 const TODO = ALL_PLANS.filter((p) => p.status === 'todo');
 // Shape before ids: a string runOnly would fall to null and silently build and stage every todo block.
@@ -1669,18 +1799,6 @@ if (runOnly) {
   pending = TODO.filter((p) => runOnly.includes(p.id));
 }
 const isFullRun = !runOnly;
-// Shape before ids, as for runOnly: a string would otherwise drop the scope and redo the block from scratch.
-if (A.continueParked !== undefined && A.continueParked !== null
-    && (!Array.isArray(A.continueParked) || A.continueParked.some((id) => typeof id !== 'string' || !id.trim()))) {
-  throw new Error(`Invalid continueParked arg: args.continueParked must be an ARRAY of block id strings; got ${JSON.stringify(A.continueParked)}. It is not coerced — a non-array would silently redo each named block from scratch.`);
-}
-const continueParked = Array.isArray(A.continueParked) ? A.continueParked : [];
-// Only a block this run builds can restore its patch, so any other id would be silently ignored.
-const notPending = continueParked.filter((id) => !pending.some((p) => p.id === id));
-if (notPending.length) {
-  throw new Error(`Invalid continueParked id: args.continueParked ${notPending.map((id) => `"${id}"`).join(', ')} names no block this run builds. Pending ids: ${pending.map((p) => p.id).join(', ') || '(none)'}. A parked or blocked block must be set back to todo before it can be continued.`);
-}
-const CONTINUE = new Set(continueParked);
 
 // Scoped to pending, so an all-done relaunch reaches the nothing-to-run terminal instead of throwing over
 // a test command it will never run.
@@ -1695,11 +1813,16 @@ if (!pending.length) {
   logLine(`develop: no todo blocks selected out of ${ALL_PLANS.length} — nothing to run`);
   // A halt resolved to done by hand (an INSPECT_LANDING keep, passed-unstaged, log-cap) leaves no later
   // run that sweeps, so an all-done relaunch is the last place to say the sweep may never have run.
-  const sweepNeverRan = SWEEP_MODE === 'goal-coverage' && isFullRun && ALL_PLANS
-    .filter((p) => p.status !== 'skip')
-    .every((p) => p.status === 'done');
+  // A backlogged block's work lands through its park entry's own fix block, so no run of this plan sweeps it.
+  const nonSkipPlans = ALL_PLANS.filter((p) => p.status !== 'skip');
+  const backloggedIds = nonSkipPlans.filter((p) => p.status === 'backlogged').map((p) => p.id);
+  const sweepNeverRan = SWEEP_MODE === 'goal-coverage' && isFullRun
+    && nonSkipPlans.every((p) => p.status === 'done' || p.status === 'backlogged');
+  const backloggedNote = backloggedIds.length
+    ? ` The backlogged blocks ${backloggedIds.join(', ')} are not done: set each done once its park entry syncs fixed, as the develop guide's "Working the backlog" step 5 says, or to skip or todo once the user skips that entry, as its step 3 says.`
+    : '';
   const sweepNote = sweepNeverRan
-    ? ' args.sweep is goal-coverage, but the sweep runs only at the end of a run that builds a block, so it did not run here. If the last run that built blocks halted before its sweep, verify coverage against the goal yourself.'
+    ? ` args.sweep is goal-coverage, but the sweep runs only at the end of a run that builds a block, so it did not run here. If the last run that built blocks halted before its sweep, or a block was backlogged, verify coverage against the goal yourself.${backloggedNote}`
     : '';
   return {
     runId: RUN_ID,
@@ -1734,6 +1857,7 @@ let backlogEntries = 0;
 let backlogUnknown = false;          // a writer's report was unusable, so a file it never named may hold entries
 const backlogFiles = new Set();        // the files developers and fix verifiers named in backlog_blocks
 const startedBacklogFiles = new Set(); // every started block's file: what to check when a report is unknown
+const keptBranches = [];               // { id, branch } a landed fix block holds the work of and that still exists
 let halted = false;
 let haltReason = '';
 // A value, so the status line never parses haltReason prose. Every halt site sets it.
@@ -1744,18 +1868,31 @@ const noChangeIds = [];
 // Each commit-mode pass's landing state by block id. A value, so the result never parses a status.
 const landingStates = new Map();
 // Every agent-dead halt parks first, so a cached replay would return rounds whose work is no longer in the
-// tree. The only honest recoveries are a clean relaunch or finishing the parked patch by hand.
-const DEAD_AGENT_RECOVERY = 'Its work, if any, is parked. Once `plan-edit.mjs args` has applied the statuses of this run, flip the block to todo and relaunch clean, or apply the patch and finish by hand.';
+// tree. The work continues from the park's backlog entry, which links the branch that holds it.
+// An ordered run's later blocks depend on the parked one, so its entry is built before they are.
+// An agent-dead park is held, so the held-park rule picks between that entry and the block first. A park no
+// fix block can build is rebuilt from todo instead, which the halt reason's resume hint says (parkBuildable).
+const deadAgentRecovery = (p) => (parkBuildable(p)
+  ? `Its work, if any, is parked on a branch that the park's backlog entry links, and the block stays blocked until nextStep's rule for a held park picks that entry or the block. When it picks the entry, ${ORDERED
+    ? 'work that entry first, as the develop guide\'s "Working the backlog" says, then relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, since they depend on this block.'
+    : 'work that entry as the develop guide\'s "Working the backlog" says, and relaunch with fresh `plan-edit.mjs args` to build the blocks still todo, in either order.'}`
+  : 'Its work, if any, is parked on a branch that the park\'s backlog entry links, and the block stays blocked.');
+// A branch that no longer applies holds work only the user can rebuild on the new baseline or drop. The work
+// stays on the branch, since putting it in the baseline would skip both reviews. A skipped entry's origin
+// blocks stay backlogged until their status is set by hand, since that entry never syncs fixed.
+const RESTORE_RECOVERY = 'The user decides how that work continues. Either rebuild the branch on the accepted baseline, by rebasing or re-committing it so that `git diff <branch>^1 <branch>` applies there, keeping the work on the branch and never in the tree, the index or the baseline. Or set the entry\'s `- decision:` to SKIP, delete the branch to drop it, and set each block its `- origin:` line names to `skip`, or to `todo` to rebuild it. Then, once `plan-edit.mjs args` has applied this run\'s statuses, set the block\'s `status:` back to `todo` to build what is left.';
 
 /**
  * What a dead acceptance verifier may have left past park's reach, which saves only unstaged work. It runs
  * `git add`, and in commit mode the commit and its hooks, before it returns, so it can die after either.
  */
-function deadAcceptanceCheck() {
-  if (!COMMIT) return `It may have staged the block's files before it died: check \`git -C ${REPO} diff --cached --stat\` for them before you relaunch.`;
+function deadAcceptanceCheck(p) {
+  const beforeRoute = parkBuildable(p) ? 'before you pick the route the held-park rule gives this block' : 'before you set this block back to todo';
+  // The branch's first parent is the staged index in stage mode and HEAD in commit mode (park step 1b).
+  if (!COMMIT) return `It may have staged the block's files before it died: check \`git -C ${REPO} diff --cached --stat\` for them ${beforeRoute}. Any such work is in the branch's first parent, the staged index, so it is outside the park's branch diff, and that branch then does not hold all of the block's work.`;
   const priorSha = ledger.filter((r) => r.commit).pop()?.commit;
   const priorHead = priorSha ? `${priorSha}, the last commit of this launch` : 'the HEAD this launch started from';
-  return `It may have staged or committed the block before it died. Before you flip the block to todo, run \`git -C ${REPO} log -1 --stat\`. HEAD before this block was ${priorHead}, so a newer commit is this block's, and no landing check ran on it: revert it with \`git -C ${REPO} revert <sha>\`. Then \`git -C ${REPO} diff --cached --stat\` lists any files it staged: unstage them with \`git -C ${REPO} restore --staged -- <files>\` and set them aside.`;
+  return `It may have staged or committed the block before it died. Run \`git -C ${REPO} log -1 --stat\` ${beforeRoute}. HEAD before this block was ${priorHead}, so a newer commit is this block's, and no landing check ran on it: revert it with \`git -C ${REPO} revert <sha>\`. Work that commit holds is in the branch's first parent, HEAD, so it is outside the park's branch diff, and that branch then does not hold all of the block's work. Then \`git -C ${REPO} diff --cached --stat\` lists any files it staged: unstage them with \`git -C ${REPO} restore --staged -- <files>\` and set them aside. Work it only staged is inside the branch's diff.`;
 }
 
 /**
@@ -1825,6 +1962,8 @@ function fixTracker(p) {
     claimed,
     stale,
     skipped: () => [...reported].filter(([, s]) => s === 'SKIPPED').map(([id]) => id),
+    lastFixed: () => [...reported].filter(([, s]) => s === 'FIXED').map(([id]) => id),
+    unreported: (ids) => [...ids].filter((id) => !reported.has(id)),
     /** The verdict's fix checks. Every verdict counts, not just a pass: the latest check per id wins. */
     judge(acc) {
       const checks = acc?.fix_checks || [];
@@ -1849,13 +1988,14 @@ function fixTracker(p) {
     /**
      * One `{ planPath, id, value }` per entry whose status changes. An entry acceptance's own fix_check
      * judged still open never syncs `fixed` or `stale`, even in a landed block: either value would drop a
-     * live defect from every later run.
+     * live defect from every later run. A superseded entry syncs `stale`, since a newer park entry's branch holds its work.
      */
-    edits(landed) {
+    edits(landed, superseded = new Set()) {
       const out = [];
       for (const [id, status] of reported) {
         const mapped = issueSyncStatus(status, claimedEver.has(id), landed);
-        const value = (mapped === 'fixed' || mapped === 'stale') && unclosed.has(id) ? 'needs-attention' : mapped;
+        const synced = (mapped === 'fixed' || mapped === 'stale') && unclosed.has(id) ? 'needs-attention' : mapped;
+        const value = superseded.has(id) ? 'stale' : synced;
         if (!value) continue;
         if (ownerOf(id)) out.push({ planPath: ownerOf(id), id, value });
         else logLine(`  ⚠ ${p.id}: issue ${id} was reported ${status} but belongs to no block in this pass — no status edit`);
@@ -1883,6 +2023,9 @@ const SHA_PATTERN = /^[0-9a-f]{40}([0-9a-f]{24})?$/i;
 const trimmedText = (value) => (typeof value === 'string' ? value.trim() : '');
 // The halts that leave an accepted block's work in the baseline or the index for the operator to inspect.
 const INSPECT_LANDING = new Set(['acceptance-regression', 'commit-unverified']);
+// The halts whose cause the operator resolves before the work continues: an unsafe tree, work that may sit in a commit
+// or in stage mode the index, where the branch's diff omits it, or a plan block no agent could read, which the entry's fix block also reads.
+const HELD_PARK_HALTS = new Set(['park-unsafe', 'staging-unconfirmed', 'rejected-staged', 'agent-dead', 'plan-unreadable']);
 /** The recovery a commit-mode pass halt names. Its fix issues synced needs-attention, so a kept fix block lands them by hand. */
 function inspectStatus(p, round, landing) {
   const issueNote = p.mode === 'fix'
@@ -1998,9 +2141,9 @@ function statusLines(edits) {
 }
 
 /** Records a finished block or pass: its ledger row, each member block's status, and each changed fix entry's. */
-function finishBlock(p, rec, blockStatus, fix) {
+function finishBlock(p, rec, blockStatus, fix, superseded) {
   const members = p.blocks ?? [{ id: p.id, planPath: p.planPath }];
-  const issueEdits = fix ? fix.edits(blockStatus === 'done') : [];
+  const issueEdits = fix ? fix.edits(blockStatus === 'done', superseded) : [];
   const edits = [...members, ...issueEdits].map((e) => ({ planPath: e.planPath, id: e.id, key: 'status', value: e.value ?? blockStatus }));
   ledger.push(rec);
   statusSync.push(...edits);
@@ -2031,11 +2174,11 @@ for (const p of pending) {
   const devModel = p.model ?? M.develop;
   const devEffort = p.effort ?? EF.develop;
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}${p.effort ? `, effort=${p.effort}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, patch: null, commit: null };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, branch: null, entryWritten: false, superseded: [], unreportedSuperseded: [], heldPark: false, backlogged: false, commit: null };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   for (const b of p.blocks ?? [p]) startedBacklogFiles.add(backlogFile(b.id));
-  // 'no-changes' when this fix block ended on the round-1 no-changes terminal ('' = none). It does not
-  // park: the tree is clean, so park would have nothing to save.
+  // The round-1 fix terminal this block ended on: 'no-changes' or 'restore-failed' ('' = none). Neither
+  // parks: the tree is clean, so park would have nothing to save.
   let fixTerminal = '';
   // The latest review file the developer must address. Empty until a reviewer writes one, and never
   // replaced by a path nobody wrote: the halt reason and parkPrompt each say so instead.
@@ -2100,7 +2243,7 @@ for (const p of pending) {
       halted = true;
       escalated = true;   // it may have touched the tree before dying → park rather than abandon
       haltKind = 'agent-dead';
-      haltReason = `Developer for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — no work can be assumed either way. ${DEAD_AGENT_RECOVERY}`;
+      haltReason = `Developer for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — no work can be assumed either way. ${deadAgentRecovery(p)}`;
       rec.status = 'BLOCKED (agent died)';
       // It may have appended a backlog entry before it died.
       backlogUnknown = true;
@@ -2176,7 +2319,7 @@ for (const p of pending) {
         : 'acceptance treats `git diff --staged` as the accepted baseline — so anything staged here would be reviewed by nobody and then inherited as known-good'}. Inspect \`git -C ${REPO} diff --cached\` before resuming.`;
       if (dev.needs_user === true) {
         rec.needsUser = true;
-        haltReason += ` The developer also escalated a user-only decision (see ${NEEDS_USER}).`;
+        haltReason += ` The developer also escalated a user-only decision (see ${questionFile(p.id)}).`;
       }
       rec.status = 'BLOCKED (staging unconfirmed)';
       logLine(`  ✋ ${p.id} r${round}: developer did not confirm its work stayed UNSTAGED → halting before any review agent (inspect git -C ${REPO} diff --cached)`);
@@ -2190,11 +2333,27 @@ for (const p of pending) {
       if (ORDERED) {
         halted = true;
         haltKind = 'needs-user';
-        haltReason = `Developer halted for a user-only decision in block ${p.id}, ${roundName(round)} (see ${NEEDS_USER}).`;
+        haltReason = `Developer halted for a user-only decision in block ${p.id}, ${roundName(round)} (see ${questionFile(p.id)}).`;
       } else {
         parkKind = 'needs-user';
       }
-      logLine(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → ${ORDERED ? 'halting' : 'parking it, the unordered run continues'} (see ${NEEDS_USER})`);
+      logLine(`  ✋ ${p.id} r${round}: developer escalated a user-only decision → ${ORDERED ? 'halting' : 'parking it, the unordered run continues'} (see ${questionFile(p.id)})`);
+      break;
+    }
+    // ---- FIX MODE, ROUND 1: a branch whose work no longer applies --------------------------------------
+    // The developer reversed every restore and changed nothing, so the block ends without a park, which
+    // would commit an empty tree, and the branch keeps the work for the user.
+    const restoreError = fix && round === 1 ? trimmedText(dev.restore_failed) : '';
+    if (restoreError) {
+      fixTerminal = 'restore-failed';
+      rec.restoreError = restoreError;
+      rec.status = 'blocked (an unfinished branch did not apply)';
+      logLine(`  ✋ ${p.id}: an unfinished branch did not apply onto the accepted baseline (${restoreError.slice(0, 300)}) → the block is blocked and every branch stays as it was`);
+      if (ORDERED) {
+        halted = true;
+        haltKind = 'restore-failed';
+        haltReason = `Fix block ${p.id} could not restore an unfinished branch in round 1: ${restoreError}. Its developer reversed every restore, so the tree is clean, and the branch still holds the work. This is an ORDERED run, so the blocks after it were not attempted. ${RESTORE_RECOVERY}`;
+      }
       break;
     }
     if (dev?.dismissed_count) {
@@ -2243,10 +2402,14 @@ for (const p of pending) {
     // Derived from the results, so a round that only SKIPPED or found STALE entries cannot claim work it
     // never did. A STALE claim, alone or beside SKIPPED entries, is one acceptance must confirm, so it falls
     // through. All SKIPPED or no report closed nothing. Round 1 only: a later results:[] can follow a real fix.
+    // A restored branch is unstaged work no result reflects, so it falls through to the reviews, and a park saves it.
     const produced = results.some((r) => r?.status === 'FIXED' || r?.status === 'FAILED');
     if (fix && !produced && round === 1) {
       const staleCount = results.filter((r) => r?.status === 'STALE').length;
-      if (staleCount > 0) {
+      const restoredCount = Number.isInteger(dev?.restored_branches) ? dev.restored_branches : 0;
+      if (restoredCount > 0) {
+        logLine(`  ⚠ ${p.id}: closed no issue, but its round 1 restored ${restoredCount} unfinished branch(es) into the tree → the reviews judge that work`);
+      } else if (staleCount > 0) {
         const claim = staleCount === results.length
           ? `every issue reported already resolved (all ${staleCount} STALE)`
           : `${staleCount} issue(s) reported already resolved (STALE), the rest SKIPPED`;
@@ -2279,7 +2442,7 @@ for (const p of pending) {
         halted = true;
         escalated = true;
         haltKind = 'agent-dead';
-        haltReason = `Quality reviewer for block ${p.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a clean review. ${DEAD_AGENT_RECOVERY}`;
+        haltReason = `Quality reviewer for block ${p.id} returned nothing in round ${round} (agent skipped or died) — that is NOT a clean review. ${deadAgentRecovery(p)}`;
         rec.status = 'BLOCKED (agent died)';
         logLine(`  ✋ ${p.id} r${round}: quality reviewer returned nothing (agent skipped or died) → halting`);
         break;
@@ -2338,7 +2501,7 @@ for (const p of pending) {
       halted = true;
       escalated = true;
       haltKind = 'agent-dead';
-      haltReason = `Acceptance verifier for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — that is NOT a gap verdict. ${deadAcceptanceCheck()} ${DEAD_AGENT_RECOVERY}`;
+      haltReason = `Acceptance verifier for block ${p.id} returned nothing in ${roundName(round)} (agent skipped or died) — that is NOT a gap verdict. ${deadAcceptanceCheck(p)} ${deadAgentRecovery(p)}`;
       rec.status = 'BLOCKED (agent died)';
       // It may have appended a backlog entry before it died.
       if (fix) backlogUnknown = true;
@@ -2365,6 +2528,10 @@ for (const p of pending) {
     if (typeof acc.regression === 'boolean') rec.regression = acc.regression;
     else if (acc.pass === true) rec.regression = false;
     if (fix) recordBacklog(p, round, 'acceptance', acc.backlog_entries, acc.backlog_blocks);
+    // Only a landing deletes or lists branches, so a kept branch on any other verdict is the expected state.
+    if (fix && acc.pass === true && Array.isArray(acc.branches_kept)) {
+      for (const kept of acc.branches_kept.map(trimmedText).filter(Boolean)) keptBranches.push({ id: p.id, branch: kept });
+    }
     // Per mode: a fix schema has no evidence_recorded or reachable, which would flag every fix pass as thin.
     const verdict = fix ? fix.judge(acc) : judgePlanAcceptance(acc);
     const landing = COMMIT ? landingOf(acc) : null;
@@ -2480,8 +2647,8 @@ for (const p of pending) {
     continue;
   }
 
-  // The fix-mode round-1 no-changes terminal does NOT park: the developer changed nothing, so there is no
-  // work to save and nothing to clear. It never counts done, and in an ORDERED run it has already halted.
+  // Neither fix-mode round-1 terminal (no-changes, restore-failed) parks: the developer changed nothing, so
+  // there is no work to save and nothing to clear. It never counts done, and in an ORDERED run it has already halted.
   if (fixTerminal) {
     finishBlock(p, rec, 'blocked', fix);
     if (halted) break;
@@ -2491,6 +2658,7 @@ for (const p of pending) {
   // ---- PARK: save this block's work, then clear the tree ------------------------------------------
   // Clearing gives the next block's blind reviewer a diff of its own. Skipped on a halt that sets no
   // `escalated`, such as a round-1 baseline halt (dirty-baseline, staged-baseline), whose tree is the operator's.
+  let superseded = new Set();
   if (!(halted && !escalated)) {
     // Ordered blocks depend on their predecessors landing.
     if (ORDERED && !halted) {
@@ -2501,66 +2669,102 @@ for (const p of pending) {
       logLine(`  ✋ ${p.id}: not accepted within ${MAX_ROUNDS} rounds and its closing pass → parking its work, then halting (ordered run)`);
     }
     phase('Park');
-    // reviewPath passes through empty or not: see its declaration. It joins the kept reviews because a
-    // passed-regression halt names a review file that earlierReviews never holds.
-    const keptReviews = [...new Set([...earlierReviews, reviewPath])].filter(Boolean);
-    const pk = await agent(parkPrompt(p, reviewPath, keptReviews, escalated, parkKind || haltKind, halted, closingWhy, closingRecorded), roleOpts('develop', {
+    // A needs-user parkKind can hide the halt kind that holds the park, so the held test reads haltKind.
+    const heldHalt = HELD_PARK_HALTS.has(haltKind);
+    // reviewPath may be empty: see its declaration.
+    const pk = await agent(parkPrompt(p, {
+      lastReviewPath: reviewPath, escalated, haltKind: parkKind || haltKind, haltText: haltReason, stopsRun: halted,
+      needsUser: rec.needsUser === true, closingWhy, closingRecorded, heldHalt, fixedIds: fix ? fix.lastFixed() : [],
+    }), roleOpts('develop', {
       // park reads agentTypes.develop: the engine looks up no agentTypes.park key.
-      model: M.park ?? devModel, effort: EF.park ?? devEffort, schema: PARK_SCHEMA, phase: 'Park', label: `park:${p.id}`,
+      model: M.park ?? devModel, effort: EF.park ?? devEffort, schema: parkSchema(p.mode), phase: 'Park', label: `park:${p.id}`,
     }));
-    // Patch bytes with saved=false contradicts itself, and the tree may already be cleared: name the patch.
-    const contradictory = pk?.saved !== true && (pk?.patch_bytes ?? 0) > 0;
-    // Null when park wrote nothing. Every later patch mention keys on this, never naming a missing file.
-    rec.patch = (pk?.saved === true || contradictory) ? parkedPatch(p.id) : null;
+    const branch = unfinishedBranch(p.id);
+    const parkFile = backlogFile(p.id);
+    const reportedSha = trimmedText(pk?.commit_sha);
+    // A commit id beside saved=false contradicts itself, and the tree may already be cleared: name the branch.
+    const contradictory = pk?.saved !== true && SHA_PATTERN.test(reportedSha);
+    // Null when park made no commit. Every later branch mention keys on this, never naming work that was not saved.
+    rec.branch = (pk?.saved === true || contradictory) ? branch : null;
     // A value, so parked[] never parses status prose: an escalated block keeps its BLOCKED status.
     rec.parked = true;
-    // Only a confirmed clear proves a patchless park had nothing to save.
+    // Only a confirmed clear proves a commitless park had nothing to save.
     rec.parkCleared = pk?.cleared === true;
-    if (!escalated) rec.status = 'parked (not accepted within round budget)';
-    // A continued block's patchless park leaves its earlier work, if any, in the patch it was continued from.
-    const continuedEmpty = CONTINUE.has(p.id) && !rec.patch && rec.parkCleared;
-    const continuedFrom = `continued from ${parkedPatch(p.id)}, which holds its earlier work only if that file exists: its entry in ${NEEDS_USER} says whether the patch was missing or did not apply`;
-    const parkSavedTo = rec.patch || (rec.parkCleared ? 'nothing to save' : pk ? 'nowhere: park confirmed no save or clear' : 'unknown: the park agent returned nothing');
+    rec.entryWritten = pk?.entry_written === true;
+    // Only a saved commit holds the restored work, so a park with no commit supersedes no entry.
+    if (fix && pk?.saved === true && !heldHalt && Array.isArray(pk.superseded_entries)) {
+      superseded = new Set(pk.superseded_entries.map(trimmedText).filter(Boolean));
+    }
+    rec.superseded = [...superseded];
+    if (superseded.size) logLine(`  ${p.id}: park superseded ${[...superseded].join(', ')}, whose branches ${branch} now holds`);
+    // An id the developer never reported may not be in the block, and plan-edit rejects an unknown id, so nextStep names it.
+    rec.unreportedSuperseded = fix ? fix.unreported(superseded) : [];
+    if (rec.unreportedSuperseded.length) logLine(`  ⚠ ${p.id}: park superseded ${rec.unreportedSuperseded.join(', ')}, which the developer never reported — no status edit, so nextStep says to set each stale`);
+    if (rec.entryWritten) {
+      backlogEntries += 1;
+      backlogFiles.add(parkFile);
+    } else if (!pk) {
+      // A dead park may have appended its entry before it died.
+      backlogUnknown = true;
+      startedBacklogFiles.add(parkFile);
+    }
+    const parkSavedTo = rec.branch
+      ? `${rec.branch}${reportedSha ? ` at ${reportedSha}` : ''}`
+      : (rec.parkCleared ? 'nothing to save' : pk ? 'nowhere: park confirmed no save or clear' : 'unknown: the park agent returned nothing');
     // Park's notes are the only place an empty park explains itself. Logged, not returned.
-    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds and its closing pass`} — PARKED (${continuedEmpty ? `no new patch, ${continuedFrom}` : `work saved to ${parkSavedTo}`}${pk?.patch_bytes ? `, ${pk.patch_bytes}B` : ''}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}) — see ${NEEDS_USER}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
+    logLine(`  ⚠ ${p.id}: ${escalated ? 'escalated to the user' : `not accepted within ${MAX_ROUNDS} rounds and its closing pass`} — PARKED (work saved to ${parkSavedTo}, tree ${pk?.cleared === true ? 'cleared' : 'NOT CLEARED'}, build ${pk?.gates_green ? 'green' : 'RED'}, backlog entry ${rec.entryWritten ? 'written' : 'NOT CONFIRMED'}) — see ${parkFile}${pk?.notes ? ` — park note: ${String(pk.notes).slice(0, 300)}` : ''}`);
+    const inspectBranch = `\`git -C ${REPO} log -1 --stat ${branch}\``;
     // A tree we could not clear (or a broken build) is unsafe for whatever comes next, so those DO halt
     // even in an unordered run, where a plain park does not.
     if (contradictory) {
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `Park reported saved=false for block ${p.id} but wrote ${pk.patch_bytes} bytes to ${parkedPatch(p.id)} — the report contradicts itself. The patch is real; inspect it before continuing (the tree was ${pk?.cleared === true ? 'already cleared' : 'left as-is'}).`;
+      haltReason = `Park reported saved=false for block ${p.id} but reported commit ${reportedSha} on the branch ${branch} — the report contradicts itself. The commit may be real; inspect ${inspectBranch} before continuing (the tree was ${pk?.cleared === true ? 'already cleared' : 'left as-is'}).`;
     } else if (!pk) {
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `The park agent for block ${p.id} returned nothing (skipped or died), so whether its work is in ${parkedPatch(p.id)} or still in the working tree is unknown: inspect both. The tree is unsafe for whatever runs next until you do.`;
+      haltReason = `The park agent for block ${p.id} returned nothing (skipped or died), so whether its work is on the branch ${branch} or still in the working tree is unknown: inspect both with ${inspectBranch} and \`git -C ${REPO} status --porcelain\`. The tree is unsafe for whatever runs next until you do.`;
     } else if (pk.cleared !== true) {
       halted = true;
       haltKind = 'park-unsafe';
-      haltReason = `Block ${p.id} could not be cleared from the working tree${pk.saved === true ? ` (its work IS saved to ${parkedPatch(p.id)})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
+      haltReason = `Block ${p.id} could not be cleared from the working tree${pk.saved === true ? ` (its work IS saved on the branch ${branch})` : ' and its work was NOT saved — the tree still holds it'}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
     } else if (pk?.gates_green === false) {
       // A cleared tree with a red build is not safe to resume into.
       halted = true;
       haltKind = 'park-unsafe';
       haltReason = `The build gate is not green after parking block ${p.id}; the tree is unsafe for whatever runs next. Inspect the tree before resuming.`;
     } else if (halted) {
-      // The run is stopping, so say where the work went (see rec.patch). An escalated block's nextStep line
+      // The run is stopping, so say where the work went (see rec.branch). An escalated block's nextStep line
       // carries its own research-first instruction, so the suffix stops at the tree state.
-      let savedTo = ' It had NOTHING to save (its working tree was already empty)';
-      if (rec.patch) savedTo = ` Its work is SAVED to ${rec.patch}`;
-      else if (continuedEmpty) savedTo = ` It was ${continuedFrom}. This park wrote no new patch`;
-      const resumeHint = rec.needsUser ? '.' : '; resolve with the user, then resume from this block.';
-      haltReason += `${savedTo} and the tree is CLEAN${resumeHint}`;
+      const savedTo = rec.branch ? ` Its work is SAVED on the branch ${rec.branch}` : ' It had NOTHING to save (its working tree held no work)';
+      const entryNote = rec.entryWritten
+        ? `. The park appended one entry to ${parkFile} that says why the block parked${rec.branch ? ' and links that branch' : ''}`
+        : `. The park did not confirm writing its entry in ${parkFile}`;
+      // The held and buildable tests that set blockStatus below pick the route, so this text and nextStep agree.
+      let resumeHint = '; work that entry with the user as the develop guide\'s "Working the backlog" says.';
+      if (!rec.entryWritten) resumeHint = '; nextStep says how to add that entry first.';
+      else if (!parkBuildable(p)) resumeHint = `; fix mode cannot build that entry, since ${unbuildableWhy(p)}, so nextStep says how to rebuild the block from todo${heldHalt ? ' once its halt is resolved' : ''}.`;
+      else if (heldHalt) resumeHint = '; its halt holds the park, so nextStep\'s rule for a held park picks whether that entry or the block continues its work.';
+      else if (rec.needsUser) resumeHint = '.';
+      haltReason += `${savedTo}${entryNote}, and the tree is CLEAN${resumeHint}`;
     }
+  }
+  // A safe park whose entry is confirmed and buildable is `backlogged`, since that entry is where its work
+  // continues. A held park, a park with no confirmed entry, a park no fix block can build and every halt that
+  // never parked need the operator before the block may run again. A passed-but-unstaged block is `done`:
+  // acceptance passed, and if the operator never stages it the next launch's clean-tree check halts on it. An
+  // escalated block keeps the BLOCKED status its halt set.
+  rec.heldPark = rec.parked && HELD_PARK_HALTS.has(haltKind);
+  const backlogged = rec.parked && rec.entryWritten && !rec.heldPark && parkBuildable(p);
+  rec.backlogged = backlogged;
+  if (rec.parked && !escalated) {
+    rec.status = backlogged ? 'backlogged (not accepted within round budget)' : 'blocked (not accepted within round budget, and its park needs the operator)';
   }
   // Guards a future exit that sets no status: a leaked 'pending' reads as "still working".
   if (rec.status === 'pending') rec.status = 'BLOCKED (engine bug: block finished with no status set)';
-  // Only a park over the round budget is `parked`. An escalation, an unsafe park and every halt that never
-  // parked need the operator before the block may run again. A passed-but-unstaged block is `done`:
-  // acceptance passed, and if the operator never stages it the next launch's clean-tree check halts on it.
-  const budgetPark = rec.parked && !escalated && haltKind !== 'park-unsafe';
-  let blockStatus = budgetPark ? 'parked' : 'blocked';
+  let blockStatus = backlogged ? 'backlogged' : 'blocked';
   if (haltKind === 'passed-unstaged') blockStatus = 'done';
-  finishBlock(p, rec, blockStatus, fix);
+  finishBlock(p, rec, blockStatus, fix, superseded);
   if (halted) break;      // escalation / ordered park / unsafe tree stops the run; an unordered park carries on
 }
 
@@ -2614,24 +2818,54 @@ const contestedTotal = ledger.reduce((s, r) => s + (r.contested || 0), 0);
 // Blocks whose developer overrode a plan clause under MATRIX 6a. Named here because AMENDED-<id>.md is
 // reachable by acceptance and the sweep alone — without this the user would have to already know the file exists.
 const amendedIds = ledger.filter((r) => r.planAmendments > 0).map((r) => r.id);
-// Keyed on the patch and rec.parked, never the status string.
-const parkedPlans = ledger.filter((r) => r.patch || r.parked === true);
-// Split on rec.patch. An empty park is still a block not done.
-const patchedPlans = parkedPlans.filter((r) => r.patch);
-const savedClearedPlans = patchedPlans.filter((r) => r.parkCleared === true);
-const savedUnclearedPlans = patchedPlans.filter((r) => r.parkCleared !== true);
-// A continued block's patchless park may still have earlier work in the patch it was continued from.
-const emptyParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared === true && !CONTINUE.has(r.id));
-const continuedEmptyPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared === true && CONTINUE.has(r.id));
-// A patchless park that never confirmed a clear may still hold the work in the tree or a patch file.
-const unclearedParkPlans = parkedPlans.filter((r) => !r.patch && r.parkCleared !== true);
-// Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes), or a
-// block stopped by a halt that never parks (dirty-baseline, staged-baseline, passed-unstaged).
+// Keyed on the branch and rec.parked, never the status string.
+const parkedPlans = ledger.filter((r) => r.branch || r.parked === true);
+// Split on rec.branch. An empty park is still a block not done.
+const savedPlans = parkedPlans.filter((r) => r.branch);
+const savedClearedPlans = savedPlans.filter((r) => r.parkCleared === true);
+const savedUnclearedPlans = savedPlans.filter((r) => r.parkCleared !== true);
+const emptyParkPlans = parkedPlans.filter((r) => !r.branch && r.parkCleared === true);
+// A commitless park that never confirmed a clear may still hold the work in the tree or on its branch.
+const unclearedParkPlans = parkedPlans.filter((r) => !r.branch && r.parkCleared !== true);
+// A park with no confirmed entry leaves its work on a branch that nothing in the backlog links.
+const unlinkedParkPlans = parkedPlans.filter((r) => r.entryWritten !== true);
+// The branch may hold an earlier park's work, so an entry added by hand links it only for this park's commit.
+const handBranchLine = (r) => {
+  if (r.branch) return `"- branch: ${r.branch}"`;
+  if (r.parkCleared === true) return 'no "- branch:" line, since this park made no commit';
+  return `"- branch: ${unfinishedBranch(r.id)}" only when \`git -C ${REPO} log -1 ${unfinishedBranch(r.id)}\` shows a commit this park made`;
+};
+// A superseded entry the developer never reported got no status edit, while the park deleted its branch.
+const unreportedSupersededPlans = parkedPlans.filter((r) => r.unreportedSuperseded?.length);
+// Selected blocks that ended neither done nor parked: a fix block that closed no issue (no-changes) or whose
+// unfinished branch did not apply, or a block stopped by a halt that never parks (dirty-baseline,
+// staged-baseline, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
 const noChangePlans = blockedPlans.filter((r) => noChangeIds.includes(r.id));
-const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id));
+const restoreFailedPlans = blockedPlans.filter((r) => r.restoreError);
+const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id) && !r.restoreError);
 // An ordered needs-user halt already says this in its halt text.
 const needsUserParks = haltKind === 'needs-user' ? [] : ledger.filter((r) => r.needsUser);
+// A park no fix block can build is rebuilt from todo, so its answers belong in the block, not its staled entry.
+const buildableQuestions = needsUserParks.filter((r) => parkBuildable(r));
+const unbuildableQuestions = needsUserParks.filter((r) => !parkBuildable(r));
+// A park that never confirmed its entry may have written no copy of the question.
+const linkedQuestions = needsUserParks.filter((r) => r.entryWritten === true);
+const unlinkedQuestions = needsUserParks.filter((r) => r.entryWritten !== true);
+// An ordered needs-user halt parks one block, whose question reaches its entry only when the park confirms it.
+const haltQuestionLinked = ledger.some((r) => r.needsUser && r.entryWritten === true);
+// A needs-user halt is never held, so only the block's gate decides whether a fix block can build its entry.
+const haltParkBuildable = ledger.some((r) => r.needsUser && parkBuildable(r));
+// A held park synced blocked, so its halt is resolved before HELD_PARK_RULE picks the entry or the block (HELD_PARK_HALTS).
+// A park no fix block can build is rebuilt from todo whatever its halt, so the held-park rule skips it.
+const heldParkPlans = parkedPlans.filter((r) => r.heldPark === true && parkBuildable(r));
+const unbuildableParkPlans = parkedPlans.filter((r) => !parkBuildable(r));
+// A park that superseded entries deleted their branches, so an entry written by hand carries their origins.
+const unlinkedSupersedingPlans = unlinkedParkPlans.filter((r) => r.superseded?.length);
+const unlinkedBuildablePlans = unlinkedParkPlans.filter((r) => r.heldPark !== true && parkBuildable(r));
+const backloggedPlans = parkedPlans.filter((r) => r.backlogged === true);
+// One rule for the two routes a held park leaves, so its entry and its block never both continue the same work.
+const HELD_PARK_RULE = `Once a block's halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo${ORDERED ? '. In this ordered run, work that entry before you relaunch the blocks after it, since they depend on it' : ''}. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch's tree holds, deletes that branch with \`git -C ${REPO} branch -D <branch>\`, and adds that entry's "- origin:" values to the new entry's "- origin:" line. Otherwise set that entry's "- status:" to stale, delete the branch with \`git -C ${REPO} branch -D <branch>\` when it exists, and set the block back to todo.`;
 const RESEARCH_FIRST = 'research each question in it first (develop guide §6), then put the rest to the user with a recommendation each';
 const HALT_STATUS = {
   'needs-user':      'BLOCKED (needs user input)',
@@ -2639,6 +2873,7 @@ const HALT_STATUS = {
   'staged-baseline': 'BLOCKED (the index held staged work - nothing was built)',
   'plan-unreadable': 'BLOCKED (an agent could not obtain its plan — nothing was built from a guess)',
   'no-changes':      'halted (a fix block closed no issue - every entry was skipped, and the ordered run stopped there)',
+  'restore-failed':  'halted (a fix block could not restore an unfinished branch, and the ordered run stopped there)',
   'agent-dead':      'BLOCKED (an agent returned nothing - it was skipped or died; its work is parked)',
   'staging-unconfirmed': 'BLOCKED (the developer did not confirm its work stayed out of the staged index, which neither reviewer reads)',
   'passed-unstaged': 'BLOCKED (a block passed but was not staged)',
@@ -2647,7 +2882,7 @@ const HALT_STATUS = {
   'rejected-staged': 'BLOCKED (acceptance failed a block but staged it)',
   'commit-unverified': 'BLOCKED (a block passed but its commit did not land as asked)',
   'review-unwritten': 'BLOCKED (a reviewer failed a block without confirming its review file)',
-  'parked':          'halted (a block was parked — its work is saved to a patch; the blocks after it were not attempted)',
+  'parked':          'halted (a block was parked — its work is saved on a branch that a backlog entry links; the blocks after it were not attempted)',
   'park-unsafe':     'BLOCKED (a parked block left the tree unsafe)',
   'budget':          'stopped on token budget (fewer tokens remain than minPlanBudget)',
   'log-cap':         'stopped on the runtime log line cap (no room is left for a status line inside the log lines Claude Code keeps)',
@@ -2700,8 +2935,8 @@ return {
   // The sweep is develop's one auxiliary agent: its entry means it died, and `sweep: null` with no entry
   // means it did not run (sweep:none, an incomplete goal, or a halt).
   failed: sweepDied ? [{ id: 'sweep', stage: 'sweep' }] : [],
-  // Parked blocks: NOT done. patch follows rec.patch.
-  parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, patch: r.patch ?? null, status: r.status })),
+  // Parked blocks: NOT done. branch follows rec.branch, and backlogFile names the file that holds the park entry.
+  parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, branch: r.branch ?? null, backlogFile: backlogFile(r.id), entryWritten: r.entryWritten === true, status: r.status })),
   ledger,
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
   // changes. A block the run never reached has none.
@@ -2710,24 +2945,48 @@ return {
   backlogEntries: backlogUnknown ? null : backlogEntries,
   backlogFiles: backlogUnknown ? null : [...backlogFiles].sort(),
   reviewTrail,
-  nextStep: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, ${RESEARCH_FIRST}, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch. The tree is clean; whether that block's work is in a patch is stated below.` : ' '}` : ''}${sweepDied
+  nextStep: `${halted ? `Run halted — ${haltReason}${haltKind === 'needs-user' ? ` Read ${NEEDS_USER} and the block's latest review file, ${RESEARCH_FIRST}. ${haltQuestionLinked
+    ? 'The block\'s backlog entry holds the same question: record the answers in that entry\'s triage'
+    : `The park did not confirm the block's backlog entry, so the question is only in ${NEEDS_USER}: once that entry exists, record the answers in its triage`}, as the develop guide's "Working the backlog" says, and ${haltParkBuildable ? 'build it' : 'rebuild the block from todo with those answers, as the line below that names it says,'} before you relaunch the blocks after it. The tree is clean; whether that block's work is on a branch is stated below.` : ' '}` : ''}${sweepDied
     ? `WARN THE USER FIRST: the final completeness sweep DIED, so nothing checked the goal was fully covered — verify coverage against the goal yourself before trusting this as finished. `
     : ''}${needsUserParks.length
-    ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. Read ${NEEDS_USER} and each block's latest review file, ${RESEARCH_FIRST}, then flip the block to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly. `
+    ? `${needsUserParks.length} block(s) escalated a user-only decision: ${needsUserParks.map((r) => r.id).join(', ')}. ${linkedQuestions.length
+      ? `These questions are in their block's backlog entry, whose decision is NEEDS_USER: ${linkedQuestions.map((r) => `${r.id} in ${backlogFile(r.id)}`).join(', ')}. `
+      : ''}${unlinkedQuestions.length
+      ? `The park did not confirm the backlog entry of ${unlinkedQuestions.map((r) => r.id).join(', ')}, so each question is only in ${[...new Set(unlinkedQuestions.map((r) => questionFile(r.id)))].join(', ')}. `
+      : ''}Read each question and the block's latest review file, ${RESEARCH_FIRST}. ${buildableQuestions.length
+      ? `For ${buildableQuestions.map((r) => r.id).join(', ')}, record the answers in that block's backlog entry's triage, as the develop guide's "Working the backlog" says. `
+      : ''}${unbuildableQuestions.length
+      ? `For ${unbuildableQuestions.map((r) => r.id).join(', ')}, write the answers into the block's own text in its plan file, since fix mode cannot build its entry and the block is rebuilt from todo, as the line below that names it says. `
+      : ''}`
     : ''}${parkedPlans.length
     ? `${parkedPlans.length} block(s) were PARKED: ${parkedPlans.map((r) => r.id).join(', ')}. ${savedClearedPlans.length
-      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch; ${NEEDS_USER} carries its diagnosis and its \`git apply\` restore command). `
+      ? `Work SAVED and cleared from the tree — nothing discarded — for: ${savedClearedPlans.map((r) => `${r.id} (on the branch ${r.branch})`).join(', ')}. `
       : ''}${savedUnclearedPlans.length
-      ? `Work SAVED but NOT cleared from the tree for: ${savedUnclearedPlans.map((r) => r.id).join(', ')} (each in ${STATE_DIR}/parked-<id>.patch, and the working tree still holds it). Clear the tree before resuming, and keep the patch until you have. `
+      ? `Work SAVED but NOT cleared from the tree for: ${savedUnclearedPlans.map((r) => `${r.id} (on the branch ${r.branch}, and the working tree still holds it)`).join(', ')}. Clear the tree before resuming. `
       : ''}${emptyParkPlans.length
-      ? `NO patch was written for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree was already empty), so there is nothing to restore; read their diagnosis in ${NEEDS_USER}. `
-      : ''}${continuedEmptyPlans.length
-      ? `No new patch was written for: ${continuedEmptyPlans.map((r) => `${r.id} (continued from ${parkedPatch(r.id)})`).join(', ')}. That patch holds the block's earlier work only if the file exists. Each block's entry in ${NEEDS_USER} says whether its patch was missing or did not apply. `
+      ? `NO work was saved for: ${emptyParkPlans.map((r) => r.id).join(', ')} — those blocks had nothing to save (their working tree held no work), so their entries link no new commit. `
       : ''}${unclearedParkPlans.length
-      ? `Park did NOT confirm a save or a clear for: ${unclearedParkPlans.map((r) => r.id).join(', ')}. Their work may still be in the working tree or in ${STATE_DIR}/parked-<id>.patch: inspect both before discarding anything. `
-      : ''}Per parked block the user decides: ${patchedPlans.length ? 'restore the patch and finish by hand, ' : ''}re-run it alone (sharpen its block in the plan file if needed, flip it to todo once \`plan-edit.mjs args\` has applied this run's statuses, and relaunch it with runOnly)${patchedPlans.length ? ', continue it from its patch under full review (the same relaunch, with continueParked naming it)' : ''}, or drop it. `
+      ? `Park did NOT confirm a save or a clear for: ${unclearedParkPlans.map((r) => `${r.id} (${unfinishedBranch(r.id)})`).join(', ')}. Their work may still be in the working tree or on that branch: inspect both before discarding anything. `
+      : ''}${unlinkedParkPlans.length
+      ? `Park did NOT confirm writing its backlog entry for: ${unlinkedParkPlans.map((r) => `${r.id} (${backlogFile(r.id)}, ${handBranchLine(r)})`).join(', ')}, so each stays blocked. When that file holds no "- category: unfinished" entry for this park, add one in the shape the develop guide's "Working the backlog" gives, with the "- branch:" line its block's note in this list gives.${unlinkedSupersedingPlans.map((r) => `The park of ${r.id} superseded ${r.superseded.join(', ')} and deleted their branches, so end its entry's **What:** with the line "Supersedes: ${r.superseded.join(', ')}, whose branches this entry's branch now holds." and append each "- origin:" value of those entries to its "- origin:" line. `).join('')}${unlinkedBuildablePlans.length
+        ? `Once that entry exists, set ${unlinkedBuildablePlans.map((r) => r.id).join(', ')} backlogged, so the entry is the one place its work continues from. `
+        : ''}`
+      : ''}${heldParkPlans.length
+      ? `These parked blocks stay blocked until you resolve their halt: ${heldParkPlans.map((r) => r.id).join(', ')}. ${HELD_PARK_RULE} `
+      : ''}${unbuildableParkPlans.length
+      ? `These parked blocks stay blocked, since the fix mode that builds a backlog entry takes only gate green: ${unbuildableParkPlans.map((r) => `${r.id} (${r.gate === 'red-baseline' ? 'its red-baseline tests fail by design' : 'gate build-only, and this run has no test gate'}${r.heldPark === true ? ', and its halt holds the park, so resolve that halt first' : ''})`).join(', ')}. For each, set its park entry's "- status:" to stale and set the block back to todo, which rebuilds it under its own gate. Its branch keeps the earlier work until you delete it with \`git -C ${REPO} branch -D <branch>\`. `
+      : ''}${unreportedSupersededPlans.map((r) => `The park of ${r.id} deleted the branches of ${r.unreportedSuperseded.join(', ')}, entries its developer never reported, so no status edit reached them: set each one's "- status:" to stale, since ${r.branch} holds their work. `).join('')}${backloggedPlans.length
+      ? `Each backlogged block's entry in its backlog file says why it parked and links its branch when it has one: triage and build it like any other entry, as the develop guide's "Working the backlog" says${ORDERED ? ', before you relaunch the blocks after it, since they depend on it' : ''}. Once that entry syncs fixed, set the backlogged block done, as that section's step 5 says. `
+      : ''}`
+    : ''}${keptBranches.length
+    ? (COMMIT
+      ? `Acceptance landed these blocks but could not delete the unfinished branch whose work they now hold: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Delete each with \`git -C ${REPO} branch -D <branch>\`. `
+      : `These staged blocks hold the work of unfinished branches that stay until the user commits that work, so a landing the user rejects can be rebuilt from them: ${keptBranches.map((k) => `${k.branch} (${k.id})`).join(', ')}. Once the user commits the staged work, delete each with \`git branch -D <branch>\` in any checkout of the repo. `)
     : ''}${noChangePlans.length
     ? `${noChangePlans.length} block(s) closed NO issue and are NOT done: ${noChangePlans.map((r) => r.id).join(', ')}. statusSync marks each blocked: read its entries' \`- decision:\` lines (only ACTIONABLE entries get fixed), then flip it back to todo once \`plan-edit.mjs args\` has applied this run's statuses. `
+    : ''}${restoreFailedPlans.length
+    ? `${restoreFailedPlans.length} fix block(s) could not restore an unfinished branch and are NOT done: ${restoreFailedPlans.map((r) => `${r.id} (${r.restoreError})`).join('; ')}. Each developer reversed every restore, so the tree is clean, and each branch still holds its work. ${RESTORE_RECOVERY} `
     : ''}${haltedPlans.length
     ? `${haltedPlans.length} block(s) halted and are NOT done: ${haltedPlans.map((r) => r.id).join(', ')} - the halt reason above says what each needs. `
     : ''}${amendedIds.length
@@ -2737,6 +2996,6 @@ return {
     : ''}${backlogFiles.size || backlogUnknown
     ? `${backlogUnknown
       ? `A developer or fix verifier returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG_DIR}/ for entries this run added: ${[...startedBacklogFiles].sort().join(', ')}.`
-      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done or skip, since a relaunch of a parked or blocked block may still append to its file. `
+      : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, and its title to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
     : ''}${acceptedLine}Verify the end state yourself: run the full gates, ${acceptedView}, and \`git -C ${REPO} status --porcelain\` (should be clean). Read the numbered review files (acceptance-review-*.md in ${STATE_DIR}/, quality-review-*.md in ${GATE_DIR}/) and each DISMISSED-<id>.md in ${GATE_DIR}/, auditing every declined finding. Show the user each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
 };

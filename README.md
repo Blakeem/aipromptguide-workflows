@@ -111,8 +111,8 @@ E:/aipg/               ← root          run-state lands at E:/aipg/runs/<runId>
 - **`target.repo`** is the repo being worked on. Agents run `git -C <target.repo> …` against it, and it
   is the only place code is ever changed or staged. develop passes a worktree of your project as
   `target.repo`, then lands the result in your project.
-- **`root`** is the base the run-state hangs off. `<root>/runs/<runId>/` holds the review files, the
-  ledgers, and any parked patch. Normally the checkout's own folder, so nothing lands in your project.
+- **`root`** is the base the run-state hangs off. `<root>/runs/<runId>/` holds the review files and the
+  ledgers. Normally the checkout's own folder, so nothing lands in your project.
 
 Keeping them apart is what makes the blind review work. The issue files live outside the repo under
 review, so a reviewer that is supposed to judge a diff on its own merits **cannot** wander into them.
@@ -157,6 +157,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **A parked develop block keeps its work on a branch.** A park saves the block's work as a commit on
+  the branch `aipg-unfinished/<id>` and appends one backlog entry that links the branch and says why
+  the block parked. The block's status is set to `backlogged` when a fix run can build its entry. Once
+  that entry is ready to build, a fix run restores the branch's work in its first round, and the branch
+  is deleted once that work is committed. The park patch, the copied review files and the `continueParked` arg are gone. A launch that
+  passes `continueParked` fails with a message that names the backlog route.
 - **Each develop backlog entry says whether it is ready to build.** The developer marks an entry
   `ACTIONABLE` when it is a defect or a cleanup with one clear, small fix that changes no user-visible
   behavior, stored data or public contract. Develop builds it without triage. Every other entry is

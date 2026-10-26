@@ -37,7 +37,7 @@ data dir (`~/.claude/plugins/data/aipg-aipromptguide/runs/<runId>/`, or on Windo
 `%USERPROFILE%\.claude\plugins\data\aipg-aipromptguide\`). Plan files are authored in `plans/<runId>/`
 beside them, outside your project. The engines only warn when a plan sits inside the target repo, and
 do not move it. Unless you pass `--keep-data`, uninstalling from your last scope **deletes that
-directory** with everything in it, including run history and parked patches.
+directory** with everything in it, including run history and backlog files.
 
 ## Updating
 

@@ -294,6 +294,19 @@ section('issue entries live under a fix-mode block, and carry their own `- key:`
   eq(parseBlocks(ONE('', '\n```\n### [x-y] an example entry\n```\n\n## Gate\ngreen\n'))[0].issues.length, 0,
     'a fenced entry heading is an example, not an entry');
 
+  // A park entry copies a question or review verbatim, indented, so its headings stay inside the entry.
+  const PARK_ENTRY = ['## Plan: f-1 - backlog', 'mode: fix', 'gate: green', '', '### [f-1-1] unfinished: t',
+    '- id: f-1-1', '- status: open', '- category: unfinished', '- decision: NEEDS_USER', '**What:** copied below',
+    '    ## Question: block-a r2', '    ### [i-1] a verdict heading', '    ```', '    code', '    ```', '    - status: fixed',
+    '**Fix:** close the gaps', ''].join('\n');
+  const [parkEntry] = parseBlocks(PARK_ENTRY)[0].issues;
+  eq(parseBlocks(PARK_ENTRY)[0].issues.length, 1, 'an indented copied heading is neither an entry end nor an entry');
+  ok(PARK_ENTRY.slice(parkEntry.start, parkEntry.end).includes('**Fix:** close the gaps'), 'and the entry still holds its **Fix:** line');
+  eq(parkEntry.values.status, 'open', 'and a copied key line is not read as a value');
+  // Unindented, the same copy splits the entry, which is the harm the indent prevents.
+  eq(parseBlocks(PARK_ENTRY.replace(/^ {4}/gm, ''))[0].issues.map((e) => e.id).join(','), 'f-1-1,i-1',
+    'a copy at column 0 starts a phantom entry');
+
   // The entry twin of the preamble gap: markdown convention puts a blank line under a heading, and that
   // blank used to leave `values` empty — severity, decision and status all silently absent, at exit 0.
   const [gapEntry] = parseBlocks(['## Plan: a - t', 'mode: fix', 'gate: green', '',
@@ -319,7 +332,7 @@ section('--list rejects a todo fix block with no issue entry, and validate() doe
   const both = planFails(`${fixBlock('')}\n${fixBlock('', '', 'other-inv')}`);
   ok(/in test/.test(both) && /empty-inv/.test(both) && /other-inv/.test(both), 'one throw names every such block and the file');
 
-  for (const status of ['done', 'skip', 'parked', 'blocked']) {
+  for (const status of ['done', 'skip', 'backlogged', 'parked', 'blocked']) {
     eq(listOf(fixBlock(`status: ${status}\n`)).blocks[0].status, status, `a ${status} fix block with no entry still lists`);
   }
   eq(listOf(fixBlock('status: todo\n', '### [x-y] t\n\n')).blocks[0].id, 'empty-inv', 'a todo fix block with one entry lists');
@@ -358,6 +371,10 @@ section('every metadata fault exits 1 naming the offending key, value or id');
   let sizeValue = '';
   try { sizeValue = parseBlocks(fix('### [x-y] t\n- size: small'))[0].issues[0].values.size; } catch (e) { sizeValue = e.message; }
   eq(sizeValue, 'small', 'an entry with a `- size:` line parses and its value is read');
+  // A park's entry links the branch that holds its block's work and names the block that work was built for.
+  let parkValues = {};
+  try { parkValues = parseBlocks(fix('### [x-y] t\n- category: unfinished\n- decision: NEEDS_USER\n- branch: aipg-unfinished/r-b-1a2b3c4d\n- origin: E:/plans/p.md#b'))[0].issues[0].values; } catch (e) { parkValues = { error: e.message }; }
+  eq(`${parkValues.branch}|${parkValues.origin}`, 'aipg-unfinished/r-b-1a2b3c4d|E:/plans/p.md#b', 'a park entry\'s branch and origin lines parse and their values are read');
   const renamedFault = planFails(fix('### [x-y] t\n- severity: high\n- effort: small'));
   ok(/issue entry \[x-y\] holds "- effort: small"/.test(renamedFault), `a \`- effort:\` issue line fails naming its entry and the line: ${renamedFault}`);
   ok(/"effort" was renamed to "size", so rename the key on that line/.test(renamedFault), `and says the key was renamed to size and to rename the line: ${renamedFault}`);

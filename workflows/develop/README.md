@@ -90,10 +90,10 @@ Every block runs the same loop, up to `maxRounds`.
    It makes each fix that is low risk and records each risky fix in the project's backlog. Acceptance
    then runs once more, but only when the closing pass listed no backlog entry and no change still needs a
    blind review.
-5. A block that cannot pass is **parked**. Its work is saved to a patch and cleared from the tree, so
-   nothing is lost and the next block starts clean. The park record names each backlog entry the
-   closing pass listed and each plan file of the block. Park also keeps copies of the block's reviews
-   and ledgers.
+5. A block that cannot pass is **parked**. Its work is saved as a commit on a branch and cleared from
+   the tree, so nothing is lost and the next block starts clean. One entry in the project's backlog
+   links the branch and says why the block parked. Once that entry is ready to build, a later fix run
+   restores the branch's work and finishes it.
 
 Settings at the top of the plan file control the run.
 
@@ -129,16 +129,19 @@ Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId
 acceptance reviews, the quality reviews under `gate/`, the developer's risk answers for each round
 (`risk-<id>-rN.md`, which starts with the round's snapshot), each block's declined findings
 (`gate/DISMISSED-<id>.md`), any plan amendment
-(`AMENDED-<id>.md`), the questions for you and each parked block's record (`NEEDS-USER.md`), the
+(`AMENDED-<id>.md`), the questions that stopped an ordered run (`NEEDS-USER.md`), an unordered
+run's question for one block (`question-<id>.md`, which the park also copies into that block's backlog
+entry), the
 defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
-problem the code already had that its block did not require (`DECISIONS.md`), each parked patch, and
-the sweep result (`SWEEP.md`).
+problem the code already had that its block did not require (`DECISIONS.md`), and the sweep result
+(`SWEEP.md`).
 
 The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work
 and, from a block's closing pass, the findings in the block's own work whose fixes need a blind review,
 in one file per block of each run. Under `proactive`, it also holds the cleanups the developer noticed
 and did not make. Under both policies, it holds each feature or refactor the developer noticed outside
-a block's scope and each choice it escalated and proceeded past by a default. Each entry says whether
+a block's scope, each choice it escalated and proceeded past by a default, and one entry per parked
+block. Each entry says whether
 it is ready to build. An entry is `ACTIONABLE` when it is a defect or a cleanup with one clear, small
 fix that changes no user-visible behavior, stored data or public contract. Develop builds it without
 triage. Every other entry is `NEEDS_USER` and waits for you. To work the backlog, run

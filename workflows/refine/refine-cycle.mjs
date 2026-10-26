@@ -231,14 +231,14 @@ EVERY gap carries evidence - the plan line it is about, and the repo line, plan 
 dependency doc or probe output that contradicts it. NO EVIDENCE, NO GAP. Grep the repo; never trust the plan's own lists.
 
 BLOCK METADATA is part of what you judge. Each \`## Plan: <id>\` block opens with a preamble run of
-\`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | parked |
-blocked), \`model\` (opus | sonnet | haiku | fable), \`effort\` (low | medium | high | xhigh | max), plus informational \`test_selector\` and \`depends_on\`. A \`gate\`
+\`key: value\` lines: \`mode\` (feature | section | fix), \`gate\`, \`status\` (todo | done | skip | backlogged |
+parked | blocked), \`model\` (opus | sonnet | haiku | fable), \`effort\` (low | medium | high | xhigh | max), plus informational \`test_selector\` and \`depends_on\`. A \`gate\`
 ILLEGAL for its block's mode is a gap (feature takes green | build-only; section takes green |
 red-baseline | build-only; fix takes green). File keys \`goal\` / \`ordered\` / \`suite\` / \`sweep\` are the first lines
 of the file, after any frontmatter and before any heading. A file key anywhere else above the first block, outside a code fence, fails the plan-block tool.
 
 SCOPE RULE 1 - you judge only blocks whose \`status\` is \`todo\` or absent. A block marked done, skip,
-parked or blocked is CLOSED. A gap you find in one of those goes to ${NEEDS_USER} as a QUESTION and NEVER
+backlogged, parked or blocked is CLOSED. A gap you find in one of those goes to ${NEEDS_USER} as a QUESTION and NEVER
 to the editor.
 SCOPE RULE 2 - a DEPENDENCY-ORDERING ERROR (class 4) whose fix splits, merges, adds or reorders blocks is
 reported as a QUESTION, never as a gap. It ends the run so the operator can restructure.

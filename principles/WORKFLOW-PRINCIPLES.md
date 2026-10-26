@@ -106,8 +106,8 @@ Narration about the run is forbidden, such as status files, run summaries, progr
 did" reports. A run writes only three kinds of file. These are the numbered inter-agent messages, the
 ledgers and user notes below, and the workflow's own product, the thing the run exists to produce. The
 product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
-`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked patch
-(`parked-<id>.patch`, plus `parked-<id>.prev<n>.patch` for an earlier park of the same unit).
+`options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked block's commit on its
+`aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that branch's history.
 `DETERMINATION.md` earns its place the same way develop's `SWEEP.md` does. It holds the cross-option
 comparison and the coverage evidence, which no per-option file contains, and it links to
 `options/<id>.md` instead of restating them.
@@ -130,8 +130,9 @@ Besides code and develop's risk files, the developer's only outputs are four app
   It is an inter-agent message from the developer to the acceptance stage and the sweep. It is kept
   outside `gate/` because it quotes plan text (#3). `DECISIONS.md` gets a pointer line to it.
 - **`NEEDS-USER.md`**, the user-facing notes of blockers and questions only the user can answer. These
-  may be as full as the user needs to decide. A hard blocker also stops its block (#7). The park step
-  also appends each parked block's record to it.
+  may be as full as the user needs to decide. A hard blocker also stops its block (#7). develop writes a
+  question here only in an ordered run, which halts on it. An unordered run writes it to the block's
+  `question-<id>.md`, and park copies it into the block's backlog entry.
 - **`DECISIONS.md`**, the record of each default the developer took on an escalated choice and each
   plan amendment pointer. Under either change policy, it also records each fix of a defect the accepted
   baseline already had that develop's developer made and its block did not require. The user reads it
@@ -158,7 +159,8 @@ own diff whose fix needs a blind review. Each record goes to that block's file i
 backlog folder, an issue inventory. A defect or cleanup record with one clear, small fix that
 changes no user-visible behavior, stored data or public contract, and with no parked-block hold, is
 marked ACTIONABLE and a later run builds it. The user triages every other record like debug's
-`issues/`. The developer adds a closing line to an entry in any file in that folder whose defect a
+`issues/`. Each park also appends one entry that links the branch holding its block's work. The
+developer adds a closing line to an entry in any file in that folder whose defect a
 fix it logs closes. Reviewers write only their numbered review files. One
 exception is develop's fix-mode acceptance verifier, which appends a harm with a separate cause to its
 source block's backlog file. A critic, an editor or a verifier may write one scratch probe beside the
@@ -171,7 +173,8 @@ declined finding tersely to `DISMISSED-<id>.md` (#6) so that reviewers don't re-
 escalate a contested dismissal (#5). It escalates only a choice that changes user-visible behavior,
 stored data or a public contract and that the plan, the code, the conventions and a quick check cannot
 settle, or a blocker it cannot resolve in scope. If the developer cannot proceed without the answer, the
-question goes to `NEEDS-USER.md`, and its block stops immediately and is parked. A default the
+question goes to `NEEDS-USER.md` in an ordered run and to the block's question file in an unordered
+one, and its block stops immediately and is parked. A default the
 developer can proceed with goes to `DECISIONS.md`. The run halts only when later work depends on
 that block (an ordered run), and independent blocks continue. Reviewers report to the developer through
 their review files and never halt the run.
@@ -376,16 +379,16 @@ rules and apply only where they fit.
   precondition differs from an agent that establishes it, so there is no baseline agent or progress
   file. On round 1 there is no review file and nothing to address, and the developer implements the
   plan.
-- **Park, don't discard.** Work that cannot pass within its round budget is saved to a patch file and
-  then cleared from the tree. It is never deleted or left unstaged. Clearing is required, since the next
-  unit's blind diff must be clean and the tree must be buildable. Destroying the work never is. The
-  restore command goes in the user notes. A parked patch is the work itself, so it is product, one of
-  #6's listed outputs.
+- **Park, don't discard.** Work that cannot pass within its round budget is saved as a commit on a
+  branch and then cleared from the tree. It is never deleted or left unstaged. Clearing is required,
+  since the next unit's blind diff must be clean and the tree must be buildable. Destroying the work
+  never is. One backlog entry links the branch. The parked commit is the work itself, so it is
+  product, one of #6's listed outputs.
 - **Resume.** There is no progress file by design (#6). Durable progress is git staging plus the
   numbered review trail. Every terminal exit leaves the tree clean, with accepted work staged and
   unfinished work parked. So a resumed run starts from the same clean baseline as a fresh one, and the
-  round-1 precondition applies unconditionally, including on resume. A parked unit's work lives in its
-  patch. develop can continue the unit from that patch (`continueParked`) or redo it. This invariant is
+  round-1 precondition applies unconditionally, including on resume. A parked unit's work lives on its
+  branch. develop continues the unit from that branch through the backlog entry that links it. This invariant is
   load-bearing, since an engine that halts leaving work in the tree would false-halt its own resume.
 - **Preventing review spin.** The `DISMISSED-<id>.md` ledger stops a blind reviewer from re-flagging
   settled findings forever. Reviewers skip ledger items for the stated reason and may contest a clearly
@@ -438,9 +441,9 @@ Use these as yes/no checks when reviewing any workflow.
       review finds a risk answer wrong? (#5)
 - [ ] Are the only files written the numbered inter-agent reviews and develop's risk files, the developer's terse
       `DISMISSED-<id>.md` ledger and `AMENDED-<id>.md` (or investigate's `DISQUALIFIED.md` and
-      `SEARCHED.md`), the full user-facing `NEEDS-USER.md`, `DECISIONS.md`, and the workflow's own
+      `SEARCHED.md`), the full user-facing `NEEDS-USER.md` and develop's `question-<id>.md`, `DECISIONS.md`, and the workflow's own
       product (`issues/`, `proposals/`, `variations/`, `lenses/`, decision files, investigate's `options/`
-      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, a parked patch)? Any
+      and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md` and backlog files, a parked block's commit)? Any
       status, summary, progress, or "what I did" file is narration and a violation, including one
       that restates numbers the harness already has. (#6)
 - [ ] Does the blind reviewer read the dismissed ledger from its own `gate/` directory (#3) and no prior
@@ -455,8 +458,8 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Does every return carry the shared return fields (Mechanics)?
 - [ ] Is there a single staging step, at the end, on pass, with a commit only in the commit delivery the
       user chose, and does a build reach the user's branch only through `wt.mjs close`? (#9)
-- [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved to a patch
-      instead of discarded or left unstaged? Is the restore command in the user notes? (#9, Mechanics)
+- [ ] Does every terminal outcome leave the working tree clean, with unfinished work saved as a commit
+      on a branch instead of discarded or left unstaged? Does a backlog entry link that branch? (#9, Mechanics)
 - [ ] Is each fact kept in one canonical place, with agents linked to it and never handed copies or
       restated content? Does every copy serve a clearly different, stated purpose? (#11)
 - [ ] Is every prompt, review, and ledger line laconic by subtraction, with filler, known context, and

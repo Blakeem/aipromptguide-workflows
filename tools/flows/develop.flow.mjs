@@ -56,7 +56,7 @@ const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dism
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
 const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
 const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
-const PARK_OK  = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
+const PARK_OK  = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 // A closing pass that made only low-risk fixes and recorded nothing.
 const CLOSING_OK = { ...DEV_OK, review_needed: false, recorded_entries: [] };
@@ -137,6 +137,8 @@ export default {
     { name: 'startAt is retired', when: 'args carry a top-level startAt', args: { ...base, startAt: 'block-b' } },
     { name: 'top-level planPath is retired', when: 'args carry a top-level planPath', args: { ...base, planPath: BUS } },
     { name: 'planContext is retired', when: 'a plans row carries planContext', args: { ...base, plans: [{ ...BLOCKS[0], planContext: 'full' }] } },
+    // A park's backlog entry carries its block's work, so an ignored continueParked would redo the block from scratch.
+    { name: 'continueParked is retired', when: 'args carry continueParked, any value', args: { ...base, continueParked: ['block-a'] } },
     // A role map that coerced would send an agent to an unintended model or effort without a word in any log line.
     { name: 'models is not an object', when: 'models is an array in place of an object', args: { ...base, models: ['opus'] } },
     { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
@@ -182,9 +184,6 @@ export default {
     // every todo block in the file.
     { name: 'runOnly is not an array', when: 'runOnly is a bare block id string', args: { ...base, runOnly: 'block-b' } },
     { name: 'runOnly names no block', when: 'runOnly holds an unknown block id', args: { ...base, runOnly: ['nope'] } },
-    // A string, or an id outside the pending slice, would otherwise redo the block from scratch silently.
-    { name: 'continueParked is not an array', when: 'continueParked is a bare block id string', args: { ...base, continueParked: 'block-a' } },
-    { name: 'continueParked names no pending block', when: 'continueParked holds an id this run does not build', args: { ...base, continueParked: ['nope'] } },
     // Scoped to the PENDING slice, unlike the siblings: an all-done relaunch must reach the nothing-to-run
     // terminal below rather than throw over a command this run would never execute.
     { name: 'no test gate for a green block', when: 'a todo block wants gate green with no test command', args: { ...base, gates: { build: GATES.build } } },
@@ -453,11 +452,11 @@ export default {
       respond: { ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, cleared: false } },
     },
     {
-      // saved=false with bytes on disk: the report is wrong, the patch is real.
+      // saved=false beside a commit id: the report is wrong, and the commit may be real.
       name: 'park report contradicts itself',
-      when: 'park reports saved=false with bytes on disk',
+      when: 'park reports saved=false beside a commit id',
       args: base,
-      respond: { ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, saved: false, patch_bytes: 4096 } },
+      respond: { ...GREEN_RUN, acceptance: ACC_FAIL, park: { ...PARK_OK, saved: false } },
     },
     {
       // A cleared tree is not a SAFE tree. This used to fold into the plain `parked` terminal because the
@@ -499,12 +498,19 @@ export default {
       },
     },
     {
-      // Adds no node or edge: it puts the round-1 restore text in the prompt snapshot. Placed after every
-      // older scenario, so their variants keep their numbers.
-      name: 'a parked block is continued from its patch',
-      when: 'continueParked names block-a and every block accepts',
-      args: { ...base, continueParked: ['block-a'] },
-      respond: GREEN_RUN,
+      // A branch a park left no longer applies: the fix block ends blocked with no park, since its developer
+      // reversed every restore. Ordered, the blocks after it wait, so the run stops on its own terminal.
+      name: 'an ordered run stops at a branch that does not apply',
+      when: 'a fix block\'s round-1 restore of an unfinished branch fails and ordered is true',
+      args: { ...base, ordered: true, plans: [FIX_BLOCK, BLOCKS[1]] },
+      respond: { ...GREEN_RUN, develop: devFix([], { restore_failed: 'aipg-unfinished/flow-block-c: patch does not apply' }) },
+    },
+    {
+      // Unordered, no later block depends on it, so the run carries on: a second route into run complete.
+      name: 'a branch that does not apply, and the run carries on',
+      when: 'a fix block\'s round-1 restore of an unfinished branch fails and ordered is false',
+      args: { ...base, plans: [FIX_BLOCK, BLOCKS[0]] },
+      respond: { ...GREEN_RUN, [`develop ${FIX_BLOCK.id} r1`]: devFix([], { restore_failed: 'aipg-unfinished/flow-block-c: patch does not apply' }) },
     },
 
     // ---- the closing pass: one developer after the last round, with no blind review after it --------

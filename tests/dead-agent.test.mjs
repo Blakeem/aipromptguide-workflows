@@ -104,7 +104,7 @@ const ALLOW = [];
 // ---------------------------------------------------------------------------------------------
 // Machinery
 // ---------------------------------------------------------------------------------------------
-const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
+const PARK_OK = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 const PARK_ENGINES = new Set(['develop']);
 
 /** Longest-prefix match of a label against the engine's static roles; '' when nothing matches. */

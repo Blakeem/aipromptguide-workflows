@@ -88,13 +88,17 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
 
    Run step 3 with `run_in_background`, and launch in the turn its notification starts (root
    `CLAUDE.md`, "Launch from a notification turn"). The engine builds the `status: todo` blocks in file
-   order; `done`/`skip`/`parked`/`blocked` are never selected.
+   order; `done`/`skip`/`backlogged`/`parked`/`blocked` are never selected. `parked` is what an older
+   engine wrote for a park.
 5. **Verify ground truth (§6).** The run's statuses reach the plan file on the next step 3, with no
    step of their own. develop logs each finished block's status edits, Claude Code keeps a run's logs in
    its run record even when the run fails or is stopped, and `args` applies every record newer than the
    file's `synced:` key, oldest first, all or nothing. The engine decides every value. An accepted or
-   passed-but-unstaged block → `done`, a park within the round budget → `parked`, every other halt or
-   a fix block whose report in round 1 was all SKIPPED or empty → `blocked`. The exception: an accepted
+   passed-but-unstaged block → `done`. A park that cleared the tree, kept the build green and wrote its
+   backlog entry → `backlogged`, unless a green fix block cannot build that entry (§5 Park). A held park is one whose halt may have left the block's work
+   staged or committed (`staging-unconfirmed`, `rejected-staged`, `agent-dead`), whose tree is unsafe
+   (`park-unsafe`), or whose plan block no agent could read (`plan-unreadable`). A held park, every other halt, a fix block whose report in round 1 was all
+   SKIPPED or empty and that restored no unfinished branch, and a fix block whose unfinished branch did not apply (§7) → `blocked`. The exception: an accepted
    block whose verdict also reported a regression (halt `acceptance-regression`) syncs `blocked` while
    its work stays staged or committed, and so does a commit-mode block whose commit did not land as
    asked (§6, "Commit mode"). Their FIXED and STALE issues sync `needs-attention`, as in a block that did not
@@ -104,8 +108,14 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    and acceptance confirmed the claim. FAILED in any block → `needs-attention`. FIXED or STALE in a
    block that did not land, or a claim acceptance refuted → `needs-attention` too. SKIPPED keeps
    `open`. The
-   plan file is the selection truth and git staging, or HEAD in commit mode, is the landed truth. After resolving a `parked` or
-   `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's `status:`
+   plan file is the selection truth and git staging, or HEAD in commit mode, is the landed truth. A `backlogged` block's work
+   continues from its backlog entry (§10), never from the block. Set the block `done` once that
+   entry syncs `fixed` (§10, "Working the backlog" step 5). Once a held park's halt is resolved,
+   set its block `backlogged` when its branch holds all of its work, an entry links that branch, and a
+   green fix block can build that entry (§5 Park), and never back to `todo`. For a fix block, that route also sets to `stale` each entry whose branch its
+   round 1 restored and whose work the new branch's tree holds, deletes that branch with
+   `git branch -D`, and adds that entry's `- origin:` values to the new entry's `- origin:` line. Otherwise set that entry's `- status:` to `stale`, delete the branch with
+   `git branch -D`, and set the block back to `todo` as follows. After resolving a `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's `status:`
    back to `todo`, then run step 3 again for the launch args. A block whose staged or committed work you
    keep after `acceptance-regression` or a commit-mode pass halt is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
@@ -118,8 +128,9 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    user takes commit delivery here, commit the run worktree's staged work as one commit with
    `git -C <the run worktree> commit -m "<runId>: accepted"`, the name `close --stage` gives its carrier
    commit, and then run close without `--stage`. Never switch
-   the user's checkout, not even to follow a close refusal. Land once the plan has no `todo` block left, or once the user
-   stops the plan with blocks still parked or blocked, so that the accepted blocks land. Settle the run
+   the user's checkout, not even to follow a close refusal. Land once the plan has no `todo` block left, where a `backlogged` block counts as finished, or once
+   the user stops the plan with blocks still blocked, so that the accepted blocks land. A parked block's
+   branch is a branch of the repo, so it outlives the run worktree. Settle the run
    worktree first, since close refuses work no acceptance staged (§4). Then run
    `node <wt.mjs> close --repo <the user's checkout> --name <runId> --gate "<gate>"`, adding `--stage` in
    stage delivery (§4, "Choosing the delivery"). `<gate>` is the run's `gates.test`, else its
@@ -292,7 +303,7 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 - **Developer** — frame per block mode. Owns the decision matrix, `DISMISSED-<id>.md`,
   `AMENDED-<id>.md` (read by acceptance and the sweep, never the blind reviewer), `NEEDS-USER.md`,
-  `DECISIONS.md`. It works in six phases, in this order. PATTERNS finds how the repo already does the
+  `question-<id>.md`, `DECISIONS.md`. It works in six phases, in this order. PATTERNS finds how the repo already does the
   same kind of thing before it writes. BUILD builds the block, then runs the gate. In a feature or
   section block, a round that answers a review routes each finding and gap in that review through the
   decision matrix in place of the build. A fix block's round routes them beside its entry rules. A
@@ -311,7 +322,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   so none is dropped silently. A dismissal names one place or the class of places it covers, and its
   reason holds for every place it names. It escalates only a choice that changes user-visible
   behavior, stored data or a public contract and that nothing it can read or check settles, or a
-  blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md`. A
+  blocker it cannot resolve in scope. One it cannot proceed without goes to `NEEDS-USER.md` in an
+  ordered run, which halts on it, and to the block's own `question-<id>.md` in an unordered run. Park
+  copies it into the block's backlog entry either way. A
   default it took goes to `DECISIONS.md`, beside each plan amendment pointer. In SIBLINGS, for each
   finding it fixes in any phase and each fix the block requires, it greps for every sibling path
   with the same mechanism and fixes each one, at any tier, that its zone routing fixes (§4). It logs
@@ -351,9 +364,7 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   or the same defect on a sibling path of a required fix or of such a finding, is not a regression
   when the code shows the removed behavior was a real defect, the change alters no other behavior,
   the block's text does not exclude that code, no other block of the plan owns it, and it lies in a
-  zone the policy lets the developer change (§4). For a continued block, that rule also counts the
-  findings of the review files its parks kept in `parked-<id>-reviews/`. The ledger copies there are
-  not reviews. The developer never dismisses a regression. It fixes the regression, with an
+  zone the policy lets the developer change (§4). The developer never dismisses a regression. It fixes the regression, with an
   amendment when prescribed text causes it. It escalates the regression when that fix would change a
   choice the text says the user made, so the block parks with the user's question. It also escalates
   with a default when only a change in other code closes it (§4). The review file holds no notes
@@ -361,19 +372,58 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   root cause is a new issue, never a gap. A sibling path with the identical defect stays a residual
   path. The verifier appends a new issue to its source block's backlog file (§10), and the entry's
   `**What:**` names the source issue id. The return counts both writers' entries in `backlogEntries`
-  and names each file in `backlogFiles`. Work a block's file (§10) once that block is `done` or
-  `skip`.
+  and names each file in `backlogFiles`. Work a block's file (§10) once that block is `done`, `skip`
+  or `backlogged`. In fix mode, an entry with an `- origin:` line holds a parked block's unfinished
+  work. When it also carries a `- branch:` line, the round-1 developer restored that branch's work (§7),
+  unless the accepted baseline already holds it, so acceptance judges that entire branch work as the
+  entry's fix. Every such entry's fix also meets
+  every acceptance criterion of each block its `- origin:` line names, and for a feature or section
+  block its reachability. A landed block holds a branch's work only when acceptance returned
+  `actually_fixed=true` for every entry that names that branch, since the developer may keep or revert
+  the restored work of an entry it reports FAILED. In commit delivery, acceptance deletes each such
+  branch with `git branch -D` only on a pass with no regression that it committed with the block's
+  title, the reviewed tree and a clean tree after, and returns each branch its deletion left behind.
+  In stage delivery, acceptance deletes no branch, since the user may still reject the staged work. On
+  a pass with no regression that it staged, it returns each such branch, and `nextStep` says to delete
+  it once the user commits that work. Every other branch stays, and so does every branch on any other
+  verdict, so a rejected landing can be rebuilt from it.
 - **Park** — saves then clears, never the other way. `ordered: false` → the run CONTINUES past a
   parked block; `ordered: true` → the run STOPS there (later blocks depend on it). A needs-user
-  escalation parks the same way and its block ends `blocked`. Every other escalation stops the run.
-  Park marks the block's new files intent-to-add, so its one patch carries them. A second park of a
-  block renames the earlier patch to `parked-<id>.prev<n>.patch`. The restore command park writes is
-  a plain `git apply`, which leaves the work unstaged. A relaunch rewrites the round-numbered review
-  files, so park copies the block's review files, its `DISMISSED-<id>.md` ledger and the run's
-  `DECISIONS.md`, each when it exists, into a new `parked-<id>-reviews/<k>/` folder. It makes the folder
-  when any of them exists. Park creates `NEEDS-USER.md` when it does not exist, and its entry names
-  the copy of the diagnosis and the path of each plan file of the block. A round file that an agent's
-  prompt does not name may come from an earlier launch of the block, so the agent ignores it.
+  escalation parks the same way. Every other escalation stops the run. Park saves the block's work as
+  one commit on the branch `aipg-unfinished/<the block's backlog file id>` (§10) in `target.repo`. It
+  builds the commit with git plumbing on a temporary index file under `scratch/`, seeded with a copy of
+  the repo's index, so the repo's index stays untouched and no commit hook runs. The commit's first
+  parent is HEAD in commit mode, and in stage mode a commit whose tree is the staged index's tree and
+  whose parent is HEAD. Its tree adds the block's unstaged edits and untracked files. Its message is
+  `unfinished: <block title>`. When the branch already exists, its tip is the commit's second parent,
+  so earlier unfinished work stays in its history. The park of a fix block also takes the tip of each
+  branch its round 1 restored as a further parent, then deletes that branch, since the new commit holds
+  its work. It does so for a branch whose every entry the developer's last report gave FIXED, and for
+  a branch whose restored diff the working tree still holds (`git apply -R --check` accepts it), since a
+  FAILED entry may keep or revert that work. That branch's entry syncs `stale`, or, when the developer
+  never reported it, `nextStep` says to set it `stale`. The new
+  entry's `**What:**` names it, and the new entry's `- origin:` line adds that entry's origins, so the
+  block built from it still meets their criteria. After a halt
+  that may leave the block's work staged or committed (§2 step 5), the park keeps each restored
+  branch, since the new commit may lack part of that work.
+  Park clears the tree only after it confirms the
+  commit's tree differs from its first parent's tree, and a tree with no work makes no commit and
+  clears nothing. Park then appends one entry to the block's backlog file, with
+  `- category: unfinished`, a `- branch:` line naming the branch when this park made a commit, a
+  `- origin: <planPath>#<block id>` line, and a `- decision:` by §10's rule. The park of a block whose
+  developer escalated a user-only question is always `NEEDS_USER`, whatever halt parked it. The entry's
+  `**What:**` copies the escalated question, the halt reason, or the gaps of the last review file,
+  whichever caused the park. A halt that parks a block with an escalated question copies the halt
+  reason and then that question. Its `**Fix:**` says to close those gaps on top of the branch's work,
+  so each origin block meets its criteria. An entry with no branch says to build each origin block on
+  the accepted baseline instead. The block syncs `backlogged`, and its work continues from that entry.
+  A held park syncs `blocked` instead, its entry is `NEEDS_USER` unless its park agent died or returned a
+  report that contradicts itself, and §2 step 5 says which route its
+  work then takes. Fix mode takes only gate `green`, so the park of a `red-baseline` block, or of a
+  `build-only` block in a run with no test gate, also syncs `blocked`, whatever halt parked it. Its entry
+  is `NEEDS_USER`, and its `**Fix:**` says to set the entry `stale` and the block back to `todo`, which
+  rebuilds the block under its own gate once any halt that holds the park is resolved. A round file that an agent's prompt does not name may come from an earlier launch
+  of the block, so the agent ignores it.
 - **Sweep** (opus) — runs only when `sweep: goal-coverage` AND every non-skip block is done
   (launch-status `done` plus this run's accepted ids). Re-greps the surface from `goal`, runs the
   full gates, writes `SWEEP.md`. Advisory: a dead sweep is the `failed` entry
@@ -399,8 +449,8 @@ when every answer is no. The developer writes the answers to `risk-<id>-rN.md` a
 `Snapshot: <tree id>`. The tree id is a snapshot of the round's working tree, which the developer
 makes with `git add -A` and `git write-tree` on a temporary index file under `scratch/`, seeded with
 a copy of the real index. The real index, which holds the accepted baseline, is never written. The blind review
-runs in a block's first round with a satisfied gate in a launch, a block continued from its parked
-patch included. A later round gets one when a round since the block's last blind review returned
+runs in a block's first round with a satisfied gate in a launch, a fix block that restored a parked
+block's branch included. A later round gets one when a round since the block's last blind review returned
 `review_needed` true or no boolean, or an acceptance verdict since then returned
 `risk_misclassified` true. Any other round goes from the developer straight to acceptance. Git holds
 one cumulative unstaged diff, so acceptance reads each audited round's own hunks from two snapshots.
@@ -419,7 +469,7 @@ an entry in its block's backlog file (§10), with a `**Fix:**` line naming the f
 entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
 that holds the item instead. When it listed no entry and no blind review is owed, acceptance runs
 once more. A pass stages the block and a fail parks it. Otherwise the engine parks the block with the
-closing pass's work in its patch, and the park entry in `NEEDS-USER.md` names each listed entry. A
+closing pass's work on its branch, and the park's backlog entry names each listed entry. A
 block never reaches acceptance with a change that needs a blind review and has none.
 
 Gate semantics per block: `green` = build + the block's verification passed
@@ -430,11 +480,11 @@ too; `suite: scoped` drops the whole-suite requirement (mid-run red is expected 
 
 Halts match the sibling engines (dirty baseline, needs-user, plan-unreadable, agent-dead,
 passed-unstaged, acceptance-regression, park-unsafe, budget) plus `staging-unconfirmed`,
-`rejected-staged`, `review-unwritten`, `passed-regression` and `log-cap`. Commit mode adds
+`rejected-staged`, `restore-failed`, `review-unwritten`, `passed-regression` and `log-cap`. Commit mode adds
 `staged-baseline` and `commit-unverified`, which **Commit mode** below describes. `rejected-staged` means
 acceptance failed a block but staged it, so inspect `git diff --cached` and unstage that block's files
 before resuming. `passed-regression` means acceptance passed a block but flagged a regression and
-staged nothing. Its work is parked and the block ends `blocked`. Never stage that work as it is.
+staged nothing. Its work is parked, and the block ends as §5 Park says. Never stage that work as it is.
 `acceptance-regression` means acceptance staged a block while its verdict flagged a regression, so
 inspect `git diff --cached`. To keep the work, run §2 step 3, then set the block's `status:` to `done`.
 Then set each fix issue that the acceptance file named in the halt reason confirmed closed to `fixed`
@@ -491,7 +541,7 @@ An acceptance verifier that dies may have committed or staged its block, which p
 that `git -C <repo> log -1 --stat` shows and unstage what `git -C <repo> diff --cached --stat` lists.
 
 **Research NEEDS-USER before asking.** For each unanswered question the blocks named in `nextStep`
-wrote to `NEEDS-USER.md`, park records under `## Parked block: <id>` excluded, read the code, the docs
+wrote to `NEEDS-USER.md`, or to a park's backlog entry in an unordered run, read the code, the docs
 and the conventions it touches, and send a research subagent to the web when the answer rests on an
 outside fact. Settle each question the evidence settles, and record the evidence. Ask the user only
 the rest, each with a recommendation. Show the settled ones too, with their evidence, so the user can
@@ -506,16 +556,26 @@ explicit slice, and an unknown id throws.
 When the run-record fold is unavailable (records past `cleanupPeriodDays`, or `--expect` fails), recover
 with `runOnly` or by editing the statuses in the plan file. A `resumeFromRunId` replay of a run launched
 with a retired arg throws at launch.
-A parked block's work is in `parked-<id>.patch`, not the tree, unless its park halted `park-unsafe`.
-That halt reason and `nextStep` say where its work is. Sharpen its block, run §2 step 3 (it applies
-the finished run's statuses), set the block's `status:` back to `todo`, then run step 3 again for the
-launch args and relaunch.
-To continue a parked block under full review instead of redoing it, add `continueParked: ["<id>"]` by
-hand to the args `plan-edit.mjs args` prints. That tool does not print it. The block's round-1
-developer restores the patch into the unstaged tree after the clean-baseline check. A patch that no
-longer applies parks the block as `blocked` and leaves its patch untouched, so redo that block. A park
-from an older engine may also hold a `parked-<id>-newfiles/` directory, which `continueParked` does not
-restore. Finish that block by hand or redo it.
+A parked block's work is on its `aipg-unfinished/<backlog file id>` branch, not the tree, unless its
+park halted `park-unsafe`. That halt reason and `nextStep` say where its work is. The block is
+`backlogged`, or `blocked` after a held park until §2 step 5 resolves it. Its park entry is the one
+place its work continues from, except for a park no fix block can build (§5 Park). Triage that entry like any
+other (§10). Once it is `ACTIONABLE`, build its backlog file in fix mode. That block's round-1
+developer restores the branch into the unstaged tree after the clean-baseline check, with
+`git diff --binary <branch>^1 <branch> | git apply`, so both reviewers judge the restored work. It
+skips a branch whose work the accepted baseline already holds (`git apply -R --check` accepts its
+diff), which a landed block that kept a FAILED entry's restored work leaves. When
+the block lands, acceptance deletes the branch, or in stage delivery `nextStep` says to delete it once
+the user commits the staged work (§5). A branch that is missing or no longer applies
+leaves the tree clean and every branch as it was, and the fix block syncs `blocked`. The user then
+rebuilds the branch on the accepted baseline, by rebasing or re-committing it so that
+`git diff <branch>^1 <branch>` applies there, and keeps the work on the branch, never in the tree,
+the index or the baseline, since the baseline holds only reviewed work. Or the user skips the entry
+and deletes the branch. In an ordered plan, the
+blocks after a parked block depend on it, so build its entry before you relaunch them.
+`continueParked` is retired and throws. A park from an older engine left `parked-<id>.patch` and a
+`## Parked block:` entry in `NEEDS-USER.md` in its state dir. Restore that patch by hand with a plain
+`git apply` and finish the block, or redo it.
 Before you relaunch under `focused` a run that an engine from before the rename ran under `strict`,
 rewrite each `STRICT <id>:` tag in its `DECISIONS.md` to `FOCUSED <id>:`. The acceptance and developer
 prompts name only `FOCUSED <id>:` lines, so acceptance counts a fix logged under the old tag as a
@@ -532,12 +592,12 @@ subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> dif
 
 `gate/quality-review-<id>-rN.md` · `acceptance-review-<id>-rN.md` · `risk-<id>-rN.md` (the
 developer's risk answers for round N, outside `gate/`, §6, starting with the line
-`Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` ·
+`Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered run's questions) ·
+`question-<id>.md` (an unordered run's question for one block, which park copies into its entry) ·
 `DECISIONS.md` · `commit-<id>.txt` (commit mode: the block's title, its commit's message) ·
-`parked-<id>.patch` · `parked-<id>.prev<n>.patch` (an earlier park of the same block) ·
-`parked-<id>-reviews/<k>/` (the review files one park of the block kept, and its copies of
-`DISMISSED-<id>.md` and `DECISIONS.md`) · `SWEEP.md` · `scratch/` (the agents' plan block copies and
-test logs, never in `gate/`).
+`SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary index file,
+never in `gate/`). A parked block's work is on a branch of `target.repo` and its entry is in the
+backlog folder (§10), so neither is in the state dir.
 An `<id>` past 60 characters keeps its first 51 characters and a hash of the whole id, so two long ids
 that share a prefix get separate files.
 
@@ -557,7 +617,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   with an empty `goal` **throws**.
 - **Return:** `status` · `halted`/`haltReason` · `regression` (true when any block's ledger entry reads
   true. An entry follows the last acceptance verdict that reports the field, and a passing verdict that
-  omits the field sets it false) · `plansDone` · `parked` · `ledger` (per block, with a
+  omits the field sets it false) · `plansDone` · `parked` (per parked block, its `branch`, null when
+  the park made no commit, its `backlogFile`, and `entryWritten`, false when the park did not confirm
+  its entry) · `ledger` (per block, with a
   status of the form `<token> (<meaning>)`, the developer `model` and `effort` it ran on, `rounds`, `closingPass`
   (true when the block ran its closing pass, §6), `commit` (the sha of the block's commit, null in stage
   mode, on a no-op pass, when the commit did not land or failed the unverified sha check, and on a block
@@ -592,9 +654,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   outside its set. Choose the review roles' models as §3 says. Role settings saved in the repo's settings
   (§2 step 3) count as the user asking for them, as a saved memory preference does. One launch log line
   names each role's model and effort) ·
-  `stateDir` · `runOnly` · `continueParked` (block ids whose round 1 restores the parked patch, §7.
-  **Throws** on a non-array or an id outside the pending blocks).
-- **Retired:** `startAt`, `reviewSeverity` (the developer's risk judgment decides when a blind review
+  `stateDir` · `runOnly`.
+- **Retired:** `continueParked` (a park's backlog entry continues its work, §7), `startAt`, `reviewSeverity` (the developer's risk judgment decides when a blind review
   runs, and every blind review reports every tier), a top-level `planPath` and `planContext` are
   retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of its
@@ -610,10 +671,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
 ## 10. Working the backlog
 
 The backlog folder is the one place for the work a run leaves for later on one project, across all of
-its runs. An entry is a defect, a cleanup, a feature or a decision. A defect is a real problem the run
-left in the code. A cleanup is a nit or a clearer name the run did not make. A feature is a feature or
-refactor outside a block's scope. A decision is a choice the developer escalated and proceeded past by
-a default. The folder is the one that
+its runs. An entry is a defect, a cleanup, a feature, a decision or an unfinished block. A defect is a
+real problem the run left in the code. A cleanup is a nit or a clearer name the run did not make. A
+feature is a feature or refactor outside a block's scope. A decision is a choice the developer
+escalated and proceeded past by a default. An unfinished block is a parked block's work, which its park
+saved on a branch (§5 Park). A park entry is triaged and built like any other entry. The folder is the one that
 `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints, and every launch passes
 it as `backlogDir`. A run's entries for one block go to one file there,
 `<file id>.md`, created with the first entry. `<file id>` is `<run slug>-<block slug>-<pair hash>`:
@@ -634,7 +696,11 @@ feature, a refactor, a choice between fixes, a fix that changes user-visible beh
 with a `**Parked with:**` line. A later run builds an `ACTIONABLE` entry without triage, and a
 `NEEDS_USER` entry waits for the user. A cleanup entry carries `- category: cleanup`. A feature entry
 carries `- category: feature` and a decision entry `- category: decision`, and both carry
-`- decision: NEEDS_USER`. These three kinds carry no `- severity:` line.
+`- decision: NEEDS_USER`. An unfinished entry carries `- category: unfinished`, a `- branch:` line
+naming the branch that holds the work when that branch exists, and an `- origin: <planPath>#<block id>`
+line naming the block the work was built for. Its `**What:**` indents every line it copies from a
+file by four spaces, so a copied heading, fence or `- <key>:` line never ends the entry or starts
+another. These four kinds carry no `- severity:` line.
 Before the developer or fix acceptance appends an entry (§5), it greps the folder's `*.md` files by the
 file path and the name of the function or identifier at the defect, reads each matching entry, and
 never appends a defect that an entry with `- status: open` or `- status: needs-attention` already
@@ -649,13 +715,15 @@ When the user asks to work the backlog:
    and leave the entry out of the steps below, since the writers' dedup treats an open entry as still
    holding the defect. When the code does not hold the fix and the entry carries no `**Parked with:**`
    line yet, find the run the line names. When it names none, ask the user which run closed the entry,
-   since an older engine wrote that line into any file of the folder. When that run's NEEDS-USER.md, in
-   its state folder, holds the heading line `## Parked block: <the block id the line names>` as an
-   entire line, or that run halted `park-unsafe` on that block, hold the entry, since building it would
-   collide with that block's unlanded work. Every park writes that entry, under the pass
-   id for a packed pass, whether the block ended `parked` or `blocked`. To hold it, set its
+   since an older engine wrote that line into any file of the folder. When that run's backlog file for
+   that block, whose header names the block and the run, holds an entry with `- category: unfinished`
+   and a `- status:` of `open` or `needs-attention`, or that run halted `park-unsafe` on that block, hold
+   the entry, since building it would collide with that block's unlanded work. Every park writes that
+   entry, into the file of the pass id for a packed pass. A run from an older engine wrote its park
+   instead as the heading line `## Parked block: <the block id>` in its state folder's NEEDS-USER.md,
+   so hold the entry when that line is there as an entire line. To hold it, set its
    `- decision: NEEDS_USER` and add the line `**Parked with:** block <id>. Triage this entry once that
-   block is accepted or dropped.` after its `**Fix:**` line. Step 3 owns an entry once it carries that
+   block's park entry lands, or the block is accepted or dropped.` after its `**Fix:**` line. Step 3 owns an entry once it carries that
    line. Otherwise treat the entry like the rest.
 2. List only the entries that wait on the user, grouped by severity, highest first, with the entries
    that carry no severity last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or
@@ -664,13 +732,20 @@ When the user asks to work the backlog:
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
    unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
    `**Parked with:**` line with a note naming its parked block, and leave it out of the triage in
-   step 3 while it is held.
-3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. Set each
+   step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
+   file's park entry carries it and step 5 closes it. List each other entry of that file with a note
+   naming the file, and leave it out of the triage in step 3 until step 5 sets the file `done`, since
+   an entry approved before then would be closed with entries it was never built with.
+3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. When a
+   skipped entry carries an `- origin:` line, also set each block it names to `skip`, or to `todo` to
+   rebuild it, since a `backlogged` block whose entry never syncs `fixed` never reaches `done`. When it
+   also carries a `- branch:` line, delete that branch with `git -C <repo> branch -D <branch>`, since a
+   later park of the rebuilt block would otherwise stack on the skipped work. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
    option the user chose. Hold an entry with a
-   `**Parked with:**` line until its block is accepted, in this launch or a later one, whether continued or
-   redone, since the code it names sits in that block's parked patch. Release the hold when the block
-   is dropped. Once the hold ends, skip the entry when the accepted baseline holds its fix, and triage it
+   `**Parked with:**` line until its block's park entry is built and lands, or its block is redone and
+   accepted, since the code it names sits on that block's branch. Release the hold when the user skips
+   that park entry or drops the block. Once the hold ends, skip the entry when the accepted baseline holds its fix, and triage it
    like the rest when the code does not. Set `- status: fixed` on each entry skipped because the accepted
    baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
@@ -679,4 +754,13 @@ When the user asks to work the backlog:
    `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>` and a develop launch in fix
    mode, from §2 step 3. A file whose `status:` is not `todo`, such as a `done` file whose
    needs-attention entry the user approved again, first takes §2 step 5's order: run `args` on it, set
-   its `status:` to `todo`, then run `args` again for the launch.
+   its `status:` to `todo`, then run `args` again for the launch. A `backlogged` file never takes that
+   order, since its park entry carries its ACTIONABLE entries. The round-1 developer of a file whose
+   ACTIONABLE entry carries a `- branch:` line restores that branch's work first (§7).
+5. Once an entry with an `- origin:` line syncs `- status: fixed`, its fix block has landed and
+   acceptance checked its work against every criterion of each block that line names. Set each of
+   those blocks to `status: done` in its plan file. When an origin block is a fix block, also set each of its ACTIONABLE
+   entries whose `- status:` is absent, `open` or `needs-attention` to `fixed`, since those entries are its
+   criteria. Apply this step to each entry it sets `fixed`, and delete the branch that entry's
+   `- branch:` line names once the landed work is committed, since that work has landed. A plan with `sweep: goal-coverage` runs no sweep for that block, so verify its coverage
+   against the plan's goal yourself.

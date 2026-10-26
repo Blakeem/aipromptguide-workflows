@@ -500,8 +500,8 @@ function blockFiles(block, repo) {
 /**
  * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
  * lines. Blocks are sorted by developer model, then effort, then by the first file they touch, so a pass holds
- * one model, one effort and neighbouring code. A block over the cap alone, or one with nothing ACTIONABLE,
- * stays its own row. A pass sits where its first member did.
+ * one model, one effort and neighbouring code. A block over the cap alone, one with nothing ACTIONABLE, or
+ * one whose open ACTIONABLE entry carries a `- branch:` line stays its own row. A pass sits where its first member did.
  */
 function packPasses(args, folded, repo, cap, note) {
   if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
@@ -512,6 +512,8 @@ function packPasses(args, folded, repo, cap, note) {
     const block = blockOf.get(`${row.planPath}\u0000${row.id}`);
     const files = blockFiles(block, repo);
     if (!files.size) { note(`not packed: ${row.id} has no open ACTIONABLE entry, so it is not a plan to build\n`); continue; }
+    // Two parked branches cut from one baseline tend to touch the same lines, so a second restore in one round 1 may not apply.
+    if (openActionable(block).some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
     candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
   }
   candidates.sort((a, b) => a.model.localeCompare(b.model) || a.effort.localeCompare(b.effort) || a.first.localeCompare(b.first) || a.index - b.index);

@@ -122,10 +122,10 @@ the paths the earlier launch used, and the Write tool refuses to overwrite a fil
 read. An agent that ignores the refusal still returns `wrote_file: true`, and the next stage's agent
 reads the earlier launch's text as the new round's. Every engine holds `REPLACE_NOTE` and
 `WROTE_NOTE` once. `REPLACE_NOTE` sits at each site that replaces a file in full, and `WROTE_NOTE`
-sits once in each prompt whose return attests a file the agent writes with the Write tool. Two
-returns fall outside that rule and carry no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit
-count, and develop's park patch, which a shell redirect writes and the park prompt confirms
-non-empty. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and
+sits once in each prompt whose return attests a file the agent writes with the Write tool. One
+return falls outside that rule and carries no `WROTE_NOTE`: docs' `files_cleaned`, an in-place Edit
+count. develop's park carries one for its backlog entry, and its commit is attested by the
+`commit_sha` it returns. Two replace sites add a guard after `REPLACE_NOTE`: the investigator's options files and
 docs' gatherer capture files. Each engine's test counts both notes in each such
 prompt through `pinWriteNotes`, so a new write site needs a row there.
 
@@ -163,7 +163,8 @@ against (halt); an unreachable feature does not (flag).
 ## 4. Invariants you must not break
 
 - **Every terminal exit leaves a clean unstaged tree.** Accepted work is staged, or committed in commit
-  mode. Unfinished work is *parked* (saved to `parked-<id>.patch`, then cleared). This is load-bearing:
+  mode. Unfinished work is *parked* (saved as a commit on the branch `aipg-unfinished/<backlog file id>`,
+  then cleared, and linked by one backlog entry). This is load-bearing:
   it is what makes the round-1 clean-baseline precondition correct **on a resume**, not just a fresh
   run. Add a new exit path and it must either park or have changed nothing. The three deliberate
   exceptions are a dirty baseline (nothing was changed; that work is the operator's), passed-but-unstaged
@@ -171,10 +172,11 @@ against (halt); an unreachable feature does not (flag).
   tree is dirty after the commit step, a `commit-unverified` or `acceptance-regression` halt that names the
   tree dirty check (a hook, the gate run or an unstaged block file may have left the change, so the
   operator inspects it before anything parks it).
-- **Save strictly before clear.** If the patch cannot be written, leave the tree exactly as it is.
-- **Never tell a user to apply a parked patch and then resume.** It makes the tree dirty and the round-1
-  precondition rejects it. The honest options are *resume clean and redo* or *apply and finish by hand* —
-  and never `git add -A` the restored work, which promotes un-reviewed code into the accepted baseline
+- **Save strictly before clear.** If the commit cannot be made, leave the tree exactly as it is.
+- **Never tell a user to restore a parked branch and then resume.** It makes the tree dirty and the
+  round-1 precondition rejects it. The honest route is the park's backlog entry, whose fix block restores
+  the branch after the clean-baseline check, so both reviewers judge the restored work. Never
+  `git add -A` restored work, which promotes un-reviewed code into the accepted baseline
   where the blind reviewer cannot see it and every later regression check treats it as known-good.
 - **Staging is the boundary, and only acceptance in commit mode commits.** In stage mode the user
   commits. In commit mode acceptance commits each block it accepted, and the accepted baseline is HEAD.

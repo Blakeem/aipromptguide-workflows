@@ -44,7 +44,8 @@ const FILE_KEYS = {
 const PREAMBLE_KEYS = {
   mode: ['feature', 'section', 'fix'],
   gate: null,                                  // the legal set is the block's own mode's (MODE_GATES)
-  status: ['todo', 'done', 'skip', 'parked', 'blocked'],
+  // `backlogged` is a park, whose work waits in a backlog entry. `parked` is what an older engine wrote for one.
+  status: ['todo', 'done', 'skip', 'backlogged', 'parked', 'blocked'],
   test_selector: null,
   depends_on: null,
   model: ['opus', 'sonnet', 'haiku', 'fable'], // the block's developer model, else the run's models.develop
@@ -63,6 +64,8 @@ const ISSUE_KEYS = {
   size: null,
   decision: ['ACTIONABLE', 'NEEDS_USER', 'DEFER', 'SKIP'],
   theme: null,
+  branch: null,                                // a park entry's branch, which holds the parked block's work
+  origin: null,                                // a park entry's <planPath>#<block id>, the block that work was built for
 };
 
 // The two runs a write tool upserts into, each with the noun its failures name. Exported because a key

@@ -109,7 +109,7 @@ const ACC_PASS = { wrote_file: true, pass: true, staged: true, reachable: true, 
 const ACC_FAIL = { ...ACC_PASS, pass: false, staged: false, gap_count: 1 };
 const ACC_FIX = { wrote_file: true, pass: true, staged: true, regression: false, gap_count: 0, plan_obtained: true, suite_result: 'green',
   fix_checks: [{ issue_id: 'f-1', actually_fixed: true }, { issue_id: 'f-2', actually_fixed: true }] };
-const PARK_OK = { saved: true, cleared: true, gates_green: true, patch_bytes: 2048 };
+const PARK_OK = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 
 const launch = (args, respond) => runEngine(DEVELOP, {
   args: { ...args, runId: 'bus', root: 'E:/state', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: 'E:/state/backlog/repo-0a1b2c3d', maxRounds: 1 },
@@ -137,7 +137,7 @@ section('a run\'s statuses reach the plan files through its run record, and a re
 
   writeRecord(config, 'wf_first', logs);
   const second = argsFrom(config, roadmap, inventory);
-  eq(statuses(second), 'store=done,export=parked,inventory=done', 'the next args carries every block status the run decided');
+  eq(statuses(second), 'store=done,export=backlogged,inventory=done', 'the next args carries every block status the run decided');
   eq(`${issueStatus(inventory, 'f-1')},${issueStatus(inventory, 'f-2')}`, 'fixed,stale', 'and each issue status, written into the inventory file');
 
   const relaunch = await launch(second, RESPOND);
@@ -160,7 +160,7 @@ section('a stopped run still reaches the plan: the blocks it finished are applie
   writeFileSync(roadmap, ROADMAP);
   const { logs } = await launch(argsFrom(config, roadmap), { ...RESPOND, 'develop export': null });
   writeRecord(config, 'wf_killed', logs, 'killed');
-  eq(statuses(argsFrom(config, roadmap)), 'store=done,export=blocked', 'the finished block is done, and the one that died is blocked');
+  eq(statuses(argsFrom(config, roadmap)), 'store=done,export=blocked', 'the finished block is done, and the one whose developer died is blocked, since a dead agent may have left its work staged where its branch omits it');
 }
 
 section('a stopped run whose fix block outgrew one log line still brings every status to the plan');

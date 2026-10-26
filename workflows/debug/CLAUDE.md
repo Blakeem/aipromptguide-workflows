@@ -64,7 +64,7 @@ Fixing roles (developer, blind quality, acceptance, park) are develop's, in `../
   clean, the verifier when it has findings; never both, only ever its own unit's file (parallel-safe).
   The verifier's one other write is its own temporary probe directory, outside the repo and run-state.
   Review-phase needs-decision items live INSIDE each unit file (a shared file written by concurrent
-  verifiers would race); `NEEDS-USER.md` is only for develop's fix-phase escalations (sequential).
+  verifiers would race). `NEEDS-USER.md` and `question-<id>.md` are only for develop's fix-phase escalations, which one agent writes at a time (develop guide §5).
 - **The inventory is CLOSED after `review.mjs`.** develop's fix mode never re-reviews — it only works the
   issues you approved. This is what makes medium-severity fixing converge; don't add a re-review step
   into the fix loop.
@@ -183,8 +183,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
      with its sha and the issue files it holds (from the run's `nextStep`) in commit delivery, each file you
      resolved or fixed at the landing, the NEEDS-USER questions after the research step in
      `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
-     each), the entries in `DECISIONS.md`, and every parked block with its patch path and the user's
-     options. In stage delivery, **never commit**: the user reviews and commits.
+     each), the entries in `DECISIONS.md`, and every parked block with its branch and the backlog entry
+     that links it (`../develop/CLAUDE.md` §7). In stage delivery, **never commit**: the user reviews and commits.
 
 ## External inventory (skip `review.mjs`)
 
@@ -225,7 +225,7 @@ Verify-first makes loose anchors safe — the fixer re-confirms each issue again
 
 `manifest.json` (units; from `gen-units.mjs`, read by YOU) · `issues/<unit>.md` (per-unit inventory +
 triage doc, verifier-written, user-editable, a fix-mode plan file). The fix loop's files (reviews,
-ledgers, parked patches) land in develop's state dir, listed in `../develop/CLAUDE.md`.
+ledgers) land in develop's state dir, a parked block's work on a branch of the repo, listed in `../develop/CLAUDE.md`.
 
 A review that starts over takes a new `runId`, since a `review.mjs` re-run rewrites each unit file it
 re-reviews, triage edits included. The resume in playbook step 4 keeps the `runId`, so it re-reviews

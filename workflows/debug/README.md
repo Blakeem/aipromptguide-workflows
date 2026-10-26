@@ -43,9 +43,9 @@ step. This one engineers those away and follows a strict set of principles:
 - **Staging is the boundary unless commit mode is on.** Accepted fixes are staged. Only the acceptance gate
   stages, only on pass. In stage mode you do the commit. In commit mode the acceptance gate also commits
   each accepted block, or each packed pass of small issue files, as one commit. Develop's guide says how.
-- **A fix that can't pass is parked, not discarded.** Its work is saved to a patch file and cleared
-  from the tree. The next issue file starts clean and nothing is thrown away.
-  The restore command is written out for you.
+- **A fix that can't pass is parked, not discarded.** Its work is saved as a commit on a branch and
+  cleared from the tree. The next issue file starts clean and nothing is thrown away. One entry in the
+  project's backlog links the branch, so a later fix run can restore the work and finish it.
 
 ---
 
@@ -95,7 +95,7 @@ From there Claude drives everything:
    issue files.
 4. **Fixes it.** For each issue file, develop loops fixes and the two-stage review against that file
    unattended. It keeps the fix on acceptance. A file it cannot pass is parked
-   with its work saved to a patch file. Then Claude writes each issue's outcome back into its `status:` line.
+   with its work saved on a branch. Then Claude writes each issue's outcome back into its `status:` line.
 
 A workflow runs in the background and **cannot ask you questions mid-run**, so Claude decides scope and
 open questions with you between the two stages, not during them. Have it fix **one issue file** first
@@ -129,7 +129,7 @@ The fix loop is [develop](../develop/)'s, in fix mode. Its developer re-confirms
 exists (stale ones are skipped, never re-fixed) and fixes only ACTIONABLE entries. A blind critic then
 reviews the first fix and each later change the developer judges risky. An acceptance verifier
 re-derives each root cause from the current code before it accepts the work. A fix that cannot pass within its round budget is
-parked, with its work saved to a patch and the restore command written into `NEEDS-USER.md`.
+parked, with its work saved on a branch that one entry in the project's backlog links.
 
 ---
 
@@ -150,13 +150,13 @@ The run leaves a transparent trail under `runs/<runId>/`:
 
 - `issues/<unit>.md`: the per-unit inventory and your triage document (the deliverable of the review
   pass). Read these to plan, and edit decisions in them.
-- develop's run folder holds the fix loop's review files, declined findings, and parked patches. Its
+- develop's run folder holds the fix loop's review files and declined findings. Its
   [README](../develop/README.md) lists them.
 
 Run the gates yourself, spot-check the riskiest fixes, then commit (stage mode). Issues marked needs-attention were
 attempted but not closed. The fix failed, its block stopped before acceptance staged it, or acceptance
-found the fix incomplete. Read that block's acceptance review for why. Then restore its parked patch, if
-it has one, and finish by hand, or retry those issues with a sharper fix instruction.
+found the fix incomplete. Read that block's acceptance review for why. Then work the parked block's
+backlog entry, if it has one, or retry those issues with a sharper fix instruction.
 
 ---
 

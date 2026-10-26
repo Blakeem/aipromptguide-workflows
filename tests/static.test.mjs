@@ -202,7 +202,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   // docs-cycle's curate prompt contains the words "Return via the schema: wrote_index, files," — read as
   // code that is a schema declaration made of prose — and a prompt that merely NAMES a field ("report it
   // as baseline_dirty_files") is exactly the theater being hunted, never proof of a consumer. Template
-  // INTERPOLATIONS stay code: `${pk.patch_bytes}` in a log line is a real read.
+  // INTERPOLATIONS stay code: `${pk.notes}` in a log line is a real read.
   const maskNonCode = (src) => {
     const out = src.split('');
     const stack = [];

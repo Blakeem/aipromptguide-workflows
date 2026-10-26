@@ -57,7 +57,7 @@ const { out, labels } = await runEngine('workflows/feature/feature-cycle.mjs', {
     'develop': { build_passed: true, test_outcome: 'passed', unstaged_confirmed: true },
     'accept plan-a': { pass: false },        // longest matching prefix wins
     'accept': { pass: true, staged: true },
-    'park': { saved: true, cleared: true, gates_green: true, patch_bytes: 900 },
+    'park': { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true },
   },
 });
 ok(labels.includes('park:plan-a'), 'plan-a parked');

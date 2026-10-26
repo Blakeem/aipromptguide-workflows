@@ -540,6 +540,22 @@ section('args folds a finished run into every plan it names, then prints develop
   eq(again.notes, '', 'and applies nothing');
 }
 
+section('backlogged is a status that args writes and set accepts, and that no launch selects');
+// A park syncs its block backlogged, since the block's work waits in a backlog entry. A status the
+// grammar refused would fail the fold, and one the todo filter or --pack selected would rebuild the block.
+{
+  const plan = fixture();
+  const { out, err } = argsWith(configWith([record({ blocks: [[status('bus-parser', 'backlogged', plan)], [status('inventory', 'backlogged', plan)]] })]), plan);
+  ok(!err, `a run's backlogged edit folds: ${err ?? ''}`);
+  ok(read(plan).includes('gate: build-only\nstatus: backlogged'), 'args writes it into the block preamble');
+  eq(JSON.parse(out).plans.map((r) => `${r.id}=${r.status}`).join(','), 'bus-parser=backlogged,inventory=backlogged,triage=todo', 'and prints it in the block\'s row');
+
+  const set = fixture();
+  run(['set', set, 'triage', 'status=backlogged']);
+  ok(read(set).includes('mode: fix\ngate: green\nstatus: backlogged\n\n### [flaky-test]'), 'set accepts it');
+  ok(/status/.test(fails('set', set, 'triage', 'status=backlog')), 'a near miss still fails');
+}
+
 section('args refuses a plan whose file key sits under a heading, and writes nothing');
 {
   const plan = fixture(`# Title\n\nordered: true\n\n${PLAN}`);
@@ -728,7 +744,8 @@ function inventory(dir, name, entries) {
   const lines = [`## Plan: ${name} - findings`, 'mode: fix', 'gate: green', ''];
   for (const e of entries) {
     lines.push(`### [${e.id}] ${e.id}`, `- file: ${e.file}:1`, ...(e.loc ? [`- loc: ${e.loc}`] : []),
-      `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []), '', 'What.', '');
+      `- decision: ${e.decision ?? 'ACTIONABLE'}`, ...(e.status ? [`- status: ${e.status}`] : []),
+      ...(e.branch ? [`- branch: ${e.branch}`] : []), '', 'What.', '');
   }
   return fixture(lines.join('\n'), `${name}.md`, dir);
 }
@@ -759,6 +776,33 @@ section('--pack leaves out what it cannot pack, and reads a file\'s lines when n
   const { out, notes } = packed(configWith([]), dir, 4000, big, small, skipped);
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'big,small,skipped', 'a block over the cap alone is its own row, and so is one with nothing open and ACTIONABLE');
   ok(/not packed: skipped has no open ACTIONABLE entry/.test(notes), 'the note names the block with nothing to build');
+}
+
+section('--pack never packs a backlogged block');
+{
+  const dir = tmpDir();
+  const parked = inventory(dir, 'parked', [{ id: 'p-1', file: 'a.js', loc: 10 }]);
+  run(['set', parked, 'parked', 'status=backlogged']);
+  const open = inventory(dir, 'open', [{ id: 'o-1', file: 'a.js', loc: 10 }]);
+  const other = inventory(dir, 'other', [{ id: 'q-1', file: 'b.js', loc: 10 }]);
+  const pack = packed(configWith([]), dir, 3000, parked, open, other);
+  ok(!pack.err, `--pack runs over a backlogged block: ${pack.err ?? ''}`);
+  const rows = JSON.parse(pack.out).plans;
+  eq(rows.map((r) => `${r.id}=${r.status}`).join(','), 'parked=backlogged,open-plus-1=todo', 'the backlogged block keeps its own row and status');
+}
+
+section('--pack keeps each block that restores an unfinished branch a pass of its own');
+{
+  const dir = tmpDir();
+  const one = inventory(dir, 'one', [{ id: 'u-1', file: 'shared.js', loc: 10, branch: 'aipg-unfinished/one' }]);
+  const two = inventory(dir, 'two', [{ id: 'w-1', file: 'shared.js', loc: 10, branch: 'aipg-unfinished/two' }]);
+  const plain = inventory(dir, 'plain', [{ id: 'n-1', file: 'shared.js', loc: 10 }]);
+  const plain2 = inventory(dir, 'plain2', [{ id: 'm-1', file: 'shared.js', loc: 10 }]);
+  const closed = inventory(dir, 'closed', [{ id: 'c-1', file: 'shared.js', loc: 10, branch: 'aipg-unfinished/closed', status: 'fixed' }, { id: 'c-2', file: 'shared.js', loc: 10 }]);
+  const { out, notes, err } = packed(configWith([]), dir, 3000, one, two, plain, plain2, closed);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'one,two,plain-plus-2', 'two branch blocks on one file stay apart, and a block whose branch entry is closed packs');
+  ok(/not packed: one restores an unfinished branch/.test(notes) && /not packed: two restores an unfinished branch/.test(notes), `the note names each branch block: ${notes.trim()}`);
 }
 
 section('--pack never puts two developer models, or a model beside none, in one pass');

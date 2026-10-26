@@ -41,7 +41,7 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, `model`, `effort`, plus informational
 `test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`, `status`, `file`, `loc`,
-`severity`, `category`, `lens`, `size`, `decision` and `theme`. A `- effort:` line in an entry fails the parse with a
+`severity`, `category`, `lens`, `size`, `decision`, `theme`, and a park entry's `branch` and `origin`. A `- effort:` line in an entry fails the parse with a
 message that names the entry and says the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an
 issue entry with the same rename. `model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
 names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
@@ -105,7 +105,8 @@ A block's weight is the line count of each distinct file its open ACTIONABLE iss
 line, else the file in `<repo>`, else 200. Blocks are sorted by `model`, then `effort`, then by the first file they
 touch, and filled up to `--loc-cap` (default 5000, scaled from resolve's 3000-line batches of about
 150-200k tokens). A pass never mixes two models or two efforts, or a block with a model or effort and one without. A block
-over the cap, or one with nothing open and ACTIONABLE, stays its own row. A pass row is
+over the cap, one with nothing open and ACTIONABLE, or one whose open ACTIONABLE issue carries a
+`- branch:` line, stays its own row, so two unfinished branches never restore in one round 1. A pass row is
 `{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes
 each member's status and each issue's into the file that holds it. Packing regroups blocks, so an
 `ordered: true` file is refused.
