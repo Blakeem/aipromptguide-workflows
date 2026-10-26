@@ -173,6 +173,12 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
   works with `--pack`. It needs an unordered plan set, and it works with no plan file. It skips a file that holds an
   `ACTIONABLE` entry whose fix failed, until you skip that entry. A file whose entry you approve again is built by naming it. A `focused` run
   builds the backlog only when you ask. The setup question for the change policy says so.
+- **Each change policy states how develop treats the code.** A `proactive` run owns the code it touches.
+  It fixes defects in and around its task as far as the zone rules allow, and it puts features and
+  refactors outside its task in the backlog. A `focused` run makes the smallest change that does the
+  task. Its feature and section blocks also fix a low risk defect they did not cause when it sits in a
+  function the task changes. The developer and both reviewers are told to use their tools, such as web
+  search or a browser, to check how something behaves and to see a change working.
 
 ### 2026-10-25
 
