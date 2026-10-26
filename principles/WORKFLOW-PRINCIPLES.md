@@ -63,9 +63,12 @@ notification. When a new need appears, fold it into the required step, or make i
 that it is a decision and cannot be skipped. Never add an agent or a checklist line for it.
 
 The rule also covers an agent's attention. When a tool or runtime limit gets in an agent's way, fix it
-at the source, in the tool or the engine. No prompt carries a workaround for a limit, so the agent's
-attention stays on its task. For example, develop splits its status lines to fit the runtime's log line
-cap, so no agent or operator ever handles a cut line.
+at the source, in the tool or the engine. No prompt carries a workaround for a limit the tool or engine
+can lift, so the agent's attention stays on its task. For example, develop splits its status lines to
+fit the runtime's log line cap, so no agent or operator ever handles a cut line. A limit that no tool or
+engine code can lift, such as a shell tool's timeout and output cut, is handled once per command, in
+one engine constant that renders how every agent runs that command, so no agent decides how to work
+around it.
 
 ### 5. Staged, escalating reviews
 When building to a spec, gate the work in stages that must each pass:
@@ -221,9 +224,17 @@ governs content that moves verbatim when it moves. This principle governs not du
 the copy earns its place.
 
 ### 12. Right-size before you run
-Each block builds one bounded feature. A job too small to deserve a reviewed plan, such as a one-liner or
-a rename, is too small for the workflow, so make the edit directly. A job too big, such as a
-breadth-spanning migration, is split or built as section-mode blocks.
+Each block builds one bounded change, which may join several small features as the next paragraph
+says. A job too small to deserve a reviewed plan, such as a one-liner or a rename, is too small for the
+workflow, so make the edit directly. A job too big, such as a breadth-spanning migration, is split or
+built as section-mode blocks.
+
+Every agent pays a fixed startup cost of about 50k tokens before it reads its task. The cost is the
+runtime's system prompt and tool definitions plus the startup context #3 names. A new agent writes those
+tokens to cache. A running agent reads its own context from cache at a tenth of the price. So each
+agent gets enough work to earn its start. Join work that edits the same files and can be judged together
+into one block or pass. Split it only where the parts cannot be judged together, or where a reviewer's
+independence needs a fresh agent.
 
 ### 13. Laconic by subtraction
 Every prompt, review file, ledger line, user note, and message maximizes signal, not shortness. Brevity
@@ -325,11 +336,47 @@ A written scale, such as the severity scale (#14), is the shared vocabulary judg
 cutoff. When an agent judges its own work, a doubtful case takes the safer outcome, and another agent can
 audit the judgment (#5).
 
+### 18. Verify, never trust
+Every agent treats what another agent hands it as a claim, never as a fact. A claim is a finding, a
+suggested fix, a fix line in an issue or backlog entry, a dismissal and its reason, a status such as FIXED
+or passed, a report, a cited line, or any file an earlier agent, round or launch wrote. Before an agent
+acts on a claim, it checks the claim against the source itself, such as the code, a command it runs or the
+cited document, and acts on what it found. A citation tells the agent where to look and is never the
+evidence itself (#14).
+
+A suggested fix is a hint. The agent confirms that the defect the fix targets exists. It then checks the
+fix against the text the fix changes, the plan and every sibling text that must agree with it. It builds
+the fix that closes the confirmed cause, which may differ from the hint. A claim the agent cannot check
+stays unverified. The agent says so and never acts as if the claim held (#16).
+
+The approved plan is the one trusted input, as the statement of what the user wants. When the approved
+plan is a triaged list of defects, the triage decision and the defect each entry names are the trusted
+statement. Each entry's fix line stays a hint. In a workflow that runs from no plan, the brief the user
+set for the launch, such as its criteria or its requirements, stands as the approved plan. Either text
+can still be wrong or incomplete. An agent that finds such a gap reports it through its workflow's
+route, such as develop's amendment, and never builds around it in silence.
+
+An agent that passes a claim on unchecked is doing busy work (#4). The most common source of a defect that
+a develop fix round introduced was a developer that applied a reviewer's suggested wording unchecked.
+
+### 19. Lose nothing at a handoff
+A handoff loses work when a fact the sending agent held does not reach the receiving agent, or when the
+receiver reads a stale file as current. The sender writes the evidence, the constraint and the reason the
+receiver needs to check the claim (#18) and act on it, never only the conclusion.
+
+A file a later agent reads is provably current. A reader can tell a file this launch or round wrote from
+one an earlier launch or round left, through an attestation the harness reads (#15) or a value the file
+must carry. A reader never treats a file it cannot place as current.
+
+When a run shows a loss, such as a re-raised finding, a fix that breaks text it did not read, or an agent
+that re-derives what an earlier agent knew, the fix goes into the workflow's files and prompts so the next
+run does not repeat it.
+
 ---
 
 ## Scope
 
-Principles #1 to #4, #6, #8, and #11 to #17 are core, and every workflow honors them. The rest are build-loop
+Principles #1 to #4, #6, #8, and #11 to #19 are core, and every workflow honors them. The rest are build-loop
 rules and apply only where they fit.
 
 - **Build loops** produce code (develop, plus debug's review that feeds it). They honor every principle,
@@ -437,8 +484,9 @@ Use these as yes/no checks when reviewing any workflow.
 - [ ] Could any agent be eliminated, with its job folded into another agent, the harness, or the main
       agent's pre-run setup, without losing quality? If yes, eliminate it. Does everything carried
       between runs ride a step the operator must run anyway, with nothing left for someone to
-      remember? Is every tool or runtime limit an agent would hit fixed in the tool or the engine, with
-      no workaround in a prompt? (#4)
+      remember? Is every tool or runtime limit an agent would hit that the tool or engine can lift
+      fixed there? Is every limit no code can lift handled once per command, in one engine constant
+      that renders how agents run that command, with no other workaround in a prompt? (#4)
 - [ ] Must an unbiased code review pass before the plan-aware acceptance review runs, on a block's
       first build, on each change judged as needing review and on the next change after the acceptance
       review finds a risk answer wrong? (#5)
@@ -484,3 +532,8 @@ Use these as yes/no checks when reviewing any workflow.
       (#16)
 - [ ] Does a fixed cutoff decide something an agent with the information could judge? Does each hard
       limit end the work loudly, with its state saved? (#17)
+- [ ] Does every agent check each claim it receives (finding, suggested fix, fix line, dismissal, status,
+      report, an earlier agent's file) against its source before acting on it, with the approved plan the
+      one trusted input and a gap in it reported, never built around? (#18)
+- [ ] Does every handoff carry the evidence, constraint and reason the receiver needs, and can every reader
+      tell a current file from one an earlier launch or round left? (#19)

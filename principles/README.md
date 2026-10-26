@@ -5,7 +5,7 @@ so they stay in sync.
 
 ## What's here
 
-- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** holds the seventeen principles for designing a
+- **[`WORKFLOW-PRINCIPLES.md`](WORKFLOW-PRINCIPLES.md)** holds the nineteen principles for designing a
   background `Workflow` engine, the mechanics that follow from them, and a yes/no review checklist.
 
 ## In brief

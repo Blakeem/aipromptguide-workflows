@@ -520,3 +520,49 @@ section('no guide tells the operator to clear run-state');
     ok(hits.length === 0, `${rel} ${verdict}`);
   }
 }
+
+section('every README that counts the principles states the count WORKFLOW-PRINCIPLES.md holds');
+// The count is written out in words in two READMEs, so adding a principle without them drifts silently.
+{
+  const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+  const doc = readFileSync(join(REPO_ROOT, 'principles/WORKFLOW-PRINCIPLES.md'), 'utf8');
+  const principlesStart = doc.indexOf('\n## Principles\n');
+  const scopeStart = doc.indexOf('\n## Scope\n');
+  ok(principlesStart >= 0 && scopeStart > principlesStart,
+    'WORKFLOW-PRINCIPLES.md holds a "## Principles" heading followed by a "## Scope" heading');
+  const principlesSection = doc.slice(principlesStart, scopeStart);
+  const headingCount = (principlesSection.match(/^### \d+\. /gm) || []).length;
+  const expected = NUMBER_WORDS[headingCount];
+  ok(!!expected, `WORKFLOW-PRINCIPLES.md holds ${headingCount} principle headings, a count this test can spell`);
+  const COUNT_SITES = [
+    ['principles/README.md', /holds the (\w+) principles/],
+    ['README.md', /\(principles\/\)\*\*, the (\w+)\s/],
+  ];
+  for (const [rel, pattern] of COUNT_SITES) {
+    const stated = readFileSync(join(REPO_ROOT, rel), 'utf8').match(pattern)?.[1];
+    ok(stated === expected, `${rel} states the principle count "${stated}" (WORKFLOW-PRINCIPLES.md holds ${expected})`);
+  }
+}
+
+section('every guide that lists the core principles lists the set the Scope section of WORKFLOW-PRINCIPLES.md names');
+// The generative guides restate the core set as ranges, so a new core principle drifts there silently.
+{
+  const expandPrincipleList = (list) => [...list.matchAll(/#(\d+)(?:\s*(?:–|to)\s*#?(\d+))?/g)]
+    .flatMap(([, first, last]) => {
+      const start = Number(first);
+      const end = Number(last ?? first);
+      return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
+    })
+    .join(',');
+  const doc = readFileSync(join(REPO_ROOT, 'principles/WORKFLOW-PRINCIPLES.md'), 'utf8');
+  const scopeList = doc.match(/^Principles (#[^.]*?) are core/m)?.[1];
+  ok(!!scopeList, 'the Scope section of WORKFLOW-PRINCIPLES.md names the core principles as "Principles ... are core"');
+  const expected = expandPrincipleList(scopeList ?? '');
+  const CORE_LIST_SITES = ['brainstorm', 'decide', 'docs', 'enhance', 'investigate'].map((w) => `workflows/${w}/CLAUDE.md`);
+  for (const rel of CORE_LIST_SITES) {
+    const stated = readFileSync(join(REPO_ROOT, rel), 'utf8').match(/\((#1\b[^)]*)\)/)?.[1];
+    ok(!!stated && expandPrincipleList(stated) === expected,
+      `${rel} lists the core principles "${stated}" (the Scope section names ${expected})`);
+  }
+}
