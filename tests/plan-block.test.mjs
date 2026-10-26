@@ -375,6 +375,10 @@ section('every metadata fault exits 1 naming the offending key, value or id');
   let parkValues = {};
   try { parkValues = parseBlocks(fix('### [x-y] t\n- category: unfinished\n- decision: NEEDS_USER\n- branch: aipg-unfinished/r-b-1a2b3c4d\n- origin: E:/plans/p.md#b'))[0].issues[0].values; } catch (e) { parkValues = { error: e.message }; }
   eq(`${parkValues.branch}|${parkValues.origin}`, 'aipg-unfinished/r-b-1a2b3c4d|E:/plans/p.md#b', 'a park entry\'s branch and origin lines parse and their values are read');
+  // A proactive developer marks an entry it took beside its block with its run and block.
+  let pulledValue = '';
+  try { pulledValue = parseBlocks(fix('### [x-y] t\n- decision: ACTIONABLE\n- pulled: run-1#block-a'))[0].issues[0].values.pulled; } catch (e) { pulledValue = e.message; }
+  eq(pulledValue, 'run-1#block-a', 'an entry\'s pulled line parses and its value is read');
   const renamedFault = planFails(fix('### [x-y] t\n- severity: high\n- effort: small'));
   ok(/issue entry \[x-y\] holds "- effort: small"/.test(renamedFault), `a \`- effort:\` issue line fails naming its entry and the line: ${renamedFault}`);
   ok(/"effort" was renamed to "size", so rename the key on that line/.test(renamedFault), `and says the key was renamed to size and to rename the line: ${renamedFault}`);

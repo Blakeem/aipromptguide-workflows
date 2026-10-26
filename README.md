@@ -157,6 +157,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **A `proactive` developer fixes ready backlog entries beside its block.** In round 1, each develop
+  block runs the new read-only `tools/plan-pull.mjs pullable`, which lists the ready entries in the files
+  the block changes by the rules `plan-edit.mjs args --backlog` builds by. The developer takes the ones
+  that fit, marks each with a `- pulled:` line and fixes it beside its block. Acceptance checks each one
+  like a fix entry. A taken entry whose fix does not hold is undone and synced `needs-attention`. It
+  parks its block only when the block's own work depends on that fix. `args --backlog` skips an entry
+  with a `- pulled:` line, and a status edit whose value is null removes a line, which closes that mark.
+  Allowlist `plan-pull.mjs` beside `plan-block.mjs` for a `proactive` run.
 - **Run worktrees live in the project's `.claude/worktrees` folder.** With no `--dir`, `wt.mjs open` and
   `init` make each worktree there. Before the first one, they add `/.claude/worktrees/` to the repo's
   `info/exclude`, so `git status` in your checkout lists no worktree. They never edit a `.gitignore`.

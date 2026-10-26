@@ -12,8 +12,8 @@ this file is stale.
 | develop | 2 | 1 | 28441 | every block accepts first time |
 | acceptance | 2 | 2 | 13551 | every block accepts first time |
 | final-sweep | 1 | 1 | 3734 | every block accepts first time |
-| develop | 3 | 1 | 28340 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 1 | 12998 | a feature block accepts under the proactive policy |
+| develop | 3 | 2 | 31083 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 3 | 14431 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 3725 | a feature block accepts under the proactive policy |
 | develop | 4 | 1 | 28227 | quality flags the first round |
 | acceptance | 4 | 1 | 13269 | quality flags the first round |
@@ -28,16 +28,16 @@ this file is stale.
 | develop | 8 | 1 | 27170 | the gate never goes green |
 | develop-closing | 1 | 1 | 28608 | the gate never goes green |
 | quality | 2 | 1 | 9316 | the gate never goes green |
-| acceptance | 10 | 3 | 16468 | the gate never goes green |
+| acceptance | 10 | 4 | 16468 | the gate never goes green |
 | park | 1 | 1 | 10008 | the gate never goes green |
 | develop | 9 | 1 | 27595 | the gate never goes green |
 | develop-closing | 2 | 1 | 28978 | the gate never goes green |
-| acceptance | 11 | 4 | 16749 | the gate never goes green |
+| acceptance | 11 | 5 | 16749 | the gate never goes green |
 | acceptance | 12 | 1 | 13322 | a parked block, and the run carries on |
 | acceptance | 13 | 1 | 13377 | a parked block, and the run carries on |
 | acceptance | 14 | 1 | 13432 | a parked block, and the run carries on |
 | develop-closing | 3 | 1 | 29684 | a parked block, and the run carries on |
-| acceptance | 15 | 3 | 18868 | a parked block, and the run carries on |
+| acceptance | 15 | 4 | 18868 | a parked block, and the run carries on |
 | develop | 10 | 1 | 27998 | an ordered run stops at a parked block |
 | acceptance | 16 | 1 | 13264 | an ordered run stops at a parked block |
 | develop | 11 | 1 | 28205 | an ordered run stops at a parked block |
@@ -46,18 +46,18 @@ this file is stale.
 | acceptance | 19 | 1 | 13371 | an ordered run stops at a parked block |
 | acceptance | 20 | 1 | 13426 | an ordered run stops at a parked block |
 | develop-closing | 4 | 1 | 29666 | an ordered run stops at a parked block |
-| acceptance | 21 | 3 | 18862 | an ordered run stops at a parked block |
+| acceptance | 21 | 4 | 18862 | an ordered run stops at a parked block |
 | park | 2 | 1 | 10020 | an ordered run stops at a parked block |
-| develop | 12 | 2 | 32659 | a fix block closes its issues |
-| acceptance | 22 | 5 | 18512 | a fix block closes its issues |
+| develop | 12 | 3 | 32837 | a fix block closes its issues |
+| acceptance | 22 | 6 | 18673 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 3725 | a fix block closes its issues |
-| develop | 13 | 2 | 33165 | a fix block closes its issues under the proactive policy |
-| acceptance | 23 | 5 | 18518 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 2 | 33058 | a pass of two fix blocks closes its issues |
-| acceptance | 24 | 5 | 18849 | a pass of two fix blocks closes its issues |
+| develop | 13 | 4 | 36121 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 7 | 20180 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 3 | 33236 | a pass of two fix blocks closes its issues |
+| acceptance | 24 | 6 | 19010 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 3755 | a pass of two fix blocks closes its issues |
-| acceptance | 25 | 5 | 18511 | every issue is already fixed |
-| develop | 15 | 2 | 32641 | an ordered run stops on a fix block that closes nothing |
+| acceptance | 25 | 6 | 18672 | every issue is already fixed |
+| develop | 15 | 3 | 32819 | an ordered run stops on a fix block that closes nothing |
 | park | 3 | 1 | 10323 | passed with a regression, not staged |
 | park | 4 | 1 | 9453 | acceptance stages a rejected block |
 | park | 5 | 1 | 10176 | the quality reviewer fails a block without its file |
@@ -70,23 +70,23 @@ this file is stale.
 | park | 12 | 1 | 9841 | the acceptance verifier dies |
 | park | 13 | 1 | 9207 | developer escalates |
 | park | 14 | 1 | 9197 | developer escalates in an ordered run |
-| acceptance | 26 | 3 | 18648 | a closing acceptance lands the block |
+| acceptance | 26 | 4 | 18648 | a closing acceptance lands the block |
 | develop-closing | 5 | 1 | 30054 | a closing acceptance lands the block |
-| acceptance | 27 | 4 | 18929 | a closing acceptance lands the block |
-| acceptance | 28 | 3 | 16522 | a closing pass gets a blind review |
-| acceptance | 29 | 4 | 16803 | a closing pass gets a blind review |
-| acceptance | 30 | 3 | 18941 | a closing acceptance finds a blocking gap |
+| acceptance | 27 | 5 | 18929 | a closing acceptance lands the block |
+| acceptance | 28 | 4 | 16522 | a closing pass gets a blind review |
+| acceptance | 29 | 5 | 16803 | a closing pass gets a blind review |
+| acceptance | 30 | 4 | 18941 | a closing acceptance finds a blocking gap |
 | park | 15 | 1 | 10158 | a closing acceptance finds a blocking gap |
-| acceptance | 31 | 4 | 19222 | a closing acceptance finds a blocking gap |
+| acceptance | 31 | 5 | 19222 | a closing acceptance finds a blocking gap |
 | park | 16 | 1 | 10158 | a closing acceptance finds a blocking gap |
-| develop | 16 | 3 | 28187 | every block commits first time |
+| develop | 16 | 5 | 28187 | every block commits first time |
 | quality | 3 | 1 | 9209 | every block commits first time |
-| acceptance | 32 | 6 | 14793 | every block commits first time |
-| develop | 17 | 3 | 28612 | every block commits first time |
-| acceptance | 33 | 7 | 15074 | every block commits first time |
+| acceptance | 32 | 8 | 14793 | every block commits first time |
+| develop | 17 | 5 | 28612 | every block commits first time |
+| acceptance | 33 | 9 | 15074 | every block commits first time |
 | final-sweep | 5 | 1 | 4046 | every block commits first time |
-| develop | 18 | 4 | 32861 | a fix block commits |
-| acceptance | 34 | 8 | 20252 | a fix block commits |
+| develop | 18 | 6 | 33039 | a fix block commits |
+| acceptance | 34 | 10 | 20413 | a fix block commits |
 | final-sweep | 6 | 1 | 3953 | a fix block commits |
 | park | 17 | 1 | 9582 | acceptance commits a rejected block |
 
@@ -1486,7 +1486,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 3 · schema 1
+## develop · variant 3 · schema 2
 
 `develop block-a r1` in "a feature block accepts under the proactive policy"
 
@@ -1522,6 +1522,31 @@ Report baseline_dirty_files = the count of DISTINCT files across those two lists
 staged-only entries). If it is NOT 0, STOP RIGHT THERE: change nothing, write nothing, and return
 immediately with that count. The run halts for the operator. If it IS 0, implement this block from
 scratch on top of the accepted baseline.
+PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block, and before
+you build, list the files your block will change as repo paths relative to E:/repo, with forward
+slashes, and run:
+  node 'E:/flow/tools/plan-pull.mjs' pullable --backlog 'E:/flow/backlog/repo-0a1b2c3d' --files '<path>,<path>,...' --exclude 'E:/flow/plans/bus.md'
+It writes nothing. It prints, as JSON, each ready backlog entry whose "- file:" line names one of those
+files, with the planPath of the file that holds it. When it exits non-zero or prints [], take no entry.
+For each entry it prints, read the entry in its planPath and check it against the CURRENT code as a fix
+block's VERIFY-FIRST does: confirm its defect still exists, or that it no longer applies, then read its
+**Fix:** line as a suggested fix and check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way.
+TAKE an entry only when its fix sits in the files your block changes and fits your capacity: aim for a
+round-1 context of about 200k to 350k tokens, your block's own work included, and take none when your
+block alone fills that. For each entry you take:
+  a. Append the line "- pulled: flow#block-a" to the entry's "- <key>:" lines in its planPath,
+     directly under the last of them. An entry that already carries a "- pulled:" line was taken by
+     another developer after the tool ran, so leave it and do not take it.
+  b. List its id, one id per line, in E:/flow/runs/flow/PULLED-block-a.md (create E:/flow/runs/flow/ if needed), which holds
+     the ids of every entry you take. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When you take none, create no file, and empty it
+     when an earlier launch left one.
+  c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
+     with a pinning test where the fix warrants one. A **Fix:** line you verify
+     is defective goes under DECISION MATRIX rule 6a.
+     When its fix breaks the gate and you cannot resolve it within that fix's own scope, revert that
+     change surgically and report the entry FAILED.
+Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
+when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
 STEP 0 and before you build, re-check each line against the current code, and remove each line whose
@@ -1530,7 +1555,7 @@ hides a finding in rebuilt code.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
-  - Task code: the code this block's required changes add or change.
+  - Task code: the code this block's required changes add or change, and the code each pulled backlog entry's fix adds or changes.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
@@ -1587,7 +1612,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code or in connected code. Nor does it count a removed defect that a PROACTIVE line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code or in connected code.
+   After the blind review, when one runs, acceptance checks that every acceptance criterion of this block holds with a file:line, test or command-output locator, that the feature is reachable from real entry points, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code or in connected code. Nor does it count a removed defect that a PROACTIVE line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code or in connected code. Nor does it count a change that closes the defect of a pulled backlog entry and alters no other behavior.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -1794,9 +1819,35 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
-    "risk_snapshot"
+    "risk_snapshot",
+    "pulled_results"
   ],
   "properties": {
+    "pulled_results": {
+      "type": "array",
+      "description": "one entry per backlog entry id your PULLED file lists ([] when you took none)",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue_id",
+          "status"
+        ],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "FIXED",
+              "STALE",
+              "FAILED"
+            ],
+            "description": "FIXED = your change closes it. STALE = it no longer exists in current code. FAILED = you reverted its change, or could not fix it."
+          }
+        }
+      }
+    },
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
@@ -1880,7 +1931,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 3 · schema 1
+## acceptance · variant 3 · schema 3
 
 `acceptance block-a r1` in "a feature block accepts under the proactive policy"
 
@@ -1937,10 +1988,23 @@ amended against the AMENDED behavior, not the superseded clause, and NAME every 
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that criterion stays UNMET.
 
+PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-a.md if it exists. Each line is the id of a ready backlog entry this
+block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
+reported:
+     (no pulled entry)
+Before you write your review file, judge each id the file lists as a fix block's acceptance judges an
+issue. Read its entry in E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md. A FIXED claim holds only when
+the diff closes the entry's root cause completely, on every sibling path, and its change causes no
+regression. A STALE claim holds only when you confirm the defect is absent from the current code. Return
+one pulled_check per listed id, with actually_fixed=true only when its claim holds. An entry reported
+FAILED, or listed and never reported, gets actually_fixed=false. Write each verdict in your review file.
+A pulled entry whose claim fails, or whose FAILED change the diff still holds, is a gap. A FAILED entry
+whose change the diff no longer holds is no gap, since its entry goes back to the backlog.
+
 EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
 satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
-  - Task code: the code this block's required changes add or change.
+  - Task code: the code this block's required changes add or change, and the code each pulled backlog entry's fix adds or changes.
     Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
@@ -1962,6 +2026,9 @@ so it is a regression. Not a regression:
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
     in code no other block of the plan owns, and that it lies in task code or in connected code.
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-a.md lists. It is not a
+    regression only when you confirm from the code that the baseline behavior it removes was that
+    entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 this block's own text prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -2029,9 +2096,30 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "earlier_reviews_read",
     "risk_misclassified",
     "reachable",
-    "evidence_recorded"
+    "evidence_recorded",
+    "pulled_checks"
   ],
   "properties": {
+    "pulled_checks": {
+      "type": "array",
+      "description": "one entry per backlog entry id the PULLED file lists ([] when it lists none or does not exist)",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue_id",
+          "actually_fixed"
+        ],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "actually_fixed": {
+            "type": "boolean",
+            "description": "for a FIXED claim: the diff closes the entry's root cause completely and its change causes no regression. For a STALE claim: you confirmed the defect is absent from the current code. false for an entry reported FAILED or never reported, and for each change you reverted"
+          }
+        }
+      }
+    },
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
@@ -2042,7 +2130,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed. It is false when a pulled entry leaves a gap"
     },
     "staged": {
       "type": "boolean",
@@ -5860,7 +5948,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 10 · schema 3
+## acceptance · variant 10 · schema 4
 
 `acceptance block-a r6` in "the gate never goes green"
 
@@ -7017,7 +7105,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 11 · schema 4
+## acceptance · variant 11 · schema 5
 
 `acceptance block-b r6` in "the gate never goes green"
 
@@ -8265,7 +8353,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 15 · schema 3
+## acceptance · variant 15 · schema 4
 
 `acceptance block-a r6` in "a parked block, and the run carries on"
 
@@ -10708,7 +10796,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 21 · schema 3
+## acceptance · variant 21 · schema 4
 
 `acceptance block-a r6` in "an ordered run stops at a parked block"
 
@@ -11108,7 +11196,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## develop · variant 12 · schema 2
+## develop · variant 12 · schema 3
 
 `develop block-c r1` in "a fix block closes its issues"
 
@@ -11122,7 +11210,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -11218,8 +11306,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
-   user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
    amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
@@ -11575,7 +11663,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 22 · schema 5
+## acceptance · variant 22 · schema 6
 
 `acceptance block-c r1` in "a fix block closes its issues"
 
@@ -11589,7 +11677,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it.
+instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -11720,8 +11808,8 @@ prints a block), and, for a feature or section block, the reachability of its wo
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
-   Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
-   an issue left open, and it fails acceptance.
+   Confirm each one's `- decision:` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
@@ -11923,7 +12011,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 13 · schema 2
+## develop · variant 13 · schema 4
 
 `develop block-c r1` in "a fix block closes its issues under the proactive policy"
 
@@ -11937,7 +12025,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: proactive. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -11987,6 +12075,31 @@ created (a failed plain `git apply` changes nothing). Change nothing else, set r
 branch that failed and why (missing, or the `git apply` error), set restored_branches to 0, and STOP.
 Every branch stays as it was. Otherwise set restore_failed to "" and restored_branches to the count of
 branches step b applied.
+PULL READY BACKLOG ENTRIES, in round 1 only. Once you have read your block and restored any unfinished branch, and before
+you build, list the files your block will change as repo paths relative to E:/repo, with forward
+slashes, and run:
+  node 'E:/flow/tools/plan-pull.mjs' pullable --backlog 'E:/flow/backlog/repo-0a1b2c3d' --files '<path>,<path>,...' --exclude 'E:/flow/plans/bus.md'
+It writes nothing. It prints, as JSON, each ready backlog entry whose "- file:" line names one of those
+files, with the planPath of the file that holds it. When it exits non-zero or prints [], take no entry.
+For each entry it prints, read the entry in its planPath and check it against the CURRENT code as a fix
+block's VERIFY-FIRST does: confirm its defect still exists, or that it no longer applies, then read its
+**Fix:** line as a suggested fix and check it against the text it changes, the block's text and every sibling text that must agree with it, such as other call sites, the same string or rule elsewhere, and the docs that describe the behavior. Confirm any command, flag or behavior it relies on that the repo does not already use the same way.
+TAKE an entry only when its fix sits in the files your block changes and fits your capacity: aim for a
+round-1 context of about 200k to 350k tokens, your block's own work included, and take none when your
+block alone fills that. For each entry you take:
+  a. Append the line "- pulled: flow#block-c" to the entry's "- <key>:" lines in its planPath,
+     directly under the last of them. An entry that already carries a "- pulled:" line was taken by
+     another developer after the tool ran, so leave it and do not take it.
+  b. List its id, one id per line, in E:/flow/runs/flow/PULLED-block-c.md (create E:/flow/runs/flow/ if needed), which holds
+     the ids of every entry you take. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When you take none, create no file, and empty it
+     when an earlier launch left one.
+  c. Build its fix as a fix block builds an ACTIONABLE entry: as its checked **Fix:** line instructs,
+     with a pinning test where the fix warrants one. A **Fix:** line you verify
+     is defective goes under DECISION MATRIX rule 6a.
+     When its fix breaks the gate and you cannot resolve it within that fix's own scope, revert that
+     change surgically and report the entry FAILED.
+Report each entry the PULLED file lists in pulled_results: FIXED when your change closes it, STALE
+when its defect no longer exists, FAILED when you reverted its change or could not fix it.
 If E:/flow/runs/flow/gate/DISMISSED-block-c.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry. In round 1 it holds only an earlier launch's lines. After
 STEP 0 and before you build, re-check each line against the current code, and remove each line whose
@@ -11995,7 +12108,7 @@ hides a finding in rebuilt code.
 You own the work you touch. Fix each defect in it and in the code around it as far as the ZONE ROUTING below
 allows. Put features and refactors outside the task in the backlog. Ask the user only as rule 7 of the DECISION MATRIX says.
 CODE ZONES - every piece of code lies in one of three zones:
-  - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+  - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns, and the code each pulled backlog entry's fix adds or changes.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
@@ -12033,8 +12146,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
-   user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
    amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
@@ -12065,7 +12178,7 @@ Use the tools you have, such as web search or a browser, to check how something 
    In the REACH step, skip a sibling grep that the SIBLINGS phase already ran on the same code in this round.
    A regression here is a behavior of the accepted baseline that the acceptance check below counts as
    regressed, or a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false.
-   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a PROACTIVE line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+   After the blind review, when one runs, acceptance checks that each FIXED entry closes its root cause on every sibling path, that each STALE entry is absent from the current code, that the diff touched no entry that is not ACTIONABLE and skipped none that is, that every earlier review finding is closed or declined, that no behavior of the accepted baseline regressed, that each risk answer of a round no blind review judged holds against that round's own hunks, and that the gate is satisfied. Acceptance does not count as regressed a removed defect (a real defect that an earlier review finding names, or the same defect on a sibling path of such a finding or of a fix this block requires) that lies in code this block's text does not exclude and in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a removed defect that a PROACTIVE line in DECISIONS.md names and that lies in code no other block of the plan owns, and in task code, or in connected code where the change closes a defect the diff introduces or exposes. Nor does it count a change that closes the defect of a pulled backlog entry and alters no other behavior.
 SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
   critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
   high     - crashes or gives wrong output on an input the code accepts.
@@ -12275,9 +12388,35 @@ Return ONLY the decision fields via the schema (no prose report).
     "backlog_entries",
     "backlog_blocks",
     "review_needed",
-    "risk_snapshot"
+    "risk_snapshot",
+    "pulled_results"
   ],
   "properties": {
+    "pulled_results": {
+      "type": "array",
+      "description": "one entry per backlog entry id your PULLED file lists ([] when you took none)",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue_id",
+          "status"
+        ],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "FIXED",
+              "STALE",
+              "FAILED"
+            ],
+            "description": "FIXED = your change closes it. STALE = it no longer exists in current code. FAILED = you reverted its change, or could not fix it."
+          }
+        }
+      }
+    },
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE your block text: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating your block by eye in the plan file. FALSE halts the run."
@@ -12395,7 +12534,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 23 · schema 5
+## acceptance · variant 23 · schema 7
 
 `acceptance block-c r1` in "a fix block closes its issues under the proactive policy"
 
@@ -12409,7 +12548,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it.
+instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -12452,12 +12591,25 @@ instruction was amended against the AMENDED behavior, not the superseded one, an
 judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
 NOTHING: that issue stays actually_fixed=false.
 
+PULLED ENTRIES. READ E:/flow/runs/flow/PULLED-block-c.md if it exists. Each line is the id of a ready backlog entry this
+block's round-1 developer took beside its block and built in the same unstaged diff. The developer last
+reported:
+     (no pulled entry)
+Before you write your review file, judge each id the file lists as a fix block's acceptance judges an
+issue. Read its entry in E:/flow/backlog/repo-0a1b2c3d/<the id without its last "-<n>">.md. A FIXED claim holds only when
+the diff closes the entry's root cause completely, on every sibling path, and its change causes no
+regression. A STALE claim holds only when you confirm the defect is absent from the current code. Return
+one pulled_check per listed id, with actually_fixed=true only when its claim holds. An entry reported
+FAILED, or listed and never reported, gets actually_fixed=false. Write each verdict in your review file.
+A pulled entry whose claim fails, or whose FAILED change the diff still holds, is a gap. A FAILED entry
+whose change the diff no longer holds is no gap, since its entry goes back to the backlog.
+
 EVERY DEFECT YOU WRITE IN YOUR REVIEW FILE COUNTS. A gap is a claimed fix with a residual path
 (actually_fixed=false), an unconfirmed STALE claim, an ACTIONABLE entry reported SKIPPED, a touched entry that is not ACTIONABLE,
-a non-empty diff with no FIXED claim, a gate not satisfied, an earlier finding that is neither closed
+a non-empty diff with no FIXED claim of an entry or a pulled entry, a gate not satisfied, an earlier finding that is neither closed
 nor declined, a failed risk audit, or a regression.
 CODE ZONES - every piece of code lies in one of three zones:
-  - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns.
+  - Task code: the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns, and the code each pulled backlog entry's fix adds or changes.
     Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
   - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
     its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
@@ -12479,6 +12631,9 @@ so it is a regression. Not a regression:
     E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
     behavior it removes was itself a defect, that the change alters no other behavior, that it lies
     in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+  - a behavior change that closes the defect of a backlog entry E:/flow/runs/flow/PULLED-block-c.md lists. It is not a
+    regression only when you confirm from the code that the baseline behavior it removes was that
+    entry's defect and that the change alters no other behavior.
 Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
 an entry's **Fix:** prescribes the construction that causes it, and even when you judge the path
 rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
@@ -12540,8 +12695,8 @@ prints a block), and, for a feature or section block, the reachability of its wo
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
-   Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
-   an issue left open, and it fails acceptance.
+   Confirm each one's `- decision:` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
@@ -12562,7 +12717,7 @@ prints a block), and, for a feature or section block, the reachability of its wo
    • LEGITIMATE NO-OP: if every entry was genuinely STALE or non-ACTIONABLE and the diff is empty, that is
      a valid pass — return pass=true AND staged=true (nothing to add). Say so in your file. Do NOT
      invent changes to justify it.
-   • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty, no claimed fix accounts for
+   • NO FIXED CLAIM, NON-EMPTY DIFF: when the FIXED list in step 1 is empty and no pulled entry is reported FIXED, no claimed fix accounts for
      a change, so the unstaged diff MUST be empty. Any change there fails acceptance: name the files in your
      file and return pass=false.
    • Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.
@@ -12588,9 +12743,30 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "fix_checks",
     "backlog_entries",
     "backlog_blocks",
-    "branches_kept"
+    "branches_kept",
+    "pulled_checks"
   ],
   "properties": {
+    "pulled_checks": {
+      "type": "array",
+      "description": "one entry per backlog entry id the PULLED file lists ([] when it lists none or does not exist)",
+      "items": {
+        "type": "object",
+        "required": [
+          "issue_id",
+          "actually_fixed"
+        ],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "actually_fixed": {
+            "type": "boolean",
+            "description": "for a FIXED claim: the diff closes the entry's root cause completely and its change causes no regression. For a STALE claim: you confirmed the defect is absent from the current code. false for an entry reported FAILED or never reported, and for each change you reverted"
+          }
+        }
+      }
+    },
     "plan_obtained": {
       "type": "boolean",
       "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
@@ -12601,7 +12777,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, every earlier finding is closed or declined, the gate is green, the risk audit is clean, and nothing regressed"
+      "description": "true if every claimed fix fully closes its root cause, every STALE claim is confirmed absent from the current code, no entry outside the ACTIONABLE set was touched, every earlier finding is closed or declined, the gate is green, the risk audit is clean, and nothing regressed. It is false when a pulled entry leaves a gap"
     },
     "staged": {
       "type": "boolean",
@@ -12669,7 +12845,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 14 · schema 2
+## develop · variant 14 · schema 3
 
 `develop block-c-plus-1 r1` in "a pass of two fix blocks closes its issues"
 
@@ -12684,7 +12860,7 @@ Each output is one block, verbatim. If any exits non-zero, report plan_obtained=
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -12780,8 +12956,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
-   user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
    amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
@@ -13139,7 +13315,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 24 · schema 5
+## acceptance · variant 24 · schema 6
 
 `acceptance block-c-plus-1 r1` in "a pass of two fix blocks closes its issues"
 
@@ -13154,7 +13330,7 @@ Run every one, each redirected to its own file under E:/flow/runs/flow/scratch/ 
 inside the target repo or E:/flow/runs/flow/gate/, and read those files, since the Bash display cuts long output.
 Each output is one block, verbatim. If any exits non-zero, report plan_obtained=false and STOP: never
 guess at a plan you could not read. Your blocks are ONLY "block-c", "block-d". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it.
+instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -13288,8 +13464,8 @@ prints a block), and, for a feature or section block, the reachability of its wo
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
-   Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
-   an issue left open, and it fails acceptance.
+   Confirm each one's `- decision:` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
@@ -13491,7 +13667,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## acceptance · variant 25 · schema 5
+## acceptance · variant 25 · schema 6
 
 `acceptance block-c r1` in "every issue is already fixed"
 
@@ -13505,7 +13681,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it.
+instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -13636,8 +13812,8 @@ prints a block), and, for a feature or section block, the reachability of its wo
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
-   Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
-   an issue left open, and it fails acceptance.
+   Confirm each one's `- decision:` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.
@@ -13765,7 +13941,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 15 · schema 2
+## develop · variant 15 · schema 3
 
 `develop block-c r1` in "an ordered run stops on a fix block that closes nothing"
 
@@ -13779,7 +13955,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -13875,8 +14051,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
-   user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
    amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
@@ -15816,7 +15992,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## acceptance · variant 26 · schema 3
+## acceptance · variant 26 · schema 4
 
 `acceptance block-a r2` in "a closing acceptance lands the block"
 
@@ -16486,7 +16662,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 27 · schema 4
+## acceptance · variant 27 · schema 5
 
 `acceptance block-b r2` in "a closing acceptance lands the block"
 
@@ -16753,7 +16929,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 28 · schema 3
+## acceptance · variant 28 · schema 4
 
 `acceptance block-a r2` in "a closing pass gets a blind review"
 
@@ -16991,7 +17167,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 29 · schema 4
+## acceptance · variant 29 · schema 5
 
 `acceptance block-b r2` in "a closing pass gets a blind review"
 
@@ -17232,7 +17408,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 30 · schema 3
+## acceptance · variant 30 · schema 4
 
 `acceptance block-a r2` in "a closing acceptance finds a blocking gap"
 
@@ -17632,7 +17808,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## acceptance · variant 31 · schema 4
+## acceptance · variant 31 · schema 5
 
 `acceptance block-b r2` in "a closing acceptance finds a blocking gap"
 
@@ -18035,7 +18211,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## develop · variant 16 · schema 3
+## develop · variant 16 · schema 5
 
 `develop block-a r1` in "every block commits first time"
 
@@ -18568,7 +18744,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 32 · schema 6
+## acceptance · variant 32 · schema 8
 
 `acceptance block-a r1` in "every block commits first time"
 
@@ -18805,7 +18981,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## develop · variant 17 · schema 3
+## develop · variant 17 · schema 5
 
 `develop block-b r1` in "every block commits first time"
 
@@ -19203,7 +19379,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 33 · schema 7
+## acceptance · variant 33 · schema 9
 
 `acceptance block-b r1` in "every block commits first time"
 
@@ -19520,7 +19696,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## develop · variant 18 · schema 4
+## develop · variant 18 · schema 6
 
 `develop block-c r1` in "a fix block commits"
 
@@ -19534,7 +19710,7 @@ could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: a
 "## Plan:" header followed by one "### [<id>]" entry per issue, each with its own `- decision:` line and
 a **Fix:** instruction. Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on
-behalf of an entry that is not ACTIONABLE, in any zone. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
+behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.
 CHANGE POLICY: focused. This policy and the scope rules in this prompt that carry it out settle scope for this run and override any other instruction about scope, including a memory line or a CLAUDE.md.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
@@ -19631,8 +19807,8 @@ Use the tools you have, such as web search or a browser, to check how something 
 2. PATTERNS: before you write code, find how the repo already does the same kind of thing, such
    as its names, data shapes and error path, and follow it where the block does not prescribe otherwise.
 3. BUILD: FIX ONLY the entries whose `- decision:` line says ACTIONABLE. Leave every other
-   entry (SKIP, NEEDS_USER, DEFER, anything else) UNTOUCHED and record it SKIPPED: that triage is the
-   user's call. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
+   entry (SKIP, NEEDS_USER, DEFER, an entry with a "- pulled:" line, anything else) UNTOUCHED and record it
+   SKIPPED: that triage is the user's call, or the other block's. Apply each confirmed fix per its **Fix:** instruction, matching the surrounding style.
    The code a fix adds is task code, so harden it like any task code. An edge case the prescribed form
    leaves out, such as an input value the form mishandles, is DECISION MATRIX rule 5 and takes no
    amendment. A change to what the **Fix:** line prescribes is a conflict with the plan, so it goes under
@@ -19993,7 +20169,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 34 · schema 8
+## acceptance · variant 34 · schema 10
 
 `acceptance block-c r1` in "a fix block commits"
 
@@ -20007,7 +20183,7 @@ target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash displ
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
 could not read. The full plan file is at
 E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-c". Each block printed IS an inventory: one "### [<id>]" entry per issue, each with a `- decision:` line and a **Fix:**
-instruction. You judge the work against it; you never implement it.
+instruction. You judge the work against it; you never implement it. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 CONVENTIONS (match these): (none supplied — infer from the surrounding code)
@@ -20138,8 +20314,8 @@ prints a block), and, for a feature or section block, the reachability of its wo
    ACTIONABLE. A fix applied to one fails acceptance even when the code change looks right, since that
    entry is the user's call. The developer reports these issues SKIPPED:
      (none reported skipped)
-   Confirm each one's `- decision:` is genuinely not ACTIONABLE: an ACTIONABLE entry reported SKIPPED is
-   an issue left open, and it fails acceptance.
+   Confirm each one's `- decision:` is genuinely not ACTIONABLE, or that it carries a "- pulled:" line: an
+   ACTIONABLE entry reported SKIPPED is an issue left open, and it fails acceptance.
 4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
    previously-accepted behavior was changed or broken, apart from a change that meets an item of the
    "Not a regression" list above.

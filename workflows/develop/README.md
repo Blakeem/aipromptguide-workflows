@@ -45,9 +45,14 @@ builds each feature and section block with the change that has the best long-ter
 blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
 cleanup outside task code, such as a clearer name, in the backlog and leaves the code unchanged. A
 `proactive` run whose blocks all end done, skipped or backlogged also builds every ready entry in the
-project's backlog before it lands, so it fixes issues across the codebase over time. It uses more tokens
-per run, and fewer in total than reaching the same code quality later. A `focused` run builds the backlog
-only when you ask.
+project's backlog before it lands, so it fixes issues across the codebase over time. Under `proactive`,
+each block's first developer also takes ready backlog entries whose fixes sit in the files its block
+changes, up to what it can hold, and fixes them beside its block. A tool picks the entries it may take,
+and the developer decides which of them fit. Acceptance checks each taken entry like a fix entry. An
+entry whose fix does not hold is undone and goes back to the backlog for you, and the block's own work
+still lands. The block parks only when its own work depends on the undone fix. Each taken entry closes
+when its block lands, and the backlog build before landing takes the ready entries no developer took. It uses more tokens per run, and fewer in total than reaching the
+same code quality later. A `focused` run builds the backlog only when you ask.
 
 The delivery setting picks how the work lands. With `stage`, the run's entire change lands staged in your
 checkout, so you review it and commit. With `commit`, each accepted block that changed code is one commit
@@ -145,8 +150,8 @@ acceptance reviews, the quality reviews under `gate/`, the developer's risk answ
 run's question for one block (`question-<id>.md`, which the park also copies into that block's backlog
 entry), the
 defaults the developer took, a pointer to each plan amendment and each fix the developer made to a
-problem the code already had that its block did not require (`DECISIONS.md`), and the sweep result
-(`SWEEP.md`).
+problem the code already had that its block did not require (`DECISIONS.md`), the backlog entries a
+block's developer took under `proactive` (`PULLED-<id>.md`), and the sweep result (`SWEEP.md`).
 
 The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
 in one file per block of each run. From a block's closing pass, it holds the findings whose fixes need

@@ -146,8 +146,9 @@ shows.
    block can build that entry (§5 Park), and never back to `todo`. For a fix block, that route also
    sets to `stale` each entry whose branch its round 1 restored and whose work the new branch's tree
    holds, deletes that branch with `git branch -D`, and adds that entry's `- origin:` values to the
-   new entry's `- origin:` line. Otherwise set that entry's `- status:` to `stale`, delete the
-   branch with `git branch -D`, and set the block back to `todo` as follows. After resolving a
+   new entry's `- origin:` line. Otherwise set that entry's `- status:` to `stale`, remove the
+   `- pulled:` line of each entry its `Pulled:` line names, delete the branch with
+   `git branch -D`, and set the block back to `todo` as follows. After resolving a
    `blocked` block, run step 3 (it applies the finished run's statuses), then set the block's
    `status:` back to `todo`, then run step 3 again for the launch args. A block whose staged or
    committed work you keep after `acceptance-regression` or a commit-mode pass halt is the
@@ -165,8 +166,9 @@ shows.
    say so in the run's summary. First apply §10 step 1 to the folder, so an entry whose fix the run
    already made is closed. Then run
    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` and launch with its
-   output as steps 3 and 4 say. When it exits 1 with a message that ends `nothing to build`, no file
-   holds a ready entry, so skip the launch. Whether it prints args or exits with `nothing to build`,
+   output as steps 3 and 4 say. This build takes the ready entries that no developer pulled beside its
+   block (§4), since `args --backlog` leaves out an entry with a `- pulled:` line. When it exits 1 with
+   a message that ends `nothing to build`, no file holds a ready entry, so skip the launch. Whether it prints args or exits with `nothing to build`,
    apply §10 step 5 to the folder next, since that call writes the fold of every `todo` or `done`
    backlog file that holds an ACTIONABLE entry before it prints or exits. Step 5 there closes only
    work an earlier run landed, since close has not yet landed this run's work. The entries that
@@ -282,7 +284,9 @@ since `high` suits every model.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool`, the
   `plan-block.mjs` every agent reads its block through, is a key of the object `plan-edit.mjs args`
   prints, so the spread args carry it, and the engine throws without it. Never pass it by hand.
-  Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
+  Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`. Under
+  `proactive`, also pre-allowlist `Bash(node '<plan-pull.mjs>':*)`, where `<plan-pull.mjs>` is the
+  `plan-pull.mjs` beside `blockTool`, since every round-1 developer runs it (§4).
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
   `resumeFromRunId`, so its ledgers, `NEEDS-USER.md` and `DECISIONS.md` carry over. Every develop
   run of one plan, or of one debug review's issue files, keeps that `runId`. Unrelated new work
@@ -297,7 +301,8 @@ code zones, and every developer and acceptance prompt renders that one definitio
   changes is task code in full, so a pre-existing finding on such a line is a task code finding. In a
   fix block, that holds for every line an ACTIONABLE entry's fix adds or changes, and task code also
   holds the sibling paths of each ACTIONABLE entry's root cause, apart from code the block's text
-  excludes or another block of the plan owns.
+  excludes or another block of the plan owns. Under `proactive`, task code also holds the code each
+  pulled backlog entry's fix adds or changes (Pulling, below).
 - Connected code is the code a reach step from the task code finds, which is its callers and consumers,
   its sibling paths, duplicates of its logic and the text that describes it. Code the block's text
   excludes and code another block of the plan owns are never connected code.
@@ -327,6 +332,36 @@ to the backlog (§10). The policies differ as follows.
   `backlogged` also builds every ready entry in the project's backlog (§2 step 6), so it fixes issues
   across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same
   code quality later.
+- **Pulling** happens only under `proactive`, in round 1 of every feature, section and fix block. Once
+  the developer has read its block, it runs `plan-pull.mjs pullable` with the files its block will
+  change. The tool decides which entries are eligible, by every rule `args --backlog` builds by, and
+  leaves out an entry with a `- branch:` or `- pulled:` line and every entry of a plan file the run
+  builds. The developer checks each listed entry against the current code as a fix block's
+  verify-first step does, and takes the entries whose fix sits in those files and fits its capacity,
+  aiming for a round-1 context of about 200k to 350k tokens. It marks each taken entry with
+  `- pulled: <runId>#<block id>`, lists its id in `PULLED-<id>.md`, and builds its fix as a fix block
+  builds an ACTIONABLE entry. Later rounds take no new entry. Every acceptance of the block judges each
+  pulled entry as fix acceptance judges an issue. A pulled entry's gap fails the round, and the next
+  developer closes it or reverts that entry's change and reports it FAILED. The closing acceptance never
+  grades a pulled gap blocking. It reverts the change of each pulled entry it does not confirm before
+  it stages the block, then runs the full gates once more. A pulled entry parks its block only when
+  those gates fail, since the block's own work then depends on the reverted change. The closing
+  acceptance then puts that change back and writes a blocking gap for it. The run's status edits close
+  each pulled entry as §2 step 5 maps a fix issue: `fixed` or `stale` when its block landed and the last
+  verdict confirmed its claim, `fixed` for a STALE report that follows the developer's own FIXED report,
+  and `needs-attention` otherwise, each with its `- pulled:` line removed so a later run can take it
+  again. A park that saved its block's work keeps the status and `- pulled:` line of each pulled entry
+  whose last report is FIXED, or STALE after a FIXED report, since the park's branch holds its fix, and
+  the park entry's `Pulled:` line names those entries (§10 steps 3 and 5). Every other pulled entry of
+  that park syncs `needs-attention` and loses its line. No status edit closes the `- pulled:` line of
+  an entry `PULLED-<id>.md` lists that no report or verdict of the run names, such as an entry a
+  developer marked before it died. A park closes such an entry. The park's `Pulled:` line names that entry
+  when the park's commit holds its fix, and the park removes its `- pulled:` line otherwise. A block that
+  ends without a park, such as one that lands, leaves such an entry marked, and no later build takes it.
+  So once `plan-edit.mjs args` has applied a proactive run's statuses, grep the backlog folder for
+  `- pulled: <runId>#` and remove each such line whose block did not park. The developer
+  and acceptance of a fix block built from a file that holds a pulled entry treat that entry as not
+  ACTIONABLE, so only the pulling block, or its park entry, builds that work.
 
 Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE
 entry requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance
@@ -460,7 +495,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   defect on a sibling path of a required fix or of such a finding, is not a regression when the code
   shows the removed behavior was a real defect, the change alters no other behavior, the block's
   text does not exclude that code, no other block of the plan owns it, and it lies in a zone the
-  policy lets the developer change (§4). The developer never dismisses a regression. It fixes the
+  policy lets the developer change (§4). Under `proactive`, a change that closes a pulled backlog
+  entry's defect (§4) is not a regression when the code shows the removed behavior was that defect
+  and the change alters no other behavior. The developer never dismisses a regression. It fixes the
   regression, with an amendment when prescribed text causes it. It escalates the regression when
   that fix would change a choice the text says the user made, so the block parks with the user's
   question. It also escalates with a default when only a change in other code closes it (§4). The
@@ -510,7 +547,9 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   whose developer escalated a user-only question is always `NEEDS_USER`, whatever halt parked it.
   The entry's `**What:**` copies the escalated question, the halt reason, or the gaps of the last
   review file, whichever caused the park. After a closing acceptance it copies the blocking gaps
-  first. A halt that parks a block with an escalated question copies the halt reason and then that
+  first. A park that made a commit ends the `**What:**` with a `Pulled:` line naming each pulled
+  entry whose fix the branch holds (§4), and each id the `Pulled:` line of an entry it superseded
+  names. A halt that parks a block with an escalated question copies the halt reason and then that
   question. A `plan-unreadable` halt reason names the bare plan-block command, and its park runs
   that command itself and writes its exit code and first error line under the entry's `Halted:`
   line as the cause. Its `**Fix:**` says to close those gaps on top of the branch's work, so each
@@ -605,8 +644,11 @@ flagged a regression and staged nothing. Its work is parked, and the block ends 
 Never stage that work as it is. `acceptance-regression` means acceptance staged a block while its
 verdict flagged a regression, so inspect `git diff --cached`. To keep the work, run §2 step 3, then
 set the block's `status:` to `done`. Then set each fix issue that the acceptance file named in the
-halt reason confirmed closed to `fixed` or `stale`, as §2 step 5 maps a landed block's issues. To
-reject it, unstage the block's files, set them aside as §4 describes, run §2 step 3, then set the
+halt reason confirmed closed to `fixed` or `stale`, as §2 step 5 maps a landed block's issues. Under
+`proactive`, also run `plan-edit.mjs args --backlog <backlogDir>`, which applies the run's statuses to
+the backlog files even when it exits with `nothing to build`. Only then set each pulled entry that the
+acceptance file confirmed closed to `fixed` or `stale`, since a later fold overwrites a hand edit made
+before it. To reject it, unstage the block's files, set them aside as §4 describes, run §2 step 3, then set the
 block's `status:` to `todo`. Either way, run step 3 again for the launch args. `review-unwritten`
 means a quality reviewer or acceptance verifier failed a block without confirming its review file.
 `log-cap` stops the run before a block once no room for a status line is left in the runtime's first
@@ -652,7 +694,8 @@ valid sha. An `acceptance-regression` reason on a commit-mode pass ends with the
 `commit-unverified` syncs the block `blocked`. Settle the work, run §2 step 3, then set the block's
 `status:` to `done` when the accepted baseline holds its reviewed work, or to `todo` to rebuild it.
 For a fix block set to `done`, also set each fix issue that its acceptance file confirmed closed to
-`fixed` or `stale`, as for `acceptance-regression`. To reject a committed block after
+`fixed` or `stale`, as for `acceptance-regression`. Under `proactive`, a block set to `done` also
+closes its pulled entries as for `acceptance-regression`. To reject a committed block after
 `acceptance-regression`, `commit-unverified` or `rejected-staged`, run `git -C <repo> revert <sha>`
 in place of the unstage. Park is the same in both modes. An acceptance verifier that dies may have
 committed or staged its block, which park never saves. Its `agent-dead` reason names the HEAD the
@@ -699,7 +742,9 @@ lines, so acceptance counts a fix logged under the old tag as a regression.
 
 **Run killed mid-block** (operator stop, API error, dead Workflow): the unstaged tree is that block's
 unreviewed work. Set it aside with §4's save-and-clear, which saves it to a patch under the state dir
-and leaves the staged index alone, then relaunch clean. Never `git add -A` it. In commit mode the killed
+and leaves the staged index alone, then relaunch clean. Never `git add -A` it. No status edit closed
+the killed block's pulled entries (§4), so remove each `- pulled: <runId>#<that block id>` line from
+the backlog folder, since the patch holds their work. In commit mode the killed
 block's acceptance may have committed or staged its work, and no landing check read it. Before you
 relaunch, revert a commit that `git -C <repo> log -1 --stat` shows with the killed block's title as its
 subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> diff --cached --stat` lists.
@@ -710,7 +755,8 @@ subject, using `git -C <repo> revert <sha>`, and unstage what `git -C <repo> dif
 developer's risk answers for round N, outside `gate/`, §6, starting with the line
 `Snapshot: <tree id>`) · `gate/DISMISSED-<id>.md` · `AMENDED-<id>.md` · `NEEDS-USER.md` (an ordered
 run's questions) · `question-<id>.md` (an unordered run's question for one block, which park copies
-into its entry) · `DECISIONS.md` · `commit-<id>.txt` (commit mode: the block's title, its commit's
+into its entry) · `DECISIONS.md` · `PULLED-<id>.md` (under `proactive`, the ids of the backlog
+entries the block's round-1 developer pulled, §4) · `commit-<id>.txt` (commit mode: the block's title, its commit's
 message) · `SWEEP.md` · `scratch/` (the agents' plan block copies, test logs and park's temporary
 index file, never in `gate/`). A parked block's work is on a branch of `target.repo` and its entry
 is in the backlog folder (§10), so neither is in the state dir. An `<id>` past 60 characters keeps
@@ -744,8 +790,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `<token> (<meaning>)`, the developer `model` and `effort` it ran on, `rounds`, `closingPass` (true
   when the block ran its closing pass, §6), `commit` (the sha of the block's commit, null in stage
   mode, on a no-op pass, when the commit did not land or failed the unverified sha check, and on a
-  block acceptance rejected, whose commit the halt reason names), and per-issue `results` in fix
-  mode) · `statusSync` (the plan-file edits, also logged per block for §2 step 5) · `sweep` ·
+  block acceptance rejected, whose commit the halt reason names), per-issue `results` in fix
+  mode, and `pulled`, each pulled entry as `{ issue_id, status, confirmed }`, which is empty under
+  `focused`) · `statusSync` (the plan-file edits, also logged per block for §2 step 5. An edit whose
+  `value` is null removes its key's line, which closes a pulled entry's `- pulled:` line) · `sweep` ·
   `failed` (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so
   `sweep: null` with no entry means the sweep did not run) · `backlogEntries` (every mode, the
   entries developers, fix verifiers and closing acceptances added to the backlog this run, null when
@@ -787,7 +835,10 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   `recorded_entries` (the ids of the backlog entries it listed, appended or already there, which a
   park's entry names) · in commit mode, the round-1 developer's `baseline_staged_files` (the files
   staged before it touched anything, above 0 halts `staged-baseline`, and a non-number is logged as
-  unverified) · acceptance's `risk_misclassified` (true when its risk audit found a gap) · in commit
+  unverified) · under `proactive`, the developer's `pulled_results` (each pulled entry's `FIXED`,
+  `STALE` or `FAILED`, every round) and acceptance's `pulled_checks` (each pulled entry's
+  `actually_fixed`, and only the latest verdict's checks count, §4) · acceptance's
+  `risk_misclassified` (true when its risk audit found a gap) · in commit
   mode, acceptance's `committed`, `commit_sha`, `commit_subject`, `tree_matches` and `tree_clean`,
   which the landing checks of §6 "Commit mode" read, and a failed check halts `commit-unverified` ·
   the blind reviewer's `issue_count`, which counts every finding at every tier. `minor_count`, the
@@ -830,6 +881,11 @@ naming the branch that holds the work when that branch exists, and an `- origin:
 line naming the block the work was built for. Its `**What:**` indents every line it copies from a
 file by four spaces, so a copied heading, fence or `- <key>:` line never ends the entry or starts
 another. These four kinds carry no `- severity:` line.
+An entry a developer pulled beside its block carries `- pulled: <runId>#<block id>` (§4). No launch
+builds it while that line stands, and the run's status edits remove the line, apart from a park whose
+branch holds the entry's fix, whose entry ends with a `Pulled: <ids>` line. That line says to set
+each id `fixed` once the park entry is fixed and landed, and to remove only each `- pulled:` line once
+the park entry is skipped, or set `stale` while its block is rebuilt from `todo`.
 Before the developer, fix acceptance or the closing acceptance appends an entry (§5, §6), it greps
 the folder's `*.md` files by the file path and the name of the function or identifier at the defect,
 reads each matching entry, and never appends a defect that an entry with `- status: open` or
@@ -874,7 +930,9 @@ When the user asks to work the backlog:
    skipped entry carries an `- origin:` line, also set each block it names to `skip`, or to `todo` to
    rebuild it, since a `backlogged` block whose entry never syncs `fixed` never reaches `done`. When it
    also carries a `- branch:` line, delete that branch with `git -C <repo> branch -D <branch>`, since a
-   later park of the rebuilt block would otherwise stack on the skipped work. Set each
+   later park of the rebuilt block would otherwise stack on the skipped work. When it ends with a
+   `Pulled:` line, remove the `- pulled:` line of each entry that line names, so a later run can take
+   that entry again. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
    option the user chose. Hold an entry with a `**Parked with:**` line until its block's park entry
    is built and lands, or its block is accepted and `done`, since until then the code it names sits
@@ -885,13 +943,13 @@ When the user asks to work the backlog:
    baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.
-4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` with
-   `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>` and a develop launch in fix
-   mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>` takes the place of
-   naming the files. It adds every `todo` or `done` file that holds an ACTIONABLE entry with
-   `- status: open` and none with `- status: needs-attention`, sets each `done` one to `todo`, and
-   prints an unordered set, so it refuses an ordered plan file. It leaves out a file while the block
-   that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
+4. Build the files that hold an ACTIONABLE entry whose status is not `fixed` or `stale` and that
+   carries no `- pulled:` line, with `node <plan-edit.mjs> args <file> [<file> ...] --pack <target.repo>`
+   and a develop launch in fix mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>`
+   takes the place of naming the files. It adds every `todo` or `done` file that holds an ACTIONABLE
+   entry with `- status: open` and no `- pulled:` line, and none with `- status: needs-attention`,
+   sets each `done` one to `todo`, and prints an unordered set, so it refuses an ordered plan file.
+   It leaves out a file while the block that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
    arg and block id match the file's header, and whose `backlogDir` arg, when they keep one, names
    this folder. The `backlogDir` test is there because a run of another project may share the `runId`
    and block id. It finds the block's plan file in those records' status edits or in the rows of their
@@ -935,7 +993,9 @@ When the user asks to work the backlog:
    whose fix block the current run built waits for a later check, since close has not landed it yet. Once
    the step takes an entry, its fix block has landed and acceptance checked its work against every
    criterion of each block that line names. Set each of those blocks to `status: done` in its plan file,
-   and delete the entry's branch when it resolves, with `git -C <repo> branch -D <branch>`. A plan with
+   and delete the entry's branch when it resolves, with `git -C <repo> branch -D <branch>`. When the
+   entry ends with a `Pulled:` line, set each entry that line names to `- status: fixed` and remove its
+   `- pulled:` line, since the landed branch work holds its fix. A plan with
    `sweep: goal-coverage` runs no sweep for an origin block, so verify its coverage against the plan's
    goal yourself. When an origin block is a fix block, also take each of its ACTIONABLE entries whose
    `- status:` is absent, `open` or `needs-attention`, since those entries are its criteria. Set such an

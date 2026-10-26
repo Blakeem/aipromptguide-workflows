@@ -317,7 +317,7 @@ section('every set failure exits 1 naming the problem, with the file\'s bytes un
     [['set', file, 'nope', 'status=done'], /no id "nope"/, 'an unknown id, listing the ids that do exist'],
     [['set', file, 'bus-parser', 'goal=x'], /unknown preamble key "goal"/, 'a key the block namespace does not have'],
     [['set', file, 'null-deref', 'sevrity=high'], /unknown issue key "sevrity"/, 'a key the issue namespace does not have'],
-    [['set', file, 'null-deref', 'effort=small'], /issue key "effort" was renamed to "size", so set size=<value>/, 'the issue key renamed to size'],
+    [['set', file, 'null-deref', 'effort=small'], /issue key "effort" was renamed to "size", so use size in its place/, 'the issue key renamed to size'],
     // A key outside `[a-z_]+` writes a line that ENDS the run rather than joining it, so a reparse of the
     // edited text sees no new key at all: these are refused before the splice or not at all.
     [['set', file, 'bus-parser', 'test-selector=npm test'], /unknown preamble key "test-selector"/, 'a hyphen where the key has an underscore'],
@@ -1133,6 +1133,56 @@ section('--backlog with nothing ready fails, and a missing folder adds nothing')
   eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'given', 'the folder adds no row');
   ok(/no backlog folder at/.test(notes), `and the note says so: ${notes.trim()}`);
   ok(/usage:/.test(argsWith(configWith([])).err ?? ''), 'no plan and no --backlog is still a usage error');
+}
+
+section('a status edit whose value is null removes that key\'s line, with its own line ending, and a repeat is a no-op');
+{
+  const pulledPlan = (eol, last) => [
+    '## Plan: inbox - backlog', 'mode: fix', 'gate: green', '',
+    '### [inbox-1] first', '- file: a.js:1', '- decision: ACTIONABLE', '- pulled: r1#blk', '', 'What.', '',
+    '### [inbox-2] last', '- file: b.js:1', '- pulled: r1#blk',
+  ].join(eol) + (last ? eol : '');
+  for (const [eol, last, name] of [['\n', true, 'LF'], ['\r\n', true, 'CRLF'], ['\n', false, 'no trailing newline']]) {
+    const path = fixture(pulledPlan(eol, last), 'inbox.md');
+    const removals = [{ planPath: path, id: 'inbox-1', key: 'pulled', value: null }, { planPath: path, id: 'inbox-2', key: 'pulled', value: null }];
+    const { err } = argsWith(configWith([record({ blocks: [[status('inbox-1', 'fixed', path), ...removals, ...removals]] })]), path);
+    ok(!err, `${name}: it succeeds: ${err ?? ''}`);
+    const text = read(path);
+    ok(!/pulled:/.test(text), `${name}: both pulled lines are gone, the repeated removal included`);
+    ok(text.includes(`- decision: ACTIONABLE${eol}- status: fixed${eol}${eol}What.`), `${name}: the status edit lands where the removed line was`);
+    ok(text.endsWith(last ? `- file: b.js:1${eol}` : '- file: b.js:1'), `${name}: the last line keeps the file's ending`);
+    eq(text.split(eol).length, pulledPlan(eol, last).split(eol).length - 2 + 1 + 2, `${name}: two lines left, one status line and the synced key's two lines came, and no other line changed`);
+  }
+  const path = fixture(pulledPlan('\n', true), 'inbox.md');
+  const bad = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pullled', value: null }]] })]), path).err ?? '';
+  ok(/removes the pullled line of inbox-1 in .*inbox\.md, which fails: unknown issue key "pullled"/.test(bad), `an unknown key fails, naming the removal: ${bad}`);
+  const renamed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'effort', value: null }]] })]), path).err ?? '';
+  ok(/removes the effort line of inbox-1 .*was renamed to "size", so use size in its place/.test(renamed), `a renamed key fails with a message that never asks for a value: ${renamed}`);
+  const typed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: 7 }]] })]), path).err ?? '';
+  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
+}
+
+section('--backlog never builds an entry another block\'s developer pulled');
+{
+  const backlog = tmpDir();
+  const taken = backlogFile(backlog, 'taken', 'todo', [{ id: 'taken-1', file: 'a.js', status: 'open' }]);
+  writeFileSync(taken, read(taken).replace('- status: open', '- status: open\n- pulled: r1#blk'));
+  backlogFile(backlog, 'free', 'todo', [{ id: 'free-1', file: 'b.js', status: 'open' }]);
+  const { out, err } = withBacklog(configWith([]), backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(JSON.parse(out).plans.map((r) => r.id).join(','), 'free', 'a file whose only ready entry carries a pulled line is left out');
+
+  const only = tmpDir();
+  const lone = backlogFile(only, 'lone', 'todo', [{ id: 'lone-1', file: 'a.js', status: 'open' }]);
+  writeFileSync(lone, read(lone).replace('- status: open', '- status: open\n- pulled: r1#blk'));
+  ok(/no pulled line.*nothing to build/.test(withBacklog(configWith([]), only).err ?? ''), 'and with no other ready file there is nothing to build, which the message says');
+
+  const pack = tmpDir();
+  const mixed = backlogFile(pack, 'mixed', 'todo', [{ id: 'mixed-1', file: 'big.js', loc: 4000, status: 'open' }, { id: 'mixed-2', file: 'small.js', loc: 10, status: 'open' }]);
+  writeFileSync(mixed, read(mixed).replace('- loc: 4000\n- decision: ACTIONABLE\n- status: open', '- loc: 4000\n- decision: ACTIONABLE\n- status: open\n- pulled: r1#blk'));
+  backlogFile(pack, 'next', 'todo', [{ id: 'next-1', file: 'other.js', loc: 2000, status: 'open' }]);
+  const packedOut = argsWith(configWith([]), '--backlog', pack, '--pack', pack, '--loc-cap', '2500');
+  eq(packedOut.err ? packedOut.err : JSON.parse(packedOut.out).plans.map((r) => r.id).join(','), 'mixed-plus-1', '--pack weighs only the files of entries a developer will work, so a pulled entry\'s file adds no lines');
 }
 
 for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });

@@ -46,11 +46,11 @@ const USAGE = `usage:
       args { goal, ordered, suite, sweep, plans, blockTool }, where blockTool is the plan-block.mjs
       beside this tool. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
-      ACTIONABLE entry and no needs-attention ACTIONABLE entry, and sets a done one to todo. It leaves
-      out a file while the block that wrote it, which the run records name, is not done, skip or
-      backlogged in its plan file. It writes the folded statuses of every todo or done backlog file
-      with an ACTIONABLE entry. It needs a plan set with ordered: false, and it lets the plan list be
-      empty.
+      ACTIONABLE entry with no "- pulled:" line and no needs-attention ACTIONABLE entry, and sets a
+      done one to todo. It leaves out a file while the block that wrote it, which the run records
+      name, is not done, skip or backlogged in its plan file. It writes the folded statuses of every
+      todo or done backlog file with an ACTIONABLE entry. It needs a plan set with ordered: false,
+      and it lets the plan list be empty.
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       A pass runs on the strongest model and the highest effort among its members.
@@ -157,22 +157,7 @@ function checkOneLine(key, value) {
  * the header when the run is empty.
  */
 function withKeySet(plan, id, key, value) {
-  const { block, entry } = findTarget(plan, id);
-  const { keys: schema, what, renamed } = entry ? RUN_KEYS.issue : RUN_KEYS.preamble;
-  const keys = entry ? entry.keys : block.preamble.keys;
-
-  // Checked HERE rather than by the round-trip parse below, which structurally cannot see it: a key
-  // outside `[a-z_]+` — `test-selector` for `test_selector`, a capitalized `Status`, a leading space —
-  // builds a line that ENDS the run instead of joining it, so the reparse finds nothing to reject and the
-  // file gains a junk line while the setting the operator asked for is silently dropped, at exit 0.
-  // OWN property, never `in`: `in` walks Object.prototype, so `valueOf` and eleven other inherited names
-  // passed this guard and were spliced in as exactly that junk line.
-  if (renamed && Object.hasOwn(renamed, key)) {
-    throw new Error(`the ${what} "${key}" was renamed to "${renamed[key]}", so set ${renamed[key]}=<value>`);
-  }
-  if (!Object.hasOwn(schema, key)) {
-    throw new Error(`unknown ${what} "${key}" — the ${what}s are: ${Object.keys(schema).join(', ')}`);
-  }
+  const { block, entry, keys } = findKeyRun(plan, id, key);
 
   const present = keys.find((k) => k.key === key);
   if (present) return splice(plan.text, present.valueStart, present.valueEnd, value);
@@ -190,6 +175,43 @@ function withKeySet(plan, id, key, value) {
   const at = entry ? entry.runFrom : block.preambleStart;
   const welds = at === plan.text.length && at > 0 && !plan.text.endsWith('\n');
   return splice(plan.text, at, at, welds ? `${eol}${line}` : `${line}${eol}`);
+}
+
+/**
+ * The file's bytes with ONE metadata line removed, with its own line terminator, or with the one before it
+ * when it ends the file. An absent key leaves the bytes as they are, so a repeated removal is a no-op.
+ */
+function withKeyRemoved(plan, id, key) {
+  const { keys } = findKeyRun(plan, id, key);
+  const present = keys.find((k) => k.key === key);
+  if (!present) return plan.text;
+
+  const own = plan.text.startsWith('\r\n', present.end) ? 2 : plan.text.startsWith('\n', present.end) ? 1 : 0;
+  if (own) return splice(plan.text, present.start, present.end + own, '');
+  const before = plan.text.slice(0, present.start).endsWith('\r\n') ? 2 : Math.min(present.start, 1);
+  return splice(plan.text, present.start - before, present.end, '');
+}
+
+/** The block or entry an id addresses, with the metadata run a known `key` belongs to. */
+function findKeyRun(plan, id, key) {
+  const { block, entry } = findTarget(plan, id);
+  const { keys: schema, what, renamed } = entry ? RUN_KEYS.issue : RUN_KEYS.preamble;
+  const keys = entry ? entry.keys : block.preamble.keys;
+
+  // Checked HERE rather than by the caller's round-trip parse, which structurally cannot see it: a key
+  // outside `[a-z_]+` — `test-selector` for `test_selector`, a capitalized `Status`, a leading space —
+  // builds a line that ENDS the run instead of joining it, so the reparse finds nothing to reject and the
+  // file gains a junk line while the setting the operator asked for is silently dropped, at exit 0. A
+  // removal of such a key would match no line and exit 0 as a silent no-op.
+  // OWN property, never `in`: `in` walks Object.prototype, so `valueOf` and eleven other inherited names
+  // passed this guard and were spliced in as exactly that junk line.
+  if (renamed && Object.hasOwn(renamed, key)) {
+    throw new Error(`the ${what} "${key}" was renamed to "${renamed[key]}", so use ${renamed[key]} in its place`);
+  }
+  if (!Object.hasOwn(schema, key)) {
+    throw new Error(`unknown ${what} "${key}" — the ${what}s are: ${Object.keys(schema).join(', ')}`);
+  }
+  return { block, entry, keys };
 }
 
 function runSet(argv) {
@@ -369,9 +391,9 @@ export function readRunRecord(path) {
     edits.push(...[].concat(parsed));
   }
   edits.forEach((e, i) => {
-    const typed = e && ['planPath', 'id', 'key', 'value'].every((k) => typeof e[k] === 'string');
+    const typed = e && ['planPath', 'id', 'key'].every((k) => typeof e[k] === 'string') && (typeof e.value === 'string' || e.value === null);
     if (!typed || !isAbsolute(e.planPath)) {
-      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value }: ${JSON.stringify(e)}`);
+      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line) }: ${JSON.stringify(e)}`);
     }
   });
   // Older records keep no args, so the result's echo of the runId arg stands in for it. develop takes a numeric
@@ -410,16 +432,21 @@ function fileKey(path) {
   } catch { return path; }   // a missing file — loadPlan reports that
 }
 
-/** The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. */
+/**
+ * The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. A null
+ * value removes the key's line.
+ */
 function applyEdits(plan, edits, source) {
   let next = plan;
   for (const { id, key, value } of edits) {
+    const removes = value === null;
     try {
-      checkOneLine(key, value);
-      const text = withKeySet(next, id, key, value);
+      if (!removes) checkOneLine(key, value);
+      const text = removes ? withKeyRemoved(next, id, key) : withKeySet(next, id, key, value);
       next = { path: next.path, text, blocks: validate(parseBlocks(text), next.path) };
     } catch (err) {
-      throw new Error(`${source} sets ${id} ${key}=${value} in ${plan.path}, which fails: ${err.message}. Fix the plan, or set its "synced:" file key to that run's timestamp to skip the run`);
+      const what = removes ? `removes the ${key} line of ${id}` : `sets ${id} ${key}=${value}`;
+      throw new Error(`${source} ${what} in ${plan.path}, which fails: ${err.message}. Fix the plan, or set its "synced:" file key to that run's timestamp to skip the run`);
     }
   }
   return next;
@@ -492,18 +519,24 @@ function mergeArgs(plans, backlog = []) {
 // --backlog — the project's ready backlog files join the plan set
 // =============================================================================
 
-const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
+export const keyOf = (entry, key) => entry.keys.find((k) => k.key === key)?.value;
 const blockStatus = (block) => block.preamble.values.status ?? 'todo';
 const BACKLOG_STATUSES = ['todo', 'done'];
+/** The repo path an entry's `- file:` line names, without its `:<line>` suffix, or '' when it names none. */
+export const entryPath = (entry) => (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
 
-/** An entry a run can build without the user: ACTIONABLE, and neither closed nor waiting on the user. */
-const isReady = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open';
+/**
+ * An entry a run can build without the user: ACTIONABLE, neither closed nor waiting on the user, and not taken by
+ * a developer beside its own block, whose run syncs that entry or whose park entry carries its work.
+ */
+export const isReady = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && (keyOf(entry, 'status') ?? 'open') === 'open'
+  && !keyOf(entry, 'pulled');
 
 /** An ACTIONABLE entry whose fix failed. A fix-mode developer rebuilds it with its file, so its file waits for triage. */
 const waitsOnUser = (entry) => keyOf(entry, 'decision') === 'ACTIONABLE' && keyOf(entry, 'status') === 'needs-attention';
 
 /** A block a --backlog launch builds: a todo block, or a done one that took a new ready entry, with no entry waiting on the user. */
-const isBacklogBlock = (block) => BACKLOG_STATUSES.includes(blockStatus(block))
+export const isBacklogBlock = (block) => BACKLOG_STATUSES.includes(blockStatus(block))
   && block.issues.some(isReady) && !block.issues.some(waitsOnUser);
 
 /** The `.md` files of the backlog folder. A folder no run has written an entry to yet does not exist, and holds none. */
@@ -616,7 +649,7 @@ function heldBackNote(path, { planPath, id, status }) {
  * entry's decision, so a file with no ACTIONABLE entry is skipped before it is folded, which keeps its records
  * from blocking the launch.
  */
-function foldBacklog(dir, given, records, note) {
+export function foldBacklog(dir, given, records, note) {
   const taken = new Set(given.map((p) => fileKey(p.path)));
   const folds = [];
   for (const path of backlogPaths(dir, note)) {
@@ -646,15 +679,15 @@ const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists 
 // first value of each list is at least as strong as every default.
 export const STRENGTH = { model: ['fable', 'opus', 'sonnet', 'haiku'], effort: ['max', 'xhigh', 'high', 'medium', 'low'] };
 
-/** The entries a developer will actually work: ACTIONABLE, and not already closed by an earlier run. */
+/** The entries a developer will actually work: ACTIONABLE, not already closed by an earlier run, and not taken by another block's developer. */
 const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
-  && !['fixed', 'stale'].includes(keyOf(e, 'status')));
+  && !['fixed', 'stale'].includes(keyOf(e, 'status')) && !keyOf(e, 'pulled'));
 
 /** The line count of every distinct file a block's open entries name: its `- loc:` line, else the file itself. */
 function blockFiles(block, repo) {
   const files = new Map();
   for (const entry of openActionable(block)) {
-    const path = (keyOf(entry, 'file') ?? '').replace(/:\d+$/, '');
+    const path = entryPath(entry);
     if (!path || files.has(path)) continue;
     const stated = Number(keyOf(entry, 'loc'));
     if (Number.isInteger(stated) && stated > 0) { files.set(path, stated); continue; }
@@ -782,7 +815,7 @@ function runArgs(argv, note, invokedScript) {
   const flush = () => { for (const { f, was } of writes) if (f.text !== was) writeFileSync(f.path, f.text); };
   if (!folded.length && !added.length) {
     flush();
-    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE and status open and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE, status open and no pulled line, and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
   }
   const merged = mergeArgs(folded, added);
   if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');

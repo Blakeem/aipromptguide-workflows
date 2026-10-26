@@ -66,6 +66,7 @@ const ISSUE_KEYS = {
   theme: null,
   branch: null,                                // a park entry's branch, which holds the parked block's work
   origin: null,                                // a park entry's <planPath>#<block id>, the block that work was built for
+  pulled: null,                                // <runId>#<block id> of the developer that took the entry beside its block
 };
 
 // The two runs a write tool upserts into, each with the noun its failures name. Exported because a key

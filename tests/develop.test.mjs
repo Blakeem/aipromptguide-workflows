@@ -93,7 +93,12 @@ const TASK_CODE = {
   section: "the code this block's required changes add or change. Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding",
   fix: "the code each ACTIONABLE entry's fix adds or changes, and the sibling paths of each ACTIONABLE entry's root cause that lie in code this block's text does not exclude and in code no other block of the plan owns. Every line an ACTIONABLE entry's fix adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding",
 };
-const CODE_ZONES = (mode) => `CODE ZONES - every piece of code lies in one of three zones: - Task code: ${TASK_CODE[mode]}. - Connected code: the code a reach step from the task code finds, which is its callers and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it, apart from code this block's text excludes or another block of the plan owns. - Other code: everything else.`;
+// Under proactive, a pulled backlog entry's fix is task code too, since acceptance judges it as the block's work.
+const PULLED_TASK_CODE = ", and the code each pulled backlog entry's fix adds or changes";
+const taskCode = (mode, policy) => (policy === 'proactive' ? TASK_CODE[mode].replace('. Every line', `${PULLED_TASK_CODE}. Every line`) : TASK_CODE[mode]);
+// The proactive "Not a regression" item that excuses a pulled entry's fix.
+const pulledRegressionItem = (id) => `- a behavior change that closes the defect of a backlog entry E:/r/runs/t/PULLED-${id}.md lists. It is not a regression only when you confirm from the code that the baseline behavior it removes was that entry's defect and that the change alters no other behavior.`;
+const CODE_ZONES = (mode, policy = 'focused') => `CODE ZONES - every piece of code lies in one of three zones: - Task code: ${taskCode(mode, policy)}. - Connected code: the code a reach step from the task code finds, which is its callers and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs that describe it, apart from code this block's text excludes or another block of the plan owns. - Other code: everything else.`;
 // A feature or section block may change connected code for a defect its diff neither introduces nor exposes: any such
 // defect under proactive, and one in a function or method that holds task code under focused.
 const CHANGE_ZONES = {
@@ -1459,7 +1464,7 @@ section('a park that saved no commit writes an entry built from the accepted bas
 section('a park after a halt that may leave work staged or the tree unsafe stays blocked, with one rule for its two routes');
 // The branch's first parent holds committed work, and in stage mode staged work, so its diff omits that part, and the entry may not be the block's whole work.
 {
-  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" values to the new entry\'s "- origin:" line. Otherwise set that entry\'s "- status:" to stale, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and set the block back to todo.';
+  const HELD = 'These parked blocks stay blocked until you resolve their halt: block-a. Once a block\'s halt is resolved, set its status to backlogged when its branch holds all of its work and its backlog file holds an entry that links that branch, so that entry is the one place its work continues from, and never set it back to todo. For a fix block, that route also sets to stale each entry whose branch its round 1 restored and whose work the new branch\'s tree holds, deletes that branch with `git -C E:/repo branch -D <branch>`, and adds that entry\'s "- origin:" values to the new entry\'s "- origin:" line. Otherwise set that entry\'s "- status:" to stale, remove the "- pulled:" line of each entry its "Pulled:" line names, delete the branch with `git -C E:/repo branch -D <branch>` when it exists, and set the block back to todo.';
   for (const [what, respond] of [
     ['staging-unconfirmed', { develop: { ...DEV_OK, unstaged_confirmed: false }, park: PARK_OK }],
     ['rejected-staged', { ...GREEN_RUN, acceptance: { ...ACC_FAIL, staged: true }, park: PARK_OK }],
@@ -1586,6 +1591,8 @@ section('a fix block that parks supersedes each branch its round 1 restored');
   // The superseded entry's origin blocks keep their criteria in the entry that now carries their work.
   ok(pk.includes('Then append to this entry\'s "- origin:" line, each after ", ", every <planPath>#<block id> value that the "- origin:" line of those entries holds and this line does not'),
     'the new entry adds the origins of each entry it supersedes');
+  ok(pk.includes('The pulled list is empty, plus each id that the "Pulled:" line of an entry in superseded_entries names, since this entry\'s branch now holds that work too.'),
+    'a focused fix park still carries the Pulled line of each entry it supersedes, since its branch now holds that pulled work');
   ok(pk.indexOf('Then delete each RESTORED branch with `git -C E:/repo branch -D <it>`, since the new commit\'s history holds its work, and return superseded_entries') > pk.indexOf('f. Confirm'),
     'and deletes each restored branch only after it confirms the new commit');
   ok(pk.includes('Return superseded_entries=[] whenever step 1 makes no commit.') && pk.includes('end the **What:** with the line "Supersedes: <those ids>, whose branches this entry\'s branch now holds."'),
@@ -2820,10 +2827,10 @@ section('acceptance lists what is not a regression from one rule, in every mode 
   const fixAsFeature = asBlockA(passage(fixBus, 'fix-a'), 'fix-a').replaceAll(REQUIRED_BY.fix, REQUIRED_BY.feature).replaceAll("an entry's **Fix:**", "this block's own text").replaceAll(CHANGE_ZONES.diffOnly, CHANGE_ZONES.changedFunction);
   ok(feature !== '' && asBlockA(passage(bus, 'block-b'), 'block-b') === feature && fixAsFeature === feature,
     'focused: every frame renders one passage, apart from the block id, the fix frame\'s ACTIONABLE-entry and **Fix:** wording, and its zones, which leave out a function that holds task code');
-  ok(passage(proBus, 'block-a') !== '' && passage(proBus, 'block-b').replace('"PROACTIVE block-b:"', '"PROACTIVE block-a:"') === passage(proBus, 'block-a'),
+  ok(passage(proBus, 'block-a') !== '' && passage(proBus, 'block-b').replace('"PROACTIVE block-b:"', '"PROACTIVE block-a:"').replace('PULLED-block-b.md', 'PULLED-block-a.md') === passage(proBus, 'block-a'),
     'proactive: the feature and section frames render one passage, apart from the block id');
-  ok(passage(proFixBus, 'fix-a') !== '' && passage(proFixBus, 'fix-a').replace('"PROACTIVE fix-a:"', '"FOCUSED fix-a:"') === passage(fixBus, 'fix-a'),
-    'a fix block renders one passage under both policies, apart from the logged-fix tag');
+  ok(passage(proFixBus, 'fix-a') !== '' && passage(proFixBus, 'fix-a').replace('"PROACTIVE fix-a:"', '"FOCUSED fix-a:"').replace(` ${pulledRegressionItem('fix-a')}`, '') === passage(fixBus, 'fix-a'),
+    'a fix block renders one passage under both policies, apart from the logged-fix tag and the proactive pulled-fix item');
 }
 
 section('a recorded amendment is logged, summed into the ledger and named in nextStep; zero is silent');
@@ -3697,7 +3704,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
     fix: 'NO scope creep beyond what each fix requires and the fixes the ZONE ROUTING below allows.',
   };
   const best = 'with the change that has the best long-term result: correct, simple, maintainable and consistent with the repo. Leave a change that another block of the plan owns to that block.';
-  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. ${scopeLine.fix}`;
+  const fixScope = `Fix each one as its **Fix:** line instructs, once VERIFY-FIRST has checked that line, minimally and surgically. Change nothing on behalf of an entry that is not ACTIONABLE, in any zone. An entry of this block that carries a "- pulled:" line counts as not ACTIONABLE, since another block's developer took it. ${scopeLine.fix}`;
   const buildLine = {
     focused: {
       feature: `Build it minimally and surgically; match conventions; ${scopeLine.feature}`,
@@ -3716,7 +3723,7 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
   const contest = '• A finding a reviewer RE-RAISED as "CONTESTS DISMISSAL": do NOT re-drop it — FIX it, or if it is truly a user-only call, ESCALATE it. A contested pre-existing finding that the ZONE ROUTING above does not fix goes to 7, with the default of leaving it unchanged, since that routing bounds every change you make. NEVER log the same dismissal twice.';
   const FIX_NOUN = 'fix of a defect already in the accepted baseline';
   const loggedFixRule = (tag, id, mode) => `${tag} (this run's change policy): append ONE line to ${STATE}/DECISIONS.md for each ${FIX_NOUN} that you made, in any zone, without ${REQUIRED_BY[mode]} requiring it, and that no earlier round logged, naming its file:line, what changed and why: \`${tag} ${id}: <file:line> — <what changed> — <why>\``;
-  const loggedFixItem = (tag, id, zones) => `- a behavior change that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect, that the change alters no other behavior, that it lies ${OWNED_CODE}, and that it lies ${zones}. Every other such break or change is a regression.`;
+  const loggedFixItem = (tag, id, zones) => `- a behavior change that a "${tag} ${id}:" line in ${STATE}/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline behavior it removes was itself a defect, that the change alters no other behavior, that it lies ${OWNED_CODE}, and that it lies ${zones}.${tag === 'PROACTIVE' ? ` ${pulledRegressionItem(id)}` : ''} Every other such break or change is a regression.`;
   const loggedFixExcuse = (tag, zones) => `Nor does it count a removed defect that a ${tag} line in DECISIONS.md names and that lies ${OWNED_CODE}, and ${zones}.`;
   const step4 = '4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no previously-accepted behavior was changed or broken, apart from a change that meets an item of the "Not a regression" list above.';
   const settled = (tag, policy) => `${STATE}/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per ${FIX_NOUN} that this run's ${policy} change policy let the developer make, a record. A ${tag} line is never skipped for its stated reason, since the regression rule below judges each one.`;
@@ -3743,6 +3750,8 @@ section('changePolicy defaults to focused, sets the developer\'s build aim and z
       ok(dev.includes(`${REGRESSION_DEF} After the blind review`), `${where}: the SELF-REVIEW defines a regression, a falsified comment or doc sentence included`);
       ok(dev.includes(loggedFixRule(tag, id, mode)) && !dev.includes(`${otherTag} (this run`), `${where}: each fix of a defect already in the accepted baseline that ${REQUIRED_BY[mode]} does not require gets one ${tag} line in DECISIONS`);
       ok(dev.includes(loggedFixExcuse(tag, zones)) && !dev.includes(otherTag), `${where}: the SELF-REVIEW states acceptance's logged-fix excuse in the zones acceptance names, and no other tag`);
+      ok((policy === 'proactive') === dev.includes('Nor does it count a change that closes the defect of a pulled backlog entry and alters no other behavior.'),
+        `${where}: the SELF-REVIEW ${policy === 'proactive' ? 'states' : 'leaves out'} acceptance's pulled-fix excuse`);
       ok((policy === 'focused' || mode === 'fix') === dev.includes('minimally and surgically'), `${where}: ${policy === 'focused' || mode === 'fix' ? 'the build is minimal and surgical' : 'no "minimally and surgically"'}`);
       ok(dev !== '' && !dev.includes('a little better'), `${where}: no closing line asks to leave touched lines a little better`);
       const acc = flat(r.prompt(`acceptance ${id}`));
@@ -3797,12 +3806,13 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   for (const [policy, frames] of Object.entries(FRAMES_BY_POLICY)) {
     for (const [mode, id, r] of frames) {
       const where = `${policy} ${mode}`;
-      const zoneMap = CODE_ZONES(mode);
+      const zoneMap = CODE_ZONES(mode, policy);
       const dev = flat(r.prompt(`develop ${id}`));
       const acc = flat(r.prompt(`acceptance ${id}`));
       const q = flat(r.prompt(`quality ${id}`));
       ok(count(dev, zoneMap) === 1 && count(acc, zoneMap) === 1,
-        `${where}: the developer and acceptance prompts each render the one zone map once, with this mode's task code: ${TASK_CODE[mode]}`);
+        `${where}: the developer and acceptance prompts each render the one zone map once, with this mode's task code: ${taskCode(mode, policy)}`);
+      ok((policy === 'proactive') === acc.includes(PULLED_TASK_CODE), `${where}: a pulled entry's fix is task code ${policy === 'proactive' ? 'under proactive' : 'only under proactive'}`);
       ok(q !== '' && !q.includes('CODE ZONES') && !q.includes('ZONE ROUTING'), `${where}: the blind reviewer sees no zone, since task code names the block's required changes`);
       ok(dev.indexOf(zoneMap) < dev.indexOf(routing(policy)) && dev.indexOf(routing(policy)) < dev.indexOf('PROCEDURE: '),
         `${where}: the developer reads the zone map, then the zone routing, before its phases`);
@@ -3822,7 +3832,7 @@ section('every developer and acceptance prompt renders one code-zone map, the de
   const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS), park: PARK_OK },
     { ...ONE_BLOCK, maxRounds: 1, changePolicy: 'proactive' });
   const closer = flat(closing.prompt('develop-closing block-a'));
-  ok(count(closer, CODE_ZONES('feature')) === 1 && closer.includes(`${routing('proactive')} ${fixesConnected} ${routingTail}`),
+  ok(count(closer, CODE_ZONES('feature', 'proactive')) === 1 && closer.includes(`${routing('proactive')} ${fixesConnected} ${routingTail}`),
     'the closing pass renders the same zone map and routing');
 }
 
@@ -4260,6 +4270,7 @@ section('every develop prompt that writes a round file says to Read an earlier l
   const park = await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 });
   const sites = [
     ['the developer risk file', flat(feat.prompt('develop block-a r1')), 1, 0],
+    ['the proactive developer risk and PULLED files', flat(proBus.prompt('develop block-a r1')), 2, 0],
     ['the blind quality file', flat(feat.prompt('quality block-a r1')), 1, 1],
     ['the feature-mode acceptance file', flat(feat.prompt('acceptance block-a r1')), 1, 1],
     ['the fix-mode acceptance file', flat(fix.prompt('acceptance fix-a r1')), 1, 1],
@@ -4430,4 +4441,172 @@ section('the rendered prompts name none of python, pytest, jest, npm, powershell
   const rules = [bus.prompt('develop block-a r1'), fixBus.prompt('develop fix-a r1'), bus.prompt('acceptance block-a r1'), fixBus.prompt('acceptance fix-a r1'), bus.prompt('quality block-a r1')]
     .map(flat).join(' ');
   ok(!/\b(?:python|pytest|jest|npm|powershell|plan-edit\.mjs args --backlog)\b/i.test(rules), 'the rendered prompts name no stack-specific tool');
+}
+
+// ---------------------------------------------------------------------------------------------
+// Pulled backlog entries — a proactive round-1 developer takes ready entries in its block's files
+// ---------------------------------------------------------------------------------------------
+// Two entries of one backlog file outside the run, in the id shape plan-pull.mjs lists.
+const PULLED_FILE_ID = 'old-run-blk-0a1b2c3d';
+const PULLED_FILE = `${BACKLOG}/${PULLED_FILE_ID}.md`;
+const PULL_A = `${PULLED_FILE_ID}-1`;
+const PULL_B = `${PULLED_FILE_ID}-2`;
+const pulledDev = (results, extra = {}) => ({ ...DEV_OK, pulled_results: results, ...extra });
+const pulledChecks = (checks) => checks.map(([issue_id, actually_fixed]) => ({ issue_id, actually_fixed }));
+const PRO_FIX_ONE = { ...FIX_ONE, changePolicy: 'proactive' };
+const pulledSync = (out) => out.statusSync.filter((e) => e.planPath === PULLED_FILE).map((e) => `${e.id}:${e.key}=${e.value}`).join(',');
+
+section('the proactive round-1 developer of every mode runs the pull step, and the focused one never does');
+{
+  const PULL_COMMAND = `node 'E:/r/tools/plan-pull.mjs' pullable --backlog '${BACKLOG}' --files '<path>,<path>,...' --exclude '${BUS}'`;
+  const proFix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }], { pulled_results: [] }), quality: CLEAN, acceptance: { ...FIX_PASS, pulled_checks: [] } }, PRO_FIX_ONE);
+  const frames = [['feature', proBus, 'block-a'], ['section', proBus, 'block-b'], ['fix', proFix, 'fix-a']];
+  for (const [mode, r, id] of frames) {
+    const dev = flat(r.prompt(`develop ${id} r1`));
+    ok(dev.includes('PULL READY BACKLOG ENTRIES, in round 1 only.') && dev.includes(PULL_COMMAND), `proactive ${mode}: round 1 runs plan-pull with the backlog folder and leaves out the run's own plan files`);
+    ok(dev.includes(`a. Append the line "- pulled: t#${id}" to the entry's "- <key>:" lines in its planPath`), `proactive ${mode}: each taken entry is marked with the run and block`);
+    ok(dev.includes(`b. List its id, one id per line, in ${STATE}/PULLED-${id}.md`), `proactive ${mode}: each taken id goes to the block's PULLED file`);
+    ok(dev.includes('aim for a round-1 context of about 200k to 350k tokens, your block\'s own work included'), `proactive ${mode}: the developer takes entries up to its capacity`);
+    ok(r.calls.find((c) => c.label === `develop ${id} r1`).opts.schema.required.includes('pulled_results'), `proactive ${mode}: the developer reports its pulled entries`);
+    ok(r.calls.find((c) => c.label === `acceptance ${id} r1`).opts.schema.required.includes('pulled_checks'), `proactive ${mode}: acceptance checks each pulled entry`);
+  }
+  ok(flat(proFix.prompt('develop fix-a r1')).includes('Once you have read your block and restored any unfinished branch, and before you build'), 'a fix block pulls after its restore');
+  for (const [mode, r, id] of [['feature', bus, 'block-a'], ['section', bus, 'block-b'], ['fix', fixBus, 'fix-a']]) {
+    const dev = r.prompt(`develop ${id} r1`);
+    ok(dev !== '' && !dev.includes('plan-pull.mjs') && !dev.includes('PULLED') && !dev.includes('pulled_results'), `focused ${mode}: no pull step and no pulled report`);
+    ok(!r.calls.find((c) => c.label === `develop ${id} r1`).opts.schema.required.includes('pulled_results'), `focused ${mode}: the schema asks for no pulled results`);
+    ok(!r.prompt(`acceptance ${id} r1`).includes('PULLED'), `focused ${mode}: acceptance judges no pulled entry`);
+  }
+  const later = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, false]]) }, { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true]]) }) }, PRO_ONE_BLOCK);
+  const r2 = flat(later.prompt('develop block-a r2'));
+  ok(r2 !== '' && !r2.includes('plan-pull.mjs') && r2.includes('Take no new entry.') && r2.includes('revert that entry\'s change surgically and report it FAILED'), 'a later round takes no new entry, and closes or reverts a pulled gap');
+}
+
+section('acceptance judges each pulled entry like a fix entry, and the closing acceptance parks on one only when the block depends on it');
+{
+  const two = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) } }, PRO_ONE_BLOCK);
+  const acc = flat(two.prompt('acceptance block-a r1'));
+  ok(acc.includes(`PULLED ENTRIES. READ ${STATE}/PULLED-block-a.md if it exists.`) && acc.includes(`- ${PULL_A}: FIXED - ${PULL_B}: STALE`), 'acceptance reads the PULLED file and the developer\'s last report');
+  ok(acc.includes('judge each id the file lists as a fix block\'s acceptance judges an issue') && acc.includes('A pulled entry whose claim fails, or whose FAILED change the diff still holds, is a gap.'), 'a pulled entry\'s gap fails the round like any other gap');
+  ok(!acc.includes('is never blocking'), 'a round with a later round has no closing rule');
+
+  const closing = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, false]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  const bar = flat(closing.prompt('acceptance block-a r2'));
+  ok(bar.includes('A pulled entry\'s gap, a regression its change causes included, is never blocking') && bar.includes('revert the change of each listed entry whose check is false, surgically'), 'the closing acceptance never grades a pulled gap blocking and reverts each unconfirmed pulled change before it stages');
+  ok(bar.includes('run the full gates once more. When they fail, the block\'s own work depends on a reverted change: put that change back, write a blocking gap for it, and return pass=false.'), 'a revert the block\'s own work depends on is restored and parks the block');
+  ok(bar.includes('Do NOT modify source code, apart from the PULLED ENTRIES reverts.'), 'those reverts are its one change to source code');
+  ok(flat(closing.prompt('develop-closing block-a')).includes('Take no new entry.'), 'the closing pass takes no new entry');
+
+  const proFixGap = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'SKIPPED' }], { pulled_results: [{ issue_id: PULL_A, status: 'FIXED' }] }), quality: CLEAN, acceptance: { ...FIX_PASS, fix_checks: [], pulled_checks: pulledChecks([[PULL_A, true]]) } }, PRO_FIX_ONE);
+  ok(proFixGap.labels.includes('acceptance fix-a r1') && !proFixGap.out.ledger[0].status.startsWith('no-changes'), 'a fix round whose own entries were all skipped but that built a pulled entry goes to the reviews');
+  ok(flat(proFixGap.prompt('acceptance fix-a r1')).includes('when the FIXED list in step 1 is empty and no pulled entry is reported FIXED, no claimed fix accounts for'), 'a pulled FIXED claim accounts for its change in a fix block');
+  ok(flat(proFixGap.prompt('acceptance fix-a r1')).includes('a non-empty diff with no FIXED claim of an entry or a pulled entry, a gate not satisfied'), 'the gap list counts a pulled FIXED claim as the procedure does');
+  // A confirmed pulled fix changes baseline behavior that no criterion names, so the regression rule must excuse it.
+  for (const [mode, accText, blockId] of [['feature', flat(two.prompt('acceptance block-a r1')), 'block-a'], ['fix', flat(proFixGap.prompt('acceptance fix-a r1')), 'fix-a']]) {
+    ok(accText.includes(`- a behavior change that closes the defect of a backlog entry ${STATE}/PULLED-${blockId}.md lists. It is not a regression only when`), `proactive ${mode} acceptance: a confirmed pulled fix is not a regression`);
+    ok(accText.includes(", and the code each pulled backlog entry's fix adds or changes."), `proactive ${mode} acceptance: a pulled fix is task code, as the developer's zones say`);
+  }
+  const focusedFixAcc = flat((await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: FIX_PASS }, FIX_ONE)).prompt('acceptance fix-a r1'));
+  ok(focusedFixAcc !== '' && !focusedFixAcc.includes('pulled backlog entry') && focusedFixAcc.includes('a non-empty diff with no FIXED claim, a gate not satisfied'), 'focused acceptance names no pulled fix');
+}
+
+section('a landed block syncs each pulled entry fixed, stale or needs-attention, and removes its pulled line');
+{
+  const landed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) } }, PRO_ONE_BLOCK);
+  eq(pulledSync(landed.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null,${PULL_B}:status=stale,${PULL_B}:pulled=null`, 'a confirmed FIXED entry syncs fixed and a confirmed STALE one stale, each in its own backlog file, and each loses its pulled line');
+  eq(JSON.stringify(landed.out.ledger[0].pulled), JSON.stringify([{ issue_id: PULL_A, status: 'FIXED', confirmed: true }, { issue_id: PULL_B, status: 'STALE', confirmed: true }]), 'the ledger row names each pulled entry');
+
+  const mixed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FAILED' }, { issue_id: PULL_B, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
+  eq(pulledSync(mixed.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null,${PULL_B}:status=needs-attention,${PULL_B}:pulled=null`, 'a FAILED entry and one the landing verdict never confirmed sync needs-attention');
+  ok(mixed.logs.some((l) => l.includes(`acceptance returned no pulled_check for ${PULL_B}`)), 'a missing check is logged');
+
+  // The round-1 verdict confirmed it, and the passing round-2 verdict did not check it, so only the latest verdict counts.
+  const earlier = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, { ...ACC_PASS, pulled_checks: [] }) }, PRO_ONE_BLOCK);
+  eq(pulledSync(earlier.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'an earlier verdict\'s check never confirms the landed work');
+
+  const unreported = await run({ ...GREEN_RUN, develop: pulledDev([]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
+  eq(pulledSync(unreported.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'an entry only acceptance names still syncs, so its pulled line never strands it');
+
+  const bogus = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: 'Not An Id', status: 'FIXED' }, { issue_id: PULL_A, status: 'SKIPPED' }]), acceptance: { ...ACC_PASS, pulled_checks: [] } }, PRO_ONE_BLOCK);
+  eq(bogus.out.statusSync.filter((e) => e.id !== 'block-a').length, 0, 'an id outside the backlog id shape and a status outside FIXED, STALE and FAILED make no edit');
+  eq(bogus.logs.filter((l) => l.includes('names no backlog entry or status → ignored')).length, 2, 'and each is logged');
+  const staleOwnFix = await run({ ...GREEN_RUN, develop: firstRound(pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), pulledDev([{ issue_id: PULL_A, status: 'STALE' }])),
+    acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true]]) }) }, PRO_ONE_BLOCK);
+  eq(pulledSync(staleOwnFix.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null`, 'a STALE report after the block\'s own FIXED report syncs fixed, as a fix issue does');
+
+  const refuted = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
+  ok(refuted.logs.some((l) => l.includes(`CONTRADICTS ITS OWN PASS`) && l.includes(`refuted pulled claims=${PULL_A}`)), 'a pass that refutes a pulled claim is flagged as contradicting itself');
+  ok(!landed.logs.some((l) => l.includes('CONTRADICTS ITS OWN PASS')), 'a pass that confirms every pulled claim is not');
+  const closingRefuted = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: firstRound({ ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, false]]) }, { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) }) }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  ok(closingRefuted.out.ledger[0].staged && !closingRefuted.logs.some((l) => l.includes('CONTRADICTS ITS OWN PASS')), 'a closing pass that refutes a pulled claim reverted it, so it is no contradiction');
+  eq(pulledSync(closingRefuted.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'and the refuted entry goes back to the backlog');
+
+  const ownRun = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: `${PULLED_FILE_ID}-3`, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: [] } },
+    { ...PRO_ONE_BLOCK, plans: [BLOCKS[0], { id: 'other', planPath: PULLED_FILE, mode: 'fix', gate: 'green', status: 'done' }] });
+  eq(pulledSync(ownRun.out), '', `an entry of a file this run builds as a block makes no pulled edit`);
+}
+
+section('a park that saved the block keeps its pulled entries, and every other unlanded end returns them to the backlog');
+{
+  const parked = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  eq(pulledSync(parked.out), '', 'a park whose commit holds the pulled work keeps each entry\'s status and pulled line');
+  const parkedPrompt = flat(parked.prompt('park:block-a'));
+  ok(parkedPrompt.includes('When step 1 made a commit and the pulled list is not empty, end the **What:** with the line Pulled: <the pulled list>, whose work this entry\'s branch holds.')
+    && parkedPrompt.includes(`The pulled list is ${PULL_A}, plus each id ${STATE}/PULLED-block-a.md lists, when it exists, that is not one of ${PULL_A} and whose fix`), 'the park entry names the pulled ids the engine holds on the branch, so their statuses follow it');
+  ok(parkedPrompt.includes('Once this entry is skipped, or set stale while its block is rebuilt from todo, remove only that line.'), 'the Pulled line says how a discarded park releases its entries');
+  const focusedPark = flat((await run({ ...GREEN_RUN, acceptance: ACC_FAIL, park: PARK_OK }, { ...ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
+  ok(focusedPark !== '' && !focusedPark.includes('PULLED') && !focusedPark.includes('Pulled:'), 'a focused feature park names no pulled file and no Pulled line');
+
+  // Round 1 fixed both, and the closing pass reverted A, so the branch holds only B's fix.
+  const reverted = await run({ ...GREEN_RUN,
+    develop: firstRound(pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'FIXED' }]), pulledDev([{ issue_id: PULL_A, status: 'FAILED' }, { issue_id: PULL_B, status: 'FIXED' }])),
+    acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, false], [PULL_B, true]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  eq(pulledSync(reverted.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'a saved park returns an entry whose change was reverted to the backlog, and keeps only the one its branch holds');
+  ok(flat(reverted.prompt('park:block-a')).includes(`The pulled list is ${PULL_B}, plus each id`), 'and its Pulled line names only the entry the branch holds');
+  const staleAfterFixed = await run({ ...GREEN_RUN,
+    develop: firstRound(pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), pulledDev([{ issue_id: PULL_A, status: 'STALE' }, { issue_id: PULL_B, status: 'STALE' }])),
+    acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  eq(pulledSync(staleAfterFixed.out), `${PULL_B}:status=needs-attention,${PULL_B}:pulled=null`, 'a park keeps a STALE report of the block\'s own fix on its branch, and returns a plain STALE one, which the cleared tree may no longer confirm');
+
+  const unlinked = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, park: { ...PARK_OK, entry_written: false } }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  ok(String(unlinked.out.nextStep ?? '').includes(`When the pulled list of block-a is not empty, end its entry's **What:** with the line \`Pulled: <the pulled list>, whose work this entry's branch holds.`)
+    && String(unlinked.out.nextStep ?? '').includes(`Its pulled list is ${PULL_A}.`), 'a park whose entry is not confirmed tells the operator to name the pulled entries its branch holds');
+  ok(!String(parked.out.nextStep ?? '').includes('pulled list'), 'a confirmed park entry needs no such line');
+
+  const empty = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, park: PARK_EMPTY }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  eq(pulledSync(empty.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'a park that saved nothing returns each pulled entry to the backlog');
+
+  const held = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }], { unstaged_confirmed: false }), park: PARK_OK }, PRO_ONE_BLOCK);
+  eq(pulledSync(held.out), '', 'a held park whose commit holds the work keeps its pulled entries too');
+}
+
+section('a park names each unreported pulled entry its commit holds, releases the rest, and a halt before the clean-baseline check still syncs the reported ones');
+{
+  // The round-1 developer may have marked entries before it died, and only its PULLED file names them.
+  const dead = flat((await run({ develop: null, park: PARK_OK }, PRO_ONE_BLOCK)).prompt('park:block-a'));
+  ok(dead.includes(`The pulled list is empty, plus each id ${STATE}/PULLED-block-a.md lists, when it exists, that no report or verdict of the run names and whose fix, as its entry in ${BACKLOG}/<the id without its last "-<n>">.md describes it, \`git -C E:/repo diff aipg-unfinished/`),
+    'a dead round-1 developer\'s park names on its Pulled line each marked entry whose fix its commit holds');
+  ok(dead.includes(`4. RELEASE, whatever steps 1 to 3 did. READ ${STATE}/PULLED-block-a.md if it exists.`) && dead.includes('For each id the file lists that no report or verdict of the run names and that no "Pulled:" line step 3 wrote names, nothing closes that line, so remove it'),
+    'and removes the pulled line of every other entry its PULLED file lists');
+  const known = flat((await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, false]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 })).prompt('park:block-a'));
+  ok(known.includes(`For each id the file lists that is not one of ${PULL_A}, ${PULL_B} and that no "Pulled:" line`), 'the park leaves alone each entry a report or a verdict of the run names');
+  const focusedDead = flat((await run({ develop: null, park: PARK_OK }, ONE_BLOCK)).prompt('park:block-a'));
+  ok(focusedDead !== '' && !focusedDead.includes('RELEASE'), 'a focused park releases nothing');
+
+  const dirty = await run({ develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }], { baseline_dirty_files: 2 }) }, PRO_ONE_BLOCK);
+  ok(dirty.out.halted === true && !dirty.labels.some((l) => l.startsWith('park')), 'a dirty baseline halts and parks nothing');
+  eq(pulledSync(dirty.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'and the entries its developer reported still go back to the backlog');
+}
+
+section('a commit halt on an accepted block tells the operator to fold the backlog files before closing its pulled entries');
+{
+  const hooked = { ...ACC_C, commit_subject: 'rewritten by a hook' };
+  const held = await run({ ...C_RUN, develop: { ...DEV_C, pulled_results: [{ issue_id: PULL_A, status: 'FIXED' }] }, acceptance: { ...hooked, pulled_checks: pulledChecks([[PULL_A, true]]) } }, { ...COMMIT_ONE, changePolicy: 'proactive' });
+  const reason = String(held.out.haltReason ?? '');
+  ok(reason.includes(`also run \`plan-edit.mjs args --backlog ${BACKLOG}\`, which applies this run's statuses to the backlog files even when it exits with \`nothing to build\`, and only then set each pulled entry ${STATE}/PULLED-${C_BLOCK.id}.md lists that ${STATE}/acceptance-review-${C_BLOCK.id}-r1.md confirmed closed to \`fixed\` or \`stale\`.`),
+    'the fold comes before the hand edit, so a later fold never overwrites it');
+  ok(!reason.includes('fix issue'), 'a feature block names no fix issue');
+  eq(pulledSync(held.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'the run syncs the entry as not landed, which that fold applies');
+  const focused = String((await run({ ...C_RUN, acceptance: hooked }, COMMIT_ONE)).out.haltReason ?? '');
+  ok(focused !== '' && !focused.includes('--backlog'), 'a focused block\'s note names no backlog fold');
 }

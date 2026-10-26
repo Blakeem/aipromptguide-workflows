@@ -10,11 +10,14 @@ Most of them build and verify this repo's own artifacts. **`plan-block.mjs` is t
 DURING a workflow**, invoked by agents that develop-cycle and refine-cycle hand a command. Its argv
 shape, its stdout bytes and its exit codes are a run-time contract two engines depend on — change them
 and you change what a developer agent receives, so treat it as engine surface, not dev machinery.
+`plan-pull.mjs` runs during a develop run too, invoked by a proactive round-1 developer, so its argv and
+its JSON output are engine surface the same way.
 
 | File | What it does |
 |---|---|
 | `plan-block.mjs` | Prints ONE `## Plan: <id>` block out of a multi-unit plan file, byte-exact, or `--list`s the file's control data. It reads the plan-bus metadata grammar. **Called by agents at run time** (see above). Keeps a multi-unit plan out of every agent's context and makes the block's end a parser's decision rather than an agent's. |
 | `plan-edit.mjs` | Writes plan files, the only tool that does: `set` upserts one block or issue metadata line, `move` relocates an issue entry (a cut, never a copy), `args` folds finished develop runs' statuses into the plans and prints the next launch's args. **Operator-invoked between runs**, never handed to a run-time agent. It is a separate file from `plan-block.mjs` because the run-time allowlist rule covers every subcommand of the file it names. Imports plan-block's exported grammar. |
+| `plan-pull.mjs` | Prints, read-only, the ready backlog entries in the files a block changes: `pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]`. **Called by a proactive round-1 developer at run time**, so it holds no write verb. Imports the backlog rules from `plan-edit.mjs`. |
 | `plugin-access.mjs` | `check`s for, and on the user's yes `grant`s, the Read allow rule in the user settings that lets the Workflow tool launch an **installed** plugin's engines. A plugin path through a link gets a second rule for the resolved folder. The tool refuses a scriptPath the session cannot already read, and a plugin cannot grant itself its own folder. **Run by each skill's first step**, operator-side, never by a run-time agent, apart from the develop and debug skills, whose `onboard.mjs` check asks for access through the exported `accessState`. A cache install is granted the plugin folder above the version folder, so updates keep the rule. |
 | `onboard.mjs` | Asks every setup answer a build needs from the user once per repo, together. `check --root --repo` prints `ready <key> policy=<policy> delivery=<commit\|stage>` when nothing is missing. Otherwise it prints `ask <key>`, then each open question with its options and the one `save` command. The questions are plugin access (skipped when the working directory holds the plugin folder, or when `--access session` says the user declined it and ran `/add-dir` for this session), the change policy, the delivery, and, only beside the delivery, whether to hide Claude's author details. The policy and delivery options list the recommendation first: `proactive` and `commit` when every commit of the repo is the user's own, else `focused` and `stage`. `check` takes `--access session`, which writes nothing. `save` takes `--access allow\|session`, `--policy`, `--delivery commit\|stage` and `--attribution hide\|keep`, writes the user settings once for access and attribution and the store through `project-settings.mjs`, then prints what `check` prints. It reads every answer from where its tool keeps it, so a skill runs it before every run. **Operator-invoked** by the develop and debug skills' first step, never by a run-time agent. |
 | `project-settings.mjs` | Holds each repo's settings in `<root>/projects.json`, which maps a repo key to an object whose optional fields are `changePolicy` (`focused`, `proactive` or `auto`, and the engines take only the first two), `commit` (a boolean, whether develop commits each accepted block), `provision` (the command that readies a fresh run worktree for the gates, or `none`), `worktreeDir` (the absolute parent folder of the run worktrees, when it is not the default one under the repo) and the role settings `models` and `efforts`, each mapping a role key (`develop`, `park`, `quality`, `acceptance` or `sweep`) to a model name or a reasoning level. `check` prints a repo's saved policy, and `set` saves `--policy focused|proactive|auto`, `--commit on|off`, `--provision "<cmd>"|none`, `--worktree-dir <abs dir>|default` or any of them together and keeps every other key. The value `default` removes `worktreeDir`. A repo with no saved policy reads `missing` from `check`, whatever else it saved. `commit` prints `on <key>`, `off <key>` or `missing <key>` for the saved commit choice and never asks or recommends. `provision` prints `{"key":...,"provision":...,"worktreeDir":...}`, each null when none is saved. `onboard.mjs` imports `POLICIES`, `checkPolicy`, `repoSettings`, `saveRepoSettings` and `recommendedPolicy`. `roles` prints the repo's saved `models` and `efforts` as one JSON line. `set-roles` merges the roles named in `--models` and `--efforts` into them and keeps every other setting, and the value `default` removes a role's saved value. The tool imports the `model:` and `effort:` sets from plan-block's exported grammar and holds its own copy of the role keys, and a test compares all three with the develop engine's. `backlog` prints the project's backlog folder, `<root>/backlog/<project>/`, and never creates it. `<project>` is the key's last path segment without the characters a Windows file name refuses and cut to 48 characters, a hyphen, and the first 8 hex digits of the key's SHA-256, taken after case folding where keys fold, so two repos with the same folder name get different folders. The key is the repo's main checkout, so a linked worktree shares its settings and its backlog folder. A bare repository or a separate git dir is keyed by its git dir. For a missing key, `check` recommends `proactive` when the repo has no commits or only the user's `git config user.email` as author, and `focused` otherwise. **Operator-invoked** through `onboard.mjs` or by the develop guide's §2 steps 3 and 4, §4 and §10, never by a run-time agent. develop takes the folder `backlog` prints as its `backlogDir` arg. |
@@ -41,7 +44,7 @@ node tools/plan-block.mjs <plan.md|plan-name> --list          # { goal, ordered,
 It parses the plan-bus metadata grammar: file keys (`goal`, `ordered`, `suite`, `synced`,
 `sweep`), a block preamble (`mode`, `gate`, `status`, `model`, `effort`, plus informational
 `test_selector`/`depends_on`), and `### [<id>]` issue entries in fix-mode blocks. An issue entry holds `id`, `status`, `file`, `loc`,
-`severity`, `category`, `lens`, `size`, `decision`, `theme`, and a park entry's `branch` and `origin`. A `- effort:` line in an entry fails the parse with a
+`severity`, `category`, `lens`, `size`, `decision`, `theme`, a park entry's `branch` and `origin`, and `pulled`, the `<runId>#<block id>` of a developer that took the entry beside its block. A `- effort:` line in an entry fails the parse with a
 message that names the entry and says the key was renamed to `size`. `plan-edit.mjs set` refuses `effort=` on an
 issue entry with the same rename. `model` takes `opus | sonnet | haiku | fable` and names the block's developer model. `effort` takes `low | medium | high | xhigh | max` and
 names the block's developer reasoning level. `--list` emits the file keys plus a `blocks`
@@ -119,6 +122,10 @@ no record names, or whose plan file is gone, is not held back. A writer plan fil
 set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file keys, so they take the given
 plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
 ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.
+An entry with a `- pulled:` line is not ready, so it neither makes its file buildable nor weighs in `--pack`, since
+the developer that pulled it, or that block's park entry, builds it. A status edit whose `value` is null removes its key's
+line, with the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
+line that way.
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`
@@ -136,6 +143,23 @@ ACTIONABLE, or one whose open ACTIONABLE issue carries a `- branch:` line, stays
 unfinished branches never restore in one round 1. A pass row is `{ id: <first>-plus-<n>, mode: fix,
 model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes each member's status and each
 issue's into the file that holds it. Packing regroups blocks, so an `ordered: true` file is refused.
+
+## plan-pull.mjs
+
+```bash
+node tools/plan-pull.mjs pullable --backlog <dir> --files <path,...> [--exclude <plan.md,...>]
+```
+
+Prints a JSON array of `{ id, title, planPath, file, size }`, one per entry a `plan-edit.mjs args --backlog <dir>`
+launch would build whose `- file:` path names one of `--files`, compared with forward slashes and no leading `./`.
+It folds the run records into each backlog file in memory and applies every file and entry rule of `--backlog`,
+the writer hold included. It also leaves out an entry with a `- branch:` line, which restores parked work and
+builds alone, an entry with a `- pulled:` line, an entry whose id is not its file's name and `-<n>`, since develop
+finds a pulled entry's file from its id, and every entry of an `--exclude` file, which develop passes as the run's
+own plan files. It writes nothing, and each fold note it passes on starts `in memory only:`. Exit 0 prints the
+array, a missing folder prints `[]`, and exit 1 prints the reason on stderr. develop's proactive round-1
+developer runs it, so the command needs its own allowlist rule beside `blockTool`'s, and the file holds no write
+verb for the reason `plan-edit.mjs` is a separate file.
 
 ## gen-flows.mjs
 
