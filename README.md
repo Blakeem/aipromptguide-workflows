@@ -157,6 +157,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-25
 
+- **A develop block lands when its closing acceptance finds no blocking problem.** After the last
+  round fails, the closing pass gets a blind review when its changes need one. Then acceptance sorts
+  each problem as blocking or not blocking. A block with no blocking problem lands, and each other
+  problem goes to the backlog. A block with a blocking problem parks, and its backlog entry lists the
+  blocking problems first.
 - **A parked develop block keeps its work on a branch.** A park saves the block's work as a commit on
   the branch `aipg-unfinished/<id>` and appends one backlog entry that links the branch and says why
   the block parked. The block's status is set to `backlogged` when a fix run can build its entry. Once

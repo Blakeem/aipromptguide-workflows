@@ -74,9 +74,9 @@ When building to a spec, gate the work in stages that must each pass:
    nothing regressed.
 
 Stage 1 runs on a block's first build and on each change the developer judges as needing review, and it
-must be clean before stage 2 runs. A change the developer judges low risk goes to stage 2 directly with
-its risk answers, and stage 2 checks each answer against the code. A wrong answer sends the developer's
-next change to stage 1.
+must be clean before stage 2 runs, apart from develop's closing pass, whose stage 2 sorts the findings of
+its stage 1. A change the developer judges low risk goes to stage 2 directly with its risk answers, and
+stage 2 checks each answer against the code. A wrong answer sends the developer's next change to stage 1.
 
 **Reviewer memory.** Reviewers stay fresh but keep the settled decisions. A blind reviewer that reruns
 each round would otherwise re-flag every finding the developer declined on purpose, and that
@@ -93,7 +93,9 @@ earlier finding stays closed on every sibling path or sits in the ledger, so it 
 regression check and the blind stage stays lean.
 
 A reviewer may contest a dismissal it believes is wrong (`CONTESTS DISMISSAL: <why>`) at any tier. The
-developer must then fix or escalate it and never silently re-dismiss it.
+developer must then fix or escalate it and never silently re-dismiss it. No developer follows develop's
+closing pass, so its acceptance counts a contest from that pass's blind review as a gap, unless the
+contested line is an escalation it holds.
 This bounds the loop and keeps a wrongly dismissed real defect from being suppressed.
 
 ### 6. Only messages, ledgers, user notes, and product are written
@@ -163,7 +165,8 @@ marked ACTIONABLE and a later run builds it. The user triages every other record
 developer adds a closing line to an entry in any file in that folder whose defect a
 fix it logs closes. Reviewers write only their numbered review files. One
 exception is develop's fix-mode acceptance verifier, which appends a harm with a separate cause to its
-source block's backlog file. A critic, an editor or a verifier may write one scratch probe beside the
+source block's backlog file. Another is develop's closing acceptance, which appends each gap it leaves
+when it lands a block. A critic, an editor or a verifier may write one scratch probe beside the
 listed files. Its temporary directory sits outside the repo and the run-state dir. Nothing outside
 this list is written.
 
@@ -313,10 +316,10 @@ that judgment encodes what today's model can judge, so a more capable model then
 A fixed value stays only where the agent that would judge lacks the information to judge. The round budget
 is one such value, since no agent inside a run's loop sees the run's trajectory. A hard limit of this kind
 ends the work loudly, with the work saved and the reason recorded, and never decides an outcome in silence.
-In develop, a block that hits the round budget gets one closing pass. It ships only when that pass records
-nothing that needs review and acceptance passes, and it parks otherwise. The orchestrating agent, which
-sees the trajectory, then judges with the user what comes next, and the record shows how to improve the
-next run.
+In develop, a block that hits the round budget gets one closing pass. It ships when the closing acceptance
+finds no blocking gap, and each gap it leaves goes to the backlog. Otherwise it parks. The orchestrating
+agent, which sees the trajectory, then judges with the user what comes next, and the record shows how to
+improve the next run.
 
 A written scale, such as the severity scale (#14), is the shared vocabulary judgments use, and is not a
 cutoff. When an agent judges its own work, a doubtful case takes the safer outcome, and another agent can

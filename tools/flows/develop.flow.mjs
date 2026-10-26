@@ -14,8 +14,7 @@
 // `partial slice complete (every selected block staged)` whether a sweep was wanted or not — so only
 // these scenarios can draw them.
 //
-// The develop SELF-LOOP ('the gate never goes green') is the only develop -> develop edge. It is also the
-// only route to a budget park with no review file, which the budget halt's "produced no review file" clause names.
+// The develop SELF-LOOP ('the gate never goes green') is the only develop -> develop edge.
 //
 // Four halts collapse into ONE `park-unsafe` status, so HALT_STATUS coverage cannot tell them apart: a
 // self-contradictory park report, a tree park could not clear, red gates after clearing, and a park agent
@@ -54,8 +53,8 @@ const base = {
 const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2, backlog_entries: 0, backlog_blocks: [] };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 const SWEEP_OK = { wrote_file: true, complete: true, gap_count: 0, suite_result: 'green' };
 // A closing pass that made only low-risk fixes and recorded nothing.
@@ -70,7 +69,7 @@ const FIX_SKIP   = devFix([{ issue_id: 'i-1', status: 'SKIPPED' }]);
 const ACC_FIX    = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, regression: false, fix_checks: [{ issue_id: 'i-1', actually_fixed: true }], backlog_entries: 0, backlog_blocks: [], gap_count: 0, suite_result: 'green' };
 
 // The clean full run every "what changes" scenario is a one-key edit of. Its closing pass returns a usable
-// list, so a scenario that runs out of rounds reaches the closing acceptance.
+// list, so a scenario that parks keeps the unusable-list line out of its park entry.
 const GREEN_RUN = { develop: DEV_OK, 'develop-closing': CLOSING_OK, quality: CLEAN, acceptance: ACC_PASS, 'final-sweep': SWEEP_OK };
 
 const firstRound = (a, b) => (label) => (/r1$/.test(label) ? a : b);
@@ -144,8 +143,8 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { develop: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { develop: 'ultra' } } },
-    // The developer and fix acceptance append to the backlog folder, so a run without one has nowhere to
-    // record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
+    // The developer, fix acceptance and closing acceptance append to the backlog folder, so a run without one
+    // has nowhere to record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
     { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },
     { name: 'backlog folder inside the repo', when: 'backlogDir lies inside target.repo', args: { ...base, backlogDir: 'E:/repo/backlog' } },
 
@@ -257,11 +256,12 @@ export default {
     },
     {
       // The develop SELF-LOOP: a gate that is not green re-develops with NO reviewer spawned, until the
-      // round budget runs out. The closing pass then parks the block, since it never had a blind review.
+      // round budget runs out. The closing pass then gets the block's first blind review, and the closing
+      // acceptance finds the gate red, a blocking gap, so the block parks.
       name: 'the gate never goes green',
       when: 'the block gate is never green',
       args: base,
-      respond: { develop: { ...DEV_OK, build_passed: false }, 'develop-closing': { ...CLOSING_OK, build_passed: false }, park: PARK_OK },
+      respond: { develop: { ...DEV_OK, build_passed: false }, 'develop-closing': { ...CLOSING_OK, build_passed: false }, quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK },
     },
 
     // ---- park: the ONE exit whose shape the `ordered` file key decides ----------------------------
@@ -513,18 +513,26 @@ export default {
       respond: { ...GREEN_RUN, [`develop ${FIX_BLOCK.id} r1`]: devFix([], { restore_failed: 'aipg-unfinished/flow-block-c: patch does not apply' }) },
     },
 
-    // ---- the closing pass: one developer after the last round, with no blind review after it --------
+    // ---- the closing pass: one developer after the last round, with no develop round after it ------
     {
-      // Its one route to acceptance: it recorded nothing and its changes owe no blind review.
-      name: 'a closing pass reaches acceptance',
-      when: 'the last round fails and the closing pass makes only low-risk fixes',
+      // Its changes owe no blind review, and the closing acceptance lands the block beside the gaps it leaves.
+      name: 'a closing acceptance lands the block',
+      when: 'the last round fails and the closing acceptance finds no blocking gap',
       args: { ...base, maxRounds: 1 },
-      respond: { ...GREEN_RUN, acceptance: firstRound(ACC_FAIL, ACC_PASS) },
+      respond: { ...GREEN_RUN, acceptance: firstRound(ACC_FAIL, { ...ACC_PASS, backlog_entries: 1, backlog_blocks: ['block-a'] }) },
     },
     {
-      // A fix that needs a blind review cannot get one after the last round, so the block parks naming it.
-      name: 'a closing pass records a fix that needs review',
-      when: 'the closing pass records a backlog entry',
+      // The develop-closing -> quality -> acceptance path: a change it judged not low risk gets one blind
+      // review, whose findings the closing acceptance sorts with no develop round between.
+      name: 'a closing pass gets a blind review',
+      when: 'the closing pass judges a change not low risk and the closing acceptance finds no blocking gap',
+      args: { ...base, maxRounds: 1 },
+      respond: { ...GREEN_RUN, 'develop-closing': { ...CLOSING_OK, review_needed: true }, quality: firstRound(CLEAN, FLAGGED), acceptance: firstRound(ACC_FAIL, ACC_PASS) },
+    },
+    {
+      // A blocking gap parks the block, and a backlog entry the closing pass listed parks nothing by itself.
+      name: 'a closing acceptance finds a blocking gap',
+      when: 'the closing acceptance finds a blocking gap',
       args: { ...base, maxRounds: 1 },
       respond: { ...GREEN_RUN, 'develop-closing': { ...CLOSING_OK, recorded_entries: ['flow-block-a-1'] }, acceptance: ACC_FAIL, park: PARK_OK },
     },

@@ -49,8 +49,9 @@ const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, resp
 const DEV_OK   = { baseline_dirty_files: 0, build_passed: true, test_outcome: 'passed', tests_run_count: 5, full_suite_outcome: 'passed', unstaged_confirmed: true, needs_user: false, plan_amendments: 0, backlog_entries: 0, backlog_blocks: [], review_needed: true };
 const CLEAN    = { wrote_file: true, clean: true, issue_count: 0, contested_dismissals: 0 };
 const FLAGGED  = { wrote_file: true, clean: false, issue_count: 2, contested_dismissals: 0 };
-const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0 };
-const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2 };
+// The backlog fields are what a closing acceptance reports, and an earlier round ignores them.
+const ACC_PASS = { wrote_file: true, pass: true, staged: true, earlier_reviews_read: 0, reachable: true, regression: false, evidence_recorded: true, gap_count: 0, backlog_entries: 0, backlog_blocks: [] };
+const ACC_FAIL = { wrote_file: true, pass: false, staged: false, earlier_reviews_read: 0, reachable: false, regression: false, evidence_recorded: true, gap_count: 2, backlog_entries: 0, backlog_blocks: [] };
 const PARK_OK  = { saved: true, cleared: true, gates_green: true, commit_sha: 'd1e2f3a4b5c60718293a4b5c6d7e8f9012345678', entry_written: true };
 // A park whose tree held no work of its block: no commit, and an entry that links no branch.
 const PARK_EMPTY = { ...PARK_OK, saved: false, commit_sha: '' };
@@ -71,7 +72,13 @@ const OVERRIDE_SKIPPED = 'A line whose reason starts `SKIPPED:` declines a findi
 const HOLD_ESCALATED = 'A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it: hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never fails acceptance. Name it in your file as held.';
 // The last DECIDE bullet of both acceptance frames, in a round that has a later round and in the closing pass.
 const FAIL_NEXT_ROUND = '• Otherwise → return pass=false (do NOT stage); the gaps you wrote drive the next develop round.';
-const FAIL_PARKS = '• Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.';
+const FAIL_PARKS = '• Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.';
+// The closing acceptance's two gap kinds, per frame: a blocking gap parks the block, and every other gap goes to the backlog.
+const closingBar = (kinds) => `CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file: • Blocking: a regression, a gate not satisfied, ${kinds}, a defect at medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no blind review has read, which is every gap your RISK AUDIT finds. • Not blocking: every other gap, such as a low or nit finding or a cleanup. A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap, sorted by the kinds above, unless the line it contests is a held escalation.`;
+const CLOSING_BAR = {
+  feature: closingBar('a criterion of this block not met, such as a change that is not reachable'),
+  fix: closingBar('an ACTIONABLE entry whose root cause is not closed (an incomplete claimed fix, an unconfirmed STALE claim or an ACTIONABLE entry reported SKIPPED), a change made for an entry that is not ACTIONABLE or that no FIXED claim accounts for'),
+};
 // The bullet fixes a regression at any tier under both policies, and escalates only one that only a change in other code closes.
 // The bullet also names where a prescribed construction's regression goes, in each mode's own word for the prescriber.
 const PRESCRIBER = { feature: "the block's text", section: "the block's text", fix: "an entry's **Fix:** line" };
@@ -459,25 +466,35 @@ section('every developer round records a snapshot of its tree in its risk file, 
   }
 }
 
-section('a block whose last round fails gets one closing pass with no blind review');
-// No round is left for a blind review, so the closing pass makes only low-risk fixes. It reaches acceptance
-// only when it listed nothing and owes no review, and otherwise parks naming each listed entry.
+section('a block whose last round fails gets one closing pass, whose acceptance lands it unless a gap blocks');
+// No develop round follows the closing pass. A blind review follows it only when its changes owe one, and the
+// closing acceptance lands the block when no gap it finds is blocking, writing each gap it leaves to the backlog.
 {
   const CLOSING_OK = { ...DEV_OK, review_needed: false, recorded_entries: [] };
   const ONE_ROUND = { ...ONE_BLOCK, maxRounds: 1 };
   const develop = (closingReturn) => (label) => (label.startsWith('develop-closing') ? closingReturn : DEV_OK);
   const parkText = (r) => flat(r.prompt('park:block-a'));
+  // A closing acceptance that lands the block and leaves two not blocking gaps in its backlog file.
+  const LANDS = { ...ACC_PASS, backlog_entries: 2, backlog_blocks: ['block-a'] };
 
-  const lands = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS), park: PARK_OK }, ONE_ROUND);
+  const lands = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, LANDS), park: PARK_OK }, ONE_ROUND);
   eq(lands.labels.join(), 'develop block-a r1,quality block-a r1,acceptance block-a r1,develop-closing block-a,acceptance block-a r2',
-    'nothing recorded and no review owed: the closing pass goes straight to one more acceptance');
-  eq(lands.out.status, 'done (all blocks staged)', 'whose pass stages the block');
+    'no review owed: the closing pass goes straight to the closing acceptance');
+  eq(lands.out.status, 'done (all blocks staged)', 'whose pass lands the block beside its not blocking gaps');
+  eq(syncOf(lands.out), 'block-a=done', 'the landed block syncs done');
+  eq(String(lands.out.ledger[0]?.status), 'done (staged, and the closing acceptance left 2 backlog entries)', 'its ledger status names the count of entries the closing acceptance left');
+  eq(lands.out.backlogEntries, 2, 'those entries count in backlogEntries');
+  const noCount = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, { ...LANDS, backlog_entries: 'x' }) }, ONE_ROUND);
+  eq(String(noCount.out.ledger[0]?.status), 'done (staged, and the closing acceptance gave no usable count of the backlog entries it left)',
+    'a landing whose count is unusable says so in its ledger status');
+  eq(noCount.out.backlogEntries, null, 'and leaves backlogEntries unknown');
+  eq(String(lands.out.backlogFiles), backlogFile('block-a'), 'in the block\'s own backlog file');
   ok(lands.out.ledger[0].closingPass === true && lands.out.ledger[0].rounds === 1, 'the ledger marks the closing pass and keeps the round count');
-  ok(lands.logs.some((l) => /round 1 ended without a passed acceptance → closing pass \(r2\), with no blind review after it/.test(l)), 'the log names the closing pass');
+  ok(lands.logs.some((l) => /round 1 ended without a passed acceptance → closing pass \(r2\), with no develop round after it/.test(l)), 'the log names the closing pass');
   const closer = flat(lands.prompt('develop-closing block-a'));
   ok(closer.includes('This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1.')
-    && closer.includes("so you are this block's CLOSING PASS, and no blind review follows you"),
-    'the closing pass is told what it is and that no blind review follows');
+    && closer.includes("so you are this block's CLOSING PASS, and no develop round follows you. A blind review follows you when the block's changes since its last blind review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap, and otherwise the block parks."),
+    'the closing pass is told what it is, what follows it, and what lands the block');
   ok(closer.includes('BUILD: CLOSING PASS. READ E:/r/runs/t/acceptance-review-block-a-r1.md.')
     && closer.includes('Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in CLASSIFY below, change no code for it.')
     && closer.includes('with a **Fix:** line naming the fix you would make')
@@ -486,59 +503,93 @@ section('a block whose last round fails gets one closing pass with no blind revi
   ok(closer.includes("That line sets the entry's \"- decision:\" to NEEDS_USER, by RECORD's decision rule."),
     'a recorded entry carries a Parked-with line, so the decision rule gives it NEEDS_USER');
   ok(closer.includes('or, in this closing pass, RECORDED as BUILD says'), 'the matrix counts a recorded finding as routed');
-  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block\'s park entry lands, or the block is accepted or dropped."'),
-    'each recorded entry names the park that holds the code it describes');
+  ok(closer.includes('After that line, add the line "**Parked with:** block block-a. Triage this entry once that block\'s park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing acceptance finds a blocking gap.'),
+    'each recorded entry names the park that would hold the code it describes');
   ok(closer.includes('When the dedup forbids the append, list the id of the entry that holds the item in recorded_entries instead.'),
     'an item an entry already holds is listed by that entry\'s id, not appended again');
+  ok(closer.includes("A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you."),
+    'a wrong risk answer is left to the closing blind review');
   ok(closer.includes('Write E:/r/runs/t/risk-block-a-r2.md'), 'it writes its own risk file');
   const closingSchema = lands.byLabel('develop-closing block-a')[0]?.opts?.schema ?? {};
   ok(String(closingSchema.required ?? '').includes('recorded_entries')
     && !('recorded_entries' in (lands.byLabel('develop block-a r1')[0]?.opts?.schema?.properties ?? {})),
     'only the closing pass returns recorded_entries');
-  ok(flat(lands.prompt('acceptance block-a r2')).includes('E:/r/runs/t/risk-block-a-r2.md'), 'the closing acceptance audits the closing pass\'s risk file');
+  const [earlyAcc, closingAcc] = [flat(lands.prompt('acceptance block-a r1')), flat(lands.prompt('acceptance block-a r2'))];
+  ok(closingAcc.includes('E:/r/runs/t/risk-block-a-r2.md'), 'the closing acceptance audits the closing pass\'s risk file');
+  ok(closingAcc.includes('makes it a blocking gap, since no round follows to send to a blind review') && !closingAcc.includes('which sends the next round to a blind review'),
+    'and a gap of that audit blocks the landing, since no round follows to send to a blind review');
+  ok(closingAcc.includes(`Your file holds no notes or observations. ${CLOSING_BAR.feature}`) && !closingAcc.includes('non-blocking section'),
+    'the closing acceptance sorts each gap into the blocking and the not blocking kind');
+  ok(!earlyAcc.includes('CLOSING BAR') && earlyAcc.includes('Your file holds no notes, observations or non-blocking section.'),
+    'an earlier round keeps the bar where every gap fails acceptance');
+  ok(closingAcc.includes(`• No blocking gap → APPEND each not blocking gap as ONE backlog entry to ${backlogFile('block-a')} only. Count it in backlog_entries and name "block-a" in backlog_blocks.`)
+    && closingAcc.includes(DEDUP('gap')) && closingAcc.includes(DECISION_RULE)
+    && closingAcc.includes('**What:** <the gap, the input or path that reaches it, and its harm>')
+    && closingAcc.includes('A nit or a cleanup takes "- category: cleanup" and no "- severity:" line.')
+    && closingAcc.includes('Then `git -C E:/repo add <this block\'s changed AND newly-created files>` (NEVER commit); return pass=true, staged=true, gap_count=0.'),
+    'with no blocking gap it appends each not blocking gap as one backlog entry with its decision, then stages the block');
+  ok(!earlyAcc.includes('APPEND each not blocking gap'), 'an earlier round appends no gap to the backlog');
+  ok(closingAcc.includes('Append each not blocking gap to the backlog as the first bullet says.'), 'a closing no-op pass appends its gaps too');
+  const accSchema = (r, label) => r.byLabel(label)[0]?.opts?.schema ?? {};
+  ok(String(accSchema(lands, 'acceptance block-a r2').required ?? '').includes('backlog_entries')
+    && !('backlog_entries' in (accSchema(lands, 'acceptance block-a r1').properties ?? {})),
+    'only the closing acceptance of a feature block reports backlog entries');
+  ok(String(accSchema(lands, 'acceptance block-a r2').properties?.gap_count?.description ?? '').startsWith('number of blocking gaps'),
+    'and its gap_count counts the blocking gaps alone');
+  ok(closingAcc.includes("This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file when it found issues.")
+    && earlyAcc.includes("This round's blind code review passed, or did not run"),
+    'the closing acceptance is told that its blind review may have found issues');
 
-  const fails = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
-  ok(fails.labels.includes('acceptance block-a r2') && fails.labels.includes('park:block-a'), 'a failed closing acceptance parks the block');
-  eq(fails.out.ledger[0].status, 'backlogged (not accepted within round budget)', 'as a budget park');
-  ok(parkText(fails).includes('**What:** <the line "Parked: the closing acceptance still failed.", then every finding and gap in E:/r/runs/t/acceptance-review-block-a-r2.md, copied verbatim>'),
-    'and the park entry copies that acceptance\'s gaps');
-
-  const recorded = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
-  ok(!recorded.labels.includes('acceptance block-a r2') && recorded.labels.includes('park:block-a'), 'a recorded entry parks the block with no acceptance');
-  ok(parkText(recorded).includes('the line "Parked before acceptance: it listed 1 backlog entry whose fix needs a blind review."')
-    && parkText(recorded).includes('The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.'),
-    'and its park entry names the entry and why');
-  ok(recorded.logs.some((l) => /the closing pass parks the block without acceptance: it listed 1 backlog entry/.test(l)), 'the log says so');
-
-  for (const [what, closingReturn, why] of [
-    ['a change it judged not low risk', { ...CLOSING_OK, review_needed: true }, 'its changes owe a blind review, since a round since its last blind review judged a change not low risk or gave no judgment'],
-    ['an unusable list of entries', { ...CLOSING_OK, recorded_entries: 'none' }, 'it returned no usable list of the backlog entries it listed'],
-  ]) {
-    const r = await run({ develop: develop(closingReturn), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
-    ok(!r.labels.includes('acceptance block-a r2') && r.labels.includes('park:block-a') && parkText(r).includes(why),
-      `${what}: the closing pass parks the block without acceptance, naming why`);
-  }
+  // A blocking gap parks the block, and its park entry lists the blocking gaps first.
+  const blocked = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
+  ok(blocked.labels.includes('acceptance block-a r2') && blocked.labels.includes('park:block-a'), 'a recorded entry reaches the closing acceptance, and a blocking gap parks the block');
+  eq(blocked.out.ledger[0].status, 'backlogged (not accepted within round budget)', 'as a budget park');
+  ok(parkText(blocked).includes('**What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/r/runs/t/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: t-block-a-x-1.">'),
+    'its park entry lists the blocking gaps first, then the rest, then the entries the closing pass listed');
+  ok(blocked.logs.some((l) => /the closing acceptance found 2 gap\(s\) that block its landing/.test(l)), 'the log says the gaps block the landing');
+  const recorded = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: ['t-block-a-x-1'] }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, LANDS) }, ONE_ROUND);
+  eq(recorded.out.status, 'done (all blocks staged)', 'a closing pass that recorded an entry still lands when no gap blocks');
+  ok(recorded.logs.some((l) => /the closing pass listed t-block-a-x-1, each a fix that needs a blind review/.test(l)), 'and the log names the entry');
+  const unlisted = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: null }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
+  ok(unlisted.labels.includes('acceptance block-a r2') && parkText(unlisted).includes(`so check ${backlogFile('block-a')} for an entry whose fix needs a blind review`),
+    'an unusable list reaches acceptance, and a park points its entry at the block\'s backlog file');
+  ok(unlisted.logs.some((l) => /the closing pass returned no usable list of the backlog entries it listed \(recorded_entries=null\)/.test(l)), 'the log says the list was unusable');
   // No round is left to re-run a red gate, so the closing acceptance judges it.
   const redClose = await run({ develop: develop({ ...CLOSING_OK, build_passed: false }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
   eq(redClose.labels.join(), 'develop block-a r1,quality block-a r1,acceptance block-a r1,develop-closing block-a,acceptance block-a r2,park:block-a',
     'a closing pass with a red gate still reaches the closing acceptance, then parks, with no extra round');
-  const unlisted = await run({ develop: develop({ ...CLOSING_OK, recorded_entries: null }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK }, ONE_ROUND);
-  ok(parkText(unlisted).includes(`so check ${backlogFile('block-a')} for an entry whose fix needs a blind review`),
-    'an unusable list points the park entry at the block\'s backlog file');
 
-  // A last verdict that found a risk judgment wrong, or a block never reviewed, leaves a review owed.
-  const misLast = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: { ...ACC_FAIL, risk_misclassified: true }, park: PARK_OK }, ONE_ROUND);
-  ok(!misLast.labels.includes('acceptance block-a r2') && parkText(misLast).includes('since an acceptance verdict found a risk judgment wrong'),
-    'a misclassified last verdict parks the closing pass for a blind review');
+  // A blind review owed after the closing pass runs once on its tree, and the closing acceptance reads its file.
+  const FLAGGED_AT_CLOSE = (label) => (/r2$/.test(label) ? FLAGGED : CLEAN);
+  for (const [what, respond] of [
+    ['a change it judged not low risk', { develop: develop({ ...CLOSING_OK, review_needed: true }), quality: FLAGGED_AT_CLOSE, acceptance: firstRound(ACC_FAIL, LANDS) }],
+    ['a last verdict that found a risk judgment wrong', { develop: develop(CLOSING_OK), quality: FLAGGED_AT_CLOSE, acceptance: firstRound({ ...ACC_FAIL, risk_misclassified: true }, LANDS) }],
+    ['a block that never had a blind review', { develop: (label) => (label.startsWith('develop-closing') ? CLOSING_OK : { ...DEV_OK, build_passed: false }), quality: FLAGGED_AT_CLOSE, acceptance: LANDS }],
+  ]) {
+    const r = await run(respond, ONE_ROUND);
+    ok(r.labels.join().endsWith('develop-closing block-a,quality block-a r2,acceptance block-a r2'),
+      `${what}: the closing pass gets one blind review, then the closing acceptance, with no develop round between`);
+    ok(flat(r.prompt('acceptance block-a r2')).includes('E:/r/runs/t/gate/quality-review-block-a-r2.md'),
+      `${what}: the closing acceptance reads the closing blind review's file`);
+    eq(r.out.status, 'done (all blocks staged)', `${what}: and lands the block when no gap blocks`);
+    ok(r.logs.some((l) => /the closing blind review found 2 issue\(s\) → the closing acceptance sorts them/.test(l)), `${what}: the log says the acceptance sorts its findings`);
+  }
+  // Before the closing pass a contest goes back to a developer, so the closing acceptance is the only stage left to sort one.
+  const contested = await run({ develop: develop({ ...CLOSING_OK, review_needed: true }), quality: (label) => (/r2$/.test(label) ? { ...FLAGGED, contested_dismissals: 1 } : CLEAN), acceptance: firstRound(ACC_FAIL, LANDS) }, ONE_ROUND);
+  ok(contested.labels.join().endsWith('develop-closing block-a,quality block-a r2,acceptance block-a r2')
+    && flat(contested.prompt('acceptance block-a r2')).includes(`A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a gap`),
+    'a closing blind review that contests a dismissal reaches the closing acceptance, which sorts the contest as a gap');
+  ok(contested.logs.some((l) => /quality CONTESTED 1 dismissal\(s\) — the closing acceptance sorts each contest/.test(l)), 'the log says the closing acceptance sorts the contest');
+  const cleanClose = await run({ develop: develop({ ...CLOSING_OK, review_needed: true }), quality: CLEAN, acceptance: firstRound(ACC_FAIL, LANDS) }, ONE_ROUND);
+  ok(cleanClose.labels.includes('quality block-a r2') && !flat(cleanClose.prompt('acceptance block-a r2')).includes('quality-review-block-a-r2.md') && cleanClose.out.status === 'done (all blocks staged)',
+    'a clean closing blind review lists no file, and the block lands');
+  const redOrdered = await run({ develop: (label) => (label.startsWith('develop-closing') ? CLOSING_OK : { ...DEV_OK, build_passed: false }), quality: CLEAN, acceptance: ACC_FAIL, park: PARK_OK },
+    { ...ONE_ROUND, ordered: true });
+  eq(String(redOrdered.out.haltReason).split(' Its work is')[0], 'Block block-a did not land within 1 rounds and its closing pass, since its closing acceptance found a blocking gap (see E:/r/runs/t/acceptance-review-block-a-r2.md).',
+    'an ordered halt names the closing acceptance file that holds the blocking gaps');
   const passes = await run({ ...GREEN_RUN, develop: develop(CLOSING_OK) }, ONE_ROUND);
   ok(!passes.labels.includes('develop-closing block-a') && passes.out.ledger[0].closingPass === false, 'a block that passes in its last round runs no closing pass');
-  const greenOnlyAtClose = (label) => (label.startsWith('develop-closing') ? CLOSING_OK : { ...DEV_OK, build_passed: false });
-  const redAll = await run({ develop: greenOnlyAtClose, quality: CLEAN, acceptance: ACC_PASS, park: PARK_OK }, ONE_ROUND);
-  ok(!redAll.labels.some((l) => l.startsWith('quality') || l.startsWith('acceptance')) && parkText(redAll).includes('since the block has had no blind review in this launch'),
-    'a block whose gate went green only in its closing pass parks for its first blind review');
-  const redOrdered = await run({ develop: greenOnlyAtClose, park: PARK_OK }, { ...ONE_ROUND, ordered: true });
-  ok(/did not reach acceptance within 1 rounds and its closing pass, which parked it without acceptance: .*no round before its closing pass had a satisfied gate/.test(redOrdered.out.haltReason),
-    'an ordered halt names the closing pass and why the block left no review file');
+  eq(passes.out.ledger[0].status, 'done (staged)', 'and its ledger status names no closing entries');
 
   const fixFixed = fixDev([{ issue_id: 'i-1', status: 'FIXED' }]);
   const fixClose = await run({
@@ -548,15 +599,18 @@ section('a block whose last round fails gets one closing pass with no blind revi
   eq(fixClose.out.status, 'done (all blocks staged)', 'a fix block reaches the closing acceptance the same way');
   ok(flat(fixClose.prompt('develop-closing fix-a')).includes('BUILD: CLOSING PASS.') && flat(fixClose.prompt('develop-closing fix-a')).includes('FIX ONLY the entries whose `- decision:` line says ACTIONABLE'),
     'and its closing pass keeps the entry rules');
-  ok(flat(fixClose.prompt('acceptance fix-a r2')).includes(FAIL_PARKS) && !flat(fixClose.prompt('acceptance fix-a r2')).includes(FAIL_NEXT_ROUND),
-    'a fix block\'s closing acceptance says a fail parks the block, with its review file as the diagnosis');
+  const fixClosingAcc = flat(fixClose.prompt('acceptance fix-a r2'));
+  ok(fixClosingAcc.includes(FAIL_PARKS) && !fixClosingAcc.includes(FAIL_NEXT_ROUND),
+    'a fix block\'s closing acceptance says a blocking gap parks the block');
+  ok(fixClosingAcc.includes(`Your file holds no notes or observations. ${CLOSING_BAR.fix}`) && fixClosingAcc.includes('• No blocking gap → APPEND each not blocking gap as ONE backlog entry'),
+    'and sorts each gap by the fix kinds, landing the block with no blocking gap');
   ok(flat(fixClose.prompt('acceptance fix-a r1')).includes(FAIL_NEXT_ROUND) && !flat(fixClose.prompt('acceptance fix-a r1')).includes(FAIL_PARKS),
     'and a fix block\'s earlier round keeps the gaps driving the next develop round');
   for (const [name, plan] of [['feature', BLOCKS[0]], ['section', BLOCKS[1]]]) {
     const closeRun = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) },
       { ...ONE_ROUND, plans: [plan] });
     const [early, closing] = [flat(closeRun.prompt(`acceptance ${plan.id} r1`)), flat(closeRun.prompt(`acceptance ${plan.id} r2`))];
-    ok(closing.includes(FAIL_PARKS) && !closing.includes(FAIL_NEXT_ROUND), `the ${name} closing acceptance says a fail parks the block, with its review file as the diagnosis`);
+    ok(closing.includes(FAIL_PARKS) && !closing.includes(FAIL_NEXT_ROUND) && closing.includes(CLOSING_BAR.feature), `the ${name} closing acceptance sorts each gap, and says a blocking gap parks the block`);
     ok(early.includes(FAIL_NEXT_ROUND) && !early.includes(FAIL_PARKS), `the ${name} acceptance of an earlier round keeps the gaps driving the next develop round`);
   }
 
@@ -567,19 +621,23 @@ section('a block whose last round fails gets one closing pass with no blind revi
   const deadCloseAcc = await run({ develop: develop(CLOSING_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, null), park: PARK_OK }, ONE_ROUND);
   ok(/Acceptance verifier for block block-a returned nothing in the closing pass \(round 2 in its file names\)/.test(deadCloseAcc.out.haltReason),
     'a dead closing acceptance names the closing pass too');
+  eq(deadCloseAcc.out.backlogEntries, null, 'and leaves backlogEntries unknown, since a closing acceptance may append before it dies');
   // Every other halt that names its round must name the closing pass, whose file-name number exceeds the round budget.
   const CLOSING_NAME = 'the closing pass (round 2 in its file names)';
+  const OWES_REVIEW = { ...CLOSING_OK, review_needed: true };
   // Only an ordered run halts on an escalation, so that row takes the ordered args.
-  for (const [kind, closingReturn, closingAcceptance, extraArgs = {}] of [
+  for (const [kind, closingReturn, closingAcceptance, extraArgs = {}, closingQuality = CLEAN] of [
     ['a closing developer that could not obtain its plan', { ...CLOSING_OK, plan_obtained: false }, ACC_FAIL],
     ['a closing developer that did not confirm staying unstaged', { ...CLOSING_OK, unstaged_confirmed: false }, ACC_FAIL],
     ['a closing developer that escalated a user-only decision', { ...CLOSING_OK, needs_user: true }, ACC_FAIL, { ordered: true }],
+    ['a closing blind review that returned nothing', OWES_REVIEW, ACC_FAIL, {}, null],
+    ['a closing blind review that flagged issues without confirming its review file', OWES_REVIEW, ACC_FAIL, {}, { ...FLAGGED, wrote_file: false }],
     ['a closing acceptance that could not obtain its plan', CLOSING_OK, { ...ACC_FAIL, plan_obtained: false }],
     ['a closing acceptance that passed with a regression', CLOSING_OK, { ...ACC_PASS, staged: false, regression: true }],
     ['a closing acceptance that failed the block but staged it', CLOSING_OK, { ...ACC_FAIL, staged: true }],
     ['a closing acceptance that failed the block without confirming its review file', CLOSING_OK, { ...ACC_FAIL, wrote_file: false }],
   ]) {
-    const r = await run({ develop: develop(closingReturn), quality: CLEAN, acceptance: firstRound(ACC_FAIL, closingAcceptance), park: PARK_OK }, { ...ONE_ROUND, ...extraArgs });
+    const r = await run({ develop: develop(closingReturn), quality: firstRound(CLEAN, closingQuality), acceptance: firstRound(ACC_FAIL, closingAcceptance), park: PARK_OK }, { ...ONE_ROUND, ...extraArgs });
     ok(r.out.halted === true && r.out.haltReason.includes(CLOSING_NAME) && !/\bround 2\b(?! in its file names)/.test(r.out.haltReason),
       `${kind}: the halt reason names the closing pass: ${r.out.haltReason.slice(0, 120)}`);
   }
@@ -637,6 +695,12 @@ section('fix acceptance records a harm with a separate cause in its block\'s bac
   ok(!passAcc.includes('t-fix-a-plus-1'), 'and names no file for the pass\'s own id');
   ok(passAcc.includes('with the id "<that file\'s name without .md>-<n>"'), 'and numbers an entry by the file it lands in');
   eq(JSON.stringify(pass.out.backlogFiles), JSON.stringify([FILE_A, FILE_B]), 'the return\'s files are sorted and de-duplicated');
+  const passClosing = await run({
+    develop: (label) => ({ ...passDev([{ issue_id: 'i-1', status: 'FIXED' }]), ...(label.startsWith('develop-closing') ? { review_needed: false, recorded_entries: [] } : {}) }),
+    quality: CLEAN, acceptance: FIX_GAP, park: PARK_OK,
+  }, { ...PASS_ARGS, maxRounds: 1 });
+  ok(flat(passClosing.prompt('acceptance fix-a-plus-1 r2')).includes(`No blocking gap → APPEND each not blocking gap as ONE backlog entry only to the file of the block whose entry the gap concerns (the first block below when it concerns no single entry): - i-1, i-2 → ${FILE_A}`),
+    'a pass\'s closing acceptance routes a gap that concerns no single entry to the first member\'s file');
 
   const passOwnId = await run({
     develop: passDev([{ issue_id: 'i-1', status: 'FIXED' }]),
@@ -776,7 +840,7 @@ section('a developer records each real defect its zone routing leaves unchanged 
     const unknown = await run({ ...GREEN_RUN, develop }, ONE_BLOCK);
     eq(unknown.out.backlogEntries, null, `${what} makes the count unknown`);
     eq(unknown.out.backlogFiles, null, `${what} makes the file list unknown too`);
-    ok(unknown.out.nextStep.includes(`A developer or fix verifier returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG}/ for entries this run added: ${ONE_FILE}.`),
+    ok(unknown.out.nextStep.includes(`A developer, fix verifier or closing acceptance returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG}/ for entries this run added: ${ONE_FILE}.`),
       `and the nextStep lists the feature block's file to check (${what})`);
   }
   const dead = await run({ develop: null, park: PARK_OK }, ONE_BLOCK);
@@ -815,8 +879,8 @@ section('a backlog file\'s id is the run\'s slug, the block\'s slug and a hash o
 }
 
 section('a launch without an absolute backlog folder outside the target repo throws, naming the command that prints one');
-// The developer and fix acceptance have nowhere to record what a block leaves without the folder, and a folder
-// inside the repo would put their writes in the diff the reviewers judge.
+// The developer, fix acceptance and closing acceptance have nowhere to record what a block leaves without the
+// folder, and a folder inside the repo would put their writes in the diff the reviewers judge.
 {
   const COMMAND = "node 'E:/r/tools/project-settings.mjs' backlog --root 'E:/r' --repo 'E:/repo'";
   const { backlogDir: _, ...NO_BACKLOG } = baseArgs;
@@ -1013,8 +1077,8 @@ section('a red-baseline gate rejects a count of 0 exactly as green does');
   const RED = { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'section', gate: 'red-baseline' })] };
   const RED_DEV = { ...DEV_OK, test_outcome: 'failed-expected' };
 
-  const zero = await run({ ...GREEN_RUN, develop: { ...RED_DEV, tests_run_count: 0 }, park: PARK_OK }, RED);
-  ok(!zero.labels.some((l) => l.startsWith('quality')), 'no reviewer spawned on a phantom red baseline');
+  const zero = await run({ ...GREEN_RUN, develop: { ...RED_DEV, tests_run_count: 0 }, acceptance: ACC_FAIL, park: PARK_OK }, RED);
+  eq(zero.labels.filter((l) => l.startsWith('quality')).join(), 'quality block-a r6', 'no round with a phantom red baseline reaches a reviewer, only the closing pass');
   eq(zero.out.plansDone.length, 0, 'nothing is staged on a test that never ran');
   ok(zero.labels.includes('park:block-a'), 'the block parks at the round budget instead');
 
@@ -1032,8 +1096,8 @@ section('suite:green fails a green gate on a reddened suite; suite:scoped allows
 {
   const GREEN_GATE = { ...baseArgs, plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green' })] };
 
-  const reddened = await run({ ...GREEN_RUN, develop: { ...DEV_OK, full_suite_outcome: 'failed' }, park: PARK_OK }, GREEN_GATE);
-  ok(!reddened.labels.some((l) => l.startsWith('quality')), 'no reviewer spawned on a reddened suite');
+  const reddened = await run({ ...GREEN_RUN, develop: { ...DEV_OK, full_suite_outcome: 'failed' }, acceptance: ACC_FAIL, park: PARK_OK }, GREEN_GATE);
+  eq(reddened.labels.filter((l) => l.startsWith('quality')).join(), 'quality block-a r6', 'no round with a reddened suite reaches a reviewer, only the closing pass');
   eq(reddened.out.plansDone.length, 0, 'and nothing is staged');
   ok(reddened.out.ledger[0].status.startsWith('backlogged'), 'the block parks instead');
 
@@ -1632,7 +1696,7 @@ section('an agent ignores a round file of an earlier launch');
 {
   const note = 'A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.';
   const { prompts } = await run(GREEN_RUN, ONE_BLOCK).then((r) => ({ prompts: ['develop', 'quality', 'acceptance'].map((l) => flat(r.prompt(l))) }));
-  ok(prompts.every((text) => text.includes(`when that round ends without acceptance staging the block. ${note}`)),
+  ok(prompts.every((text) => text.includes(`when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. ${note}`)),
     'the round note of every role tells the agent to ignore a round file it is not named');
 }
 
@@ -1783,15 +1847,15 @@ section('park records the halt that actually happened, never an escalation that 
 }
 
 section('park never names a review file that was never written');
-// With the gate never green neither reviewer runs, so there IS no review file. The call site used to
-// substitute a concrete acceptance-review path, making parkPrompt's own fallback unreachable and sending
-// the operator, days later, to a file that does not exist.
+// With the gate never green no round reaches a reviewer, the closing blind review is clean and the closing
+// acceptance does not confirm its file, so there IS no review file.
 {
-  const { prompt } = await run({ develop: { ...DEV_OK, build_passed: false }, park: PARK_OK }, ONE_BLOCK);
+  const { prompt } = await run({ develop: { ...DEV_OK, build_passed: false }, quality: CLEAN, acceptance: { ...ACC_FAIL, wrote_file: false }, park: PARK_OK }, ONE_BLOCK);
   const p = prompt('park:block-a');
   ok(p !== '', 'park still ran');
-  ok(!/acceptance-review-block-a-r\d+\.md/.test(p), 'no fabricated acceptance-review path in the prompt');
-  ok(p.includes('the line "No review file exists, since no round before the closing pass had a satisfied gate."'), 'the prompt says outright that no review file exists');
+  ok(!/(acceptance|quality)-review-block-a-r\d+\.md, copied verbatim/.test(p), 'no fabricated review path in the entry the park writes');
+  ok(flat(p).includes('the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in the closing pass (round 6 in its file names) but did not confirm writing'),
+    'the entry copies the halt reason, which says the file may not exist');
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -2822,14 +2886,14 @@ section('statusSync maps each fix entry by its report AND by whether its block l
   }, FIX_ONE);
   eq(syncOf(mixed.out), 'fix-a=done,i-2=stale', 'a SKIPPED and STALE mix acceptance confirmed is done, its STALE entry stale, its SKIPPED entry untouched');
 
-  // Quality never clean at the round budget: the block parks before acceptance, so no reviewer checked the STALE claim.
+  // Quality never clean, and the closing acceptance finds a blocking gap: the block parks, so no landing confirmed the STALE claim.
   const unchecked = await run({
     develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'STALE' }]),
-    quality: FLAGGED, park: PARK_OK,
+    quality: FLAGGED, acceptance: FIX_GAP, park: PARK_OK,
   }, { ...FIX_ONE, maxRounds: 1 });
-  eq(unchecked.byLabel('acceptance').length, 0, 'the park path never reached acceptance');
+  eq(unchecked.labels.filter((l) => l.startsWith('acceptance')).join(), 'acceptance fix-a r2', 'only the closing acceptance ran, and it failed the block');
   eq(syncOf(unchecked.out), 'fix-a=backlogged,i-1=needs-attention,i-2=needs-attention',
-    'a STALE entry in a block parked before acceptance is needs-attention, never stale');
+    'a STALE entry in a block that parked is needs-attention, never stale');
 
   const parked = await run({
     develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }, { issue_id: 'i-2', status: 'FAILED' }]),
@@ -3420,7 +3484,7 @@ section('every develop prompt states its round and why a later stage can lack a 
 // had sent that round back.
 {
   const maxRounds = 3;
-  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 3 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.";
+  const why = "Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 3 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.";
   const plan = await run({ develop: DEV_OK, quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS) }, { ...baseArgs, maxRounds });
   const fix = await run({ develop: fixDev([{ issue_id: 'i-1', status: 'FIXED' }]), quality: CLEAN, acceptance: firstRound(FIX_GAP, FIX_PASS) }, { ...FIX_ONE, maxRounds });
   for (const [mode, id, r] of [['feature', 'block-a', plan], ['section', 'block-b', plan], ['fix', 'fix-a', fix]]) {
@@ -3732,7 +3796,7 @@ section('every developer and acceptance prompt renders one code-zone map, the de
       }
     }
   }
-  // The closing pass has no blind review after it, so its routing must match the rounds' routing.
+  // No develop round follows the closing pass, so its routing must match the rounds' routing.
   const closing = await run({ develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_OK, review_needed: false, recorded_entries: [] } : DEV_OK), quality: CLEAN, acceptance: firstRound(ACC_FAIL, ACC_PASS), park: PARK_OK },
     { ...ONE_BLOCK, maxRounds: 1, changePolicy: 'proactive' });
   const closer = flat(closing.prompt('develop-closing block-a'));
@@ -3838,6 +3902,12 @@ section('a commit-mode pass commits with the block title through a file, and the
   eq(r.out.status, 'done (all blocks committed)', 'status');
   eq(r.out.ledger[0].commit, SHA, 'the ledger records the commit');
   eq(`${syncOf(r.out)} ${r.out.ledger[0].status}`, 'block-a=done done (committed)', 'statusSync marks the block done, and the ledger says committed');
+  const closingCommit = await run({ ...C_RUN,
+    develop: (label) => (label.startsWith('develop-closing') ? { ...DEV_C, review_needed: false, recorded_entries: [] } : DEV_C),
+    acceptance: firstRound({ ...ACC_FAIL, committed: false, commit_sha: '', commit_subject: '', tree_matches: false, tree_clean: true }, { ...ACC_C, backlog_entries: 1, backlog_blocks: ['block-a'] }) },
+  { ...COMMIT_ONE, maxRounds: 1 });
+  eq(`${syncOf(closingCommit.out)} ${closingCommit.out.ledger[0].status}`, 'block-a=done done (committed, and the closing acceptance left 1 backlog entry)',
+    'a closing acceptance that commits the block names the entries it left in the committed status');
   ok(r.logs.some((l) => l.includes(`acceptance PASSED — COMMITTED ${SHA}`)), 'the pass log line names the commit');
   ok(r.logs.some((l) => l.startsWith('develop: 1/1 block(s) to build') && l.endsWith(', commit=true]')), 'the launch line names commit mode');
   const next = nextOf(r.out);

@@ -6,83 +6,87 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| develop | 1 | 1 | 25845 | every block accepts first time |
-| quality | 1 | 1 | 8862 | every block accepts first time |
-| acceptance | 1 | 1 | 12113 | every block accepts first time |
-| develop | 2 | 1 | 26270 | every block accepts first time |
-| acceptance | 2 | 2 | 12394 | every block accepts first time |
+| develop | 1 | 1 | 25912 | every block accepts first time |
+| quality | 1 | 1 | 8929 | every block accepts first time |
+| acceptance | 1 | 1 | 12180 | every block accepts first time |
+| develop | 2 | 1 | 26337 | every block accepts first time |
+| acceptance | 2 | 2 | 12461 | every block accepts first time |
 | final-sweep | 1 | 1 | 3254 | every block accepts first time |
-| develop | 3 | 1 | 26472 | a feature block accepts under the proactive policy |
-| acceptance | 3 | 1 | 11989 | a feature block accepts under the proactive policy |
+| develop | 3 | 1 | 26539 | a feature block accepts under the proactive policy |
+| acceptance | 3 | 1 | 12056 | a feature block accepts under the proactive policy |
 | final-sweep | 2 | 1 | 3245 | a feature block accepts under the proactive policy |
-| develop | 4 | 1 | 25369 | quality flags the first round |
-| acceptance | 4 | 1 | 12112 | quality flags the first round |
-| develop | 5 | 1 | 25739 | quality flags the first round |
-| acceptance | 5 | 2 | 12393 | quality flags the first round |
-| develop | 6 | 1 | 25365 | acceptance finds gaps, then passes |
-| acceptance | 6 | 1 | 12110 | acceptance finds gaps, then passes |
-| develop | 7 | 1 | 25735 | acceptance finds gaps, then passes |
-| acceptance | 7 | 2 | 12391 | acceptance finds gaps, then passes |
-| acceptance | 8 | 1 | 13871 | a later round is judged low risk |
-| acceptance | 9 | 2 | 14152 | a later round is judged low risk |
-| develop | 8 | 1 | 25295 | the gate never goes green |
-| develop-closing | 1 | 1 | 26619 | the gate never goes green |
-| park | 1 | 1 | 9247 | the gate never goes green |
-| develop | 9 | 1 | 25720 | the gate never goes green |
-| develop-closing | 2 | 1 | 26989 | the gate never goes green |
-| acceptance | 10 | 1 | 12165 | a parked block, and the run carries on |
-| acceptance | 11 | 1 | 12220 | a parked block, and the run carries on |
-| acceptance | 12 | 1 | 12275 | a parked block, and the run carries on |
-| develop-closing | 3 | 1 | 26712 | a parked block, and the run carries on |
-| acceptance | 13 | 1 | 14157 | a parked block, and the run carries on |
-| park | 2 | 1 | 9175 | a parked block, and the run carries on |
-| develop | 10 | 1 | 25827 | an ordered run stops at a parked block |
-| acceptance | 14 | 1 | 12107 | an ordered run stops at a parked block |
-| develop | 11 | 1 | 25347 | an ordered run stops at a parked block |
-| acceptance | 15 | 1 | 12104 | an ordered run stops at a parked block |
-| acceptance | 16 | 1 | 12159 | an ordered run stops at a parked block |
-| acceptance | 17 | 1 | 12214 | an ordered run stops at a parked block |
-| acceptance | 18 | 1 | 12269 | an ordered run stops at a parked block |
-| develop-closing | 4 | 1 | 26694 | an ordered run stops at a parked block |
-| acceptance | 19 | 1 | 14151 | an ordered run stops at a parked block |
-| park | 3 | 1 | 9187 | an ordered run stops at a parked block |
-| develop | 12 | 2 | 30249 | a fix block closes its issues |
-| acceptance | 20 | 3 | 17304 | a fix block closes its issues |
+| develop | 4 | 1 | 25436 | quality flags the first round |
+| acceptance | 4 | 1 | 12179 | quality flags the first round |
+| develop | 5 | 1 | 25806 | quality flags the first round |
+| acceptance | 5 | 2 | 12460 | quality flags the first round |
+| develop | 6 | 1 | 25432 | acceptance finds gaps, then passes |
+| acceptance | 6 | 1 | 12177 | acceptance finds gaps, then passes |
+| develop | 7 | 1 | 25802 | acceptance finds gaps, then passes |
+| acceptance | 7 | 2 | 12458 | acceptance finds gaps, then passes |
+| acceptance | 8 | 1 | 13938 | a later round is judged low risk |
+| acceptance | 9 | 2 | 14219 | a later round is judged low risk |
+| develop | 8 | 1 | 25362 | the gate never goes green |
+| develop-closing | 1 | 1 | 26800 | the gate never goes green |
+| quality | 2 | 1 | 8989 | the gate never goes green |
+| acceptance | 10 | 3 | 15185 | the gate never goes green |
+| park | 1 | 1 | 9270 | the gate never goes green |
+| develop | 9 | 1 | 25787 | the gate never goes green |
+| develop-closing | 2 | 1 | 27170 | the gate never goes green |
+| acceptance | 11 | 4 | 15466 | the gate never goes green |
+| acceptance | 12 | 1 | 12232 | a parked block, and the run carries on |
+| acceptance | 13 | 1 | 12287 | a parked block, and the run carries on |
+| acceptance | 14 | 1 | 12342 | a parked block, and the run carries on |
+| develop-closing | 3 | 1 | 26893 | a parked block, and the run carries on |
+| acceptance | 15 | 3 | 17196 | a parked block, and the run carries on |
+| develop | 10 | 1 | 25894 | an ordered run stops at a parked block |
+| acceptance | 16 | 1 | 12174 | an ordered run stops at a parked block |
+| develop | 11 | 1 | 25414 | an ordered run stops at a parked block |
+| acceptance | 17 | 1 | 12171 | an ordered run stops at a parked block |
+| acceptance | 18 | 1 | 12226 | an ordered run stops at a parked block |
+| acceptance | 19 | 1 | 12281 | an ordered run stops at a parked block |
+| acceptance | 20 | 1 | 12336 | an ordered run stops at a parked block |
+| develop-closing | 4 | 1 | 26875 | an ordered run stops at a parked block |
+| acceptance | 21 | 3 | 17190 | an ordered run stops at a parked block |
+| park | 2 | 1 | 9282 | an ordered run stops at a parked block |
+| develop | 12 | 2 | 30316 | a fix block closes its issues |
+| acceptance | 22 | 5 | 17371 | a fix block closes its issues |
 | final-sweep | 3 | 1 | 3245 | a fix block closes its issues |
-| develop | 13 | 2 | 30751 | a fix block closes its issues under the proactive policy |
-| acceptance | 21 | 3 | 17310 | a fix block closes its issues under the proactive policy |
-| develop | 14 | 2 | 30641 | a pass of two fix blocks closes its issues |
-| acceptance | 22 | 3 | 17634 | a pass of two fix blocks closes its issues |
+| develop | 13 | 2 | 30818 | a fix block closes its issues under the proactive policy |
+| acceptance | 23 | 5 | 17377 | a fix block closes its issues under the proactive policy |
+| develop | 14 | 2 | 30708 | a pass of two fix blocks closes its issues |
+| acceptance | 24 | 5 | 17701 | a pass of two fix blocks closes its issues |
 | final-sweep | 4 | 1 | 3275 | a pass of two fix blocks closes its issues |
-| acceptance | 23 | 3 | 17303 | every issue is already fixed |
-| develop | 15 | 2 | 30231 | an ordered run stops on a fix block that closes nothing |
-| park | 4 | 1 | 9585 | passed with a regression, not staged |
-| park | 5 | 1 | 8715 | acceptance stages a rejected block |
-| park | 6 | 1 | 9440 | the quality reviewer fails a block without its file |
-| park | 7 | 1 | 9440 | acceptance fails a block without its file |
-| park | 8 | 1 | 8845 | the developer staged its own work |
-| park | 9 | 1 | 9119 | developer never got its block |
-| park | 10 | 1 | 9010 | acceptance never got its block |
-| park | 11 | 1 | 8766 | the developer dies |
-| park | 12 | 1 | 8766 | the quality reviewer dies |
-| park | 13 | 1 | 9103 | the acceptance verifier dies |
-| park | 14 | 1 | 8469 | developer escalates |
-| park | 15 | 1 | 8459 | developer escalates in an ordered run |
-| acceptance | 24 | 1 | 13937 | a closing pass reaches acceptance |
-| develop-closing | 5 | 1 | 27082 | a closing pass reaches acceptance |
-| acceptance | 25 | 2 | 14218 | a closing pass reaches acceptance |
-| park | 16 | 1 | 9364 | a closing pass records a fix that needs review |
-| park | 17 | 1 | 9364 | a closing pass records a fix that needs review |
-| develop | 16 | 3 | 26016 | every block commits first time |
-| quality | 2 | 1 | 8815 | every block commits first time |
-| acceptance | 26 | 4 | 13636 | every block commits first time |
-| develop | 17 | 3 | 26441 | every block commits first time |
-| acceptance | 27 | 5 | 13917 | every block commits first time |
+| acceptance | 25 | 5 | 17370 | every issue is already fixed |
+| develop | 15 | 2 | 30298 | an ordered run stops on a fix block that closes nothing |
+| park | 3 | 1 | 9585 | passed with a regression, not staged |
+| park | 4 | 1 | 8715 | acceptance stages a rejected block |
+| park | 5 | 1 | 9438 | the quality reviewer fails a block without its file |
+| park | 6 | 1 | 9438 | acceptance fails a block without its file |
+| park | 7 | 1 | 8845 | the developer staged its own work |
+| park | 8 | 1 | 9119 | developer never got its block |
+| park | 9 | 1 | 9010 | acceptance never got its block |
+| park | 10 | 1 | 8766 | the developer dies |
+| park | 11 | 1 | 8766 | the quality reviewer dies |
+| park | 12 | 1 | 9103 | the acceptance verifier dies |
+| park | 13 | 1 | 8469 | developer escalates |
+| park | 14 | 1 | 8459 | developer escalates in an ordered run |
+| acceptance | 26 | 3 | 16976 | a closing acceptance lands the block |
+| develop-closing | 5 | 1 | 27263 | a closing acceptance lands the block |
+| acceptance | 27 | 4 | 17257 | a closing acceptance lands the block |
+| acceptance | 28 | 3 | 15239 | a closing pass gets a blind review |
+| acceptance | 29 | 4 | 15520 | a closing pass gets a blind review |
+| park | 15 | 1 | 9420 | a closing acceptance finds a blocking gap |
+| park | 16 | 1 | 9420 | a closing acceptance finds a blocking gap |
+| develop | 16 | 3 | 26083 | every block commits first time |
+| quality | 3 | 1 | 8882 | every block commits first time |
+| acceptance | 30 | 6 | 13703 | every block commits first time |
+| develop | 17 | 3 | 26508 | every block commits first time |
+| acceptance | 31 | 7 | 13984 | every block commits first time |
 | final-sweep | 5 | 1 | 3566 | every block commits first time |
-| develop | 18 | 4 | 30451 | a fix block commits |
-| acceptance | 28 | 6 | 19044 | a fix block commits |
+| develop | 18 | 4 | 30518 | a fix block commits |
+| acceptance | 32 | 8 | 19111 | a fix block commits |
 | final-sweep | 6 | 1 | 3473 | a fix block commits |
-| park | 18 | 1 | 8844 | acceptance commits a rejected block |
+| park | 17 | 1 | 8844 | acceptance commits a rejected block |
 
 ## develop · variant 1 · schema 1
 
@@ -109,7 +113,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -466,7 +470,7 @@ spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
 Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there, and E:/flow/runs/flow/gate/quality-review-block-a-r1.md only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -617,7 +621,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -813,7 +817,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -1187,7 +1191,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -1460,7 +1464,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -1837,7 +1841,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2106,7 +2110,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -2471,7 +2475,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -2667,7 +2671,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/gate/quality-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -3035,7 +3039,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3233,7 +3237,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -3598,7 +3602,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -3794,7 +3798,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-b-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -4162,7 +4166,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4360,7 +4364,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4577,7 +4581,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -4797,7 +4801,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -5162,11 +5166,12 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
-blind review follows you. The engine parks the block when you record an entry or when its changes since
-the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
+develop round follows you. A blind review follows you when the block's changes since its last blind
+review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
+and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
+do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -5204,14 +5209,15 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
+   acceptance finds a blocking gap.
    That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
    every other fix, and make no change that is not one of these fixes. Every later phase works only
    on them.
-   A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
+   A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -5522,13 +5528,382 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
+## quality · variant 2 · schema 1
+
+`quality block-a r6` in "the gate never goes green"
+
+~~~~text
+
+You are a CODE CRITIC. You have NO information about what this code is for or should do, and no plan,
+spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
+Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
+E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
+Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there, and E:/flow/runs/flow/gate/quality-review-block-a-r6.md only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+TARGET REPO: E:/repo
+GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
+Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
+  build: npm run build
+  test:  npm test
+Any other command that writes nothing in the repo, such as a tool's check mode, and a probe script in a
+temporary folder outside the repo and outside the folder that holds E:/flow/runs/flow/gate/ are allowed.
+CONVENTIONS (judge against these): (none supplied — infer from the surrounding code)
+
+Before reviewing, READ this if it exists. It holds the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Do NOT read prior review files, apart from the overwrite read the WRITE step names. Review the CURRENT
+diff FRESH, catching new or nearby issues.
+If you are confident a DISMISSED reason is WRONG, at any tier, raise the finding ONCE, prefixed
+"CONTESTS DISMISSAL:", explaining why the reason does not hold.
+
+SCOPE — review ONLY this cycle's UNSTAGED work:
+  `git -C E:/repo diff`: unstaged tracked changes, the work to review. On a large diff run
+  `git -C E:/repo diff --stat` first, then read it file by file.
+  `git -C E:/repo status --porcelain` then READ every untracked file (`??`) — `git diff` OMITS those.
+  A ` A` entry (intent-to-add) is a new file `git diff` already shows in full. A first-column `A` or
+  `M` is STAGED: the staged half of an `AM` or `MM` file is baseline, and only its unstaged half
+  (`git -C E:/repo diff -- <file>`) is this cycle's work.
+  `git -C E:/repo diff --staged` is the ACCEPTED baseline — context only, do NOT review it.
+
+SEVERITY - grade by impact, never by the size of the fix. When two grades fit, take the higher.
+  critical - loses or corrupts data, opens a security hole, or breaks the main path on every input.
+  high     - crashes or gives wrong output on an input the code accepts.
+  medium   - a real defect with a bounded impact, such as a leak, a wrong error path, or a misleading
+             result the caller can detect.
+  low      - a real defect with no effect on any input the code accepts today.
+  nit      - not wrong and no effect on behavior, but it hurts clarity or maintainability.
+A comment, docstring, string or doc that is wrong, or that misleads a reader, is a defect graded low or
+higher by what the misled reader would do. It is never a nit.
+Duplicated logic whose copies already disagree is a defect graded by the harm of the disagreement. It is
+never a nit.
+A risky path the diff adds with no test, such as an error path, a branch on outside input or a write to
+stored state, is a defect graded low or higher. It is never a nit.
+NITS include: an overlong comment, or one that restates the code; a comment that breaks the
+CONVENTIONS' comment rules; an unclear name, or one inconsistent with its neighbours; dead code the
+diff adds (an unused import, variable, parameter, function or branch); a magic number or string with
+no named constant; small duplication inside the diff whose copies agree; a redundant line or
+condition; control flow nested deeper than its logic needs; a function that mixes I/O with processing
+against the CONVENTIONS.
+
+Report every finding this diff introduces or exposes, at every tier. Drop silently anything
+pre-existing in code the diff neither changes nor interacts with, speculation, and redesigns.
+
+REACH: for every function, constant, field, string or rule the diff changes, grep its callers
+and consumers, its sibling paths with the same mechanism, duplicates of the same logic, and every
+comment or doc that describes the old behavior. A defect there that the diff introduces or exposes
+counts as introduced by this diff.
+
+CHECKLIST:
+  - build and tests: anything that breaks the build or tests;
+  - correctness and edge cases: empty, missing, blank, multi-valued, unicode, case-folded, huge and
+    numeric inputs, platform path forms, and a value computed right but reported wrong;
+  - crash-safety and resume: a crash between a state change and its record, a resume that repeats or
+    skips a step, a partial write, a leaked temp file or handle, two processes on shared state;
+  - error contract: an expected failure that escapes the project's error path, a failure returned in
+    a success shape, a message that hides the cause or the way to recover;
+  - consistency: the same concept shaped differently from its established counterpart in the repo
+    (cite the counterpart's file:line), a problem the repo already solves re-solved another way;
+  - completeness: behavior the diff gives some inputs or sibling paths and skips for others, such as
+    a container, an enum value, a domain or a cleanup step;
+  - tests the diff adds or changes: a test that still passes with the code under test broken, a stub
+    that replaces the behavior under test, a risky path the diff adds with no test;
+  - prose accuracy: a comment, docstring, string or doc the diff adds or leaves that the code
+    contradicts or that now misleads;
+  - security, where the diff touches a trust boundary: untrusted input reaching a path, command,
+    query or page, a secret reaching a log, result or error;
+  - maintainability: the nit list in the scale above.
+
+HUNT. Working from critical down to nit, find every finding through the CHECKLIST and the REACH
+step. A finding at medium or above names the concrete input or path that reaches it and its harm,
+cited by file:line. A real defect you cannot tie to a concrete input or path grades low at most. An
+EMPTY review is the normal, GOOD outcome.
+
+A hunk that changes ONLY comments, string text or documentation has four checkable defects: a change
+to executable code (`git -C E:/repo diff --word-diff` shows each hunk's exact tokens), a path, command,
+identifier or file the new text names that does not exist, a sentence the change removed that other
+text still refers to, and a claim the new text makes about this repo's code that the code contradicts,
+cited by line. Those four checks and the nit list bound your review of such a hunk.
+A prompt template or other text an agent or a program acts on is behavior, not string text. Review it
+with the full checklist, and grade a contradiction in it by what an agent that follows it would do.
+
+WRITE your findings to E:/flow/runs/flow/gate/quality-review-block-a-r6.md (create E:/flow/runs/flow/gate/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Group them by tier, highest first, one section per finding: its tier, file:line, what is wrong, the input or path and the
+harm (for a finding at medium or above), and a concrete fix. When you found nothing, write
+exactly "No findings." Then return wrote_file (true ONLY if you wrote that file), clean (true if you
+found no finding and contested no dismissal), issue_count (every finding you wrote, at every tier) and
+contested_dismissals via the schema. Do NOT modify source, stage, or commit.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "wrote_file",
+    "clean",
+    "issue_count"
+  ],
+  "properties": {
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "clean": {
+      "type": "boolean",
+      "description": "true if you found no finding at any tier and contested no dismissal"
+    },
+    "issue_count": {
+      "type": "integer",
+      "description": "every finding written to the review file, at every tier from critical down to nit"
+    },
+    "contested_dismissals": {
+      "type": "integer",
+      "description": "how many DISMISSED entries you re-raised as \"CONTESTS DISMISSAL:\" this round (0 if none)"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 10 · schema 3
+
+`acceptance block-a r6` in "the gate never goes green"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-a   (mode: feature, gate: green)
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+  - a behavior change that a "FOCUSED block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     (none: no review in this run has flagged this block)
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
+   routed/bound/flagged and reachable from real entry points (grep to prove it).
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run the FULL gates (GATES above) once and record the real outcome.
+   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
+   and return pass=false.
+6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "the feature is actually wired in / reachable from the app entry points"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the FULL gates"
+    }
+  }
+}
+~~~~
+
 ## park · variant 1 · schema 1
 
 `park:block-a` in "the gate never goes green"
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget and its closing pass. SAVE its work as a commit on the
+You are PARKING the plan block "block-a", which did NOT land within its round budget, since its closing acceptance found a blocking gap. SAVE its work as a commit on the
 branch aipg-unfinished/flow-block-a-d48cf78a, then clear it from the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
 scopes on the unstaged diff. Then append ONE backlog entry that links the branch. The engine sets the block's plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -5601,7 +5976,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked before acceptance: its changes owe a blind review, since the block has had no blind review in this launch.", then the line "No review file exists, since no round before the closing pass had a satisfied gate.">
+     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -5679,7 +6054,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior round's build/verification was not green. Your earlier work is in the UNSTAGED working
 tree: re-run the gate (below) and fix what fails. Build ON it, do NOT revert it.
 Report baseline_dirty_files=-1.
@@ -6048,11 +6423,12 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
-blind review follows you. The engine parks the block when you record an entry or when its changes since
-the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
+develop round follows you. A blind review follows you when the block's changes since its last blind
+review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
+and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
+do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -6090,14 +6466,15 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
+   acceptance finds a blocking gap.
    That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
    every other fix, and make no change that is not one of these fixes. Every later phase works only
    on them.
-   A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
+   A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
@@ -6411,7 +6788,242 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 10 · schema 1
+## acceptance · variant 11 · schema 4
+
+`acceptance block-b r6` in "the gate never goes green"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-b   (mode: section, gate: green)
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+  - a behavior change that a "FOCUSED block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     (none: no review in this run has flagged this block)
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
+   converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
+   half-converted block is not done.
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
+   to this block, by its `test_selector:` line when it has one, else the test gate:
+   npm test). For gate=green the selector tests must PASS; for
+   gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
+   stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
+   unavailable here, say so in the file (do not fake it) and return pass=false.
+6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r6.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
+     Count it in backlog_entries and name "block-b" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-b-7d7451b3-<n>] <title>
+       - id: flow-block-b-7d7451b3-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r6.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the block gate (and, where the goal expects it, the full gates)"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 12 · schema 1
 
 `acceptance block-a r3` in "a parked block, and the run carries on"
 
@@ -6436,7 +7048,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -6607,7 +7219,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 11 · schema 1
+## acceptance · variant 13 · schema 1
 
 `acceptance block-a r4` in "a parked block, and the run carries on"
 
@@ -6632,7 +7244,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -6804,7 +7416,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 12 · schema 1
+## acceptance · variant 14 · schema 1
 
 `acceptance block-a r5` in "a parked block, and the run carries on"
 
@@ -6829,7 +7441,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7027,11 +7639,12 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
-blind review follows you. The engine parks the block when you record an entry or when its changes since
-the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
+develop round follows you. A blind review follows you when the block's changes since its last blind
+review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
+and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
+do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -7070,14 +7683,15 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
+   acceptance finds a blocking gap.
    That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
    every other fix, and make no change that is not one of these fixes. Every later phase works only
    on them.
-   A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
+   A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -7388,15 +8002,16 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 13 · schema 1
+## acceptance · variant 15 · schema 3
 
 `acceptance block-a r6` in "a parked block, and the run carries on"
 
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
-This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -7413,7 +8028,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -7472,7 +8087,15 @@ rare, inherent, or unreached by any current caller. Those calls are the develope
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
 when only a change in other code closes it. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
-Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -7520,7 +8143,7 @@ PROCEDURE:
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
-   sends the next round to a blind review. Otherwise return risk_misclassified=false.
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -7536,13 +8159,28 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
-   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
-     clean, no regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
-     return pass=true, staged=true.
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -7558,7 +8196,9 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "earlier_reviews_read",
     "risk_misclassified",
     "reachable",
-    "evidence_recorded"
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -7571,7 +8211,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
     },
     "staged": {
       "type": "boolean",
@@ -7593,148 +8233,28 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
       "type": "boolean",
       "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
     },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
     "regression": {
       "type": "boolean",
       "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
     },
     "gap_count": {
       "type": "integer",
-      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+      "description": "number of blocking gaps written to the review file (0 on pass)"
     },
     "suite_result": {
       "type": "string",
       "description": "observed outcome of running the FULL gates"
-    }
-  }
-}
-~~~~
-
-## park · variant 2 · schema 1
-
-`park:block-a` in "a parked block, and the run carries on"
-
-~~~~text
-
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget and its closing pass. SAVE its work as a commit on the
-branch aipg-unfinished/flow-block-a-d48cf78a, then clear it from the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
-scopes on the unstaged diff. Then append ONE backlog entry that links the branch. The engine sets the block's plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.
-GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
-TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
-CONVENTIONS (match these): (none supplied — infer from the surrounding code)
-GATES (the commands that define "it works"):
-  build: npm run build
-  test:  npm test
-BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
-need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
-restate large files back.
-Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
-STAGING CONTRACT:
-  • staged index + HEAD  = ACCEPTED blocks (the baseline). Treat as known-good; do NOT touch. No command
-    in step 1 writes the repo's own index. Step 2 removes from it only the intent-to-add entries of files
-    this block created.
-  • unstaged working tree = THIS block's unsuccessful work — the only thing you save and clear.
-  • The only commits you make are step 1's, and only aipg-unfinished/flow-block-a-d48cf78a points at them. Nothing is EVER committed on HEAD's branch.
-
-SAVE BEFORE YOU CLEAR. If the tree holds this block's work and step 1 cannot make its commit, STOP: leave
-the tree exactly as it is, skip steps 2 and 3, and return saved=false, cleared=false, commit_sha "" and
-entry_written=false. A tree that holds no work of this block is not a stop: step 1 says what to do.
-
-PROCEDURE:
-1. SAVE. Each command names the repo with `-C`, so it runs from any folder.
-   a. Create E:/flow/runs/flow/scratch/ if needed, then seed a temporary index file with a copy of the repo's index:
-        `cp "$(git -C E:/repo rev-parse --path-format=absolute --git-path index)" "E:/flow/runs/flow/scratch/park-block-a.index"`
-      Each command below that sets `GIT_INDEX_FILE` reads and writes only that copy. Delete the copy and
-      E:/flow/runs/flow/scratch/park-block-a.msg once step 1 ends, whichever way it ends.
-   b. BASE, the new commit's first parent, is a commit of the accepted baseline. Run `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/park-block-a.index" git -C E:/repo write-tree`, which prints the staged index's tree (an
-      intent-to-add entry takes no part in it). Then `git -C E:/repo commit-tree <that tree> -p HEAD -m "accepted baseline"`
-      prints BASE.
-   c. Add the block's work to the copy with `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/park-block-a.index" git -C E:/repo add -A`. Then drop each
-      untracked path that is build output or a cache with `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/park-block-a.index" git -C E:/repo rm --cached -r -q -- <path>`.
-      Then `GIT_INDEX_FILE="E:/flow/runs/flow/scratch/park-block-a.index" git -C E:/repo write-tree` prints WORK: the accepted baseline's tree
-      plus this block's unstaged tracked edits and untracked files.
-   d. TREE CHECK. When WORK is the tree that `git -C E:/repo rev-parse <BASE>^{tree}` prints, the tree holds
-      no work of this block. Make no commit, leave the branch as it is, return saved=false and
-      commit_sha "", and continue at step 2.
-   e. COMMIT. Write `unfinished: ` followed by the block's title, which is the JSON string
-      "block-a", decoded, as the one line of E:/flow/runs/flow/scratch/park-block-a.msg, with no quotes and no other line.
-      The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. When `git -C E:/repo rev-parse --verify --quiet refs/heads/aipg-unfinished/flow-block-a-d48cf78a` prints a commit id, that
-      earlier tip is the second parent, so earlier unfinished work stays in the branch's history: run
-      `git -C E:/repo commit-tree <WORK> -p <BASE> -p <tip> -F E:/flow/runs/flow/scratch/park-block-a.msg`. Otherwise run it without
-      `-p <tip>`. The command prints NEW, and it runs no commit hook. Then run
-      `git -C E:/repo update-ref refs/heads/aipg-unfinished/flow-block-a-d48cf78a <NEW>`.
-   f. Confirm `git -C E:/repo rev-parse aipg-unfinished/flow-block-a-d48cf78a^{tree}` prints WORK and `git -C E:/repo rev-parse aipg-unfinished/flow-block-a-d48cf78a^1`
-      prints BASE. Return saved=true and commit_sha=NEW.
-2. CLEAR, only when step 1 made a commit. Restore every tracked file this block modified to the accepted
-   baseline: `git -C E:/repo checkout -- <files>`. Remove each `git add -N` intent-to-add file the block
-   CREATED with `git -C E:/repo rm -f -q -- <file>`: that drops the index entry and the file together.
-   Deleting the file alone leaves the entry, and `git diff` stays non-empty. Delete each other untracked
-   file the new commit holds: `git -C E:/repo diff --name-only --no-renames --diff-filter=A <BASE> <NEW>` lists every
-   file it adds, and `git -C E:/repo status --porcelain` lists the untracked ones as `??`. Always name
-   the files: an unpathed `git reset`, `git rm` or `git clean` touches the index, which holds the
-   accepted baseline, or files the new commit does not hold. A file is safe to remove because the new
-   commit holds it. When step 1 made no commit, clear nothing.
-   Either way, confirm `git -C E:/repo diff` is EMPTY and `git -C E:/repo status --porcelain` lists no
-   `??` file of this block apart from build output and caches, and return cleared=true only then. Then
-   run the BUILD gate and record whether it is green.
-3. RECORD. Append ONE entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md, creating E:/flow/backlog/repo-0a1b2c3d/ if it does not exist.
-   A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
-   n is one past the highest n in that file's entry ids, or 1 when it has none:
-     ### [flow-block-a-d48cf78a-<n>] unfinished: <block title>
-     - id: flow-block-a-d48cf78a-<n>
-     - status: open
-     - file: <the first path `git -C E:/repo diff --name-only aipg-unfinished/flow-block-a-d48cf78a^1 aipg-unfinished/flow-block-a-d48cf78a` prints>
-     - category: unfinished
-     - size: <trivial | small | medium | large: the work the gaps below leave>
-     - decision: <ACTIONABLE | NEEDS_USER>
-     - branch: aipg-unfinished/flow-block-a-d48cf78a
-     - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked: the closing acceptance still failed.", then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r6.md, copied verbatim>
-     **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
-   When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
-   when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
-     **Fix:** Build each block the "- origin:" line names on the accepted baseline, closing the gaps the **What:** lists, so it meets its criteria.
-   When step 2 did not return cleared=true, or the build gate was not green after it, set "- decision: NEEDS_USER", since the engine then holds the park and the operator picks whether this entry or the block continues its work. Otherwise read the gaps the **What:** lists as the entry's defect. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
-   Write each verbatim copy on lines of its own below the **What:** line, every copied line indented by
-   four spaces, so no copied heading, fence or "- <key>:" line ends this entry or starts another when the
-   plan file is parsed.
-   Then return entry_written=true. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
-Do NOT modify any file in the repo outside this block's work.
-Return saved + cleared + gates_green + commit_sha + entry_written via the schema.
-~~~~
-
-~~~~json
-{
-  "type": "object",
-  "required": [
-    "saved",
-    "cleared",
-    "gates_green",
-    "commit_sha",
-    "entry_written"
-  ],
-  "properties": {
-    "saved": {
-      "type": "boolean",
-      "description": "true ONLY if step 1 made the commit, the branch points at it, and its tree differs from its first parent's tree. If false over work in the tree, you must NOT have cleared the tree."
-    },
-    "cleared": {
-      "type": "boolean",
-      "description": "true if `git diff` is empty and no untracked file the block created remains after step 2, including a tree that held no work"
-    },
-    "gates_green": {
-      "type": "boolean",
-      "description": "true if the BUILD gate passes again after clearing (the tree is safe for what comes next)"
-    },
-    "commit_sha": {
-      "type": "string",
-      "description": "the full id of the commit step 1 made, as commit-tree printed it, or \"\" when it made none"
-    },
-    "entry_written": {
-      "type": "boolean",
-      "description": "true ONLY if step 3 appended the backlog entry and the tool reported success"
-    },
-    "notes": {
-      "type": "string"
     }
   }
 }
@@ -7765,7 +8285,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -8111,7 +8631,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 14 · schema 1
+## acceptance · variant 16 · schema 1
 
 `acceptance block-a r1` in "an ordered run stops at a parked block"
 
@@ -8136,7 +8656,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -8331,7 +8851,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 A prior review flagged issues in E:/flow/runs/flow/acceptance-review-block-a-r1.md. Your earlier work is already in the UNSTAGED
 working tree: build ON it, do NOT revert or redo it.
 Report baseline_dirty_files=-1.
@@ -8671,7 +9191,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 15 · schema 1
+## acceptance · variant 17 · schema 1
 
 `acceptance block-a r2` in "an ordered run stops at a parked block"
 
@@ -8696,7 +9216,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 2 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -8866,7 +9386,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 16 · schema 1
+## acceptance · variant 18 · schema 1
 
 `acceptance block-a r3` in "an ordered run stops at a parked block"
 
@@ -8891,7 +9411,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 3 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9062,7 +9582,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 17 · schema 1
+## acceptance · variant 19 · schema 1
 
 `acceptance block-a r4` in "an ordered run stops at a parked block"
 
@@ -9087,7 +9607,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 4 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9259,7 +9779,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## acceptance · variant 18 · schema 1
+## acceptance · variant 20 · schema 1
 
 `acceptance block-a r5` in "an ordered run stops at a parked block"
 
@@ -9284,7 +9804,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9482,11 +10002,12 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 5 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
-blind review follows you. The engine parks the block when you record an entry or when its changes since
-the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
+develop round follows you. A blind review follows you when the block's changes since its last blind
+review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
+and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
+do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-a.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -9525,14 +10046,15 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-a. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
+   acceptance finds a blocking gap.
    That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
    every other fix, and make no change that is not one of these fixes. Every later phase works only
    on them.
-   A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
+   A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you.
    Then RUN THE GATE until it is GREEN — build: npm run build ; verification: per
    the plan's Test Strategy (npm test). Also run the FULL suite to confirm you did not redden it (report full_suite_outcome). When the verification command is already the full suite, its one run counts for both, and full_suite_outcome reports that run. Never
    weaken/delete tests to get green. SANITY-CHECK the runner really executed your unit tests.
@@ -9843,15 +10365,16 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 19 · schema 1
+## acceptance · variant 21 · schema 3
 
 `acceptance block-a r6` in "an ordered run stops at a parked block"
 
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
-This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -9868,7 +10391,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 6 in its file names, after round 5 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -9927,7 +10450,15 @@ rare, inherent, or unreached by any current caller. Those calls are the develope
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
 when only a change in other code closes it. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
-Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -9975,7 +10506,7 @@ PROCEDURE:
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
-   sends the next round to a blind review. Otherwise return risk_misclassified=false.
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -9991,13 +10522,28 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
-   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
-     clean, no regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
-     return pass=true, staged=true.
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r6.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -10013,7 +10559,9 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "earlier_reviews_read",
     "risk_misclassified",
     "reachable",
-    "evidence_recorded"
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -10026,7 +10574,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
     },
     "staged": {
       "type": "boolean",
@@ -10048,13 +10596,24 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
       "type": "boolean",
       "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
     },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
     "regression": {
       "type": "boolean",
       "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
     },
     "gap_count": {
       "type": "integer",
-      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+      "description": "number of blocking gaps written to the review file (0 on pass)"
     },
     "suite_result": {
       "type": "string",
@@ -10064,13 +10623,13 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## park · variant 3 · schema 1
+## park · variant 2 · schema 1
 
 `park:block-a` in "an ordered run stops at a parked block"
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget and its closing pass. SAVE its work as a commit on the
+You are PARKING the plan block "block-a", which did NOT land within its round budget, since its closing acceptance found a blocking gap. SAVE its work as a commit on the
 branch aipg-unfinished/flow-block-a-d48cf78a, then clear it from the tree. The run stops after you (the blocks after this one depend on it), so leave the repo in a
 known, buildable state the user can come back to. Then append ONE backlog entry that links the branch. The engine sets the block's plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -10143,7 +10702,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked: the closing acceptance still failed.", then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r6.md, copied verbatim>
+     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r6.md, then every other finding and gap in it, each copied verbatim>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -10223,7 +10782,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -10644,7 +11203,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 20 · schema 3
+## acceptance · variant 22 · schema 5
 
 `acceptance block-c r1` in "a fix block closes its issues"
 
@@ -10670,7 +11229,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -11016,7 +11575,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -11442,7 +12001,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 21 · schema 3
+## acceptance · variant 23 · schema 5
 
 `acceptance block-c r1` in "a fix block closes its issues under the proactive policy"
 
@@ -11468,7 +12027,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -11741,7 +12300,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -12164,7 +12723,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 22 · schema 3
+## acceptance · variant 24 · schema 5
 
 `acceptance block-c-plus-1 r1` in "a pass of two fix blocks closes its issues"
 
@@ -12191,7 +12750,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c-plus-1   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c-plus-1.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -12512,7 +13071,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## acceptance · variant 23 · schema 3
+## acceptance · variant 25 · schema 5
 
 `acceptance block-c r1` in "every issue is already fixed"
 
@@ -12538,7 +13097,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -12810,7 +13369,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are STAGED (the accepted baseline). The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -13231,7 +13790,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## park · variant 4 · schema 1
+## park · variant 3 · schema 1
 
 `park:block-a` in "passed with a regression, not staged"
 
@@ -13362,7 +13921,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 5 · schema 1
+## park · variant 4 · schema 1
 
 `park:block-a` in "acceptance stages a rejected block"
 
@@ -13493,7 +14052,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 6 · schema 1
+## park · variant 5 · schema 1
 
 `park:block-a` in "the quality reviewer fails a block without its file"
 
@@ -13572,7 +14131,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the developer to address. Check whether that file exists before resuming.>
+     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Quality reviewer for block block-a reported findings in round 1 but did not confirm writing E:/flow/runs/flow/gate/quality-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -13624,7 +14183,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 7 · schema 1
+## park · variant 6 · schema 1
 
 `park:block-a` in "acceptance fails a block without its file"
 
@@ -13703,7 +14262,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the developer to address. Check whether that file exists before resuming.>
+     **What:** <the line "Halted: a reviewer reported a failing verdict but did not confirm writing its review file.", then this halt reason, copied verbatim: Acceptance verifier for block block-a failed the block in round 1 but did not confirm writing E:/flow/runs/flow/acceptance-review-block-a-r1.md, so there is no review file for the next stage to read. Check whether that file exists before resuming.>
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -13755,7 +14314,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 8 · schema 1
+## park · variant 7 · schema 1
 
 `park:block-a` in "the developer staged its own work"
 
@@ -13886,7 +14445,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 9 · schema 1
+## park · variant 8 · schema 1
 
 `park:block-a` in "developer never got its block"
 
@@ -14022,7 +14581,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 10 · schema 1
+## park · variant 9 · schema 1
 
 `park:block-a` in "acceptance never got its block"
 
@@ -14158,7 +14717,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 11 · schema 1
+## park · variant 10 · schema 1
 
 `park:block-a` in "the developer dies"
 
@@ -14289,7 +14848,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 12 · schema 1
+## park · variant 11 · schema 1
 
 `park:block-a` in "the quality reviewer dies"
 
@@ -14420,7 +14979,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 13 · schema 1
+## park · variant 12 · schema 1
 
 `park:block-a` in "the acceptance verifier dies"
 
@@ -14551,7 +15110,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 14 · schema 1
+## park · variant 13 · schema 1
 
 `park:block-a` in "developer escalates"
 
@@ -14682,7 +15241,7 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 15 · schema 1
+## park · variant 14 · schema 1
 
 `park:block-a` in "developer escalates in an ordered run"
 
@@ -14813,15 +15372,16 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## acceptance · variant 24 · schema 1
+## acceptance · variant 26 · schema 3
 
-`acceptance block-a r2` in "a closing pass reaches acceptance"
+`acceptance block-a r2` in "a closing acceptance lands the block"
 
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
-This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -14838,7 +15398,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -14897,7 +15457,15 @@ rare, inherent, or unreached by any current caller. Those calls are the develope
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
 when only a change in other code closes it. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
-Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -14941,7 +15509,7 @@ PROCEDURE:
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
-   sends the next round to a blind review. Otherwise return risk_misclassified=false.
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -14957,13 +15525,28 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
-   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
-     clean, no regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
-     return pass=true, staged=true.
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -14979,7 +15562,9 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "earlier_reviews_read",
     "risk_misclassified",
     "reachable",
-    "evidence_recorded"
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -14992,7 +15577,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every acceptance criterion is met, the feature is reachable, gates are green, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
     },
     "staged": {
       "type": "boolean",
@@ -15014,13 +15599,24 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
       "type": "boolean",
       "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
     },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
     "regression": {
       "type": "boolean",
       "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
     },
     "gap_count": {
       "type": "integer",
-      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+      "description": "number of blocking gaps written to the review file (0 on pass)"
     },
     "suite_result": {
       "type": "string",
@@ -15032,7 +15628,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 
 ## develop-closing · variant 5 · schema 1
 
-`develop-closing block-b` in "a closing pass reaches acceptance"
+`develop-closing block-b` in "a closing acceptance lands the block"
 
 ~~~~text
 
@@ -15056,11 +15652,12 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 Round 1 ended without a passed acceptance, so you are this block's CLOSING PASS, and no
-blind review follows you. The engine parks the block when you record an entry or when its changes since
-the last blind review need one, and otherwise sends it to acceptance once more. Your earlier work is
-already in the UNSTAGED working tree: build ON it, do NOT revert or redo it.
+develop round follows you. A blind review follows you when the block's changes since its last blind
+review need one, and then acceptance runs once more. It lands the block when it finds no blocking gap,
+and otherwise the block parks. Your earlier work is already in the UNSTAGED working tree: build ON it,
+do NOT revert or redo it.
 Report baseline_dirty_files=-1.
 If E:/flow/runs/flow/gate/DISMISSED-block-b.md exists, READ it first: your ledger of declined findings for THIS
 block. Do not duplicate or re-litigate an entry.
@@ -15099,14 +15696,15 @@ code, BUILD's run is the one you report.
    MATRIX below. Where the matrix says FIX and the fix is not low risk under the RISK QUESTIONS in
    CLASSIFY below, change no code for it. Append one entry for it instead, in RECORD's shape below,
    routed, deduped and numbered as a RECORD entry, with a **Fix:** line naming the fix you would make.
-   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names.
+   After that line, add the line "**Parked with:** block block-b. Triage this entry once that block's park entry lands, or the block is accepted or dropped.", since the engine parks the block with the code the entry names when its closing
+   acceptance finds a blocking gap.
    That line sets the entry's "- decision:" to NEEDS_USER, by RECORD's decision rule.
    An entry for a nit takes "- category: cleanup" and no "- severity:" line. Count it in
    backlog_entries, list its id in recorded_entries, and write no DISMISSED line for it. When the dedup
    forbids the append, list the id of the entry that holds the item in recorded_entries instead. Make
    every other fix, and make no change that is not one of these fixes. Every later phase works only
    on them.
-   A gap for a wrong risk answer takes no fix and no log, since it parks this block for a blind review.
+   A gap for a wrong risk answer takes no fix and no log, since a blind review of this block's changes follows you.
    Then RUN THE GATE until it satisfies the expectation above — build: npm run build ; tests
    scoped to this block (use the block's `test_selector:` line when it has one, else the test gate):
    npm test. Never weaken/delete tests to get green. SANITY-CHECK
@@ -15420,15 +16018,16 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 25 · schema 2
+## acceptance · variant 27 · schema 4
 
-`acceptance block-b r2` in "a closing pass reaches acceptance"
+`acceptance block-b r2` in "a closing acceptance lands the block"
 
 ~~~~text
 
 You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
-This round's blind code review passed, or did not run because the developer judged each
-change since the block's last blind review low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
 Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
 target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
 the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
@@ -15445,7 +16044,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -15504,7 +16103,15 @@ rare, inherent, or unreached by any current caller. Those calls are the develope
 developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
 when only a change in other code closes it. Once the developer's ledger holds one, the
 OVERRIDE rule above governs it.
-Drop any other concern silently. Your file holds no notes, observations or non-blocking section.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
 
 SCOPE — this cycle's work is the UNSTAGED diff plus new files:
   `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
@@ -15551,7 +16158,7 @@ PROCEDURE:
    QUESTIONS below. A missing file, a missing `Snapshot:` first line in an audited round's file or in
    the base file named beside its command, a change it does not judge low risk, and an answer the hunks
    contradict are each a gap. Write each one in your review file and return risk_misclassified=true, which
-   sends the next round to a blind review. Otherwise return risk_misclassified=false.
+   makes it a blocking gap, since no round follows to send to a blind review. Otherwise return risk_misclassified=false.
 RISK QUESTIONS - answer each one for a change:
   - Systems: does the change need edits in more than one system to stay consistent?
   - Paths: does it add or change many branches, loops, error paths or state transitions?
@@ -15567,13 +16174,28 @@ or touches, or is "no". A doubtful answer counts as yes. A change is low risk wh
    or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
    clean."
 8. DECIDE:
-   • All criteria met, reachable, gate satisfied, every earlier finding closed or declined, risk audit
-     clean, no regression → `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit);
-     return pass=true, staged=true.
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
+     Count it in backlog_entries and name "block-b" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-b-7d7451b3-<n>] <title>
+       - id: flow-block-b-7d7451b3-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
    • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
      already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
-     (nothing to add). Say so in your file. Do NOT invent changes to justify it.
-   • Otherwise → return pass=false (do NOT stage); the block parks, with your review file as its diagnosis.
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
 Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
 Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
 ~~~~
@@ -15589,7 +16211,9 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     "earlier_reviews_read",
     "risk_misclassified",
     "reachable",
-    "evidence_recorded"
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
   ],
   "properties": {
     "plan_obtained": {
@@ -15602,7 +16226,7 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
     },
     "pass": {
       "type": "boolean",
-      "description": "true if every acceptance criterion of THIS block is met, it is reachable, the block gate is satisfied, every earlier finding is closed or declined, the risk audit is clean, and nothing regressed"
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
     },
     "staged": {
       "type": "boolean",
@@ -15624,13 +16248,24 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
       "type": "boolean",
       "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
     },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
     "regression": {
       "type": "boolean",
       "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
     },
     "gap_count": {
       "type": "integer",
-      "description": "number of unmet criteria / gaps written to the review file (0 on pass)"
+      "description": "number of blocking gaps written to the review file (0 on pass)"
     },
     "suite_result": {
       "type": "string",
@@ -15640,13 +16275,482 @@ Do NOT modify source code. Any command that writes nothing in the repo, such as 
 }
 ~~~~
 
-## park · variant 16 · schema 1
+## acceptance · variant 28 · schema 3
 
-`park:block-a` in "a closing pass records a fix that needs review"
+`acceptance block-a r2` in "a closing pass gets a blind review"
 
 ~~~~text
 
-You are PARKING the plan block "block-a", which did NOT reach acceptance within its round budget and its closing pass. SAVE its work as a commit on the
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-a'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-a". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-a   (mode: feature, gate: green)
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-a.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-a.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-a.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+  - a behavior change that a "FOCUSED block-a:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     E:/flow/runs/flow/acceptance-review-block-a-r1.md
+     E:/flow/runs/flow/gate/quality-review-block-a-r2.md
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-a.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-a.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point is satisfied — the feature is registered/exported/
+   routed/bound/flagged and reachable from real entry points (grep to prove it).
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run the FULL gates (GATES above) once and record the real outcome.
+   Re-run the plan's configured verification method to confirm the feature behaves as specified.
+   The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is unavailable here, say so in the file (do not fake it)
+   and return pass=false.
+6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-a-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-a-d48cf78a.md only.
+     Count it in backlog_entries and name "block-a" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-a-d48cf78a - backlog from block block-a of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-a-d48cf78a-<n>] <title>
+       - id: flow-block-a-d48cf78a-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-a-r2.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "the feature is actually wired in / reachable from the app entry points"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the FULL gates"
+    }
+  }
+}
+~~~~
+
+## acceptance · variant 29 · schema 4
+
+`acceptance block-b r2` in "a closing pass gets a blind review"
+
+~~~~text
+
+You are the ACCEPTANCE VERIFIER — the final, plan-aware gate for ONE block.
+This closing pass's blind code review ran when the block's changes owed one, and step 2 lists its file
+when it found issues. When none ran, the developer judged each change since the block's last blind review
+low risk, which your RISK AUDIT checks. Read the output of:  node 'E:/flow/tools/plan-block.mjs' 'E:/flow/plans/bus.md' 'block-b'
+Run it. Redirect its output to a file under E:/flow/runs/flow/scratch/ (create it if needed), never inside the
+target repo or E:/flow/runs/flow/gate/, and read that file, since the Bash display cuts long output. That output is
+the block, verbatim. If it exits non-zero, report plan_obtained=false and STOP: never guess at a plan you
+could not read. The full plan file is at
+E:/flow/plans/bus.md if you need a neighbouring block for context; your block is ONLY "block-b". You judge the work against that block; you never implement it.
+GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+CONVENTIONS (match these): (none supplied — infer from the surrounding code)
+GATES (the commands that define "it works"):
+  build: npm run build
+  test:  npm test
+BE TOKEN-ECONOMICAL: read ONLY the files this block touches plus the SPECIFIC reference/plan text you
+need, never the whole tree, plan file or reference. Prefer targeted grep over broad reads. Do not
+restate large files back.
+Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
+BLOCK: block-b   (mode: section, gate: green)
+This is the closing pass, numbered round 2 in its file names, after round 1 of at most 1. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 1 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+
+Before reviewing, READ these if they exist. They hold the settled decisions:
+  • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
+    It exists only once the developer has declined something, so a missing file means nothing is
+    settled yet. Do not search for it elsewhere.
+  • E:/flow/runs/flow/question-block-b.md — items already escalated to the user.
+  • E:/flow/runs/flow/DECISIONS.md — defaults the developer took, plan amendment pointers, and one line per fix of a defect already in the accepted baseline that
+    this run's focused change policy let the developer make, a record. A
+    FOCUSED line is never skipped for its stated reason, since the regression rule below judges each one.
+Skip anything listed there FOR THE STATED REASON. A DISMISSED line covers exactly what it names: one place, or every place in the class it names. Review the CURRENT
+diff FRESH, catching new or nearby issues. Read prior review files only at your
+EARLIER FINDINGS step below. The one exception is the file the WRITE step names. Read it only at the WRITE step, so the Write tool
+accepts the overwrite, and never use its content.
+OVERRIDE: E:/flow/runs/flow/gate/DISMISSED-block-b.md entries are the developer's judgment calls. A dismissed item that
+ACTUALLY breaks one of this block's acceptance criteria, leaves it unreachable, or causes a regression
+OVERRIDES the dismissal: fail acceptance for it and record it in your review file.
+A line whose reason starts `SKIPPED:` declines a finding, and the OVERRIDE applies to it.
+A line whose reason starts `ESCALATED:` records a default routed to the user, and the hold applies to it:
+hold it unless its stated reason is false. The hold wins over this OVERRIDE, so a held escalation never
+fails acceptance. Name it in your file as held.
+
+AMENDMENTS: READ E:/flow/runs/flow/AMENDED-block-b.md if it exists. It records plan clauses the developer OVERRODE after
+verifying the clause itself prescribes a real defect. Judge a criterion whose prescribing clause was
+amended against the AMENDED behavior, not the superseded clause, and NAME every criterion you
+judged under an amendment in your review file. An amendment entry that states NO defect evidence excuses
+NOTHING: that criterion stays UNMET.
+
+EVERY DEFECT YOU WRITE COUNTS. A gap is a criterion not met, a change not reachable, a gate not
+satisfied, an earlier finding that is neither closed nor declined, a failed risk audit, or a regression.
+CODE ZONES - every piece of code lies in one of three zones:
+  - Task code: the code this block's required changes add or change.
+    Every line a required change adds or changes is task code in full, so a pre-existing finding on such a line is a task code finding.
+  - Connected code: the code a reach step from the task code finds, which is its callers and consumers,
+    its sibling paths with the same mechanism, duplicates of the same logic, and the comments and docs
+    that describe it, apart from code this block's text excludes or another block of the plan owns.
+  - Other code: everything else.
+A regression is any behavior the accepted baseline (the staged index, or HEAD when nothing is staged) gave a caller or
+input, a third-party one included, that this cycle's work breaks or changes without
+a criterion of this block requiring it. A change counts as required only when a criterion of this block names that change.
+A break that a prescribed construction causes, which a criterion of this block does not name, is not required,
+so it is a regression. Not a regression:
+  - a test the gate step's suite rule allows to be red.
+  - a line number that another file cites, since every edit moves lines.
+  - a removed defect: a change that closes a finding an earlier review of this block named, or that
+    closes the same defect on a sibling path of a change a criterion of this block requires
+    or of such a finding. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect and is that same defect, that the change alters no other
+    behavior, that it lies in code this block's text does not exclude and in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+  - a behavior change that a "FOCUSED block-b:" line in
+    E:/flow/runs/flow/DECISIONS.md names. It is not a regression only when you confirm from the code that the baseline
+    behavior it removes was itself a defect, that the change alters no other behavior, that it lies
+    in code no other block of the plan owns, and that it lies in task code, or in connected code where the change closes a defect the diff introduces or exposes.
+Every other such break or change is a regression. So is a comment or doc sentence that was true in the accepted baseline and that this cycle's diff made false. Count each one, even when
+this block's own text prescribes the construction that causes it, and even when you judge the path
+rare, inherent, or unreached by any current caller. Those calls are the developer's, never yours. The
+developer fixes it, with an amendment when this block's own text prescribes it, or escalates it
+when only a change in other code closes it. Once the developer's ledger holds one, the
+OVERRIDE rule above governs it.
+Drop any other concern silently. Your file holds no notes or observations.
+CLOSING BAR. No develop round follows this verdict. Sort each gap into one of two kinds, and list
+each under the heading "## Blocking gaps" or, after it, "## Not blocking gaps" in your review file:
+  • Blocking: a regression, a gate not satisfied, a criterion of this block not met, such as a change that is not reachable, a defect at
+    medium severity or higher that this block's diff introduces, or a wrong risk answer whose changes no
+    blind review has read, which is every gap your RISK AUDIT finds.
+  • Not blocking: every other gap, such as a low or nit finding or a cleanup.
+A finding this pass's blind review raised as "CONTESTS DISMISSAL" is neither closed nor declined, so it is a
+gap, sorted by the kinds above, unless the line it contests is a held escalation.
+
+SCOPE — this cycle's work is the UNSTAGED diff plus new files:
+  `git -C E:/repo diff` + `git -C E:/repo status --porcelain` (READ new files).
+  `git -C E:/repo diff --staged` = accepted baseline (compare against it for regressions).
+
+PROCEDURE:
+1. ENUMERATE THIS block's acceptance criteria FIRST, numbered. For EACH, find concrete evidence it holds
+   (a diff hunk, a passing test, an observed behavior) and mark it met / not-met with a file:line /
+   test-name / command-output LOCATOR. evidence_recorded=true only if EVERY met criterion carries such a
+   locator in your review file. A criterion asserted without one is not met.
+2. EARLIER FINDINGS. Read each file below in full, after step 1, so your own step-1 judgment stays
+   fresh:
+     E:/flow/runs/flow/acceptance-review-block-b-r1.md
+     E:/flow/runs/flow/gate/quality-review-block-b-r2.md
+   For each finding or gap in them, confirm one of: (a) the current code closes it, and a grep finds no
+   sibling path that carries the same mechanism and that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers, or (b)
+   E:/flow/runs/flow/gate/DISMISSED-block-b.md holds a line for it, with the OVERRIDE rule above deciding whether that declined
+   item still fails acceptance. A finding that reappeared, one closed on one path while a sibling path
+   that no line in E:/flow/runs/flow/gate/DISMISSED-block-b.md covers keeps the same mechanism, and one neither closed nor declined
+   each count as a gap. A gap for a wrong risk answer is closed, since the engine runs a blind review
+   after the verdict that names it and before any later acceptance. A blind review that came back clean
+   is never on this list, since it found nothing. That includes this round's blind review, when one ran.
+3. REACHABILITY: prove every integration point this block owns is satisfied — every call site
+   converted, route mounted, symbol exported/bound/flagged (grep to prove it, with hit counts). A
+   half-converted block is not done.
+4. REGRESSION: compare the unstaged diff against the accepted baseline. Confirm that no
+   previously-accepted behavior was changed or broken, apart from a change that meets an item of the
+   "Not a regression" list above.
+5. Run this block's gate and record the real outcome (build: npm run build ; tests scoped
+   to this block, by its `test_selector:` line when it has one, else the test gate:
+   npm test). For gate=green the selector tests must PASS; for
+   gate=red-baseline the authored tests must FAIL as intended (that failing test IS the spec — a valid,
+   stageable "done"); for gate=build-only just build green. The EXISTING suite must still be green — reddening it is a regression, not an accepted block. If a configured MCP/tool is
+   unavailable here, say so in the file (do not fake it) and return pass=false.
+6. RISK AUDIT. This round's blind review judged the entire block diff, so no risk file needs an audit. Return risk_misclassified=false.
+7. WRITE E:/flow/runs/flow/acceptance-review-block-b-r2.md (create E:/flow/runs/flow/ if needed) BEFORE step 8. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds the
+   numbered per-criterion table WITH its locators, the earlier-findings result, the reachability +
+   regression result, the gate output, the risk-audit result, and each gap (title + file:line + fix) —
+   or "All criteria met; every earlier finding closed or declined; reachable; no regression; risk audit
+   clean."
+8. DECIDE:
+   • No blocking gap → APPEND each not blocking gap as ONE backlog entry to E:/flow/backlog/repo-0a1b2c3d/flow-block-b-7d7451b3.md only.
+     Count it in backlog_entries and name "block-b" in backlog_blocks.
+     A new file starts with the four lines "## Plan: flow-block-b-7d7451b3 - backlog from block block-b of run flow", "mode: fix", "gate: green" and "status: todo", then a blank line.
+     Before you append, create E:/flow/backlog/repo-0a1b2c3d/ if it does not exist, then grep the *.md files in E:/flow/backlog/repo-0a1b2c3d/ for the path of the file the new entry names and for the name of the function or identifier at the gap, and read each entry that a grep matches. Never append a gap that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the gap is back in the code, so append a new entry whose **What:** names their ids.
+     Each entry copies the shape of debug's issue files, with n one past the highest n in that file's entry ids:
+       ### [flow-block-b-7d7451b3-<n>] <title>
+       - id: flow-block-b-7d7451b3-<n>
+       - status: open
+       - file: <path>:<line>
+       - severity: <low | medium | high | critical>
+       - category: <category>
+       - size: <trivial | small | medium | large>
+       - decision: <ACTIONABLE | NEEDS_USER>
+       **What:** <the gap, the input or path that reaches it, and its harm>
+       **Fix:** <the change that closes it>
+     A nit or a cleanup takes "- category: cleanup" and no "- severity:" line. Set the entry's "- decision:" line by one rule. ACTIONABLE when the entry is a defect or a cleanup with one clear fix, its size is trivial or small, and the fix changes no user-visible behavior, stored data or public contract. NEEDS_USER otherwise, such as a feature, a refactor, a choice between fixes, a fix that changes user-visible behavior, or an entry with a **Parked with:** line. A later run builds an ACTIONABLE entry without triage, and a NEEDS_USER entry waits for the user.
+     Then `git -C E:/repo add <this block's changed AND newly-created files>` (NEVER commit); return pass=true,
+     staged=true, gap_count=0.
+   • LEGITIMATE NO-OP: if this block genuinely requires NO code change because the accepted baseline
+     already satisfies every one of its criteria, that is a valid pass — return pass=true AND staged=true
+     (nothing to add). Say so in your file. Do NOT invent changes to justify it. Append each not blocking gap to the backlog as the first bullet says.
+   • Any blocking gap → return pass=false (do NOT stage); append no gap to the backlog, since the block parks and its backlog entry copies your blocking gaps first, then every other gap.
+Return wrote_file=true ONLY if you wrote E:/flow/runs/flow/acceptance-review-block-b-r2.md this round.
+Do NOT modify source code. Any command that writes nothing in the repo, such as a tool's check mode, is allowed. Return ONLY the decision fields via the schema.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "plan_obtained",
+    "wrote_file",
+    "pass",
+    "staged",
+    "earlier_reviews_read",
+    "risk_misclassified",
+    "reachable",
+    "evidence_recorded",
+    "backlog_entries",
+    "backlog_blocks"
+  ],
+  "properties": {
+    "plan_obtained": {
+      "type": "boolean",
+      "description": "true if you HAVE the block text you judge against: the plan-block command exited 0 and printed it. A failed command means FALSE. Never fall back to locating the block by eye. FALSE halts the run."
+    },
+    "wrote_file": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote your review file this round"
+    },
+    "pass": {
+      "type": "boolean",
+      "description": "true if your review file holds no blocking gap under the CLOSING BAR your prompt states, nothing regressed, and you appended each not blocking gap that no open backlog entry already holds"
+    },
+    "staged": {
+      "type": "boolean",
+      "description": "true if you ran `git add` on this block's files, or on a LEGITIMATE NO-OP pass whose diff is empty (only on pass; NEVER commit)"
+    },
+    "earlier_reviews_read": {
+      "type": "integer",
+      "description": "how many of the earlier review files your prompt lists you read in full (0 when it lists none)"
+    },
+    "risk_misclassified": {
+      "type": "boolean",
+      "description": "true if your RISK AUDIT found a risk file or its Snapshot line missing, a change it judges not low risk, or an answer the hunks of its round contradict (false when your prompt lists no risk file)"
+    },
+    "reachable": {
+      "type": "boolean",
+      "description": "this block's change is actually wired in / reachable — every call site converted, route mounted, symbol exported"
+    },
+    "evidence_recorded": {
+      "type": "boolean",
+      "description": "true ONLY if EVERY met criterion carries a locator (file:line / test name / command output) written in the review file"
+    },
+    "backlog_entries": {
+      "type": "integer",
+      "description": "entries you appended this round to the backlog files your prompt names (0 if none)"
+    },
+    "backlog_blocks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of every block whose backlog file you appended to this round ([] if none)"
+    },
+    "regression": {
+      "type": "boolean",
+      "description": "true if the unstaged diff regressed previously-staged/accepted behavior"
+    },
+    "gap_count": {
+      "type": "integer",
+      "description": "number of blocking gaps written to the review file (0 on pass)"
+    },
+    "suite_result": {
+      "type": "string",
+      "description": "observed outcome of running the block gate (and, where the goal expects it, the full gates)"
+    }
+  }
+}
+~~~~
+
+## park · variant 15 · schema 1
+
+`park:block-a` in "a closing acceptance finds a blocking gap"
+
+~~~~text
+
+You are PARKING the plan block "block-a", which did NOT land within its round budget, since its closing acceptance found a blocking gap. SAVE its work as a commit on the
 branch aipg-unfinished/flow-block-a-d48cf78a, then clear it from the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
 scopes on the unstaged diff. Then append ONE backlog entry that links the branch. The engine sets the block's plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -15719,7 +16823,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-a-d48cf78a
      - origin: E:/flow/plans/bus.md#block-a
-     **What:** <the line "Parked before acceptance: it listed 1 backlog entry whose fix needs a blind review.", then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.", then every finding and gap in E:/flow/runs/flow/acceptance-review-block-a-r1.md, copied verbatim>
+     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-a-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-a-d48cf78a holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -15771,13 +16875,13 @@ Return saved + cleared + gates_green + commit_sha + entry_written via the schema
 }
 ~~~~
 
-## park · variant 17 · schema 1
+## park · variant 16 · schema 1
 
-`park:block-b` in "a closing pass records a fix that needs review"
+`park:block-b` in "a closing acceptance finds a blocking gap"
 
 ~~~~text
 
-You are PARKING the plan block "block-b", which did NOT reach acceptance within its round budget and its closing pass. SAVE its work as a commit on the
+You are PARKING the plan block "block-b", which did NOT land within its round budget, since its closing acceptance found a blocking gap. SAVE its work as a commit on the
 branch aipg-unfinished/flow-block-b-7d7451b3, then clear it from the tree so the REST OF THE RUN can continue: leftover work would fail the next block's blind review, which
 scopes on the unstaged diff. Then append ONE backlog entry that links the branch. The engine sets the block's plan status to backlogged when step 2 clears the tree and leaves the build green, so that entry is the one place its work continues from. Otherwise it keeps the block blocked until the operator picks the route its work takes.
 GOAL (this run's ONE goal, split into the plan file's blocks): move every caller onto the new client
@@ -15850,7 +16954,7 @@ PROCEDURE:
      - decision: <ACTIONABLE | NEEDS_USER>
      - branch: aipg-unfinished/flow-block-b-7d7451b3
      - origin: E:/flow/plans/bus.md#block-b
-     **What:** <the line "Parked before acceptance: it listed 1 backlog entry whose fix needs a blind review.", then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.", then every finding and gap in E:/flow/runs/flow/acceptance-review-block-b-r1.md, copied verbatim>
+     **What:** <the line "Parked: the closing acceptance found a blocking gap.", then each gap under the "## Blocking gaps" heading of E:/flow/runs/flow/acceptance-review-block-b-r2.md, then every other finding and gap in it, each copied verbatim, then the line "The closing pass listed these backlog entries, each with a **Fix:** line that names a fix that needs a blind review: flow-block-a-1.">
      **Fix:** Close the gaps the **What:** lists on top of the work the branch holds, so each block the "- origin:" line names meets its criteria. Round 1 of the block built from this file restores that work.
    When step 1 made no commit, this park saved no work to restore, so write no "- branch:" line, even
    when aipg-unfinished/flow-block-b-7d7451b3 holds an earlier park's work, give "- file:" the path E:/flow/plans/bus.md, and write this **Fix:** line instead:
@@ -15927,7 +17031,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -16279,7 +17383,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## quality · variant 2 · schema 1
+## quality · variant 3 · schema 1
 
 `quality block-a r1` in "every block commits first time"
 
@@ -16290,7 +17394,7 @@ spec or goal. Do not seek any. Judge the code PURELY ON ITS OWN MERITS.
 Never open a plan file, an issue inventory, or any run-state path outside E:/flow/runs/flow/gate/.
 E:/flow/runs/flow/gate/ also holds other blocks' review and DISMISSED files.
 Read only E:/flow/runs/flow/gate/DISMISSED-block-a.md there, and E:/flow/runs/flow/gate/quality-review-block-a-r1.md only at the WRITE step, so the Write tool accepts the overwrite. Never use its content.
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 TARGET REPO: E:/repo
 GATES — already ran before you were spawned, and a later stage re-runs them before anything is staged.
 Never run them in full. Run the test command only for ONE targeted test that confirms a suspected defect.
@@ -16416,7 +17520,7 @@ contested_dismissals via the schema. Do NOT modify source, stage, or commit.
 }
 ~~~~
 
-## acceptance · variant 26 · schema 4
+## acceptance · variant 30 · schema 6
 
 `acceptance block-a r1` in "every block commits first time"
 
@@ -16441,7 +17545,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-a   (mode: feature, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-a.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -16674,7 +17778,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b
 GATE EXPECTATION: green — this block's selector tests must RUN and PASS (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -17029,7 +18133,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 27 · schema 5
+## acceptance · variant 31 · schema 7
 
 `acceptance block-b r1` in "every block commits first time"
 
@@ -17054,7 +18158,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-b   (mode: section, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-b.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -17369,7 +18473,7 @@ restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c
 GATE EXPECTATION: green — build passes and this block's verification RUNS and PASSES (test_outcome="passed").
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 ROUND 1 — STEP 0, BEFORE you read the plan or touch any file: CONFIRM THE BASELINE IS CLEAN. Earlier
 ACCEPTED blocks are COMMITTED (the accepted baseline is HEAD), so nothing is staged. The UNSTAGED tree must be EMPTY, because everything
 unstaged at the end of this round is judged as YOUR work.
@@ -17796,7 +18900,7 @@ Return ONLY the decision fields via the schema (no prose report).
 }
 ~~~~
 
-## acceptance · variant 28 · schema 6
+## acceptance · variant 32 · schema 8
 
 `acceptance block-c r1` in "a fix block commits"
 
@@ -17822,7 +18926,7 @@ need, never the whole tree, plan file or reference. Prefer targeted grep over br
 restate large files back.
 Write every scratch file, such as a plan block or a test log, under E:/flow/runs/flow/scratch/, never under E:/flow/runs/flow/gate/.
 BLOCK: block-c   (mode: fix, gate: green)
-This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file, and neither has the closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
+This is round 1 of at most 5. Round numbers count develop rounds, so a later stage has no file for a round that an earlier stage sent back. Of the rounds that reach the blind review stage, the blind review runs on the block's first one in this launch, and on a later one only when a round since the block's last blind review judged a change not low risk or gave no judgment, or an acceptance verdict since then found a risk judgment wrong. Every other round has no blind review file. The closing pass, the one developer pass that follows round 5 when that round ends without acceptance staging the block, reaches the blind review stage whatever its gate, and no develop round follows it. A round file of this block that this prompt does not name may come from an earlier launch of the block, so ignore it.
 
 Before reviewing, READ these if they exist. They hold the settled decisions:
   • E:/flow/runs/flow/gate/DISMISSED-block-c.md — findings the developer declined for THIS block, each with a one-line reason.
@@ -18180,7 +19284,7 @@ with wrote_file=true ONLY if you wrote E:/flow/runs/flow/SWEEP.md, and gap_count
 }
 ~~~~
 
-## park · variant 18 · schema 1
+## park · variant 17 · schema 1
 
 `park:block-a` in "acceptance commits a rejected block"
 

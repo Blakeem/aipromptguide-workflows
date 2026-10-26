@@ -356,14 +356,15 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   line whose reason starts `SKIPPED:` declines a finding, and acceptance may override it. A line
   whose reason starts `ESCALATED:` records a default routed to the user, and acceptance holds it. It
   audits the risk file of each round since the block's last blind review, against that round's own
-  hunks (§6). When its verdict fails in the closing pass, the block parks with its review file as
-  the diagnosis. Every defect it writes in its review file counts as a gap, including a regression
-  the block prescribes or no current caller reaches. A change counts as required only when the
-  block's text or the ACTIONABLE entry names it, so a break that a prescribed construction causes
-  and the text does not name is a regression. A change that removes a defect a review finding named,
-  or the same defect on a sibling path of a required fix or of such a finding, is not a regression
-  when the code shows the removed behavior was a real defect, the change alters no other behavior,
-  the block's text does not exclude that code, no other block of the plan owns it, and it lies in a
+  hunks (§6). In the closing pass it sorts each gap as blocking or not blocking, and it lands the
+  block when no gap blocks. Otherwise the block parks (§6). Every defect it writes in its review
+  file counts as a gap, including a regression the block prescribes or no current caller reaches. A
+  change counts as required only when the block's text or the ACTIONABLE entry names it, so a break
+  that a prescribed construction causes and the text does not name is a regression. A change that
+  removes a defect a review finding named, or the same defect on a sibling path of a required fix or
+  of such a finding, is not a regression when the code shows the removed behavior was a real defect,
+  the change alters no other behavior, the block's text does not exclude that code, no other block
+  of the plan owns it, and it lies in a
   zone the policy lets the developer change (§4). The developer never dismisses a regression. It fixes the regression, with an
   amendment when prescribed text causes it. It escalates the regression when that fix would change a
   choice the text says the user made, so the block parks with the user's question. It also escalates
@@ -371,7 +372,7 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   section. In fix mode, a harm an entry lists whose cause shares no code path with the re-derived
   root cause is a new issue, never a gap. A sibling path with the identical defect stays a residual
   path. The verifier appends a new issue to its source block's backlog file (§10), and the entry's
-  `**What:**` names the source issue id. The return counts both writers' entries in `backlogEntries`
+  `**What:**` names the source issue id. The return counts every writer's entries in `backlogEntries`
   and names each file in `backlogFiles`. Work a block's file (§10) once that block is `done`, `skip`
   or `backlogged`. In fix mode, an entry with an `- origin:` line holds a parked block's unfinished
   work. When it also carries a `- branch:` line, the round-1 developer restored that branch's work (§7),
@@ -413,10 +414,11 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   `- origin: <planPath>#<block id>` line, and a `- decision:` by §10's rule. The park of a block whose
   developer escalated a user-only question is always `NEEDS_USER`, whatever halt parked it. The entry's
   `**What:**` copies the escalated question, the halt reason, or the gaps of the last review file,
-  whichever caused the park. A halt that parks a block with an escalated question copies the halt
-  reason and then that question. Its `**Fix:**` says to close those gaps on top of the branch's work,
-  so each origin block meets its criteria. An entry with no branch says to build each origin block on
-  the accepted baseline instead. The block syncs `backlogged`, and its work continues from that entry.
+  whichever caused the park. After a closing acceptance it copies the blocking gaps first. A halt
+  that parks a block with an escalated question copies the halt reason and then that question. Its
+  `**Fix:**` says to close those gaps on top of the branch's work, so each origin block meets its
+  criteria. An entry with no branch says to build each origin block on the accepted baseline
+  instead. The block syncs `backlogged`, and its work continues from that entry.
   A held park syncs `blocked` instead, its entry is `NEEDS_USER` unless its park agent died or returned a
   report that contradicts itself, and §2 step 5 says which route its
   work then takes. Fix mode takes only gate `green`, so the park of a `red-baseline` block, or of a
@@ -431,8 +433,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
 
 ## 6. Loop, gates & verification
 
-`develop → quality (must be clean) → acceptance (stages on pass, and commits in commit mode)`, up to `maxRounds` (default 5) per
-block, then one closing pass when the last round fails.
+`develop → quality (must be clean, apart from the closing pass) → acceptance (stages on pass, and commits in commit mode)`,
+up to `maxRounds` (default 5) per block, then one closing pass when the last round fails.
 
 **Risk-gated review.** The developer's CLASSIFY phase answers four risk questions for each change its
 round made:
@@ -462,15 +464,27 @@ risk and an answer the hunks contradict are each a gap, and the verdict returns 
 true, which sends the next round to a blind review.
 
 **Closing pass.** When round `maxRounds` ends without a passed acceptance, one more developer runs,
-with no blind review after it. It takes round number `maxRounds + 1` in its file names. It makes each
+and no develop round follows it. It takes round number `maxRounds + 1` in its file names. It makes each
 fix of the last review's findings and gaps that is low risk, and records each one whose fix is not as
 an entry in its block's backlog file (§10), with a `**Fix:**` line naming the fix, a
 `**Parked with:**` line naming the block and no DISMISSED line, under both policies. It returns those
 entries' ids in `recorded_entries`. When the dedup forbids an append, it returns the id of the entry
-that holds the item instead. When it listed no entry and no blind review is owed, acceptance runs
-once more. A pass stages the block and a fail parks it. Otherwise the engine parks the block with the
-closing pass's work on its branch, and the park's backlog entry names each listed entry. A
-block never reaches acceptance with a change that needs a blind review and has none.
+that holds the item instead. A blind review follows the closing pass when its changes owe one by the
+rule above, whatever its gate, and the closing acceptance reads that review's file. A block never
+lands with a change that needs a blind review and has none.
+
+The closing acceptance sorts each gap into one of two kinds. A blocking gap is a regression, a red
+gate, an unmet criterion of a feature or section block, an ACTIONABLE entry of a fix block whose root
+cause is not closed, a change made for an entry that is not ACTIONABLE or a change no FIXED claim
+accounts for, a defect at medium severity or higher that the block's diff introduces, or a wrong risk
+answer whose changes no blind review has read. Every other gap is not blocking, such as a low or nit
+finding or a cleanup. A finding the closing blind review raises against a dismissal is a gap of either
+kind by the same rule, unless it contests an `ESCALATED:` line acceptance holds. With no blocking gap,
+the closing acceptance stages the block, commits it in commit mode, and appends each gap that is not
+blocking as one entry in the block's backlog file, with a `- decision:` by §10's rule. The block syncs
+`done`, and its ledger status names the count of those entries. With a blocking gap, the block parks,
+and its park entry lists the blocking gaps first and names each entry the closing pass listed. Every
+round before the closing pass keeps the bar where every gap fails acceptance.
 
 Gate semantics per block: `green` = build + the block's verification passed
 (`tests_run_count==0` is a false green) — and when `suite: green`, a reddened existing suite fails it
@@ -626,13 +640,13 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   acceptance rejected, whose commit the halt reason names), and per-issue `results` in fix mode) · `statusSync` (the
   plan-file edits, also logged per block for §2 step 5) · `sweep` · `failed`
   (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so `sweep: null` with no
-  entry means the sweep did not run) · `backlogEntries` (every mode, the entries developers and fix
-  verifiers added to the backlog this run, null when one returned no usable report) · `backlogFiles`
-  (the sorted backlog files the developers and fix verifiers named, null when `backlogEntries` is
-  null) · `nextStep` (when the run added entries, it names the folder, the files and the count, and
-  asks you to report each added entry's severity and title to the user. In commit mode it names each
-  committed block with its sha. It says nothing is staged when the run did not halt, and otherwise
-  points at `git diff --cached --stat`).
+  entry means the sweep did not run) · `backlogEntries` (every mode, the entries developers, fix
+  verifiers and closing acceptances added to the backlog this run, null when one returned no usable
+  report) · `backlogFiles` (the sorted backlog files the developers, fix verifiers and closing
+  acceptances named, null when `backlogEntries` is null) · `nextStep` (when the run added entries,
+  it names the folder, the files and the count, and asks you to report each added entry's severity
+  and title to the user. In commit mode it names each committed block with its sha. It says nothing
+  is staged when the run did not halt, and otherwise points at `git diff --cached --stat`).
 - **Optional:** `blockTool` · `conventions` ·
   `reference` · `gates.testSetup` · `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on
   garbage) · `changePolicy` (`focused|proactive`, default `focused`, any other value **throws**, and
@@ -660,10 +674,11 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   retired and **throw**.
 - **Agent returns the loop reads (§6):** the developer's `review_needed` (true when any change of its
   round is not low risk, and a non-boolean counts as true) and, in the closing pass only,
-  `recorded_entries` (the ids of the backlog entries it listed, appended or already there) · in commit
-  mode, the round-1 developer's `baseline_staged_files` (the files staged before it touched anything,
-  above 0 halts `staged-baseline`, and a non-number is logged as unverified) · acceptance's `risk_misclassified`
-  (true when its risk audit found a gap) · in commit mode, acceptance's `committed`, `commit_sha`,
+  `recorded_entries` (the ids of the backlog entries it listed, appended or already there, which a
+  park's entry names) · in commit mode, the round-1 developer's `baseline_staged_files` (the files
+  staged before it touched anything, above 0 halts `staged-baseline`, and a non-number is logged as
+  unverified) · acceptance's `risk_misclassified` (true when its risk audit found a gap) · in commit
+  mode, acceptance's `committed`, `commit_sha`,
   `commit_subject`, `tree_matches` and `tree_clean`, which the landing checks of §6 "Commit mode" read, and a failed check halts `commit-unverified` · the blind reviewer's `issue_count`, which counts every
   finding at every tier. `minor_count`, the old count of findings below a review's bar, is retired.
 - An all-non-todo `plans` array returns `nothing to run (no todo blocks)` — not an error.
@@ -701,11 +716,11 @@ naming the branch that holds the work when that branch exists, and an `- origin:
 line naming the block the work was built for. Its `**What:**` indents every line it copies from a
 file by four spaces, so a copied heading, fence or `- <key>:` line never ends the entry or starts
 another. These four kinds carry no `- severity:` line.
-Before the developer or fix acceptance appends an entry (§5), it greps the folder's `*.md` files by the
-file path and the name of the function or identifier at the defect, reads each matching entry, and
-never appends a defect that an entry with `- status: open` or `- status: needs-attention` already
-holds. A defect whose only entries say `fixed` or `stale` is back in the code, so it gets a new entry
-whose `**What:**` names theirs.
+Before the developer, fix acceptance or the closing acceptance appends an entry (§5, §6), it greps
+the folder's `*.md` files by the file path and the name of the function or identifier at the defect,
+reads each matching entry, and never appends a defect that an entry with `- status: open` or
+`- status: needs-attention` already holds. A defect whose only entries say `fixed` or `stale` is
+back in the code, so it gets a new entry whose `**What:**` names theirs.
 
 When the user asks to work the backlog:
 
@@ -731,8 +746,8 @@ When the user asks to work the backlog:
    or did not land sets.
    An entry whose decision is SKIP never waits on the user, whatever its status. It keeps its status
    unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
-   `**Parked with:**` line with a note naming its parked block, and leave it out of the triage in
-   step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
+   `**Parked with:**` line with a note naming the block that line names, and leave it out of the
+   triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
    file's park entry carries it and step 5 closes it. List each other entry of that file with a note
    naming the file, and leave it out of the triage in step 3 until step 5 sets the file `done`, since
    an entry approved before then would be closed with entries it was never built with.
@@ -742,11 +757,12 @@ When the user asks to work the backlog:
    also carries a `- branch:` line, delete that branch with `git -C <repo> branch -D <branch>`, since a
    later park of the rebuilt block would otherwise stack on the skipped work. Set each
    entry the user approves to `- decision: ACTIONABLE`, and rewrite its `**Fix:**` line to encode the
-   option the user chose. Hold an entry with a
-   `**Parked with:**` line until its block's park entry is built and lands, or its block is redone and
-   accepted, since the code it names sits on that block's branch. Release the hold when the user skips
-   that park entry or drops the block. Once the hold ends, skip the entry when the accepted baseline holds its fix, and triage it
-   like the rest when the code does not. Set `- status: fixed` on each entry skipped because the accepted
+   option the user chose. Hold an entry with a `**Parked with:**` line until its block's park entry
+   is built and lands, or its block is accepted and `done`, since until then the code it names sits
+   on that block's branch. A closing acceptance that lands the block makes it `done` with no park
+   entry. Release the hold when the user skips that park entry or drops the block. Once the hold
+   ends, skip the entry when the accepted baseline holds its fix, and triage it like the rest when
+   the code does not. Set `- status: fixed` on each entry skipped because the accepted
    baseline holds its fix.
    A `status: todo` file left with no ACTIONABLE entry and no entry that waits on the user is not a
    plan, so set it to `status: skip`, as debug's triage does.

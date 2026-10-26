@@ -86,10 +86,12 @@ Every block runs the same loop, up to `maxRounds`.
    It also rechecks every finding raised earlier in the block. For a round the blind reviewer did not
    see, it checks each of the developer's risk answers against that round's own changes. A wrong answer
    sends the next round to the blind reviewer.
-4. If the last round fails, a **closing pass** runs one more developer with no blind review after it.
-   It makes each fix that is low risk and records each risky fix in the project's backlog. Acceptance
-   then runs once more, but only when the closing pass listed no backlog entry and no change still needs a
-   blind review.
+4. If the last round fails, a **closing pass** runs one more developer, and no develop round follows
+   it. It makes each fix that is low risk and records each risky fix in the project's backlog. A blind
+   review follows it when its changes need one. Then acceptance runs once more and sorts each problem
+   it finds as blocking or not blocking. A regression, a failing gate, an unmet requirement and a
+   serious defect the block adds are blocking. With no blocking problem, acceptance lands the block
+   and records each other problem in the backlog.
 5. A block that cannot pass is **parked**. Its work is saved as a commit on a branch and cleared from
    the tree, so nothing is lost and the next block starts clean. One entry in the project's backlog
    links the branch and says why the block parked. Once that entry is ready to build, a later fix run
@@ -136,15 +138,15 @@ defaults the developer took, a pointer to each plan amendment and each fix the d
 problem the code already had that its block did not require (`DECISIONS.md`), and the sweep result
 (`SWEEP.md`).
 
-The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work
-and, from a block's closing pass, the findings in the block's own work whose fixes need a blind review,
-in one file per block of each run. Under `proactive`, it also holds the cleanups the developer noticed
-and did not make. Under both policies, it holds each feature or refactor the developer noticed outside
-a block's scope, each choice it escalated and proceeded past by a default, and one entry per parked
-block. Each entry says whether
-it is ready to build. An entry is `ACTIONABLE` when it is a defect or a cleanup with one clear, small
-fix that changes no user-visible behavior, stored data or public contract. Develop builds it without
-triage. Every other entry is `NEEDS_USER` and waits for you. To work the backlog, run
+The project's backlog folder (`backlog/<project>/`) holds the defects found outside each block's work,
+in one file per block of each run. From a block's closing pass, it holds the findings whose fixes need
+a blind review and each problem that acceptance did not count as blocking. Under `proactive`, it also
+holds the cleanups the developer noticed and did not make. Under both policies, it holds each
+feature or refactor the developer noticed outside a block's scope, each choice it escalated and
+proceeded past by a default, and one entry per parked block. Each entry says whether it is ready to
+build. An entry is `ACTIONABLE` when it is a defect or a cleanup with one clear, small fix that
+changes no user-visible behavior, stored data or public contract. Develop builds it without triage.
+Every other entry is `NEEDS_USER` and waits for you. To work the backlog, run
 `/aipg:develop work the backlog`, or tell Claude to work the backlog with the develop workflow. You
 triage the `NEEDS_USER` entries with Claude. Then develop builds the `ACTIONABLE` entries and the
 entries you approve.
