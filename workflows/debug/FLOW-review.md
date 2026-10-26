@@ -76,9 +76,9 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 135) |
 | throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 140) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 143) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 440) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 450) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 451) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 442) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 452) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 453) |
 
 ## Coverage
 

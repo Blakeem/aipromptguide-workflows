@@ -23,7 +23,8 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
 - `root` arg: `${CLAUDE_PLUGIN_DATA}`. Runs land in its `runs/<runId>/`, plan files in its
   `plans/<runId>/`. Never the plugin install dir, which is version-swapped on update.
-- `blockTool` arg (always pass it): `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
+- `blockTool` arg: the args tool below prints it, so the spread args carry it, and the engine throws
+  without it. Never pass it by hand.
 - Args tool (operator-side, before every launch, also applies finished runs' statuses):
   `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Onboarding tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs`

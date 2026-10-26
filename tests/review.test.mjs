@@ -405,7 +405,13 @@ section('the verifier writes each rejection with what refutes it, and routes an 
     'verify': { wrote_file: true, verdicts: [keep('u1-1')] },
   });
   const v = prompt('verify').replace(/\s+/g, ' ');
-  ok(v.includes("nearest the unit's files. Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included: `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`."), 'every rejection is written with what refutes it, after the design-choice check');
+  ok(v.includes("nearest the unit's files. When you reject at least one candidate, end the file with a `## Rejected` heading and one line per rejection, in the inventory and in the clean marker alike: `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`. When you reject none, write no `## Rejected` heading."), 'every rejection is written with what refutes it, after the design-choice check, and no rejection writes no heading');
+  const r = prompt('review').replace(/\s+/g, ' ');
+  ok(r.includes('FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):'), 'the reviewer reads each listed file in full, whatever the token target');
+  for (const [role, text] of [['review', r], ['verify', v]]) {
+    ok(text.includes('BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your task names. The target limits your reads of files beyond those: read them only by targeted search or short reads, and only to confirm or reject a candidate in your task\'s files.'),
+      `the ${role} token line covers the entire turn and limits only the reads beyond the task's files`);
+  }
   ok(v.includes('An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that would settle it.'), 'an unsettled finding goes to the user, never to REJECT');
   ok(v.includes('then the single line "No issues found." The `## Rejected` section follows that line when you rejected anything.'), 'the clean marker allows the rejections after its line');
 }

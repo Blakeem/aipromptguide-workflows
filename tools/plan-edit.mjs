@@ -28,9 +28,9 @@
 //
 // Ordinary Node, not an engine: no harness globals, no deps, `node --check` applies.
 
-import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { isAbsolute, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
@@ -43,7 +43,8 @@ const USAGE = `usage:
   node tools/plan-edit.mjs args [<plan.md|plan-name> ...] [--expect <wf-run-id>] [--backlog <dir>]
                             [--pack <repo> [--loc-cap <lines>]]
       fold every finished develop run's status edits into the plan files, then print develop's
-      args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
+      args { goal, ordered, suite, sweep, plans, blockTool }, where blockTool is the plan-block.mjs
+      beside this tool. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
       ACTIONABLE entry and no needs-attention ACTIONABLE entry, and sets a done one to todo. It leaves
       out a file while the block that wrote it, which the run records name, is not done, skip or
@@ -52,6 +53,7 @@ const USAGE = `usage:
       empty.
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
+      A pass runs on the strongest model and the highest effort among its members.
       All-or-nothing: one bad edit in any file writes no file at all.
 
 a bare plan-name resolves to <CLAUDE_CONFIG_DIR | ~/.claude>/plans/<name>.md`;
@@ -640,6 +642,9 @@ function foldBacklog(dir, given, records, note) {
 // ~350k-token ceiling past which token cost climbs. Recalibrate against real runs' token counts.
 const DEFAULT_LOC_CAP = 5000;
 const UNKNOWN_FILE_LOC = 200;   // a file the entry names that no longer exists still costs a read
+// Strongest first. A member with no line runs on the run's default, which --pack cannot see, so only the
+// first value of each list is at least as strong as every default.
+export const STRENGTH = { model: ['fable', 'opus', 'sonnet', 'haiku'], effort: ['max', 'xhigh', 'high', 'medium', 'low'] };
 
 /** The entries a developer will actually work: ACTIONABLE, and not already closed by an earlier run. */
 const openActionable = (block) => block.issues.filter((e) => keyOf(e, 'decision') === 'ACTIONABLE'
@@ -661,10 +666,29 @@ function blockFiles(block, repo) {
 }
 
 /**
+ * The `key` value one developer runs a pass on: the strongest of its members' values, '' when no member sets
+ * one, and null when they cannot share a developer, since a member with no line joins only the top rank (fable or max).
+ */
+function passSetting(key, values) {
+  const order = STRENGTH[key];
+  const stated = values.filter(Boolean);
+  const unranked = stated.find((v) => !order.includes(v));
+  if (unranked) throw new Error(`--pack has no strength rank for ${key} ${unranked}: add it to STRENGTH in tools/plan-edit.mjs`);
+  if (!stated.length) return '';
+  const strongest = order.find((v) => stated.includes(v));
+  if (stated.length < values.length && strongest !== order[0]) return null;
+  return strongest;
+}
+
+/** 0 for a stated value other than the top rank (fable or max), 1 for the top rank, 2 for no line, so blocks that can share a pass sort together. */
+const shareRank = (key, value) => (!value ? 2 : value === STRENGTH[key][0] ? 1 : 0);
+
+/**
  * The args with every todo fix block that has open ACTIONABLE work packed into passes of at most `cap`
- * lines. Blocks are sorted by developer model, then effort, then by the first file they touch, so a pass holds
- * one model, one effort and neighbouring code. A block over the cap alone, one with nothing ACTIONABLE, or
- * one whose open ACTIONABLE entry carries a `- branch:` line stays its own row. A pass sits where its first member did.
+ * lines. Blocks are sorted by the `shareRank` of their developer model, then of their effort, then by the
+ * first file they touch, so a pass holds blocks that can share one developer and neighbouring code. A block
+ * over the cap alone, one with nothing ACTIONABLE, or one whose open ACTIONABLE entry carries a `- branch:`
+ * line stays its own row. A pass sits where its first member did.
  */
 function packPasses(args, folded, repo, cap, note) {
   if (args.ordered) throw new Error('--pack regroups fix blocks, so it needs a plan set with ordered: false');
@@ -679,16 +703,18 @@ function packPasses(args, folded, repo, cap, note) {
     if (openActionable(block).some((e) => keyOf(e, 'branch'))) { note(`not packed: ${row.id} restores an unfinished branch, so it builds alone\n`); continue; }
     candidates.push({ index, row, files, issues: block.issues.map((e) => e.id), first: [...files.keys()].sort()[0], model: row.model ?? '', effort: row.effort ?? '' });
   }
-  candidates.sort((a, b) => a.model.localeCompare(b.model) || a.effort.localeCompare(b.effort) || a.first.localeCompare(b.first) || a.index - b.index);
+  candidates.sort((a, b) => shareRank('model', a.model) - shareRank('model', b.model)
+    || shareRank('effort', a.effort) - shareRank('effort', b.effort) || a.first.localeCompare(b.first) || a.index - b.index);
 
   const passes = [];
   let open = null;
   for (const c of candidates) {
     const added = [...c.files].filter(([f]) => !open?.files.has(f)).reduce((sum, [, loc]) => sum + loc, 0);
     const clash = open && c.issues.some((id) => open.issues.has(id));
-    // One pass runs one developer. A block with no model or effort takes the run's default, which --pack cannot see.
-    if (!open || clash || open.model !== c.model || open.effort !== c.effort || open.loc + added > cap) {
-      open = { members: [], files: new Map(), issues: new Set(), loc: 0, model: c.model, effort: c.effort };
+    const joined = [...(open?.members ?? []), c];
+    const shared = passSetting('model', joined.map((m) => m.model)) !== null && passSetting('effort', joined.map((m) => m.effort)) !== null;
+    if (!open || clash || !shared || open.loc + added > cap) {
+      open = { members: [], files: new Map(), issues: new Set(), loc: 0 };
       passes.push(open);
     }
     open.members.push(c);
@@ -703,17 +729,28 @@ function packPasses(args, folded, repo, cap, note) {
     const id = `${head.row.id}-plus-${pass.members.length - 1}`;
     if (taken.has(id)) throw new Error(`pass id ${id} collides with a block id — rename that block`);
     const members = pass.members.map((m) => ({ id: m.row.id, planPath: m.row.planPath, issues: m.issues }));
-    const model = pass.model ? { model: pass.model } : {};
-    const effort = pass.effort ? { effort: pass.effort } : {};
-    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', ...model, ...effort, blocks: members });
+    const settings = Object.fromEntries(['model', 'effort'].map((key) => [key, passSetting(key, pass.members.map((m) => m[key]))]).filter(([, v]) => v));
+    // The approval summary must name each member a pass runs above its own line, and only this note carries that.
+    const raises = Object.entries(settings).flatMap(([key, to]) => pass.members.filter((m) => m[key] !== to).map((m) => `${m.row.id} ${key} ${m[key] || 'default'} -> ${to}`));
+    replaced.set(head.index, { id, title: `pass of ${members.map((m) => m.id).join(', ')}`, mode: 'fix', gate: 'green', status: 'todo', ...settings, blocks: members });
     for (const m of pass.members) if (m !== head) replaced.set(m.index, null);
-    note(`packed ${members.map((m) => m.id).join(', ')} into ${id} (${pass.loc} lines)\n`);
+    note(`packed ${members.map((m) => m.id).join(', ')} into ${id} (${pass.loc} lines)${raises.length ? `, raising ${raises.join(', ')}` : ''}\n`);
   }
   const plans = args.plans.flatMap((row, i) => (replaced.has(i) ? (replaced.get(i) ? [replaced.get(i)] : []) : [row]));
   return { ...args, plans };
 }
 
-function runArgs(argv, note) {
+/**
+ * The plan-block.mjs the launch args name, spelled as the caller ran this tool. A link to this FILE leaves no
+ * plan-block.mjs beside that spelling, so the path then falls back to the folder this module's import resolved from.
+ */
+function blockToolPath(invokedScript) {
+  const invokedDir = dirname(resolve(invokedScript));
+  const toolDir = existsSync(join(invokedDir, 'plan-block.mjs')) ? invokedDir : dirname(fileURLToPath(import.meta.url));
+  return join(toolDir, 'plan-block.mjs').replace(/\\/g, '/');
+}
+
+function runArgs(argv, note, invokedScript) {
   // Input — each flag takes the argument after it
   const flags = {};
   const paths = [];
@@ -728,6 +765,7 @@ function runArgs(argv, note) {
   const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
   const records = findRunRecords(configDir).map(readRunRecord).filter(Boolean);
   const plans = paths.map(loadPlan);
+  const blockTool = blockToolPath(invokedScript);
 
   // Process — every file is folded in memory first, so a fault in the LAST file still writes none.
   if (expect && !records.some((r) => r.runId === expect)) {
@@ -752,18 +790,24 @@ function runArgs(argv, note) {
 
   // Output
   flush();
-  return `${JSON.stringify(args, null, 2)}\n`;
+  return `${JSON.stringify({ ...args, blockTool }, null, 2)}\n`;
 }
 
 // =============================================================================
 // CLI
 // =============================================================================
 
-export function run(argv, note = (line) => process.stderr.write(line)) {
+const toStderr = (line) => process.stderr.write(line);
+
+/**
+ * `invokedScript` is the path this tool ran as. The CLI passes argv[1], since Node realpaths the main module, so
+ * `blockTool` keeps the spelling of the permission rules the caller wrote (plugin-access.mjs grants both spellings).
+ */
+export function run(argv, note = toStderr, invokedScript = fileURLToPath(import.meta.url)) {
   const [command, ...rest] = argv;
   if (command === 'set') return runSet(rest);
   if (command === 'move') return runMove(rest);
-  if (command === 'args') return runArgs(rest, note);
+  if (command === 'args') return runArgs(rest, note, invokedScript);
   throw new Error(USAGE);
 }
 
@@ -779,7 +823,7 @@ try {
 
 if (invokedDirectly) {
   try {
-    process.stdout.write(run(process.argv.slice(2)));
+    process.stdout.write(run(process.argv.slice(2), toStderr, process.argv[1]));
   } catch (err) {
     process.stderr.write(`plan-edit: ${err.message}\n`);
     process.exit(1);

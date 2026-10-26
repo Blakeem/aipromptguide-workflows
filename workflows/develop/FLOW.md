@@ -44,7 +44,7 @@ flowchart TD
   t25(["BLOCKED (acceptance failed a block but staged or committed it)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries"/]
-  x3[/"throw: args must include at least { runId, root, target, gates, backlogDir, plans:[{id, planPath, mode, gate, status}] }"/]
+  x3[/"throw: args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] }"/]
   x4[/"throw: args.root is required"/]
   x5[/"throw: args.target.repo is required"/]
   x6[/"throw: Invalid numeric arg"/]
@@ -58,28 +58,29 @@ flowchart TD
   x14[/"throw: Invalid role map"/]
   x15[/"throw: Unknown role key in a role map"/]
   x16[/"throw: Illegal role value in a role map"/]
-  x17[/"throw: Missing or relative args.backlogDir"/]
-  x18[/"throw: args.backlogDir is inside the target repo"/]
-  x19[/"throw: Invalid ordered key"/]
-  x20[/"throw: Invalid suite key"/]
-  x21[/"throw: Invalid sweep key"/]
-  x22[/"throw: Invalid goal key"/]
-  x23[/"throw: Missing goal key"/]
-  x24[/"throw: plans entries at index [...] are not objects carrying a string id"/]
-  x25[/"throw: plan id(s) [...] are not kebab slugs"/]
-  x26[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
-  x27[/"throw: pass entries [...] are malformed"/]
-  x28[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
-  x29[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
-  x30[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
-  x31[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; backlogged #124; parked #124; blocked"/]
-  x32[/"throw: plan title(s) [...] are not one line of text"/]
-  x33[/"throw: plans [...] carry no planPath"/]
-  x34[/"throw: duplicate plan id(s) [...] in args.plans"/]
-  x35[/"throw: args.gates.build is required"/]
-  x36[/"throw: Invalid slice arg"/]
-  x37[/"throw: args.runOnly ... matches no plan id"/]
-  x38[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
+  x17[/"throw: Missing args.blockTool"/]
+  x18[/"throw: Missing or relative args.backlogDir"/]
+  x19[/"throw: args.backlogDir is inside the target repo"/]
+  x20[/"throw: Invalid ordered key"/]
+  x21[/"throw: Invalid suite key"/]
+  x22[/"throw: Invalid sweep key"/]
+  x23[/"throw: Invalid goal key"/]
+  x24[/"throw: Missing goal key"/]
+  x25[/"throw: plans entries at index [...] are not objects carrying a string id"/]
+  x26[/"throw: plan id(s) [...] are not kebab slugs"/]
+  x27[/"throw: plan mode(s) [...] are not one of feature #124; section #124; fix"/]
+  x28[/"throw: pass entries [...] are malformed"/]
+  x29[/"throw: plan gate(s) [...] are not legal for their block's mode"/]
+  x30[/"throw: plan model(s) [...] are not one of opus #124; sonnet #124; haiku #124; fable"/]
+  x31[/"throw: plan effort(s) [...] are not one of low #124; medium #124; high #124; xhigh #124; max"/]
+  x32[/"throw: plan status(es) [...] are not one of todo #124; done #124; skip #124; backlogged #124; parked #124; blocked"/]
+  x33[/"throw: plan title(s) [...] are not one line of text"/]
+  x34[/"throw: plans [...] carry no planPath"/]
+  x35[/"throw: duplicate plan id(s) [...] in args.plans"/]
+  x36[/"throw: args.gates.build is required"/]
+  x37[/"throw: Invalid slice arg"/]
+  x38[/"throw: args.runOnly ... matches no plan id"/]
+  x39[/"throw: args.gates.test is required when any block being built has gate:#quot;green#quot;"/]
   S0 --> a1
   S0 --> t3
   S0 --> x1
@@ -120,6 +121,7 @@ flowchart TD
   S0 --> x36
   S0 --> x37
   S0 --> x38
+  S0 --> x39
   a1 -.->|"L1 ×5"| a1
   a1 ==>|"next item"| a1
   a1 --> a2
@@ -220,7 +222,7 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | BLOCKED (acceptance failed a block but staged or committed it) | acceptance fails a block but reports a commit | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 23) |
 | throw: args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries | the plan-edit.mjs args object is nested under plans | throw (line 28) |
-| throw: args must include at least { runId, root, target, gates, backlogDir, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
+| throw: args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] } | a plans array arrives with no runId | throw (line 31) |
 | throw: args.root is required | args.root is missing | throw (line 35) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 39) |
 | throw: Invalid numeric arg | maxRounds is not a number | throw (line 52) |
@@ -234,29 +236,30 @@ The thick unlabelled edge of each pair above is the next-item advance (the unit 
 | throw: Invalid role map | models is an array in place of an object | throw (line 103) |
 | throw: Unknown role key in a role map | models carries a key outside the five role keys | throw (line 108) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 111) |
-| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 190) |
-| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 193) |
-| throw: Invalid ordered key | ordered is the string "false" | throw (line 201) |
-| throw: Invalid suite key | suite is outside green \| scoped | throw (line 206) |
-| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 211) |
-| throw: Invalid goal key | goal is a number | throw (line 215) |
-| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 220) |
-| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 239) |
-| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 247) |
-| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 254) |
-| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 265) |
-| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 273) |
-| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 280) |
-| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 286) |
-| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 294) |
-| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 303) |
-| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 322) |
-| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 333) |
-| throw: args.gates.build is required | args.gates.build is missing | throw (line 1829) |
-| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1840) |
-| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1847) |
-| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1855) |
+| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 184) |
+| throw: Missing or relative args.backlogDir | backlogDir is missing or relative | throw (line 193) |
+| throw: args.backlogDir is inside the target repo | backlogDir lies inside target.repo | throw (line 196) |
+| throw: Invalid ordered key | ordered is the string "false" | throw (line 204) |
+| throw: Invalid suite key | suite is outside green \| scoped | throw (line 209) |
+| throw: Invalid sweep key | sweep is outside goal-coverage \| none | throw (line 214) |
+| throw: Invalid goal key | goal is a number | throw (line 218) |
+| throw: Missing goal key | sweep is goal-coverage and goal is empty | throw (line 223) |
+| throw: plans entries at index [...] are not objects carrying a string id | a plans entry carries no id | throw (line 242) |
+| throw: plan id(s) [...] are not kebab slugs | a plans entry id is not a kebab slug | throw (line 250) |
+| throw: plan mode(s) [...] are not one of feature \| section \| fix | a block asks for an unknown mode | throw (line 257) |
+| throw: pass entries [...] are malformed | a pass entry is not mode fix with two or more members | throw (line 268) |
+| throw: plan gate(s) [...] are not legal for their block's mode | a feature block asks for gate red-baseline | throw (line 276) |
+| throw: plan model(s) [...] are not one of opus \| sonnet \| haiku \| fable | a block names a model outside opus \| sonnet \| haiku \| fable | throw (line 283) |
+| throw: plan effort(s) [...] are not one of low \| medium \| high \| xhigh \| max | a block names an effort outside low \| medium \| high \| xhigh \| max | throw (line 289) |
+| throw: plan status(es) [...] are not one of todo \| done \| skip \| backlogged \| parked \| blocked | a block names an unknown status | throw (line 297) |
+| throw: plan title(s) [...] are not one line of text | commit is true and a block title spans two lines | throw (line 306) |
+| throw: plans [...] carry no planPath | a plans row carries no planPath | throw (line 325) |
+| throw: duplicate plan id(s) [...] in args.plans | two plans entries share one id | throw (line 336) |
+| throw: args.gates.build is required | args.gates.build is missing | throw (line 1832) |
+| throw: Invalid slice arg | runOnly is a bare block id string | throw (line 1843) |
+| throw: args.runOnly ... matches no plan id | runOnly holds an unknown block id | throw (line 1850) |
+| throw: args.gates.test is required when any block being built has gate:"green" | a todo block wants gate green with no test command | throw (line 1858) |
 
 ## Coverage
 
-88 scenarios · 6/6 roles · 38/38 throw sites · 18/18 halt statuses · 63 terminal states.
+89 scenarios · 6/6 roles · 39/39 throw sites · 18/18 halt statuses · 64 terminal states.

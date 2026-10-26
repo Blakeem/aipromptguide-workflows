@@ -8,12 +8,12 @@
 // Fixtures live under os.tmpdir(), never under tests/fixtures/ — the repo-wide CR scan walks that folder
 // and a CRLF fixture would turn it red.
 import { execFileSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { REPO_ROOT, section, ok, eq } from './harness.mjs';
-import { parseBlocks, resolveRoadmap, validate, run as planBlock } from '../tools/plan-block.mjs';
-import { run } from '../tools/plan-edit.mjs';
+import { RUN_KEYS, parseBlocks, resolveRoadmap, validate, run as planBlock } from '../tools/plan-block.mjs';
+import { STRENGTH, run } from '../tools/plan-edit.mjs';
 
 const CLI = join(REPO_ROOT, 'tools/plan-edit.mjs');
 const BOM = '\uFEFF';   // escaped: the character itself is invisible in an editor
@@ -540,6 +540,58 @@ section('args folds a finished run into every plan it names, then prints develop
   eq(again.notes, '', 'and applies nothing');
 }
 
+section('args prints blockTool, the plan-block.mjs beside the plan-edit.mjs that ran, spelled as the caller ran it');
+// Node realpaths the main module, so the CLI takes the folder from argv[1] to keep the caller's spelling, and
+// only an imported run falls back to its own file.
+{
+  const plan = fixture();
+  const config = configWith([]);
+  const imported = JSON.parse(argsWith(config, plan).out ?? '{}').blockTool;
+  eq(imported, join(REPO_ROOT, 'tools', 'plan-block.mjs').replace(/\\/g, '/'), 'an imported run names the plan-block.mjs beside its own file, with forward slashes');
+  ok(existsSync(imported ?? ''), 'and that file exists');
+
+  const dir = tmpDir();
+  const real = join(dir, 'real');
+  const link = join(dir, 'link');
+  mkdirSync(join(real, 'tools'), { recursive: true });
+  for (const name of ['plan-edit.mjs', 'plan-block.mjs']) copyFileSync(join(REPO_ROOT, 'tools', name), join(real, 'tools', name));
+  const cliArgs = (script) => {
+    try {
+      const out = execFileSync(process.execPath, [script, 'args', plan], { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, CLAUDE_CONFIG_DIR: config } });
+      return JSON.parse(out).blockTool;
+    } catch (e) { return `exit ${e.status}: ${e.stderr}`; }
+  };
+  eq(cliArgs(join(real, 'tools', 'plan-edit.mjs')), join(real, 'tools', 'plan-block.mjs').replace(/\\/g, '/'), 'the CLI names the plan-block.mjs in its own folder');
+  let isLinked = false;
+  try {
+    symlinkSync(real, link, process.platform === 'win32' ? 'junction' : 'dir');
+    isLinked = true;
+  } catch { isLinked = false; }
+  if (isLinked) {
+    const viaLink = cliArgs(join(link, 'tools', 'plan-edit.mjs'));
+    eq(viaLink, join(link, 'tools', 'plan-block.mjs').replace(/\\/g, '/'), 'a CLI run through a link keeps the link spelling');
+    ok(existsSync(viaLink), 'and that path reaches the file');
+  } else {
+    ok(true, 'skipped: this machine cannot create a link');
+  }
+
+  // A link to the tool FILE leaves no plan-block.mjs beside the caller's spelling, so the path falls back to the real folder.
+  const bin = join(dir, 'bin');
+  mkdirSync(bin);
+  let isFileLinked = false;
+  try {
+    symlinkSync(join(real, 'tools', 'plan-edit.mjs'), join(bin, 'plan-edit.mjs'), 'file');
+    isFileLinked = true;
+  } catch { isFileLinked = false; }
+  if (isFileLinked) {
+    const viaFileLink = cliArgs(join(bin, 'plan-edit.mjs'));
+    eq(viaFileLink, join(real, 'tools', 'plan-block.mjs').replace(/\\/g, '/'), 'a CLI run through a file link names the plan-block.mjs in the real folder');
+    ok(existsSync(viaFileLink), 'and that path reaches the file');
+  } else {
+    ok(true, 'skipped: this machine cannot create a file link');
+  }
+}
+
 section('backlogged is a status that args writes and set accepts, and that no launch selects');
 // A park syncs its block backlogged, since the block's work waits in a backlog entry. A status the
 // grammar refused would fail the fold, and one the todo filter or --pack selected would rebuild the block.
@@ -809,34 +861,67 @@ section('--pack keeps each block that restores an unfinished branch a pass of it
   ok(/not packed: one restores an unfinished branch/.test(notes) && /not packed: two restores an unfinished branch/.test(notes), `the note names each branch block: ${notes.trim()}`);
 }
 
-section('--pack never puts two developer models, or a model beside none, in one pass');
+/** The block file with `line` added to its preamble. */
+const withLine = (path, line) => { writeFileSync(path, read(path).replace('gate: green\n', `gate: green\n${line}\n`)); return path; };
+/** The rows of a --pack run as `<id>:<key value or ->`, or the failure. */
+const packRows = (key, ...plans) => {
+  const { out, notes, err } = packed(configWith([]), dirname(plans[0]), 3000, ...plans);
+  return { rows: err ? `failed: ${err}` : JSON.parse(out).plans.map((r) => `${r.id}:${r[key] ?? '-'}`).join(','), plans: err ? [] : JSON.parse(out).plans, notes };
+};
+
+section('--pack joins blocks of different models into one pass on the strongest, and a block with no model only beside fable');
+// A block with no model line runs on the run's default, which --pack cannot see, so only fable is sure to be at least as strong.
 {
+  for (const key of ['model', 'effort']) {
+    eq([...STRENGTH[key]].sort().join(','), [...RUN_KEYS.preamble.keys[key]].sort().join(','), `the ${key} strength order ranks every value the grammar allows`);
+  }
   const dir = tmpDir();
-  const withModel = (path, model) => { writeFileSync(path, read(path).replace('gate: green\n', `gate: green\nmodel: ${model}\n`)); return path; };
-  const sa = withModel(inventory(dir, 'sa', [{ id: 'sa-1', file: 'src/a.js', loc: 10 }]), 'sonnet');
-  const op = withModel(inventory(dir, 'op', [{ id: 'op-1', file: 'src/a.js', loc: 10 }]), 'opus');
+  const sa = withLine(inventory(dir, 'sa', [{ id: 'sa-1', file: 'src/a.js', loc: 10 }]), 'model: sonnet');
+  const op = withLine(inventory(dir, 'op', [{ id: 'op-1', file: 'src/a.js', loc: 10 }]), 'model: opus');
   const none = inventory(dir, 'none', [{ id: 'none-1', file: 'src/a.js', loc: 10 }]);
-  const sb = withModel(inventory(dir, 'sb', [{ id: 'sb-1', file: 'src/b.js', loc: 10 }]), 'sonnet');
-  const { out, notes, err } = packed(configWith([]), dir, 3000, sa, op, none, sb);
-  const plans = err ? [] : JSON.parse(out).plans;
-  eq(plans.map((r) => `${r.id}:${r.model ?? '-'}`).join(','), 'sa-plus-1:sonnet,op:opus,none:-',
-    `the opus block and the block with no model each stay alone, and the pass of sonnet blocks carries model sonnet: ${err ?? notes.trim()}`);
-  eq(plans[0]?.blocks?.map((m) => m.id).join(','), 'sa,sb', 'that pass holds both sonnet blocks, though other blocks share their first file');
+  const sb = withLine(inventory(dir, 'sb', [{ id: 'sb-1', file: 'src/b.js', loc: 10 }]), 'model: sonnet');
+  const mixed = packRows('model', sa, op, none, sb);
+  eq(mixed.rows, 'sa-plus-2:opus,none:-', `the sonnet and opus blocks share one opus pass, and the block with no model stays alone: ${mixed.notes.trim()}`);
+  eq(mixed.plans[0]?.blocks?.map((m) => m.id).join(','), 'sa,op,sb', 'that pass holds the opus block and both sonnet blocks');
+  ok(/packed sa, op, sb into sa-plus-2 \(\d+ lines\), raising sa model sonnet -> opus, sb model sonnet -> opus\n/.test(mixed.notes), `the note names each member the pass raises, and only those: ${mixed.notes.trim()}`);
+
+  const dir2 = tmpDir();
+  const fa = withLine(inventory(dir2, 'fa', [{ id: 'fa-1', file: 'src/a.js', loc: 10 }]), 'model: fable');
+  const n1 = inventory(dir2, 'n1', [{ id: 'n1-1', file: 'src/a.js', loc: 10 }]);
+  const n2 = inventory(dir2, 'n2', [{ id: 'n2-1', file: 'src/b.js', loc: 10 }]);
+  const hk = withLine(inventory(dir2, 'hk', [{ id: 'hk-1', file: 'src/c.js', loc: 10 }]), 'model: haiku');
+  const fable = packRows('model', fa, n1, n2, hk);
+  eq(fable.rows, 'fa-plus-3:fable', `a fable block takes the blocks with no model and the haiku block into one fable pass: ${fable.notes.trim()}`);
+  ok(/raising (?=.*n1 model default -> fable)(?=.*n2 model default -> fable)(?=.*hk model haiku -> fable)(?!.*fa model)/.test(fable.notes), `the note names a member with no line as raised from the default: ${fable.notes.trim()}`);
+
+  const dir3 = tmpDir();
+  const bare = packRows('model', inventory(dir3, 'b1', [{ id: 'b1-1', file: 'src/a.js', loc: 10 }]), inventory(dir3, 'b2', [{ id: 'b2-1', file: 'src/b.js', loc: 10 }]));
+  eq(bare.rows, 'b1-plus-1:-', 'blocks that all lack a model line share a pass');
+  ok(bare.plans.length === 1 && !('model' in bare.plans[0]) && !('effort' in bare.plans[0]), 'and that pass takes no model or effort key');
+  ok(!/raising/.test(bare.notes), `and its note names no raise: ${bare.notes.trim()}`);
 }
 
-section('--pack never puts two developer efforts, or an effort beside none, in one pass');
+section('--pack joins blocks of different efforts into one pass on the highest, and a block with no effort only beside max');
 {
   const dir = tmpDir();
-  const withEffort = (path, effort) => { writeFileSync(path, read(path).replace('gate: green\n', `gate: green\neffort: ${effort}\n`)); return path; };
-  const hi = withEffort(inventory(dir, 'hi', [{ id: 'hi-1', file: 'src/a.js', loc: 10 }]), 'xhigh');
-  const lo = withEffort(inventory(dir, 'lo', [{ id: 'lo-1', file: 'src/a.js', loc: 10 }]), 'low');
+  const hi = withLine(inventory(dir, 'hi', [{ id: 'hi-1', file: 'src/a.js', loc: 10 }]), 'effort: xhigh');
+  const lo = withLine(inventory(dir, 'lo', [{ id: 'lo-1', file: 'src/a.js', loc: 10 }]), 'effort: low');
   const none = inventory(dir, 'none', [{ id: 'none-1', file: 'src/a.js', loc: 10 }]);
-  const hi2 = withEffort(inventory(dir, 'hi2', [{ id: 'hi2-1', file: 'src/b.js', loc: 10 }]), 'xhigh');
-  const { out, notes, err } = packed(configWith([]), dir, 3000, hi, lo, none, hi2);
-  const plans = err ? [] : JSON.parse(out).plans;
-  eq(plans.map((r) => `${r.id}:${r.effort ?? '-'}`).join(','), 'hi-plus-1:xhigh,lo:low,none:-',
-    `the low block and the block with no effort each stay alone, and the pass of xhigh blocks carries effort xhigh: ${err ?? notes.trim()}`);
-  eq(plans[0]?.blocks?.map((m) => m.id).join(','), 'hi,hi2', 'that pass holds both xhigh blocks, though other blocks share their first file');
+  const hi2 = withLine(inventory(dir, 'hi2', [{ id: 'hi2-1', file: 'src/b.js', loc: 10 }]), 'effort: xhigh');
+  const mixed = packRows('effort', hi, lo, none, hi2);
+  eq(mixed.rows, 'hi-plus-2:xhigh,none:-', `the xhigh and low blocks share one xhigh pass, and the block with no effort stays alone: ${mixed.notes.trim()}`);
+
+  const dir2 = tmpDir();
+  const mx = withLine(inventory(dir2, 'mx', [{ id: 'mx-1', file: 'src/a.js', loc: 10 }]), 'effort: max');
+  const n1 = inventory(dir2, 'n1', [{ id: 'n1-1', file: 'src/b.js', loc: 10 }]);
+  eq(packRows('effort', mx, n1).rows, 'mx-plus-1:max', 'a max block takes a block with no effort into one max pass');
+
+  const dir3 = tmpDir();
+  const fableOnly = withLine(inventory(dir3, 'fo', [{ id: 'fo-1', file: 'src/a.js', loc: 10 }]), 'model: fable');
+  const maxOnly = withLine(inventory(dir3, 'mo', [{ id: 'mo-1', file: 'src/b.js', loc: 10 }]), 'effort: max');
+  const both = packRows('model', fableOnly, maxOnly);
+  eq(`${both.rows}/${both.plans[0]?.effort ?? '-'}`, 'fo-plus-1:fable/max', 'each key is judged on its own: a fable block with no effort and a max block with no model share a fable, max pass');
+  ok(/raising mo model default -> fable, fo effort default -> max\n/.test(both.notes), `the note names each key's raise: ${both.notes.trim()}`);
 }
 
 section('--pack refuses an ordered plan set and a bad cap');

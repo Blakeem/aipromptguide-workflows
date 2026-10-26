@@ -29,7 +29,7 @@ try {
   throw new Error('Invalid args JSON (' + e.message + '). The Workflow tool delivers args verbatim and unvalidated, so this is the payload the operator passed - validate the JSON locally (a missing } in a hand-built payload is the common cause) and relaunch.');
 }
 if (!A || !A.runId) {
-  throw new Error('args must include at least { runId, root, planPath, target:{repo} }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, planPath, blockTool, target:{repo} }; got typeof=' + (typeof args));
 }
 // `root` is REQUIRED setup the main agent supplies (#4 - no in-engine "find my cwd" agent). It is the
 // absolute path the run-state dir hangs off, normally the workflow tool's own directory.
@@ -121,11 +121,12 @@ const REFERENCE_P = REFERENCE ? abs(REFERENCE) : '';
 // placement and nothing else (#3). args.stateDir still overrides: an operator who merges them is choosing
 // that, rather than inheriting it from a shared runId.
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}-refine`);
-// Where the plan-block tool lives. The default hangs it off ROOT because a checkout keeps engine, tools
-// and run-state under one folder - but an INSTALLED plugin splits them: run-state (ROOT) goes to the
-// persistent plugin data dir while tools/ ships in the versioned plugin cache. Used only in the editor
-// prompt, as its mandatory re-validation command.
-const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
+// An INSTALLED plugin keeps run-state (ROOT) in its data dir and tools/ in its versioned cache, so no path
+// derived from ROOT names the tool. The editor re-validates through it, and the parse-halt log line and nextStep name it.
+if (typeof A.blockTool !== 'string' || !A.blockTool.trim()) {
+  throw new Error(`Missing args.blockTool: pass the path of the plan-block.mjs that the pre-launch command \`node <plan-block.mjs> <planPath> --list\` runs (root CLAUDE.md, "Launch from a notification turn"). Got ${JSON.stringify(A.blockTool)}.`);
+}
+const BLOCK_TOOL  = abs(A.blockTool);
 
 const critiqueFile = (r) => `${STATE_DIR}/plan-critique-${r}.md`;   // one per round, the critic's full findings
 const DISMISSED    = `${STATE_DIR}/DISMISSED-PLAN.md`;              // the editor's declined gaps, one line each

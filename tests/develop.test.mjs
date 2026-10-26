@@ -40,7 +40,9 @@ const DECISION_RULE = `Set the entry's "- decision:" line by one rule. ACTIONABL
 // The grep wording of both backlog writers: the dedup before an append, and the Closed-by lookup.
 const GREP = (pathOf, nameAt) => `grep the *.md files in ${BACKLOG}/ for ${pathOf} and for the name of the function or identifier at ${nameAt}, and read each entry that a grep matches`;
 const DEDUP = (item) => `Before you append, create ${BACKLOG}/ if it does not exist, then ${GREP('the path of the file the new entry names', `the ${item}`)}. Never append a ${item} that an entry there with "- status: open" or "- status: needs-attention" already holds. When the only entries that hold it say "- status: fixed" or "- status: stale", the ${item} is back in the code, so append a new entry whose **What:** names their ids.`;
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, plans: BLOCKS };
+// The plan-block.mjs path `plan-edit.mjs args` prints, which a launch spreads in.
+const BLOCK_TOOL = 'E:/r/tools/plan-block.mjs';
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b', test: 't' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL, plans: BLOCKS };
 const ONE_BLOCK = { ...baseArgs, plans: [BLOCKS[0]] };
 const PRO_ONE_BLOCK = { ...ONE_BLOCK, changePolicy: 'proactive' };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
@@ -2038,7 +2040,7 @@ section('gates.test is demanded only for the PENDING set, not for blocks already
 // relaunch would otherwise throw over a test command this run will never execute instead of reaching the
 // nothing-to-run terminal above.
 {
-  const DONE_GREEN = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: BACKLOG,
+  const DONE_GREEN = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: BACKLOG, blockTool: BLOCK_TOOL,
     plans: [onBus({ id: 'block-a', mode: 'feature', gate: 'green', status: 'done' })] };
   const { out, calls } = await run({}, DONE_GREEN);
   eq(calls.length, 0, 'the relaunch spawns nothing');
@@ -2238,16 +2240,23 @@ section('a block reaches developer and acceptance as a plan-block COMMAND, never
   ok(!/plan-block|bus\.md/.test(prompt('quality block-a')), 'the BLIND reviewer gets no route to any plan (#3)');
 }
 
-section('args.blockTool points the block command at an installed plugin\'s own tools/ copy');
+section('args.blockTool points the block command at an installed plugin\'s own tools/ copy, and a launch without it throws');
 // An installed plugin splits ROOT (the persistent data dir) from the versioned cache dir that ships
-// tools/plan-block.mjs. Without the override the command names a file ROOT does not hold and every agent
+// tools/plan-block.mjs. A path derived from ROOT names a file ROOT does not hold, and every agent
 // halts the run on plan_obtained=false.
 {
   const { prompt } = await run(GREEN_RUN, { ...ONE_BLOCK, blockTool: 'C:\\plug\\cache\\aipg\\1.0.0\\tools\\plan-block.mjs' });
   const dev = prompt('develop block-a');
   ok(/node 'C:\/plug\/cache\/aipg\/1\.0\.0\/tools\/plan-block\.mjs' 'E:\/plans\/bus\.md' 'block-a'/.test(dev),
     'the command uses the passed path, backslashes normalized');
-  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and not the ROOT default');
+  ok(!/E:\/r\/tools\/plan-block\.mjs/.test(dev), 'and no path under ROOT');
+
+  const { blockTool: _, ...NO_TOOL } = baseArgs;
+  for (const [args, what] of [[NO_TOOL, 'a missing path'], [{ ...baseArgs, blockTool: '  ' }, 'a blank path'], [{ ...baseArgs, blockTool: 7 }, 'a path that is not a string']]) {
+    const msg = await throwsWith(ENGINE, { args });
+    ok(msg.startsWith('Missing args.blockTool: pass the blockTool path that `node <plan-edit.mjs> args` prints'),
+      `${what} throws, naming the arg and the command that prints it: ${msg.slice(0, 70)}`);
+  }
 }
 
 section('a row carrying planContext throws, naming the row, since every agent gets the block command');

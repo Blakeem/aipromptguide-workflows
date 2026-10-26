@@ -28,7 +28,7 @@ if (!A || !Array.isArray(A.plans) || !A.plans.length) {
   throw new Error(`args.plans must be a NON-EMPTY array of { id, planPath, mode, gate, status } entries; got ${shape}. "plan-edit.mjs args <planPath>" prints an object: spread it into the args, so its "plans" array becomes args.plans. Never nest that object under "plans". There is no single-plan or inline-plan fallback.`);
 }
 if (!A.runId) {
-  throw new Error('args must include at least { runId, root, target, gates, backlogDir, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
+  throw new Error('args must include at least { runId, root, target, gates, backlogDir, blockTool, plans:[{id, planPath, mode, gate, status}] }; got typeof=' + (typeof args));
 }
 // The main agent supplies root (#4). No in-engine agent detects it.
 if (!A.root) {
@@ -178,9 +178,12 @@ const insideRepo  = (p) => {
 if (insideRepo(STATE_DIR)) {
   logLine(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the review/ledger files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
 }
-// An installed plugin keeps tools/ in its cache and ROOT in its data dir, so args.blockTool names the tool.
-// Without it every block command exits non-zero and the run halts on plan_obtained=false.
-const BLOCK_TOOL  = A.blockTool ? abs(A.blockTool) : `${ROOT}/tools/plan-block.mjs`;
+// An installed plugin keeps tools/ in its cache and ROOT in its data dir, so no path derived from ROOT
+// names the tool. A wrong path makes every block command exit non-zero and halts the run on plan_obtained=false.
+if (typeof A.blockTool !== 'string' || !A.blockTool.trim()) {
+  throw new Error(`Missing args.blockTool: pass the blockTool path that \`node <plan-edit.mjs> args\` prints, the plan-block.mjs every agent reads its block through. Got ${JSON.stringify(A.blockTool)}.`);
+}
+const BLOCK_TOOL  = abs(A.blockTool);
 const toolPath    = (name) => BLOCK_TOOL.replace(/[^/]*$/, name);
 // The project's one backlog folder, shared by every run on the repo, so the operator passes the folder the
 // project-settings tool names rather than one this engine derives.

@@ -44,7 +44,7 @@ const FIX_BLOCK = { id: 'block-c', planPath: BUS, mode: 'fix', gate: 'green' };
 // The folder `project-settings.mjs backlog` prints, as every launch passes it.
 const BACKLOG = 'E:/flow/backlog/repo-0a1b2c3d';
 const base = {
-  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, backlogDir: BACKLOG,
+  runId: 'flow', root: 'E:/flow', target: TARGET, gates: GATES, backlogDir: BACKLOG, blockTool: 'E:/flow/tools/plan-block.mjs',
   goal: 'move every caller onto the new client', sweep: 'goal-coverage', plans: BLOCKS,
 };
 
@@ -143,6 +143,8 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { develop: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { develop: 'ultra' } } },
+    // Every agent reads its block through the plan-block tool, and an installed plugin keeps it apart from root.
+    { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },
     // The developer, fix acceptance and closing acceptance append to the backlog folder, so a run without one
     // has nowhere to record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
     { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },

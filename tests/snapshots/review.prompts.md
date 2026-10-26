@@ -6,12 +6,12 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| review | 1 | 1 | 3734 | a clean unit beside one with findings |
-| verify | 1 | 1 | 7111 | a clean unit beside one with findings |
-| review | 2 | 1 | 3003 | two lenses per unit |
-| review | 3 | 1 | 3129 | two lenses per unit |
-| verify | 2 | 1 | 7594 | two lenses per unit |
-| verify | 3 | 1 | 7594 | two lenses per unit |
+| review | 1 | 1 | 3875 | a clean unit beside one with findings |
+| verify | 1 | 1 | 7281 | a clean unit beside one with findings |
+| review | 2 | 1 | 3144 | two lenses per unit |
+| review | 3 | 1 | 3270 | two lenses per unit |
+| verify | 2 | 1 | 7764 | two lenses per unit |
+| verify | 3 | 1 | 7764 | two lenses per unit |
 
 ## review · variant 1 · schema 1
 
@@ -30,11 +30,11 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u1
-FILES TO REVIEW (read them fully):
+FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
 
 Assess against these criteria:
@@ -180,9 +180,9 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u2
 UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u2.js (120 LOC)
@@ -223,8 +223,10 @@ confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you canno
 Its **Options:** line names that behavior and the check that would settle it.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
+rejection, in the inventory and in the clean marker alike:
 `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+When you reject none, write no `## Rejected` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
@@ -388,12 +390,12 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u1
 LENS: destructive
-FILES TO REVIEW (read them fully):
+FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
 
 Assess against these criteria:
@@ -515,12 +517,12 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u1
 LENS: data-loss
-FILES TO REVIEW (read them fully):
+FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
   - src/u1.js (120 LOC)
 
 Assess against these criteria:
@@ -655,9 +657,9 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u1
 UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u1.js (120 LOC)
@@ -703,8 +705,10 @@ confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you canno
 Its **Options:** line names that behavior and the check that would settle it.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
+rejection, in the inventory and in the clean marker alike:
 `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+When you reject none, write no `## Rejected` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.
@@ -880,9 +884,9 @@ zero dependencies; LF only
 GATES (the build/test commands that define "it works", run from the repo root):
   build: (none)
   test:  (none)
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.
 UNIT: u2
 UNIT FILES (each entry's `- loc:` value comes from this list):
   - src/u2.js (120 LOC)
@@ -928,8 +932,10 @@ confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you canno
 Its **Options:** line names that behavior and the check that would settle it.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Write each REJECT as one line under a closing `## Rejected` heading, the clean marker included:
+When you reject at least one candidate, end the file with a `## Rejected` heading and one line per
+rejection, in the inventory and in the clean marker alike:
 `<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>`.
+When you reject none, write no `## Rejected` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.

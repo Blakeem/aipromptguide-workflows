@@ -257,9 +257,9 @@ ${CONVENTIONS}
 GATES (the build/test commands that define "it works", run from the repo root):
   build: ${GATES.build ?? '(none)'}
   test:  ${GATES.test ?? '(none)'}${GATES.testSetup ? `\n  test setup: ${GATES.testSetup}` : ''}
-BE TOKEN-ECONOMICAL (target ~250k tokens for your whole turn): review and report ONLY the files your
-task names. Read another file only by targeted grep or short read, and only to confirm or reject a
-candidate in those files. Don't restate large files back.`;
+BE TOKEN-ECONOMICAL (target ~250k tokens for your entire turn): review and report ONLY the files your
+task names. The target limits your reads of files beyond those: read them only by targeted search or short
+reads, and only to confirm or reject a candidate in your task's files. Don't restate large files back.`;
 
 // Every agent also loads the user's CLAUDE.md and auto memory, which may set fix scope another way.
 // The prompt's own scope and routing rules carry the policy out, so they are not "other".
@@ -285,7 +285,7 @@ the target repo${cleanEligible
 ${POLICY_LINE}
 ${ENV}
 UNIT: ${unit.id}${L.isSet ? `\nLENS: ${L.id}` : ''}
-FILES TO REVIEW (read them fully):
+FILES TO REVIEW (read each one in full, in as many reads as its length needs. The token target never shortens that read):
 ${(unit.files || []).map((f) => `  - ${f.path} (${f.loc} LOC)`).join('\n')}
 
 Assess against these criteria:
@@ -383,8 +383,10 @@ confirm. An otherwise ACTIONABLE finding whose fix rests on a behavior you canno
 Its **Options:** line names that behavior and the check that would settle it.
 Before routing a finding that reverses a documented design choice, check the gotchas in the CLAUDE.md
 nearest the unit's files.
-Write each REJECT as one line under a closing \`## Rejected\` heading, the clean marker included:
+When you reject at least one candidate, end the file with a \`## Rejected\` heading and one line per
+rejection, in the inventory and in the clean marker alike:
 \`<finding_id>: <the file:line that refutes it, the id it duplicates, or scope-creep>\`.
+When you reject none, write no \`## Rejected\` heading.
 An in-scope finding the code neither confirms nor refutes, and that FOLD DUPLICATES did not reject as a
 duplicate, is NEEDS_USER with is_real=true, never REJECT: its **Options:** line names the check that
 would settle it.

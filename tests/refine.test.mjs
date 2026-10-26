@@ -17,7 +17,7 @@ const ENGINE = 'workflows/refine/refine-cycle.mjs';
 
 // planPath resolves OUTSIDE the target repo, which is what keeps the plan and the critique files away
 // from develop-cycle's blind reviewer. A path inside the repo only warns, so it would prove nothing here.
-const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md' };
+const baseArgs = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'E:/plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs' };
 const run = (respond, args = baseArgs, budget) => runEngine(ENGINE, { args, respond, budget });
 
 // The same healthy returns as tools/flows/refine.flow.mjs, with the editor's `declined` pinned to 0 so
@@ -395,6 +395,19 @@ section('the round budget runs out carrying the LAST round\'s gaps and critique 
     `Read ${STATE}/plan-critique-2.md, decide with the user, then relaunch to confirm, raising maxRounds if needed.`,
     RELAUNCH,
   ], 'rounds-exhausted');
+}
+
+section('a launch without blockTool throws, naming the pre-launch command that runs the tool');
+// An installed plugin keeps run-state (root) apart from tools/, so no path derived from root names the tool.
+{
+  const { blockTool: _, ...NO_TOOL } = baseArgs;
+  for (const [args, what] of [[NO_TOOL, 'a missing path'], [{ ...baseArgs, blockTool: '' }, 'an empty path'], [{ ...baseArgs, blockTool: 7 }, 'a path that is not a string']]) {
+    const msg = await throwsWith(ENGINE, { args });
+    ok(msg.startsWith('Missing args.blockTool: pass the path of the plan-block.mjs that the pre-launch command `node <plan-block.mjs> <planPath> --list` runs'),
+      `${what} throws, naming the arg and the pre-launch command: ${msg.slice(0, 70)}`);
+  }
+  const { prompt } = await runEngine(ENGINE, { args: { ...baseArgs, blockTool: 'C:\\plug\\tools\\plan-block.mjs' }, respond: { 'plan-critic': firstRound(GAPS, CLEAN), 'plan-editor': FOLD_OK } });
+  ok(prompt('plan-editor').includes("node 'C:/plug/tools/plan-block.mjs' 'E:/plans/bus.md' --list"), 'the editor re-validates through the passed path, backslashes normalized');
 }
 
 // ---------------------------------------------------------------------------------------------

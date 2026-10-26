@@ -87,16 +87,22 @@ destination, a non-fix destination block. Paths resolve through the same `resolv
 plan-block, so a bare name addresses the same file in both tools. BOM'd and CRLF files round-trip
 byte-identically, and an appended line inherits the file's dominant line ending.
 
-`args` is the step before every develop launch, so status bookkeeping cannot be skipped. develop logs
-each finished block's status edits as one `status-sync <json>` line. Claude Code writes every Workflow
-run to `<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a
+`args` is the step before every develop launch, so status bookkeeping cannot be skipped. Its output
+carries `blockTool`, the absolute path, with forward slashes, of the `plan-block.mjs` in the folder of
+the `plan-edit.mjs` that ran, and develop throws without it. The CLI takes that folder from argv[1], the
+spelling the caller used, since Node realpaths the main module. The printed path then keeps the spelling
+of the permission rules the caller wrote. `plugin-access.mjs` grants its Read rules in both spellings,
+since which one a gate matches is unmeasured. An imported call, or a CLI run through a link to the `plan-edit.mjs` file
+itself, which leaves no `plan-block.mjs` beside the caller's spelling, takes the folder of its own file. develop logs each
+finished block's status edits as one `status-sync <json>` line. Claude Code writes every Workflow run to
+`<config>/projects/<project>/<session>/workflows/wf_<id>.json` when it ends, logs included, for a
 completed, failed or stopped run alike. `args` reads every develop record newer than the plan's
 `synced:` file key, applies the edits naming that plan oldest first, and moves the key to the newest run
 applied, so an operator's later edit is never overwritten. The record format is Claude Code's and
 undocumented. A completed run's edits come from its result, which holds them uncut. A failed or stopped
-run's come from its log lines, and the runtime cuts a long line short: a cut line that names a plan being
-folded fails `args`, and one that names none is skipped with a note. A changed develop record fails
-`args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
+run's come from its log lines, and the runtime cuts a long line short: a cut line that names a plan
+being folded fails `args`, and one that names none is skipped with a note. A changed develop record
+fails `args` loudly, `--expect <wf-id>` fails when a known run's record is missing, and
 `tests/plan-bus.test.mjs` checks the newest records on the machine on every suite run. Records expire
 after `cleanupPeriodDays` (30 by default).
 
@@ -116,14 +122,20 @@ ends `nothing to build` when it then adds no file. A missing folder adds nothing
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`
-line, else the file in `<repo>`, else 200. Blocks are sorted by `model`, then `effort`, then by the first file they
-touch, and filled up to `--loc-cap` (default 5000, scaled from resolve's 3000-line batches of about
-150-200k tokens). A pass never mixes two models or two efforts, or a block with a model or effort and one without. A block
-over the cap, one with nothing open and ACTIONABLE, or one whose open ACTIONABLE issue carries a
-`- branch:` line, stays its own row, so two unfinished branches never restore in one round 1. A pass row is
-`{ id: <first>-plus-<n>, mode: fix, model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes
-each member's status and each issue's into the file that holds it. Packing regroups blocks, so an
-`ordered: true` file is refused.
+line, else the file in `<repo>`, else 200. A pass runs on the strongest model among its members, in the
+order fable, opus, sonnet, haiku, and on the highest effort, in the order max, xhigh, high, medium, low.
+A member with no `model` or `effort` line runs on the run's default, which `--pack` cannot see, so it
+shares a pass with a member that sets that line only when the pass's value is `fable` or `max`. A pass
+whose members all lack the line carries no key for it. The `packed` note names each member whose own
+value differs from its pass's, as `<id> <key> <value> -> <pass value>`, with `default` for a member with
+no line. Blocks are sorted so the ones that can share a pass sit together, by model and then by effort:
+a set value other than the top rank (`fable` or `max`) first, then the top rank, then no line. Then they
+sort by the first file they touch, and fill passes up to `--loc-cap` (default 5000, scaled from
+resolve's 3000-line batches of about 150-200k tokens). A block over the cap, one with nothing open and
+ACTIONABLE, or one whose open ACTIONABLE issue carries a `- branch:` line, stays its own row, so two
+unfinished branches never restore in one round 1. A pass row is `{ id: <first>-plus-<n>, mode: fix,
+model?, effort?, blocks: [{ id, planPath, issues }] }`, and develop writes each member's status and each
+issue's into the file that holds it. Packing regroups blocks, so an `ordered: true` file is refused.
 
 ## gen-flows.mjs
 

@@ -20,7 +20,7 @@ flowchart TD
   t7(["BLOCKED (the folded plan file no longer parses - every later consumer reads it)"])
   t8(["BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file)"])
   x1[/"throw: Invalid args JSON"/]
-  x2[/"throw: args must include at least { runId, root, planPath, target:{repo} }"/]
+  x2[/"throw: args must include at least { runId, root, planPath, blockTool, target:{repo} }"/]
   x3[/"throw: args.root is required"/]
   x4[/"throw: args.planPath is required"/]
   x5[/"throw: args.target.repo is required"/]
@@ -29,7 +29,8 @@ flowchart TD
   x8[/"throw: Invalid role map"/]
   x9[/"throw: Unknown role key in a role map"/]
   x10[/"throw: Illegal role value in a role map"/]
-  x11[/"throw: Plan critic returned nothing in round ..."/]
+  x11[/"throw: Missing args.blockTool"/]
+  x12[/"throw: Plan critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -41,11 +42,12 @@ flowchart TD
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t5
-  a1 --> x11
+  a1 --> x12
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
   a2 --> t3
   a2 --> t4
@@ -74,7 +76,7 @@ flowchart TD
 | BLOCKED (the folded plan file no longer parses - every later consumer reads it) | the plan file stops parsing after the fold | derived |
 | BLOCKED (the plan editor returned nothing - it was skipped or died and may have partly edited the plan file) | the plan editor dies | derived |
 | throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 29) |
-| throw: args must include at least { runId, root, planPath, target:{repo} } | args.runId is missing | throw (line 32) |
+| throw: args must include at least { runId, root, planPath, blockTool, target:{repo} } | args.runId is missing | throw (line 32) |
 | throw: args.root is required | args.root is missing | throw (line 37) |
 | throw: args.planPath is required | args.planPath is missing | throw (line 43) |
 | throw: args.target.repo is required | args.target.repo is missing | throw (line 49) |
@@ -83,8 +85,9 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 91) |
 | throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 373) |
+| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 127) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 374) |
 
 ## Coverage
 
-21 scenarios · 2/2 roles · 11/11 throw sites · 8/8 halt statuses · 19 terminal states.
+22 scenarios · 2/2 roles · 12/12 throw sites · 8/8 halt statuses · 20 terminal states.

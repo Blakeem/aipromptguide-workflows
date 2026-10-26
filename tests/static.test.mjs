@@ -484,7 +484,7 @@ const NUM_ARGS = {
   lenses: ['alpha', 'beta'], sources: ['s'], scope: ['x'],
   units: [{ id: 'u', files: ['f'] }],
   issues: [{ id: 'i', unit: 'u', file: 'f', decision: 'ACTIONABLE', severity: 'high' }],
-  gates: { build: 'b', test: 't' },
+  gates: { build: 'b', test: 't' }, blockTool: 'E:/r/tools/plan-block.mjs',
 };
 for (const rel of ENGINES) {
   const src = readFileSync(join(REPO_ROOT, rel), 'utf8');

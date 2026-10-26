@@ -42,9 +42,11 @@ Four things together — remove any one and the plan grows every round instead o
 ## 2. The flow
 
 1. Author the plan file (plan-bus format, at `<root>/plans/<runId>/`, outside every repo).
-2. Launch refine with `planPath` = that file, from a notification turn (root `CLAUDE.md`, "Launch from
-   a notification turn"). Follow the return's `nextStep`, which names the files to read and the relaunch
-   or replay for each terminal. The `status` token says what the state means:
+2. Launch refine with `planPath` = that file and `blockTool` = the absolute path of the
+   `plan-block.mjs` that the pre-launch command `node <plan-block.mjs> <planPath> --list` runs, from a
+   notification turn (root `CLAUDE.md`, "Launch from a notification turn"). Follow the return's
+   `nextStep`, which names the files to read and the relaunch or replay for each terminal. The
+   `status` token says what the state means:
    - `converged` — one clean round: no gaps at or above the floor, and no questions.
    - `needs-answers` — the critic raised things only the user can settle: a dependency-ordering error
      whose fix restructures blocks, a gap in an already-`done` block, or a defect in a
@@ -100,11 +102,13 @@ cumulative across relaunches of one stateDir, so entries from earlier halts were
 Full schema + defaults: the Config block atop `refine-cycle.mjs` (the canonical source).
 - **Required:** `runId` · `root` · `planPath` (absolute; no inline plan, no default — an omitted
   path would critique nothing and report a clean plan) · `target.repo` (**throws** if missing — the
-  critic greps it).
+  critic greps it) · `blockTool` (the absolute path of the `plan-block.mjs` the pre-launch command
+  runs. The editor re-validates through it, and the `plan-broken` log line and `nextStep` name it.
+  **Throws** when missing or blank, and the message names the pre-launch command. Pre-allowlist
+  `Bash(node '<blockTool>':*)`).
 - **Optional:** `critiqueSeverity` (`blocking|major|minor`, default `major`; illegal values
-  **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `blockTool` (default
-  `<root>/tools/plan-block.mjs`, the editor's re-validation command — pre-allowlist it) ·
-  `conventions` · `reference` · `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
+  **throw**) · `maxRounds` (default 4, 1–50, garbage **throws**) · `conventions` · `reference` ·
+  `models`/`efforts`/`agentTypes` (`models` and `efforts` map a role key to a value. The role keys
   are `critic` and `editor`. A model is `opus | sonnet | haiku | fable` and an effort is
   `low | medium | high | xhigh | max`. Both roles default to opus, and every role defaults to
   `high`. The engine **throws** at launch, naming the arg, on a value that is not an object, a key

@@ -51,12 +51,13 @@ const UNIT     = { id: 'u1', hash: 'h', files: [{ path: 'a.js', loc: 10 }] };
 // Each row carries its own planPath, as every row `plan-edit.mjs args` prints does, and a row without one
 // throws.
 const DEVELOP_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, gates: { build: 'b' }, backlogDir: 'E:/r/backlog/repo-0a1b2c3d',
+  blockTool: 'E:/r/tools/plan-block.mjs',
   plans: [{ id: 'block-a', planPath: 'plans/bus.md', mode: 'feature', gate: 'build-only' },
     { id: 'block-b', planPath: 'plans/bus.md', mode: 'section', gate: 'build-only' }] };
 // refine converges a plan FILE and builds nothing, so it takes no gates at all. `planPath` carries the
 // whole subject of the run: there is no inline plan and no default, and an omitted one would spawn a
 // critic against nothing and report a clean round for a plan it never saw.
-const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md' };
+const REFINE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, planPath: 'plans/bus.md', blockTool: 'E:/r/tools/plan-block.mjs' };
 const REVIEW_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' }, conventions: 'c', units: [UNIT] };
 const ENHANCE_ARGS = { runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'] };
@@ -83,7 +84,7 @@ const SWEEP = [
     engine: 'workflows/develop/develop-cycle.mjs',
     baseArgs: DEVELOP_ARGS,
     respond: {},
-    required: ['runId', 'root', 'target.repo', 'gates.build', 'plans', 'backlogDir',
+    required: ['runId', 'root', 'target.repo', 'gates.build', 'plans', 'backlogDir', 'blockTool',
       // Both baseline blocks are gate:"build-only", which needs no test command — so this one needs a
       // variant whose block actually asks for verification, and that block must be TODO: the guard is
       // scoped to the PENDING slice, so a done/skip block asking for green must NOT demand the command.
@@ -96,7 +97,7 @@ const SWEEP = [
     baseArgs: REFINE_ARGS,
     respond: {},
     // No gates row: refine stages nothing and runs no build, so it never reads args.gates.
-    required: ['runId', 'root', 'planPath', 'target.repo'],
+    required: ['runId', 'root', 'planPath', 'target.repo', 'blockTool'],
   },
   {
     engine: 'workflows/debug/review.mjs',

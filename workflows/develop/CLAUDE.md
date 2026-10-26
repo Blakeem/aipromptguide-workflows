@@ -17,24 +17,28 @@ when step 6 hands the user a decision.
 
 ## 1. Scope (check FIRST)
 
-Right-size each block by behavior, never by line count. A block holds one behavior a reviewer can
-judge as a unit. A `feature` block's behavior is one entry point (a verb, a command, an endpoint or
-an added function) with its failure and recovery paths. A `section` block's behavior is one slice of
-the goal whose call sites convert and are accepted together. Behaviors that can each be accepted
-alone are separate blocks, listed in dependency order with `ordered: true` set when one builds on
-another. Too small, such as a one-liner or a rename → just edit. A block may edit hand-written
-documentation. Acceptance judges a doc edit only against the block's acceptance criteria or fix
-entries, so name each doc change a block owes in one of them. Generated files, such as a flow map
-regenerated from an engine a block changes, belong to that block. Locate code in a block body by
-section title or grep pattern, not line number, since earlier blocks shift lines. Make each block
-self-contained. Every agent reads only its own block, so a path or instruction stated only in the
-file preamble or another block never reaches it. A block states the goal, the user's decisions, and
-the choices that must agree across blocks or with the repo that a developer working one block cannot
-see, such as names, data shapes, file locations and which existing pattern to follow. Everything
-else is the developer's call. Split work into blocks whose code is complete on its own, such as a
-new key together with the code that reads it. Never split by layer, where an earlier block adds code
-only a later block uses. That block's blind reviewer flags the half-built behavior as incomplete,
-and the developer cannot dismiss it with a reason the code shows.
+Right-size each block by behavior, never by line count. Join behaviors that edit the same files and
+can be accepted together into one block. Then check the block's context size, a second measure that
+counts what the developer reads, not the lines the block changes. Aim for a block whose round-1
+developer reaches about 200k to 350k tokens of context. Split only behaviors that cannot be judged
+together, or a set whose round-1 developer would pass about 350k tokens. In a `feature` block, a
+behavior is one entry point (a verb, a command, an endpoint or an added function) with its failure
+and recovery paths. In a `section` block, a behavior is one slice of the goal whose call sites
+convert and are accepted together. Blocks that stay split are listed in dependency order with
+`ordered: true` set when one builds on another. Too small, such as a one-liner or a rename → just
+edit. A block may edit hand-written documentation. Acceptance judges a doc edit only against the
+block's acceptance criteria or fix entries, so name each doc change a block owes in one of them.
+Generated files, such as a flow map regenerated from an engine a block changes, belong to that
+block. Locate code in a block body by section title or grep pattern, not line number, since earlier
+blocks shift lines. Make each block self-contained. Every agent reads only its own block, so a path
+or instruction stated only in the file preamble or another block never reaches it. A block states
+the goal, the user's decisions, and the choices that must agree across blocks or with the repo that
+a developer working one block cannot see, such as names, data shapes, file locations and which
+existing pattern to follow. Everything else is the developer's call. Split work into blocks whose
+code is complete on its own, such as a new key together with the code that reads it. Never split by
+layer, where an earlier block adds code only a later block uses. That block's blind reviewer flags
+the half-built behavior as incomplete, and the developer cannot dismiss it with a reason the code
+shows.
 
 ## 2. The flow
 
@@ -54,7 +58,8 @@ and the developer cannot dismiss it with a reason the code shows.
    text. Approval comes after refine so the user signs off on what develop builds.
 3. **Derive the args with `node <plan-edit.mjs> args <planPath> [<planPath> ...]`, never by hand.**
    It first folds every finished develop run's statuses into the plan files (below), then prints
-   `{ goal, ordered, suite, sweep, plans }`, each `plans` row carrying its own `planPath`. Spread
+   `{ goal, ordered, suite, sweep, plans, blockTool }`, each `plans` row carrying its own `planPath`,
+   and `blockTool` naming the `plan-block.mjs` beside the `plan-edit.mjs` that ran. Spread
    that object into the args, and add `backlogDir`, the folder that
    `node <project-settings.mjs> backlog --root <root> --repo <target.repo>` prints (§4, §10). Also
    add `models` and `efforts` from the JSON line
@@ -71,7 +76,12 @@ and the developer cannot dismiss it with a reason the code shows.
    moved or changed its run records. For fix-mode files, add `--pack <target.repo>`: it groups the
    todo fix blocks into passes of at most `--loc-cap` lines (default
    5000) of the files their open ACTIONABLE issues name, so one developer, one blind reviewer and one
-   verifier build several small blocks. Each member keeps its own plan file and statuses.
+   verifier build several small blocks. Each member keeps its own plan file and statuses. A pass runs
+   on the strongest `model:` and the highest `effort:` among its members. A member without the line
+   runs on the run's default, so it shares a pass with a member that sets the line only when that
+   value is `fable` or `max`. A pass can run a member on a stronger model or effort than the one
+   approved for it, so the approval summary shows each pass row's model and effort and names each
+   member the pass raises, which the `packed` note lists.
 4. **Open the run worktree, then launch.** The run worktree keeps the run's diff, which every blind
    reviewer reads, apart from the user's own edits, so the user can keep working in their checkout.
    - When `git -C <the user's checkout> worktree list --porcelain` lists no worktree on
@@ -234,8 +244,10 @@ endpoint or MCP tool, simple interface features or updates, and fixes from a deb
 takes complex logic, security work, mission-critical code, and changes that need an understanding of
 deeper layers of abstraction. `haiku` takes a bulk text replacement or a very simple change across
 the codebase. `fable` runs only when the user asks for it, since the user controls how many tokens a
-run spends. When unsure, leave the line out, so the run's `models.develop` applies. Show each
-block's model and effort in the approval summary.
+run spends. A `fable` or `max` line on a fix block also raises the blocks `--pack` joins to it (§2
+step 3), so tell the user so when they ask for either on a fix block. When unsure, leave the line
+out, so the run's `models.develop` applies. Show each block's model and effort in the approval
+summary.
 
 **Choosing the review roles' models.** Sonnet reviews worse than opus. The quality, acceptance and
 sweep roles run on opus for a major feature or a risky change, and may run on sonnet for a low-risk
@@ -267,9 +279,10 @@ since `high` suits every model.
   the dirt is an interrupted develop run's unfinished block, relaunch once it is set aside. A
   dirty-baseline halt records its block `blocked`, so after settling the tree run §2 step 3, set
   that block's `status:` back to `todo`, and run step 3 again for the launch args.
-- **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool` defaults to
-  `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
-  the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
+- **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool`, the
+  `plan-block.mjs` every agent reads its block through, is a key of the object `plan-edit.mjs args`
+  prints, so the spread args carry it, and the engine throws without it. Never pass it by hand.
+  Pre-allowlist the command exactly as agents run it: `Bash(node '<blockTool>':*)`.
 - **Relaunch vs. new run:** relaunch a halted or parked run with the same `runId` and no
   `resumeFromRunId`, so its ledgers, `NEEDS-USER.md` and `DECISIONS.md` carry over. Every develop
   run of one plan, or of one debug review's issue files, keeps that `runId`. Unrelated new work
@@ -690,7 +703,9 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   missing) · `gates.test` (**throws** when any PENDING block's gate is `green` — deliberately
   pending-scoped, so an all-done relaunch reaches its terminal) · `backlogDir` (the absolute folder
   `project-settings.mjs backlog` prints, §10. **Throws** when missing, relative or inside
-  `target.repo`, and the message names the command).
+  `target.repo`, and the message names the command) · `blockTool` (the `plan-block.mjs` path that
+  `plan-edit.mjs args` prints, so spreading its output passes it. **Throws** when missing or blank,
+  and the message names that command).
 - **File keys:** `ordered` (boolean) · `suite` (`green|scoped`) · `sweep` (`goal-coverage|none`) ·
   `goal` (string). Typed illegal values **throw** — spread what `args` prints. `sweep: goal-coverage`
   with an empty `goal` **throws**.
@@ -713,7 +728,7 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   added entry's severity, title and decision to the user. In commit mode it names each committed
   block with its sha. It says nothing is staged when the run did not halt, and otherwise points at
   `git diff --cached --stat`).
-- **Optional:** `blockTool` · `conventions` · `reference` · `gates.testSetup` ·
+- **Optional:** `conventions` · `reference` · `gates.testSetup` ·
   `target.lang`/`framework` · `maxRounds` (1–50, default 5, **throws** on garbage) · `changePolicy`
   (`focused|proactive`, default `focused`, any other value **throws**, and `strict`, the old name of
   `focused`, throws with a message that names the rename. It sets the developer's build aim and

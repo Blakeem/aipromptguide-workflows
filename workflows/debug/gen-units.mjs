@@ -7,7 +7,7 @@
 //   - a direct-file group over --unit-loc LOC or --cap-files files is split into sequential chunks
 //   - subdirectories recurse into their own units
 // Then a bin-packing pass merges adjacent (path-sorted) base units first-fit-greedy up to --unit-loc
-// LOC each (default 2000 ≈ ~215k tokens per review agent), because walk() never merges sibling dirs on
+// LOC each (default 3500, see AIM_LOC), because walk() never merges sibling dirs on
 // its own. A base unit already at/over the target stays solo; merged units get a `<common-dir>#p<n>` id
 // and a recomputed hash. The pass checks no file count, so --cap-files caps a unit only under --no-pack,
 // which disables the pass (old per-directory units).
@@ -26,7 +26,7 @@
 //                       harmless on other stacks; override for your own generated-file pattern)
 //   --exclude <dirs>    comma-separated directory names to skip anywhere (default: common
 //                       dependency/build dirs across ecosystems)
-//   --unit-loc <n>      the one LOC bound (default: 2000): a file over it is reviewed alone, a
+//   --unit-loc <n>      the one LOC bound (default: 3500): a file over it is reviewed alone, a
 //                       directory's files split at it, and the packing pass merges units up to it
 //   --cap-files <n>     max files per directory chunk (default: 24). Packing ignores it, so it caps a
 //                       unit only under --no-pack
@@ -87,14 +87,16 @@ const SRC_DIRS  = (opt.src ?? 'src').split(',').map((s) => s.trim()).filter(Bool
 const EXTS      = (opt.ext ?? '.ts,.tsx,.js,.jsx,.mjs,.cjs,.py,.go,.rs,.java,.kt,.rb,.php,.cs,.cpp,.cc,.c,.h,.hpp,.swift,.scala').split(',').map((s) => s.trim()).filter(Boolean);
 const SKIP_RE   = new RegExp(opt.skip ?? String.raw`\.d\.ts$|\.min\.`);
 const EXCLUDES  = new Set((opt.exclude ?? 'node_modules,dist,build,out,vendor,coverage,.git,target,__pycache__,.venv,venv,.tox,.gradle').split(',').map((s) => s.trim()));
-const UNIT_LOC  = num(opt['unit-loc'], 'unit-loc', 1, 2000);
+// Review context measured a median 123k tokens at 2000 lines per unit. This default aims at about 200k,
+// and a unit past it warns.
+const AIM_LOC   = 3500;
+const UNIT_LOC  = num(opt['unit-loc'], 'unit-loc', 1, AIM_LOC);
 const CAP_FILES = num(opt['cap-files'], 'cap-files', 1, 24);
 if (opt['no-pack'] !== undefined && opt['no-pack'] !== 'true') {
   console.error(`--no-pack takes no value (got "${opt['no-pack']}")`);
   process.exit(1);
 }
 const PACK      = opt['no-pack'] === undefined;
-const CEIL_LOC  = 3500;                          // ~350k-token review ceiling; warn on any unit past it
 const OUT       = isAbsolute(opt.out ?? '') ? opt.out : resolve(opt.out ?? 'manifest.json');
 const ISSUES    = opt['issues-dir'] ? resolve(opt['issues-dir']) : '';
 // A bare flag or a mistyped path would report every unit as `new` — the exact false signal the flag
@@ -256,7 +258,7 @@ if (!units.length) {
 }
 
 for (const u of units) {
-  if (u.loc > CEIL_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC (est. >~350k tokens) — past the review ceiling; ${u.fileCount === 1 ? 'split the file' : 'lower --unit-loc'}`);
+  if (u.loc > AIM_LOC) console.error(`warning: unit ${u.id} is ${u.loc} LOC, past the ${AIM_LOC}-line default that aims at about 200k tokens of review context (measured median: 123k at 2000 lines); ${u.fileCount === 1 ? 'split the file' : 'lower --unit-loc'}`);
 }
 
 if (ISSUES) for (const u of units) u.state = stateOf(u);

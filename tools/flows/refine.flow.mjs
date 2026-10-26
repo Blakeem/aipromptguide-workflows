@@ -22,7 +22,7 @@ const TARGET = { repo: 'E:/repo', lang: 'JavaScript', framework: 'none' };
 // planPath resolves against `root`, i.e. OUTSIDE the target repo — which is what keeps the plan and the
 // critique files away from develop-cycle's blind reviewer. A path inside the repo only warns, so it would
 // draw the identical map and prove nothing.
-const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md' };
+const base = { runId: 'flow', root: 'E:/flow', target: TARGET, planPath: 'plans/bus.md', blockTool: 'E:/flow/tools/plan-block.mjs' };
 
 // Critic returns. Counts plus one attestation are the WHOLE control plane: every gap, grade and citation
 // crosses to the editor through the critique file, which the harness never sees.
@@ -62,6 +62,8 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside critic | editor', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { critic: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { critic: 'ultra' } } },
+    // The editor re-validates the plan through the plan-block tool, and an installed plugin keeps it apart from root.
+    { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },
 
     // ---- the terminal states, one scenario per distinct fact -------------------------------------
     {

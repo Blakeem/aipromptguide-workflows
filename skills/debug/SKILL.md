@@ -22,7 +22,8 @@ Use these paths wherever the guide says "this checkout" or "the tool's own direc
 - Review engine `scriptPath`: `${CLAUDE_PLUGIN_ROOT}/workflows/debug/review.mjs`
 - Fix engine `scriptPath` (develop in fix mode, guide `${CLAUDE_PLUGIN_ROOT}/workflows/develop/CLAUDE.md`):
   `${CLAUDE_PLUGIN_ROOT}/workflows/develop/develop-cycle.mjs`
-- develop's `blockTool` arg: `${CLAUDE_PLUGIN_ROOT}/tools/plan-block.mjs`
+- develop's `blockTool` arg: the args tool below prints it, so the spread args carry it, and develop
+  throws without it. Never pass it by hand.
 - Args, status and triage tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/plan-edit.mjs`
 - Onboarding tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/onboard.mjs`
 - Project-settings tool (operator-side): `${CLAUDE_PLUGIN_ROOT}/tools/project-settings.mjs`

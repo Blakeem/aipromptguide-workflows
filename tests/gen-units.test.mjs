@@ -1,6 +1,6 @@
 // workflows/debug/gen-units.mjs — ordinary Node, run as a child process (it is NOT a Workflow engine).
 // Focus: the numeric CLI bounds. A coerced one does not error, it silently DISABLES the limit it sets.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, rmSync, mkdirSync, mkdtempSync, writeFileSync, symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -55,6 +55,29 @@ section('valid caps reach the manifest, and --no-pack is recorded as PACK false'
     eq(caps.PACK, false, 'a bare --no-pack disables packing');
     eq(caps.UNIT_LOC, 1500, 'an explicit cap is carried through');
     eq(caps.CAP_FILES, 24, 'an absent flag still gets its default');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+section('the --unit-loc default is 3500, and only a unit past it warns, citing the measured review context');
+{
+  const dir = mkdtempSync(join(tmpdir(), 'aipg-gen-units-default-'));
+  const out = join(dir, 'manifest.json');
+  try {
+    mkdirSync(join(dir, 'src', 'big'), { recursive: true });
+    mkdirSync(join(dir, 'src', 'edge'), { recursive: true });
+    writeFileSync(join(dir, 'src', 'big', 'big.mjs'), 'x\n'.repeat(3500) + 'x');
+    writeFileSync(join(dir, 'src', 'edge', 'edge.mjs'), 'x\n'.repeat(3499) + 'x');
+    // spawnSync keeps a successful run's stderr, where the warning goes.
+    const r = spawnSync(process.execPath, [SCRIPT, '--repo', dir, '--src', 'src', '--ext', '.mjs', '--out', out], { encoding: 'utf8' });
+    eq(r.status, 0, `a run with no --unit-loc succeeds: ${r.stderr.split('\n')[0]}`);
+    const manifest = JSON.parse(readFileSync(out, 'utf8'));
+    eq(manifest.caps.UNIT_LOC, 3500, 'the absent flag gets the 3500-line default');
+    eq(manifest.units.map((u) => `${u.id}:${u.loc}`).sort().join(','), 'src/big/big.mjs:3501,src/edge:3500', 'the file over the default is its own unit');
+    ok(r.stderr.includes('warning: unit src/big/big.mjs is 3501 LOC, past the 3500-line default that aims at about 200k tokens of review context (measured median: 123k at 2000 lines); split the file'),
+      `the unit past the default warns with the measured context: ${r.stderr.trim()}`);
+    ok(!r.stderr.includes('src/edge'), 'a unit at the default draws no warning');
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

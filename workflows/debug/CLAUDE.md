@@ -49,8 +49,9 @@ triaged files to develop, and land the result and report it at the end.
 - **Verifier** (opus) — spawned ONLY for units with findings; **ONE per unit regardless of lens count**.
   Confirms each against the real code, corrects inflated severity, folds duplicates (across lenses or within one), routes via
   the decision matrix, and **writes `issues/<unit>.md`** verbatim (the inventory AND triage doc). Clean
-  units never reach it — the reviewer already wrote their marker. It writes every rejected finding as
-  one line under a closing `## Rejected` heading with what refutes it, and routes a finding it can
+  units never reach it — the reviewer already wrote their marker. When it rejects a finding, it ends
+  the file with a `## Rejected` heading and one line per rejected finding with what refutes it, and
+  with no rejection it writes no such heading. It routes a finding it can
   neither confirm nor refute to NEEDS_USER. Before a **Fix:** line prescribes a command, flag or API
   behavior the repo does not already use the same way, it confirms that behavior in the dependency's docs
   or source, or with a probe in a fresh temporary directory outside the repo and the run-state dir, which
@@ -118,7 +119,8 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
 1. **Units:** `node <path to gen-units.mjs> --repo <abs> --src src --out <root>/runs/<runId>/manifest.json`
    (`gen-units.mjs` sits beside this guide — `workflows/debug/` in a checkout, the path the skill
    resolves from the installed plugin; the `--out` base is `root`, never your cwd). `--unit-loc`
-   (default 2000 ≈ ~215k tokens/agent — a right-sized review turn) is the one LOC bound: a file over it
+   (default 3500, which aims at about 200k tokens of review context per agent, since the measured
+   median was 123k at 2000 lines, and a unit past it warns) is the one LOC bound: a file over it
    is its own unit, a directory's files split at it, and a bin-packing pass merges adjacent units up to
    it. `--no-pack` keeps per-directory units. `--cap-files` (default 24) caps files per unit only under
    `--no-pack`, since packing checks no file count. Show the user the printed unit list; tune
