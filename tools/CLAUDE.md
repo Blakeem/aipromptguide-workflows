@@ -103,7 +103,13 @@ after `cleanupPeriodDays` (30 by default).
 `--backlog <dir>` adds each backlog file in `<dir>` whose `status:` is `todo` or `done` and that holds an entry with
 `- decision: ACTIONABLE` and `- status: open`, after folding the finished runs into it. A file that also holds an
 `ACTIONABLE` entry with `- status: needs-attention` is not added, since the fix-mode developer would rebuild that entry
-without the user. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
+without the user. A file is not added while the block that wrote it is not `done`, `skip` or `backlogged`, since a relaunch
+of that block may still append to it. A `parked` writer, an older engine's park that develop never relaunches, holds its
+file back until the user sets it `skip` to drop it, `todo` to rebuild it, or `backlogged` only when a backlog entry carries its
+work, and the note that names the left-out file says so. The file's header names that block and its develop `runId`, and the run records
+with that `runId` arg and this `--backlog` folder as their `backlogDir` arg, or with no `backlogDir` arg, give its plan path, through their status edits or their `plans` rows. A header that names a pass
+matches each member of that pass's row, and one that names a member matches that member. Its status is read with those records folded in memory, and its plan file is never written. A file whose block
+no record names, or whose plan file is gone, is not held back. A writer plan file that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command, since its status is unknown. A file named as a plan skips this check. The fold of every `todo` or `done` backlog file with an `ACTIONABLE` entry is written, built or not. An entry with no `- status:` line counts as `open`. A `done` file is
 set to `todo` on disk. A file already named as a plan is not added twice. The backlog files carry no file keys, so they take the given
 plans' keys, and the defaults when no plan is given. The flag lets the plan list be empty, and fails with a message that
 ends `nothing to build` when it then adds no file. A missing folder adds nothing. An `ordered: true` plan set is refused.

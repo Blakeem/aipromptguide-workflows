@@ -129,8 +129,9 @@ and the developer cannot dismiss it with a reason the code shows.
    `needs-attention`. FIXED or STALE in a block that did not land, or a claim acceptance refuted →
    `needs-attention` too. SKIPPED keeps `open`. The plan file is the selection truth and git
    staging, or HEAD in commit mode, is the landed truth. A `backlogged` block's work continues from
-   its backlog entry (§10), never from the block. Set the block `done` once that entry syncs `fixed`
-   (§10, "Working the backlog" step 5). Once a held park's halt is resolved, set its block
+   its backlog entry (§10), never from the block. Set the block `done` once that entry is `fixed`
+   and close has landed its fix block on the user's branch and that work is committed there (§10,
+   "Working the backlog" step 5). Once a held park's halt is resolved, set its block
    `backlogged` when its branch holds all of its work, an entry links that branch, and a green fix
    block can build that entry (§5 Park), and never back to `todo`. For a fix block, that route also
    sets to `stale` each entry whose branch its round 1 restored and whose work the new branch's tree
@@ -143,17 +144,27 @@ and the developer cannot dismiss it with a reason the code shows.
    exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is overwritten by
    the run's own status edit. Records are deleted after `cleanupPeriodDays` (30 by default), so run
    step 3 within that window or the statuses of a finished run are lost.
-6. **Build the backlog, then land the run on the user's branch.** Under `proactive`, once the plan
-   has no `todo` block left and before the landing below, build the ready backlog entries once, in
-   the same run worktree. First apply §10 step 1 to the folder, so an entry whose fix the run
+6. **Build the backlog, then land the run on the user's branch.** Under `proactive`, once every
+   block of the plan is `done`, `skip` or `backlogged` and before the landing below, build the ready
+   backlog entries once, in the same run worktree. A `blocked` block holds this build back, since
+   §5 works a block's backlog file only once that block is `done`, `skip` or `backlogged`, and a
+   relaunch of a `blocked` block may still append to its file. This guard covers this plan's blocks
+   only. `args --backlog` holds back the file of a block of any plan by the same rule (§10 step 4).
+   When the run lands with a block in any other status, such as a `blocked` block when
+   the user stops the plan or an older engine's `parked` block, skip the build for that landing and
+   say so in the run's summary. First apply §10 step 1 to the folder, so an entry whose fix the run
    already made is closed. Then run
    `node <plan-edit.mjs> args --backlog <backlogDir> --pack <the run worktree>` and launch with its
    output as steps 3 and 4 say. When it exits 1 with a message that ends `nothing to build`, no file
-   holds a ready entry, so skip the launch. The entries that launch adds wait for the next run, so
-   one follow-up launch runs per run. An ACTIONABLE entry whose fix failed has
-   `status: needs-attention` and waits for the user (§10 step 2), and `args --backlog` leaves out
-   every file that holds one until the user skips that entry. A file whose entry the user approves
-   again is built by naming it (§10 step 4). Under `focused`, skip this paragraph.
+   holds a ready entry, so skip the launch. Whether it prints args or exits with `nothing to build`,
+   apply §10 step 5 to the folder next, since that call writes the fold of every `todo` or `done`
+   backlog file that holds an ACTIONABLE entry before it prints or exits. Step 5 there closes only
+   work an earlier run landed, since close has not yet landed this run's work. The entries that
+   launch adds wait for the next run, so one follow-up launch runs per run. An ACTIONABLE entry
+   whose fix failed has `status: needs-attention` and waits for the user (§10 step 2), and
+   `args --backlog` leaves out every file that holds one until the user skips that entry. A file
+   whose entry the user approves again is built by naming it (§10 step 4). Under `focused`, skip
+   this paragraph.
 
    Land the run next. First compare `git -C <the user's checkout> branch --show-current` with
    `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`, the branch `open` recorded.
@@ -299,9 +310,10 @@ to the backlog (§10). The policies differ as follows.
   in connected code when the fix is low risk under the risk questions (§6). It leaves every other
   pre-existing finding there, such as a nit, unchanged. A fix block leaves each pre-existing finding in
   connected code unchanged, as a fix block does under `focused`. The developer also records each cleanup
-  outside task code that it noticed and did not make. The run also builds every ready entry in the
-  project's backlog (§2 step 6), so it fixes issues across the codebase over time. It uses more tokens
-  per run, and fewer in total than reaching the same code quality later.
+  outside task code that it noticed and did not make. A run whose blocks all end `done`, `skip` or
+  `backlogged` also builds every ready entry in the project's backlog (§2 step 6), so it fixes issues
+  across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same
+  code quality later.
 
 Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE
 entry requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance
@@ -425,7 +437,8 @@ Same roles and contracts as the engines it replaces, with these merge-specific p
   defect stays a residual path. The verifier appends a new issue to its source block's backlog file
   (§10), and the entry's `**What:**` names the source issue id. The return counts every writer's
   entries in `backlogEntries` and names each file in `backlogFiles`. Work a block's file (§10) once
-  that block is `done`, `skip` or `backlogged`. In fix mode, an entry with an `- origin:` line holds
+  that block is `done`, `skip` or `backlogged`, since a relaunch of the block may still append to
+  it. `args --backlog` leaves the file out until then (§10 step 4). In fix mode, an entry with an `- origin:` line holds
   a parked block's unfinished work. When it also carries a `- branch:` line, the round-1 developer
   restored that branch's work (§7), unless the accepted baseline already holds it, so acceptance
   judges that entire branch work as the entry's fix. Every such entry's fix also meets every
@@ -796,7 +809,9 @@ When the user asks to work the backlog:
    line
    `**Parked with:** block <id>. Triage this entry once that block's park entry lands, or the block is accepted or dropped.`
    after its `**Fix:**` line. Step 3 owns an entry once it carries that line. Otherwise treat the
-   entry like the rest.
+   entry like the rest. Last, apply step 5 to the folder. Step 5 there sees only the statuses an
+   earlier `args` call folded, so a fix that a finished launch's record holds and no `args` call has
+   folded yet closes nothing until a later `args` call folds it and step 5 runs again.
 2. List only the entries that wait on the user, grouped by severity, highest first, with the entries
    that carry no severity last. An entry waits on the user while its `- decision:` is `NEEDS_USER` or
    `DEFER`, or while it is ACTIONABLE and its `- status:` is `needs-attention`, which a fix that failed
@@ -805,9 +820,10 @@ When the user asks to work the backlog:
    unless step 3 sets one, so `- status: open` alone never lists an entry. List an entry with a
    `**Parked with:**` line with a note naming the block that line names, and leave it out of the
    triage in step 3 while it is held. Leave out every ACTIONABLE entry of a `backlogged` file, since that
-   file's park entry carries it and step 5 closes it. List each other entry of that file with a note
-   naming the file, and leave it out of the triage in step 3 until step 5 sets the file `done`, since
-   an entry approved before then would be closed with entries it was never built with.
+   file's park entry carries it and step 5 closes it once its work lands. List each other entry of
+   that file with a note naming the file, and leave it out of the triage in step 3 until step 5 sets
+   the file `done`, since an entry approved before then would be closed with entries it was never
+   built with.
 3. Triage them with the user. Set each entry the user decides to skip to `- decision: SKIP`. When a
    skipped entry carries an `- origin:` line, also set each block it names to `skip`, or to `todo` to
    rebuild it, since a `backlogged` block whose entry never syncs `fixed` never reaches `done`. When it
@@ -828,19 +844,61 @@ When the user asks to work the backlog:
    mode, from §2 step 3. `args --backlog <backlogDir> --pack <target.repo>` takes the place of
    naming the files. It adds every `todo` or `done` file that holds an ACTIONABLE entry with
    `- status: open` and none with `- status: needs-attention`, sets each `done` one to `todo`, and
-   prints an unordered set, so it refuses an ordered plan file. A file that holds an ACTIONABLE
+   prints an unordered set, so it refuses an ordered plan file. It leaves out a file while the block
+   that wrote it is not `done`, `skip` or `backlogged` (§5). It matches the run records whose `runId`
+   arg and block id match the file's header, and whose `backlogDir` arg, when they keep one, names
+   this folder. The `backlogDir` test is there because a run of another project may share the `runId`
+   and block id. It finds the block's plan file in those records' status edits or in the rows of their
+   `plans` arg. A header that names a pass or one of its members matches that pass's row. It reads the
+   block's status in its plan file with those records folded in, without writing that file. A file
+   whose block no record names, such as one whose records expired (§2 step 5), or whose plan file is
+   gone, is not held back. A block's plan file that exists but fails to read or validate, or whose run
+   records cannot be folded into it, fails the command, since that block's status is unknown. A file
+   named on the command line skips this check, so name one only once its writer block is `done`,
+   `skip` or `backlogged`. A file that holds an ACTIONABLE
    entry with `- status: needs-attention`, such as one whose entry the user approved again in step
    3, is never added, so name it as a file. A file whose `status:` is not `todo`, such as a `done`
    file whose needs-attention entry the user approved again, first takes §2 step 5's order: run
    `args` on it, set its `status:` to `todo`, then run `args` again for the launch. A `backlogged`
    file never takes that order, since its park entry carries its ACTIONABLE entries. The round-1
    developer of a file whose ACTIONABLE entry carries a `- branch:` line restores that branch's work
-   first (§7).
-5. Once an entry with an `- origin:` line syncs `- status: fixed`, its fix block has landed and
-   acceptance checked its work against every criterion of each block that line names. Set each of
-   those blocks to `status: done` in its plan file. When an origin block is a fix block, also set
-   each of its ACTIONABLE entries whose `- status:` is absent, `open` or `needs-attention` to
-   `fixed`, since those entries are its criteria. Apply this step to each entry it sets `fixed`, and
-   delete the branch that entry's `- branch:` line names once the landed work is committed, since
-   that work has landed. A plan with `sweep: goal-coverage` runs no sweep for that block, so verify
-   its coverage against the plan's goal yourself.
+   first (§7). Each `args` call writes the fold of the files it names and, with `--backlog`, of every
+   `todo` or `done` backlog file that holds an ACTIONABLE entry, so apply step 5 to the folder again
+   after it.
+5. Each entry in the folder with an `- origin:` line and `- status: fixed` takes this step while the
+   blocks that line names are not all `done` or `skip`. `<repo>` in this step is the user's checkout,
+   never a run worktree. Run this step only when `git -C <repo> status --short --untracked-files=no`
+   prints nothing, so the index and every tracked file match `HEAD` and every test below reads
+   committed work. Untracked files never block the step, since no test below reads them. Otherwise
+   tell the user and leave the step for a later check. A branch test passes for a branch that
+   `git -C <repo> rev-parse --verify --quiet refs/heads/<branch>` resolves when
+   `git -C <repo> diff --stat <branch>^1 <branch>` prints nothing, or when
+   `git -C <repo> diff --binary <branch>^1 <branch> | git -C <repo> apply -R --check --cached` succeeds.
+   `--cached` checks the patch against the index, so an untracked copy of a file the branch adds never
+   passes it. Round 1's restore uses the same `diff --stat` test first, and the reverse-apply check
+   without `--cached`, since `git apply` exits 128 on an empty patch. Both tests can fail on landed
+   work, since a fix block may edit the lines its branch added. Take the step for an entry
+   only once close has landed its fix block on the user's branch. When the entry's `- branch:` line
+   names a branch that resolves, it has landed only when a branch test passes or the user says that
+   work is on their branch, since an earlier build of the same file can leave its title in the log.
+   When the entry has no `- branch:` line or its branch does not resolve, it has landed when
+   `git -C <repo> log --format=%s` prints the title that `node '<blockTool>' <its file> --list` prints
+   for its file, or a `pass of` title that names its file's id, since commit mode commits each accepted
+   block or pass with its title as the message (§6, "Commit mode"). When no test holds, such as for work
+   the user committed under another message, ask the user whether that work is on their branch. An entry
+   whose fix block the current run built waits for a later check, since close has not landed it yet. Once
+   the step takes an entry, its fix block has landed and acceptance checked its work against every
+   criterion of each block that line names. Set each of those blocks to `status: done` in its plan file,
+   and delete the entry's branch when it resolves, with `git -C <repo> branch -D <branch>`. A plan with
+   `sweep: goal-coverage` runs no sweep for an origin block, so verify its coverage against the plan's
+   goal yourself. When an origin block is a fix block, also take each of its ACTIONABLE entries whose
+   `- status:` is absent, `open` or `needs-attention`, since those entries are its criteria. Set such an
+   entry `fixed` when it carries no `- branch:` line, when its branch does not resolve, or when a branch
+   test passes on its branch. When its branch resolves and both branch tests fail, ask the user whether
+   that entry's work is on their branch, and set it `fixed` when the user says it is. The log test never
+   decides such an entry, since its parent's title lands whether or not that entry's branch was restored.
+   Apply this step to each entry it sets `fixed` with no further landed test, since the check that set it
+   `fixed` covers it, and delete that entry's branch when it resolves. Leave the status and branch of
+   every other such entry as they are, since its work has not landed. Once its file is `done`, step 2
+   lists it when its status is `needs-attention`, and step 4 builds it when its status is absent or
+   `open`.

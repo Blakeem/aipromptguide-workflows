@@ -1868,7 +1868,7 @@ if (!pending.length) {
   const sweepNeverRan = SWEEP_MODE === 'goal-coverage' && isFullRun
     && nonSkipPlans.every((p) => p.status === 'done' || p.status === 'backlogged');
   const backloggedNote = backloggedIds.length
-    ? ` The backlogged blocks ${backloggedIds.join(', ')} are not done: set each done once its park entry syncs fixed, as the develop guide's "Working the backlog" step 5 says, or to skip or todo once the user skips that entry, as its step 3 says.`
+    ? ` The backlogged blocks ${backloggedIds.join(', ')} are not done: set each done once its park entry is fixed and close has landed that entry's fix block on the user's branch and that work is committed there, as the develop guide's "Working the backlog" step 5 says, or to skip or todo once the user skips that entry, as its step 3 says.`
     : '';
   const sweepNote = sweepNeverRan
     ? ` args.sweep is goal-coverage, but the sweep runs only at the end of a run that builds a block, so it did not run here. If the last run that built blocks halted before its sweep, or a block was backlogged, verify coverage against the goal yourself.${backloggedNote}`
@@ -3033,7 +3033,7 @@ return {
       : ''}${unbuildableParkPlans.length
       ? `These parked blocks stay blocked, since the fix mode that builds a backlog entry takes only gate green: ${unbuildableParkPlans.map((r) => `${r.id} (${r.gate === 'red-baseline' ? 'its red-baseline tests fail by design' : 'gate build-only, and this run has no test gate'}${r.heldPark === true ? ', and its halt holds the park, so resolve that halt first' : ''})`).join(', ')}. For each, set its park entry's "- status:" to stale and set the block back to todo, which rebuilds it under its own gate. Its branch keeps the earlier work until you delete it with \`git -C ${REPO} branch -D <branch>\`. `
       : ''}${unreportedSupersededPlans.map((r) => `The park of ${r.id} deleted the branches of ${r.unreportedSuperseded.join(', ')}, entries its developer never reported, so no status edit reached them: set each one's "- status:" to stale, since ${r.branch} holds their work. `).join('')}${backloggedPlans.length
-      ? `Each backlogged block's entry in its backlog file says why it parked and links its branch when it has one: triage and build it like any other entry, as the develop guide's "Working the backlog" says${ORDERED ? ', before you relaunch the blocks after it, since they depend on it' : ''}. Once that entry syncs fixed, set the backlogged block done, as that section's step 5 says. `
+      ? `Each backlogged block's entry in its backlog file says why it parked and links its branch when it has one: triage and build it like any other entry, as the develop guide's "Working the backlog" says${ORDERED ? ', before you relaunch the blocks after it, since they depend on it' : ''}. Once that entry is fixed and close has landed its fix block on the user's branch and that work is committed there, set the backlogged block done, as that section's step 5 says. `
       : ''}`
     : ''}${keptBranches.length
     ? (COMMIT

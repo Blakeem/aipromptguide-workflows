@@ -30,7 +30,7 @@
 
 import { readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { isAbsolute, join } from 'node:path';
+import { isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { RUN_KEYS, listObject, parseBlocks, parseFileKeys, resolveRoadmap, validate } from './plan-block.mjs';
 
@@ -45,9 +45,11 @@ const USAGE = `usage:
       fold every finished develop run's status edits into the plan files, then print develop's
       args { goal, ordered, suite, sweep, plans }. --expect fails unless that run's record exists.
       --backlog adds each backlog file in <dir> whose status is todo or done and that holds an open
-      ACTIONABLE entry and no needs-attention ACTIONABLE entry, and sets a done one to todo. It writes
-      the folded statuses of every todo or done backlog file with an ACTIONABLE entry. It needs a plan set with
-      ordered: false, and it lets the plan list be empty.
+      ACTIONABLE entry and no needs-attention ACTIONABLE entry, and sets a done one to todo. It leaves
+      out a file while the block that wrote it, which the run records name, is not done, skip or
+      backlogged in its plan file. It writes the folded statuses of every todo or done backlog file
+      with an ACTIONABLE entry. It needs a plan set with ordered: false, and it lets the plan list be
+      empty.
       --pack groups todo fix blocks into passes of at most --loc-cap lines (default 5000) of the
       files their open ACTIONABLE issues name, so one set of agents builds several small blocks.
       All-or-nothing: one bad edit in any file writes no file at all.
@@ -328,8 +330,10 @@ export function envelopeFaults(data) {
 const CUT_MARK = /\n\n\.\.\. \[\d+ characters truncated\] \.\.\.\n\n/;
 
 /**
- * A develop run's record as { path, runId, status, time, edits, cut }, or null for any other workflow. `cut`
- * holds each status line the runtime cut short, which no longer parses.
+ * A develop run's record as { path, runId, developRunId, backlogDir, rows, status, time, edits, cut }, or null for any
+ * other workflow. `runId` is the runtime's wf_ id, `developRunId` the runId arg develop names its backlog files with
+ * (null when the record keeps neither its args nor its result), `backlogDir` its backlogDir arg (null when the record
+ * keeps none), and `rows` its `plans` arg. `cut` holds each status line the runtime cut short, which no longer parses.
  */
 export function readRunRecord(path) {
   let data = null;
@@ -368,7 +372,13 @@ export function readRunRecord(path) {
       throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value }: ${JSON.stringify(e)}`);
     }
   });
-  return { path, runId: data.runId, status: data.status, time: Date.parse(data.timestamp), edits, cut };
+  // Older records keep no args, so the result's echo of the runId arg stands in for it. develop takes a numeric
+  // runId too and writes it into a backlog file's header as text.
+  const runIdArg = [data.args?.runId, data.result?.runId].find((v) => typeof v === 'string' || Number.isFinite(v));
+  const developRunId = runIdArg === undefined ? null : String(runIdArg);
+  const backlogDir = typeof data.args?.backlogDir === 'string' ? data.args.backlogDir : null;
+  const rows = Array.isArray(data.args?.plans) ? data.args.plans : [];
+  return { path, runId: data.runId, developRunId, backlogDir, rows, status: data.status, time: Date.parse(data.timestamp), edits, cut };
 }
 
 /**
@@ -515,9 +525,91 @@ function reopenDone(plan) {
   return next;
 }
 
+// The title develop-cycle's headerLines gives a backlog file's block. A block id is a kebab slug, so the first
+// " of run " ends it.
+const WRITER_TITLE = /^backlog from block ([a-z0-9]+(?:-[a-z0-9]+)*) of run (.+)$/;
+// A relaunch of the writing block may still append to its file, so develop works the file only after these.
+const WRITER_FINISHED = ['done', 'skip', 'backlogged'];
+
+/** A folder's comparable form, so a trailing slash or another separator still names the same folder. */
+const dirKey = (path) => fileKey(resolve(path));
+
+/**
+ * The { planPath, id } of each plan block a run's block id stood for: the block itself, or each member of a pass.
+ * Only the runs that wrote to `backlogDir`, or that keep no backlogDir arg, count, since another project's run may
+ * share the runId and block id.
+ */
+function writerBlocks(records, backlogDir, developRunId, blockId) {
+  const found = new Map();
+  const add = (planPath, id) => {
+    if (typeof planPath === 'string' && isAbsolute(planPath) && typeof id === 'string') found.set(`${fileKey(planPath)}\u0000${id}`, { planPath, id });
+  };
+  const folder = dirKey(backlogDir);
+  const wrote = (r) => r.developRunId === developRunId && (r.backlogDir === null || dirKey(r.backlogDir) === folder);
+  for (const r of records.filter(wrote)) {
+    for (const e of r.edits.filter((x) => x.id === blockId)) add(e.planPath, e.id);
+    for (const row of r.rows) {
+      const members = Array.isArray(row?.blocks) ? row.blocks : [];
+      if (row?.id === blockId && members.length === 0) add(row.planPath, row.id);
+      // A pass's park file names the pass, and a member's own backlog file names the member.
+      for (const m of members.filter((x) => row.id === blockId || x?.id === blockId)) add(m?.planPath, m?.id);
+    }
+  }
+  return [...found.values()];
+}
+
+/**
+ * The writer block's status with every record folded into its plan in memory, or null when its plan file or its block is
+ * gone. A plan that exists but fails to load or to fold its records throws, since its status is unknown and releasing its file could build it early.
+ */
+function writerStatus({ planPath, id }, records, note) {
+  let plan = null;
+  try {
+    plan = loadPlan(planPath);
+  } catch (err) {
+    if (!err.message.startsWith('no such plan file:')) {
+      throw new Error(`cannot load ${planPath}, which holds ${id}, the block that wrote a backlog file (${err.message}). Its status decides whether that file is held back, so fix the plan file and run again`);
+    }
+    note(`cannot read ${planPath}, which holds ${id} (${err.message}), so its status does not hold back its backlog file\n`);
+    return null;
+  }
+  let block = null;
+  try {
+    block = foldRecords(plan, records, () => {}).blocks.find((b) => b.id === id);
+  } catch (err) {
+    throw new Error(`cannot fold the run records into ${planPath}, which holds ${id}, the block that wrote a backlog file (${err.message}). Its status decides whether that file is held back, so fix the plan file or the record and run again`);
+  }
+  if (!block) note(`${planPath} no longer holds ${id}, so its status does not hold back its backlog file\n`);
+  return block ? blockStatus(block) : null;
+}
+
+/** The first writer block of `plan`'s blocks, a file of `backlogDir`, that is not finished, as { planPath, id, status }, or null. */
+function unfinishedWriter(plan, backlogDir, records, note) {
+  for (const block of plan.blocks) {
+    const [, blockId, developRunId] = block.title.match(WRITER_TITLE) ?? [];
+    if (!blockId) continue;
+    for (const writer of writerBlocks(records, backlogDir, developRunId, blockId)) {
+      const status = writerStatus(writer, records, note);
+      if (status && !WRITER_FINISHED.includes(status)) return { ...writer, status };
+    }
+  }
+  return null;
+}
+
+/** The note for a backlog file its unfinished writer holds back, with the way out for a writer no relaunch can finish. */
+function heldBackNote(path, { planPath, id, status }) {
+  // `parked` is what an older engine wrote for a park. develop never selects it, so only the user can release the file.
+  const wayOut = status === 'parked'
+    ? ` A parked block is never relaunched, so set ${id} in its plan file to skip to drop it, to todo to rebuild it, or to backlogged only when a backlog entry carries its work.`
+    : '';
+  return `left out ${path}: the block that wrote it, ${id} (${status}) in ${planPath}, is not done, skip or backlogged.${wayOut}\n`;
+}
+
 /**
  * The todo or done backlog files of `dir` that hold an ACTIONABLE entry, each with its run records folded in, as plans with
- * their `original` text. A `chosen` file also has its done blocks set to todo. Every folded file is returned, so
+ * their `original` text. A `chosen` file also has its done blocks set to todo. A file whose writing block, which the
+ * records of runs on `dir` name through the file's header, is not done, skip or backlogged is never chosen. A file whose writing block no
+ * record names is chosen when it meets the other rules. Every folded file is returned, so
  * the caller writes the fold of a file no launch builds, such as one whose fix failed. A fold never changes an
  * entry's decision, so a file with no ACTIONABLE entry is skipped before it is folded, which keeps its records
  * from blocking the launch.
@@ -531,7 +623,10 @@ function foldBacklog(dir, given, records, note) {
     const holdsActionable = plan.blocks.some((b) => BACKLOG_STATUSES.includes(blockStatus(b)) && b.issues.some((e) => keyOf(e, 'decision') === 'ACTIONABLE'));
     if (!holdsActionable) continue;
     const folded = foldRecords(plan, records, note);
-    const chosen = folded.blocks.some(isBacklogBlock);
+    const buildable = folded.blocks.some(isBacklogBlock);
+    const writer = buildable ? unfinishedWriter(folded, dir, records, note) : null;
+    if (writer) note(heldBackNote(path, writer));
+    const chosen = buildable && !writer;
     folds.push({ ...(chosen ? reopenDone(folded) : folded), original: plan.text, chosen });
   }
   return folds;
@@ -649,7 +744,7 @@ function runArgs(argv, note) {
   const flush = () => { for (const { f, was } of writes) if (f.text !== was) writeFileSync(f.path, f.text); };
   if (!folded.length && !added.length) {
     flush();
-    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE and status open and no ACTIONABLE entry with status needs-attention, so there is nothing to build`);
+    throw new Error(`no backlog file in ${flags['--backlog']} is todo or done and holds an entry with decision ACTIONABLE and status open and no ACTIONABLE entry with status needs-attention, with the block that wrote it done, skip or backlogged, so there is nothing to build`);
   }
   const merged = mergeArgs(folded, added);
   if (flags['--backlog'] && merged.ordered) throw new Error('--backlog adds fix files that build unordered, so it needs a plan set with ordered: false');

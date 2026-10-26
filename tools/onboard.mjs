@@ -37,9 +37,10 @@ const FOLDS_CASE = foldsCase(process.platform);
 
 const POLICY_OPTIONS = {
   proactive: 'Takes ownership of code quality and fixes defects near the task, with a low-risk fix of each defect noticed in'
-    + ' the code a block\'s changes connect to. It also builds every ready entry in the project\'s backlog on each run, so'
-    + ' it fixes issues across the codebase over time. It fits code the user leads that is new or actively developed, with'
-    + ' time to test. It uses more tokens per run, and fewer in total than reaching the same code quality later.',
+    + ' the code a block\'s changes connect to. It also builds every ready entry in the project\'s backlog on each run'
+    + ' whose blocks all end done, skipped or backlogged, so it fixes issues across the codebase over time. It fits code'
+    + ' the user leads that is new or actively developed, with time to test. It uses more tokens per run, and fewer in'
+    + ' total than reaching the same code quality later.',
   focused: 'A light touch. Each change stays on its task. Outside its task, a feature or section block fixes a defect it'
     + ' did not cause only in the code its change connects to inside a function or method that the task changes, when'
     + ' the fix is low risk. It fits production fixes that ship fast, legacy'

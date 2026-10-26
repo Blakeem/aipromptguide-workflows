@@ -44,9 +44,10 @@ change neither causes nor exposes. `proactive` is for the best code. Its develop
 builds each feature and section block with the change that has the best long-term result. In those
 blocks, it also fixes a defect the connected code already had when the fix is low risk. It records a
 cleanup outside task code, such as a clearer name, in the backlog and leaves the code unchanged. A
-`proactive` run also builds every ready entry in the project's backlog before it lands, so it fixes issues
-across the codebase over time. It uses more tokens per run, and fewer in total than reaching the same code
-quality later. A `focused` run builds the backlog only when you ask.
+`proactive` run whose blocks all end done, skipped or backlogged also builds every ready entry in the
+project's backlog before it lands, so it fixes issues across the codebase over time. It uses more tokens
+per run, and fewer in total than reaching the same code quality later. A `focused` run builds the backlog
+only when you ask.
 
 The delivery setting picks how the work lands. With `stage`, the run's entire change lands staged in your
 checkout, so you review it and commit. With `commit`, each accepted block that changed code is one commit

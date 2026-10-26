@@ -167,12 +167,14 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **develop's closing steps are short.** The result's `nextStep` tells Claude to land the run with
   `wt.mjs close` and to report the run's summary. It no longer re-runs the gates, views the accepted diff,
   reads the review files or audits the DISMISSED files, since acceptance and the gate of `close` cover them.
-- **A `proactive` develop run builds the backlog's ready entries.** Before the run lands, Claude builds every
-  `todo` or `done` backlog file that holds an `ACTIONABLE` entry with `status: open` in one more launch in the same run
-  worktree. `plan-edit.mjs args --backlog <dir>` selects those files, sets a `done` one back to `todo`, and
-  works with `--pack`. It needs an unordered plan set, and it works with no plan file. It skips a file that holds an
-  `ACTIONABLE` entry whose fix failed, until you skip that entry. A file whose entry you approve again is built by naming it. A `focused` run
-  builds the backlog only when you ask. The setup question for the change policy says so.
+- **A `proactive` develop run builds the backlog's ready entries.** Before a run whose blocks all end done, skipped or
+  backlogged lands, Claude builds every `todo` or `done` backlog file that holds an `ACTIONABLE` entry with
+  `status: open` in one more launch in the same run worktree. `plan-edit.mjs args --backlog <dir>` selects those files,
+  sets a `done` one back to `todo`, and works with `--pack`. It needs an unordered plan set, and it works with no plan
+  file. It skips a file that holds an `ACTIONABLE` entry whose fix failed, until you skip that entry. It also skips a
+  file while the block that wrote it, in any plan, is not done, skipped or backlogged. A file whose entry
+  you approve again is built by naming it. A `focused` run builds the backlog only when you ask. The setup question for
+  the change policy says so.
 - **Each change policy states how develop treats the code.** A `proactive` run owns the code it touches.
   It fixes defects in and around its task as far as the zone rules allow, and it puts features and
   refactors outside its task in the backlog. A `focused` run makes the smallest change that does the

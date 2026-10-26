@@ -476,9 +476,9 @@ section('the CLI itself: exit codes, where the message goes, and what reaches di
 // ---------------------------------------------------------------------------------------------
 
 /** A run record shaped like the runtime's own, carrying one STATUS_LOG line per finished block. */
-function record({ runId = 'wf_1', status = 'completed', timestamp = '2026-09-25T10:00:00.000Z', blocks = [], workflowName = 'develop-cycle' } = {}) {
+function record({ runId = 'wf_1', status = 'completed', timestamp = '2026-09-25T10:00:00.000Z', blocks = [], workflowName = 'develop-cycle', args = {} } = {}) {
   const logs = ['develop: 1/1 block(s) to build', ...blocks.map((edits) => `status-sync ${JSON.stringify(edits)}`)];
-  return { runId, timestamp, workflowName, status, logs, args: {}, result: null };
+  return { runId, timestamp, workflowName, status, logs, args, result: null };
 }
 
 /** A config dir holding each record where the runtime puts it: projects/<project>/<session>/workflows/. */
@@ -929,6 +929,78 @@ section('--backlog folds a finished run into a backlog file before it chooses');
   ok(/nothing to build/.test(err ?? ''), `an entry the last run fixed is not built again: ${err ?? ''}`);
   const text = read(file);
   ok(/^status: done$/m.test(text) && /^- status: fixed$/m.test(text) && /^synced: /m.test(text), 'the fold is written although the file joined no run');
+}
+
+section('--backlog leaves out a file while the block that wrote it, in any plan, is not done, skip or backlogged');
+{
+  const plans = tmpDir();
+  const backlog = tmpDir();
+  const writer = (name, status) => backlogFile(plans, name, status, [{ id: `${name}-1`, file: 'w.js' }]);
+  const writtenBy = (name, blockId, runId) => fixture(
+    [`## Plan: ${name} - backlog from block ${blockId} of run ${runId}`, 'mode: fix', 'gate: green', 'status: todo', '',
+      `### [${name}-1] ${name}`, '- file: a.js:1', '- decision: ACTIONABLE', '- status: open', '', 'What.', ''].join('\n'), `${name}.md`, backlog);
+  const stuck = writer('stuck', 'todo');
+  const fine = writer('fine', 'todo');
+  const member = writer('member', 'blocked');
+  const legacy = writer('legacy', 'todo');
+  const shelved = writer('shelved', 'todo');
+  const dropped = writer('dropped', 'todo');
+  const oldPark = writer('old-park', 'parked');
+  const numbered = writer('numbered', 'todo');
+  writtenBy('from-stuck', 'stuck', 'p1');
+  writtenBy('from-fine', 'fine', 'p1');
+  writtenBy('from-pass', 'member-plus-1', 'p1');
+  writtenBy('from-member', 'member', 'p1');
+  writtenBy('from-legacy', 'legacy', 'old');
+  writtenBy('from-other-run', 'stuck', 'p2');
+  writtenBy('from-gone', 'gone', 'p1');
+  writtenBy('from-renamed', 'renamed', 'p1');
+  writtenBy('from-shelved', 'shelved', 'p1');
+  writtenBy('from-dropped', 'dropped', 'p1');
+  writtenBy('from-old-park', 'old-park', 'p1');
+  writtenBy('from-numeric', 'numbered', '1026');
+  const stuckBefore = read(stuck);
+  const rows = [{ id: 'member-plus-1', blocks: [{ id: 'member', planPath: member }] }, { id: 'gone', planPath: join(plans, 'gone.md') }, { id: 'renamed', planPath: fine }, { id: 'old-park', planPath: oldPark }];
+  // The run names its folder with a trailing slash, which still matches the --backlog folder.
+  const p1 = record({ runId: 'wf_p1', args: { runId: 'p1', backlogDir: `${backlog}/`, plans: rows },
+    blocks: [[status('stuck', 'blocked', stuck)], [status('fine', 'done', fine)], [status('shelved', 'backlogged', shelved)], [status('dropped', 'skip', dropped)]] });
+  // An older record keeps no args, and its result echoes the runId arg.
+  const old = { ...record({ runId: 'wf_old', timestamp: '2026-09-25T11:00:00.000Z' }), args: undefined, result: { runId: 'old', statusSync: [status('legacy', 'blocked', legacy)] } };
+
+  // Another project's run shares the runId and block id, and its block is blocked.
+  const elsewhere = backlogFile(tmpDir(), 'fine', 'todo', [{ id: 'q-1', file: 'q.js' }]);
+  const otherProject = record({ runId: 'wf_q', args: { runId: 'p1', backlogDir: tmpDir() }, blocks: [[status('fine', 'blocked', elsewhere)]] });
+
+  // develop takes a numeric runId and writes it into the header as text.
+  const numeric = record({ runId: 'wf_n', args: { runId: 1026, backlogDir: backlog }, blocks: [[status('numbered', 'blocked', numbered)]] });
+
+  const { out, notes, err } = withBacklog(configWith([p1, old, otherProject, numeric]), backlog);
+  ok(!err, `it succeeds: ${err ?? ''}`);
+  eq(err ? '' : JSON.parse(out).plans.map((r) => r.id).join(','), 'from-dropped,from-fine,from-gone,from-other-run,from-renamed,from-shelved',
+    'only the files whose writer is done, skip or backlogged, or that no record names, are rows');
+  ok(/fine\.md no longer holds renamed/.test(notes), 'a writer plan that no longer holds the block keeps its file, with a note');
+  ok(!/left out .*from-fine\.md/.test(notes), 'a run of another backlog folder with the same runId and block id holds back no file here');
+  ok(/left out .*from-stuck\.md: the block that wrote it, stuck \(blocked\) in .*stuck\.md/.test(notes), `a blocked writer of another plan holds its file back, from the record's fold: ${notes.trim()}`);
+  ok(/left out .*from-pass\.md: the block that wrote it, member \(blocked\)/.test(notes), 'a pass\'s file is held back by a blocked member its args row names');
+  ok(/left out .*from-member\.md: the block that wrote it, member \(blocked\)/.test(notes), 'a member\'s own file is held back through its pass\'s args row, with no status edit for the member');
+  ok(/left out .*from-legacy\.md: the block that wrote it, legacy \(blocked\)/.test(notes), 'a record with no args names its run through its result');
+  ok(/left out .*from-old-park\.md: the block that wrote it, old-park \(parked\) in .*old-park\.md, is not done, skip or backlogged\. A parked block is never relaunched, so set old-park in its plan file to skip to drop it, to todo to rebuild it, or to backlogged only when a backlog entry carries its work\./.test(notes),
+    'a parked writer holds its file back, and the note names every way the user releases it');
+  ok(/left out .*from-numeric\.md: the block that wrote it, numbered \(blocked\)/.test(notes), 'a record with a numeric runId arg names its run');
+  ok(/cannot read .*gone\.md, which holds gone/.test(notes), 'a writer plan that is gone keeps its file, with a note');
+  eq(read(stuck), stuckBefore, 'the writer\'s plan file is folded in memory only, never written');
+
+  const bad = record({ runId: 'wf_bad', timestamp: '2026-09-25T12:00:00.000Z', args: { runId: 'p1' }, blocks: [[status('stuck', 'sideways', stuck)]] });
+  const foldErr = withBacklog(configWith([p1, old, bad]), backlog).err ?? '';
+  ok(/sets stuck status=sideways in .*stuck\.md, which fails/.test(foldErr), 'a writer plan whose records cannot fold fails loudly, since its status is unknown');
+  ok(/cannot fold the run records into .*stuck\.md, which holds stuck, the block that wrote a backlog file/.test(foldErr), 'and the error names the writer block whose backlog file it was checking');
+
+  // A plan with two blocks of one id fails validation, so the writer's status cannot be read.
+  writeFileSync(stuck, `${stuckBefore}
+${stuckBefore}`);
+  ok(/cannot load .*stuck\.md, which holds stuck, the block that wrote a backlog file/.test(withBacklog(configWith([p1, old]), backlog).err ?? ''),
+    'a writer plan that exists but fails to validate fails loudly instead of releasing its file');
+  writeFileSync(stuck, stuckBefore);
 }
 
 section('--backlog writes the needs-attention a failed run synced, so the entry reaches triage');

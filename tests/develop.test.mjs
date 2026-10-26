@@ -2026,7 +2026,7 @@ section('only todo blocks are built: done, skip, backlogged, parked and blocked 
   // A backlogged block's work lands through its park entry's fix block, so no run of this plan sweeps it.
   const backlogged = await run({}, { ...ALL_DONE, sweep: 'goal-coverage', plans: BLOCKS.map((b, i) => ({ ...b, status: i ? 'done' : 'backlogged' })) });
   ok(backlogged.out.nextStep.includes('or a block was backlogged, verify coverage against the goal yourself.')
-    && backlogged.out.nextStep.includes(`The backlogged blocks ${BLOCKS[0].id} are not done: set each done once its park entry syncs fixed, as the develop guide\'s "Working the backlog" step 5 says, or to skip or todo once the user skips that entry, as its step 3 says.`),
+    && backlogged.out.nextStep.includes(`The backlogged blocks ${BLOCKS[0].id} are not done: set each done once its park entry is fixed and close has landed that entry's fix block on the user's branch and that work is committed there, as the develop guide\'s "Working the backlog" step 5 says, or to skip or todo once the user skips that entry, as its step 3 says.`),
     'a goal-coverage relaunch with a backlogged block says the sweep did not run and how the block becomes done');
   ok(!swept.out.nextStep.includes('The backlogged blocks'), 'an all-done relaunch names no backlogged block');
   const unswept = await run({}, { ...ALL_DONE, sweep: 'none' });
