@@ -96,8 +96,8 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
   eq(out.status, 'BLOCKED (working tree was not clean — nothing was built)', 'status');
   eq(out.parked.length, 0, 'nothing in parked[]');
   ok(/4 file\(s\)/.test(out.haltReason), 'halt reason names the count');
-  ok(/add -A/.test(out.haltReason) && /diff --binary > E:\/r\/runs\/t\/set-aside-<n>\.patch/.test(out.haltReason),
-    'and gives both remedies');
+  ok(/diff --binary > E:\/r\/runs\/t\/set-aside-<n>\.patch/.test(out.haltReason),
+    'and gives the set-aside remedy');
   // develop keeps accepted blocks only in the index, and `git stash -u` resets the index to HEAD.
   ok(!/stash -u/.test(out.haltReason) && /unpathed `git reset`, `git rm` or `git stash` touches the index, which holds the accepted baseline/.test(out.haltReason),
     'the set-aside never stashes, and says why');
@@ -121,12 +121,16 @@ section('a dirty baseline halts before any reviewer, and never parks the operato
     && /run `plan-edit\.mjs args` \(it applies that status\), set this block's `status:` back to `todo`, run `plan-edit\.mjs args` again/.test(out.haltReason),
     'and says to flip the block back to todo between two plan-edit.mjs args runs');
   ok(!/re-invoke this run unchanged|Nothing was built or changed/.test(out.haltReason), 'never says to re-invoke the same args');
-  // A killed run never parks, so its unreviewed block is also dirt here. `git add -A` on it would fold
-  // code no reviewer passed into the accepted baseline.
-  ok(/add -A` to KEEP it when it is your own pre-existing edits/.test(out.haltReason),
-    'git add -A is limited to the operator\'s own edits');
-  ok(/interrupted develop run's unfinished block, never `git add -A` it/.test(out.haltReason),
-    'and an interrupted run\'s block is named as the case never to keep');
+  // The run worktree never holds the user's edits, so any dirt kept by `git add -A` would land on the
+  // user's branch unreviewed.
+  ok(/is never the user's work\. Never `git add -A` it or commit it/.test(out.haltReason) && !/to KEEP it/.test(out.haltReason),
+    'the halt never offers to keep run-worktree dirt');
+  ok(/rewrote, such as a lockfile, also fix the command and save it again with `project-settings\.mjs set --provision`/.test(out.haltReason),
+    'and names the provision fix for a rewritten tracked file');
+  ok(/interrupted develop run's unfinished block, relaunch once it is set aside/.test(out.haltReason),
+    'and an interrupted run\'s block is set aside before the relaunch');
+  ok(/run-worktree dirt is never the user's work, so never git add -A it/.test(logs.join('\n')),
+    'the log line says the same');
 }
 {
   // A developer that stops on a dirty tree never runs its block command, so it honestly reports
@@ -3821,8 +3825,8 @@ section('every prompt and halt names the accepted baseline in its mode\'s own te
   ok(pk.includes('You commit nothing: only acceptance commits, and only a block it accepted.') && !pk.includes('Nothing is EVER committed')
     && pk.includes('would each stage it where no reviewer reads it and the next commit carries it'), 'commit-mode park commits nothing and names what staging would do');
   const dirty = String((await run({ develop: { ...DEV_C, baseline_dirty_files: 2 } }, COMMIT_ONE)).out.haltReason ?? '');
-  ok(dirty.includes('Commit it (`git -C E:/repo add -A`, then `git -C E:/repo commit`) to KEEP it') && dirty.includes('without touching HEAD, which holds every accepted block as a commit')
-    && dirty.includes('never `git add -A` or commit it'), 'the commit-mode dirty-baseline halt keeps the operator\'s edits by a commit');
+  ok(!dirty.includes('to KEEP it') && dirty.includes('without touching HEAD, which holds every accepted block as a commit')
+    && dirty.includes('Never `git add -A` it or commit it'), 'the commit-mode dirty-baseline halt sets the dirt aside and never commits it');
   const unconfirmed = String((await run({ develop: { ...DEV_C, unstaged_confirmed: false }, park: PARK_OK }, COMMIT_ONE)).out.haltReason ?? '');
   ok(unconfirmed.includes("acceptance's commit takes whatever is staged") && !unconfirmed.includes('diff --staged` as the accepted baseline'),
     'the commit-mode staging halt names the commit that would carry self-staged work');

@@ -96,11 +96,33 @@ withFixture(USER, (fx) => {
   eq(questionsOf(fx.check(REPO_ROOT).stdout), 'Change policy, Delivery, Attribution', 'a session in the plugin checkout is not asked for access');
 });
 
+section('a declined access question is settled for the call by --access session, which writes nothing');
+withFixture(USER, (fx) => {
+  eq(optionsOf(fx.check().stdout, 'access'), 'allow session', 'the access question offers allow, then the session-only decline');
+  eq(fx.save('--policy', 'focused', '--delivery', 'stage').code, 0, 'save of the policy and delivery exits 0');
+  eq(questionsOf(fx.check().stdout), 'Plugin access', 'only the access question is left');
+  const r = fx.raw('check', '--root', fx.state, '--repo', fx.repo, '--access', 'session');
+  eq(r.code, 0, `check --access session exits 0 (${r.stderr.trim()})`);
+  eq(r.stdout, `ready ${fx.key} policy=focused delivery=stage
+`, '...and prints the ready line');
+  ok(!existsSync(fx.settingsPath), '...writing no user settings');
+});
+
+section('save --access session with no other answer is a valid save');
+withFixture(USER, (fx) => {
+  const r = fx.save('--access', 'session');
+  eq(r.code, 0, `save --access session exits 0 (${r.stderr.trim()})`);
+  eq(questionsOf(r.stdout), 'Change policy, Delivery, Attribution', 'it settles access and prints the open questions');
+  ok(!existsSync(fx.settingsPath) && !existsSync(fx.state), 'nothing was written');
+});
+
 section('a bad argument exits 1 with its cause and writes nothing');
 withFixture(USER, (fx) => {
   const cases = [
     [['save', '--root', fx.state, '--repo', fx.repo], /save needs at least one of/],
-    [['save', '--root', fx.state, '--repo', fx.repo, '--policy', 'strict'], /--policy "strict" is none of/],
+    [['save', '--root', fx.state, '--repo', fx.repo, '--policy', 'strict'], /--policy "strict" is now named focused/],
+    [['save', '--root', fx.state, '--repo', fx.repo, '--policy', 'lax'], /--policy "lax" is none of focused \| proactive \| auto/],
+    [['check', '--root', fx.state, '--repo', fx.repo, '--access', 'allow'], /--access "allow" is none of session/],
     [['save', '--root', fx.state, '--repo', fx.repo, '--delivery', 'on'], /--delivery "on" is none of/],
     [['check', '--root', fx.state, '--repo', fx.repo, '--policy', 'auto'], /unknown flag "--policy" for check/],
     [['check', '--root', fx.state], /check needs --repo/],

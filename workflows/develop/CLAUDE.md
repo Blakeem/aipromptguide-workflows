@@ -72,7 +72,8 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    verifier build several small blocks. Each member keeps its own plan file and statuses.
 4. **Open the run worktree, then launch.** The run worktree keeps the run's diff, which every blind
    reviewer reads, apart from the user's own edits, so the user can keep working in their checkout.
-   - On the first launch of a `runId`, run `node <project-settings.mjs> provision --root <root> --repo <the user's checkout>`.
+   - When `git -C <the user's checkout> worktree list --porcelain` lists no worktree on `aipg/<runId>`, which holds on
+     the first launch of a `runId` and after step 6 landed it, run `node <project-settings.mjs> provision --root <root> --repo <the user's checkout>`.
      A fresh worktree holds only tracked files, so on `"provision":null` work out once the command that
      readies one for the gates: the repo's install command from its lockfile, plus a copy of each ignored
      file the gates read from the user's checkout, such as `.env`. The platform's shell runs it in the
@@ -83,8 +84,7 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
      `aipg/<runId>` from the user's current branch, records that branch as the one step 6 lands on, and
      prints the run worktree's path. A provision that fails exits 40 and keeps the worktree, so fix the
      command, save it again, and rerun it there by hand.
-   - A relaunch of the `runId` reuses its run worktree, which `git -C <the user's checkout> worktree list --porcelain`
-     lists on `aipg/<runId>`. Settle a dirty run worktree first (§4).
+   - When it lists a worktree on `aipg/<runId>`, reuse it. Settle a dirty run worktree first (§4).
 
    Run step 3 with `run_in_background`, and launch in the turn its notification starts (root
    `CLAUDE.md`, "Launch from a notification turn"). The engine builds the `status: todo` blocks in file
@@ -110,7 +110,15 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
    keep after `acceptance-regression` or a commit-mode pass halt is the exception: §6 sets it `done`, never `todo`. A flip made before the first step 3 is
    overwritten by the run's own status edit. Records are deleted after `cleanupPeriodDays` (30
    by default), so run step 3 within that window or the statuses of a finished run are lost.
-6. **Land the run on the user's branch.** Land once the plan has no `todo` block left, or once the user
+6. **Land the run on the user's branch.** First compare `git -C <the user's checkout> branch --show-current`
+   with `git -C <the user's checkout> config branch.aipg/<runId>.aipgbase`, the branch `open` recorded. When they
+   differ, ask the user which branch takes the run and pass `--into <that branch>` to close. Stage delivery
+   stages the work in the worktree that has that branch checked out. So when no worktree has it checked out,
+   offer commit delivery for this landing, or ask the user to check that branch out themselves. When the
+   user takes commit delivery here, commit the run worktree's staged work as one commit with
+   `git -C <the run worktree> commit -m "<runId>: accepted"`, the name `close --stage` gives its carrier
+   commit, and then run close without `--stage`. Never switch
+   the user's checkout, not even to follow a close refusal. Land once the plan has no `todo` block left, or once the user
    stops the plan with blocks still parked or blocked, so that the accepted blocks land. Settle the run
    worktree first, since close refuses work no acceptance staged (§4). Then run
    `node <wt.mjs> close --repo <the user's checkout> --name <runId> --gate "<gate>"`, adding `--stage` in
@@ -131,7 +139,8 @@ incomplete, and the developer cannot dismiss it with a reason the code shows.
      moved branch with no conflict needs only close again.
    - `30`: the gate failed on the combined tree. Fix the cause in the run worktree and commit the fix
      there, then run close again. A fix larger than a few lines is a fix-mode block (§3) built in the same
-     run worktree under the same `runId`.
+     run worktree under the same `runId`. List each file you changed, with the reason, in the run's summary,
+     since no reviewer read the fix.
    - `40`: follow its one-line reason and run close again. When the reason names the user's uncommitted
      changes at paths the landing writes, ask the user to commit them or set them aside, since that work
      is theirs.
@@ -176,10 +185,11 @@ beside `model:`, and sets it only when the user asks for a level other than the 
 
 ## 4. Pre-run setup (your job — no setup agent)
 
-- **Clean unstaged tree, engine-enforced** on round 1 (halts before any reviewer spawns). Settle a
-  dirty tree first: `git add -A` to keep your own pre-existing edits as baseline (in commit mode, commit
-  them as well), or set the dirt aside without touching the accepted baseline, which the staged index
-  holds in stage mode and HEAD holds in commit mode. To set it aside, first remove
+- **Clean unstaged tree, engine-enforced** on round 1 (halts before any reviewer spawns). Dirt in the
+  run worktree is never the user's work, since the user's edits stay in the user's checkout. So never
+  `git add -A` it or commit it, since §2 step 6 would land it unreviewed. Settle a dirty run worktree by
+  setting the dirt aside without touching the accepted baseline, which the staged index holds in stage
+  mode and HEAD holds in commit mode. To set it aside, first remove
   the untracked build output and caches (they regenerate). If `git status --porcelain` then lists no
   `??` file and `git diff` is empty, the tree is settled. Otherwise mark each remaining `??` untracked
   file with `git -C <repo> add -N -- <file>`, save `git -C <repo> diff --binary` to a new patch under
@@ -189,9 +199,11 @@ beside `model:`, and sets it only when the user asks for a level other than the 
   intent-to-add file with `git -C <repo> rm -f -q -- <file>`, and confirm `git status --porcelain`
   lists no `??` file, `git diff` is empty and `git diff --cached` is unchanged. Restore it later with
   a plain `git -C <repo> apply <patch>`, never `--3way`, which stages what it restores. An unpathed
-  `git reset`, `git rm` or `git stash` touches the index, which holds the accepted baseline. If the dirt is an interrupted
-  develop run's unfinished block, never `git add -A` it (no reviewer passed it): set it aside and
-  relaunch. A dirty-baseline halt records its block `blocked`, so after settling the tree run §2
+  `git reset`, `git rm` or `git stash` touches the index, which holds the accepted baseline. When the dirt
+  is a tracked file the provision command rewrote, such as a lockfile, also fix the command and save it
+  again with `project-settings.mjs set --provision` (§2 step 4). When the dirt is an interrupted develop
+  run's unfinished block, relaunch once it is set aside. A dirty-baseline halt records its block
+  `blocked`, so after settling the tree run §2
   step 3, set that block's `status:` back to `todo`, and run step 3 again for the launch args.
 - **`root` REQUIRED**: the run-state base, outside the target repo. `blockTool` defaults to
   `<root>/tools/plan-block.mjs`; pass it explicitly when root is not a checkout, and pre-allowlist
@@ -247,7 +259,10 @@ Run `node <onboard.mjs> check --root <root> --repo <the user's checkout>` before
 is this checkout's `tools/onboard.mjs`. It prints `ready <key> policy=<policy> delivery=<commit|stage>` once
 nothing is missing. Otherwise it prints `ask <key>` and the open questions, with each option's text and the
 save command. Ask them in one AskUserQuestion call, then run the save command with one flag per answer, which
-prints what check prints. The answers stay in the user settings and in `<root>/projects.json`, keyed by the
+prints what check prints. When the user declines the access question, the user runs the `/add-dir` command that question
+names for this session, and you pass `--access session` to the save and to each later check in this session. A user who
+declines both gets no run, since the Workflow tool cannot read the engine. The answers stay in the user
+settings and in `<root>/projects.json`, keyed by the
 repo's main checkout, so a worktree takes its main checkout's answers. When check or save exits 1, show the
 user its message, which names the cause, and run it again once the cause is fixed. The same holds for
 `<project-settings.mjs>`, this checkout's `tools/project-settings.mjs`, whose

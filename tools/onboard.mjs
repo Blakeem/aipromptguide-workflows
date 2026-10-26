@@ -4,13 +4,14 @@
 // settings, and the repo's change policy and commit choice in <root>/projects.json. So check reads them every time and
 // prints one `ready` line once nothing is missing, which is what lets a skill call it before every run.
 //
-//   node tools/onboard.mjs check --root <dir> --repo <dir>    # "ready <key> policy=<p> delivery=<commit|stage>",
-//                                                              # or "ask <key>" and the questions to ask
-//   node tools/onboard.mjs save --root <dir> --repo <dir> [--access allow] [--policy focused|proactive|auto]
+//   node tools/onboard.mjs check --root <dir> --repo <dir> [--access session]   # "ready <key> policy=<p> delivery=<commit|stage>",
+//                                                                               # or "ask <key>" and the questions to ask
+//   node tools/onboard.mjs save --root <dir> --repo <dir> [--access allow|session] [--policy focused|proactive|auto]
 //                               [--delivery commit|stage] [--attribution hide|keep]   # then prints what check prints
 //
 // The access question is skipped when the working directory holds the plugin folder, since the session can then read
-// it. The attribution question rides with the delivery question, so a repo asks it at most once. Every failure exits 1
+// it, and when `--access session` says the user declined it and ran /add-dir for this session, which writes nothing.
+// The attribution question rides with the delivery question, so a repo asks it at most once. Every failure exits 1
 // with its cause on stderr. check writes nothing, and save writes each answer idempotently, so a save run again after a
 // failure finishes it. Ordinary Node: `node --check` applies.
 
@@ -19,19 +20,19 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { shownKeys, withHidden } from './attribution.mjs';
 import { accessState, writeSettings } from './plugin-access.mjs';
-import { recommendedPolicy, repoSettings, saveRepoSettings } from './project-settings.mjs';
+import { POLICIES, checkPolicy, recommendedPolicy, repoSettings, saveRepoSettings } from './project-settings.mjs';
 import { foldsCase, isWithin } from './trash.mjs';
 
-const POLICIES = ['focused', 'proactive', 'auto'];
 const CHOICES = {
-  access: ['allow'],
+  access: ['allow', 'session'],
   policy: POLICIES,
   delivery: ['commit', 'stage'],
   attribution: ['hide', 'keep'],
 };
-const VERBS = { check: [], save: Object.keys(CHOICES) };
-const USAGE = 'usage: node tools/onboard.mjs check --root <dir> --repo <dir>'
-  + ' | save --root <dir> --repo <dir> [--access allow] [--policy focused|proactive|auto] [--delivery commit|stage] [--attribution hide|keep]';
+// check writes nothing, so of the answers it takes only the access answer that writes nothing.
+const VERBS = { check: { access: ['session'] }, save: CHOICES };
+const USAGE = 'usage: node tools/onboard.mjs check --root <dir> --repo <dir> [--access session]'
+  + ' | save --root <dir> --repo <dir> [--access allow|session] [--policy focused|proactive|auto] [--delivery commit|stage] [--attribution hide|keep]';
 const FOLDS_CASE = foldsCase(process.platform);
 
 const POLICY_OPTIONS = {
@@ -56,7 +57,8 @@ function parseArgv(argv) {
   // Input
   const [verb, ...rest] = argv;
   if (!verb || !Object.hasOwn(VERBS, verb)) throw new Error(`${verb ? `unknown verb "${verb}"` : 'no verb given'}. ${USAGE}`);
-  const flags = ['root', 'repo', ...VERBS[verb]];
+  const choices = VERBS[verb];
+  const flags = ['root', 'repo', ...Object.keys(choices)];
   const opt = {};
 
   // Process
@@ -67,15 +69,16 @@ function parseArgv(argv) {
     if (!flags.includes(name)) throw new Error(`unknown flag "--${name}" for ${verb}, which takes ${flags.map((f) => `--${f}`).join(' ')}`);
     if (Object.hasOwn(opt, name)) throw new Error(`--${name} was given twice`);
     if (value === undefined || value.trim() === '' || value.startsWith('--')) throw new Error(`--${name} needs a value`);
-    if (Object.hasOwn(CHOICES, name) && !CHOICES[name].includes(value)) {
-      throw new Error(`--${name} "${value}" is none of ${CHOICES[name].join(' | ')}`);
+    if (name === 'policy') checkPolicy(value);
+    else if (Object.hasOwn(choices, name) && !choices[name].includes(value)) {
+      throw new Error(`--${name} "${value}" is none of ${choices[name].join(' | ')}`);
     }
     opt[name] = value;
   }
   const missing = ['root', 'repo'].filter((f) => !Object.hasOwn(opt, f));
   if (missing.length) throw new Error(`${verb} needs ${missing.map((f) => `--${f}`).join(' ')}. ${USAGE}`);
-  if (verb === 'save' && !VERBS.save.some((f) => Object.hasOwn(opt, f))) {
-    throw new Error(`save needs at least one of ${VERBS.save.map((f) => `--${f}`).join(' ')}. ${USAGE}`);
+  if (verb === 'save' && !Object.keys(VERBS.save).some((f) => Object.hasOwn(opt, f))) {
+    throw new Error(`save needs at least one of ${Object.keys(VERBS.save).map((f) => `--${f}`).join(' ')}. ${USAGE}`);
   }
 
   // Output
@@ -85,13 +88,13 @@ function parseArgv(argv) {
 /** The options of a question in the order shown, the recommended one first. */
 const ordered = (choices, recommended) => [recommended, ...choices.filter((c) => c !== recommended)];
 
-/** The `ask` text for the questions still open, or the `ready` line when none is. */
-async function report(root, repo, invokedScript) {
+/** The `ask` text for the questions still open, or the `ready` line when none is. `sessionAccess` settles access. */
+async function report(root, repo, invokedScript, sessionAccess) {
   // Input
   const access = accessState(invokedScript);
   const { key, settings } = repoSettings(root, repo);
   const sessionReads = isWithin(access.pluginRoot, realpathSync.native(process.cwd()), FOLDS_CASE);
-  const askAccess = !access.present && !sessionReads;
+  const askAccess = !access.present && !sessionReads && !sessionAccess;
   const askPolicy = !Object.hasOwn(settings, 'changePolicy');
   const askDelivery = !Object.hasOwn(settings, 'commit');
   const askAttribution = askDelivery && shownKeys(access.settings).length > 0;
@@ -108,7 +111,8 @@ async function report(root, repo, invokedScript) {
       'Question "Plugin access": May every session launch the AIPG workflows? This adds the Read rules'
         + ` ${access.rules.join(' ')} to ${access.userSettings}.`,
       '  --access allow: Add the rules. Claude Code reloads settings live, with no restart.',
-      `  (decline): Leave --access out, and tell the user that /add-dir ${access.pluginRoot} allows this session only.`,
+      `  --access session: The user declines. Tell the user to run /add-dir ${access.pluginRoot}, which allows this session only,`
+        + ' and pass --access session to the save and to each later check in this session.',
     ]);
   }
   if (askPolicy) {
@@ -168,7 +172,7 @@ async function main(argv) {
   if (verb === 'save') save(opt.root, opt.repo, opt, invokedScript);
 
   // Output
-  return report(opt.root, opt.repo, invokedScript);
+  return report(opt.root, opt.repo, invokedScript, opt.access === 'session');
 }
 
 // Realpath both sides, as the other tools do. A link in the script path otherwise makes the CLI a no-op.

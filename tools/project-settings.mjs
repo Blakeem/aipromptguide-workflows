@@ -33,8 +33,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { RUN_KEYS } from './plan-block.mjs';
 import { foldsCase } from './trash.mjs';
 
-const POLICIES = ['focused', 'proactive', 'auto'];
-// The old name of focused, which set rejects with the rename.
+export const POLICIES = ['focused', 'proactive', 'auto'];
+// The old name of focused, which set and onboard's save reject with the rename.
 const RETIRED_POLICY = 'strict';
 export const STORE_FILE = 'projects.json';
 const BACKLOG_DIR = 'backlog';
@@ -94,6 +94,14 @@ function parseRolePairs(flag, text, legal) {
   return map;
 }
 
+/** Throws unless `value` is one of the policies, naming the new name for the retired one. */
+export function checkPolicy(value) {
+  if (POLICIES.includes(value)) return;
+  throw new Error(value === RETIRED_POLICY
+    ? `--policy "${RETIRED_POLICY}" is now named focused. Pass --policy focused.`
+    : `--policy "${value}" is none of ${POLICIES.join(' | ')}`);
+}
+
 /** `<verb> --flag value...`, validated: every required flag of the verb is present, and nothing is coerced. */
 function parseArgv(argv) {
   // Input
@@ -119,11 +127,7 @@ function parseArgv(argv) {
   if (anyOf.length && !anyOf.some((f) => Object.hasOwn(opt, f))) {
     throw new Error(`${verb} needs ${anyOf.map((f) => `--${f}`).join(' or ')}. ${USAGE}`);
   }
-  if (Object.hasOwn(opt, 'policy') && !POLICIES.includes(opt.policy)) {
-    throw new Error(opt.policy === RETIRED_POLICY
-      ? `--policy "${RETIRED_POLICY}" is now named focused. Pass --policy focused.`
-      : `--policy "${opt.policy}" is none of ${POLICIES.join(' | ')}`);
-  }
+  if (Object.hasOwn(opt, 'policy')) checkPolicy(opt.policy);
   if (Object.hasOwn(opt, 'commit')) {
     if (!Object.hasOwn(COMMIT_CHOICES, opt.commit)) throw new Error(`--commit "${opt.commit}" is neither on nor off`);
     opt.commit = COMMIT_CHOICES[opt.commit];

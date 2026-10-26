@@ -190,9 +190,10 @@ owns, since no agent decides those commits. These are the accept, sync, and land
 `tools/wt.mjs land`, the carrier commit of `tools/wt.mjs close --stage`, and the rebased commits of
 `close`. The rebase of `close` adds no change of its own, and `close` moves the user's branch only by
 fast-forward, or stages the change in the user's checkout without moving the branch. So every change
-that reaches the user's own branches is one the user committed, or an accepted block that the commit
-delivery the user chose committed. A conflict the operator resolves at the landing passes the gate
-before it lands, and the operator names each resolved file to the user.
+that reaches the user's own branches is one the user committed, an accepted block that the commit
+delivery the user chose committed, or a landing fix. A landing fix is a conflict resolution or gate fix
+the operator commits on `aipg/<runId>` when close refuses. It passes close's gate before it lands, and
+the operator names each file it changed to the user.
 
 ### 10. Statelessness is a feature
 Each agent starts cold and re-reads what it needs. For one bounded feature the re-read is cheap, and it

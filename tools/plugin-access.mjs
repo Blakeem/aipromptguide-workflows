@@ -3,7 +3,8 @@
 //
 // The Workflow tool takes a scriptPath only when the session may already read it, and an installed
 // plugin's folder sits outside every project. A plugin cannot grant itself access, so each skill runs
-// `check` first and, after the user agrees, `grant`. Claude Code reloads settings live, so the next
+// `check` first and, after the user agrees, `grant`, except the develop and debug skills, whose `onboard.mjs`
+// asks through `accessState` and writes through `writeSettings`. Claude Code reloads settings live, so the next
 // launch in the same session passes.
 //
 //   node tools/plugin-access.mjs check    # "granted <rules> in <settings>" or "missing <rules> in <settings>"

@@ -12,7 +12,9 @@ for it, since the working directory may be another repo. On `ready`, go on. On `
 it prints in one AskUserQuestion call and run the save command it prints with the answers. The save
 prints `ready` once nothing is missing. When either command exits 1, show the user its message, which
 names the cause, and run it again once the cause is fixed. The Workflow tool launches only engines the
-session can read, which is what the access question settles.
+session can read, which is what the access question settles. When the user declines it, the user runs
+the `/add-dir` command that question names for this session, and you pass `--access session` to the save and to each
+later check in this session. A user who declines both gets no run, since the Workflow tool cannot read the engine.
 
 Read `${CLAUDE_PLUGIN_ROOT}/workflows/debug/CLAUDE.md` and follow it exactly.
 Use these paths wherever the guide says "this checkout" or "the tool's own directory":

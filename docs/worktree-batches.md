@@ -131,8 +131,8 @@ finishes the steps left. `close` exits 40 in cases such as these:
 - the worktree fails a check of `clean`, such as the one for unlanded work,
 - the worktree `open` made is off `aipg/<name>`, such as on a detached HEAD,
 - the `--into` branch is checked out in a worktree that has staged or modified tracked files at a path
-  the landing writes, an untracked file in the way of the landing, or an unfinished operation, such as
-  a rebase of the `--into` branch itself,
+  the landing writes, an untracked file in the way of the landing, an ignored file in the way of the
+  staged work, or an unfinished operation, such as a rebase of the `--into` branch itself,
 - `--stage` finds no worktree with the `--into` branch checked out, or work beside the staged work
   that no acceptance staged,
 - `--into` is omitted and `open` recorded no base for `aipg/<name>`,
@@ -212,5 +212,5 @@ Nothing else in a batch touches your branches, and the merge of `aipg/int-<batch
 yours is stage 7, done by you (WORKFLOW-PRINCIPLES.md #9). `close --stage` writes one carrier commit
 of the staged work on `aipg/<name>`. The rebase of `close` rewrites the `aipg/<name>` commits and adds
 no change of its own. Since the `--into` branch moves only by fast-forward, or not at all with
-`--stage`, every change that reaches it is one you committed, or an accepted block that develop's commit
-delivery, which you chose, committed.
+`--stage`, every change that reaches it is one you committed, an accepted block that develop's commit
+delivery, which you chose, committed, or a landing fix the operator made and named to you.

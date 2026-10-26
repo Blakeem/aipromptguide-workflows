@@ -175,11 +175,13 @@ cost. Passing the same lens twice reproduces it exactly if you ever want that.)
    - Then follow `../develop/CLAUDE.md` from §2 step 3 through step 6, with `commit` as develop §4
      "Choosing the delivery" settles it. The fixes build in a run worktree and land on the user's branch.
    - After the run, add `git status --porcelain` and a spot-read of the riskiest fixes to develop §6's
-     ground-truth checks, before the landing.
-   - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, what
-     is staged (`git diff --cached --stat` in the user's checkout) in stage delivery or each commit with its
-     sha and the issue files it holds (from the run's `nextStep`) in commit delivery, each file you resolved
-     in a landing conflict, the NEEDS-USER questions after the research step in
+     ground-truth checks, before the landing. In stage delivery, also record
+     `git -C <run worktree> diff --cached --stat` then, since develop §2 step 6 removes the run worktree and
+     the user's checkout may also hold the user's own staged work.
+   - When done, report the issues fixed, stale and needs-attention, the full-suite result you ran, the files
+     the run staged in stage delivery, as that record lists them, or each commit
+     with its sha and the issue files it holds (from the run's `nextStep`) in commit delivery, each file you
+     resolved or fixed at the landing, the NEEDS-USER questions after the research step in
      `../develop/CLAUDE.md` §6 (the settled ones with their evidence, the rest with a recommendation
      each), the entries in `DECISIONS.md`, and every parked block with its patch path and the user's
      options. In stage delivery, **never commit**: the user reviews and commits.

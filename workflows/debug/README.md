@@ -141,8 +141,8 @@ message is "pass of <ids>". Review it like a PR:
 
 ```bash
 cd /path/to/repo
-git diff --cached            # everything staged (stage mode)
-git log --stat               # the run's commits (commit mode)
+git diff --cached            # the run's fixes, beside anything you staged yourself (stage delivery)
+git log --stat               # the run's commits (commit delivery)
 <your build + test command>  # confirm green yourself
 ```
 

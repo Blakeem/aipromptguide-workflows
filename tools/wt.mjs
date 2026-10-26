@@ -80,8 +80,8 @@
 // script. `land` writes an index-only accept commit of the chain's accepted work, a sync merge, and the landing
 // merge. `close --stage` writes one carrier commit of the staged work on `aipg/<n>`. `close`'s rebase rewrites the
 // `aipg/<n>` commits onto `<into>` and adds no change of its own, and `<into>` moves only by fast-forward, or not at all
-// with `--stage`. So every change that reaches the user's own branches is one the user committed, or an accepted block
-// that the commit mode the user chose committed (WORKFLOW-PRINCIPLES.md #9).
+// with `--stage`. So every change that reaches the user's own branches is one the user committed, an accepted block that
+// the commit delivery the user chose committed, or a landing fix the operator made and named (WORKFLOW-PRINCIPLES.md #9).
 //
 // stdout carries ONE value: the worktree path the verb acted on (prep's and open's is the `target.repo` an
 // engine run is handed; land's is the integration worktree; close's is the worktree it removed). Everything a
@@ -114,9 +114,10 @@
 //       conflicted file or left uncommitted changes, whose gate changed the tree it judged, whose `<into>`
 //       is checked out in two worktrees, under another name or in a folder that is gone or holds another
 //       repository, whose `<into>` worktree has uncommitted changes or untracked files in the way of the
-//       fast-forward or the staged work, or an unfinished operation, whose merge or staged work did not verify,
-//       whose `--stage` has no worktree on `<into>` or staged work beside unaccepted work, whose omitted
-//       `--into` has no recorded base, or whose branch moved before its delete.
+//       fast-forward or the staged work, an ignored file in the way of the staged work, or an unfinished
+//       operation, whose merge or staged work did not verify, whose `--stage` has no worktree on `<into>` or
+//       staged work beside unaccepted work, whose omitted `--into` has no recorded base, or whose branch
+//       moved before its delete.
 //       Always with a one-line reason naming what to do.
 //   75  retry-later — another land holds the lock, or this land LOST it (taken over mid-gate) before it
 //       could merge, so it merged nothing. The ONLY code an orchestrator should retry.
@@ -1071,6 +1072,30 @@ function moveToTrash(repo, path) {
 }
 
 /**
+ * Refuses, with exit 40 and nothing changed, the main worktree, a worktree no gitdir file records, a locked one, and
+ * one whose present folder does not link back. It runs no git call in the folder, so it may run before any check that does.
+ */
+function requireStructural(repo, entry) {
+  // Input
+  const { path, gitDir } = entry;
+
+  // Process
+  // Runs before the gitDir check, since the main worktree has no directory under worktrees/ either.
+  if (entry.main) {
+    throw cannotRemove(path, `It is the main worktree of the repo, whose .git holds the repository itself, so it is never removed. Switch it to another branch with git -C ${shellQuote(path)} switch <branch>, then run this command again.`);
+  }
+  if (!gitDir) {
+    throw cannotRemove(path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C ${shellQuote(repo)} worktree list --porcelain.`);
+  }
+  if (entry.locked) {
+    throw cannotRemove(path, `It is locked${entry.lockReason ? ` (${entry.lockReason})` : ''}, and "git worktree prune" keeps a locked worktree. If no process uses it, run git -C ${shellQuote(repo)} worktree unlock ${shellQuote(path)} and run this command again.`);
+  }
+  if (pathExists(path) && !linksBack(path, gitDir)) {
+    throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C ${shellQuote(repo)} worktree repair ${shellQuote(path)}. Otherwise move the folder elsewhere. Then run this command again.`);
+  }
+}
+
+/**
  * Refuses, with exit 40 and nothing changed, a worktree whose removal could lose work or reach another
  * folder, and returns whether its folder is present. An engine run leaves its accepted work staged, or
  * committed in develop's commit mode (tests/CLAUDE.md §4). Staged work has not landed, so a dirty tree is
@@ -1080,13 +1105,7 @@ function moveToTrash(repo, path) {
  * `unlandedAdvice` replaces the land, commit or by-hand trash that the unlanded-work refusal names.
  */
 function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice = '' } = {}) {
-  // Runs before the gitDir check, since the main worktree has no directory under worktrees/ either.
-  if (entry.main) {
-    throw cannotRemove(entry.path, `It is the main worktree of the repo, whose .git holds the repository itself, so it is never removed. Switch it to another branch with git -C ${shellQuote(entry.path)} switch <branch>, then run this command again.`);
-  }
-  if (!entry.gitDir) {
-    throw cannotRemove(entry.path, `No gitdir file in the worktrees directory of ${repo} records it, so its git directory cannot be checked. Compare those files with git -C ${shellQuote(repo)} worktree list --porcelain.`);
-  }
+  requireStructural(repo, entry);
 
   // Input
   const { path, gitDir } = entry;
@@ -1099,12 +1118,6 @@ function checkRemovable(repo, entry, mainPath, { discard = false, unlandedAdvice
   let problem = null;
 
   // Process
-  if (entry.locked) {
-    throw cannotRemove(path, `It is locked${entry.lockReason ? ` (${entry.lockReason})` : ''}, and "git worktree prune" keeps a locked worktree. If no process uses it, run git -C ${shellQuote(repo)} worktree unlock ${shellQuote(path)} and run this command again.`);
-  }
-  if (present && !linksBack(path, gitDir)) {
-    throw cannotRemove(path, `Its .git file does not point at its git directory ${gitDir}, so the folder there may hold another repository. If the folder is this worktree, run git -C ${shellQuote(repo)} worktree repair ${shellQuote(path)}. Otherwise move the folder elsewhere. Then run this command again.`);
-  }
   problem = present ? folderProblem(repo, path, mainPath, { discard, unlandedAdvice: advice }) : null;
   if (problem) throw cannotRemove(path, problem);
   if (hasModules) {
@@ -1497,15 +1510,15 @@ export function filesInTheWay(files, written, foldCase = FOLDS_CASE) {
 }
 
 /**
- * The `kind` files that `args` lists in the worktree at `path`. A rebase or fast-forward must know each one,
- * so a listing past the cap refuses.
+ * The `kind` files that `args` lists in the worktree at `path`. A rebase, fast-forward or staging of the work
+ * must know each one, so a listing past the cap refuses.
  */
 function listFiles(path, args, kind) {
   try {
     return nulNames(mustGit(path, args, `listing the ${kind} files of ${path}`, { maxBuffer: LISTING_MAX_BUFFER }));
   } catch (err) {
     if (!err.overflow) throw err;
-    throw unsafe(`the names of the ${kind} files in ${path} pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward. Move the largest ${kind} directories out of it, then run close again.`);
+    throw unsafe(`the names of the ${kind} files in ${path} pass the ${LISTING_MAX_BUFFER / MIB} MiB listing cap, so close cannot tell which of them are in the way of the rebase, fast-forward or staged work. Move the largest ${kind} directories out of it, then run close again.`);
   }
 }
 
@@ -1718,6 +1731,44 @@ function offBranch(path, head, branch, exists, chains = []) {
 }
 
 /**
+ * Where the change `name` stands in `repo`, whose branches are `targets` from `localBranchTargets`: whether its branch
+ * `exists`, the `entries` of `worktreesForClean` and the `entry` on its branch, or null. Exit 40 for a `--name` in
+ * another case, and for a worktree of the change that is off its branch.
+ */
+function discoverChange(repo, name, targets) {
+  // Input
+  const branch = singleBranch(name);
+  const exists = singleBranchExists(targets, name);
+  const entries = worktreesForClean(repo);
+  const entry = findBranch(entries, branch);
+  const strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
+
+  // Process
+  if (strayRefused) throw strayRefused;
+
+  // Output
+  return { exists, entries, entry };
+}
+
+/**
+ * Why `into`, the base `open` recorded for a change, cannot take it in `repo`, whose branches are `targets`, and
+ * what to pass instead, or ''. closeInto refuses the same cases as a bad --into, which the operator never passed.
+ */
+function recordedBaseProblem(repo, targets, into) {
+  // Input
+  const stored = storedBranch(targets, into);
+  const intoTarget = targets.get(into);
+  const askInto = 'so name the branch to merge it into with --into';
+
+  // Process + Output
+  if (!stored) return `it is no longer a local branch in ${repo}, ${askInto}`;
+  if (stored !== into) return `it names branch ${stored} in another case, so pass --into ${shellQuote(stored)}`;
+  if (intoTarget) return `it is a symbolic ref to ${intoTarget}, ${askInto}`;
+  if (isIntegration(into) || chainParts(into)) return `it is a branch of a batch, which only land moves, ${askInto}`;
+  return '';
+}
+
+/**
  * Step 2 of `closeInto` when no worktree is on `aipg/<name>`. A close that stopped after its removal left the
  * branch, which `into` contains, or with `stage` holds staged, so it is deleted. Any other branch with commits
  * `into` lacks is refused.
@@ -1867,12 +1918,16 @@ function changedTrackedPaths(path) {
   return [...new Set([...unstaged, ...staged])];
 }
 
+/** The landings `landingProblem` judges. Only a fast-forward deletes the ignored files in its way. */
+const FAST_FORWARD = { label: 'fast-forward', deletesIgnored: true };
+const STAGED_WORK = { label: 'staged work', deletesIgnored: false };
+
 /**
- * Why the worktree at `path`, which has `into` checked out, must not take the `landing` (a fast-forward or the
- * staged work) from `from` to `to`, or null. The user may keep working there, so only a change at a path the
+ * Why the worktree at `path`, which has `into` checked out, must not take the `landing` (FAST_FORWARD or
+ * STAGED_WORK) from `from` to `to`, or null. The user may keep working there, so only a change at a path the
  * landing writes is refused, which git would refuse too without naming the worktree or the recovery. An untracked
- * file at a path the landing adds, inside one or above one is refused for the same reason. git deletes an ignored
- * file in those places without a word.
+ * file at a path the landing adds, inside one or above one is refused for the same reason. So is an ignored file
+ * there, which git deletes without a word on a fast-forward and refuses on the staged work without naming the worktree.
  */
 function landingProblem(path, from, to, landing) {
   // Input
@@ -1886,20 +1941,21 @@ function landingProblem(path, from, to, landing) {
   // Cheapest first, since the file listings of a main checkout can run to hundreds of MB.
   if (operation) return `It has ${operation[1]} in progress (${operation[0]}). Finish or abort it there, then run close again.`;
   overlapping = filesInTheWay(changedTrackedPaths(path), changedPaths(path, from, to));
-  if (overlapping.length) return `It has uncommitted changes at paths the ${landing} writes (${nameList(overlapping)}). Commit them or set them aside, then run close again.`;
+  if (overlapping.length) return `It has uncommitted changes at paths the ${landing.label} writes (${nameList(overlapping)}). Commit them or set them aside, then run close again.`;
   added = addedPaths(path, from, to);
   blocking = filesInTheWay(untrackedFiles(path), added);
-  if (blocking.length) return `It holds untracked files in the way of the ${landing} (${nameList(blocking)}). Move them out of it, then run close again.`;
+  if (blocking.length) return `It holds untracked files in the way of the ${landing.label} (${nameList(blocking)}). Move them out of it, then run close again.`;
   doomed = filesInTheWay(ignoredFiles(path), added);
-  if (doomed.length) return `The ${landing} would delete ignored files there without a word (${nameList(doomed)}). Move them out of it, then run close again.`;
+  if (doomed.length && landing.deletesIgnored) return `The ${landing.label} would delete ignored files there without a word (${nameList(doomed)}). Move them out of it, then run close again.`;
+  if (doomed.length) return `It holds ignored files in the way of the ${landing.label} (${nameList(doomed)}). Move them out of it, then run close again.`;
 
   // Output
   return null;
 }
 
 /**
- * Why `holder`, a worktree entry whose `branch` names the same branch as `into`, must not take the fast-forward of
- * `into`, or null. git reads whatever repository holds a folder, so no git call may run in it before this passes.
+ * Why `holder`, a worktree entry whose `branch` names the same branch as `into`, must not take the landing on
+ * `into`, a fast-forward or the staged work, or null. git reads whatever repository holds a folder, so no git call may run in it before this passes.
  */
 function holderProblem(repo, into, holder) {
   // Input
@@ -1926,9 +1982,9 @@ function holderProblem(repo, into, holder) {
  * updates the files of only the worktree it runs in and moves the branch under every other one, so `into` checked
  * out in two worktrees, or under another name (a case variant or a symbolic branch), is refused. `worktreesForClean`
  * reads an operation only for a linked worktree. The main worktree keeps its operation's state in the git common
- * dir, so that state is read from there.
+ * dir, so that state is read from there. `verb` names the landing the refusal stops.
  */
-function intoHolder(repo, into) {
+function intoHolder(repo, into, verb) {
   // Input
   const folded = foldedTargets(localBranchTargets(repo));
   const mainHeld = heldBranch(gitCommonDir(repo));
@@ -1945,7 +2001,7 @@ function intoHolder(repo, into) {
   }
 
   // Output
-  if (problem) throw unsafe(`cannot fast-forward ${into}, so it is untouched. ${problem}`);
+  if (problem) throw unsafe(`cannot ${verb} ${into}, so it is untouched. ${problem}`);
   return holders[0] ?? null;
 }
 
@@ -1976,8 +2032,8 @@ function verifyFastForward(repo, into, holder, tip) {
 function fastForward(repo, name, into, intoOld, tip) {
   // Input
   const intoRef = headsRef(into);
-  const holder = intoHolder(repo, into);
-  const problem = holder ? landingProblem(holder.path, intoOld, tip, 'fast-forward') : null;
+  const holder = intoHolder(repo, into, 'fast-forward');
+  const problem = holder ? landingProblem(holder.path, intoOld, tip, FAST_FORWARD) : null;
   const movedAway = () => fail(`${into} moved while close ran, so it was not fast-forwarded and ${singleBranch(name)} keeps its gated work. Run close again.`, EXIT_CONFLICT);
   let moved = null;
 
@@ -2038,7 +2094,7 @@ function stagedAt(path, tip, paths) {
  */
 function applyStaged(repo, name, into, intoOld, tip) {
   // Input
-  const holder = intoHolder(repo, into);
+  const holder = intoHolder(repo, into, 'stage the work on');
   const paths = changedPaths(repo, intoOld, tip);
   let problem = null;
   let patch = '';
@@ -2055,7 +2111,7 @@ function applyStaged(repo, name, into, intoOld, tip) {
     process.stderr.write(`the worktree at ${holder.path} already has the work of ${singleBranch(name)} staged\n`);
     return;
   }
-  problem = landingProblem(holder.path, intoOld, tip, 'staged work');
+  problem = landingProblem(holder.path, intoOld, tip, STAGED_WORK);
   if (problem) throw unsafe(`cannot stage the work in the worktree at ${holder.path}, so it is untouched. ${problem}`);
   patch = mustGit(repo, ['diff', '--binary', '--full-index', '--no-renames', intoOld, tip], `reading the changes of ${singleBranch(name)}`, { maxBuffer: GATE_MAX_BUFFER });
   applied = git(holder.path, ['apply', '--index', '--whitespace=nowarn'], { input: patch, maxBuffer: GATE_MAX_BUFFER });
@@ -2074,7 +2130,7 @@ function applyStaged(repo, name, into, intoOld, tip) {
  */
 function deleteIfStaged(repo, branch, into) {
   // Input
-  const holder = intoHolder(repo, into);
+  const holder = intoHolder(repo, into, 'find the staged work on');
   const tip = commitOf(repo, headsRef(branch));
   const from = mustGit(repo, ['merge-base', headsRef(into), tip], `finding where ${branch} left ${into}`).trim();
 
@@ -2088,7 +2144,8 @@ function deleteIfStaged(repo, branch, into) {
  * `close --into`: merges `aipg/<name>` into `into` only by fast-forward, after gating the exact commit `into`
  * will point at, then removes the worktree and deletes the branch. With `stage`, it stages the gated change in the
  * worktree that has `into` checked out instead, and `into` stays where it is. A refusal before the rebase changes
- * nothing. A close run again after a later stop finishes the steps left, since steps 2 to 5 and 7 skip what is done.
+ * nothing but the carrier commit of step 3, which holds the staged work as it was. A close run again after a later
+ * stop finishes the steps left, since steps 2 to 5 and 7 skip what is done.
  */
 function closeInto(repo, name, into, gate, stage = false) {
   // Input
@@ -2100,7 +2157,6 @@ function closeInto(repo, name, into, gate, stage = false) {
   let exists = false;
   let entries = [];
   let entry = null;
-  let strayRefused = null;
   let present = false;
   let head = '';
   let intoOld = '';
@@ -2123,17 +2179,15 @@ function closeInto(repo, name, into, gate, stage = false) {
   if (intoTarget) throw unsafe(`--into ${into} is a symbolic ref to ${intoTarget}, so a fast-forward of it would move ${intoTarget}. Pass the branch it points at as --into.`);
 
   // 2. Discovery. With no worktree, only the branch is left to settle.
-  exists = singleBranchExists(targets, name);
-  entries = worktreesForClean(repo);
-  entry = findBranch(entries, branch);
-  strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
-  if (strayRefused) throw strayRefused;
+  ({ exists, entries, entry } = discoverChange(repo, name, targets));
   if (!entry) {
     closeWithoutWorktree(repo, branch, into, exists, stage);
     return;
   }
 
-  // 3. With stage, the staged work becomes a commit first. The worktree passes every removal check and is on its branch.
+  // 3. With stage, the staged work becomes a commit first, once the refusals that run no git call in the folder pass.
+  // A worktree off its branch or with an operation in progress skips the carry, and the checks below refuse it.
+  if (stage) requireStructural(repo, entry);
   if (stage && pathExists(entry.path) && headRef(entry.path) === branchRef && !operationInProgress(entry.path)) {
     carryStaged(entry.path, branch, name);
   }
@@ -2182,15 +2236,10 @@ function closeInto(repo, name, into, gate, stage = false) {
 function closeDiscard(repo, name) {
   // Input
   const branch = singleBranch(name);
-  const targets = localBranchTargets(repo);
-  const exists = singleBranchExists(targets, name);
-  const entries = worktreesForClean(repo);
-  const entry = findBranch(entries, branch);
-  const strayRefused = entry ? null : strayRefusal(targets, entries, name, exists);
+  const { exists, entries, entry } = discoverChange(repo, name, localBranchTargets(repo));
   let tip = '';
 
   // Process
-  if (strayRefused) throw strayRefused;
   if (entry) {
     removeWorktree(repo, entry, entries[0].path, { discard: true });
   } else {
@@ -2213,6 +2262,9 @@ function close(opt) {
   const stage = opt.stage === true;
   let into = opt.into;
   let gate = '';
+  let targets = null;
+  let baseProblem = '';
+  let change = null;
 
   // Process
   if (discard && (opt.into !== undefined || opt.gate !== undefined || stage)) {
@@ -2223,13 +2275,19 @@ function close(opt) {
     return;
   }
   gate = requireCommand(opt, 'gate');
-  if (into === undefined) into = recordedBase(repo, branch);
-  if (opt.into === undefined && !into && !isLocalBranch(repo, branch)) {
+  if (into === undefined) {
+    into = recordedBase(repo, branch);
+    targets = localBranchTargets(repo);
+    baseProblem = into ? recordedBaseProblem(repo, targets, into) : '';
+    change = into ? null : discoverChange(repo, name, targets);
+  }
+  if (baseProblem) throw unsafe(`open recorded ${into} as the base of ${branch} in git config ${baseKey(branch)}, and ${baseProblem}`);
+  if (change && !change.exists && !change.entry) {
     git(repo, ['worktree', 'prune']);
     process.stderr.write(`no branch ${branch}, so there is nothing to close\n`);
     return;
   }
-  if (opt.into === undefined && !into) throw unsafe(`open recorded no base for ${branch}, so name the branch to merge it into with --into`);
+  if (change) throw unsafe(`open recorded no base for ${branch}, so name the branch to merge it into with --into`);
 
   // Output
   closeInto(repo, name, into, gate, stage);

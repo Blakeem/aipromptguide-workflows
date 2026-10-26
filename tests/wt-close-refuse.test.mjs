@@ -354,7 +354,7 @@ await withFixture(({ root, repo }) => {
   const mainAt = commitFile(repo, 'm.txt', 'main moved\n');
   const rebase = closeStubbed('feat', { AIPG_GIT_OVERFLOW: 'ls-files', AIPG_GIT_OVERFLOW_ARG: '--ignored' });
   eq(rebase.code, 40, `a rebase whose ignored-file listing passes the listing cap exits 40 (${firstLine(rebase.stderr)})`);
-  ok(/names of the ignored files in .*aipg-feat pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward/.test(rebase.stderr),
+  ok(/names of the ignored files in .*aipg-feat pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase, fast-forward or staged work/.test(rebase.stderr),
     '...naming the listing and the operation');
   unchanged(root, repo, feat, 'feat', mainAt, featTip);
 
@@ -362,7 +362,7 @@ await withFixture(({ root, repo }) => {
   const shipTip = commitFile(ship, 's.txt', 'ship\n');
   const ff = closeStubbed('ship', { AIPG_GIT_OVERFLOW: 'ls-files' });
   eq(ff.code, 40, `a fast-forward whose untracked-file listing in the main worktree passes the listing cap exits 40 (${firstLine(ff.stderr)})`);
-  ok(/names of the untracked files in .* pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase or fast-forward/.test(ff.stderr),
+  ok(/names of the untracked files in .* pass the \d+ MiB listing cap, so close cannot tell which of them are in the way of the rebase, fast-forward or staged work/.test(ff.stderr),
     '...naming the listing and the operation');
   unchanged(root, repo, ship, 'ship', mainAt, shipTip);
 });
