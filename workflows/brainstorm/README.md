@@ -55,6 +55,8 @@ complex problem, writes a shared brief in plan mode), then runs `brainstorm-cycl
 2. **Generates.** One generator per lens, concurrently, each a complete variation in its own folder.
 3. **Presents.** Walks you through each distinct take so you can pick, hybridize, or cherry-pick.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## Reviewing the result

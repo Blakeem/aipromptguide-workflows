@@ -21,11 +21,12 @@ flowchart TD
   x5[/"throw: Invalid role map"/]
   x6[/"throw: Unknown role key in a role map"/]
   x7[/"throw: Illegal role value in a role map"/]
-  x8[/"throw: Provide the brief"/]
-  x9[/"throw: args.sources is required"/]
-  x10[/"throw: source ids collide after slugging"/]
-  x11[/"throw: Every source reported zero doc files"/]
-  x12[/"throw: Curator returned nothing in round ..."/]
+  x8[/"throw: Invalid notes arg"/]
+  x9[/"throw: Provide the brief"/]
+  x10[/"throw: args.sources is required"/]
+  x11[/"throw: source ids collide after slugging"/]
+  x12[/"throw: Every source reported zero doc files"/]
+  x13[/"throw: Curator returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -37,14 +38,15 @@ flowchart TD
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
   a1 --> a2
   a1 --> a3
-  a1 --> x11
+  a1 --> x12
   a2 --> a3
   a3 -.->|"the curator returns a gap the next round fills · +2 more (×2)"| a1
   a3 --> t1
   a3 --> t2
-  a3 --> x12
+  a3 --> x13
 ```
 
 ## Phases
@@ -68,12 +70,13 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 79) |
 | throw: Unknown role key in a role map | models carries a key outside gather \| scrub \| curate | throw (line 84) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 87) |
-| throw: Provide the brief | neither brief nor planPath | throw (line 114) |
-| throw: args.sources is required | args.sources is empty | throw (line 127) |
-| throw: source ids collide after slugging | two sources slug to one directory | throw (line 131) |
-| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 409) |
-| throw: Curator returned nothing in round ... | the curator dies | throw (line 437) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 107) |
+| throw: Provide the brief | neither brief nor planPath | throw (line 130) |
+| throw: args.sources is required | args.sources is empty | throw (line 143) |
+| throw: source ids collide after slugging | two sources slug to one directory | throw (line 147) |
+| throw: Every source reported zero doc files | no source captured anything in round 1 | throw (line 425) |
+| throw: Curator returned nothing in round ... | the curator dies | throw (line 453) |
 
 ## Coverage
 
-20 scenarios · 3/3 roles · 12/12 throw sites · 0/0 halt statuses · 14 terminal states.
+21 scenarios · 3/3 roles · 13/13 throw sites · 0/0 halt statuses · 15 terminal states.

@@ -85,6 +85,9 @@ terminal state, drawn from real traced runs. Read one before driving a workflow 
 Edit an engine and you must re-run `node tools/gen-flows.mjs`, or the suite goes red.
 The generator and the rest of the repo's own machinery are catalogued in [`tools/CLAUDE.md`](tools/CLAUDE.md).
 
+**Want each agent's view of a run?** Pass the `notes` arg, which each workflow guide's args reference
+describes. Every agent then answers `tools/EXIT-SURVEY.md`, and `tools/survey.mjs` gathers the answers.
+
 **Changing anything here?** Read [`tests/CLAUDE.md`](tests/CLAUDE.md) first — the development gotchas
 (this file and each workflow's `CLAUDE.md` are for *running* the workflows; that one is for *editing*
 them). Above all: a defect found in one engine is usually in its siblings too — grep before you call it

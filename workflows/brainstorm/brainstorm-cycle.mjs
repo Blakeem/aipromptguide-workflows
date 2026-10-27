@@ -68,6 +68,22 @@ log(`brainstorm: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', '
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
@@ -153,7 +169,7 @@ phase('Generate');
 log(`brainstorm: ${LENSES.length} lens(es) → ${VAR_DIR}${REFERENCES.length ? ` [${REFERENCES.length} reference(s)]` : ''}`);
 
 const results = await parallel(LENSES.map((lens) => () =>
-  agent(generatePrompt(lens), roleOpts('generate', {
+  callAgent(generatePrompt(lens), roleOpts('generate', {
     schema: GENERATE_SCHEMA, phase: 'Generate', label: `generate:${lens.id}`,
   })).then((r) => ({ lens: lens.id, focus: lens.focus, dir: lensDir(lens.id), entry: r?.entry || '', summary: r?.summary || '' }))
 ));

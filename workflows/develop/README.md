@@ -147,6 +147,8 @@ Claude reads `workflows/develop/CLAUDE.md` and follows it.
 For a debug inventory, triage the issue files first. Each one is a fix-mode plan file develop builds
 directly.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ## Reviewing the result
 
 Run the tests yourself and read `git diff --cached`. The run folder `runs/<runId>/` holds the

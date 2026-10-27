@@ -89,6 +89,8 @@ mandatory criteria review, then runs `investigate-cycle.mjs` **by path**.
 4. **Concludes.** A determination with the qualifying options and the coverage evidence, or a verified dead
    end naming the criterion to relax.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## Reviewing the result

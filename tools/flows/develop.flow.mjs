@@ -145,12 +145,15 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside the five role keys', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { develop: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { develop: 'ultra' } } },
+    { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // Every agent reads its block through the plan-block tool, and an installed plugin keeps it apart from root.
     { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },
     // The developer, fix acceptance and closing acceptance append to the backlog folder, so a run without one
     // has nowhere to record what a block leaves, and a folder inside the repo would join the diff the reviewers judge.
     { name: 'no backlog folder', when: 'backlogDir is missing or relative', args: { ...base, backlogDir: 'backlog' } },
     { name: 'backlog folder inside the repo', when: 'backlogDir lies inside target.repo', args: { ...base, backlogDir: 'E:/repo/backlog' } },
+    { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
+    { name: 'notes folder inside the run-state', when: 'notes.dir lies inside runs/<runId>/', args: { ...base, notes: { dir: 'E:/flow/runs/flow/gate', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
 
     // The four FILE KEYS `plan-edit.mjs args` prints. Each is control input, and each throw exists
     // because the coerced reading is silently wrong: the string "false" is truthy, so a coerced `ordered`

@@ -195,6 +195,29 @@ if (!isAbsolute(BACKLOG_DIR)) {
 if (insideRepo(BACKLOG_DIR)) {
   throw new Error(`args.backlogDir is inside the target repo. The developer's writes there would join the unstaged diff that the blind reviewer judges, acceptance stages and park clears. Got ${BACKLOG_DIR}, inside ${REPO}. Pass the folder that \`${backlogCommand('<dir>')}\` prints for a <dir> outside the target repo.`);
 }
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
+if (NOTES && insideRepo(NOTES.dir)) {
+  throw new Error(`args.notes.dir is inside the target repo. Every agent appends its survey answers there, and those files would join the unstaged diff that the blind reviewer judges, acceptance stages and park clears. Got ${NOTES.dir}, inside ${REPO}. Pass a folder outside the target repo, such as <root>/runs/<runId>-notes.`);
+}
+const insideState = (p) => pathKey(p) === pathKey(STATE_DIR) || pathKey(p).startsWith(`${pathKey(STATE_DIR)}/`);
+if (NOTES && insideState(NOTES.dir)) {
+  throw new Error(`args.notes.dir is inside the run-state folder. The blind reviewer's prompt names the notes folder, and no run-state path outside ${STATE_DIR}/gate may enter it. Got ${NOTES.dir}, inside ${STATE_DIR}. Pass a folder outside it, such as <root>/runs/<runId>-notes.`);
+}
 // The read-only backlog query a proactive round-1 developer runs. It holds no write verb, so its allowlist rule grants none.
 const PULL_TOOL = toolPath('plan-pull.mjs');
 // plan-pull.mjs lists only an entry whose id is its file's id and "-<n>", so a pulled entry's id names the file its edits go to.
@@ -375,7 +398,7 @@ Each output is one block, verbatim. If any exits non-zero, report plan_obtained=
 guess at a plan you could not read. Your blocks are ONLY ${p.blocks.map((b) => `"${b.id}"`).join(', ')}`;
 
 // Blindness is placement, not instruction (#3). STATE_DIR holds acceptance reviews, AMENDED files,
-// NEEDS-USER and DECISIONS, all routes to plan text. No path outside GATE_DIR ever enters the blind reviewer's prompt.
+// NEEDS-USER and DECISIONS, all routes to plan text. No run-state path outside GATE_DIR ever enters the blind reviewer's prompt.
 const GATE_DIR       = `${STATE_DIR}/gate`;                     // everything the BLIND quality reviewer reads or writes
 const qualityFile    = (id, r) => `${GATE_DIR}/quality-review-${slug(id)}-r${r}.md`;
 const acceptanceFile = (id, r) => `${STATE_DIR}/acceptance-review-${slug(id)}-r${r}.md`;
@@ -2735,12 +2758,12 @@ for (const p of pending) {
     // Two call sites, so the flow map draws the closing pass as a node of its own.
     let dev;
     if (!closing) {
-      dev = await agent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
+      dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
         model: devModel, effort: devEffort, schema: developSchema(p.mode), phase: 'Develop', label: `develop ${p.id} r${round}`,
       }));
     } else {
       logLine(`  ↻ ${p.id}: round ${MAX_ROUNDS} ended without a passed acceptance → closing pass (r${round}), with no develop round after it`);
-      dev = await agent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
+      dev = await callAgent(developPrompt(p, round, reviewPath, launchNumber, lastReports()), roleOpts('develop', {
         model: devModel, effort: devEffort, schema: developSchema(p.mode, true), phase: 'Develop', label: `develop-closing ${p.id}`,
       }));
     }
@@ -2959,7 +2982,7 @@ for (const p of pending) {
     if (reviewOwed) {
       phase('Quality');
       rec.qualityRounds++;
-      const quality = await agent(qualityPrompt(p, round), roleOpts('quality', {
+      const quality = await callAgent(qualityPrompt(p, round), roleOpts('quality', {
         schema: QUALITY_SCHEMA, phase: 'Quality', label: `quality ${p.id} r${round}`,
       }));
       // A dead reviewer is not a clean review, and the next round would read a review file nobody wrote.
@@ -3024,7 +3047,7 @@ for (const p of pending) {
 
     // ---- ACCEPTANCE REVIEW (plan-aware; stages on pass; baseline advances) ---
     phase('Acceptance');
-    const acc = await agent(acceptancePrompt(p, round, {
+    const acc = await callAgent(acceptancePrompt(p, round, {
       claimedFixed: fix?.claimed(), claimedStale: fix?.stale(), reportedSkipped: fix?.skipped(), reportedFailed: fix?.failed(), unreportedIssues: fix?.unreportedIssues(), earlierReviews: [...earlierReviews], pulledReported: pulled.reported(),
       riskRounds: [...unreviewedRounds], riskSnapshots, closingRecorded, indexTree,
     }), roleOpts('acceptance', {
@@ -3238,7 +3261,7 @@ for (const p of pending) {
     // A needs-user parkKind can hide the halt kind that holds the park, so the held test reads haltKind.
     const heldHalt = HELD_PARK_HALTS.has(haltKind);
     // reviewPath may be empty on an escalated park: see its declaration.
-    const pk = await agent(parkPrompt(p, {
+    const pk = await callAgent(parkPrompt(p, {
       lastReviewPath: reviewPath, escalated, haltKind: parkKind || haltKind, haltText: haltReason, stopsRun: halted,
       needsUser: rec.needsUser === true, closingRecorded, heldHalt, fixedIds: fix ? fix.lastFixed() : [], pulledIds: pulled.onBranch(), pulledKnown: pulled.ids(),
     }), roleOpts('develop', {
@@ -3360,7 +3383,7 @@ if (SWEEP_MODE === 'goal-coverage' && goalCovered && statusPastCap) {
   haltReason = `Stopped before the goal-coverage sweep: Claude Code keeps only a run's first ${LOG_CAP} log lines, and the last block's status lines fell past them. Every block is done, but the sweep did not run: verify coverage against the goal yourself.`;
 } else if (SWEEP_MODE === 'goal-coverage' && goalCovered) {
   phase('Sweep');
-  sweep = await agent(sweepPrompt(doneIds, launchCommits), roleOpts('sweep', {
+  sweep = await callAgent(sweepPrompt(doneIds, launchCommits), roleOpts('sweep', {
     schema: SWEEP_SCHEMA, phase: 'Sweep', label: 'final-sweep',
   }));
   // A dead sweep is not a clean sweep. It does not halt: every block is accepted, and the sweep is advisory.

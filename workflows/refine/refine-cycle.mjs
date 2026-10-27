@@ -110,6 +110,22 @@ log(`refine: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`)
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 
 const REPO        = abs(TARGET.repo);
 // `conventions` is a distilled index, so both roles also read the target's own instruction files in full.
@@ -161,6 +177,9 @@ if (insideRepo(STATE_DIR)) {
 }
 if (insideRepo(PLAN_PATH)) {
   log(`⚠ plan file (${PLAN_PATH}) resolves inside the target repo - that puts the SPEC where a blind reviewer can read it straight out of the repo tree, and where the diff/park machinery could sweep it. Move the plan under ${ROOT}/plans/ (any path outside ${REPO}) and pass THAT absolute path.`);
+}
+if (NOTES && insideRepo(NOTES.dir)) {
+  throw new Error(`args.notes.dir is inside the target repo. Every agent appends its survey answers there, so the critic could read those files as part of the repo it checks the plan against, and a later develop run would see them in its unstaged diff. Got ${NOTES.dir}, inside ${REPO}. Pass a folder outside the target repo, such as <root>/runs/<runId>-notes.`);
 }
 
 // =============================================================================
@@ -380,7 +399,7 @@ while (round < MAX_ROUNDS) {
 
   // ---- CRITIQUE (read-only, non-blind) ---------------------------------------
   phase('Critique');
-  const crit = await agent(criticPrompt(round), roleOpts('critic', {
+  const crit = await callAgent(criticPrompt(round), roleOpts('critic', {
     schema: CRITIC_SCHEMA, phase: 'Critique', label: `plan-critic r${round}`,
   }));
   // A dead critic must NEVER read as a clean round: zero gaps from an agent that died is byte-identical
@@ -424,7 +443,7 @@ while (round < MAX_ROUNDS) {
 
   // ---- FOLD (minimal edit, gaps only) ----------------------------------------
   phase('Fold');
-  const fold = await agent(editorPrompt(round, critiqueFile(round)), roleOpts('editor', {
+  const fold = await callAgent(editorPrompt(round, critiqueFile(round)), roleOpts('editor', {
     schema: EDITOR_SCHEMA, phase: 'Fold', label: `plan-editor r${round}`,
   }));
   // A dead EDITOR halts rather than throws: the critique file is on disk, so a resumeFromRunId relaunch

@@ -104,11 +104,11 @@ a *missing* value. Check the null path separately, before the sentinel logic.
 **Attestation theater.** A schema field the prompt demands and the harness never reads does nothing.
 `unstaged_confirmed` was `required`, instructed in bold, and read nowhere for months; `wrote_file` sat
 unread in `review.mjs` until 2026-08-01. **TOP-LEVEL fields are gate-enforced now:** `static.test.mjs`
-resolves every schema an `agent()` call is handed — including the function-built one — and fails any
+resolves every schema a `callAgent()` call is handed — including the function-built one — and fails any
 top-level property with no `.field` / `['field']` / destructured read **through that site's RECEIVER
 variable** (aliases via bare `x = recv;` assignments count, transitively; a receiver name with more
 than one binding in the file is a loud extractor error — rename the colliding local). Sites with no
-resolvable receiver (pipeline stages, `.then` chains, bare `return agent(`) fall back to the old
+resolvable receiver (pipeline stages, `.then` chains, bare `return callAgent(`) fall back to the old
 file-wide name-level match and are LISTED in the test file, so degraded coverage is visible. NESTED item
 fields are still on you: they are excluded deliberately (measured — an all-depth rule was 33 false
 positives out of 36) because a container is routinely consumed wholesale, so a dead field one level down
@@ -200,9 +200,12 @@ against (halt); an unreachable feature does not (flag).
 
 - **Duplication between sibling engines.** Deliberate: each is standalone and copyable. Never extract a
   shared module or import across workflows. (#11 governs *facts*, not code across independent tools.)
-  Two copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
+  Three copies are pinned. `role-map-copies.test.mjs` fails when an engine's `roleMap` or its two value sets
   differ from develop's, so change all eight together. `convention-files-copies.test.mjs` fails when
-  refine's `conventionFilesOf` differs from debug's, so change both together.
+  refine's `conventionFilesOf` differs from debug's, so change both together. `notes.test.mjs` fails when
+  an engine's exit-survey instruction differs from the test's copy, or when an engine calls `agent(`
+  anywhere but inside its `callAgent`, so route every new call site through `callAgent` and change all
+  eight instructions together.
 - **WHY comments.** A one or two line comment stating a constraint the code cannot show is the house
   style. A long one, a history note or a restated guide is a #13 finding, not a defect: it belongs to an
   enhance conciseness pass, never to debug.

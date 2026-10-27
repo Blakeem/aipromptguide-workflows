@@ -49,6 +49,13 @@ runs. So the generator is also a linter. It fails `node tests/run.mjs` when a ma
 grows a branch no scenario reaches, or when `meta.phases` stops matching the phases the agents run
 under.
 
+### Exit survey
+
+Ask Claude for an exit survey when you start a run. Every agent of the run then answers the questions in
+[`tools/EXIT-SURVEY.md`](tools/EXIT-SURVEY.md) about the workflow, and the answers go to a folder outside
+your project. Once the run ends, Claude gathers them into one `SURVEY.md` grouped by question and reports
+the themes to you.
+
 ## Why it's built this way
 
 This repo is a **Claude Code plugin** (`aipg`), and its skills are **thin and stable**. Each carries
@@ -160,6 +167,8 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 - **develop's developer records a sweep of each change.** For each name or phrase a round changes, the
   developer lists its search and each hit in a `## Sweep` section of its risk file. Acceptance checks
   each sweep line, and a missing line or a hit that disagrees with the change is a risk-audit gap.
+- **An [exit survey](#exit-survey) replaces `tools/freeze-notes.mjs`.** A live test of a workflow no
+  longer needs a copied engine.
 
 ### 2026-10-26
 

@@ -924,6 +924,14 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   role keys, and a value outside its set. Choose the review roles' models as §3 says. Role settings
   saved in the repo's settings (§2 step 3) count as the user asking for them, as a saved memory
   preference does. One launch log line names each role's model and effort) · `stateDir` · `runOnly`.
+- **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
+  the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
+  outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
+  this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
+  then ends with an instruction to append the survey's answers to its own file in `dir`.
+  A `notes` arg without both paths, or with a `dir` inside `target.repo` or `runs/<runId>/`, **throws**.
+  Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
+  and report the themes of the `SURVEY.md` it writes to the user.
 - **Retired:** `continueParked` (a park's backlog entry continues its work, §7), `startAt`,
   `reviewSeverity` (the developer's risk judgment decides when a blind review runs, and every blind
   review reports every tier), a top-level `planPath` and `planContext` are retired and **throw**.

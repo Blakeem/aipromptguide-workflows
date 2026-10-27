@@ -24,10 +24,12 @@ flowchart TD
   x7[/"throw: Invalid role map"/]
   x8[/"throw: Unknown role key in a role map"/]
   x9[/"throw: Illegal role value in a role map"/]
-  x10[/"throw: Invalid args.conventionFiles"/]
-  x11[/"throw: review requires a non-empty args.units array"/]
-  x12[/"throw: Issue file collision"/]
-  x13[/"throw: Plan id collision"/]
+  x10[/"throw: Invalid notes arg"/]
+  x11[/"throw: Invalid args.conventionFiles"/]
+  x12[/"throw: args.notes.dir is inside the target repo"/]
+  x13[/"throw: review requires a non-empty args.units array"/]
+  x14[/"throw: Issue file collision"/]
+  x15[/"throw: Plan id collision"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -42,6 +44,8 @@ flowchart TD
   S0 --> x11
   S0 --> x12
   S0 --> x13
+  S0 --> x14
+  S0 --> x15
   a1 -.->|"L1 ×2"| a1
   a1 --> a2
   a1 --> t1
@@ -81,11 +85,13 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 134) |
 | throw: Unknown role key in a role map | models carries a key outside review \| verify | throw (line 139) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 142) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 167) |
-| throw: review requires a non-empty args.units array | args.units is empty | throw (line 487) |
-| throw: Issue file collision | two unit ids map to one issue file | throw (line 497) |
-| throw: Plan id collision | two unit ids map to one plan id | throw (line 498) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 163) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 183) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 202) |
+| throw: review requires a non-empty args.units array | args.units is empty | throw (line 506) |
+| throw: Issue file collision | two unit ids map to one issue file | throw (line 516) |
+| throw: Plan id collision | two unit ids map to one plan id | throw (line 517) |
 
 ## Coverage
 
-18 scenarios · 2/2 roles · 13/13 throw sites · 0/0 halt statuses · 17 terminal states.
+20 scenarios · 2/2 roles · 15/15 throw sites · 0/0 halt statuses · 19 terminal states.

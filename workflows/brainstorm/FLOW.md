@@ -18,9 +18,10 @@ flowchart TD
   x4[/"throw: Invalid role map"/]
   x5[/"throw: Unknown role key in a role map"/]
   x6[/"throw: Illegal role value in a role map"/]
-  x7[/"throw: Provide the problem framing"/]
-  x8[/"throw: args.lenses is required"/]
-  x9[/"throw: lens ids collide after slugging"/]
+  x7[/"throw: Invalid notes arg"/]
+  x8[/"throw: Provide the problem framing"/]
+  x9[/"throw: args.lenses is required"/]
+  x10[/"throw: lens ids collide after slugging"/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -31,6 +32,7 @@ flowchart TD
   S0 --> x7
   S0 --> x8
   S0 --> x9
+  S0 --> x10
   a1 --> t1
   a1 --> t2
 ```
@@ -53,10 +55,11 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 49) |
 | throw: Unknown role key in a role map | models carries a key outside generate | throw (line 54) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 57) |
-| throw: Provide the problem framing | neither brief nor planPath | throw (line 83) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 98) |
-| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 102) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 77) |
+| throw: Provide the problem framing | neither brief nor planPath | throw (line 99) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 114) |
+| throw: lens ids collide after slugging | two lenses slug to one folder | throw (line 118) |
 
 ## Coverage
 
-13 scenarios · 1/1 roles · 9/9 throw sites · 0/0 halt statuses · 11 terminal states.
+14 scenarios · 1/1 roles · 10/10 throw sites · 0/0 halt statuses · 12 terminal states.

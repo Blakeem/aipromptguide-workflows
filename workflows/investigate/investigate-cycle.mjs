@@ -85,6 +85,22 @@ log(`investigate: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', 
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR   = abs(A.stateDir ?? `runs/${RUN_ID}`);
@@ -487,7 +503,7 @@ Return via the schema.`;
 if (PHASE === 'refine') {
   phase('Refine');
   log(`refine: critiquing the criteria at ${PLAN_PATH}`);
-  const critique = await agent(criteriaPrompt(), roleOpts('criteria', {
+  const critique = await callAgent(criteriaPrompt(), roleOpts('criteria', {
     schema: CRITERIA_SCHEMA, phase: 'Refine', label: 'criteria-critic',
   }));
   if (!critique) throw new Error('Criteria critic returned nothing (agent skipped or died) — that is NOT a clean bill of health for the criteria. Re-invoke with the same args (same runId); pass the Workflow tool\'s resumeFromRunId to replay completed agents from cache.');
@@ -566,7 +582,7 @@ while (round < LAST_ROUND) {
   phase('Investigate');
   // A resumed first round is pointed at the last invocation's review, which no critic of this run wrote.
   const lastReview = resumedRound(round) ? reviewFile(PRIOR_ROUNDS) : critRound === round - 1 ? reviewPath : '';
-  const inv = await agent(investigatePrompt(round, lastReview), roleOpts('investigate', {
+  const inv = await callAgent(investigatePrompt(round, lastReview), roleOpts('investigate', {
     schema: INVESTIGATE_SCHEMA, phase: 'Investigate', label: `investigate r${round}`,
   }));
   // A dead investigator must NEVER read as "found nothing, swept everything" — that is exactly the shape
@@ -600,7 +616,7 @@ while (round < LAST_ROUND) {
   if (added > 0 || invFlags > 0 || det || firstRound(round)) {
     phase('Critique');
     // critRound is 0 until a critic of this run attests, so a run's first critic checks every tagged line.
-    crit = await agent(critiquePrompt(round, ids, claimKind, det, critRound + 1), roleOpts('critique', {
+    crit = await callAgent(critiquePrompt(round, ids, claimKind, det, critRound + 1), roleOpts('critique', {
       schema: CRITIQUE_SCHEMA, phase: 'Critique', label: `critique r${round}`,
     }));
     if (!crit) throw new Error(`Acceptance critic returned nothing in round ${round} (agent skipped or died) — its options and any termination claim are therefore UNVERIFIED. Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);

@@ -76,6 +76,8 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
    gatherer fills every gap and strips capture junk from its captures. A recaptured file replaces the
    old one only once a word for word check against its source passes. Then the set is re-indexed.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## Reviewing the result

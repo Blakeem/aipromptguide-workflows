@@ -86,6 +86,8 @@ lenses, then runs `decide-cycle.mjs` **by path**.
    round 1, and a verifier checks each later revision.
 4. **Presents.** Relays the matrix + rationale, and the lens files so you can see the source views.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## Reviewing the result

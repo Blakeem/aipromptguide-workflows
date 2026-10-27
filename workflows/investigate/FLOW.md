@@ -29,11 +29,12 @@ flowchart TD
   x6[/"throw: Invalid role map"/]
   x7[/"throw: Unknown role key in a role map"/]
   x8[/"throw: Illegal role value in a role map"/]
-  x9[/"throw: args.planPath is required"/]
-  x10[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
-  x11[/"throw: Criteria critic returned nothing"/]
-  x12[/"throw: Investigator returned nothing in round ..."/]
-  x13[/"throw: Acceptance critic returned nothing in round ..."/]
+  x9[/"throw: Invalid notes arg"/]
+  x10[/"throw: args.planPath is required"/]
+  x11[/"throw: args.priorRounds is required for phase:#quot;run#quot;"/]
+  x12[/"throw: Criteria critic returned nothing"/]
+  x13[/"throw: Investigator returned nothing in round ..."/]
+  x14[/"throw: Acceptance critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> a2
   S0 --> t7
@@ -47,14 +48,15 @@ flowchart TD
   S0 --> x8
   S0 --> x9
   S0 --> x10
+  S0 --> x11
   a1 --> t1
-  a1 --> x11
+  a1 --> x12
   a2 -.->|"L1 ×4"| a2
   a2 --> a3
   a2 --> t6
   a2 --> t8
   a2 --> t9
-  a2 --> x12
+  a2 --> x13
   a3 -.->|"the critic contests the coverage claim · +5 more (×5)"| a2
   a3 --> t2
   a3 --> t3
@@ -63,7 +65,7 @@ flowchart TD
   a3 --> t6
   a3 --> t8
   a3 --> t9
-  a3 --> x13
+  a3 --> x14
 ```
 
 ## Phases
@@ -101,12 +103,13 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 66) |
 | throw: Unknown role key in a role map | models carries a key outside criteria \| investigate \| critique | throw (line 71) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 74) |
-| throw: args.planPath is required | args carry no planPath | throw (line 103) |
-| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 112) |
-| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 493) |
-| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 574) |
-| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 606) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 94) |
+| throw: args.planPath is required | args carry no planPath | throw (line 119) |
+| throw: args.priorRounds is required for phase:"run" | phase:"run" without priorRounds | throw (line 128) |
+| throw: Criteria critic returned nothing | the criteria critic dies | throw (line 509) |
+| throw: Investigator returned nothing in round ... | the investigator dies · the investigator dies mid-search | throw (line 590) |
+| throw: Acceptance critic returned nothing in round ... | the critic dies with options unverified | throw (line 622) |
 
 ## Coverage
 
-31 scenarios · 3/3 roles · 13/13 throw sites · 8/8 halt statuses · 22 terminal states.
+32 scenarios · 3/3 roles · 14/14 throw sites · 8/8 halt statuses · 23 terminal states.

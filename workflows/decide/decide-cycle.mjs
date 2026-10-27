@@ -98,6 +98,22 @@ log(`decide: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`)
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
@@ -414,7 +430,7 @@ Return via the schema.`;
 phase('Diverge');
 log(`decide: ${LENSES.length} lens(es) → ${LENS_DIR} [selection=${SELECTION}${RANKED ? ` (top ${SHORTLIST_N})` : ''}, maxRounds=${MAX_ROUNDS}]`);
 const analysts = await parallel(LENSES.map((lens) => () =>
-  agent(analystPrompt(lens), roleOpts('analyst', {
+  callAgent(analystPrompt(lens), roleOpts('analyst', {
     schema: ANALYST_SCHEMA, phase: 'Diverge', label: `analyst:${lens.id}`,
   })).then((r) => ({ lens: lens.id, ok: r?.wrote_file === true, top: r?.top_pick || '' }))
 ));
@@ -457,7 +473,7 @@ while (round < MAX_ROUNDS) {
 
   // ---- DECIDE --------------------------------------------------------------
   phase('Decide');
-  const dec = await agent(decidePrompt(round, reviewPaths), roleOpts('decide', {
+  const dec = await callAgent(decidePrompt(round, reviewPaths), roleOpts('decide', {
     schema: DECIDE_SCHEMA, phase: 'Decide', label: `decide r${round}`,
   }));
   if (!dec) throw new Error(`Decider returned nothing in round ${round} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
@@ -497,7 +513,7 @@ while (round < MAX_ROUNDS) {
     ? FOCUSES.map((f) => ({ focus: f, file: decisionReviewFile(1, f.id), label: `review r1 ${f.id}` }))
     : [{ focus: null, file: decisionReviewFile(round), label: `review r${round}` }];
   const revs = await parallel(units.map((u) => () =>
-    agent(reviewPrompt(round, u.focus, priorSlugs, round === MAX_ROUNDS, reviewPaths, olderCaveatFiles), roleOpts('review', {
+    callAgent(reviewPrompt(round, u.focus, priorSlugs, round === MAX_ROUNDS, reviewPaths, olderCaveatFiles), roleOpts('review', {
       schema: REVIEW_SCHEMA, phase: 'Review', label: u.label,
     }))));
   const dead = units.filter((u, i) => !revs[i]);

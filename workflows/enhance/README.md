@@ -76,6 +76,8 @@ Claude reads `aipg/workflows/enhance/CLAUDE.md`, decides the scope and lenses wi
 A workflow runs in the background and **can't ask you questions mid-run**, so the audit stops at the
 proposal list and the decisions happen with you afterward.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## Reviewing the result

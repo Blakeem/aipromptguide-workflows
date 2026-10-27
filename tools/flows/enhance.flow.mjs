@@ -90,7 +90,7 @@ export default {
       terminal: 'lens NOT audited (no marker attested, lens in failed at stage find)',
     },
 
-    // ---- the eleven throw sites, in the order the engine checks them ------------------------------
+    // ---- the twelve throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -102,6 +102,7 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside find | verify', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { find: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { find: 'ultra' } } },
+    { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     { name: 'no scope', when: 'args.scope is empty', args: { runId: 'flow', root: 'E:/flow' } },
     {
       // The relative-scope guard: with no repo to resolve `workflows/` against, every finder would read

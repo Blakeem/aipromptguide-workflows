@@ -98,6 +98,22 @@ log(`docs: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`);
 const ROOT        = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm        = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs         = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 const slug        = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
 
 const REPO        = TARGET.repo ? abs(TARGET.repo) : '';
@@ -372,7 +388,7 @@ while (rounds < MAX_ROUNDS) {
     // -- Gather → Scrub (pipelined per source) ------------------------------------
     const gathered = await pipeline(
       toGather,
-      (src) => agent(gatherPrompt(src), roleOpts('gather', {
+      (src) => callAgent(gatherPrompt(src), roleOpts('gather', {
         schema: GATHER_SCHEMA, phase: 'Gather', label: `gather:${src.id}`,
       })).then((g) => {
         if (!g) {
@@ -387,7 +403,7 @@ while (rounds < MAX_ROUNDS) {
         if (prev.src.kind !== 'web') return prev;   // repo/files captures are usually markdown already, with no HTML chrome
         if (prev.g && (prev.g.files_written ?? 0) === 0) return prev;   // gather REPORTED zero captures
         // g == null → the gatherer died before returning; files it already wrote are on disk — scrub them.
-        return agent(scrubPrompt(prev.src), roleOpts('scrub', {
+        return callAgent(scrubPrompt(prev.src), roleOpts('scrub', {
           schema: SCRUB_SCHEMA, phase: 'Scrub', label: `scrub:${prev.src.id}`,
         })).then((s) => {
           // Scrub is auxiliary: the curator still indexes what the gatherer wrote, so a death is logged and
@@ -412,7 +428,7 @@ while (rounds < MAX_ROUNDS) {
     if (died) log(`  ⚠ ${died} gatherer(s) died before returning — anything they wrote is on disk and still gets curated (and scrubbed first for a web source)`);
   } else {
     // -- Gap-fill gather: one agent for every gap of the round -------------------------
-    const filled = await agent(gapGatherPrompt(toGather), roleOpts('gather', {
+    const filled = await callAgent(gapGatherPrompt(toGather), roleOpts('gather', {
       schema: GATHER_SCHEMA, phase: 'Gather', label: `gather:r${rounds}`,
     }));
     if (!filled) {
@@ -431,7 +447,7 @@ while (rounds < MAX_ROUNDS) {
   // only role that organizes, splits and indexes, and `gaps: []` from a null would look like "complete,
   // zero gaps" and exit the loop into a success-shaped return with no set behind it.
   const newDirs = toGather.map((s) => `${OUT_DIR}/${s.id}/${s.gapId ? ` (gap ${s.gapId})` : ''}`);
-  const c = await agent(curatePrompt(rounds, newDirs), roleOpts('curate', {
+  const c = await callAgent(curatePrompt(rounds, newDirs), roleOpts('curate', {
     schema: CURATE_SCHEMA, phase: 'Curate', label: `curate:r${rounds}`,
   }));
   if (!c) throw new Error(`Curator returned nothing in round ${rounds} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);

@@ -113,6 +113,8 @@ current code before it is touched, every fix goes through the same two-stage rev
 lands the same way. Every entry marked ACTIONABLE is fixed, whatever
 its severity.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ---
 
 ## The agents

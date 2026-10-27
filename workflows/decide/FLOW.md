@@ -28,12 +28,13 @@ flowchart TD
   x6[/"throw: Invalid role map"/]
   x7[/"throw: Unknown role key in a role map"/]
   x8[/"throw: Illegal role value in a role map"/]
-  x9[/"throw: args.planPath is required"/]
-  x10[/"throw: args.lenses requires >=2 evaluation perspectives"/]
-  x11[/"throw: lens ids collide after slugging"/]
-  x12[/"throw: No analyst produced a lens file"/]
-  x13[/"throw: Decider returned nothing in round ..."/]
-  x14[/"throw: Reviewer returned nothing in round ..."/]
+  x9[/"throw: Invalid notes arg"/]
+  x10[/"throw: args.planPath is required"/]
+  x11[/"throw: args.lenses requires >=2 evaluation perspectives"/]
+  x12[/"throw: lens ids collide after slugging"/]
+  x13[/"throw: No analyst produced a lens file"/]
+  x14[/"throw: Decider returned nothing in round ..."/]
+  x15[/"throw: Reviewer returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -46,19 +47,20 @@ flowchart TD
   S0 --> x9
   S0 --> x10
   S0 --> x11
+  S0 --> x12
   a1 --> a2
-  a1 --> x12
+  a1 --> x13
   a2 --> a3
   a2 --> a4
   a2 --> t4
   a2 --> t5
-  a2 --> x13
+  a2 --> x14
   a3 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
   a3 --> t1
   a3 --> t2
   a3 --> t4
   a3 --> t5
-  a3 --> x14
+  a3 --> x15
   a4 -.->|"the reviewers keep finding blocking gaps (×2)"| a2
   a4 --> t3
 ```
@@ -88,13 +90,14 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 79) |
 | throw: Unknown role key in a role map | models carries a key outside analyst \| decide \| review | throw (line 84) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 87) |
-| throw: args.planPath is required | args carry no planPath | throw (line 115) |
-| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 127) |
-| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 131) |
-| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 423) |
-| throw: Decider returned nothing in round ... | the decider dies | throw (line 463) |
-| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 504) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 107) |
+| throw: args.planPath is required | args carry no planPath | throw (line 131) |
+| throw: args.lenses requires &gt;=2 evaluation perspectives | fewer than two lenses | throw (line 143) |
+| throw: lens ids collide after slugging | two lenses slug to one file | throw (line 147) |
+| throw: No analyst produced a lens file | no analyst produced a lens file | throw (line 439) |
+| throw: Decider returned nothing in round ... | the decider dies | throw (line 479) |
+| throw: Reviewer returned nothing in round ... | a reviewer dies | throw (line 520) |
 
 ## Coverage
 
-23 scenarios · 4/4 roles · 14/14 throw sites · 0/0 halt statuses · 19 terminal states.
+24 scenarios · 4/4 roles · 15/15 throw sites · 0/0 halt statuses · 20 terminal states.

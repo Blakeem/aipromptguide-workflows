@@ -29,9 +29,11 @@ flowchart TD
   x8[/"throw: Invalid role map"/]
   x9[/"throw: Unknown role key in a role map"/]
   x10[/"throw: Illegal role value in a role map"/]
-  x11[/"throw: Invalid args.conventionFiles"/]
-  x12[/"throw: Missing args.blockTool"/]
-  x13[/"throw: Plan critic returned nothing in round ..."/]
+  x11[/"throw: Invalid notes arg"/]
+  x12[/"throw: Invalid args.conventionFiles"/]
+  x13[/"throw: Missing args.blockTool"/]
+  x14[/"throw: args.notes.dir is inside the target repo"/]
+  x15[/"throw: Plan critic returned nothing in round ..."/]
   S0 --> a1
   S0 --> x1
   S0 --> x2
@@ -45,11 +47,13 @@ flowchart TD
   S0 --> x10
   S0 --> x11
   S0 --> x12
+  S0 --> x13
+  S0 --> x14
   a1 --> a2
   a1 --> t1
   a1 --> t2
   a1 --> t5
-  a1 --> x13
+  a1 --> x15
   a2 -.->|"a fold, then a clean round · gaps remain at the round budget (×4)"| a1
   a2 --> t3
   a2 --> t4
@@ -87,10 +91,12 @@ flowchart TD
 | throw: Invalid role map | models is an array in place of an object | throw (line 91) |
 | throw: Unknown role key in a role map | models carries a key outside critic \| editor | throw (line 96) |
 | throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 99) |
-| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 121) |
-| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 138) |
-| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 391) |
+| throw: Invalid notes arg | notes lacks dir or survey, or names a relative path | throw (line 119) |
+| throw: Invalid args.conventionFiles | args.conventionFiles is not an array of non-empty paths | throw (line 137) |
+| throw: Missing args.blockTool | blockTool is missing or blank | throw (line 154) |
+| throw: args.notes.dir is inside the target repo | notes.dir lies inside target.repo | throw (line 182) |
+| throw: Plan critic returned nothing in round ... | the plan critic dies | throw (line 410) |
 
 ## Coverage
 
-24 scenarios · 2/2 roles · 13/13 throw sites · 8/8 halt statuses · 21 terminal states.
+26 scenarios · 2/2 roles · 15/15 throw sites · 8/8 halt statuses · 23 terminal states.

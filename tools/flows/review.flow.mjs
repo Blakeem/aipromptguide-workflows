@@ -93,7 +93,7 @@ export default {
       terminal: 'inventory written (both lenses merged behind one verifier)',
     },
 
-    // ---- the thirteen throw sites, in the order the engine checks them ------------------------------
+    // ---- the fifteen throw sites, in the order the engine checks them ------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -108,8 +108,10 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside review | verify', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { review: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { review: 'ultra' } } },
+    { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // A coerced path list would hand every agent a file that is not there, or none of the project's rules.
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md', units: [unit('u1')] } },
+    { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
     { name: 'no units', when: 'args.units is empty', args: { ...base, units: [] } },
     { name: 'issue-file collision', when: 'two unit ids map to one issue file', args: { ...base, units: [unit('src/foo-bar'), unit('src/foo_bar')] } },
     { name: 'plan-id collision', when: 'two unit ids map to one plan id', args: { ...base, units: [unit('src/a'), unit('src/a/')] } },

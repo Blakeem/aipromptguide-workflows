@@ -12,7 +12,7 @@
 // gatherer (scrubbed anyway: what it wrote is already on disk), a zero-file source (scrub SKIPPED, the
 // run continues) and a repo source (scrub SKIPPED: only web captures carry HTML chrome). None throws
 // and none has its own terminal, so this table is the only thing holding them in the diagram. Plus each
-// of the twelve throw sites.
+// of the thirteen throw sites.
 
 const base = {
   runId: 'flow',
@@ -110,7 +110,7 @@ export default {
       terminal: CURATED,
     },
 
-    // ---- the twelve throw sites -------------------------------------------------------------------
+    // ---- the thirteen throw sites -------------------------------------------------------------------
     // The guard on the parse itself. `args` reaches an engine verbatim from the Workflow tool, so a
     // hand-built payload with a missing `}` arrives as an unparseable STRING rather than an object.
     { name: 'malformed args JSON', when: 'args is a string that is not valid JSON', args: '{broken' },
@@ -136,6 +136,7 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside gather | scrub | curate', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { gather: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { gather: 'ultra' } } },
+    { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     { name: 'no runId', when: 'args carry no runId', args: {} },
     { name: 'no root', when: 'args.root is missing', args: { runId: 'flow' } },
     { name: 'no brief', when: 'neither brief nor planPath', args: { runId: 'flow', root: 'E:/flow' } },

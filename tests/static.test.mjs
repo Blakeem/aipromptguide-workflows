@@ -187,15 +187,15 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   // printed by the assertion.
   const FALLBACK = [
     { engine: 'workflows/decide/decide-cycle.mjs', schema: 'ANALYST_SCHEMA',
-      reason: 'inside parallel(LENSES.map((lens) => () => agent(...))) — the return is never named' },
+      reason: 'inside parallel(LENSES.map((lens) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/decide/decide-cycle.mjs', schema: 'REVIEW_SCHEMA',
-      reason: 'inside parallel(units.map((u) => () => agent(...))) — the return is never named' },
+      reason: 'inside parallel(units.map((u) => () => callAgent(...))) — the return is never named' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'GATHER_SCHEMA',
-      reason: 'agent(...).then((g) => ...) — the return reaches a callback parameter, not a variable' },
+      reason: 'callAgent(...).then((g) => ...) — the return reaches a callback parameter, not a variable' },
     { engine: 'workflows/docs/docs-cycle.mjs', schema: 'SCRUB_SCHEMA',
-      reason: 'return agent(...).then((s) => ...) — handed straight back out of the pipeline stage' },
+      reason: 'return callAgent(...).then((s) => ...) — handed straight back out of the pipeline stage' },
     { engine: 'workflows/brainstorm/brainstorm-cycle.mjs', schema: 'GENERATE_SCHEMA',
-      reason: 'inside parallel(LENSES.map((lens) => () => agent(...))) — the return is never named' },
+      reason: 'inside parallel(LENSES.map((lens) => () => callAgent(...))) — the return is never named' },
   ];
 
   // ---- Code vs. prose -------------------------------------------------------------------------
@@ -259,13 +259,13 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   };
 
   // ---- Receiver grammar -------------------------------------------------------------------------
-  // Every site is `agent(<prompt>, roleOpts('<role>', { schema: … }))`, so the variable a return lands in
+  // Every site is `callAgent(<prompt>, roleOpts('<role>', { schema: … }))`, so the variable a return lands in
   // is found by walking LEFT from `schema:` bracket-aware — out through the options brace, out through the
-  // `roleOpts(` wrapper, to agent's own paren — and reading what sits in front of it. TWO forms are
-  // accepted and both are in use: a declaration (`const fix = await agent(`) and a bare assignment to a
+  // `roleOpts(` wrapper, to callAgent's own paren — and reading what sits in front of it. TWO forms are
+  // accepted and both are in use: a declaration (`const fix = await callAgent(`) and a bare assignment to a
   // variable declared earlier (migrate's `sweep`, investigate's `crit`, each `let … = null` above the call).
   const RX = (n) => n.replace(/\$/g, '\\$');
-  const AGENT_CALL = /([^\w$.]|^)(?:await\s+)?agent\s*$/;
+  const AGENT_CALL = /([^\w$.]|^)(?:await\s+)?callAgent\s*$/;
   const DECL   = /(?:^|[\s;{}()])(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*$/;
   const ASSIGN = /(?:^|[\s;{}()])([A-Za-z_$][\w$]*)\s*=\s*$/;
 
@@ -284,7 +284,7 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
       if (d) return { kind: 'decl', name: d[1] };
       const a = ASSIGN.exec(head);
       if (a) return { kind: 'assign', name: a[1] };
-      return { kind: 'none', name: '' };                        // `return agent(`, `(src) => agent(`, …
+      return { kind: 'none', name: '' };                        // `return callAgent(`, `(src) => callAgent(`, …
     }
     return { kind: 'none', name: '' };
   };

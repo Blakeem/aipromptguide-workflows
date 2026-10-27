@@ -106,6 +106,22 @@ log(`enhance: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`
 const ROOT      = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm      = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 // No `?? '.'` default. `abs()` resolves a relative path against ROOT, and ROOT is this TOOL's directory
 // — so a default would silently point the audit at the tool instead of the system under audit. Unlike
 // the build engines this one is read-only, so it is required only when it is actually load-bearing:
@@ -424,7 +440,7 @@ const findLens = async (lens) => {
   lensStage[lens.id] = 'find';
   // `found`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
   // to the variable its agent return lands in, so the receiver name stays unique in this file.
-  const found = await agent(findPrompt(lens), roleOpts('find', {
+  const found = await callAgent(findPrompt(lens), roleOpts('find', {
     schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
   }));
   // A DEAD finder is not a clean lens: zero candidates from a null would report the lens as audited.
@@ -476,7 +492,7 @@ if (verifyUnits.length) log(`enhance: ${toVerify.length} lens(es) with candidate
 const verifyUnit = async (unit) => {
   const lensIds = unit.members.map((m) => m.lens.id);
   for (const id of lensIds) lensStage[id] = 'verify';
-  const verified = await agent(verifyPrompt(unit.members), roleOpts('verify', {
+  const verified = await callAgent(verifyPrompt(unit.members), roleOpts('verify', {
     schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lensIds.join('+')}`,
   }));
   // A dead verifier, or one that did not attest a lens's proposal file, leaves that lens unverified: no

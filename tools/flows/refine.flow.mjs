@@ -63,10 +63,12 @@ export default {
     { name: 'models names an unknown role', when: 'models carries a key outside critic | editor', args: { ...base, models: { planner: 'opus' } } },
     { name: 'models names an unknown model', when: 'models maps a role to a model outside opus | sonnet | haiku | fable', args: { ...base, models: { critic: 'gpt' } } },
     { name: 'efforts names an unknown level', when: 'efforts maps a role to a level outside low | medium | high | xhigh | max', args: { ...base, efforts: { critic: 'ultra' } } },
+    { name: 'notes missing a path', when: 'notes lacks dir or survey, or names a relative path', args: { ...base, notes: { dir: 'E:/flow/notes' } } },
     // A coerced path list would hand both roles a file that is not there, or none of the target's rules.
     { name: 'conventionFiles is not a path list', when: 'args.conventionFiles is not an array of non-empty paths', args: { ...base, conventionFiles: 'CLAUDE.md' } },
     // The editor re-validates the plan through the plan-block tool, and an installed plugin keeps it apart from root.
     { name: 'no block tool', when: 'blockTool is missing or blank', args: { ...base, blockTool: '' } },
+    { name: 'notes folder inside the repo', when: 'notes.dir lies inside target.repo', args: { ...base, notes: { dir: 'E:/repo/notes', survey: 'E:/aipg/tools/EXIT-SURVEY.md' } } },
 
     // ---- the terminal states, one scenario per distinct fact -------------------------------------
     {

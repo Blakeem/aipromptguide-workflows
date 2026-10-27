@@ -154,6 +154,22 @@ log(`review: roles ${ROLE_KEYS.map((r) => `${r}=${M[r]}/${EF[r]}`).join(', ')}`)
 const ROOT      = String(A.root).replace(/\\/g, '/').replace(/\/+$/, '');
 const norm      = (p) => String(p).replace(/\\/g, '/').replace(/\/+$/, '');
 const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//.test(n)) ? `${ROOT}/${n}` : n; };
+// args.notes = { dir, survey } makes every agent answer the exit survey in its own file under dir.
+const notesArg = (value) => {
+  if (value === undefined) return null;
+  const valid = value !== null && typeof value === 'object' && !Array.isArray(value)
+    && [value.dir, value.survey].every((p) => typeof p === 'string' && /^([a-zA-Z]:)?\//.test(norm(p.trim())));
+  if (!valid) {
+    throw new Error(`Invalid notes arg: args.notes must be { dir, survey }, the absolute paths of the answers folder and of the EXIT-SURVEY.md file; got ${JSON.stringify(value)}. Omit it to run with no survey.`);
+  }
+  return { dir: norm(value.dir.trim()), survey: norm(value.survey.trim()) };
+};
+const NOTES = notesArg(A.notes);
+const notesFile = (label) => `${NOTES.dir}/${String(label || 'agent').toLowerCase().replace(/[^a-z0-9._-]+/g, '-')}.md`;
+// Every agent call goes through callAgent, so a notes run reaches each prompt and a run without notes changes none.
+const callAgent = (prompt, opts) => agent(NOTES
+  ? `${prompt}\n\nEXIT SURVEY: before your final return, read ${NOTES.survey} and append your answers to ${notesFile(opts?.label)} in the format it names, creating the folder if needed. That file is the one write allowed beyond your task's own writes, and you read no other file in that folder. The survey never changes your task or your return.`
+  : prompt, opts);
 const REPO      = abs(TARGET.repo);
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const ISSUES_DIR = `${STATE_DIR}/issues`;
@@ -181,6 +197,9 @@ const insideRepo = (p) => {
 // repo so the blind quality reviewer (in develop's fix mode) cannot wander into it. Warn loudly if root was set wrong.
 if (insideRepo(STATE_DIR)) {
   log(`⚠ run-state (${STATE_DIR}) is INSIDE the target repo — the blind quality reviewer could see the issue files. Point args.root back at your run-state base — the checkout, or the plugin data dir the skill resolved — never the plugin install dir (see CLAUDE.md).`);
+}
+if (NOTES && insideRepo(NOTES.dir)) {
+  throw new Error(`args.notes.dir is inside the target repo. Every agent appends its survey answers there, so the reviewers could read those files as part of the repo under review, and a later develop run would see them in its unstaged diff. Got ${NOTES.dir}, inside ${REPO}. Pass a folder outside the target repo, such as <root>/runs/<runId>-notes.`);
 }
 
 // A long slug keeps a hash of its full form: gen-units chunk ids sharing a 60-char prefix would otherwise
@@ -528,7 +547,7 @@ const results = await pipeline(
       const cleanEligible = total === 0 && p === lenses.length - 1 && !lensDied;
       // `rev`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
       // to the variable its agent return lands in, and `r` is bound five times in this file.
-      const rev = await agent(reviewPrompt(unit, lens, {
+      const rev = await callAgent(reviewPrompt(unit, lens, {
         reviewFile: paths[p], tag: tags[p], prior: sources.map((s) => ({ lens: s.lens.id, path: s.path })), cleanEligible,
       }), roleOpts('review', { schema: REVIEW_SCHEMA, phase: 'Review', label: `review:${where}` }));
       // A DEAD reviewer is not a clean lens: zero findings from it while a surviving sibling lens has some
@@ -574,7 +593,7 @@ const results = await pipeline(
       }
       return { unit: unit.id, file: markerWritten ? issueFile(unit.id) : null, counts: { found: 0, actionable: 0, needs_user: 0, deferred: 0, rejected: 0 }, kept: [] };
     }
-    const verify = await agent(verifyPrompt(unit, sources, lensDied), roleOpts('verify', {
+    const verify = await callAgent(verifyPrompt(unit, sources, lensDied), roleOpts('verify', {
       schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${unit.id}`,
     }));
     // `wrote_file` is REQUIRED by VERIFY_SCHEMA and instructed in the prompt — read it, or two failures

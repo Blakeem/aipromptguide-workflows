@@ -280,6 +280,13 @@ with `units` from `gen-units.mjs`.
   outside the role keys, and a value outside its set. Choose each role's model by the task and the
   change's risk, as the develop guide §3 says. One launch log line names each role's model and
   effort).
+- **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
+  the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
+  outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
+  this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
+  then ends with an instruction to append the survey's answers to its own file in `dir`.
+  A `notes` arg without both paths, or with a `dir` inside `target.repo`, **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
+  and report the themes of the `SURVEY.md` it writes to the user.
 - **Returns** `inventory` counts, `hottest` areas, `needsUserFiles`, and `failed`. The first three cover
   only the units this run reviewed, so after a resume they leave out the other units' issue files.
   `failed` holds every dead reviewer `{ id, stage: 'review', lens }`, every reviewer whose count is

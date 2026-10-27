@@ -252,6 +252,13 @@ Full schema + defaults: the Config block atop `decide-cycle.mjs`. Pass `args` in
   set. Choose each role's model by the task and how much judgment the role needs, as the develop guide §3 says. One
   launch log line names each role's model and effort) · `agentTypes` (custom subagent per role — must exist
   in your registry) · `stateDir` (override `runs/<runId>`).
+- **Exit survey:** `notes` (`{ dir, survey }`, two absolute paths). Set it when the user asks for
+  the agents' feedback on a run. `dir` is the folder the answers go to, outside the target repo and
+  outside `runs/<runId>/`, such as `<root>/runs/<runId>-notes`. `survey` is `tools/EXIT-SURVEY.md` of
+  this checkout, or of the plugin folder the skill names in an installed plugin. Every agent prompt
+  then ends with an instruction to append the survey's answers to its own file in `dir`.
+  A `notes` arg without both paths **throws**. Once the run ends, run `node <survey's folder>/survey.mjs <dir>`
+  and report the themes of the `SURVEY.md` it writes to the user.
 
 ## 9. State files (`runs/<runId>/`, outside every repo)
 

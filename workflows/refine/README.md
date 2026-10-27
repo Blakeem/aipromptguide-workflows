@@ -58,6 +58,8 @@ A plan review that keeps adding detail never ends. Four rules make this one fini
 
 Read `DISMISSED-PLAN.md` before you approve a converged plan, since each declined gap is a judgment call.
 
+Ask for an [exit survey](../../README.md#exit-survey) to have each agent of the run report on the workflow.
+
 ## Requirements
 
 - **Claude Code** with the background **Workflow** capability.
