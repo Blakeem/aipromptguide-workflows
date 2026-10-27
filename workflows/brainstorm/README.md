@@ -59,7 +59,9 @@ complex problem, writes a shared brief in plan mode), then runs `brainstorm-cycl
 
 ## Reviewing the result
 
-Variations land under `runs/<runId>/variations/<lens>/`. Open each entry and compare. There are no
+Variations land under `runs/<runId>/variations/<lens>/`. Open each entry and compare. Each entry file
+ends with a list of every file in its folder. The list marks each file an earlier run with the same
+`runId` left there. There are no
 review or status files (it's divergent and you're the judge). Pick one, combine elements, then either build
 it from a [`develop-cycle`](../develop/) plan file or copy it into your repo yourself.
 

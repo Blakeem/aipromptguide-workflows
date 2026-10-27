@@ -78,7 +78,9 @@
 //     `acceptance -> develop` edge meaning two different things. It is derived from labels alone;
 //     nothing parses a label's internals for meaning. INSIDE one fan-out lane the boundary rule is off:
 //     `group.item` is authoritative there, so review's `review:u1/x -> review:u1/y` is the sequential
-//     repeat it really is, not an advance to a new unit. A boundary edge is a SEPARATE edge from a
+//     repeat it really is, not an advance to a new unit. The rule is off on a join from one fan-out
+//     into the next too, since each names its lanes on its own axis: enhance's `find:<lens> ->
+//     verify:<lens>+<lens>` is a stage edge. A boundary edge is a SEPARATE edge from a
 //     same-item one between the same pair — develop-cycle observes both `acceptance -> develop` shapes
 //     (retry this block / advance to the next), and merging them on the node pair alone would re-fold the
 //     exact pair this rule exists to split, printing only the boundary advance and losing the retry.
@@ -493,7 +495,8 @@ export async function buildGraph(spec) {
         for (const from of prevExits) {
           const a = itemIdOf(from.call.label, from.node.role);
           const b = itemIdOf(to.call.label, to.node.role);
-          const boundary = !!a && !!b && a !== b;
+          const fanOutJoin = !!from.call.group && !!to.call.group;
+          const boundary = !fanOutJoin && !!a && !!b && a !== b;
           const back = !boundary && isBack(from.node.key, to.node.key, segSeen);
           const jk = `${laneOf(from.call, from.node.role)}\u0000${from.node.key}\u0000${to.node.key}`;
           if (back && !joinRepeat.has(jk)) joinRepeat.set(jk, traversalOf(from.call, from.node.role, from.node.key, to.node.key));

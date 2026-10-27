@@ -249,8 +249,8 @@ section('every TOP-LEVEL schema field an engine declares is CONSUMED by that sam
   };
 
   // Evaluate a schema expression with every free identifier bound to `unknown`. `with` + a has-trap that
-  // declines real globals is what lets FIND_SCHEMA (`enum: CATEGORIES`, derived from args) and
-  // DECIDE_SCHEMA (`...(RANKED ? … : {})`, derived from args) evaluate at all outside a run.
+  // declines real globals is what lets DECIDE_SCHEMA (`...(RANKED ? … : {})`, derived from args)
+  // evaluate at all outside a run.
   const evalSchema = (expr, unknown) => {
     const scope = new Proxy({}, { has: (t, k) => typeof k === 'string' && !(k in globalThis), get: () => unknown });
     let v = new Function('__s', 'with (__s) { return (' + expr + '); }')(scope);

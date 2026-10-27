@@ -39,6 +39,16 @@ section('a dead generator lands in failed as one { id, stage } entry, and the re
   ok(!('phase' in out), 'the return has no phase key');
 }
 
+section('the generator lists every file in its folder in its entry file, so an earlier run\'s file is visible');
+// A same-runId re-run leaves an earlier run's files beside the new ones, such as an old index.html beside a new index.md.
+{
+  const { prompt } = await runEngine(ENGINE, { args: baseArgs, respond: { generate: GEN } });
+  const p = prompt('generate:minimalist').replace(/\s+/g, ' ');
+  ok(p.includes('3. LIST every file in E:/r/runs/t/variations/minimalist/ in a final "Files in this folder" section of your entry file, in that file\'s own format'),
+    'the generator lists its own folder in its entry file');
+  ok(p.includes('mark each file you did not write in this run "(earlier run, not part of this variation)".'), 'and marks each earlier run\'s file');
+}
+
 await pinRoleMaps({
   engine: ENGINE, name: 'brainstorm', defaults: { generate: 'opus' },
   runs: [{ args: baseArgs, respond: { generate: GEN }, labels: { generate: 'generate' } }],

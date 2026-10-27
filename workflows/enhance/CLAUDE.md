@@ -2,9 +2,10 @@
 
 `enhance-cycle.mjs` audits a system that **already works** for **enhancements** — bigger changes worth
 writing up, not nits. It fans out one **finder per lens** across the WHOLE scope (breadth, not file
-slices — cross-cutting enhancements are the point), then a **verifier per lens** that kills anything the
-system already does, scores impact × size, routes each survivor, and writes one verbatim
-`proposals/<lens>.md`. Then it **STOPS**. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
+slices — cross-cutting enhancements are the point), each writing its candidates to
+`candidates/<lens>.md`, then **verifiers bin-packed across lenses** that kill anything the system
+already does, score impact × size, route each survivor, and write one verbatim `proposals/<lens>.md` per
+lens. Then it **STOPS**. Built to `../../principles/WORKFLOW-PRINCIPLES.md` — a
 *generative* workflow honoring the core (#1–4, #6, #8, #11–19); it writes no code, stages nothing, and
 never commits.
 
@@ -72,8 +73,8 @@ One phase, no mid-run questions — settle everything with the user first:
 
 ## 4. Lenses — the fan-out axis
 
-Each lens is ONE finder (+ verifier) → ONE proposal file. `{ id, focus, criteria }`; a bare string is
-both id and focus.
+Each lens is ONE finder → ONE candidates file → ONE proposal file, which the verifier that carries the
+lens writes. `{ id, focus, criteria }`; a bare string is both id and focus.
 - **`focus`** — the perspective, pushed hard. The finder is told not to hedge toward the other lenses.
 - **`criteria`** (optional) — what to weigh under this lens.
 
@@ -94,10 +95,16 @@ noise.
 - **Finder** (find · opus) — reads the whole scope through ONE lens. Every candidate must be grounded in
   the code as it is: **what the system does today** (cited `file:line`) → **what it would do instead** →
   **the specific cost that removes** (tokens, wall-clock, agent count, operator steps, a failure mode,
-  maintenance surface). No nameable cost = not an enhancement. Zero candidates is a legitimate outcome —
-  the finder then writes its own clean `proposals/<lens>.md` marker. A finder that verifies a defect in
-  passing reports it as a `DEFECT:` candidate.
-- **Verifier** (verify · opus) — spawned ONLY for lenses with candidates. It reads the code each
+  maintenance surface). No nameable cost = not an enhancement. It writes each candidate whole, with an
+  `**Evidence:**` line naming what it read and ran, to `candidates/<lens>.md`, and returns only the
+  candidate ids, numbered `<lens>-<n>`. Zero candidates is a legitimate outcome — the finder then writes
+  its own clean `proposals/<lens>.md` marker. A finder that verifies a defect in passing reports it as a
+  `DEFECT:` candidate.
+- **Verifier** (verify · opus) — spawned ONLY for lenses with candidates, and **bin-packed across
+  lenses**, as debug packs small units: in lens order, a lens joins the current verifier while their
+  candidates total at most 12, a lens with more gets a verifier of its own, and a lens never splits
+  across verifiers. It reads each of its lenses' candidates files by path, treats the finder's Today,
+  Removes and Evidence lines as claims to confirm, reads the code each
   candidate cites plus what the REJECT rules need, and for rule 1 searches the scope for an existing
   mechanism by what it does, not only by the candidate's words. Rejects ruthlessly, first match
   wins: (1) **the system already does this** — the most common failure of a find pass; (2) the claimed
@@ -105,7 +112,7 @@ noise.
   an enhancement — rejected with `is_defect`, so you can route it to debug; (5) its verified **risk
   outweighs** the cost removed, such as breaking something the system needs or leaving a required
   instruction ambiguous — rejected with `too_risky`. Then it re-scores impact/size (finders over-rate)
-  and **writes** `proposals/<lens>.md` verbatim. A real candidate it scores below the floor keeps
+  and **writes** `proposals/<lens>.md` verbatim for each of its lenses. A real candidate it scores below the floor keeps
   `is_real` true and is rejected as below the floor.
 
 ## 6. Contracts (keep intact)
@@ -120,11 +127,16 @@ noise.
 - **Defects are out of scope, both directions.** A finder reports a defect it found in passing as a
   `DEFECT:` candidate, never as an enhancement. The verifier rejects it with `is_defect=true` and lists
   every defect, including one split from a kept candidate, under `## Defects to route` so you can route
-  it. Do not relax this — the two workflows stay clean by staying separate.
-- **Read-only.** The only files written are the per-lens proposal files. Source is never modified,
-  nothing is staged, nothing is committed.
-- **One writer per proposal file** — the finder when the lens is clean, the verifier when it has
-  candidates; never both (parallel-safe, same contract as debug's `review.mjs`). For the same reason
+  it, each as a block that reuses debug's issue-entry `- file:` and `**What:**` lines: `- file:` holds
+  where, and `**What:**` what is broken and its harm. An `**Evidence:**` line holds the trigger and what
+  the verifier confirmed. Do not relax this — the
+  two workflows stay clean by staying separate.
+- **Read-only.** The only files written are the per-lens candidates and proposal files. Source is never
+  modified, nothing is staged, nothing is committed.
+- **One writer per file** — the finder writes its lens's candidates file, and its proposal file when the
+  lens is clean. The verifier that carries the lens writes its proposal file when it has candidates, and
+  a packed verifier writes only its own lenses' files. Never two writers (parallel-safe, same contract as
+  debug's `review.mjs`). For the same reason
   there is **no shared `NEEDS-USER.md`**: the lenses run concurrently and an agent "append" is a
   read-modify-write, so two verifiers would silently clobber each other. A user-only call goes in that
   candidate's block in its own lens file, options + recommendation included — nothing is lost.
@@ -146,16 +158,22 @@ What each decision means:
 
 - `proposals/<lens>.md` — one per lens (non-alphanumerics in the lens id become underscores:
   `operator-effort` → `operator_effort.md`): the verified, impact-scored proposals, a
-  `## Defects to route` section (one line per defect, written only when it has one) and a `## Rejected`
+  `## Defects to route` section (one block per defect, written only when it has one) and a `## Rejected`
   section (one line each, and a rejection for a cost the verifier cannot substantiate starts `UNPROVEN:`
   and names the evidence that would substantiate it). This IS the deliverable. A verifier-written file (a lens that had candidates)
   carries `lens`, `focus`, `reviewed` and a `note` stating these are proposals requiring human triage;
   a clean lens's finder-written marker carries only `lens` and `reviewed`. A lens reports NO file when
-  its finder died, its finder returned no candidate without attesting its marker, its verifier died, or
-  its verifier did not confirm writing the file. Each of those lands the lens in `failed` as
-  `{ id, stage }` with the stage that dropped it: `find` for the two finder cases, `verify` for the two
-  verifier cases. The run logs a ⚠ naming the lens in each case, and `nextStep` names it as
-  `<lens> (<stage>)`. Re-run it.
+  its finder died, its finder returned candidate ids without attesting its candidates file, its finder
+  returned only ids that do not read `<lens>-<n>`, its finder returned no candidate without attesting
+  its marker, its verifier died, or its verifier did not list the lens in `wrote_lenses`. Each of those
+  lands the lens in `failed` as `{ id, stage }` with the stage that dropped it: `find` for the four
+  finder cases, `verify` for the two verifier cases. A finder id that repeats or does not read
+  `<lens>-<n>` is ignored and logged. A dead packed
+  verifier fails every lens it carried. The run logs a ⚠ naming the lens in each case, and `nextStep`
+  names it as `<lens> (<stage>)`. Re-run it.
+- `candidates/<lens>.md` — the finder's candidates, each with its evidence, that the verifier reads. A
+  clean lens's finder writes none, so a candidates file on disk for a clean lens is from an earlier
+  launch.
 - No shared `NEEDS-USER.md` (§6) — a user-only call lives in its candidate's block in the lens file.
 
 No `issues/` directory (deliberately — §6), no status files, no run summary.
@@ -169,7 +187,7 @@ inline.
 - **Optional:** `target.repo` (absolute) · `goals` (what "better" means — strongly recommended) ·
   `conventions` (house rules) · `context` (domain facts the agents won't infer) · `minImpact`
   (`transformative`|`high`|`moderate`|`marginal`; default `moderate`) · `categories` (override the
-  finding enum — default `efficiency`, `simplification`, `removal`, `robustness`, `capability`,
+  finder's category list — default `efficiency`, `simplification`, `removal`, `robustness`, `capability`,
   `operator-effort`, `consistency`, `observability`, `cost`) · `target.lang`/`target.framework` (hints) ·
   `models`/`efforts` (`models` and `efforts` map a role key to a value. The role keys are `find` and
   `verify`. A model is `opus | sonnet | haiku | fable` and an effort is
@@ -180,5 +198,5 @@ inline.
   effort) · `agentTypes` (custom subagent per role —
   must exist in your registry) · `stateDir` (override `runs/<runId>`).
 
-Agent count is bounded and visible up front: **≤ 2 × lenses** (one finder each, plus a verifier only
-where candidates exist).
+Agent count is bounded and visible up front: **≤ 2 × lenses** (one finder each, plus at most one
+verifier per lens with candidates, fewer when lenses share a verifier).

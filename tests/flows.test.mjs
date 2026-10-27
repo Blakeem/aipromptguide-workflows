@@ -38,8 +38,8 @@ const reviewSpec = (units) => ({
   }],
 });
 
-// docs-cycle labels its curator `curate:r${rounds}` — the repo's only COLON-separated round marker, and
-// the only engine that puts a fan-out on BOTH sides of a loop. Built in memory so the rule below is
+// docs-cycle labels its curator `curate:r${rounds}` and its gap-fill gatherer `gather:r${rounds}`, the
+// repo's only COLON-separated round markers. Built in memory so the rule below is
 // asserted independently of whatever tools/flows/docs.flow.mjs happens to script.
 const CURATE_BASE = { wrote_index: true, files: 5, inconsistencies: 0, fidelity_checked: 1, fidelity_failures: 0, foreign_content: false };
 const docsSpec = {
@@ -53,7 +53,7 @@ const docsSpec = {
     respond: {
       gather: { files_written: 3 },
       scrub: { files_cleaned: 1 },
-      curate: (label) => ({ ...CURATE_BASE, gaps: /r1$/.test(label) ? [{ kind: 'web', focus: 'webhooks' }] : [] }),
+      curate: (label) => ({ ...CURATE_BASE, gaps: /r1$/.test(label) ? [{ kind: 'web', id: 'gap-r1-1' }] : [] }),
     },
     terminal: 'curated',
   }],
@@ -278,6 +278,15 @@ section('terminals differing only in a number fold into one N-form node');
     'every parking scenario reached it');
 }
 
+section('a join from one fan-out into the next is a stage edge, not a boundary');
+// enhance's finders fan out by lens and its verifiers by packed unit, so their item ids always differ.
+{
+  const [enhance] = await loadSpecs(['enhance']);
+  const e = edgeBetween(await buildGraph(enhance), 'find', 'verify');
+  ok(!!e, 'find → verify');
+  ok(e && !e.boundary && !e.back, 'as a plain stage edge, never a next-item advance');
+}
+
 section('advancing to the NEXT item is a boundary edge, not a loop');
 // Without it, "loop again on the same block" and "advance to the next block" fold into one edge meaning
 // two different things.
@@ -422,12 +431,14 @@ section('the round count is per LANE — fan-out width and roadmap length never 
   eq(retry[0].repeat, 5, 'and a block that never accepts still measures its full maxRounds of 5');
 
   // One ungrouped call looping back into a fan-out of k lanes walks the edge ONCE for the round, not k times.
-  const twoGaps = [{ kind: 'web', focus: 'webhooks' }, { kind: 'web', focus: 'rate limits' }];
-  const [gapRound] = docsSpec.scenarios;
-  const wide = { ...docsSpec, scenarios: [{ ...gapRound, respond: { ...gapRound.respond,
-    curate: (label) => ({ ...CURATE_BASE, gaps: /r1$/.test(label) ? twoGaps : [] }) } }] };
-  eq(edgeBetween(await buildGraph(wide), 'curate', 'gather').repeat, 2,
-    'a curator that returns 2 gaps in a 2-round loop reads x2, not the x3 one count per entered lane gives');
+  const wide = {
+    engine: 'tests/fixtures/fanout-loop.mjs',
+    out: 'tests/fixtures/NEVER-WRITTEN.md',
+    title: 'fanout-loop (in-memory)',
+    scenarios: [{ name: 'two rounds', when: 'a check loops back into two lanes', args: {}, respond: {} }],
+  };
+  eq(edgeBetween(await buildGraph(wide), 'check', 'work').repeat, 2,
+    'a check that loops back into 2 lanes over 2 rounds reads x2, not the x3 one count per entered lane gives');
 }
 
 section('a label matching no known role is a hard error naming the label');

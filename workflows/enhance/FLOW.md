@@ -10,11 +10,13 @@ it might do. `node tools/gen-flows.mjs --check` fails the gate while this file i
 flowchart TD
   S0(["args"])
   a1["find · opus<br/>×2 concurrent"]
-  a2["verify · opus<br/>×2 concurrent"]
+  a2["verify · opus"]
   t1(["proposals written"])
   t2(["lens NOT audited (finder died, lens in failed at stage find)"])
   t3(["clean lens (the finder wrote the marker, verify skipped)"])
-  t4(["lens NOT audited (no marker attested, lens in failed at stage find)"])
+  t4(["lens NOT audited (candidates file not attested, lens in failed at stage find)"])
+  t5(["lens NOT audited (no routable candidate id, lens in failed at stage find)"])
+  t6(["lens NOT audited (no marker attested, lens in failed at stage find)"])
   x1[/"throw: Invalid args JSON"/]
   x2[/"throw: args must include at least { runId, root, target, scope, lenses }"/]
   x3[/"throw: args.root is required"/]
@@ -42,6 +44,8 @@ flowchart TD
   a1 --> t2
   a1 --> t3
   a1 --> t4
+  a1 --> t5
+  a1 --> t6
   a2 --> t1
 ```
 
@@ -49,29 +53,31 @@ flowchart TD
 
 | Phase | What happens |
 |---|---|
-| Find | One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -&gt; what it would do instead -&gt; the concrete cost that removes. A lens that finds nothing writes its own clean proposals/&lt;lens&gt;.md marker. |
-| Verify | Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim. |
+| Find | One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -&gt; what it would do instead -&gt; the concrete cost that removes, with the evidence for each, written to candidates/&lt;lens&gt;.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/&lt;lens&gt;.md marker. |
+| Verify | Spawned ONLY for lenses with candidates, bin-packed: lenses join one verify unit up to a candidate cap, and a lens never splits across units. Each verifier reads its lenses' candidates files by path, re-checks each candidate against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT \| ROADMAP \| NEEDS_USER \| REJECT, and WRITES proposals/&lt;lens&gt;.md verbatim for each of its lenses. |
 
 ## Terminal states
 
 | Terminal | Reached when | Source |
 |---|---|---|
-| proposals written | both finders return candidates above the floor | declared |
+| proposals written | both finders return candidates, and one packed verifier carries both lenses | declared |
 | lens NOT audited (finder died, lens in failed at stage find) | the finder dies (the lens is reported in failed at stage find) | declared |
 | clean lens (the finder wrote the marker, verify skipped) | the finder returns no candidate and attests its marker | declared |
+| lens NOT audited (candidates file not attested, lens in failed at stage find) | the finder returns candidate ids and does not attest its candidates file | declared |
+| lens NOT audited (no routable candidate id, lens in failed at stage find) | every candidate id the finder returns does not read &lt;lens&gt;-&lt;n&gt; | declared |
 | lens NOT audited (no marker attested, lens in failed at stage find) | the finder returns no candidate and does not attest its marker | declared |
-| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 38) |
-| throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 41) |
-| throw: args.root is required | args.root is missing | throw (line 45) |
-| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 59) |
-| throw: Invalid role map | models is an array in place of an object | throw (line 87) |
-| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 92) |
-| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 95) |
-| throw: args.scope is required | args.scope is empty | throw (line 128) |
-| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 134) |
-| throw: args.lenses is required | args.lenses is empty | throw (line 144) |
-| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 148) |
+| throw: Invalid args JSON | args is a string that is not valid JSON | throw (line 39) |
+| throw: args must include at least { runId, root, target, scope, lenses } | args carry no runId | throw (line 42) |
+| throw: args.root is required | args.root is missing | throw (line 46) |
+| throw: args.minImpact must be one of ... | args.minImpact names no rank | throw (line 60) |
+| throw: Invalid role map | models is an array in place of an object | throw (line 88) |
+| throw: Unknown role key in a role map | models carries a key outside find \| verify | throw (line 93) |
+| throw: Illegal role value in a role map | models maps a role to a model outside opus \| sonnet \| haiku \| fable · efforts maps a role to a level outside low \| medium \| high \| xhigh \| max | throw (line 96) |
+| throw: args.scope is required | args.scope is empty | throw (line 135) |
+| throw: args.target.repo is required when any args.scope path is relative | a scope path is relative and target.repo is missing | throw (line 141) |
+| throw: args.lenses is required | args.lenses is empty | throw (line 151) |
+| throw: lens ids collide after slugging | two lenses slug to one id | throw (line 155) |
 
 ## Coverage
 
-16 scenarios · 2/2 roles · 11/11 throw sites · 0/0 halt statuses · 15 terminal states.
+18 scenarios · 2/2 roles · 11/11 throw sites · 0/0 halt statuses · 17 terminal states.

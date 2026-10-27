@@ -108,8 +108,9 @@ times each loop ran. develop's numbered `risk-<id>-rN.md` is the developer's mes
 which holds its risk answers for round N (#5).
 
 Narration about the run is forbidden, such as status files, run summaries, progress logs, and "what I
-did" reports. A run writes only three kinds of file. These are the numbered inter-agent messages, the
-ledgers and user notes below, and the workflow's own product, the thing the run exists to produce. The
+did" reports. A run writes only three kinds of file. These are the inter-agent messages, numbered by
+round or keyed by unit like enhance's `candidates/<lens>.md`, the ledgers and user notes below, and the
+workflow's own product, the thing the run exists to produce. The
 product files are `issues/`, `proposals/`, `variations/`, `lenses/`, the decision files, investigate's
 `options/` and `DETERMINATION.md`, the docs set and `INDEX.md`, develop's `SWEEP.md`, and a parked block's commit on its
 `aipg-unfinished/<backlog file id>` branch, whose earlier parks stay in that branch's history.

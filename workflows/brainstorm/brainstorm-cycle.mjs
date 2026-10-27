@@ -138,7 +138,11 @@ PROCEDURE:
 2. WRITE it into ${lensDir(lens.id)}/ (create it): the main artifact at
    ${lensDir(lens.id)}/index.<ext> (the extension the format implies, e.g. .md/.html), any supporting
    files alongside it. For each file: ${REPLACE_NOTE} ${WROTE_NOTE}
-3. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
+3. LIST every file in ${lensDir(lens.id)}/ in a final "Files in this folder" section of your entry file,
+   in that file's own format: one line per file with its path relative to the folder. An earlier run with
+   this runId may have left files there, so mark each file you did not write in this run "(earlier run,
+   not part of this variation)".
+4. Do NOT review or critique your work, modify the target repo, stage, or commit. The file(s) in your
    folder are your ONLY output.
 Return the entry path + a ONE-LINE differentiator via the schema.`;
 

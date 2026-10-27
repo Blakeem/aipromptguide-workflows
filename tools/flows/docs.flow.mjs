@@ -1,4 +1,5 @@
-// Flow-map scenarios for docs-cycle — a PER-SOURCE PIPELINE (gather → scrub) under a bounded gap loop.
+// Flow-map scenarios for docs-cycle — a PER-SOURCE PIPELINE (gather → scrub) in round 1, under a bounded
+// gap loop whose rounds each run one gap-fill gatherer.
 // Contract + every derivation rule: the header of ../gen-flows.mjs. Regenerate with
 // `node tools/gen-flows.mjs docs`; `--check` fails the gate while FLOW.md is stale.
 //
@@ -29,7 +30,7 @@ const CURATE = {
   wrote_index: true, files: 11, deleted: 1, inconsistencies: 0,
   fidelity_checked: 3, fidelity_failures: 0, foreign_content: false, foreign_paths: [], gaps: [],
 };
-const CURATE_GAP = { ...CURATE, gaps: [{ kind: 'web', focus: 'webhook signature verification' }] };
+const CURATE_GAP = { ...CURATE, gaps: [{ kind: 'web', id: 'gap-r1-1' }] };
 
 const CURATED = 'curated set indexed (no gaps left)';
 
@@ -47,7 +48,8 @@ export default {
       terminal: CURATED,
     },
     {
-      // The curator's gap spawns a fresh gather → scrub for it, then round 2 comes back clean.
+      // The curator's gap spawns one gap-fill gatherer, which scrubs its own captures, then round 2
+      // comes back clean.
       // Keyed off the round in the label, not a counter: every scenario is run more than once.
       name: 'gap-fill round',
       when: 'the curator returns a gap the next round fills',
@@ -75,6 +77,15 @@ export default {
       when: 'a gatherer dies mid-capture',
       args: base,
       respond: { 'gather:release-notes': null, gather: GATHER, scrub: SCRUB, curate: CURATE },
+      terminal: CURATED,
+    },
+    {
+      // The gap-fill gatherer carries every gap of its round, so its death records each gap and the
+      // round-2 curator still integrates whatever it wrote.
+      name: 'the gap-fill gatherer dies',
+      when: 'the gap-fill gatherer dies',
+      args: base,
+      respond: { 'gather:r2': null, gather: GATHER, scrub: SCRUB, curate: (label) => (/r1$/.test(label) ? CURATE_GAP : CURATE) },
       terminal: CURATED,
     },
     {

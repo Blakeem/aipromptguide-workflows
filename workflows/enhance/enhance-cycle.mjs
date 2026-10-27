@@ -1,10 +1,10 @@
 export const meta = {
   name: 'enhance-cycle',
-  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), then a verifier per lens that confirms each candidate against the real code, kills anything the system ALREADY does, scores impact x size, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no fix sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
+  description: 'Read-only ENHANCEMENT audit of an existing system, lean/file-bus design. Fans out ONE finder per lens across the whole scope (breadth, not slices — cross-cutting enhancements are the point), each writing its candidates to candidates/<lens>.md, then verifiers bin-packed across lenses that confirm each candidate against the real code, kills anything the system ALREADY does, scores impact x size, and writes one verbatim proposals/<lens>.md, then STOPS. Enhancements only: a defect belongs in the debug workflow, and NOTHING here is auto-applied — there is deliberately no fix sibling. Agents exchange messages as verbatim files; the harness only routes paths + verdicts.',
   whenToUse: 'Audit a system you already have for ENHANCEMENTS — bigger changes worth writing up, not nits: make it more efficient, simpler, cheaper, more robust, less work to operate, or smaller (removing a role/file/arg/code path is a first-class enhancement). The main agent settles the scope + the lenses with the user, then runs this engine. Each lens gets the whole scope and returns a verified, impact-scored, human-triage-ready proposal file. It then STOPS: YOU triage, and adopted proposals become plan-file blocks that refine-cycle converges and develop-cycle builds (feature mode, or section mode for a goal spanning many call sites). NOT for defects/bugs/typos — those are the debug workflow, whose inventory feeds an autonomous fixer. NOT for open-ended creative variations (brainstorm-cycle) or for concluding among competing approaches (decide-cycle).',
   phases: [
-    { title: 'Find', detail: 'One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
-    { title: 'Verify', detail: 'Spawned ONLY for lenses with candidates: re-checks each against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim.' },
+    { title: 'Find', detail: 'One finder per lens (CONCURRENT), each reading the WHOLE scope through its lens. Grounded candidates only: what the system does today (file:line) -> what it would do instead -> the concrete cost that removes, with the evidence for each, written to candidates/<lens>.md. The finder returns only the candidate ids. A lens that finds nothing writes its own clean proposals/<lens>.md marker.' },
+    { title: 'Verify', detail: 'Spawned ONLY for lenses with candidates, bin-packed: lenses join one verify unit up to a candidate cap, and a lens never splits across units. Each verifier reads its lenses\' candidates files by path, re-checks each candidate against the real code, REJECTS anything the system already does / any unsubstantiated benefit / any nit / anything that is really a defect, scores impact x size, routes ADOPT | ROADMAP | NEEDS_USER | REJECT, and WRITES proposals/<lens>.md verbatim for each of its lenses.' },
   ],
 };
 
@@ -27,7 +27,8 @@ export const meta = {
 // Fan-out is by LENS over the WHOLE scope, not by file-slice (that is debug's axis, right for local
 // defects). Enhancements are frequently cross-cutting — "every engine re-implements this" is invisible
 // to a unit-scoped reader. For a corpus too large for one turn, run per subsystem with a
-// narrower scope.
+// narrower scope. Verification is local to each candidate, so verifiers pack several lenses' candidates
+// into one unit, as debug packs small units, and each unit writes only its own lenses' files.
 // =============================================================================
 // args arrives from the Workflow tool VERBATIM and unvalidated, so a structural typo in a hand-built
 // payload dies here as a bare parse error naming the runtime. Name the payload and the fix instead.
@@ -113,11 +114,17 @@ const abs       = (p) => { const n = norm(p); return (ROOT && !/^([a-zA-Z]:)?\//
 const REPO      = TARGET.repo ? abs(TARGET.repo) : '';
 const STATE_DIR = abs(A.stateDir ?? `runs/${RUN_ID}`);
 const PROPOSALS_DIR = `${STATE_DIR}/proposals`;
+const CANDIDATES_DIR = `${STATE_DIR}/candidates`;
+// The most candidates a verifier carrying several lenses judges. A larger lens gets its own, never split.
+const VERIFY_UNIT_CANDIDATES = 12;
 
 const slug     = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const fileSafe = (id) => String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase();
 // NOT issues/<unit>.md — that path is develop's fix-mode input and nothing here may be auto-applied.
 const proposalFile = (lensId) => `${PROPOSALS_DIR}/${fileSafe(lensId)}.md`;
+const candidatesFile = (lensId) => `${CANDIDATES_DIR}/${fileSafe(lensId)}.md`;
+// The finder mints each id, so the prefix is what ties a verdict back to its lens inside a packed unit.
+const candidatePrefix = (lensId) => `${slug(lensId)}-`;
 // And deliberately NO shared NEEDS-USER.md. Every lens verifies concurrently, and an agent "append" is a
 // read-modify-write, so two of them would silently clobber each other's entries in an unattended run. A
 // user-only call belongs in that lens's own proposal file, where its options + recommendation already go.
@@ -149,39 +156,24 @@ if (dupes.length) {
 }
 
 // =============================================================================
-// Structured-output schemas — DECISIONS ONLY (control plane). All prose lives in the proposal files.
+// Structured-output schemas — DECISIONS ONLY (control plane). All prose lives in the candidates and
+// proposal files.
 // =============================================================================
 const FIND_SCHEMA = {
   type: 'object',
-  required: ['candidates', 'wrote_clean_marker'],
+  required: ['candidate_ids', 'wrote_candidates', 'wrote_clean_marker'],
   properties: {
+    candidate_ids:      { type: 'array', items: { type: 'string' }, description: 'the id of each candidate in your candidates file, in file order ([] for a clean lens)' },
+    wrote_candidates:   { type: 'boolean', description: 'true ONLY if you wrote the candidates file, false for a clean lens' },
     wrote_clean_marker: { type: 'boolean', description: 'true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate' },
-    candidates: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['title', 'category', 'impact', 'size', 'today', 'instead', 'cost_removed'],
-        properties: {
-          title:        { type: 'string', description: 'short, specific, stable' },
-          category:     { type: 'string', enum: CATEGORIES },
-          impact:       { type: 'string', enum: ['transformative', 'high', 'moderate', 'marginal'] },
-          size:         { type: 'string', enum: ['trivial', 'small', 'medium', 'large'] },
-          files:        { type: 'array', items: { type: 'string' }, description: 'the file(s) this touches, repo-relative, with line numbers where you can give them' },
-          today:        { type: 'string', description: 'what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design' },
-          instead:      { type: 'string', description: 'what it would do instead — concrete enough to hand to a builder' },
-          cost_removed: { type: 'string', description: 'the SPECIFIC cost this removes' },
-          risk:         { type: 'string', description: 'what this could break or make worse ("none" is rarely true)' },
-        },
-      },
-    },
   },
 };
 
 const VERIFY_SCHEMA = {
   type: 'object',
-  required: ['verdicts', 'wrote_file'],
+  required: ['verdicts', 'wrote_lenses'],
   properties: {
-    wrote_file: { type: 'boolean', description: 'true if you wrote the lens proposal file (always required, even when everything was rejected)' },
+    wrote_lenses: { type: 'array', items: { type: 'string' }, description: 'the id of each lens whose proposal file you wrote (every lens of your unit is required, even when everything was rejected)' },
     verdicts: {
       type: 'array',
       items: {
@@ -223,8 +215,9 @@ THIS IS AN ENHANCEMENT AUDIT:
     more robust, less work to operate, or newly capable.
   • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
     behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
-    passing reports it as its own candidate whose title starts \`DEFECT:\`, with \`today\` naming what is
-    broken, \`instead\` the fix and \`cost_removed\` the harm. It is routed to the defect workflow.
+    passing reports it as its own candidate whose title starts \`DEFECT:\`, with its Today line naming
+    what is broken, its Instead line the fix and its Removes line the harm. It is routed to the defect
+    workflow.
   • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
     is one of the best outcomes available. Look for it deliberately.
   • THE FLOOR IS HIGH. Report ONLY ${MIN_IMPACT_NAME}+ impact. The test: would a competent engineer
@@ -237,7 +230,8 @@ BE TOKEN-ECONOMICAL: don't restate large files back.`;
 const findPrompt = (lens) => `
 You are an ENHANCEMENT FINDER examining an EXISTING, WORKING system through ONE lens. This is a
 FIND-ONLY pass: you propose, a verifier confirms, and a HUMAN decides. Do NOT modify any file in the
-target repo (the ONLY file you may write is the clean-lens marker described below, in the run-state dir).
+target repo (the ONLY file you may write is the candidates file or the clean-lens marker described below,
+in the run-state dir).
 ${ENV}
 YOUR LENS: ${lens.focus}
 ${lens.criteria ? `WHAT TO WEIGH UNDER THIS LENS: ${lens.criteria}\n` : ''}
@@ -261,8 +255,34 @@ RULES:
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
+CANDIDATES FILE: if you have ANY candidate, WRITE the file ${candidatesFile(lens.id)} (create
+${CANDIDATES_DIR}/ if needed). ${REPLACE_NOTE} The verifier reads it by path, so it holds every
+candidate whole. Number the candidates ${candidatePrefix(lens.id)}1, ${candidatePrefix(lens.id)}2 and so on, in file order. Its format is EXACTLY this:
+-----
+---
+lens: ${lens.id}
+---
+# Candidates: ${lens.id}
+
+(one block per candidate:)
+### [<candidate_id>] <title: short, specific, stable>
+- id: <candidate_id>
+- category: <one of ${CATEGORIES.join(' | ')}>
+- impact: <transformative | high | moderate | marginal>
+- size: <trivial | small | medium | large>
+- files: <the file(s) this touches, repo-relative, with line numbers where you can give them>
+
+**Today:** <what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design>
+**Instead:** <what it would do instead, concrete enough to hand to a builder>
+**Removes:** <the SPECIFIC cost this removes>
+**Risk:** <what this could break or make worse ("none" is rarely true)>
+**Evidence:** <what grounds Today and Removes: each file:line you read, and each command you ran with its output>
+-----
+Then set wrote_candidates=true and wrote_clean_marker=false, and return every candidate id in file order.
+
 CLEAN-LENS MARKER: if AND ONLY IF you have ZERO candidates, WRITE the file ${proposalFile(lens.id)}
-(create ${PROPOSALS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true:
+(create ${PROPOSALS_DIR}/ if needed). ${REPLACE_NOTE} Write EXACTLY this content, then set wrote_clean_marker=true,
+wrote_candidates=false and candidate_ids=[]:
 -----
 ---
 lens: ${lens.id}
@@ -272,22 +292,24 @@ reviewed: true
 
 No enhancements found above the ${MIN_IMPACT_NAME} impact floor.
 -----
-If you report ANY candidate, write NOTHING and set wrote_clean_marker=false.
-Return candidates via the schema. An empty array (a clean lens) is a normal, good outcome.`;
+If you report ANY candidate, write no marker.
+${WROTE_NOTE}
+Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.`;
 
-const verifyPrompt = (lens, items) => `
-You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file and nothing
-else. For each candidate below, inspect the ACTUAL code to decide whether it is REAL and WORTH THE
-USER'S ATTENTION, correct its impact, and route it.
+const verifyPrompt = (unit) => `
+You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file per lens
+below and nothing else. For each candidate, inspect the ACTUAL code to decide whether it is REAL and
+WORTH THE USER'S ATTENTION, correct its impact, and route it.
 ${ENV}
-LENS: ${lens.id} — ${lens.focus}
-CANDIDATES (candidate_id :: category :: impact/size :: title):
-${items.map((i) => `  - ${i.id} :: ${i.c.category} :: ${i.c.impact}/${i.c.size} :: ${i.c.title}
-      files:   ${(i.c.files || []).join(', ') || '(none given)'}
-      today:   ${i.c.today}
-      instead: ${i.c.instead}
-      removes: ${i.c.cost_removed}
-      risk:    ${i.c.risk || '(none stated)'}`).join('\n')}
+YOUR LENSES (judge each lens's candidates under that lens's focus):
+${unit.map((m) => `  - LENS ${m.lens.id}: ${m.lens.focus}
+      candidates file: ${candidatesFile(m.lens.id)}   (read it in full: every candidate with its evidence)
+      candidate ids:   ${m.ids.join(', ')}
+      proposal file:   ${proposalFile(m.lens.id)}`).join('\n')}
+Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
+lens gets no verdict and stays out of every proposal file, since the run counts only listed ids.
+A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one
+against the source it cites before you rely on it.
 
 READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
 rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
@@ -302,7 +324,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      only under an assumption the code does not make is not a benefit.
   3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
-     REJECT it. Its one line naming what is broken goes under \`## Defects to route\`, not
+     REJECT it. Its block naming what is broken goes under \`## Defects to route\`, not
      \`## Rejected\`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
      enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
      half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
@@ -319,7 +341,7 @@ A real candidate you score below the ${MIN_IMPACT_NAME} floor keeps is_real=true
 ROUTING line "impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
   - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line under \`## Rejected\`,
-    or under \`## Defects to route\` for an is_defect candidate)
+    or one block under \`## Defects to route\` for an is_defect candidate)
   - impact below the ${MIN_IMPACT_NAME} floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
@@ -331,15 +353,16 @@ ROUTING (apply in order; first match wins):
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short \`theme\` keyword per verdict.
 
-WRITE the proposal file ${proposalFile(lens.id)} (create ${PROPOSALS_DIR}/ if needed). ${REPLACE_NOTE} ${WROTE_NOTE} Its format is EXACTLY this:
+WRITE each lens's proposal file at the path listed with that lens (create ${PROPOSALS_DIR}/ if needed).
+It holds that lens's candidates only. ${REPLACE_NOTE} ${WROTE_NOTE} Its format is EXACTLY this:
 -----
 ---
-lens: ${lens.id}
-focus: ${lens.focus}
+lens: <the lens id>
+focus: <the lens focus>
 reviewed: true
 note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is applied automatically.
 ---
-# Enhancements: ${lens.id}
+# Enhancements: <the lens id>
 
 (for EACH kept verdict — ADOPT, then ROADMAP, then NEEDS_USER — one block, highest impact first:)
 ### [<candidate_id>] <title>
@@ -359,113 +382,154 @@ note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is 
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
 
 ## Defects to route
-(one line per defect: \`- <candidate_id>: <file:line> <what is broken>\`, covering every is_defect
-candidate and every defect half split from a kept candidate. A rejected defect goes here only, never
-also under Rejected. Write this section only when it has a line.)
+(one block per defect, covering every is_defect candidate and every defect half split from a kept
+candidate. A rejected defect goes here only, never also under Rejected. Write this section only when it
+has a block:)
+### [<candidate_id>] <what is broken, as a short title>
+- file: <file>:<line>
+
+**What:** <what is broken and its harm>
+**Evidence:** <the trigger and what you confirmed: the triggering input, the probe command and its output, or the cited document>
 
 ## Rejected
 (one line each: \`<title>: <why, with the file:line it rests on>\`)
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
-${MIN_IMPACT_NAME} impact floor." followed by the Defects to route section when it has a line, then the
+${MIN_IMPACT_NAME} impact floor." followed by the Defects to route section when it has a block, then the
 Rejected section.
-A question only the user can answer stays in that candidate's NEEDS_USER block in THIS file. Its
+A question only the user can answer stays in that candidate's NEEDS_USER block in its lens's file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
 Do NOT write into any issues/ directory, and do NOT stage or commit.
-Set wrote_file=true and return all verdicts via the schema.`;
+List in wrote_lenses the id of each lens whose proposal file you wrote, and return all verdicts via the schema.`;
 
 // =============================================================================
-// Fan out finder → verifier per LENS (read-only, concurrent), then STOP.
+// Find per LENS, pack the lenses with candidates into verify units, verify each unit (read-only,
+// concurrent), then STOP.
 // =============================================================================
 log(`enhance: ${LENSES.length} lens(es) over ${SCOPE.length} scope path(s) → ${PROPOSALS_DIR} [floor=${MIN_IMPACT_NAME}]`);
-log(`spawn ceiling: ≤ ${LENSES.length * 2} agents (${LENSES.length} finder(s) + ≤${LENSES.length} verifier(s) — verify spawns only where candidates exist)`);
+log(`spawn ceiling: ≤ ${LENSES.length * 2} agents (${LENSES.length} finder(s) + ≤${LENSES.length} verifier(s) — verify spawns only where candidates exist, packing lenses up to ${VERIFY_UNIT_CANDIDATES} candidates per verifier)`);
 
 // The phase of the last agent each lens reached. A lost lens reports it as its `failed` stage, so a lens
 // nobody searched reads apart from one whose search went unverified, even when a stage threw.
 // Null prototype, so a lens id named like an Object member never reads an inherited value.
 const lensStage = Object.create(null);
-const results = await pipeline(
-  LENSES,
-  // -- Find: one agent per lens, reading the whole scope --------------------------------------
-  async (lens) => {
-    lensStage[lens.id] = 'find';
-    // `found`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
-    // to the variable its agent return lands in, and `r` is bound five times in this file.
-    const found = await agent(findPrompt(lens), roleOpts('find', {
-      schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
-    }));
-    // A DEAD finder is not a clean lens. `found?.candidates || []` would make the two identical — zero
-    // candidates and a result object carrying this lens id, so `failed` stays empty and the run reports
-    // the lens as audited. Dropping it to null instead puts it in `failed`, which is the one place the
-    // operator can see that this lens produced nothing because nobody looked.
-    if (!found) {
-      log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
+// The result row of each lens whose file an agent attested. A lens with no row lands in `failed`.
+const lensResult = Object.create(null);
+const emptyCounts = () => ({ found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 });
+// Digits only after the prefix, so lens `a`'s ids can never read as lens `a-2`'s inside one unit.
+const isCandidateId = (lensId, id) => new RegExp(`^${candidatePrefix(lensId)}\\d+$`).test(id);
+
+// -- Find: one agent per lens, reading the whole scope ------------------------------------------
+const findLens = async (lens) => {
+  lensStage[lens.id] = 'find';
+  // `found`, not `r`: the attestation sweep in tests/static.test.mjs scopes each schema's consumer check
+  // to the variable its agent return lands in, so the receiver name stays unique in this file.
+  const found = await agent(findPrompt(lens), roleOpts('find', {
+    schema: FIND_SCHEMA, phase: 'Find', label: `find:${lens.id}`,
+  }));
+  // A DEAD finder is not a clean lens: zero candidates from a null would report the lens as audited.
+  if (!found) {
+    log(`  ⚠ ${lens.id}: the finder DIED — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
+    return null;
+  }
+  const returned = (Array.isArray(found.candidate_ids) ? found.candidate_ids : []).map(String);
+  const ids = [...new Set(returned.filter((id) => isCandidateId(lens.id, id)))];
+  if (ids.length < returned.length) log(`  ⚠ ${lens.id}: ignored ${returned.length - ids.length} candidate id(s) that repeat or do not read ${candidatePrefix(lens.id)}<n> — check ${candidatesFile(lens.id)}`);
+  if (ids.length) {
+    // An unattested candidates file may be an earlier launch's, so the verifier would judge stale candidates.
+    if (found.wrote_candidates !== true) {
+      log(`  ⚠ ${lens.id}: the finder did NOT confirm writing ${candidatesFile(lens.id)} — this lens was NOT audited. Re-run it.`);
       return null;
     }
-    return { lens, candidates: found.candidates || [], markerWritten: found.wrote_clean_marker === true };
-  },
-  // -- Verify + write the lens proposal file — ONLY when the lens has candidates ---------------
-  async (r) => {
-    if (!r) return null;                        // stage 1 dropped a dead finder — it belongs in `failed`
-    const { lens, candidates, markerWritten } = r;
-    const items = candidates.map((c, i) => ({ id: `${slug(lens.id)}-${i + 1}`, c }));
-    if (items.length === 0) {
-      // No candidate and no attested marker leaves no file anyone vouches for, so the lens goes to `failed`.
-      if (!markerWritten) {
-        log(`  ⚠ ${lens.id}: the finder did NOT confirm writing its marker — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
-        return null;
-      }
-      log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
-      return { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: { found: 0, adopt: 0, roadmap: 0, needs_user: 0, rejected: 0, defects: 0 }, kept: [] };
+    return { lens, ids };
+  }
+  // Candidates the harness cannot route would be dropped from every count, so the lens must not read as clean.
+  if (returned.length) {
+    log(`  ⚠ ${lens.id}: no candidate id the finder returned reads ${candidatePrefix(lens.id)}<n> — this lens was NOT audited (its candidates in ${candidatesFile(lens.id)} reach no verifier). Re-run it.`);
+    return null;
+  }
+  // No candidate and no attested marker leaves no file anyone vouches for, so the lens goes to `failed`.
+  if (found.wrote_clean_marker !== true) {
+    log(`  ⚠ ${lens.id}: the finder did NOT confirm writing its marker — this lens was NOT audited (no candidates, and any ${proposalFile(lens.id)} on disk is unverified). Re-run it.`);
+    return null;
+  }
+  log(`  ✓ ${lens.id}: nothing above the floor — finder wrote the marker, verify skipped`);
+  lensResult[lens.id] = { lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts: emptyCounts(), kept: [] };
+  return null;
+};
+const toVerify = (await parallel(LENSES.map((lens) => () => findLens(lens)))).filter(Boolean);
+
+// -- Pack: next-fit in lens order, as debug's gen-units packs small units -------------------------
+const verifyUnits = [];
+for (const member of toVerify) {
+  const open = verifyUnits[verifyUnits.length - 1];
+  if (open && open.count + member.ids.length <= VERIFY_UNIT_CANDIDATES) {
+    open.members.push(member);
+    open.count += member.ids.length;
+  } else {
+    verifyUnits.push({ members: [member], count: member.ids.length });
+  }
+}
+if (verifyUnits.length) log(`enhance: ${toVerify.length} lens(es) with candidates → ${verifyUnits.length} verifier(s)`);
+
+// -- Verify + write each lens's proposal file — ONLY for lenses with candidates -------------------
+const verifyUnit = async (unit) => {
+  const lensIds = unit.members.map((m) => m.lens.id);
+  for (const id of lensIds) lensStage[id] = 'verify';
+  const verified = await agent(verifyPrompt(unit.members), roleOpts('verify', {
+    schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lensIds.join('+')}`,
+  }));
+  // A dead verifier, or one that did not attest a lens's proposal file, leaves that lens unverified: no
+  // row puts it in `failed` with no path reported, the one place the operator sees it.
+  if (!verified) {
+    for (const id of lensIds) log(`  ⚠ ${id}: the verifier DIED — this lens was NOT verified and any ${proposalFile(id)} on disk is unverified. Re-run it.`);
+    return;
+  }
+  const wrote = new Set((Array.isArray(verified.wrote_lenses) ? verified.wrote_lenses : []).map(String));
+  // Match every verdict back to a candidate we actually submitted (same guard as debug/review.mjs):
+  // a hallucinated or repeated candidate_id would inflate the counts and put a phantom row in `kept`,
+  // and the main agent would report adoption numbers the proposal file does not contain.
+  const lensOf = new Map(unit.members.flatMap((m) => m.ids.map((id) => [id, m.lens.id])));
+  const seen = new Set();
+  const allVerdicts = verified.verdicts || [];
+  const verdicts = allVerdicts.filter((x) => {
+    if (!lensOf.has(x.candidate_id) || seen.has(x.candidate_id)) return false;
+    seen.add(x.candidate_id);
+    return true;
+  });
+  const stray = allVerdicts.length - verdicts.length;
+  if (stray) log(`  ⚠ ${lensIds.join(', ')}: ignored ${stray} verdict(s) with an unknown or duplicate candidate_id`);
+  for (const { lens, ids } of unit.members) {
+    if (!wrote.has(lens.id)) {
+      log(`  ⚠ ${lens.id}: the verifier did NOT confirm writing ${proposalFile(lens.id)} — this lens was NOT verified. Re-run it.`);
+      continue;
     }
-    lensStage[lens.id] = 'verify';
-    const v = await agent(verifyPrompt(lens, items), roleOpts('verify', {
-      schema: VERIFY_SCHEMA, phase: 'Verify', label: `verify:${lens.id}`,
-    }));
-    // A dead verifier, or one that did not attest its proposal file, leaves the lens unverified: null puts
-    // it in `failed` with no path reported, the one place the operator sees it.
-    if (!v || v.wrote_file !== true) {
-      log(!v
-        ? `  ⚠ ${lens.id}: the verifier DIED — this lens was NOT verified and any ${proposalFile(lens.id)} on disk is unverified. Re-run it.`
-        : `  ⚠ ${lens.id}: the verifier did NOT confirm writing ${proposalFile(lens.id)} — this lens was NOT verified. Re-run it.`);
-      return null;
-    }
-    // Match every verdict back to a candidate we actually submitted (same guard as debug/review.mjs):
-    // a hallucinated or repeated candidate_id would inflate the counts and put a phantom row in `kept`,
-    // and the main agent would report adoption numbers the proposal file does not contain.
-    const byId = new Set(items.map((x) => x.id));
-    const seen = new Set();
-    const verdicts = (v.verdicts || []).filter((x) => {
-      if (!byId.has(x.candidate_id) || seen.has(x.candidate_id)) return false;
-      seen.add(x.candidate_id);
-      return true;
-    });
-    const stray = (v.verdicts || []).length - verdicts.length;
-    if (stray) log(`  ⚠ ${lens.id}: ignored ${stray} verdict(s) with an unknown or duplicate candidate_id`);
-    const unjudged = items.filter((x) => !seen.has(x.id)).map((x) => x.id);
+    const mine = verdicts.filter((x) => lensOf.get(x.candidate_id) === lens.id);
+    const unjudged = ids.filter((id) => !seen.has(id));
     if (unjudged.length) log(`  ⚠ ${lens.id}: the verifier returned no verdict for ${unjudged.join(', ')} — they are in no count; check ${proposalFile(lens.id)} before triaging`);
-    const by = (d) => verdicts.filter((x) => x.decision === d).length;
+    const by = (d) => mine.filter((x) => x.decision === d).length;
     const counts = {
-      found: items.length,
+      found: ids.length,
       adopt: by('ADOPT'),
       roadmap: by('ROADMAP'),
       needs_user: by('NEEDS_USER'),
       rejected: by('REJECT'),
-      defects: verdicts.filter((x) => x.is_defect === true).length,
-      tooRisky: verdicts.filter((x) => x.too_risky === true).length,
+      defects: mine.filter((x) => x.is_defect === true).length,
+      tooRisky: mine.filter((x) => x.too_risky === true).length,
       unjudged: unjudged.length,
     };
     log(`  ✓ ${lens.id}: ${counts.found} candidate(s) → ${counts.adopt} adopt, ${counts.roadmap} roadmap, ${counts.needs_user} needs-user, ${counts.rejected} rejected${counts.defects ? ` (${counts.defects} were DEFECTS → debug workflow)` : ''}${counts.tooRisky ? ` (${counts.tooRisky} too risky)` : ''}`);
-    return {
+    lensResult[lens.id] = {
       lens: lens.id, focus: lens.focus, file: proposalFile(lens.id), counts,
-      kept: verdicts.filter((x) => x.decision !== 'REJECT')
+      kept: mine.filter((x) => x.decision !== 'REJECT')
         .map((x) => ({ id: x.candidate_id, decision: x.decision, impact: x.impact, size: x.size, theme: x.theme || '' })),
     };
-  },
-);
+  }
+};
+await parallel(verifyUnits.map((unit) => () => verifyUnit(unit)));
 
-const live = results.filter(Boolean);
-const failed = LENSES.filter((l) => !live.some((r) => r.lens === l.id)).map((l) => ({ id: l.id, stage: lensStage[l.id] }));
+const live = LENSES.map((l) => lensResult[l.id]).filter(Boolean);
+const failed = LENSES.filter((l) => !lensResult[l.id]).map((l) => ({ id: l.id, stage: lensStage[l.id] }));
 const failedLabels = failed.map((f) => `${f.id} (${f.stage})`).join(', ');
 if (failed.length) log(`  ⚠ no verified proposal file from: ${failedLabels} — re-run these lenses`);
 
@@ -487,5 +551,5 @@ return {
   failed,
   nextStep: live.length === 0
     ? `NOTHING was audited: every lens failed: ${failedLabels}. There are no proposals to present — do NOT report a clean audit. Tell the user, then re-run those lenses with the same runId.`
-    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every line under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
+    : `Read these proposal files and PRESENT them to the user: ${live.map((r) => r.file).join(', ')}. They hold ${adopt} ADOPT, ${roadmap} ROADMAP and ${needsUser} NEEDS_USER item(s) across ${live.length} lens(es). Present only the listed files: any other file in ${PROPOSALS_DIR}/ is from an earlier run or an agent that did not finish. Present the ADOPT items first (highest impact), then ROADMAP, then every NEEDS_USER with its options + recommendation. Call out any change TWO OR MORE lenses landed on independently — that convergence is the strongest signal in the run. Then triage with the user: adopted items become feature-mode blocks of a plan file, ROADMAP items a section-mode block when they span many call sites (otherwise a feature-mode plan of their own) — refine that file with refine-cycle, then build it with develop-cycle — and every block under a file's \`## Defects to route\` goes to the debug workflow. NOTHING here is applied automatically and there is no fix step — the user decides what gets built.${unjudgedTotal > 0 ? ` The verifier returned no verdict for ${unjudgedTotal} candidate(s) (summary.unjudged), so they are in no count: check them in ${unjudgedFiles.join(', ')} before triage.` : ''}${failed.length ? ` TELL THE USER these lenses were NOT audited and produced no verified proposal file: ${failedLabels} — offer to re-run just those. Any proposal file on disk for them is not presented until the lens is re-run.` : ''}`,
 };

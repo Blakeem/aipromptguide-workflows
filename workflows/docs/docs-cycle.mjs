@@ -1,11 +1,11 @@
 export const meta = {
   name: 'docs-cycle',
-  description: 'Documentation curation, lean/file-bus design: fan out ONE gatherer per source (web / repo / local files) that COPIES the docs the brief needs VERBATIM into a folder — selection and subtraction happen at capture, never paraphrase — a SCRUBBER cleans each WEB source in place (capture junk only: nav fragments, widgets, broken markup; repo and files sources skip it), then a CURATOR reads the whole set, organizes and splits it, deletes what the brief does not need, writes INDEX.md, and checks cross-source consistency + coverage, and finally spot-checks a bounded sample of files against their cited sources; coverage holes and files needing recapture (including a failed spot-check) drive a bounded gap-fill gather round. There is NO claim-verifier AGENT: verbatim capture removes the paraphrase gap a verifier would exist to check, and the one sample that tests that promise lives inside the curator. The harness only routes paths + counts; every doc lives in files.',
+  description: 'Documentation curation, lean/file-bus design: fan out ONE gatherer per source (web / repo / local files) that COPIES the docs the brief needs VERBATIM into a folder — selection and subtraction happen at capture, never paraphrase — a SCRUBBER cleans each WEB source in place (capture junk only: nav fragments, widgets, broken markup; repo and files sources skip it), then a CURATOR reads the whole set, organizes and splits it, deletes what the brief does not need, writes INDEX.md, and checks cross-source consistency + coverage, and finally spot-checks a bounded sample of files against their cited sources; coverage holes and files needing recapture (including a failed spot-check) become id-tagged Coverage-notes entries that drive a bounded gap-fill round, in which ONE gatherer fills every gap and scrubs its own web captures, and each recapture is spot-checked before the file it replaces is deleted. There is NO claim-verifier AGENT: verbatim capture removes the paraphrase gap a verifier would exist to check, and the one sample that tests that promise lives inside the curator. The harness only routes paths + counts; every doc lives in files.',
   whenToUse: 'Provision the local doc set a project needs to build against — an API integration (the official reference), an upgrade (release notes + migration guide + current docs), a complex feature touching several systems. The main agent frames the BRIEF (what the docs are FOR, versions in scope) + the SOURCES with the user, then runs this engine; the deliverable is the folder itself (verbatim docs + INDEX.md) — the ideal input to a plan file that refine-cycle converges and develop-cycle builds. For a synthesized ANSWER to a question use the deep-research skill; to DECIDE among options use decide-cycle.',
   phases: [
-    { title: 'Gather', detail: 'One gatherer per source (CONCURRENT). Each copies its brief-relevant slice VERBATIM into <outDir>/<source>/ — one file per page/topic, each with a source header (URL or path, version, retrieval date). Subtraction at capture: skip nav, marketing, other versions, features the brief does not touch. Returns thin counts.' },
-    { title: 'Scrub', detail: 'One scrubber per WEB source (pipelined off its gather — no barrier); repo and files sources skip it, their captures usually being markdown already with no HTML chrome. Cleans the source dir IN PLACE: removes capture junk (nav/menu fragments, cookie banners, feedback widgets, broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure → keep; the curator judges relevance.' },
-    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set — anything it finds there that is neither a source-headed capture for this set (this or an earlier run) nor a curator-written file is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and open gaps), then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns (missing coverage, or a recapture — wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds).' },
+    { title: 'Gather', detail: 'Round 1: one gatherer per source (CONCURRENT). Each copies its brief-relevant slice VERBATIM into <outDir>/<source>/ — one file per page/topic, each with a source header (URL or path, version, retrieval date). Subtraction at capture: skip nav, marketing, other versions, features the brief does not touch. Returns thin counts. A gap-fill round: ONE gatherer reads the Coverage-notes entry of every gap in INDEX.md by path, captures each gap into <outDir>/<gap id>/, and scrubs its own web captures under the scrub rules.' },
+    { title: 'Scrub', detail: 'Round 1 only: one scrubber per WEB source (pipelined off its gather — no barrier); repo and files sources skip it, their captures usually being markdown already with no HTML chrome. Cleans the source dir IN PLACE: removes capture junk (nav/menu fragments, cookie banners, feedback widgets, broken markup), fixes mangled markdown formatting, changes no words, keeps source headers. Unsure → keep; the curator judges relevance.' },
+    { title: 'Curate', detail: 'One curator reads the WHOLE set: organizes + splits at heading boundaries (text moves verbatim), deletes what the brief does not need (outDir is a dedicated, engine-owned folder for THIS doc set — anything it finds there that is neither a source-headed capture for this set (this or an earlier run) nor a curator-written file is left alone and reported), writes INDEX.md (one line per file + Coverage notes holding cross-source inconsistencies and one id-tagged entry per open gap, naming the file, the source and the reason), spot-checks each recapture against its source before deleting the file it replaces, then spot-checks up to fidelitySample files against the source cited in their own header. Gaps it returns as { kind, id } (missing coverage, or a recapture — wrong version, failed spot-check) spawn a bounded gap-fill Gather round (maxRounds).' },
   ],
 };
 
@@ -16,8 +16,9 @@ export const meta = {
 // verifier exists to catch the gap between a gatherer's PARAPHRASE and its source, and verbatim capture
 // leaves no such gap. What remains checkable — coverage vs. the brief and CROSS-SOURCE consistency —
 // needs the whole set at once, so it lives in the curator (#4: no separate checker re-reading the same
-// files). A SCRUB pass per WEB source between gather and curate strips mechanical capture junk (haiku);
-// repo and files sources skip it, and relevance deletion stays with the curator. There is NO review
+// files). A SCRUB pass per round-1 WEB source between gather and curate strips mechanical capture junk
+// (haiku); repo and files sources skip it, a gap-fill gatherer scrubs its own captures, and relevance
+// deletion stays with the curator. There is NO review
 // loop — a provision workflow is happy-path (Scope: the user judges); the bounded gap loop is the only
 // feedback.
 // The one thing verbatim capture ASSERTS and nothing tested is that the files really are the source's
@@ -129,28 +130,28 @@ const dupes = [...new Set(SOURCES.map((s) => s.id).filter((id, i, a) => a.indexO
 if (dupes.length) {
   throw new Error(`source ids collide after slugging (${dupes.join(', ')}): two gatherers would write into the same directory — give each source a distinct id.`);
 }
-// Every source id ever used this run — gap-fill ids are slugged from CURATOR PROSE, so they can collide
-// with each other or with a round-1 id. Those are not operator errors, so they are disambiguated with a
-// counter (below) rather than thrown on: one gatherer per directory is the invariant that matters.
+// Every source id used this run. A gap-fill id is slugged from the curator's gap id, which repeats when a
+// gap is carried to a later round and can slug to a round-1 source id, so a counter disambiguates it.
 const usedIds = new Set(SOURCES.map((s) => s.id));
 
 // Per-kind how-to-capture guidance handed to the gatherer (the only thing that varies by kind).
 const KIND_GUIDE = {
   web:   'Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.',
   repo:  `Copy the relevant docs/READMEs/reference material from the repo at ${REPO || '(no repo configured — this source needs target.repo)'}, READ-ONLY. Cite the file path (and line range for extracts) in each header.`,
-  files: 'Copy from the local doc set the focus names; cite each source file path in the header.',
+  files: 'Copy from the local doc set your source names; cite each source file path in the header.',
 };
 
 // =============================================================================
-// Schemas — DECISIONS/COUNTS ONLY (control plane, #8). The docs ARE the files. A gap is a routing
-// directive (spawn a gather for this), not content — its rationale lives in Coverage notes.
+// Schemas — DECISIONS/COUNTS ONLY (control plane, #8). The docs ARE the files. A gap is a kind and the
+// id of its Coverage-notes entry, which holds its file, source and reason for the gatherer to read.
 // =============================================================================
 const GATHER_SCHEMA = {
   type: 'object',
   required: ['files_written'],
   properties: {
-    files_written: { type: 'integer', description: 'doc files you created under your source directory' },
+    files_written: { type: 'integer', description: 'doc files you created under the directories you were given' },
     skipped:       { type: 'integer', description: 'pages/sections skipped as irrelevant to the brief (0 if none)' },
+    missing_entries: { type: 'array', items: { type: 'string' }, description: 'gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)' },
   },
 };
 
@@ -180,10 +181,10 @@ const CURATE_SCHEMA = {
       description: 'holes a NEW gather could fix — missing coverage, or a file needing recapture (paraphrased, wrong version); [] when the set covers the brief; judgment calls belong in Coverage notes, not here',
       items: {
         type: 'object',
-        required: ['kind', 'focus'],
+        required: ['kind', 'id'],
         properties: {
-          kind:  { type: 'string', enum: ['web', 'repo', 'files'] },
-          focus: { type: 'string', description: 'one targeted gather directive, precise enough to act on alone' },
+          kind: { type: 'string', enum: ['web', 'repo', 'files'] },
+          id:   { type: 'string', description: 'the id of the gap\'s entry in the Coverage notes of the index, which names the file, the source and the reason' },
         },
       },
     },
@@ -231,30 +232,69 @@ PROCEDURE:
    ${WROTE_NOTE}
 Return files_written + skipped via the schema.`;
 
+// Shared by the round-1 scrubber and the gap-fill gatherer, which scrubs its own captures.
+const SCRUB_RULES = `DELETE ONLY capture junk: leftover navigation/menu/breadcrumb fragments, cookie/consent banners,
+feedback/share/"was this helpful" widgets, marketing blocks, broken image/link remnants, stray HTML tags,
+duplicated headings, excess blank lines. Fix mangled markdown FORMATTING (tables, code fences) without
+touching the words. Keep every source header intact. Unsure whether something is doc content → KEEP it;
+the curator judges relevance.`;
+
 const scrubPrompt = (src) => `
 You are a DOC SCRUBBER cleaning freshly captured docs for a coding LLM. Edit every .md file in
 ${OUT_DIR}/${src.id}/ IN PLACE.
 ${VERBATIM_RULE}
 ${WRITE_BOUNDARY}
-DELETE ONLY capture junk: leftover navigation/menu/breadcrumb fragments, cookie/consent banners,
-feedback/share/"was this helpful" widgets, marketing blocks, broken image/link remnants, stray HTML tags,
-duplicated headings, excess blank lines. Fix mangled markdown FORMATTING (tables, code fences) without
-touching the words. Keep every source header intact. Unsure whether something is doc content → KEEP it;
-the curator judges relevance.
+${SCRUB_RULES}
 Return files_cleaned via the schema.`;
+
+// One agent fills every gap of a round. Each gap's directive lives in its Coverage-notes entry, read by path.
+const gapGatherPrompt = (gaps) => `
+You are the GAP-FILL DOC GATHERER for a documentation set built for a coding LLM. The curator found the
+gaps below. Fill every one of them.
+${ENV}${TESTBED_ENV}
+YOUR GAPS: each one is an entry under its id in the Coverage notes of ${INDEX_FILE}. Read each entry
+first: it names the file to recapture (or none), the source to capture from and the reason. A gap
+whose id has no entry gets no capture: never guess its source, and list its id in missing_entries.
+${gaps.map((g) => `  - ${g.gapId} (${g.kind}): write its captures into ${OUT_DIR}/${g.id}/`).join('\n')}
+HOW TO CAPTURE, BY KIND:
+${[...new Set(gaps.map((g) => g.kind))].map((k) => `  - ${k}: ${KIND_GUIDE[k]}`).join('\n')}
+
+PROCEDURE, for each gap:
+1. Capture from the source its entry names what its reason says is missing or wrong. Skip at capture:
+   navigation, marketing, other versions, features the brief does not touch.
+2. Copy what you keep VERBATIM into that gap's directory (create it): one kebab-case .md file per
+   page/topic, each with its source header. ${REPLACE_NOTE} Replace it only when it
+   starts with a source header. Otherwise leave it and write under another name.
+3. SCRUB each web capture in place once it is written, under these rules:
+${SCRUB_RULES}
+${WROTE_NOTE}
+Return files_written + skipped via the schema, summed over every gap, and missing_entries.`;
+
+// The Coverage-notes entry a gap travels as. The gap-fill gatherer reads it, and the next curator keeps it.
+const gapEntry = (round) => `### [gap-r${round}-<n>] <short title>
+- kind: <web | repo | files>
+- file: <the captured file to recapture, or none for missing coverage>
+- source: <the URL, repo path or local doc to capture from>
+- reason: <what the brief needs that no file covers, or why the file fails: wrong version, failed spot-check>`;
 
 const curatePrompt = (round, newDirs) => `
 You are the CURATOR of the documentation set at ${OUT_DIR}. Read every file, then make the folder the
 best working set for a coding LLM on this brief.
 ${ENV}${TESTBED_ENV}
-${round > 1 ? `This is curate round ${round}: gap-fill gathers added files to the already curated +
+${round > 1 ? `This is curate round ${round}: the gap-fill gatherer added files to the already curated +
 indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. This round's
 gap-fill captures were written under: ${newDirs.join(', ')}\n` : ''}If ${INDEX_FILE} already exists
 (an earlier round, or an earlier run into this folder, wrote it), READ the previous ${INDEX_FILE} before
-you rewrite it: its Coverage notes name each file returned as a recapture gap (a failed fidelity check
-or a wrong version). Once a newer capture recaptures that source,
-DELETE the superseded file and drop it from the index. A flagged file that no newer capture replaces
-stays a recapture gap: return it again.
+you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
+file is a recapture (a failed fidelity check or a wrong version).
+RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
+NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
+word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
+file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
+fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
+the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
+entry.
+A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
 
 YOUR FOLDER: ${OUT_DIR} is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
@@ -273,44 +313,63 @@ JOBS (in order):
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write ${INDEX_FILE}. ${REPLACE_NOTE} ${WROTE_NOTE} It holds one line per file (path — what it covers — when to read it), then a
-   "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
+   "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
+   this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
+${gapEntry(round)}
+   Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
+   ${INDEX_FILE} on disk when your turn began uses under gap-r${round}- (from 1 when none does).${FIDELITY_N > 0 ? ` A gap the
+   FIDELITY SPOT-CHECK adds continues that sequence.` : ''} Keep the id of a gap carried from an earlier round.
 ${FIDELITY_N > 0 ? `4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. ${round > 1 ? `This round,
-   pick ONLY from the files this round's gatherers captured: the files under the directories named
-   above when your turn began, wherever ORGANIZE then moved them. The order below applies inside that
-   pool. If the pool is empty, return fidelity_checked: 0 and say why in Coverage notes.
+   pick ONLY from the files this round's gap-fill gatherer captured: the files under the directories named
+   above when your turn began, wherever ORGANIZE then moved them, apart from a recapture the RECAPTURE
+   CHECK already compared. The order below applies inside that
+   pool. If the pool is empty, sample nothing and say why in Coverage notes.
    ` : ''}Pick up to ${FIDELITY_N} captured file(s), preferring first any file that reads as
    paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
    nearly free local read), then the largest and least official web files. For each, open the source
    cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
    table) word for word.
-   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
-   notes and return it as a { kind, focus } recapture gap.
+   A reworded, condensed, or reordered passage is a FAILURE: rewrite ${INDEX_FILE} with a gap entry for
+   it added to Coverage notes, naming the file, the source and the failure, and return it as a
+   { kind, id } recapture gap.
    If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
    it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
-` : `Fidelity spot-checking is disabled for this run: return fidelity_checked: 0.\n`}Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).`;
+` : `The sample spot-check is disabled for this run, so fidelity_checked counts only RECAPTURE CHECK comparisons.\n`}Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
+fidelity_failures, foreign_content (+ foreign_paths), and gaps as { kind, id } (ONLY what a fresh gather
+could fix, each with its entry in Coverage notes).`;
 
 // =============================================================================
-// [GATHER → SCRUB] ⇄ CURATE — gather→scrub pipelines per source (a web source is scrubbed as soon as its
-// gather lands, no barrier; repo and files sources skip the scrub); the curate barrier is genuine
-// (consistency + coverage need the WHOLE set); curator-returned gaps drive a bounded gap-fill round.
+// [GATHER → SCRUB] ⇄ CURATE — round 1 pipelines gather→scrub per source (a web source is scrubbed as soon
+// as its gather lands, no barrier; repo and files sources skip the scrub); the curate barrier is genuine
+// (consistency + coverage need the WHOLE set); curator-returned gaps drive a bounded gap-fill round, whose
+// one gatherer carries every gap and scrubs its own web captures.
 // =============================================================================
 phase('Gather');
 log(`docs: ${SOURCES.length} source(s) [${SOURCES.map((s) => s.kind).join(', ')}] → curated set at ${OUT_DIR} (max ${MAX_ROUNDS} round(s))`);
 if (SOURCES.some((s) => s.kind === 'repo') && !REPO) log(`  ⚠ a "repo" source was given but no target.repo — that gatherer has nothing to read.`);
 
 let curate = null;
-const failed = [];   // { id: source id, stage: 'gather' | 'scrub' } per agent that returned nothing, across rounds
+const failed = [];   // { id: source or gap dir id, stage: 'gather' | 'scrub' } per agent that returned nothing, across rounds
 const fidelity = { checked: 0, failures: 0 };   // summed over rounds: a gap-fill curator samples only its own captures
+// A curator that repeats a gap id would send two directories after one entry, so the first one wins.
+const gapsOf = (gaps) => {
+  const seen = new Set();
+  return (Array.isArray(gaps) ? gaps : []).filter((g) => {
+    const id = g && typeof g.id === 'string' ? g.id.trim() : '';
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+};
 let toGather = SOURCES;
 let rounds = 0;
 
 while (rounds < MAX_ROUNDS) {
   rounds++;
 
-  // -- Gather → Scrub (pipelined per source) ------------------------------------
-  if (toGather.length) {
+  if (rounds === 1) {
+    // -- Gather → Scrub (pipelined per source) ------------------------------------
     const gathered = await pipeline(
       toGather,
       (src) => agent(gatherPrompt(src), roleOpts('gather', {
@@ -346,28 +405,45 @@ while (rounds < MAX_ROUNDS) {
     const results = gathered.filter(Boolean);
     const empty = results.filter((d) => d.g && (d.g.files_written ?? 0) === 0).length;
     const died  = toGather.length - results.filter((d) => d.g).length;
-    if (rounds === 1 && empty === toGather.length) {
+    if (empty === toGather.length) {
       throw new Error('Every source reported zero doc files — nothing to curate. Check the sources/brief (and web access for web sources) and re-run.');
     }
     if (empty) log(`  ⚠ ${empty} source(s) reported no files this round`);
     if (died) log(`  ⚠ ${died} gatherer(s) died before returning — anything they wrote is on disk and still gets curated (and scrubbed first for a web source)`);
+  } else {
+    // -- Gap-fill gather: one agent for every gap of the round -------------------------
+    const filled = await agent(gapGatherPrompt(toGather), roleOpts('gather', {
+      schema: GATHER_SCHEMA, phase: 'Gather', label: `gather:r${rounds}`,
+    }));
+    if (!filled) {
+      for (const s of toGather) failed.push({ id: s.id, stage: 'gather' });
+      log(`  ⚠ gather:r${rounds} returned nothing (agent skipped or died) — the gap-fill gatherer died before returning; anything it wrote is on disk and still gets curated, and its gaps may stay open: ${toGather.map((s) => s.gapId).join(', ')}`);
+    } else {
+      log(`  ✓ gap-fill gathered ${toGather.length} gap(s): ${filled.files_written ?? 0} file(s)${filled.skipped ? `, ${filled.skipped} skipped` : ''}`);
+      if ((filled.files_written ?? 0) === 0) log(`  ⚠ the gap-fill gatherer reported no files this round`);
+      const missing = (Array.isArray(filled.missing_entries) ? filled.missing_entries : []).filter(Boolean);
+      if (missing.length) log(`  ⚠ no Coverage-notes entry in ${INDEX_FILE} for gap(s) ${missing.join(', ')} — nothing was captured for them`);
+    }
   }
 
   // -- Curate (barrier: reads the whole set) ------------------------------------
   // A dead gatherer is survivable (its writes are on disk, above); a dead curator is not — it is the
   // only role that organizes, splits and indexes, and `gaps: []` from a null would look like "complete,
   // zero gaps" and exit the loop into a success-shaped return with no set behind it.
-  const c = await agent(curatePrompt(rounds, toGather.map((s) => `${OUT_DIR}/${s.id}/`)), roleOpts('curate', {
+  const newDirs = toGather.map((s) => `${OUT_DIR}/${s.id}/${s.gapId ? ` (gap ${s.gapId})` : ''}`);
+  const c = await agent(curatePrompt(rounds, newDirs), roleOpts('curate', {
     schema: CURATE_SCHEMA, phase: 'Curate', label: `curate:r${rounds}`,
   }));
   if (!c) throw new Error(`Curator returned nothing in round ${rounds} (agent skipped or died). Re-invoke with the same args (same runId); pass the Workflow tool's resumeFromRunId to replay completed agents from cache.`);
   curate = c;
-  const gaps = (curate?.gaps ?? []).filter((g) => g && g.focus);
+  const returnedCount = Array.isArray(curate.gaps) ? curate.gaps.length : 0;
+  const gaps = gapsOf(curate.gaps);
+  if (gaps.length < returnedCount) log(`  ⚠ ignored ${returnedCount - gaps.length} gap(s) with a blank or repeated id — check the Coverage notes in ${INDEX_FILE}`);
   const fidChecked = curate?.fidelity_checked ?? 0;
   const fidFailed  = curate?.fidelity_failures ?? 0;
   fidelity.checked += fidChecked;
   fidelity.failures += fidFailed;
-  log(`  ✓ curated r${rounds}: ${curate?.files ?? '?'} file(s)${curate?.deleted ? `, ${curate.deleted} deleted` : ''}, ${curate?.inconsistencies ?? 0} inconsistency(ies)${FIDELITY_N > 0 ? `, fidelity ${Math.max(0, fidChecked - fidFailed)}/${fidChecked}` : ''}, ${gaps.length} gap(s)`);
+  log(`  ✓ curated r${rounds}: ${curate?.files ?? '?'} file(s)${curate?.deleted ? `, ${curate.deleted} deleted` : ''}, ${curate?.inconsistencies ?? 0} inconsistency(ies)${FIDELITY_N > 0 || fidChecked > 0 ? `, fidelity ${Math.max(0, fidChecked - fidFailed)}/${fidChecked}` : ''}, ${gaps.length} gap(s)`);
   if (FIDELITY_N > 0 && fidChecked === 0) log(`  ⚠ no file was checked against its source this round — the verbatim promise is unverified; see Coverage notes for why`);
   if (fidFailed) log(`  ⚠ ${fidFailed} file(s) failed the verbatim check — returned as recapture gap(s)`);
 
@@ -377,13 +453,14 @@ while (rounds < MAX_ROUNDS) {
     break;
   }
   toGather = gaps.map((g, i) => {
-    const base = slug(g.focus) || `gap-r${rounds + 1}-${i + 1}`;
+    const gapId = g.id.trim();
+    const base = slug(gapId) || `gap-r${rounds}-${i + 1}`;
     let id = base;
     for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
     usedIds.add(id);
-    return { id, kind: normKind(g.kind), focus: g.focus };
+    return { id, kind: normKind(g.kind), gapId };
   });
-  log(`  ↻ gap-fill round ${rounds + 1}: ${toGather.map((s) => s.id).join(', ')}`);
+  log(`  ↻ gap-fill round ${rounds + 1}: ${toGather.map((s) => s.gapId).join(', ')}`);
 }
 
 if (!curate?.wrote_index) log(`  ⚠ curator did not confirm writing ${INDEX_FILE} — check it exists before relying on the set.`);
@@ -414,7 +491,7 @@ const foreignWarning = foreignFound
   : '';
 const fileCount = curate?.files ?? 0;
 const inconsistencyCount = curate?.inconsistencies ?? 0;
-const unresolvedGaps = (curate?.gaps ?? []).filter((g) => g && g.focus).length;
+const unresolvedGaps = gapsOf(curate?.gaps).length;
 
 return {
   runId: RUN_ID,

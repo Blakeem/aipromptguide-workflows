@@ -5,9 +5,9 @@
 An autonomous Claude Code workflow that audits a system you **already have** for **enhancements**, the
 bigger changes worth writing up, not nits. It reports, and you decide. Nothing is applied automatically.
 
-You name the scope and the angles to audit from. Claude runs one finder per angle across the *whole*
-scope, a verifier per angle throws out everything the system already does, then each surviving proposal
-lands scored by impact and size in a file you triage. Adopted proposals become
+You name the scope and the angles to audit from. Claude runs one finder per angle across the *entire*
+scope. Verifiers throw out everything the system already does. Each surviving proposal lands in a file
+you triage, scored by impact and size. Adopted proposals become
 blocks in a [`develop-cycle`](../develop/) plan file to get built.
 
 ### What sets it apart
@@ -67,9 +67,10 @@ Claude reads `aipg/workflows/enhance/CLAUDE.md`, decides the scope and lenses wi
    system, so the lenses optimize toward the same thing.
 2. **Finds.** One finder per lens, concurrently, each reading the whole scope. Every candidate
    states what the code does today (with the line), what it would do instead, and the specific cost the
-   change removes.
-3. **Verifies.** A verifier per lens checks each candidate against the real code, rejects what doesn't
-   survive, re-scores impact and size, and routes the rest.
+   change removes. It writes its candidates to a file, with the evidence for each.
+3. **Verifies.** Verifiers check each candidate against the real code and reject what doesn't survive.
+   Then they re-score impact and size and route the rest. Lenses with few candidates share a verifier,
+   so a small audit spawns fewer agents.
 4. **Stops.** Claude presents the proposals and triages them with you.
 
 A workflow runs in the background and **can't ask you questions mid-run**, so the audit stops at the
@@ -90,8 +91,9 @@ explains what was thrown out and why. Every proposal carries:
 - **impact / size / decision** holds the two scores and one of `ADOPT` (ready to build), `ROADMAP` (real,
   but needs planning), or `NEEDS_USER` (a call only you can make, with options and a recommendation)
 
-Read the ADOPT items first, then decide scope. Each line in the `Defects to route` section is a defect
-that belongs in the [debug](../debug/) workflow.
+Read the ADOPT items first, then decide scope. Each entry in the `Defects to route` section names a
+defect, its file and line, and the evidence the verifier confirmed. Route it to the [debug](../debug/)
+workflow.
 
 ---
 

@@ -9,9 +9,9 @@ this file is stale.
 | gather | 1 | 1 | 1814 | two sources, one round |
 | gather | 2 | 1 | 1814 | two sources, one round |
 | scrub | 1 | 1 | 1132 | two sources, one round |
-| curate | 1 | 1 | 4317 | two sources, one round |
-| gather | 3 | 1 | 1821 | gap-fill round |
-| curate | 2 | 1 | 4898 | gap-fill round |
+| curate | 1 | 1 | 5775 | two sources, one round |
+| gather | 3 | 1 | 2761 | gap-fill round |
+| curate | 2 | 1 | 6414 | gap-fill round |
 | gather | 4 | 1 | 1802 | a repo source skips the scrubber |
 
 ## gather · variant 1 · schema 1
@@ -54,11 +54,18 @@ Return files_written + skipped via the schema.
   "properties": {
     "files_written": {
       "type": "integer",
-      "description": "doc files you created under your source directory"
+      "description": "doc files you created under the directories you were given"
     },
     "skipped": {
       "type": "integer",
       "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
+    },
+    "missing_entries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)"
     }
   }
 }
@@ -104,11 +111,18 @@ Return files_written + skipped via the schema.
   "properties": {
     "files_written": {
       "type": "integer",
-      "description": "doc files you created under your source directory"
+      "description": "doc files you created under the directories you were given"
     },
     "skipped": {
       "type": "integer",
       "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
+    },
+    "missing_entries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)"
     }
   }
 }
@@ -171,10 +185,16 @@ retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
 If E:/flow/runs/flow/docs/INDEX.md already exists
 (an earlier round, or an earlier run into this folder, wrote it), READ the previous E:/flow/runs/flow/docs/INDEX.md before
-you rewrite it: its Coverage notes name each file returned as a recapture gap (a failed fidelity check
-or a wrong version). Once a newer capture recaptures that source,
-DELETE the superseded file and drop it from the index. A flagged file that no newer capture replaces
-stays a recapture gap: return it again.
+you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
+file is a recapture (a failed fidelity check or a wrong version).
+RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
+NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
+word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
+file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
+fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
+the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
+entry.
+A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
 
 YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
@@ -193,19 +213,30 @@ JOBS (in order):
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds one line per file (path — what it covers — when to read it), then a
-   "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
+   "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
+   this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
+### [gap-r1-<n>] <short title>
+- kind: <web | repo | files>
+- file: <the captured file to recapture, or none for missing coverage>
+- source: <the URL, repo path or local doc to capture from>
+- reason: <what the brief needs that no file covers, or why the file fails: wrong version, failed spot-check>
+   Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
+   E:/flow/runs/flow/docs/INDEX.md on disk when your turn began uses under gap-r1- (from 1 when none does). A gap the
+   FIDELITY SPOT-CHECK adds continues that sequence. Keep the id of a gap carried from an earlier round.
 4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. Pick up to 3 captured file(s), preferring first any file that reads as
    paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
    nearly free local read), then the largest and least official web files. For each, open the source
    cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
    table) word for word.
-   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
-   notes and return it as a { kind, focus } recapture gap.
+   A reworded, condensed, or reordered passage is a FAILURE: rewrite E:/flow/runs/flow/docs/INDEX.md with a gap entry for
+   it added to Coverage notes, naming the file, the source and the failure, and return it as a
+   { kind, id } recapture gap.
    If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
    it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
 Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).
+fidelity_failures, foreign_content (+ foreign_paths), and gaps as { kind, id } (ONLY what a fresh gather
+could fix, each with its entry in Coverage notes).
 ~~~~
 
 ~~~~json
@@ -263,7 +294,7 @@ fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fres
         "type": "object",
         "required": [
           "kind",
-          "focus"
+          "id"
         ],
         "properties": {
           "kind": {
@@ -274,9 +305,9 @@ fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fres
               "files"
             ]
           },
-          "focus": {
+          "id": {
             "type": "string",
-            "description": "one targeted gather directive, precise enough to act on alone"
+            "description": "the id of the gap's entry in the Coverage notes of the index, which names the file, the source and the reason"
           }
         }
       }
@@ -287,12 +318,12 @@ fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fres
 
 ## gather · variant 3 · schema 1
 
-`gather:webhook-signature-verification` in "gap-fill round"
+`gather:r2` in "gap-fill round"
 
 ~~~~text
 
-You are a DOC GATHERER building a local documentation set for a coding LLM. Cover YOUR source
-thoroughly; other gatherers cover the others.
+You are the GAP-FILL DOC GATHERER for a documentation set built for a coding LLM. The curator found the
+gaps below. Fill every one of them.
 PROJECT BRIEF (what the docs are FOR, so it decides relevance): the brief below:
 -----
 Integrate the payments API v2: auth, webhooks, error codes.
@@ -303,17 +334,27 @@ words is not. Brevity comes from leaving irrelevant content OUT, never from comp
 Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
 retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
-YOUR SOURCE: webhook signature verification
-KIND: web — Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.
+YOUR GAPS: each one is an entry under its id in the Coverage notes of E:/flow/runs/flow/docs/INDEX.md. Read each entry
+first: it names the file to recapture (or none), the source to capture from and the reason. A gap
+whose id has no entry gets no capture: never guess its source, and list its id in missing_entries.
+  - gap-r1-1 (web): write its captures into E:/flow/runs/flow/docs/gap-r1-1/
+HOW TO CAPTURE, BY KIND:
+  - web: Fetch the OFFICIAL documentation pages for the version in scope (for an external API, its official reference), preferring primary sources over blogs/forums.
 
-PROCEDURE:
-1. Find everything in your source the brief needs. Skip at capture: navigation, marketing, other
-   versions, features the brief does not touch.
-2. Copy what you keep VERBATIM into E:/flow/runs/flow/docs/webhook-signature-verification/ (create it): one kebab-case .md file per
+PROCEDURE, for each gap:
+1. Capture from the source its entry names what its reason says is missing or wrong. Skip at capture:
+   navigation, marketing, other versions, features the brief does not touch.
+2. Copy what you keep VERBATIM into that gap's directory (create it): one kebab-case .md file per
    page/topic, each with its source header. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Replace it only when it
    starts with a source header. Otherwise leave it and write under another name.
-   A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
-Return files_written + skipped via the schema.
+3. SCRUB each web capture in place once it is written, under these rules:
+DELETE ONLY capture junk: leftover navigation/menu/breadcrumb fragments, cookie/consent banners,
+feedback/share/"was this helpful" widgets, marketing blocks, broken image/link remnants, stray HTML tags,
+duplicated headings, excess blank lines. Fix mangled markdown FORMATTING (tables, code fences) without
+touching the words. Keep every source header intact. Unsure whether something is doc content → KEEP it;
+the curator judges relevance.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Return files_written + skipped via the schema, summed over every gap, and missing_entries.
 ~~~~
 
 ~~~~json
@@ -325,11 +366,18 @@ Return files_written + skipped via the schema.
   "properties": {
     "files_written": {
       "type": "integer",
-      "description": "doc files you created under your source directory"
+      "description": "doc files you created under the directories you were given"
     },
     "skipped": {
       "type": "integer",
       "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
+    },
+    "missing_entries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)"
     }
   }
 }
@@ -353,15 +401,21 @@ words is not. Brevity comes from leaving irrelevant content OUT, never from comp
 Every doc file starts with a source header: source (URL, or file path/range, or doc#section), version,
 retrieval date.
 Write ONLY inside E:/flow/runs/flow/docs; do NOT touch any repo, stage, or commit.
-This is curate round 2: gap-fill gathers added files to the already curated +
+This is curate round 2: the gap-fill gatherer added files to the already curated +
 indexed set. Re-read the whole set, integrate the new files, and rewrite the index in full. This round's
-gap-fill captures were written under: E:/flow/runs/flow/docs/webhook-signature-verification/
+gap-fill captures were written under: E:/flow/runs/flow/docs/gap-r1-1/ (gap gap-r1-1)
 If E:/flow/runs/flow/docs/INDEX.md already exists
 (an earlier round, or an earlier run into this folder, wrote it), READ the previous E:/flow/runs/flow/docs/INDEX.md before
-you rewrite it: its Coverage notes name each file returned as a recapture gap (a failed fidelity check
-or a wrong version). Once a newer capture recaptures that source,
-DELETE the superseded file and drop it from the index. A flagged file that no newer capture replaces
-stays a recapture gap: return it again.
+you rewrite it: its Coverage notes hold one id'd entry per gap, and an entry whose file line names a
+file is a recapture (a failed fidelity check or a wrong version).
+RECAPTURE CHECK: before you delete a file that a newer capture recaptures, open the source cited in the
+NEW capture's own header and compare ONE substantive passage (a code block, or a parameter/field table)
+word for word, and count the check in fidelity_checked. A recapture that matches: DELETE the superseded
+file and drop it from the index. A reworded, condensed or reordered recapture fails: count it in
+fidelity_failures, delete the failed recapture, keep the superseded file, and return its gap again. When
+the source cannot be reached, keep both files, leave the check out of the count, and say so in the gap's
+entry.
+A gap that no newer capture fills stays open: keep its entry and return it again under the same id.
 
 YOUR FOLDER: E:/flow/runs/flow/docs is dedicated to THIS doc set. Everything in it is either a source-headed capture
 made for this doc set (by this run's gatherers or by an earlier run into this folder), or a file a
@@ -380,23 +434,35 @@ JOBS (in order):
    statements — citing both files; when the fix is recapturing a source (e.g. the wrong version was
    pulled), return it as a gap; (b) GAPS — things the brief needs that no file covers.
 3. INDEX — write E:/flow/runs/flow/docs/INDEX.md. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. It holds one line per file (path — what it covers — when to read it), then a
-   "Coverage notes" section holding the inconsistencies (with citations) and any gaps left open.
+   "Coverage notes" section holding the inconsistencies (with citations) and one entry per open gap, in
+   this format (the gap-fill gatherer reads the entry as its directive, so name the source precisely):
+### [gap-r2-<n>] <short title>
+- kind: <web | repo | files>
+- file: <the captured file to recapture, or none for missing coverage>
+- source: <the URL, repo path or local doc to capture from>
+- reason: <what the brief needs that no file covers, or why the file fails: wrong version, failed spot-check>
+   Number this round's new gaps in sequence, the first one past the highest <n> any entry of the
+   E:/flow/runs/flow/docs/INDEX.md on disk when your turn began uses under gap-r2- (from 1 when none does). A gap the
+   FIDELITY SPOT-CHECK adds continues that sequence. Keep the id of a gap carried from an earlier round.
 4. FIDELITY SPOT-CHECK: LAST, after the index is written. Test on a sample that the files are the
    source's OWN WORDS. This round,
-   pick ONLY from the files this round's gatherers captured: the files under the directories named
-   above when your turn began, wherever ORGANIZE then moved them. The order below applies inside that
-   pool. If the pool is empty, return fidelity_checked: 0 and say why in Coverage notes.
+   pick ONLY from the files this round's gap-fill gatherer captured: the files under the directories named
+   above when your turn began, wherever ORGANIZE then moved them, apart from a recapture the RECAPTURE
+   CHECK already compared. The order below applies inside that
+   pool. If the pool is empty, sample nothing and say why in Coverage notes.
    Pick up to 3 captured file(s), preferring first any file that reads as
    paraphrase/summary or lacks a source header, then files captured from a repo/local path (an exact,
    nearly free local read), then the largest and least official web files. For each, open the source
    cited in its OWN header and compare ONE substantive passage (a code block, or a parameter/field
    table) word for word.
-   A reworded, condensed, or reordered passage is a FAILURE: name the file + the source in Coverage
-   notes and return it as a { kind, focus } recapture gap.
+   A reworded, condensed, or reordered passage is a FAILURE: rewrite E:/flow/runs/flow/docs/INDEX.md with a gap entry for
+   it added to Coverage notes, naming the file, the source and the failure, and return it as a
+   { kind, id } recapture gap.
    If a source cannot be reached (no web access, path gone), do NOT guess and do NOT fail: skip it, leave
    it out of the count, and say so in Coverage notes. fidelity_checked: 0 is a valid, honest answer.
 Return via the schema: wrote_index, files, deleted, inconsistencies, fidelity_checked,
-fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fresh gather could fix).
+fidelity_failures, foreign_content (+ foreign_paths), and gaps as { kind, id } (ONLY what a fresh gather
+could fix, each with its entry in Coverage notes).
 ~~~~
 
 ~~~~json
@@ -454,7 +520,7 @@ fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fres
         "type": "object",
         "required": [
           "kind",
-          "focus"
+          "id"
         ],
         "properties": {
           "kind": {
@@ -465,9 +531,9 @@ fidelity_failures, foreign_content (+ foreign_paths), and gaps (ONLY what a fres
               "files"
             ]
           },
-          "focus": {
+          "id": {
             "type": "string",
-            "description": "one targeted gather directive, precise enough to act on alone"
+            "description": "the id of the gap's entry in the Coverage notes of the index, which names the file, the source and the reason"
           }
         }
       }
@@ -516,11 +582,18 @@ Return files_written + skipped via the schema.
   "properties": {
     "files_written": {
       "type": "integer",
-      "description": "doc files you created under your source directory"
+      "description": "doc files you created under the directories you were given"
     },
     "skipped": {
       "type": "integer",
       "description": "pages/sections skipped as irrelevant to the brief (0 if none)"
+    },
+    "missing_entries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "gap-fill only: the gap ids with no Coverage-notes entry, which you skipped ([] if none)"
     }
   }
 }

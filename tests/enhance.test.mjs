@@ -1,5 +1,5 @@
 // enhance/enhance-cycle.mjs — the read-only lensed fan-out.
-// Focus: the dead-agent paths. Both roles are inside a pipeline, so a dead one resolves to null rather
+// Focus: the dead-agent paths. Both roles run inside a fan-out, so a dead one resolves to null rather
 // than throwing, and the only thing standing between that and a lens reported as cleanly audited is an
 // explicit guard per stage (tests/CLAUDE.md §3). `failed` is the operator's one signal that a lens
 // produced nothing because nobody looked — assert it for BOTH stages, or the guards drift apart.
@@ -11,23 +11,31 @@ const baseArgs = {
   runId: 't', root: 'E:/r', target: { repo: 'E:/repo' },
   scope: ['workflows/'], lenses: ['efficiency', 'simplification'],
 };
-const CANDIDATE = {
-  title: 'fold the two verifier roles into one', category: 'simplification',
-  impact: 'high', size: 'small', files: ['workflows/enhance/enhance-cycle.mjs:330'],
-  today: 'each lens spawns its own verifier', instead: 'one verifier reads every lens',
-  cost_removed: 'one agent per lens',
-};
-const FOUND = { wrote_clean_marker: false, candidates: [CANDIDATE] };
-const VERIFIED = { wrote_file: true, verdicts: [] };
+// The engine's verify-unit cap: a lens holding this many candidates gets a verifier of its own.
+const UNIT_CAP = 12;
+const lensOfFind = (label) => label.replace(/^find:/, '');
+// A finder that wrote `n` candidates under its own lens's ids.
+const foundN = (n) => (label) => ({
+  candidate_ids: Array.from({ length: n }, (_, i) => `${lensOfFind(label)}-${i + 1}`),
+  wrote_candidates: true, wrote_clean_marker: false,
+});
+const FOUND = foundN(1);
+// A verifier that attests every lens its label names.
+const unitLenses = (label) => label.replace(/^verify:/, '').split('+');
+const verifiedWith = (verdicts) => (label) => ({ wrote_lenses: unitLenses(label), verdicts: verdicts(label) });
+const VERIFIED = verifiedWith(() => []);
+const verdict = (id, extra) => ({ candidate_id: id, is_real: true, impact: 'high', size: 'small', decision: 'ADOPT', ...extra });
 
 section('a dead verifier lands its lens in failed, never in the audited count');
 // The bug this pins: the stage returned its result object anyway, so `live` kept the lens, `failed` stayed
 // empty, and `lenses[]` reported a proposals/<lens>.md path the dead verifier never wrote — a lens the
-// operator would read as clean. Only the ⚠ in the log said otherwise.
+// operator would read as clean. Only the ⚠ in the log said otherwise. A full lens gets a verifier of its
+// own, so one verifier can die while the other lens's survives.
 {
   const { out, logs } = await runEngine(ENGINE, {
     args: baseArgs,
     respond: {
+      'find:efficiency': foundN(UNIT_CAP),
       find: FOUND,
       'verify:efficiency': null,          // longest matching prefix wins over 'verify'
       verify: VERIFIED,
@@ -40,12 +48,24 @@ section('a dead verifier lands its lens in failed, never in the audited count');
     'the live lens is unaffected');
   ok(logs.some((l) => /efficiency: the verifier DIED/.test(l)), 'the log names the lens that must be re-run');
   ok(/TELL THE USER these lenses were NOT audited and produced no verified proposal file: efficiency \(verify\) /.test(out.nextStep), 'and nextStep names it with its stage');
-  ok(logs.some((l) => /no verified proposal file from: efficiency \(verify\) /.test(l)), 'and so does the log line after the pipeline');
+  ok(logs.some((l) => /no verified proposal file from: efficiency \(verify\) /.test(l)), 'and so does the log line after the fan-out');
   ok(!('phase' in out), 'the return has no phase key');
   ok(/not presented until the lens is re-run/.test(out.nextStep), 'and says a file on disk for it is not presented');
   // A re-run with the same runId leaves a failed lens's earlier file on disk, so "present the directory" would present it.
   ok(/PRESENT them to the user: E:\/r\/runs\/t\/proposals\/simplification\.md\./.test(out.nextStep), 'nextStep names the live lens\'s file');
   ok(/Present only the listed files/.test(out.nextStep), 'and says to present only the listed files');
+}
+
+section('a dead verifier of a packed unit fails every lens it carried');
+{
+  const { out, logs, labels } = await runEngine(ENGINE, {
+    args: baseArgs,
+    respond: { find: FOUND, verify: null },
+  });
+  ok(labels.includes('verify:efficiency+simplification'), 'the two one-candidate lenses share one verifier');
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'verify' }, { id: 'simplification', stage: 'verify' }]),
+    'both lenses are reported failed at the verify stage');
+  ok(['efficiency', 'simplification'].every((id) => logs.some((l) => l.includes(`${id}: the verifier DIED`))), 'and the log names each one');
 }
 
 section('a dead finder does the same — the two guards stay symmetric');
@@ -64,7 +84,7 @@ section('a lens named like an Object member is reported failed at its own stage'
 {
   const { out } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['__proto__', 'constructor', 'efficiency'] },
-    respond: { 'find:proto': null, 'verify:constructor': null, find: FOUND, verify: VERIFIED },
+    respond: { 'find:proto': null, 'find:constructor': foundN(UNIT_CAP), 'verify:constructor': null, find: FOUND, verify: VERIFIED },
   });
   eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'proto', stage: 'find' }, { id: 'constructor', stage: 'verify' }]),
     'each lens is reported failed at the stage it died in');
@@ -74,15 +94,14 @@ section('a candidate the verifier judges too risky is rejected, counted, and kep
 // The operator's one filter for "this would regress something the workflow needs" is this count and the
 // rejection line in the lens file. A too_risky verdict routed anywhere but REJECT would reach triage.
 {
-  const verdict = (id, extra) => ({ candidate_id: id, is_real: true, impact: 'high', size: 'small', decision: 'REJECT', ...extra });
   const { out } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
     respond: {
-      find: { wrote_clean_marker: false, candidates: [CANDIDATE, { ...CANDIDATE, title: 'second' }] },
-      verify: (label) => ({ wrote_file: true, verdicts: [
-        verdict(`${label.replace(/^verify:/, '')}-1`, { too_risky: true }),
-        verdict(`${label.replace(/^verify:/, '')}-2`, { decision: 'ADOPT' }),
-      ] }),
+      find: foundN(2),
+      verify: verifiedWith(() => [
+        verdict('efficiency-1', { decision: 'REJECT', too_risky: true }),
+        verdict('efficiency-2'),
+      ]),
     },
   });
   eq(out.summary.tooRisky, 1, 'the summary counts it');
@@ -92,16 +111,16 @@ section('a candidate the verifier judges too risky is rejected, counted, and kep
   ok(!out.nextStep.includes('returned no verdict'), 'and holds no unjudged line when every candidate has a verdict');
 }
 
-section('a verifier that does not attest its proposal file lands its lens in failed');
+section('a verifier that does not attest a lens\'s proposal file lands that lens in failed');
 // The path it would have reported names a file nobody attested writing (#15).
 {
   const { out, logs } = await runEngine(ENGINE, {
     args: baseArgs,
-    respond: { find: FOUND, 'verify:efficiency': { wrote_file: false, verdicts: [] }, verify: VERIFIED },
+    respond: { find: FOUND, verify: { wrote_lenses: ['simplification'], verdicts: [] } },
   });
   eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'verify' }]), 'the unattested lens is reported failed at the verify stage');
   ok(!out.lenses.some((l) => l.lens === 'efficiency'), 'and no proposal-file path is reported for it');
-  eq(out.summary.lenses, 1, 'only the attested lens counts as audited');
+  eq(out.summary.lenses, 1, 'only the attested lens of the unit counts as audited');
   ok(logs.some((l) => /efficiency: the verifier did NOT confirm writing .*efficiency\.md — this lens was NOT verified\. Re-run it\./.test(l)),
     'the log says why and what to do');
 }
@@ -109,13 +128,14 @@ section('a verifier that does not attest its proposal file lands its lens in fai
 section('a candidate the finder scored below the floor still reaches the verifier');
 // A pre-cut on the finder's unverified score kept sub-floor candidates out of every proposal file. The
 // verifier's routing line rejects them by name in `## Rejected` instead, so no floor count is returned.
+// The harness never sees the score now: every id the finder returns is routed.
 {
   const { out, labels, prompt } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
-    respond: { find: { wrote_clean_marker: false, candidates: [{ ...CANDIDATE, impact: 'marginal' }] }, verify: VERIFIED },
+    respond: { find: FOUND, verify: VERIFIED },
   });
-  ok(labels.includes('verify:efficiency'), 'the verifier is spawned for the marginal candidate');
-  ok(/efficiency-1 :: simplification :: marginal\/small :: fold the two verifier roles into one/.test(prompt('verify')), 'and its prompt lists it');
+  ok(labels.includes('verify:efficiency'), 'the verifier is spawned for the candidate');
+  ok(/candidate ids:\s+efficiency-1\n/.test(prompt('verify')), 'and its prompt lists its id');
   eq(Object.keys(out.summary).join(), 'lenses,adopt,roadmap,needsUser,rejected,defects,tooRisky,unjudged', 'the summary carries no belowFloor count');
 }
 
@@ -124,7 +144,7 @@ section('a finder with no candidate and no attested marker lands its lens in fai
 {
   const { out, logs } = await runEngine(ENGINE, {
     args: baseArgs,
-    respond: { 'find:efficiency': { wrote_clean_marker: false, candidates: [] }, find: FOUND, verify: VERIFIED },
+    respond: { 'find:efficiency': { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: false }, find: FOUND, verify: VERIFIED },
   });
   eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the unattested lens is reported failed at the find stage');
   ok(!out.lenses.some((l) => l.lens === 'efficiency'), 'and out.lenses has no entry for it');
@@ -132,14 +152,97 @@ section('a finder with no candidate and no attested marker lands its lens in fai
     'the log says why and what to do');
 }
 
+section('a finder whose every candidate id is unroutable lands its lens in failed, never clean');
+// A contradictory return (ids plus a marker) would otherwise drop the candidates and report a clean lens.
+{
+  const { out, logs, labels } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: { find: { candidate_ids: ['eff-1', 'efficiency-x'], wrote_candidates: true, wrote_clean_marker: true } },
+  });
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the lens is reported failed at the find stage');
+  ok(!labels.some((l) => l.startsWith('verify')), 'and no verifier is spawned');
+  ok(logs.some((l) => /efficiency: no candidate id the finder returned reads efficiency-<n> — this lens was NOT audited/.test(l)), 'the log says why');
+}
+
+section('a finder that returns ids without attesting its candidates file lands its lens in failed');
+// The file on disk may be an earlier launch's, so a verifier would judge candidates this finder never wrote.
+{
+  const { out, logs, labels } = await runEngine(ENGINE, {
+    args: baseArgs,
+    respond: { 'find:efficiency': { candidate_ids: ['efficiency-1'], wrote_candidates: false, wrote_clean_marker: false }, find: FOUND, verify: VERIFIED },
+  });
+  eq(JSON.stringify(out.failed), JSON.stringify([{ id: 'efficiency', stage: 'find' }]), 'the lens is reported failed at the find stage');
+  ok(labels.includes('verify:simplification'), 'and no verifier carries it');
+  ok(logs.some((l) => /efficiency: the finder did NOT confirm writing E:\/r\/runs\/t\/candidates\/efficiency\.md — this lens was NOT audited\. Re-run it\./.test(l)),
+    'the log names the candidates file');
+}
+
+section('a candidate id that repeats or lacks the lens prefix is ignored and logged');
+// The prefix ties a verdict back to its lens inside a packed unit, so lens `efficiency`'s id must never read as lens `efficiency-2`'s.
+{
+  const { prompt, logs, out } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency', 'efficiency-2'] },
+    respond: {
+      'find:efficiency-2': { candidate_ids: ['efficiency-2-1'], wrote_candidates: true, wrote_clean_marker: false },
+      find: { candidate_ids: ['efficiency-1', 'efficiency-1', 'efficiency-2-1', 'other-1'], wrote_candidates: true, wrote_clean_marker: false },
+      verify: verifiedWith(() => [verdict('efficiency-1'), verdict('efficiency-2-1', { decision: 'ROADMAP' })]),
+    },
+  });
+  ok(logs.some((l) => /efficiency: ignored 3 candidate id\(s\) that repeat or do not read efficiency-<n>/.test(l)), 'the stray ids are counted in the log');
+  ok(/LENS efficiency: efficiency\n.*\n\s+candidate ids:\s+efficiency-1\n/.test(prompt('verify')), 'the verifier gets only the lens\'s own id');
+  const rows = Object.fromEntries(out.lenses.map((l) => [l.lens, l.counts]));
+  eq(`${rows.efficiency?.adopt}/${rows.efficiency?.roadmap}`, '1/0', 'the efficiency verdict counts under efficiency');
+  eq(`${rows['efficiency-2']?.adopt}/${rows['efficiency-2']?.roadmap}`, '0/1', 'and the efficiency-2 verdict under efficiency-2');
+}
+
+section('the finder writes each candidate with its evidence to a file and returns only ids');
+// Candidate prose re-encoded through the schema into the verifier prompt lost the finder's evidence and
+// put content on the control plane (#8).
+{
+  const { calls, prompt } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['efficiency'] },
+    respond: { find: FOUND, verify: VERIFIED },
+  });
+  const findSchema = calls.find((c) => c.label.startsWith('find')).opts.schema;
+  eq(Object.keys(findSchema.properties).sort().join(), 'candidate_ids,wrote_candidates,wrote_clean_marker', 'the find schema carries ids and flags only');
+  const f = prompt('find');
+  ok(f.includes('WRITE the file E:/r/runs/t/candidates/efficiency.md'), 'the find prompt names the candidates file');
+  ok(f.includes('Number the candidates efficiency-1, efficiency-2 and so on, in file order.'), 'and the id scheme');
+  ok(/\n\*\*Evidence:\*\* <what grounds Today and Removes: each file:line you read, and each command you ran with its output>\n/.test(f), 'and an Evidence line per candidate');
+  ok(f.includes('- category: <one of efficiency | simplification | removal'), 'and lists the categories');
+  const v = prompt('verify');
+  ok(v.includes('candidates file: E:/r/runs/t/candidates/efficiency.md   (read it in full'), 'the verifier reads the candidates file by path');
+  ok(v.includes('proposal file:   E:/r/runs/t/proposals/efficiency.md'), 'and is told its proposal file');
+  ok(/are the finder's claims, not facts\. Confirm each one\nagainst the source it cites/.test(v), 'and confirms the finder\'s claims against their sources');
+  ok(v.replace(/\s+/g, ' ').includes('Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its lens gets no verdict and stays out of every proposal file'),
+    'and judges only the listed ids, so a block whose id the run dropped reaches no proposal file');
+}
+
+section('verifiers are bin-packed across lenses up to the candidate cap, and a lens never splits');
+{
+  const { labels, out, prompt } = await runEngine(ENGINE, {
+    args: { ...baseArgs, lenses: ['a', 'b', 'c', 'd', 'e'] },
+    respond: {
+      'find:a': foundN(5), 'find:b': foundN(7), 'find:c': foundN(1), 'find:d': foundN(UNIT_CAP + 3), 'find:e': foundN(2),
+      verify: verifiedWith((label) => unitLenses(label).map((id) => verdict(`${id}-1`))),
+    },
+  });
+  const verifyLabels = labels.filter((l) => l.startsWith('verify:'));
+  eq(verifyLabels.join(), 'verify:a+b,verify:c,verify:d,verify:e', 'next-fit in lens order: a+b fill the cap, c starts a unit d overflows, d alone, e after it');
+  ok(/LENS a: a\n[\s\S]*LENS b: b\n/.test(prompt('verify:a+b')), 'the packed verifier lists both lenses');
+  eq(out.lenses.map((l) => `${l.lens}:${l.counts.found}/${l.counts.adopt}`).join(), 'a:5/1,b:7/1,c:1/1,d:15/1,e:2/1', 'each lens keeps its own counts');
+  eq(out.lenses.find((l) => l.lens === 'd')?.counts.unjudged, UNIT_CAP + 2, 'and its own unjudged count');
+}
+
 section('a clean finder that attests its marker reports its proposal file');
 {
-  const { out } = await runEngine(ENGINE, {
+  const { out, labels } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
-    respond: { find: { wrote_clean_marker: true, candidates: [] } },
+    respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: true } },
   });
   ok(/proposals\/efficiency\.md$/.test(out.lenses[0]?.file), 'the marker path is reported');
   eq(JSON.stringify(out.failed), '[]', 'and the lens is not a failure');
+  ok(!labels.some((l) => l.startsWith('verify')), 'and no verifier is spawned');
 }
 
 section('ENV lets both roles cite out-of-scope evidence, and the verifier states its own reading rule');
@@ -159,32 +262,32 @@ section('ENV lets both roles cite out-of-scope evidence, and the verifier states
   ok(/Files outside the scope may be read and cited as evidence\./.test(verifyText), 'and so does the verify prompt');
 }
 
-section('a defect has its own channel: a DEFECT: candidate and a Defects to route section');
+section('a defect has its own channel: a DEFECT: candidate and a Defects to route block');
 {
   const { prompt } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
     respond: { find: FOUND, verify: VERIFIED },
   });
   const verifyText = prompt('verify');
-  ok(/reports it as its own candidate whose title starts `DEFECT:`/.test(prompt('find')), 'the finder reports a defect as a DEFECT: candidate');
-  ok(/\n## Defects to route\n\(one line per defect: `- <candidate_id>: <file:line> <what is broken>`/.test(verifyText), 'the template holds the Defects to route section');
+  ok(/reports it as its own candidate whose title starts `DEFECT:`, with its Today line naming\n\s+what is broken/.test(prompt('find')), 'the finder reports a defect as a DEFECT: candidate');
+  ok(verifyText.includes('\n## Defects to route\n(one block per defect,'), 'the template holds the Defects to route section');
+  ok(verifyText.includes('### [<candidate_id>] <what is broken, as a short title>\n- file: <file>:<line>\n\n**What:** <what is broken and its harm>\n**Evidence:** <the trigger and what you confirmed: the triggering input, the probe command and its output, or the cited document>\n'),
+    'each defect is a block with debug\'s file and What lines, and an Evidence line');
+  ok(!verifyText.includes('one line per defect'), 'and the one-line shape is gone');
   ok(/A candidate that mixes a defect with a separable enhancement keeps its enhancement\n\s+half/.test(verifyText), 'and rule 4 keeps the enhancement half of a mixed candidate');
 }
 
-section('the work-size field is named size in both schemas, the prompts and the kept rows, and effort is gone');
+section('the work-size field is named size in the verdict schema, the prompts and the kept rows, and effort is gone');
 {
   const { calls, out, prompt } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
-    respond: { find: FOUND, verify: { wrote_file: true, verdicts: [{ candidate_id: 'efficiency-1', is_real: true, impact: 'high', size: 'small', decision: 'ADOPT' }] } },
+    respond: { find: FOUND, verify: verifiedWith(() => [verdict('efficiency-1')]) },
   });
-  const candidate = calls.find((c) => c.label.startsWith('find')).opts.schema.properties.candidates.items;
-  const verdict = calls.find((c) => c.label.startsWith('verify')).opts.schema.properties.verdicts.items;
-  for (const [name, item] of [['candidate', candidate], ['verdict', verdict]]) {
-    ok(item.required.includes('size') && 'size' in item.properties, `the ${name} schema requires size`);
-    ok(!item.required.includes('effort') && !('effort' in item.properties), `and the ${name} schema holds no effort field`);
-  }
+  const item = calls.find((c) => c.label.startsWith('verify')).opts.schema.properties.verdicts.items;
+  ok(item.required.includes('size') && 'size' in item.properties, 'the verdict schema requires size');
+  ok(!item.required.includes('effort') && !('effort' in item.properties), 'and holds no effort field');
+  ok(prompt('find').includes('- size: <trivial | small | medium | large>'), 'the candidates template holds a size line');
   const v = prompt('verify');
-  ok(v.includes('impact/size :: title'), 'the candidate list header says impact/size');
   ok(v.includes('- size: <your confirmed size>'), 'the proposal template holds a size line');
   ok(!/\beffort\b/i.test(v), 'and the verify prompt names no effort');
   eq(out.lenses[0].kept[0]?.size, 'small', 'the kept row carries the verdict size');
@@ -230,10 +333,7 @@ section('a submitted candidate with no verdict is counted and named, never silen
 {
   const { out, logs } = await runEngine(ENGINE, {
     args: { ...baseArgs, lenses: ['efficiency'] },
-    respond: {
-      find: { wrote_clean_marker: false, candidates: [CANDIDATE, { ...CANDIDATE, title: 'second' }] },
-      verify: { wrote_file: true, verdicts: [{ candidate_id: 'efficiency-1', is_real: true, impact: 'high', size: 'small', decision: 'ADOPT' }] },
-    },
+    respond: { find: foundN(2), verify: verifiedWith(() => [verdict('efficiency-1')]) },
   });
   eq(out.lenses[0].counts.unjudged, 1, 'the lens counts the unjudged candidate');
   eq(out.summary.unjudged, 1, 'and so does the summary');
@@ -269,8 +369,8 @@ section('the verdict schema holds decisions only, and the prompt points every no
   const v = prompt('verify');
   for (const field of ['rationale', 'options', 'recommendation']) ok(!(field in verdictProps), `the verdict items have no ${field}`);
   ok(!v.includes('options + recommendation'), 'the verify prompt names no options + recommendation pair');
-  ok(/-> REJECT \(one line under `## Rejected`,\s+or under `## Defects to route` for an is_defect candidate\)/.test(v),
-    'the REJECT routing line names the section its line goes under');
+  ok(/-> REJECT \(one line under `## Rejected`,\s+or one block under `## Defects to route` for an is_defect candidate\)/.test(v),
+    'the REJECT routing line names the section its entry goes under');
 }
 
 section('a run where every lens failed says NOTHING was audited, never presents proposals');
@@ -291,11 +391,11 @@ await pinRoleMaps({
 // A relaunch with the same runId finds the earlier launch's files, and the Write tool refuses to overwrite one the agent has not read.
 section("every prompt that writes a file says to Read an earlier launch's file first, and a rejected write is not a write");
 {
-  const found = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'] }, respond: { find: { wrote_clean_marker: true, candidates: [] } } });
+  const found = await runEngine(ENGINE, { args: { ...baseArgs, lenses: ['efficiency'] }, respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: true } } });
   const verified = await runEngine(ENGINE, { args: baseArgs, respond: { find: FOUND, verify: VERIFIED } });
   const sites = [
-    ['the clean-lens marker', found.prompt('find'), 1, 1],
-    ["the verifier's proposal file", verified.prompt('verify'), 1, 1],
+    ["the finder's candidates file and clean-lens marker", found.prompt('find'), 2, 1],
+    ["the verifier's proposal files", verified.prompt('verify'), 1, 1],
   ];
   pinWriteNotes(sites);
 }

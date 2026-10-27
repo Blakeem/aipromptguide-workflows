@@ -1,5 +1,5 @@
-// Flow-map scenarios for enhance-cycle — the READ-ONLY FAN-OUT shape (finder → CONDITIONAL verifier),
-// fanned out by LENS rather than by unit. Contract + every derivation rule: the header of
+// Flow-map scenarios for enhance-cycle — the READ-ONLY FAN-OUT shape (finder → CONDITIONAL verifier):
+// finders fan out by LENS, and verifiers by packed unit of lenses. Contract + every derivation rule: the header of
 // ../gen-flows.mjs. Regenerate with `node tools/gen-flows.mjs enhance`; `--check` fails the gate while
 // FLOW.md is stale.
 //
@@ -7,8 +7,9 @@
 // `find`: straight to a terminal, or on through `verify`. The engine returns no `status`, so every
 // non-throwing scenario declares its `terminal`.
 //
-// A dead finder, and a finder with no candidate and no attested marker, each land the lens in `failed` with
-// stage `find`, like brainstorm's dead generator. Neither spawns an extra agent, so its own declared
+// A dead finder, a finder with candidate ids and no attested candidates file, a finder whose every id is
+// unroutable, and a finder with no candidate and no attested marker each land the lens in `failed` with
+// stage `find`, like brainstorm's dead generator. None spawns an extra agent, so its own declared
 // terminal is the only place the map can tell it apart from a clean lens.
 
 const base = {
@@ -19,33 +20,26 @@ const base = {
   goals: 'fewer agents, fewer tokens, less operator babysitting',
 };
 
-const CANDIDATE = {
-  title: 'fold the two verifier roles into one',
-  category: 'simplification',
-  impact: 'high',
-  size: 'small',
-  files: ['workflows/enhance/enhance-cycle.mjs:330'],
-  today: 'each lens spawns its own verifier',
-  instead: 'one verifier reads every lens',
-  cost_removed: 'one agent per lens',
-  risk: 'a single verifier turn gets longer',
-};
-const FOUND = { wrote_clean_marker: false, candidates: [CANDIDATE] };
+// The finder writes its candidates to a file and returns only their ids, minted as `<lens>-<n>`.
+const FOUND = (label) => ({ candidate_ids: [`${label.replace(/^find:/, '')}-1`], wrote_candidates: true, wrote_clean_marker: false });
 
-// Verdict ids are the ones the ENGINE minted (`<slug(lens)>-<n>`), read back off the label: a stray id is
-// dropped by the engine's own guard, so hard-coding one would quietly stop exercising the
-// counting and return-building code the trace runs through.
-const verifier = (label) => ({
-  wrote_file: true,
-  verdicts: [{
-    candidate_id: `${label.replace(/^verify:/, '')}-1`,
-    is_real: true,
-    impact: 'high',
-    size: 'small',
-    decision: 'ADOPT',
-    theme: 'roles',
-  }],
-});
+// One verifier carries every lens its label names (`verify:<lens>+<lens>`), so the verdict ids are read
+// back off the label: a stray id is dropped by the engine's own guard, so hard-coding one would quietly
+// stop exercising the counting and return-building code the trace runs through.
+const verifier = (label) => {
+  const lenses = label.replace(/^verify:/, '').split('+');
+  return {
+    wrote_lenses: lenses,
+    verdicts: lenses.map((id) => ({
+      candidate_id: `${id}-1`,
+      is_real: true,
+      impact: 'high',
+      size: 'small',
+      decision: 'ADOPT',
+      theme: 'roles',
+    })),
+  };
+};
 
 export default {
   engine: 'workflows/enhance/enhance-cycle.mjs',
@@ -54,14 +48,13 @@ export default {
   scenarios: [
     {
       name: 'two lenses propose',
-      when: 'both finders return candidates above the floor',
+      when: 'both finders return candidates, and one packed verifier carries both lenses',
       args: { ...base, lenses: ['efficiency', 'simplification'] },
       respond: { find: FOUND, verify: verifier },
       terminal: 'proposals written',
     },
     {
-      // A dead finder returns null at stage 1, stage 2 passes the null on, and the lens lands in `failed`
-      // as `{ id, stage: 'find' }`.
+      // A dead finder returns null, and the lens lands in `failed` as `{ id, stage: 'find' }`.
       name: 'a dead finder',
       when: 'the finder dies (the lens is reported in failed at stage find)',
       args: { ...base, lenses: ['efficiency'] },
@@ -72,14 +65,28 @@ export default {
       name: 'a clean lens',
       when: 'the finder returns no candidate and attests its marker',
       args: { ...base, lenses: ['efficiency'] },
-      respond: { find: { wrote_clean_marker: true, candidates: [] } },
+      respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: true } },
       terminal: 'clean lens (the finder wrote the marker, verify skipped)',
+    },
+    {
+      name: 'candidates file not attested',
+      when: 'the finder returns candidate ids and does not attest its candidates file',
+      args: { ...base, lenses: ['efficiency'] },
+      respond: { find: { candidate_ids: ['efficiency-1'], wrote_candidates: false, wrote_clean_marker: false } },
+      terminal: 'lens NOT audited (candidates file not attested, lens in failed at stage find)',
+    },
+    {
+      name: 'only unroutable ids',
+      when: 'every candidate id the finder returns does not read <lens>-<n>',
+      args: { ...base, lenses: ['efficiency'] },
+      respond: { find: { candidate_ids: ['eff-1'], wrote_candidates: true, wrote_clean_marker: false } },
+      terminal: 'lens NOT audited (no routable candidate id, lens in failed at stage find)',
     },
     {
       name: 'no candidate, no marker',
       when: 'the finder returns no candidate and does not attest its marker',
       args: { ...base, lenses: ['efficiency'] },
-      respond: { find: { wrote_clean_marker: false, candidates: [] } },
+      respond: { find: { candidate_ids: [], wrote_candidates: false, wrote_clean_marker: false } },
       terminal: 'lens NOT audited (no marker attested, lens in failed at stage find)',
     },
 

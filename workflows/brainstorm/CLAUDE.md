@@ -46,7 +46,9 @@ everything with the user first:
 - **`brief` OR `planPath` — one REQUIRED.**
 - **Relaunch vs. new run.** A re-run with the same `runId` overwrites same-named files in each lens folder
   but leaves unrelated files from an earlier run in place — an old `index.html` survives a re-run that
-  writes `index.md`, and the user can open the stale one. Use a new `runId` (or `stateDir`) whenever
+  writes `index.md`. Each generator lists every file in its folder in a final "Files in this folder"
+  section of its entry file and marks each file an earlier run left, so the stale one is visible when
+  you present the entry. Use a new `runId` (or `stateDir`) whenever
   `outputFormat`/`kind` changes, when you want a clean folder, or to keep an old batch.
 
 ## 4. Roles (in the engine)
@@ -55,6 +57,7 @@ One role. The JS conductor only fans out and passes paths (#1); each generator i
 
 - **Generator** (opus) — reads the brief (+ optional references + read-only repo context) and ITS lens;
   produces one complete variation fully committed to that lens; writes it into `variations/<lens>/`;
+  lists every file in that folder at the end of its entry file (§3, "Relaunch vs. new run");
   returns the entry path + a one-line differentiator. It does **not** review, compare, modify the repo,
   stage, or commit.
 

@@ -12,7 +12,7 @@ Claude runs one gatherer per source (each copying the relevant pages verbatim, w
 headers), a fast scrub pass that strips capture junk from each web source, then a curator that
 organizes and splits the set, deletes what the brief doesn't need, writes `INDEX.md`, and checks the sources
 against each other.
-Coverage gaps are filled with a bounded follow-up gather.
+Then one gatherer fills the coverage gaps in a bounded follow-up round.
 
 ### What sets it apart
 
@@ -30,8 +30,9 @@ A **gather → curate** loop built on the shared [Workflow Principles](../../pri
   fails and gets recaptured. An unreachable source is reported as *unchecked* rather than passed.
 - **Indexed for LLM use.** `INDEX.md` gives one line per file (what it covers, when to read it) plus
   Coverage notes, so the agent building your feature finds the right doc without reading everything.
-- **Gap-fill loop.** Gaps the curator finds spawn targeted gathers (bounded by `maxRounds`). Anything
-  still open is listed in Coverage notes rather than silently missing.
+- **Gap-fill loop.** The curator writes each gap it finds as a numbered entry in Coverage notes, with
+  the file, the source and the reason. One gatherer per round fills the gaps, bounded by `maxRounds`.
+  Anything still open stays listed in Coverage notes rather than silently missing.
 - **Community claims get tested, not trusted.** An optional `testbed` (e.g. read-only `curl` against a
   live API) makes gatherers verify non-official claims empirically before they enter the set,
   with the command + response recorded verbatim. Official docs are captured as-is.
@@ -71,8 +72,9 @@ Claude reads `aipg/workflows/docs/CLAUDE.md`, frames the brief + sources with yo
    in place, with no words changed.
 3. **Curates.** A curator organizes + splits the set, deletes the irrelevant, writes `INDEX.md`, and
    flags cross-source inconsistencies.
-4. **Fills gaps.** Coverage holes or files needing recapture trigger a bounded follow-up gather,
-   then a re-index.
+4. **Fills gaps.** Coverage holes or files needing recapture trigger a bounded follow-up round. One
+   gatherer fills every gap and strips capture junk from its captures. A recaptured file replaces the
+   old one only once a word for word check against its source passes. Then the set is re-indexed.
 
 ---
 

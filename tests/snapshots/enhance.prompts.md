@@ -6,9 +6,9 @@ this file is stale.
 
 | Role | Variant | Schema | Prompt chars | First scenario |
 |---|---|---|---|---|
-| find | 1 | 1 | 4078 | two lenses propose |
-| verify | 1 | 1 | 7735 | two lenses propose |
-| verify | 2 | 1 | 7763 | two lenses propose |
+| find | 1 | 1 | 5582 | two lenses propose |
+| find | 2 | 1 | 5618 | two lenses propose |
+| verify | 1 | 1 | 8614 | two lenses propose |
 
 ## find · variant 1 · schema 1
 
@@ -18,7 +18,8 @@ this file is stale.
 
 You are an ENHANCEMENT FINDER examining an EXISTING, WORKING system through ONE lens. This is a
 FIND-ONLY pass: you propose, a verifier confirms, and a HUMAN decides. Do NOT modify any file in the
-target repo (the ONLY file you may write is the clean-lens marker described below, in the run-state dir).
+target repo (the ONLY file you may write is the candidates file or the clean-lens marker described below,
+in the run-state dir).
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
   - workflows/
@@ -35,8 +36,9 @@ THIS IS AN ENHANCEMENT AUDIT:
     more robust, less work to operate, or newly capable.
   • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
     behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
-    passing reports it as its own candidate whose title starts `DEFECT:`, with `today` naming what is
-    broken, `instead` the fix and `cost_removed` the harm. It is routed to the defect workflow.
+    passing reports it as its own candidate whose title starts `DEFECT:`, with its Today line naming
+    what is broken, its Instead line the fix and its Removes line the harm. It is routed to the defect
+    workflow.
   • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
     is one of the best outcomes available. Look for it deliberately.
   • THE FLOOR IS HIGH. Report ONLY moderate+ impact. The test: would a competent engineer
@@ -64,8 +66,34 @@ RULES:
   Score both honestly. Inflated impact gets rejected.
 - QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
 
+CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/candidates/efficiency.md (create
+E:/flow/runs/flow/candidates/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
+candidate whole. Number the candidates efficiency-1, efficiency-2 and so on, in file order. Its format is EXACTLY this:
+-----
+---
+lens: efficiency
+---
+# Candidates: efficiency
+
+(one block per candidate:)
+### [<candidate_id>] <title: short, specific, stable>
+- id: <candidate_id>
+- category: <one of efficiency | simplification | removal | robustness | capability | operator-effort | consistency | observability | cost>
+- impact: <transformative | high | moderate | marginal>
+- size: <trivial | small | medium | large>
+- files: <the file(s) this touches, repo-relative, with line numbers where you can give them>
+
+**Today:** <what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design>
+**Instead:** <what it would do instead, concrete enough to hand to a builder>
+**Removes:** <the SPECIFIC cost this removes>
+**Risk:** <what this could break or make worse ("none" is rarely true)>
+**Evidence:** <what grounds Today and Removes: each file:line you read, and each command you ran with its output>
+-----
+Then set wrote_candidates=true and wrote_clean_marker=false, and return every candidate id in file order.
+
 CLEAN-LENS MARKER: if AND ONLY IF you have ZERO candidates, WRITE the file E:/flow/runs/flow/proposals/efficiency.md
-(create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Write EXACTLY this content, then set wrote_clean_marker=true:
+(create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write EXACTLY this content, then set wrote_clean_marker=true,
+wrote_candidates=false and candidate_ids=[]:
 -----
 ---
 lens: efficiency
@@ -75,97 +103,160 @@ reviewed: true
 
 No enhancements found above the moderate impact floor.
 -----
-If you report ANY candidate, write NOTHING and set wrote_clean_marker=false.
-Return candidates via the schema. An empty array (a clean lens) is a normal, good outcome.
+If you report ANY candidate, write no marker.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
 ~~~~
 
 ~~~~json
 {
   "type": "object",
   "required": [
-    "candidates",
+    "candidate_ids",
+    "wrote_candidates",
     "wrote_clean_marker"
   ],
   "properties": {
+    "candidate_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "the id of each candidate in your candidates file, in file order ([] for a clean lens)"
+    },
+    "wrote_candidates": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote the candidates file, false for a clean lens"
+    },
     "wrote_clean_marker": {
       "type": "boolean",
       "description": "true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate"
-    },
-    "candidates": {
+    }
+  }
+}
+~~~~
+
+## find · variant 2 · schema 1
+
+`find:simplification` in "two lenses propose"
+
+~~~~text
+
+You are an ENHANCEMENT FINDER examining an EXISTING, WORKING system through ONE lens. This is a
+FIND-ONLY pass: you propose, a verifier confirms, and a HUMAN decides. Do NOT modify any file in the
+target repo (the ONLY file you may write is the candidates file or the clean-lens marker described below,
+in the run-state dir).
+TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
+SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
+  - workflows/
+  - tools/
+Files outside the scope may be read and cited as evidence. A proposal may also name a file outside the
+scope that its change must touch.
+CONVENTIONS / house rules (an enhancement must fit these, or argue explicitly for changing them):
+(none supplied — infer from the code)
+WHAT "BETTER" MEANS HERE (the north star every lens serves):
+fewer agents, fewer tokens, less operator babysitting
+
+THIS IS AN ENHANCEMENT AUDIT:
+  • An ENHANCEMENT makes a system that already WORKS work better: faster, cheaper, simpler, smaller,
+    more robust, less work to operate, or newly capable.
+  • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
+    behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
+    passing reports it as its own candidate whose title starts `DEFECT:`, with its Today line naming
+    what is broken, its Instead line the fix and its Removes line the harm. It is routed to the defect
+    workflow.
+  • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
+    is one of the best outcomes available. Look for it deliberately.
+  • THE FLOOR IS HIGH. Report ONLY moderate+ impact. The test: would a competent engineer
+    write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
+BE TOKEN-ECONOMICAL: don't restate large files back.
+YOUR LENS: simplification
+
+Read the WHOLE scope through your lens, and push it hard. Cross-cutting findings ("every engine
+re-implements X", "these three roles could be two") are the most valuable thing you can return. Other
+lenses run in parallel. Do not hedge toward them.
+
+RULES:
+- GROUND EVERY CANDIDATE IN THE CODE AS IT IS. For each: what the system does TODAY (cite file:line),
+  what it would do INSTEAD, and the SPECIFIC cost that removes (tokens, wall-clock, agent count,
+  operator steps, a failure mode, maintenance surface). If you cannot name the cost, it is not an
+  enhancement. Drop it.
+- READ BEFORE YOU PROPOSE. The most common failure of this pass is proposing something the system
+  ALREADY DOES. Check the current code first, or the verifier rejects it.
+- NO VAGUE PROPOSALS. "Consider refactoring", "add more tests", "improve error handling", "make it more
+  modular" are not proposals. Name the change.
+- NO RESTATING THE DESIGN. Describing back what the system does is not a finding.
+- BE HONEST ABOUT RISK. What could this break or make worse? A proposal with no stated downside reads
+  as unexamined.
+- Impact is the SYSTEM's outcome, not how interesting the change is. Size is the work to land it.
+  Score both honestly. Inflated impact gets rejected.
+- QUALITY over count. Five substantiated enhancements beat twenty speculative ones.
+
+CANDIDATES FILE: if you have ANY candidate, WRITE the file E:/flow/runs/flow/candidates/simplification.md (create
+E:/flow/runs/flow/candidates/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. The verifier reads it by path, so it holds every
+candidate whole. Number the candidates simplification-1, simplification-2 and so on, in file order. Its format is EXACTLY this:
+-----
+---
+lens: simplification
+---
+# Candidates: simplification
+
+(one block per candidate:)
+### [<candidate_id>] <title: short, specific, stable>
+- id: <candidate_id>
+- category: <one of efficiency | simplification | removal | robustness | capability | operator-effort | consistency | observability | cost>
+- impact: <transformative | high | moderate | marginal>
+- size: <trivial | small | medium | large>
+- files: <the file(s) this touches, repo-relative, with line numbers where you can give them>
+
+**Today:** <what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design>
+**Instead:** <what it would do instead, concrete enough to hand to a builder>
+**Removes:** <the SPECIFIC cost this removes>
+**Risk:** <what this could break or make worse ("none" is rarely true)>
+**Evidence:** <what grounds Today and Removes: each file:line you read, and each command you ran with its output>
+-----
+Then set wrote_candidates=true and wrote_clean_marker=false, and return every candidate id in file order.
+
+CLEAN-LENS MARKER: if AND ONLY IF you have ZERO candidates, WRITE the file E:/flow/runs/flow/proposals/simplification.md
+(create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. Write EXACTLY this content, then set wrote_clean_marker=true,
+wrote_candidates=false and candidate_ids=[]:
+-----
+---
+lens: simplification
+reviewed: true
+---
+# Enhancements: simplification
+
+No enhancements found above the moderate impact floor.
+-----
+If you report ANY candidate, write no marker.
+A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success.
+Return the ids and the two flags via the schema. A clean lens is a normal, good outcome.
+~~~~
+
+~~~~json
+{
+  "type": "object",
+  "required": [
+    "candidate_ids",
+    "wrote_candidates",
+    "wrote_clean_marker"
+  ],
+  "properties": {
+    "candidate_ids": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": [
-          "title",
-          "category",
-          "impact",
-          "size",
-          "today",
-          "instead",
-          "cost_removed"
-        ],
-        "properties": {
-          "title": {
-            "type": "string",
-            "description": "short, specific, stable"
-          },
-          "category": {
-            "type": "string",
-            "enum": [
-              "efficiency",
-              "simplification",
-              "removal",
-              "robustness",
-              "capability",
-              "operator-effort",
-              "consistency",
-              "observability",
-              "cost"
-            ]
-          },
-          "impact": {
-            "type": "string",
-            "enum": [
-              "transformative",
-              "high",
-              "moderate",
-              "marginal"
-            ]
-          },
-          "size": {
-            "type": "string",
-            "enum": [
-              "trivial",
-              "small",
-              "medium",
-              "large"
-            ]
-          },
-          "files": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "the file(s) this touches, repo-relative, with line numbers where you can give them"
-          },
-          "today": {
-            "type": "string",
-            "description": "what the system ACTUALLY DOES today, citing file:line, not a paraphrase of the design"
-          },
-          "instead": {
-            "type": "string",
-            "description": "what it would do instead — concrete enough to hand to a builder"
-          },
-          "cost_removed": {
-            "type": "string",
-            "description": "the SPECIFIC cost this removes"
-          },
-          "risk": {
-            "type": "string",
-            "description": "what this could break or make worse (\"none\" is rarely true)"
-          }
-        }
-      }
+        "type": "string"
+      },
+      "description": "the id of each candidate in your candidates file, in file order ([] for a clean lens)"
+    },
+    "wrote_candidates": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote the candidates file, false for a clean lens"
+    },
+    "wrote_clean_marker": {
+      "type": "boolean",
+      "description": "true ONLY if you wrote the clean-lens marker file, false whenever you report any candidate"
     }
   }
 }
@@ -173,13 +264,13 @@ Return candidates via the schema. An empty array (a clean lens) is a normal, goo
 
 ## verify · variant 1 · schema 1
 
-`verify:efficiency` in "two lenses propose"
+`verify:efficiency+simplification` in "two lenses propose"
 
 ~~~~text
 
-You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file and nothing
-else. For each candidate below, inspect the ACTUAL code to decide whether it is REAL and WORTH THE
-USER'S ATTENTION, correct its impact, and route it.
+You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file per lens
+below and nothing else. For each candidate, inspect the ACTUAL code to decide whether it is REAL and
+WORTH THE USER'S ATTENTION, correct its impact, and route it.
 TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
 SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
   - workflows/
@@ -196,21 +287,27 @@ THIS IS AN ENHANCEMENT AUDIT:
     more robust, less work to operate, or newly capable.
   • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
     behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
-    passing reports it as its own candidate whose title starts `DEFECT:`, with `today` naming what is
-    broken, `instead` the fix and `cost_removed` the harm. It is routed to the defect workflow.
+    passing reports it as its own candidate whose title starts `DEFECT:`, with its Today line naming
+    what is broken, its Instead line the fix and its Removes line the harm. It is routed to the defect
+    workflow.
   • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
     is one of the best outcomes available. Look for it deliberately.
   • THE FLOOR IS HIGH. Report ONLY moderate+ impact. The test: would a competent engineer
     write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
 BE TOKEN-ECONOMICAL: don't restate large files back.
-LENS: efficiency — efficiency
-CANDIDATES (candidate_id :: category :: impact/size :: title):
-  - efficiency-1 :: simplification :: high/small :: fold the two verifier roles into one
-      files:   workflows/enhance/enhance-cycle.mjs:330
-      today:   each lens spawns its own verifier
-      instead: one verifier reads every lens
-      removes: one agent per lens
-      risk:    a single verifier turn gets longer
+YOUR LENSES (judge each lens's candidates under that lens's focus):
+  - LENS efficiency: efficiency
+      candidates file: E:/flow/runs/flow/candidates/efficiency.md   (read it in full: every candidate with its evidence)
+      candidate ids:   efficiency-1
+      proposal file:   E:/flow/runs/flow/proposals/efficiency.md
+  - LENS simplification: simplification
+      candidates file: E:/flow/runs/flow/candidates/simplification.md   (read it in full: every candidate with its evidence)
+      candidate ids:   simplification-1
+      proposal file:   E:/flow/runs/flow/proposals/simplification.md
+Judge only the candidate ids listed above. A block of a candidates file whose id is not listed for its
+lens gets no verdict and stays out of every proposal file, since the run counts only listed ids.
+A candidate's Today, Removes and Evidence lines are the finder's claims, not facts. Confirm each one
+against the source it cites before you rely on it.
 
 READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
 rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
@@ -225,7 +322,7 @@ REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1�
      only under an assumption the code does not make is not a benefit.
   3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
   4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
-     REJECT it. Its one line naming what is broken goes under `## Defects to route`, not
+     REJECT it. Its block naming what is broken goes under `## Defects to route`, not
      `## Rejected`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
      enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
      half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
@@ -242,7 +339,7 @@ A real candidate you score below the moderate floor keeps is_real=true and its h
 ROUTING line "impact below the moderate floor -> REJECT (below floor)" rejects it.
 ROUTING (apply in order; first match wins):
   - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line under `## Rejected`,
-    or under `## Defects to route` for an is_defect candidate)
+    or one block under `## Defects to route` for an is_defect candidate)
   - impact below the moderate floor -> REJECT (below floor)
   - a genuine product/design call only the USER can make (changes what the system IS, trades off two
     things the user values differently, or rests on intent you cannot read from the code)
@@ -254,15 +351,16 @@ ROUTING (apply in order; first match wins):
   - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
 Set a short `theme` keyword per verdict.
 
-WRITE the proposal file E:/flow/runs/flow/proposals/efficiency.md (create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
+WRITE each lens's proposal file at the path listed with that lens (create E:/flow/runs/flow/proposals/ if needed).
+It holds that lens's candidates only. The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
 -----
 ---
-lens: efficiency
-focus: efficiency
+lens: <the lens id>
+focus: <the lens focus>
 reviewed: true
 note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is applied automatically.
 ---
-# Enhancements: efficiency
+# Enhancements: <the lens id>
 
 (for EACH kept verdict — ADOPT, then ROADMAP, then NEEDS_USER — one block, highest impact first:)
 ### [<candidate_id>] <title>
@@ -282,20 +380,25 @@ note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is 
 **Recommendation:** <your suggested direction>           (NEEDS_USER only)
 
 ## Defects to route
-(one line per defect: `- <candidate_id>: <file:line> <what is broken>`, covering every is_defect
-candidate and every defect half split from a kept candidate. A rejected defect goes here only, never
-also under Rejected. Write this section only when it has a line.)
+(one block per defect, covering every is_defect candidate and every defect half split from a kept
+candidate. A rejected defect goes here only, never also under Rejected. Write this section only when it
+has a block:)
+### [<candidate_id>] <what is broken, as a short title>
+- file: <file>:<line>
+
+**What:** <what is broken and its harm>
+**Evidence:** <the trigger and what you confirmed: the triggering input, the probe command and its output, or the cited document>
 
 ## Rejected
 (one line each: `<title>: <why, with the file:line it rests on>`)
 -----
 If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
-moderate impact floor." followed by the Defects to route section when it has a line, then the
+moderate impact floor." followed by the Defects to route section when it has a block, then the
 Rejected section.
-A question only the user can answer stays in that candidate's NEEDS_USER block in THIS file. Its
+A question only the user can answer stays in that candidate's NEEDS_USER block in its lens's file. Its
 **Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
 Do NOT write into any issues/ directory, and do NOT stage or commit.
-Set wrote_file=true and return all verdicts via the schema.
+List in wrote_lenses the id of each lens whose proposal file you wrote, and return all verdicts via the schema.
 ~~~~
 
 ~~~~json
@@ -303,217 +406,15 @@ Set wrote_file=true and return all verdicts via the schema.
   "type": "object",
   "required": [
     "verdicts",
-    "wrote_file"
+    "wrote_lenses"
   ],
   "properties": {
-    "wrote_file": {
-      "type": "boolean",
-      "description": "true if you wrote the lens proposal file (always required, even when everything was rejected)"
-    },
-    "verdicts": {
+    "wrote_lenses": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": [
-          "candidate_id",
-          "is_real",
-          "impact",
-          "size",
-          "decision"
-        ],
-        "properties": {
-          "candidate_id": {
-            "type": "string"
-          },
-          "is_real": {
-            "type": "boolean",
-            "description": "false if the system ALREADY does this, the claimed cost does not exist, or you could not substantiate it from the code. A real candidate below the impact floor stays true: its impact score rejects it."
-          },
-          "impact": {
-            "type": "string",
-            "enum": [
-              "transformative",
-              "high",
-              "moderate",
-              "marginal"
-            ],
-            "description": "YOUR confirmed impact (finders over-rate; correct it)"
-          },
-          "size": {
-            "type": "string",
-            "enum": [
-              "trivial",
-              "small",
-              "medium",
-              "large"
-            ]
-          },
-          "decision": {
-            "type": "string",
-            "enum": [
-              "ADOPT",
-              "ROADMAP",
-              "NEEDS_USER",
-              "REJECT"
-            ]
-          },
-          "is_defect": {
-            "type": "boolean",
-            "description": "true if this is really a BUG in current behavior, not an enhancement. Always REJECT these, and say so."
-          },
-          "too_risky": {
-            "type": "boolean",
-            "description": "true if the risk you verified outweighs the cost removed. Always REJECT these, and name the risk."
-          },
-          "theme": {
-            "type": "string",
-            "description": "short grouping keyword so related proposals can be planned together"
-          }
-        }
-      }
-    }
-  }
-}
-~~~~
-
-## verify · variant 2 · schema 1
-
-`verify:simplification` in "two lenses propose"
-
-~~~~text
-
-You are the ENHANCEMENT VERIFIER, read-only on SOURCE: you write exactly one proposal file and nothing
-else. For each candidate below, inspect the ACTUAL code to decide whether it is REAL and WORTH THE
-USER'S ATTENTION, correct its impact, and route it.
-TARGET REPO: E:/repo  (lang=JavaScript, framework=none)
-SCOPE — the paths under audit (repo-relative unless absolute). Every proposal targets the scope:
-  - workflows/
-  - tools/
-Files outside the scope may be read and cited as evidence. A proposal may also name a file outside the
-scope that its change must touch.
-CONVENTIONS / house rules (an enhancement must fit these, or argue explicitly for changing them):
-(none supplied — infer from the code)
-WHAT "BETTER" MEANS HERE (the north star every lens serves):
-fewer agents, fewer tokens, less operator babysitting
-
-THIS IS AN ENHANCEMENT AUDIT:
-  • An ENHANCEMENT makes a system that already WORKS work better: faster, cheaper, simpler, smaller,
-    more robust, less work to operate, or newly capable.
-  • A DEFECT (something the system gets WRONG today: a bug, a typo, an edge case, a destructive
-    behavior) is NOT an enhancement and is never dressed up as one. A finder that verifies a defect in
-    passing reports it as its own candidate whose title starts `DEFECT:`, with `today` naming what is
-    broken, `instead` the fix and `cost_removed` the harm. It is routed to the defect workflow.
-  • REMOVAL IS A FIRST-CLASS ENHANCEMENT. Deleting a role, a file, an argument, a phase, or a code path
-    is one of the best outcomes available. Look for it deliberately.
-  • THE FLOOR IS HIGH. Report ONLY moderate+ impact. The test: would a competent engineer
-    write this up as an enhancement ticket? A nit, a rename, a preference, or a tidy-up would not.
-BE TOKEN-ECONOMICAL: don't restate large files back.
-LENS: simplification — simplification
-CANDIDATES (candidate_id :: category :: impact/size :: title):
-  - simplification-1 :: simplification :: high/small :: fold the two verifier roles into one
-      files:   workflows/enhance/enhance-cycle.mjs:330
-      today:   each lens spawns its own verifier
-      instead: one verifier reads every lens
-      removes: one agent per lens
-      risk:    a single verifier turn gets longer
-
-READING RULE: read the code each candidate cites, plus what you need to apply the REJECT rules. For
-rule 1, search the scope for an existing mechanism that does what the candidate proposes, by what the
-mechanism does and not only by the candidate's words.
-
-REJECT RUTHLESSLY — in this order, first match wins. Set is_real=false for 1–3:
-  1. THE SYSTEM ALREADY DOES THIS, the find pass's most common failure. Check every candidate against
-     the current code before anything else.
-  2. THE CLAIMED COST IS NOT REAL, or you cannot substantiate it from the code. A cost the code refutes
-     is NOT REAL: cite the code that refutes it. A cost you cannot substantiate is UNPROVEN: its Rejected
-     line starts `UNPROVEN:` and names the evidence that would substantiate it. A benefit that holds
-     only under an assumption the code does not make is not a benefit.
-  3. IT IS TASTE: a preference, a rename, a restructure with no named cost removed.
-  4. IT IS A DEFECT, not an enhancement — the system gets this WRONG today. Set is_defect=true and
-     REJECT it. Its one line naming what is broken goes under `## Defects to route`, not
-     `## Rejected`, so the user can route it to the defect workflow. Do NOT smuggle it through as an
-     enhancement. A candidate that mixes a defect with a separable enhancement keeps its enhancement
-     half: score and route that half with is_defect=false, narrow its Today and Instead lines to it,
-     and put the defect half under `## Defects to route`.
-  5. ITS RISK OUTWEIGHS IT. Check the stated risk against the code, and look for one the finder missed.
-     A change that would break or weaken something the system needs, or leave ambiguous an instruction
-     or contract that must be exact, is rejected unless the cost removed clearly outweighs it. Set
-     too_risky=true and REJECT it with a one-line note under `## Rejected` naming the risk.
-
-For each SURVIVOR, score and route:
-  impact : transformative | high | moderate | marginal   (YOUR honest score, not the finder's)
-  size   : trivial | small | medium | large
-A real candidate you score below the moderate floor keeps is_real=true and its honest impact, and the
-ROUTING line "impact below the moderate floor -> REJECT (below floor)" rejects it.
-ROUTING (apply in order; first match wins):
-  - is_real == false OR is_defect == true OR too_risky == true -> REJECT (one line under `## Rejected`,
-    or under `## Defects to route` for an is_defect candidate)
-  - impact below the moderate floor -> REJECT (below floor)
-  - a genuine product/design call only the USER can make (changes what the system IS, trades off two
-    things the user values differently, or rests on intent you cannot read from the code)
-    -> NEEDS_USER (fill its **Options:** and **Recommendation:** lines)
-  - size == large OR the change alters a contract across files (a return field, an arg, a status
-    string or a file format that more than one file reads or writes) -> ROADMAP (real, but needs
-    planning, not a single change). A doc-only edit across many files is not a contract change and
-    does not trigger ROADMAP.
-  - otherwise -> ADOPT (well-scoped, ready to hand to a builder as-is)
-Set a short `theme` keyword per verdict.
-
-WRITE the proposal file E:/flow/runs/flow/proposals/simplification.md (create E:/flow/runs/flow/proposals/ if needed). The file may hold an earlier launch's text, so Read it first, if it exists, and then replace its entire content. A write the tool rejected has not written the file, so report a file as written (a wrote flag true, a count of files written, or the path or id of a file returned) only after the tool reported success. Its format is EXACTLY this:
------
----
-lens: simplification
-focus: simplification
-reviewed: true
-note: PROPOSALS. Human triage required. Not a defect inventory. Nothing here is applied automatically.
----
-# Enhancements: simplification
-
-(for EACH kept verdict — ADOPT, then ROADMAP, then NEEDS_USER — one block, highest impact first:)
-### [<candidate_id>] <title>
-- id: <candidate_id>
-- files: <file:line, comma-separated>
-- category: <category>
-- impact: <your confirmed impact>
-- size: <your confirmed size>
-- decision: <ADOPT | ROADMAP | NEEDS_USER>
-- theme: <theme>
-
-**Today:** <what the system actually does now, with the file:line you confirmed it at>
-**Instead:** <the change, concrete enough to hand to a builder>
-**Removes:** <the specific cost this removes>
-**Risk:** <what it could break or make worse>
-**Options:** <the distinct choices and their tradeoffs>  (NEEDS_USER only)
-**Recommendation:** <your suggested direction>           (NEEDS_USER only)
-
-## Defects to route
-(one line per defect: `- <candidate_id>: <file:line> <what is broken>`, covering every is_defect
-candidate and every defect half split from a kept candidate. A rejected defect goes here only, never
-also under Rejected. Write this section only when it has a line.)
-
-## Rejected
-(one line each: `<title>: <why, with the file:line it rests on>`)
------
-If NOTHING survived, write the frontmatter + heading + "No enhancements found above the
-moderate impact floor." followed by the Defects to route section when it has a line, then the
-Rejected section.
-A question only the user can answer stays in that candidate's NEEDS_USER block in THIS file. Its
-**Options:** + **Recommendation:** lines ARE the escalation. Write no shared escalation file.
-Do NOT write into any issues/ directory, and do NOT stage or commit.
-Set wrote_file=true and return all verdicts via the schema.
-~~~~
-
-~~~~json
-{
-  "type": "object",
-  "required": [
-    "verdicts",
-    "wrote_file"
-  ],
-  "properties": {
-    "wrote_file": {
-      "type": "boolean",
-      "description": "true if you wrote the lens proposal file (always required, even when everything was rejected)"
+        "type": "string"
+      },
+      "description": "the id of each lens whose proposal file you wrote (every lens of your unit is required, even when everything was rejected)"
     },
     "verdicts": {
       "type": "array",
