@@ -135,7 +135,9 @@ too, each with a note that says to delete the line by hand once the block is `do
 that exists but fails to read or validate, or whose run records cannot be folded into it, fails the command. A file named
 as a plan gets no cut. A status edit whose `value` is null removes its key's
 line, with the line's own ending, and is a no-op when the line is absent. develop removes a pulled entry's `- pulled:`
-line that way.
+line that way. A status edit that carries `expectPulled` applies only to an issue entry whose `- pulled:` value is
+`expectPulled`, and is skipped with a note otherwise. develop gives each status edit and removal of a pulled entry its
+block's mark, so a run never edits an entry its block did not mark.
 
 `--pack <repo>` groups the todo fix blocks into passes, so one set of agents builds several small ones.
 A block's weight is the line count of each distinct file its open ACTIONABLE issues name: the `- loc:`

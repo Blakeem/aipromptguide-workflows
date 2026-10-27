@@ -354,18 +354,21 @@ to the backlog (§10). The policies differ as follows.
   each pulled entry as §2 step 5 maps a fix issue: `fixed` or `stale` when its block landed and the last
   verdict confirmed its claim, `fixed` for a STALE report that follows the developer's own FIXED report,
   and `needs-attention` otherwise, each with its `- pulled:` line removed so a later run can take it
-  again. A park that saved its block's work keeps the status and `- pulled:` line of each pulled entry
-  whose last report is FIXED, or STALE after a FIXED report, since the park's branch holds its fix, and
-  the park entry's `Pulled:` line names those entries (§10 steps 3 and 5). Every other pulled entry of
-  that park syncs `needs-attention` and loses its line. No status edit closes the `- pulled:` line of
-  an entry `PULLED-<id>.md` lists that no report or verdict of the run names, such as an entry a
-  developer marked before it died. A park closes such an entry. The park's `Pulled:` line names that entry
-  when the park's commit holds its fix, and the park removes its `- pulled:` line otherwise. A block that
-  ends without a park, such as one that lands, leaves such an entry marked, and no later build takes it.
-  So once `plan-edit.mjs args` has applied a proactive run's statuses, grep the backlog folder for
-  `- pulled: <runId>#` and remove each such line whose block did not park. The developer
-  and acceptance of a fix block built from a file that holds a pulled entry treat that entry as not
-  ACTIONABLE, so only the pulling block, or its park entry, builds that work.
+  again. Each of those edits expects the block's mark, so `args` leaves an entry as it is when its
+  `- pulled:` line names another block or is absent. A park that saved its block's work keeps the
+  status and `- pulled:` line of each pulled entry whose last report is FIXED, or STALE after a FIXED
+  report, since the park's branch holds its fix, and the park entry's `Pulled:` line names those
+  entries (§10 steps 3 and 5). Every other pulled entry of that park syncs `needs-attention` and loses
+  its line. No status edit closes the `- pulled:` line of an entry `PULLED-<id>.md` lists that no
+  report or verdict of the run names, such as an entry a developer marked before it died. A park
+  agent that returns closes such an entry. The park's `Pulled:` line names that entry when the park's
+  commit holds its fix, and the park removes its `- pulled:` line otherwise. A block that ends without
+  such a park, such as one that lands or one whose park agent died, leaves such an entry marked, and
+  no later build takes it. So the run's `nextStep` names each such block, with the
+  `- pulled: <runId>#<block id>` line to grep the backlog folder for and the ids its ledger row's
+  `pulled` names. Remove each such line on an entry those ids leave out. The developer and acceptance
+  of a fix block built from a file that holds a pulled entry treat that entry as not ACTIONABLE, so
+  only the pulling block, or its park entry, builds that work.
 
 Each fix of a defect the accepted baseline already had that no criterion of the block or ACTIONABLE
 entry requires gets one `FOCUSED <id>:` or `PROACTIVE <id>:` line in `DECISIONS.md`. Acceptance
@@ -651,8 +654,8 @@ Never stage that work as it is. `acceptance-regression` means acceptance staged 
 verdict flagged a regression, so inspect `git diff --cached`. To keep the work, run §2 step 3, then
 set the block's `status:` to `done`. Then set each fix issue that the acceptance file named in the
 halt reason confirmed closed to `fixed` or `stale`, as §2 step 5 maps a landed block's issues. Under
-`proactive`, also run `plan-edit.mjs args --backlog <backlogDir>`, which applies the run's statuses to
-the backlog files even when it exits with `nothing to build`. Only then set each pulled entry that the
+`proactive`, also run `plan-edit.mjs args --backlog <backlogDir> --fold-only`, which writes the run's
+statuses into the backlog files and prints nothing. Only then set each pulled entry that the
 acceptance file confirmed closed to `fixed` or `stale`, since a later fold overwrites a hand edit made
 before it. To reject it, unstage the block's files, set them aside as §4 describes, run §2 step 3, then set the
 block's `status:` to `todo`. Either way, run step 3 again for the launch args. `review-unwritten`
@@ -799,7 +802,8 @@ Full schema + defaults: the Config block atop `develop-cycle.mjs` (the canonical
   block acceptance rejected, whose commit the halt reason names), per-issue `results` in fix
   mode, and `pulled`, each pulled entry as `{ issue_id, status, confirmed }`, which is empty under
   `focused`) · `statusSync` (the plan-file edits, also logged per block for §2 step 5. An edit whose
-  `value` is null removes its key's line, which closes a pulled entry's `- pulled:` line) · `sweep` ·
+  `value` is null removes its key's line, which closes a pulled entry's `- pulled:` line. An edit with
+  `expectPulled` applies only to an entry whose `- pulled:` value is `expectPulled`) · `sweep` ·
   `failed` (`{ id: 'sweep', stage: 'sweep' }` when the sweep ran and died, else empty, so
   `sweep: null` with no entry means the sweep did not run) · `backlogEntries` (every mode, the
   entries developers, fix verifiers and closing acceptances added to the backlog this run, null when

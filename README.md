@@ -157,6 +157,11 @@ What's changed, newest first: new workflows, changes to how they work, and bugs 
 
 ### 2026-10-26
 
+- **A run edits only the backlog entries its blocks marked.** `plan-edit.mjs args` applies a pulled entry's
+  status edit only when the entry's `- pulled:` line names the block that made the edit. A proactive run's
+  `nextStep` also names the `- pulled:` line of each block whose park agent did not return, a block that did
+  not park included, with the entries its status edits close. Remove that line from every other entry, so that a
+  later run can take the entry.
 - **`plan-edit.mjs args --fold-only` writes the run statuses without printing launch args.** It writes every
   fold and cut that `args` writes, sets no `done` backlog file to `todo`, and prints nothing. The develop guide's
   "Working the backlog" step 1 runs it before it reads or edits the backlog files, so a fix a finished launch made

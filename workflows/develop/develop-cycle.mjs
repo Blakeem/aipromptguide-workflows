@@ -200,6 +200,8 @@ const PULL_TOOL = toolPath('plan-pull.mjs');
 // plan-pull.mjs lists only an entry whose id is its file's id and "-<n>", so a pulled entry's id names the file its edits go to.
 const PULLED_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*-\d+$/;
 const pulledEntryFile = (id) => `${BACKLOG_DIR}/${id.replace(/-\d+$/, '')}.md`;
+// The value of the "- pulled:" line a block's round-1 developer writes, which the block's status edits expect.
+const pulledMark = (blockId) => `${RUN_ID}#${blockId}`;
 const PULLED_STATUSES = ['FIXED', 'STALE', 'FAILED'];
 
 // =============================================================================
@@ -1305,7 +1307,7 @@ block's VERIFY-FIRST does: confirm its defect still exists, or that it no longer
 TAKE an entry only when its fix sits in the files your block changes and fits your capacity: aim for a
 round-1 context of about 200k to 350k tokens, your block's own work included, and take none when your
 block alone fills that. For each entry you take:
-  a. Append the line "- pulled: ${RUN_ID}#${p.id}" to the entry's "- <key>:" lines in its planPath,
+  a. Append the line "- pulled: ${pulledMark(p.id)}" to the entry's "- <key>:" lines in its planPath,
      directly under the last of them. An entry that already carries a "- pulled:" line was taken by
      another developer after the tool ran, so leave it and do not take it. When the entry carries a line
      that starts with "**Parked with:**", delete that line, since the tool lists such an entry only once
@@ -1960,7 +1962,7 @@ PROCEDURE:
    plan file is parsed.
    Then return entry_written=true. ${WROTE_NOTE}${PROACTIVE ? `
 4. RELEASE, whatever steps 1 to 3 did. READ ${pulledFile(p.id)} if it exists. Each line is the id of a
-   backlog entry this block's round-1 developer marked with the line "- pulled: ${RUN_ID}#${p.id}". For each
+   backlog entry this block's round-1 developer marked with the line "- pulled: ${pulledMark(p.id)}". For each
    id the file lists that ${unreportedPulled(pulledKnown)} and that no "Pulled:" line step 3 wrote
    names, nothing closes that line, so remove it from the entry in
    ${BACKLOG_DIR}/<the id without its last "-<n>">.md and change nothing else in that file, so a later run
@@ -2291,14 +2293,18 @@ function pulledTracker(p) {
     ids,
     onBranch,
     ledger: () => ids().map((id) => ({ issue_id: id, status: reported.get(id) ?? 'UNREPORTED', confirmed: confirmed.get(id) === true })),
-    /** The status edit and the `- pulled:` removal of each entry, apart from the entries a saved park's branch holds. */
+    /**
+     * The status edit and the `- pulled:` removal of each entry, apart from the entries a saved park's branch holds.
+     * Each expects this block's mark, since a report or a verdict may name an entry this block never marked.
+     */
     edits(landed, keptOnBranch) {
       const held = new Set(keptOnBranch ? onBranch() : []);
+      const expectPulled = pulledMark(p.id);
       return ids().filter((id) => !held.has(id)).flatMap((id) => {
         const mapped = issueSyncStatus(reported.get(id), claimedEver.has(id), landed);
         const value = (mapped === 'fixed' || mapped === 'stale') && confirmed.get(id) === true ? mapped : 'needs-attention';
         const planPath = pulledEntryFile(id);
-        return [{ planPath, id, key: 'status', value }, { planPath, id, key: 'pulled', value: null }];
+        return [{ planPath, id, key: 'status', value, expectPulled }, { planPath, id, key: 'pulled', value: null, expectPulled }];
       });
     },
   };
@@ -2331,8 +2337,9 @@ function inspectStatus(p, round, landing) {
     ? ` When you set it \`done\`, also set each fix issue that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
     : '';
   // Only an `args --backlog` call folds a run's statuses into backlog files, and a later fold would overwrite a hand edit made before it.
+  // `--fold-only` writes that fold with no launch args and no done file set to todo.
   const pulledNote = PROACTIVE
-    ? ` When you set it \`done\`, also run \`plan-edit.mjs args --backlog ${BACKLOG_DIR}\`, which applies this run's statuses to the backlog files even when it exits with \`nothing to build\`, and only then set each pulled entry ${pulledFile(p.id)} lists that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
+    ? ` When you set it \`done\`, also run \`plan-edit.mjs args --backlog ${BACKLOG_DIR} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${pulledFile(p.id)} lists that ${acceptanceFile(p.id, round)} confirmed closed to \`fixed\` or \`stale\`.`
     : '';
   return `This run recorded the block as \`blocked\`. Once \`plan-edit.mjs args\` has applied this run's statuses, set its \`status:\` to \`done\` when the accepted baseline holds its reviewed work as you want it, or, once you ${landedRecovery(landing).reject}, to \`todo\` to rebuild it.${issueNote}${pulledNote} Then relaunch with fresh \`plan-edit.mjs args\`.`;
 }
@@ -2489,7 +2496,7 @@ for (const p of pending) {
   const devModel = p.model ?? M.develop;
   const devEffort = p.effort ?? EF.develop;
   logLine(`▶ block ${p.id} [mode=${p.mode}, gate=${p.gate}${p.model ? `, model=${p.model}` : ''}${p.effort ? `, effort=${p.effort}` : ''}]${p.blocks ? ` packing ${p.blocks.map((b) => b.id).join(', ')}` : ''}`);
-  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkCleared: false, branch: null, entryWritten: false, superseded: [], unreportedSuperseded: [], heldPark: false, backlogged: false, commit: null, pulled: [], pulledOnBranch: [] };
+  const rec = { id: p.id, mode: p.mode, gate: p.gate, model: devModel, effort: devEffort, status: 'pending', rounds: 0, closingPass: false, qualityRounds: 0, contested: 0, planAmendments: 0, staged: false, reachable: false, regression: false, results: null, thinEvidence: false, contradicted: false, parked: false, parkReturned: false, parkCleared: false, branch: null, entryWritten: false, superseded: [], unreportedSuperseded: [], heldPark: false, backlogged: false, commit: null, pulled: [], pulledOnBranch: [] };
   const fix = p.mode === 'fix' ? fixTracker(p) : null;
   const pulled = pulledTracker(p);
   for (const b of p.blocks ?? [p]) startedBacklogFiles.add(backlogFile(b.id));
@@ -3021,6 +3028,8 @@ for (const p of pending) {
     rec.branch = (pk?.saved === true || contradictory) ? branch : null;
     // A value, so parked[] never parses status prose.
     rec.parked = true;
+    // Only a park agent that returned ran its RELEASE step, so a dead park leaves its pulled marks for nextStep.
+    rec.parkReturned = pk != null;
     // Only a confirmed clear proves a commitless park had nothing to save.
     rec.parkCleared = pk?.cleared === true;
     rec.entryWritten = pk?.entry_written === true;
@@ -3177,6 +3186,9 @@ const unreportedSupersededPlans = parkedPlans.filter((r) => r.unreportedSupersed
 // unfinished branch did not apply, or a block stopped by a halt that never parks (dirty-baseline,
 // staged-baseline, passed-unstaged).
 const blockedPlans = ledger.filter((r) => !doneIds.includes(r.id) && !parkedPlans.includes(r));
+// Only a park agent that returned releases the pulled line of an entry a PULLED file lists that no report or verdict
+// names, so every other finished block, a dead park included, leaves such a line for the operator.
+const unparkedPullPlans = PROACTIVE ? ledger.filter((r) => r.parkReturned !== true) : [];
 const noChangePlans = blockedPlans.filter((r) => noChangeIds.includes(r.id));
 const restoreFailedPlans = blockedPlans.filter((r) => r.restoreError);
 const haltedPlans = blockedPlans.filter((r) => !noChangeIds.includes(r.id) && !r.restoreError);
@@ -3275,7 +3287,8 @@ return {
   parked: parkedPlans.map((r) => ({ id: r.id, mode: r.mode, branch: r.branch ?? null, backlogFile: backlogFile(r.id), entryWritten: r.entryWritten === true, status: r.status })),
   ledger,
   // One { planPath, id, key, value } edit per block this run finished and per fix entry whose status
-  // changes. A block the run never reached has none.
+  // changes, and a status edit and a pulled-line removal per pulled entry, each with an `expectPulled` the
+  // entry's "- pulled:" value must equal for it to apply. A block the run never reached has none.
   statusSync,
   // null when a developer's or fix verifier's report was unusable: a file may then hold entries the total would hide.
   backlogEntries: backlogUnknown ? null : backlogEntries,
@@ -3333,5 +3346,7 @@ return {
     ? `${backlogUnknown
       ? `A developer, fix verifier or closing acceptance returned no usable backlog report, so check these files in the project's backlog folder ${BACKLOG_DIR}/ for entries this run added: ${[...startedBacklogFiles].sort().join(', ')}.`
       : `This run added ${backlogEntries} entr${backlogEntries === 1 ? 'y' : 'ies'} to the project's backlog folder ${BACKLOG_DIR}/, in: ${[...backlogFiles].sort().join(', ')}.`} Report each added entry's severity, or its category for an entry with no severity line, its title and its decision to the user. Work the backlog as the develop guide's "Working the backlog" says once each file's block is done, skip or backlogged, since a relaunch of a blocked block may still append to its file. `
+    : ''}${unparkedPullPlans.length
+    ? `These blocks ended without a park that returned, so no status edit closes the "- pulled:" line of an entry that a block's round-1 developer marked and that no report or verdict of this run names. ${unparkedPullPlans.map((r) => `For ${r.id}, grep ${BACKLOG_DIR}/ for the line "- pulled: ${pulledMark(r.id)}" and remove each one ${r.pulled.length ? `on an entry that is not one of ${r.pulled.map((e) => e.issue_id).join(', ')}, the ids its ledger row's \`pulled\` names` : 'you find, since its ledger row\'s `pulled` names no entry'}. `).join('')}`
     : ''}${acceptedLine}Check that \`git -C ${REPO} diff\` is empty and \`git -C ${REPO} status --porcelain\` lists no \`??\` file. Land the run with \`wt.mjs close\` once the develop guide says the run lands, and report the run's summary to the user: each landed block, each backlog entry named above, and each entry in ${DECISIONS} if it exists, since each is a default the developer took, a plan amendment, or a ${BASELINE_FIX} that the ${CHANGE_POLICY} change policy allowed. Show a ${LOGGED_FIX_TAG} line only after you confirm the landed code still holds its change, since a later round or a park can undo it. Then derive the next launch's args with \`node '${toolPath('plan-edit.mjs')}' args <planPath>\`, which first folds this run's statuses into the plan file. ${closingLine}`,
 };

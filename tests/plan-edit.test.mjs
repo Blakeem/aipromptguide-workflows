@@ -685,6 +685,7 @@ section('a status line the runtime cut short blocks only the plans it names');
   const cutOwn = withCut(many(own, ['bus-parser', 'triage', 'inventory']), { good: [status('inbox', 'done', bystander)] });
   const failed = argsWith(configWith([cutOwn]), bystander, own);
   ok(/run wf_cut \(.*, 2026-09-25T10:00:00\.000Z\) .*cut short, and it names .*own\.md.*"synced:" file key to 2026-09-25T10:00:00\.000Z/.test(failed.err ?? ''), `a cut line naming a plan fails, naming the run's timestamp: ${(failed.err ?? 'no error').slice(0, 140)}`);
+  ok(/by hand, applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it/.test(failed.err ?? ''), 'the hand-apply instruction names the expectPulled condition');
   eq(read(own) + read(bystander), ownBefore + bystanderBefore, 'and writes neither plan, not even the one it could fold');
 
   const foreignCut = withCut(many(other, ['inbox', 'later', 'old-one']), { runId: 'wf_foreign', timestamp: '2026-09-25T09:30:00.000Z' });
@@ -1170,7 +1171,35 @@ section('a status edit whose value is null removes that key\'s line, with its ow
   const renamed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'effort', value: null }]] })]), path).err ?? '';
   ok(/removes the effort line of inbox-1 .*was renamed to "size", so use size in its place/.test(renamed), `a renamed key fails with a message that never asks for a value: ${renamed}`);
   const typed = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: 7 }]] })]), path).err ?? '';
-  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
+  ok(/is not \{ planPath \(absolute\), id, key, value \(a string, or null to remove the line\), expectPulled \(absent, or the pulled value the entry must carry\) \}/.test(typed), 'a value that is neither a string nor null still fails the record');
+  const badExpect = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox-1', key: 'pulled', value: null, expectPulled: 7 }]] })]), path).err ?? '';
+  ok(/is not \{ planPath \(absolute\), id, key, value/.test(badExpect), `an expectPulled that is not a string fails the record: ${badExpect}`);
+}
+
+section('a status edit with expectPulled applies only to an entry whose pulled line holds that mark');
+{
+  const marked = (mark) => [
+    '## Plan: inbox - backlog', 'mode: fix', 'gate: green', '',
+    '### [inbox-1] first', '- file: a.js:1', '- decision: ACTIONABLE', '- status: open', ...(mark ? [`- pulled: ${mark}`] : []), '', 'What.', '',
+  ].join('\n');
+  const edits = (path) => [{ planPath: path, id: 'inbox-1', key: 'status', value: 'fixed', expectPulled: 'r1#blk' }, { planPath: path, id: 'inbox-1', key: 'pulled', value: null, expectPulled: 'r1#blk' }];
+  for (const [mark, name] of [['r1#blk', 'its own mark'], ['r2#other', 'a foreign mark'], [null, 'no mark']]) {
+    const path = fixture(marked(mark), 'inbox.md');
+    const { err, notes } = argsWith(configWith([record({ blocks: [[...edits(path)]] })]), path);
+    ok(!err, `${name}: it succeeds: ${err ?? ''}`);
+    const text = read(path);
+    ok(notes.includes(`applied ${mark === 'r1#blk' ? 2 : 0} status edit(s) from run wf_1`), `${name}: the fold note counts only the edits it applied: ${notes.trim()}`);
+    if (mark === 'r1#blk') {
+      ok(text.includes('- status: fixed') && !/pulled:/.test(text), `${name}: the status edit and the removal apply`);
+      continue;
+    }
+    ok(text.includes('- status: open') && !text.includes('- status: fixed'), `${name}: the status edit is skipped`);
+    ok(mark ? text.includes(`- pulled: ${mark}`) : !/pulled:/.test(text), `${name}: the pulled line stays as it was`);
+    ok(notes.includes(`leaves the status line of inbox-1`) && notes.includes(mark ? `its pulled line is "${mark}", not "r1#blk"` : 'its pulled line is absent, not "r1#blk"'), `${name}: a note names the skipped edit and the mark it found: ${notes.trim()}`);
+  }
+  const path = fixture(marked('r1#blk'), 'inbox.md');
+  const unmarked = argsWith(configWith([record({ blocks: [[{ planPath: path, id: 'inbox', key: 'status', value: 'done', expectPulled: 'r1#blk' }]] })]), path).err ?? '';
+  ok(/sets inbox status=done in .*inbox\.md, which fails: no issue "inbox"/.test(unmarked), `an expectPulled on a block id fails, naming the edit: ${unmarked}`);
 }
 
 section('--backlog never builds an entry another block\'s developer pulled');

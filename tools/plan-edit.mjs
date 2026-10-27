@@ -396,9 +396,10 @@ export function readRunRecord(path) {
     edits.push(...[].concat(parsed));
   }
   edits.forEach((e, i) => {
-    const typed = e && ['planPath', 'id', 'key'].every((k) => typeof e[k] === 'string') && (typeof e.value === 'string' || e.value === null);
+    const typed = e && ['planPath', 'id', 'key'].every((k) => typeof e[k] === 'string') && (typeof e.value === 'string' || e.value === null)
+      && (e.expectPulled === undefined || typeof e.expectPulled === 'string');
     if (!typed || !isAbsolute(e.planPath)) {
-      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line) }: ${JSON.stringify(e)}`);
+      throw new Error(`status edit [${i}] in ${path} is not { planPath (absolute), id, key, value (a string, or null to remove the line), expectPulled (absent, or the pulled value the entry must carry) }: ${JSON.stringify(e)}`);
     }
   });
   // Older records keep no args, so the result's echo of the runId arg stands in for it. develop takes a numeric
@@ -439,22 +440,30 @@ function fileKey(path) {
 
 /**
  * The plan with each edit applied in order, re-validated after each so every splice reads fresh positions. A null
- * value removes the key's line.
+ * value removes the key's line. An edit that carries `expectPulled` is skipped unless the entry's `- pulled:` value is
+ * `expectPulled`, so a run never edits an entry its block did not mark. Returns the plan and the count of edits applied.
  */
-function applyEdits(plan, edits, source) {
+function applyEdits(plan, edits, source, note) {
   let next = plan;
-  for (const { id, key, value } of edits) {
+  let applied = 0;
+  for (const { id, key, value, expectPulled } of edits) {
     const removes = value === null;
     try {
       if (!removes) checkOneLine(key, value);
+      const mark = expectPulled === undefined ? null : findIssue(next, id).values.pulled ?? null;
+      if (expectPulled !== undefined && mark !== expectPulled) {
+        note(`${source} leaves the ${key} line of ${id} in ${plan.path} as it is, since its pulled line is ${mark === null ? 'absent' : `"${mark}"`}, not "${expectPulled}"\n`);
+        continue;
+      }
       const text = removes ? withKeyRemoved(next, id, key) : withKeySet(next, id, key, value);
       next = { path: next.path, text, blocks: validate(parseBlocks(text), next.path) };
+      applied++;
     } catch (err) {
       const what = removes ? `removes the ${key} line of ${id}` : `sets ${id} ${key}=${value}`;
       throw new Error(`${source} ${what} in ${plan.path}, which fails: ${err.message}. Fix the plan, or set its "synced:" file key to that run's timestamp to skip the run`);
     }
   }
-  return next;
+  return { plan: next, applied };
 }
 
 /** The file's bytes with its `synced:` file key upserted. */
@@ -482,7 +491,7 @@ function foldRecords(plan, records, note) {
     const iso = new Date(lost.time).toISOString();
     const older = records.filter((r) => r.time > marker && r.time < lost.time && r.edits.some((e) => fileKey(e.planPath) === key));
     const skipped = older.length ? ` after applying by hand the edits of the older run(s) ${older.map((r) => r.runId).join(', ')}, which that key also skips` : '';
-    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, then set the plan's "synced:" file key to ${iso}${skipped}`);
+    throw new Error(`run ${lost.runId} (${lost.path}, ${iso}) logged a status line the runtime cut short, and it names ${plan.path}, so its status edits cannot be applied. The record's logs hold what survived. Set those statuses by hand, applying an edit that carries "expectPulled" only to an entry whose "- pulled:" value equals it, then set the plan's "synced:" file key to ${iso}${skipped}`);
   }
   const fresh = records
     .filter((r) => r.time > marker)
@@ -492,8 +501,9 @@ function foldRecords(plan, records, note) {
 
   let next = plan;
   for (const r of fresh) {
-    next = applyEdits(next, r.edits, `run ${r.runId} (${r.path})`);
-    note(`applied ${r.edits.length} status edit(s) from run ${r.runId} (${r.status}) to ${plan.path}\n`);
+    const result = applyEdits(next, r.edits, `run ${r.runId} (${r.path})`, note);
+    next = result.plan;
+    note(`applied ${result.applied} status edit(s) from run ${r.runId} (${r.status}) to ${plan.path}\n`);
   }
   if (!fresh.length) return next;
   const text = withSyncedSet(next, new Date(fresh[fresh.length - 1].time).toISOString());

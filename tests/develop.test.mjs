@@ -4527,6 +4527,16 @@ section('a landed block syncs each pulled entry fixed, stale or needs-attention,
   const landed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }, { issue_id: PULL_B, status: 'STALE' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, true], [PULL_B, true]]) } }, PRO_ONE_BLOCK);
   eq(pulledSync(landed.out), `${PULL_A}:status=fixed,${PULL_A}:pulled=null,${PULL_B}:status=stale,${PULL_B}:pulled=null`, 'a confirmed FIXED entry syncs fixed and a confirmed STALE one stale, each in its own backlog file, and each loses its pulled line');
   eq(JSON.stringify(landed.out.ledger[0].pulled), JSON.stringify([{ issue_id: PULL_A, status: 'FIXED', confirmed: true }, { issue_id: PULL_B, status: 'STALE', confirmed: true }]), 'the ledger row names each pulled entry');
+  const pulledEdits = landed.out.statusSync.filter((e) => e.planPath === PULLED_FILE);
+  ok(pulledEdits.length === 4 && pulledEdits.every((e) => e.expectPulled === 't#block-a'), 'each pulled status edit and removal expects the block\'s own mark, so plan-edit skips an entry the block never marked');
+  ok(landed.out.statusSync.filter((e) => e.planPath !== PULLED_FILE).every((e) => e.expectPulled === undefined), 'a block or fix entry edit expects no mark');
+  const landedNext = String(landed.out.nextStep ?? '');
+  ok(landedNext.includes(`For block-a, grep ${BACKLOG}/ for the line "- pulled: t#block-a" and remove each one on an entry that is not one of ${PULL_A}, ${PULL_B}, the ids its ledger row's \`pulled\` names.`),
+    'a landed block\'s nextStep names the mark to grep for and the pulled ids its ledger row names, so an unreported mark is released');
+  const noneNext = String((await run({ ...GREEN_RUN, develop: pulledDev([]), acceptance: { ...ACC_PASS, pulled_checks: [] } }, PRO_ONE_BLOCK)).out.nextStep ?? '');
+  ok(noneNext.includes(`For block-a, grep ${BACKLOG}/ for the line "- pulled: t#block-a" and remove each one you find, since its ledger row's \`pulled\` names no entry.`), 'a block that reported no pulled entry releases every mark it left');
+  const focusedNext = String((await run({ ...GREEN_RUN }, ONE_BLOCK)).out.nextStep ?? '');
+  ok(focusedNext !== '' && !focusedNext.includes('- pulled:'), 'a focused run names no pulled mark');
 
   const mixed = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FAILED' }, { issue_id: PULL_B, status: 'FIXED' }]), acceptance: { ...ACC_PASS, pulled_checks: pulledChecks([[PULL_A, false]]) } }, PRO_ONE_BLOCK);
   eq(pulledSync(mixed.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null,${PULL_B}:status=needs-attention,${PULL_B}:pulled=null`, 'a FAILED entry and one the landing verdict never confirmed sync needs-attention');
@@ -4562,6 +4572,10 @@ section('a park that saved the block keeps its pulled entries, and every other u
 {
   const parked = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, park: PARK_OK }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
   eq(pulledSync(parked.out), '', 'a park whose commit holds the pulled work keeps each entry\'s status and pulled line');
+  ok(!String(parked.out.nextStep ?? '').includes('ended without a park'), 'a parked block\'s RELEASE step closes its unreported marks, so nextStep names no grep for it');
+  const deadPark = await run({ ...GREEN_RUN, develop: pulledDev([{ issue_id: PULL_A, status: 'FIXED' }]), acceptance: { ...ACC_FAIL, pulled_checks: pulledChecks([[PULL_A, true]]) }, park: null }, { ...PRO_ONE_BLOCK, maxRounds: 1 });
+  ok(String(deadPark.out.nextStep ?? '').includes(`These blocks ended without a park that returned, so no status edit closes the "- pulled:" line of an entry that a block's round-1 developer marked and that no report or verdict of this run names. For block-a, grep ${BACKLOG}/ for the line "- pulled: t#block-a" and remove each one on an entry that is not one of ${PULL_A}, the ids its ledger row's \`pulled\` names.`),
+    'a dead park ran no RELEASE step, so nextStep names the mark to grep for');
   const parkedPrompt = flat(parked.prompt('park:block-a'));
   ok(parkedPrompt.includes('When step 1 made a commit and the pulled list is not empty, end the **What:** with the line Pulled: <the pulled list>, whose work this entry\'s branch holds.')
     && parkedPrompt.includes(`The pulled list is ${PULL_A}, plus each id ${STATE}/PULLED-block-a.md lists, when it exists, that is not one of ${PULL_A} and whose fix`), 'the park entry names the pulled ids the engine holds on the branch, so their statuses follow it');
@@ -4615,7 +4629,7 @@ section('a commit halt on an accepted block tells the operator to fold the backl
   const hooked = { ...ACC_C, commit_subject: 'rewritten by a hook' };
   const held = await run({ ...C_RUN, develop: { ...DEV_C, pulled_results: [{ issue_id: PULL_A, status: 'FIXED' }] }, acceptance: { ...hooked, pulled_checks: pulledChecks([[PULL_A, true]]) } }, { ...COMMIT_ONE, changePolicy: 'proactive' });
   const reason = String(held.out.haltReason ?? '');
-  ok(reason.includes(`also run \`plan-edit.mjs args --backlog ${BACKLOG}\`, which applies this run's statuses to the backlog files even when it exits with \`nothing to build\`, and only then set each pulled entry ${STATE}/PULLED-${C_BLOCK.id}.md lists that ${STATE}/acceptance-review-${C_BLOCK.id}-r1.md confirmed closed to \`fixed\` or \`stale\`.`),
+  ok(reason.includes(`also run \`plan-edit.mjs args --backlog ${BACKLOG} --fold-only\`, which writes this run's statuses into the backlog files and prints nothing, and only then set each pulled entry ${STATE}/PULLED-${C_BLOCK.id}.md lists that ${STATE}/acceptance-review-${C_BLOCK.id}-r1.md confirmed closed to \`fixed\` or \`stale\`.`),
     'the fold comes before the hand edit, so a later fold never overwrites it');
   ok(!reason.includes('fix issue'), 'a feature block names no fix issue');
   eq(pulledSync(held.out), `${PULL_A}:status=needs-attention,${PULL_A}:pulled=null`, 'the run syncs the entry as not landed, which that fold applies');
